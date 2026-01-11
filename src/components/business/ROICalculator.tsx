@@ -37,19 +37,19 @@ export default function ROICalculator() {
             </span>
           </label>
           <input
-              class="mt-2 w-full rounded-xl border border-white/10 bg-zinc-950/40 px-4 py-3 text-sm text-white"
-              id={currentMonthlyCostId}
-              name="currentMonthlyCost"
-              type="number"
-              min={0}
-              value={currentMonthlyCost}
-              aria-labelledby={`${currentMonthlyCostId}-label`}
-              onInput={e =>
-                setCurrentMonthlyCost(
-                  Number((e.target as HTMLInputElement).value)
-                )
-              }
-            />
+            class="mt-2 w-full rounded-xl border border-white/10 bg-zinc-950/40 px-4 py-3 text-sm text-white"
+            id={currentMonthlyCostId}
+            name="currentMonthlyCost"
+            type="number"
+            min={0}
+            value={currentMonthlyCost}
+            aria-labelledby={`${currentMonthlyCostId}-label`}
+            onInput={e =>
+              setCurrentMonthlyCost(
+                Number((e.target as HTMLInputElement).value)
+              )
+            }
+          />
 
           <label class="block" htmlFor={estimatedSavingsPctId}>
             <span
@@ -60,20 +60,20 @@ export default function ROICalculator() {
             </span>
           </label>
           <input
-              class="mt-2 w-full rounded-xl border border-white/10 bg-zinc-950/40 px-4 py-3 text-sm text-white"
-              id={estimatedSavingsPctId}
-              name="estimatedSavingsPct"
-              type="number"
-              min={0}
-              max={80}
-              value={estimatedSavingsPct}
-              aria-labelledby={`${estimatedSavingsPctId}-label`}
-              onInput={e =>
-                setEstimatedSavingsPct(
-                  Number((e.target as HTMLInputElement).value)
-                )
-              }
-            />
+            class="mt-2 w-full rounded-xl border border-white/10 bg-zinc-950/40 px-4 py-3 text-sm text-white"
+            id={estimatedSavingsPctId}
+            name="estimatedSavingsPct"
+            type="number"
+            min={0}
+            max={80}
+            value={estimatedSavingsPct}
+            aria-labelledby={`${estimatedSavingsPctId}-label`}
+            onInput={e =>
+              setEstimatedSavingsPct(
+                Number((e.target as HTMLInputElement).value)
+              )
+            }
+          />
 
           <label class="block" htmlFor={oneTimeTransitionCostId}>
             <span
@@ -84,19 +84,19 @@ export default function ROICalculator() {
             </span>
           </label>
           <input
-              class="mt-2 w-full rounded-xl border border-white/10 bg-zinc-950/40 px-4 py-3 text-sm text-white"
-              id={oneTimeTransitionCostId}
-              name="oneTimeTransitionCost"
-              type="number"
-              min={0}
-              value={oneTimeTransitionCost}
-              aria-labelledby={`${oneTimeTransitionCostId}-label`}
-              onInput={e =>
-                setOneTimeTransitionCost(
-                  Number((e.target as HTMLInputElement).value)
-                )
-              }
-            />
+            class="mt-2 w-full rounded-xl border border-white/10 bg-zinc-950/40 px-4 py-3 text-sm text-white"
+            id={oneTimeTransitionCostId}
+            name="oneTimeTransitionCost"
+            type="number"
+            min={0}
+            value={oneTimeTransitionCost}
+            aria-labelledby={`${oneTimeTransitionCostId}-label`}
+            onInput={e =>
+              setOneTimeTransitionCost(
+                Number((e.target as HTMLInputElement).value)
+              )
+            }
+          />
         </div>
 
         <div class="rounded-2xl border border-white/10 bg-zinc-950/50 p-6">

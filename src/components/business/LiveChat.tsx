@@ -42,7 +42,8 @@ export default function LiveChat() {
             <div>
               <p class="text-sm font-semibold text-white">Live chat</p>
               <p class="text-xs text-zinc-400">
-                Status: {status === 'online' ? 'Online' : 'Offline — leave a message'}
+                Status:{' '}
+                {status === 'online' ? 'Online' : 'Offline — leave a message'}
               </p>
             </div>
             <button
@@ -129,8 +130,8 @@ export default function LiveChat() {
             </button>
 
             <p class="text-[0.7rem] text-zinc-500">
-              This template stores messages locally. Connect it to your CRM/email
-              in production.
+              This template stores messages locally. Connect it to your
+              CRM/email in production.
             </p>
           </form>
         </div>

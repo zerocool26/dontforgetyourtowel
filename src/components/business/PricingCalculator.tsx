@@ -53,22 +53,22 @@ export default function PricingCalculator() {
             </span>
           </label>
           <input
-              class="mt-3 w-full"
-              id={usersId}
-              name="users"
-              type="range"
-              min={10}
-              max={500}
-              value={users}
-              aria-labelledby={`${usersId}-label`}
-              onInput={e =>
-                setUsers(Number((e.target as HTMLInputElement).value))
-              }
-            />
-            <div class="mt-1 flex justify-between text-xs text-zinc-500">
-              <span>10</span>
-              <span>500</span>
-            </div>
+            class="mt-3 w-full"
+            id={usersId}
+            name="users"
+            type="range"
+            min={10}
+            max={500}
+            value={users}
+            aria-labelledby={`${usersId}-label`}
+            onInput={e =>
+              setUsers(Number((e.target as HTMLInputElement).value))
+            }
+          />
+          <div class="mt-1 flex justify-between text-xs text-zinc-500">
+            <span>10</span>
+            <span>500</span>
+          </div>
 
           <div>
             <p class="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-400">
