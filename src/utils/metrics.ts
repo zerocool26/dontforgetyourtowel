@@ -946,7 +946,7 @@ export async function timeAsync<T>(
 export function labeledCounter(
   name: string,
   help: string,
-  labelNames: string[]
+  _labelNames: string[]
 ) {
   const counter = createCounter(name, help);
   return {
@@ -959,7 +959,11 @@ export function labeledCounter(
   };
 }
 
-export function labeledGauge(name: string, help: string, labelNames: string[]) {
+export function labeledGauge(
+  name: string,
+  help: string,
+  _labelNames: string[]
+) {
   const gauge = createGauge(name, help);
   return {
     labels: (labels: Labels) => ({
@@ -976,7 +980,7 @@ export function labeledGauge(name: string, help: string, labelNames: string[]) {
 export function labeledHistogram(
   name: string,
   help: string,
-  labelNames: string[],
+  _labelNames: string[],
   options?: Partial<HistogramOptions>
 ) {
   const histogram = createHistogram(name, help, options);

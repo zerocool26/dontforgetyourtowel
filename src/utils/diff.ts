@@ -454,10 +454,6 @@ export function diffArrays<T>(
 ): ArrayDiffEntry<T>[] {
   const compare = compareFn || ((a, b) => a === b);
 
-  // Convert to string for LCS algorithm
-  const oldStrs = oldArr.map((_, i) => `${i}`);
-  const newStrs = newArr.map((_, i) => `${i}`);
-
   // Build mapping of matching elements
   const matchMatrix: boolean[][] = [];
   for (let i = 0; i < oldArr.length; i++) {
@@ -485,7 +481,6 @@ export function diffArrays<T>(
   }
 
   // Backtrack to find diff
-  const result: ArrayDiffEntry<T>[] = [];
   let i = m;
   let j = n;
 
@@ -546,15 +541,9 @@ export interface PatchOp {
  */
 export function applyTextPatch(original: string, diff: DiffResult): string {
   let result = '';
-  let originalIndex = 0;
 
   for (const op of diff.operations) {
-    if (op.op === 'equal') {
-      result += op.value;
-      originalIndex += op.count;
-    } else if (op.op === 'delete') {
-      originalIndex += op.count;
-    } else if (op.op === 'insert') {
+    if (op.op === 'equal' || op.op === 'insert') {
       result += op.value;
     }
   }

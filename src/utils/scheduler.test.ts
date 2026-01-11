@@ -457,7 +457,6 @@ describe('scheduler utilities', () => {
 
   describe('sleep', () => {
     it('should resolve after delay', async () => {
-      const start = Date.now();
       const promise = sleep(100);
 
       vi.advanceTimersByTime(100);

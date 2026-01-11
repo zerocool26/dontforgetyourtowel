@@ -430,7 +430,7 @@ export function interpolateFormatted(
   // Pattern: {key} or {key, format} or {key, format, options}
   return message.replace(
     /\{(\w+)(?:,\s*(\w+)(?:,\s*([^}]+))?)?\}/g,
-    (_, key, format, options) => {
+    (_, key, format, _options) => {
       const value = values[key];
       if (value === undefined) return `{${key}}`;
 

@@ -59,7 +59,7 @@ export class Some<T> {
   match<U>(onSome: (value: T) => U, onNone: () => U): U;
   match<U>(
     arg1: ((value: T) => U) | { some: (value: T) => U; none: () => U },
-    arg2?: () => U
+    _arg2?: () => U
   ): U {
     if (typeof arg1 === 'object') {
       return arg1.some(this.value);

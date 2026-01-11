@@ -71,12 +71,9 @@ export {
   generateFingerprint,
 } from './crypto';
 
-/* ==================== HTTP CLIENT UTILITIES ==================== */
+/* ==================== HTTP UTILITIES ==================== */
 
 export {
-  HttpError,
-  TimeoutError,
-  buildUrl as buildHttpUrl,
   request,
   get,
   post,
@@ -505,16 +502,6 @@ export {
   fadeIn,
   fadeOut,
   printElement,
-} from './dom';
-import {
-  isBrowser,
-  $,
-  $$,
-  on,
-  ready,
-  scrollToTop,
-  copyToClipboard,
-  observeIntersection,
 } from './dom';
 
 /* ==================== COMPRESSION UTILITIES ==================== */

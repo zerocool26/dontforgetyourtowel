@@ -41,19 +41,12 @@ import {
 
   // Logic
   not,
-  and,
-  or,
   both,
   either,
   allPass,
   anyPass,
 
   // Collections
-  head,
-  tail,
-  partition,
-  zip,
-  unzip,
   forEach,
   map,
   filter,

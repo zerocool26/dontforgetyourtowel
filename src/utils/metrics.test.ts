@@ -2,7 +2,7 @@
  * Metrics/Observability Utilities Tests
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import {
   // Counter
   Counter,
@@ -13,11 +13,9 @@ import {
   createGauge,
 
   // Histogram
-  Histogram,
   createHistogram,
 
   // Summary
-  Summary,
   createSummary,
 
   // Registry

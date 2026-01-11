@@ -95,7 +95,6 @@ export function parseCSV<T = Record<string, string>>(
   let currentField = '';
   let inQuotes = false;
   let rowIndex = 0;
-  let columnIndex = 0;
 
   // Parse character by character
   for (let i = 0; i < input.length; i++) {
@@ -123,7 +122,6 @@ export function parseCSV<T = Record<string, string>>(
         // End of field
         currentRow.push(trim ? currentField.trim() : currentField);
         currentField = '';
-        columnIndex++;
       } else if (char === '\r' && nextChar === '\n') {
         // CRLF line ending
         finishRow();
@@ -145,7 +143,6 @@ export function parseCSV<T = Record<string, string>>(
   function finishRow(): void {
     currentRow.push(trim ? currentField.trim() : currentField);
     currentField = '';
-    columnIndex = 0;
 
     // Skip comment lines
     if (comment && currentRow[0]?.startsWith(comment)) {
