@@ -28,7 +28,15 @@
               {Array.from({ length: columnHeight }).map(() => {
                 const char =
                   characters[Math.floor(Math.random() * characters.length)];
-                return <div class="matrix-char">{char}</div>;
+                const charDelay = Math.random().toFixed(3);
+                return (
+                  <div
+                    class="matrix-char"
+                    style={`--char-delay: ${charDelay}s;`}
+                  >
+                    {char}
+                  </div>
+                );
               })}
             </div>
           );
@@ -181,7 +189,7 @@
       0 0 20px rgba(34, 197, 94, 0.8),
       0 0 30px rgba(34, 197, 94, 0.6);
     animation: charFlicker 0.5s ease-in-out infinite;
-    animation-delay: calc(var(--column-delay) + random() * 1s);
+    animation-delay: calc(var(--column-delay) + var(--char-delay, 0s));
     opacity: 0.8;
   }
 
@@ -291,8 +299,23 @@
       '(prefers-reduced-motion: reduce)'
     );
 
+    const getDemoModuleRoot = (target: Element) =>
+      (target.closest('[data-demo-module]') ||
+        target.closest('.demo-module')) as HTMLElement | null;
+
+    const isDemoPaused = (moduleRoot: HTMLElement | null) => {
+      const html = document.documentElement;
+      const htmlPaused = html.dataset.demoPaused === 'true';
+      const htmlReduced = html.dataset.demoReducedMotion === 'true';
+      const modPaused = moduleRoot?.dataset.demoPaused === 'true';
+      const modReduced = moduleRoot?.dataset.demoReducedMotion === 'true';
+      return htmlPaused || htmlReduced || modPaused || modReduced;
+    };
+
     function startMatrixFlicker(target: Element) {
+      const moduleRoot = getDemoModuleRoot(target);
       let intervalId: number | null = null;
+      let isVisible = true;
 
       const tick = () => {
         const chars = target.querySelectorAll<HTMLElement>('.matrix-char');
@@ -305,6 +328,8 @@
       };
 
       const start = () => {
+        if (isDemoPaused(moduleRoot)) return;
+        if (!isVisible) return;
         if (intervalId !== null) return;
         intervalId = window.setInterval(tick, 80);
       };
@@ -316,22 +341,71 @@
         }
       };
 
+      const sync = () => {
+        if (
+          prefersReducedMotion.matches ||
+          isDemoPaused(moduleRoot) ||
+          !isVisible
+        ) {
+          stop();
+        } else {
+          start();
+        }
+      };
+
       if (!prefersReducedMotion.matches) {
         const observer = new IntersectionObserver(
           entries => {
             entries.forEach(entry => {
-              if (entry.isIntersecting && !prefersReducedMotion.matches) {
-                start();
-              } else {
-                stop();
-              }
+              isVisible = Boolean(entry.isIntersecting);
+              sync();
             });
           },
           { rootMargin: '200px' }
         );
         observer.observe(target);
+
+        // React to Demo Lab toggles/offscreen pauser.
+        const mutationObserver = new MutationObserver(sync);
+        mutationObserver.observe(document.documentElement, {
+          attributes: true,
+          attributeFilter: ['data-demo-paused', 'data-demo-reduced-motion'],
+        });
+        if (moduleRoot) {
+          mutationObserver.observe(moduleRoot, {
+            attributes: true,
+            attributeFilter: ['data-demo-paused', 'data-demo-reduced-motion'],
+          });
+        }
+
+        const onRMChange = () => sync();
+        if ('addEventListener' in prefersReducedMotion) {
+          prefersReducedMotion.addEventListener('change', onRMChange);
+        } else {
+          // @ts-expect-error older Safari
+          prefersReducedMotion.addListener(onRMChange);
+        }
+
+        // Ensure we stop everything when the page unloads.
+        const cleanupAll = () => {
+          mutationObserver.disconnect();
+          observer.disconnect();
+          stop();
+          if ('removeEventListener' in prefersReducedMotion) {
+            prefersReducedMotion.removeEventListener('change', onRMChange);
+          } else {
+            // @ts-expect-error older Safari
+            prefersReducedMotion.removeListener(onRMChange);
+          }
+        };
+
+        // Start only if visible + not paused.
+        sync();
+
+        return cleanupAll;
       }
 
+      // Reduced motion: always off.
       return stop;
     }
 
@@ -342,8 +416,12 @@
       cleanup = startMatrixFlicker(matrixWrapper);
     }
 
-    window.addEventListener('beforeunload', () => {
-      if (cleanup) cleanup();
-    });
+    window.addEventListener(
+      'beforeunload',
+      () => {
+        if (cleanup) cleanup();
+      },
+      { once: true }
+    );
   }
 </script>

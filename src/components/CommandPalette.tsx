@@ -1,4 +1,10 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from 'preact/hooks';
+import {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+} from 'preact/hooks';
 import { navigate } from 'astro:transitions/client';
 import {
   Search,
@@ -19,6 +25,7 @@ import { setTheme } from '../store/index';
 import { onKeyboardShortcut, type KeyboardShortcut } from '../utils/events';
 import { createFocusTrap, announce } from '../utils/a11y';
 import { get as httpGet } from '../utils/http';
+import { withBasePath } from '../utils/helpers';
 
 type CommandCategory =
   | 'Navigation'
@@ -71,29 +78,44 @@ const BASE_COMMANDS: CommandItem[] = [
     id: 'nav-home',
     label: 'Go to Home',
     icon: Home,
-    action: () => navigate('/'),
+    action: () => navigate(withBasePath('/')),
     category: 'Navigation',
   },
   {
-    id: 'nav-blog',
-    label: 'Go to Blog',
-    icon: FileText,
-    action: () => navigate('/blog'),
-    category: 'Navigation',
-  },
-  {
-    id: 'nav-showcase',
-    label: 'Go to Showcase',
+    id: 'nav-services',
+    label: 'Go to Services',
     icon: Box,
-    action: () => navigate('/showcase'),
+    action: () => navigate(withBasePath('services/')),
     category: 'Navigation',
   },
   {
-    id: 'nav-components',
-    label: 'Go to Components',
-    icon: Layout,
-    action: () => navigate('/components'),
+    id: 'nav-pricing',
+    label: 'Go to Pricing',
+    icon: FileText,
+    action: () => navigate(withBasePath('pricing/')),
     category: 'Navigation',
+  },
+  {
+    id: 'nav-about',
+    label: 'Go to About',
+    icon: User,
+    action: () => navigate(withBasePath('about/')),
+    category: 'Navigation',
+  },
+  {
+    id: 'nav-contact',
+    label: 'Go to Contact',
+    icon: Layout,
+    action: () => navigate(withBasePath('contact/')),
+    category: 'Navigation',
+  },
+  {
+    id: 'nav-demo-lab',
+    label: 'Open Demo Lab',
+    icon: Layout,
+    action: () => navigate(withBasePath('demo-lab/')),
+    category: 'Navigation',
+    keywords: ['demo', 'lab', 'animations', 'motion'],
   },
   // Theme
   {
@@ -145,7 +167,9 @@ export default function CommandPalette() {
   // Fetch search index using our http utility
   const fetchSearchIndex = useCallback(async () => {
     try {
-      const response = await httpGet<SearchIndexItem[]>('/search-index.json');
+      const response = await httpGet<SearchIndexItem[]>(
+        withBasePath('search-index.json')
+      );
       const items = response.data.map((item: SearchIndexItem) => {
         let icon = FileText;
         if (item.category === 'Authors') icon = User;
@@ -155,7 +179,7 @@ export default function CommandPalette() {
           id: item.id,
           label: item.title,
           icon,
-          action: () => navigate(item.url),
+          action: () => navigate(withBasePath(item.url)),
           category: item.category as CommandItem['category'],
           keywords: item.tags,
           description: item.description,
@@ -215,7 +239,6 @@ export default function CommandPalette() {
     const lookup = commandLookupRef.current;
     lookup.clear();
     allCommands.forEach(cmd => lookup.set(cmd.id, cmd));
-
   }, [allCommands, searchableCommands]);
 
   // Sync worker index whenever commands change
@@ -270,7 +293,10 @@ export default function CommandPalette() {
         workerRef.current = null;
       };
     } catch (err) {
-      console.warn('Command palette worker unavailable, falling back to main thread', err);
+      console.warn(
+        'Command palette worker unavailable, falling back to main thread',
+        err
+      );
     }
   }, []);
 
@@ -416,8 +442,7 @@ export default function CommandPalette() {
         });
       } else if (e.key === 'Enter') {
         e.preventDefault();
-        const command =
-          filteredCommandsRef.current[selectedIndexRef.current];
+        const command = filteredCommandsRef.current[selectedIndexRef.current];
         if (command) {
           command.action();
           setIsOpen(false);

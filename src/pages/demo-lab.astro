@@ -1,0 +1,354 @@
+---
+import MarketingLayout from '../layouts/MarketingLayout.astro';
+import ModernCard from '../components/ui/ModernCard.astro';
+import ModernButton from '../components/ui/ModernButton.astro';
+
+import Advanced3DShowcase from '../components/ui/Advanced3DShowcase.astro';
+import ParticleVortex from '../components/ui/ParticleVortex.astro';
+import InfinityTunnel from '../components/ui/InfinityTunnel.astro';
+import MatrixRain from '../components/ui/MatrixRain.astro';
+import DemoBentoMorphGrid from '../components/ui/DemoBentoMorphGrid.astro';
+
+import { withBasePath } from '../utils/helpers';
+
+const toc = [
+  { id: 'safety', label: 'Safety Console' },
+  { id: 'act-1', label: 'Act 1 — Advanced 3D' },
+  { id: 'act-2', label: 'Act 2 — Particle System' },
+  { id: 'act-3', label: 'Act 3 — Infinity Tunnel' },
+  { id: 'act-4', label: 'Act 4 — Matrix / Typography' },
+  { id: 'act-5', label: 'Act 5 — Bento Morph Grid' },
+  { id: 'act-6', label: 'Act 6 — Integration Proof' },
+];
+
+const pageTitle = 'Demo Lab';
+const pageDescription =
+  'Max animations, static-safe engineering. Everything wild is isolated here; the core site stays calm and fast.';
+---
+
+<MarketingLayout title={pageTitle} description={pageDescription}>
+  <div class="mx-auto w-full max-w-[1200px] px-5 pt-16 sm:px-6 lg:px-8">
+    <header class="space-y-6">
+      <div
+        class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 font-mono text-xs uppercase tracking-widest text-zinc-200"
+      >
+        <span class="h-2 w-2 rounded-full bg-accent-500" aria-hidden="true"
+        ></span>
+        Demo Lab
+      </div>
+      <h1
+        class="font-display text-4xl font-bold tracking-tight text-white sm:text-5xl"
+      >
+        {pageTitle}
+      </h1>
+      <p
+        class="max-w-[70ch] text-base leading-relaxed text-zinc-300 sm:text-lg"
+      >
+        {pageDescription}
+      </p>
+
+      <nav
+        aria-label="Demo Lab table of contents"
+        class="rounded-2xl border border-white/10 bg-zinc-950/50 p-5"
+      >
+        <p class="font-mono text-xs uppercase tracking-widest text-zinc-400">
+          Acts
+        </p>
+        <ol class="mt-4 grid gap-2 sm:grid-cols-2">
+          {
+            toc.map(item => (
+              <li>
+                <a
+                  class="block rounded-lg border border-white/5 bg-white/0 px-4 py-3 text-sm font-semibold text-zinc-200 transition hover:border-white/10 hover:bg-white/5"
+                  href={`#${item.id}`}
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
+        </ol>
+      </nav>
+    </header>
+
+    <section id="safety" class="scroll-mt-24 pt-14">
+      <ModernCard className="p-6" variant="glass">
+        <div
+          class="flex flex-col gap-5 md:flex-row md:items-start md:justify-between"
+        >
+          <div class="space-y-2">
+            <h2 class="font-display text-2xl font-semibold text-white">
+              Safety Console
+            </h2>
+            <p class="max-w-[70ch] text-sm leading-relaxed text-zinc-300">
+              This page can get intense. These toggles are progressive
+              enhancement: the page works without JavaScript, but with JS
+              enabled we can pause modules, simulate reduced motion, and enable
+              a lighter performance mode.
+            </p>
+          </div>
+
+          <div class="grid w-full gap-2 sm:grid-cols-3 md:w-auto">
+            <button
+              type="button"
+              class="demo-toggle inline-flex h-11 items-center justify-center rounded-lg border border-white/10 bg-white/5 px-4 text-sm font-semibold text-white transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-accent-400"
+              data-demo-toggle="paused"
+              aria-pressed="false"
+            >
+              Pause
+            </button>
+            <button
+              type="button"
+              class="demo-toggle inline-flex h-11 items-center justify-center rounded-lg border border-white/10 bg-white/5 px-4 text-sm font-semibold text-white transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-accent-400"
+              data-demo-toggle="reduced"
+              aria-pressed="false"
+            >
+              Reduced motion
+            </button>
+            <button
+              type="button"
+              class="demo-toggle inline-flex h-11 items-center justify-center rounded-lg border border-white/10 bg-white/5 px-4 text-sm font-semibold text-white transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-accent-400"
+              data-demo-toggle="perf"
+              aria-pressed="false"
+            >
+              Perf mode
+            </button>
+          </div>
+        </div>
+
+        <noscript>
+          <p
+            class="mt-5 rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-zinc-200"
+          >
+            JavaScript is disabled, so the Safety Console toggles are inactive.
+            That’s okay—this page is still readable and navigable.
+          </p>
+        </noscript>
+
+        <details
+          class="mt-5 rounded-xl border border-white/10 bg-zinc-950/40 p-4"
+        >
+          <summary
+            class="cursor-pointer font-mono text-xs uppercase tracking-widest text-zinc-300"
+          >
+            Engineering notes
+          </summary>
+          <div class="mt-3 space-y-3 text-sm leading-relaxed text-zinc-300">
+            <p>
+              We store preferences in <code
+                class="rounded bg-black/40 px-1 py-0.5">localStorage</code
+              > and apply state via <code
+                class="rounded bg-black/40 px-1 py-0.5">data-demo-*</code
+              > attributes on <code class="rounded bg-black/40 px-1 py-0.5"
+                >document.documentElement</code
+              >.
+            </p>
+            <p>
+              Modules can opt into pausing by checking these attributes and
+              pausing CSS animations (or reducing expensive effects).
+            </p>
+          </div>
+        </details>
+      </ModernCard>
+    </section>
+
+    <section id="act-1" class="scroll-mt-24 pt-14">
+      <h2 class="font-display text-2xl font-semibold text-white">
+        Act 1 — Advanced 3D
+      </h2>
+      <p class="mt-2 max-w-[75ch] text-sm text-zinc-300">
+        Curated 3D UI experiments go here. We’ll reuse existing 3D components in
+        a follow-up PR.
+      </p>
+      <div
+        class="demo-module demo-module--3d mt-6 overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/30"
+        data-demo-module="advanced-3d"
+      >
+        <Advanced3DShowcase />
+      </div>
+    </section>
+
+    <section id="act-2" class="scroll-mt-24 pt-14">
+      <h2 class="font-display text-2xl font-semibold text-white">
+        Act 2 — Particle System
+      </h2>
+      <p class="mt-2 max-w-[75ch] text-sm text-zinc-300">
+        A high-density particle module with touch-safe controls.
+      </p>
+      <div
+        class="demo-module demo-module--vortex mt-6 overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/30"
+        data-demo-module="particle-vortex"
+      >
+        <ParticleVortex />
+      </div>
+    </section>
+
+    <section id="act-3" class="scroll-mt-24 pt-14">
+      <h2 class="font-display text-2xl font-semibold text-white">
+        Act 3 — Infinity Tunnel
+      </h2>
+      <p class="mt-2 max-w-[75ch] text-sm text-zinc-300">
+        Deep motion + depth illusion. This must respect reduced motion.
+      </p>
+      <div
+        class="demo-module demo-module--tunnel mt-6 overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/30"
+        data-demo-module="infinity-tunnel"
+      >
+        <InfinityTunnel />
+      </div>
+    </section>
+
+    <section id="act-4" class="scroll-mt-24 pt-14">
+      <h2 class="font-display text-2xl font-semibold text-white">
+        Act 4 — Matrix / Typography
+      </h2>
+      <p class="mt-2 max-w-[75ch] text-sm text-zinc-300">
+        Digital rain, typography motion, and neon glow — but standards-correct
+        CSS.
+      </p>
+      <div
+        class="demo-module demo-module--matrix mt-6 overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/30"
+        data-demo-module="matrix-rain"
+      >
+        <MatrixRain />
+      </div>
+    </section>
+
+    <section id="act-5" class="scroll-mt-24 pt-14">
+      <h2 class="font-display text-2xl font-semibold text-white">
+        Act 5 — Bento Morph Grid
+      </h2>
+      <p class="mt-2 max-w-[75ch] text-sm text-zinc-300">
+        A responsive bento layout using existing primitives (ModernCard) with
+        smooth transitions and reduced-motion fallback.
+      </p>
+      <div
+        class="demo-module demo-module--bento mt-6 overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/30"
+        data-demo-module="bento-morph"
+      >
+        <DemoBentoMorphGrid />
+      </div>
+    </section>
+
+    <section id="act-6" class="scroll-mt-24 pb-20 pt-14">
+      <h2 class="font-display text-2xl font-semibold text-white">
+        Act 6 — Integration Proof
+      </h2>
+      <p class="mt-2 max-w-[75ch] text-sm text-zinc-300">
+        Demonstrate base-path correctness and internal navigation behavior.
+      </p>
+
+      <ModernCard className="mt-6 p-6" variant="glass">
+        <h3 class="font-mono text-xs uppercase tracking-widest text-zinc-300">
+          Base path
+        </h3>
+        <p class="mt-2 text-sm text-zinc-200">
+          Demo Lab URL: <code class="rounded bg-black/40 px-1 py-0.5"
+            >{withBasePath('demo-lab/')}</code
+          >
+        </p>
+        <p class="mt-2 text-sm text-zinc-200">
+          Pricing URL: <code class="rounded bg-black/40 px-1 py-0.5"
+            >{withBasePath('pricing/')}</code
+          >
+        </p>
+        <div class="mt-5 flex flex-wrap gap-3">
+          <ModernButton
+            href={withBasePath('/')}
+            variant="secondary"
+            rounded="sm"
+          >
+            Return home
+          </ModernButton>
+          <ModernButton
+            href={withBasePath('pricing/')}
+            variant="primary"
+            rounded="sm"
+          >
+            View pricing
+          </ModernButton>
+        </div>
+      </ModernCard>
+    </section>
+  </div>
+</MarketingLayout>
+
+<style>
+  /*
+    Demo Lab module controls
+    - data-demo-paused: pause CSS animations/JS-driven interactions
+    - html[data-demo-reduced-motion=true]: hard-disable animations/transitions inside modules
+    - html[data-demo-perf=true]: reduce expensive visuals (best-effort)
+  */
+
+  .demo-module {
+    content-visibility: auto;
+    contain: layout paint style;
+    contain-intrinsic-size: 900px;
+  }
+
+  .demo-module[data-demo-paused='true'] * {
+    animation-play-state: paused !important;
+  }
+
+  html[data-demo-reduced-motion='true'] .demo-module *,
+  .demo-module[data-demo-reduced-motion='true'] * {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  /* Perf mode: reduce glow/blur + shrink particle load (best-effort, demo-only) */
+  html[data-demo-perf='true']
+    .demo-module--vortex
+    .vortex-particle:nth-child(n + 61),
+  .demo-module[data-demo-perf='true'].demo-module--vortex
+    .vortex-particle:nth-child(n + 61) {
+    display: none;
+  }
+
+  html[data-demo-perf='true'] .demo-module--vortex .particle-glow,
+  html[data-demo-perf='true'] .demo-module--vortex .particle-trail,
+  html[data-demo-perf='true'] .demo-module--vortex .energy-field,
+  html[data-demo-perf='true'] .demo-module--vortex .vortex-wrapper::before,
+  .demo-module[data-demo-perf='true'].demo-module--vortex .particle-glow,
+  .demo-module[data-demo-perf='true'].demo-module--vortex .particle-trail,
+  .demo-module[data-demo-perf='true'].demo-module--vortex .energy-field,
+  .demo-module[data-demo-perf='true'].demo-module--vortex
+    .vortex-wrapper::before {
+    animation: none !important;
+    display: none !important;
+  }
+
+  html[data-demo-perf='true'] .demo-module--tunnel .ring-glow,
+  html[data-demo-perf='true'] .demo-module--tunnel .energy-beam,
+  html[data-demo-perf='true'] .demo-module--tunnel .tunnel-vortex,
+  .demo-module[data-demo-perf='true'].demo-module--tunnel .ring-glow,
+  .demo-module[data-demo-perf='true'].demo-module--tunnel .energy-beam,
+  .demo-module[data-demo-perf='true'].demo-module--tunnel .tunnel-vortex {
+    animation: none !important;
+    filter: none !important;
+    opacity: 0.5 !important;
+  }
+  html[data-demo-perf='true'] .demo-module--tunnel .tunnel,
+  .demo-module[data-demo-perf='true'].demo-module--tunnel .tunnel {
+    animation-duration: 40s !important;
+  }
+
+  html[data-demo-perf='true'] .demo-module--matrix .matrix-wrapper::before,
+  html[data-demo-perf='true'] .demo-module--matrix .matrix-core,
+  .demo-module[data-demo-perf='true'].demo-module--matrix
+    .matrix-wrapper::before,
+  .demo-module[data-demo-perf='true'].demo-module--matrix .matrix-core {
+    animation: none !important;
+    filter: none !important;
+  }
+
+  html[data-demo-perf='true'] .demo-module--3d .carousel,
+  .demo-module[data-demo-perf='true'].demo-module--3d .carousel {
+    animation-duration: 30s !important;
+  }
+</style>
+
+<script>
+  import '../scripts/demo-lab';
+</script>

@@ -1,0 +1,509 @@
+---
+/**
+ * Demo Bento Morph Grid
+ * - Progressive enhancement: works as a static bento grid without JS.
+ * - With JS: FLIP-based layout morphing between modes.
+ * - Respects prefers-reduced-motion and Demo Lab pause/reduced toggles.
+ */
+import ModernCard from './ModernCard.astro';
+---
+
+<div class="bento-lab" data-bento-root data-bento-mode="balanced">
+  <div class="bento-header">
+    <h3 class="bento-title">Bento Morph Grid</h3>
+    <p class="bento-subtitle">
+      Responsive bento layout with FLIP morphing, reduced-motion safety, and
+      Demo Lab pause support.
+    </p>
+
+    <div
+      class="bento-controls"
+      role="group"
+      aria-label="Bento morph grid layout modes"
+    >
+      <button
+        type="button"
+        class="bento-btn"
+        data-bento-mode-btn="balanced"
+        aria-pressed="true"
+      >
+        Balanced
+      </button>
+      <button
+        type="button"
+        class="bento-btn"
+        data-bento-mode-btn="focus"
+        aria-pressed="false"
+      >
+        Focus
+      </button>
+      <button
+        type="button"
+        class="bento-btn"
+        data-bento-mode-btn="dense"
+        aria-pressed="false"
+      >
+        Dense
+      </button>
+      <button
+        type="button"
+        class="bento-btn"
+        data-bento-mode-btn="shuffle"
+        aria-pressed="false"
+      >
+        Shuffle
+      </button>
+    </div>
+  </div>
+
+  <div class="bento-grid" data-bento-grid>
+    <ModernCard
+      variant="glass"
+      className="bento-item bento-item--a"
+      data-bento-item
+      data-bento-key="a"
+    >
+      <div class="bento-kicker">Motion</div>
+      <div class="bento-heading">FLIP Morph</div>
+      <p class="bento-copy">
+        We measure before/after positions, invert transforms, then animate to
+        the new grid.
+      </p>
+    </ModernCard>
+
+    <ModernCard
+      variant="glass"
+      className="bento-item bento-item--b"
+      data-bento-item
+      data-bento-key="b"
+    >
+      <div class="bento-kicker">A11y</div>
+      <div class="bento-heading">Reduced Motion</div>
+      <p class="bento-copy">
+        If <code>prefers-reduced-motion</code> or Demo Lab “Reduced motion” is on,
+        we snap layouts instantly.
+      </p>
+    </ModernCard>
+
+    <ModernCard
+      variant="glass"
+      className="bento-item bento-item--c"
+      data-bento-item
+      data-bento-key="c"
+    >
+      <div class="bento-kicker">Perf</div>
+      <div class="bento-heading">content-visibility</div>
+      <p class="bento-copy">
+        Heavy sections can opt into offscreen skipping. Bento stays responsive
+        even on mobile.
+      </p>
+    </ModernCard>
+
+    <ModernCard
+      variant="glass"
+      className="bento-item bento-item--d"
+      data-bento-item
+      data-bento-key="d"
+    >
+      <div class="bento-kicker">Tokens</div>
+      <div class="bento-heading">Design System</div>
+      <p class="bento-copy">
+        Uses existing primitives (<code>ModernCard</code>) and existing visual
+        tokens.
+      </p>
+    </ModernCard>
+
+    <ModernCard
+      variant="glass"
+      className="bento-item bento-item--e"
+      data-bento-item
+      data-bento-key="e"
+    >
+      <div class="bento-kicker">Safety</div>
+      <div class="bento-heading">Pause-aware</div>
+      <p class="bento-copy">
+        Demo Lab pause/offscreen pauser disables morph animations and stops any
+        in-flight transitions.
+      </p>
+    </ModernCard>
+
+    <ModernCard
+      variant="glass"
+      className="bento-item bento-item--f"
+      data-bento-item
+      data-bento-key="f"
+    >
+      <div class="bento-kicker">Static</div>
+      <div class="bento-heading">No SSR required</div>
+      <p class="bento-copy">
+        Everything here is static-first and GitHub Pages safe.
+      </p>
+    </ModernCard>
+  </div>
+
+  <noscript>
+    <p class="bento-noscript">
+      JavaScript is disabled. The bento grid is still fully readable; it just
+      won’t morph between layouts.
+    </p>
+  </noscript>
+</div>
+
+<style>
+  .bento-lab {
+    padding: 2rem;
+  }
+
+  .bento-header {
+    max-width: 70ch;
+    margin: 0 auto 1.5rem;
+    text-align: center;
+  }
+
+  .bento-title {
+    font-family: var(--font-display, ui-sans-serif);
+    font-size: clamp(1.5rem, 2vw + 1rem, 2rem);
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.02em;
+  }
+
+  .bento-subtitle {
+    margin-top: 0.5rem;
+    color: rgba(203, 213, 225, 0.9);
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .bento-controls {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+  }
+
+  .bento-btn {
+    height: 2.5rem;
+    padding: 0 0.9rem;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.92);
+    font-weight: 700;
+    font-size: 0.9rem;
+    transition:
+      background 200ms ease,
+      border-color 200ms ease,
+      transform 200ms ease;
+  }
+
+  .bento-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+  }
+
+  .bento-btn[aria-pressed='true'] {
+    border-color: rgba(34, 211, 238, 0.5);
+    background: rgba(34, 211, 238, 0.12);
+  }
+
+  .bento-grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 1rem;
+    margin: 0 auto;
+    max-width: 1100px;
+  }
+
+  /* Base bento items */
+  :global(.bento-item) {
+    min-height: 160px;
+  }
+
+  /* Default (balanced) layout */
+  .bento-item--a {
+    grid-column: span 12;
+  }
+  .bento-item--b,
+  .bento-item--c {
+    grid-column: span 12;
+  }
+  .bento-item--d,
+  .bento-item--e,
+  .bento-item--f {
+    grid-column: span 12;
+  }
+
+  @media (min-width: 768px) {
+    .bento-item--a {
+      grid-column: span 7;
+      grid-row: span 2;
+    }
+    .bento-item--b {
+      grid-column: span 5;
+    }
+    .bento-item--c {
+      grid-column: span 5;
+    }
+    .bento-item--d {
+      grid-column: span 4;
+    }
+    .bento-item--e {
+      grid-column: span 4;
+    }
+    .bento-item--f {
+      grid-column: span 4;
+    }
+  }
+
+  /* Focus mode: hero + supporting items */
+  [data-bento-mode='focus'] .bento-item--a {
+    grid-column: span 12;
+    grid-row: span 2;
+  }
+  @media (min-width: 768px) {
+    [data-bento-mode='focus'] .bento-item--a {
+      grid-column: span 8;
+      grid-row: span 3;
+    }
+    [data-bento-mode='focus'] .bento-item--b {
+      grid-column: span 4;
+      grid-row: span 2;
+    }
+    [data-bento-mode='focus'] .bento-item--c {
+      grid-column: span 4;
+    }
+  }
+
+  /* Dense mode: all small, lots of cards visible */
+  [data-bento-mode='dense'] .bento-item--a,
+  [data-bento-mode='dense'] .bento-item--b,
+  [data-bento-mode='dense'] .bento-item--c,
+  [data-bento-mode='dense'] .bento-item--d,
+  [data-bento-mode='dense'] .bento-item--e,
+  [data-bento-mode='dense'] .bento-item--f {
+    grid-column: span 12;
+  }
+  @media (min-width: 640px) {
+    [data-bento-mode='dense'] .bento-item--a,
+    [data-bento-mode='dense'] .bento-item--b,
+    [data-bento-mode='dense'] .bento-item--c,
+    [data-bento-mode='dense'] .bento-item--d,
+    [data-bento-mode='dense'] .bento-item--e,
+    [data-bento-mode='dense'] .bento-item--f {
+      grid-column: span 6;
+    }
+  }
+  @media (min-width: 1024px) {
+    [data-bento-mode='dense'] .bento-item--a,
+    [data-bento-mode='dense'] .bento-item--b,
+    [data-bento-mode='dense'] .bento-item--c,
+    [data-bento-mode='dense'] .bento-item--d,
+    [data-bento-mode='dense'] .bento-item--e,
+    [data-bento-mode='dense'] .bento-item--f {
+      grid-column: span 4;
+    }
+  }
+
+  /* Shuffle mode: playful spans */
+  @media (min-width: 768px) {
+    [data-bento-mode='shuffle'] .bento-item--a {
+      grid-column: span 6;
+      grid-row: span 2;
+    }
+    [data-bento-mode='shuffle'] .bento-item--b {
+      grid-column: span 6;
+    }
+    [data-bento-mode='shuffle'] .bento-item--c {
+      grid-column: span 4;
+      grid-row: span 2;
+    }
+    [data-bento-mode='shuffle'] .bento-item--d {
+      grid-column: span 8;
+    }
+    [data-bento-mode='shuffle'] .bento-item--e {
+      grid-column: span 5;
+    }
+    [data-bento-mode='shuffle'] .bento-item--f {
+      grid-column: span 7;
+    }
+  }
+
+  .bento-kicker {
+    font-family: var(--font-mono, ui-monospace);
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(148, 163, 184, 0.95);
+  }
+
+  .bento-heading {
+    margin-top: 0.35rem;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.01em;
+  }
+
+  .bento-copy {
+    margin-top: 0.6rem;
+    color: rgba(203, 213, 225, 0.9);
+    font-size: 0.95rem;
+    line-height: 1.55;
+  }
+
+  .bento-noscript {
+    margin: 1rem auto 0;
+    max-width: 80ch;
+    padding: 0.75rem 1rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(226, 232, 240, 0.92);
+    font-size: 0.9rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bento-btn {
+      transition: none;
+    }
+  }
+
+  /* Demo Lab perf: reduce hover lift and transitions */
+  :global(.demo-module[data-demo-perf='true']) .bento-btn {
+    transition: none;
+  }
+
+  :global(.demo-module[data-demo-perf='true']) :global(.bento-item) {
+    transition: none !important;
+  }
+</style>
+
+<script>
+  const roots = document.querySelectorAll<HTMLElement>('[data-bento-root]');
+  const prefersReducedMotion = window.matchMedia(
+    '(prefers-reduced-motion: reduce)'
+  );
+
+  const getModuleRoot = (el: HTMLElement) =>
+    (el.closest('[data-demo-module]') ||
+      el.closest('.demo-module')) as HTMLElement | null;
+
+  const isDemoPaused = (moduleRoot: HTMLElement | null) => {
+    if (!moduleRoot) return false;
+    const html = document.documentElement;
+    const htmlPaused = html.dataset.demoPaused === 'true';
+    const htmlReduced = html.dataset.demoReducedMotion === 'true';
+    const modPaused = moduleRoot.dataset.demoPaused === 'true';
+    const modReduced = moduleRoot.dataset.demoReducedMotion === 'true';
+    return htmlPaused || htmlReduced || modPaused || modReduced;
+  };
+
+  const shouldAnimate = (moduleRoot: HTMLElement | null) => {
+    if (prefersReducedMotion.matches) return false;
+    if (moduleRoot && isDemoPaused(moduleRoot)) return false;
+    return true;
+  };
+
+  const setPressedStates = (buttons: HTMLButtonElement[], mode: string) => {
+    buttons.forEach(btn => {
+      const pressed = btn.dataset.bentoModeBtn === mode;
+      btn.setAttribute('aria-pressed', pressed ? 'true' : 'false');
+    });
+  };
+
+  const flipAnimate = (
+    items: HTMLElement[],
+    first: Map<HTMLElement, DOMRect>,
+    duration = 560
+  ) => {
+    items.forEach(el => {
+      const last = el.getBoundingClientRect();
+      const prev = first.get(el);
+      if (!prev) return;
+      const dx = prev.left - last.left;
+      const dy = prev.top - last.top;
+      if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) return;
+
+      el.animate(
+        [
+          { transform: `translate(${dx}px, ${dy}px)` },
+          { transform: 'translate(0, 0)' },
+        ],
+        {
+          duration,
+          easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)',
+        }
+      );
+    });
+  };
+
+  roots.forEach(root => {
+    const buttons = Array.from(
+      root.querySelectorAll<HTMLButtonElement>('[data-bento-mode-btn]')
+    );
+    const items = Array.from(
+      root.querySelectorAll<HTMLElement>('[data-bento-item]')
+    );
+    const moduleRoot = getModuleRoot(root);
+
+    const applyMode = (mode: string) => {
+      const current = root.dataset.bentoMode || 'balanced';
+      if (current === mode) return;
+
+      const animate = shouldAnimate(moduleRoot);
+      if (!animate) {
+        root.dataset.bentoMode = mode;
+        setPressedStates(buttons, mode);
+        return;
+      }
+
+      const first = new Map<HTMLElement, DOMRect>();
+      items.forEach(el => first.set(el, el.getBoundingClientRect()));
+
+      root.dataset.bentoMode = mode;
+      setPressedStates(buttons, mode);
+
+      requestAnimationFrame(() => {
+        flipAnimate(items, first);
+      });
+    };
+
+    const syncIfPaused = () => {
+      // If we get paused mid-animation, we can't reliably pause WAAPI anims
+      // cross-browser. Instead we snap future transitions by switching to
+      // non-animated application.
+      const mode = root.dataset.bentoMode || 'balanced';
+      setPressedStates(buttons, mode);
+    };
+
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const mode = btn.dataset.bentoModeBtn || 'balanced';
+        applyMode(mode);
+      });
+    });
+
+    if (moduleRoot) {
+      const observer = new MutationObserver(syncIfPaused);
+      observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['data-demo-paused', 'data-demo-reduced-motion'],
+      });
+      observer.observe(moduleRoot, {
+        attributes: true,
+        attributeFilter: ['data-demo-paused', 'data-demo-reduced-motion'],
+      });
+
+      window.addEventListener(
+        'beforeunload',
+        () => {
+          observer.disconnect();
+        },
+        { once: true }
+      );
+    }
+  });
+</script>

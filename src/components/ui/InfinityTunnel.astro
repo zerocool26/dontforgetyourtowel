@@ -12,20 +12,38 @@ import ModernButton from './ModernButton.astro';
     Interactive depth with mouse-controlled perspective • Click to toggle speed
   </p>
 
-  <div class="tunnel-controls">
-    <ModernButton variant="neon" className="tunnel-btn" data-speed="slow"
-      >Slow</ModernButton
+  <div
+    class="tunnel-controls"
+    role="group"
+    aria-label="Infinity tunnel speed controls"
+  >
+    <ModernButton
+      variant="neon"
+      className="tunnel-btn"
+      data-speed="slow"
+      aria-pressed="false"
+      aria-label="Tunnel speed: slow">Slow</ModernButton
     >
     <ModernButton
       variant="neon"
       className="tunnel-btn active"
-      data-speed="normal">Normal</ModernButton
+      data-speed="normal"
+      aria-pressed="true"
+      aria-label="Tunnel speed: normal">Normal</ModernButton
     >
-    <ModernButton variant="neon" className="tunnel-btn" data-speed="fast"
-      >Fast</ModernButton
+    <ModernButton
+      variant="neon"
+      className="tunnel-btn"
+      data-speed="fast"
+      aria-pressed="false"
+      aria-label="Tunnel speed: fast">Fast</ModernButton
     >
-    <ModernButton variant="neon" className="tunnel-btn" data-speed="reverse"
-      >Reverse</ModernButton
+    <ModernButton
+      variant="neon"
+      className="tunnel-btn"
+      data-speed="reverse"
+      aria-pressed="false"
+      aria-label="Tunnel speed: reverse">Reverse</ModernButton
     >
   </div>
 
@@ -355,44 +373,132 @@ import ModernButton from './ModernButton.astro';
   ) as HTMLElement | null;
   const buttons = document.querySelectorAll('.tunnel-btn');
 
-  if (tunnelContainer && tunnel && !prefersReducedMotion.matches) {
-    // Mouse interaction for 3D perspective
-    tunnelContainer.addEventListener('mousemove', e => {
-      const rect = tunnelContainer.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / rect.width - 0.5;
-      const y = (e.clientY - rect.top) / rect.height - 0.5;
+  const moduleRoot = (tunnelContainer?.closest('[data-demo-module]') ||
+    tunnelContainer?.closest('.demo-module')) as HTMLElement | null;
+  const usesDemoLabControls = Boolean(moduleRoot);
 
-      const rotateX = y * 30;
-      const rotateY = x * 30;
+  const isDemoPaused = () => {
+    if (!usesDemoLabControls) return false;
+    const html = document.documentElement;
+    const htmlPaused = html.dataset.demoPaused === 'true';
+    const htmlReduced = html.dataset.demoReducedMotion === 'true';
+    const modPaused = moduleRoot?.dataset.demoPaused === 'true';
+    const modReduced = moduleRoot?.dataset.demoReducedMotion === 'true';
+    return htmlPaused || htmlReduced || modPaused || modReduced;
+  };
 
-      tunnelContainer.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+  const isInteractiveAllowed = () => {
+    if (prefersReducedMotion.matches) return false;
+    if (isDemoPaused()) return false;
+    return true;
+  };
+
+  // Speed controls: safe to keep available (no continuous work).
+  const setSpeedButtonState = (activeBtn: Element) => {
+    buttons.forEach(b => {
+      const pressed = b === activeBtn;
+      b.classList.toggle('active', pressed);
+      b.setAttribute('aria-pressed', pressed ? 'true' : 'false');
     });
+  };
 
-    tunnelContainer.addEventListener('mouseleave', () => {
-      tunnelContainer.style.transform =
-        'perspective(1000px) rotateX(0) rotateY(0)';
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      setSpeedButtonState(btn);
+      const speed = btn.getAttribute('data-speed');
+      if (!tunnel) return;
+      tunnel.style.animationDuration =
+        speed === 'slow'
+          ? '40s'
+          : speed === 'fast'
+            ? '10s'
+            : speed === 'reverse'
+              ? '20s'
+              : '20s';
+      tunnel.style.animationDirection =
+        speed === 'reverse' ? 'reverse' : 'normal';
     });
+  });
 
-    // Speed controls
-    buttons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        buttons.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+  let isInteractiveBound = false;
 
-        const speed = btn.getAttribute('data-speed');
-        if (!tunnel) return;
-        tunnel.style.animationDuration =
-          speed === 'slow'
-            ? '40s'
-            : speed === 'fast'
-              ? '10s'
-              : speed === 'reverse'
-                ? '20s'
-                : '20s';
+  const onMouseMove = (e: MouseEvent) => {
+    if (!tunnelContainer) return;
+    const rect = tunnelContainer.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
 
-        tunnel.style.animationDirection =
-          speed === 'reverse' ? 'reverse' : 'normal';
+    const rotateX = y * 30;
+    const rotateY = x * 30;
+    tunnelContainer.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+  };
+
+  const onMouseLeave = () => {
+    if (!tunnelContainer) return;
+    tunnelContainer.style.transform =
+      'perspective(1000px) rotateX(0) rotateY(0)';
+  };
+
+  const bindInteractive = () => {
+    if (isInteractiveBound) return;
+    if (!tunnelContainer || !tunnel) return;
+    tunnelContainer.addEventListener('mousemove', onMouseMove);
+    tunnelContainer.addEventListener('mouseleave', onMouseLeave);
+    isInteractiveBound = true;
+  };
+
+  const unbindInteractive = () => {
+    if (!isInteractiveBound) return;
+    if (!tunnelContainer) return;
+    tunnelContainer.removeEventListener('mousemove', onMouseMove);
+    tunnelContainer.removeEventListener('mouseleave', onMouseLeave);
+    onMouseLeave();
+    isInteractiveBound = false;
+  };
+
+  const syncInteractive = () => {
+    if (isInteractiveAllowed()) bindInteractive();
+    else unbindInteractive();
+  };
+
+  if (tunnelContainer && tunnel) {
+    syncInteractive();
+
+    if (usesDemoLabControls) {
+      const observer = new MutationObserver(syncInteractive);
+      observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['data-demo-paused', 'data-demo-reduced-motion'],
       });
-    });
+      if (moduleRoot) {
+        observer.observe(moduleRoot, {
+          attributes: true,
+          attributeFilter: ['data-demo-paused', 'data-demo-reduced-motion'],
+        });
+      }
+
+      const onRMChange = () => syncInteractive();
+      if ('addEventListener' in prefersReducedMotion) {
+        prefersReducedMotion.addEventListener('change', onRMChange);
+      } else {
+        // @ts-expect-error older Safari
+        prefersReducedMotion.addListener(onRMChange);
+      }
+
+      window.addEventListener(
+        'beforeunload',
+        () => {
+          observer.disconnect();
+          unbindInteractive();
+          if ('removeEventListener' in prefersReducedMotion) {
+            prefersReducedMotion.removeEventListener('change', onRMChange);
+          } else {
+            // @ts-expect-error older Safari
+            prefersReducedMotion.removeListener(onRMChange);
+          }
+        },
+        { once: true }
+      );
+    }
   }
 </script>

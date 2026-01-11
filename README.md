@@ -36,5 +36,24 @@ Copy `.env.example` to `.env` as needed.
 
 - This project outputs static HTML. The “contact form” triggers a `mailto:` link (no server-side form handling).
 - For GitHub Pages project sites, your base path is typically `/${repo}/`.
+- The high-intensity animation playground lives at `/demo-lab/` (isolated from core pages).
 
 ## Deployment (GitHub Pages)
+
+This repo is designed for GitHub Pages **project** sites (base path like `/${repo}/`).
+
+Before deploying, run the repo’s full quality gate:
+
+- `npm run pre-deploy`
+
+Local verification:
+
+- `npm run build`
+- `npm run preview`
+
+Base path + canonical URL handling:
+
+- `config/deployment.js` derives `site` + `base` automatically.
+- Optional overrides via environment variables:
+  - `SITE_URL`
+  - `BASE_PATH`

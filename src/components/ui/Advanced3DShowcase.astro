@@ -794,31 +794,121 @@
   // Parallax effect with mouse movement
   const parallaxContainer = document.getElementById('parallax');
 
+  const prefersReducedMotion = window.matchMedia(
+    '(prefers-reduced-motion: reduce)'
+  );
+
+  const moduleRoot = (parallaxContainer?.closest('[data-demo-module]') ||
+    parallaxContainer?.closest('.demo-module')) as HTMLElement | null;
+  const usesDemoLabControls = Boolean(moduleRoot);
+
+  const isDemoPaused = () => {
+    if (!usesDemoLabControls) return false;
+    const html = document.documentElement;
+    const htmlPaused = html.dataset.demoPaused === 'true';
+    const htmlReduced = html.dataset.demoReducedMotion === 'true';
+    const modPaused = moduleRoot?.dataset.demoPaused === 'true';
+    const modReduced = moduleRoot?.dataset.demoReducedMotion === 'true';
+    return htmlPaused || htmlReduced || modPaused || modReduced;
+  };
+
+  const isInteractiveAllowed = () => {
+    if (prefersReducedMotion.matches) return false;
+    if (isDemoPaused()) return false;
+    return true;
+  };
+
+  let isInteractiveBound = false;
+
+  const resetLayers = () => {
+    if (!parallaxContainer) return;
+    const layers = parallaxContainer.querySelectorAll('.parallax-layer');
+    layers.forEach(layer => {
+      (layer as HTMLElement).style.transform =
+        'translateX(0) translateY(0) rotateX(0) rotateY(0)';
+    });
+  };
+
+  const onMouseMove = (e: MouseEvent) => {
+    if (!parallaxContainer) return;
+    const rect = parallaxContainer.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+
+    const layers = parallaxContainer.querySelectorAll('.parallax-layer');
+    layers.forEach(layer => {
+      const depth = parseFloat(layer.getAttribute('data-depth') || '0');
+      const moveX = x * depth * 100;
+      const moveY = y * depth * 100;
+      const rotateX = y * depth * 20;
+      const rotateY = x * depth * 20;
+
+      (layer as HTMLElement).style.transform =
+        `translateX(${moveX}px) translateY(${moveY}px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    });
+  };
+
+  const bindInteractive = () => {
+    if (isInteractiveBound) return;
+    if (!parallaxContainer) return;
+    parallaxContainer.addEventListener('mousemove', onMouseMove);
+    parallaxContainer.addEventListener('mouseleave', resetLayers);
+    isInteractiveBound = true;
+  };
+
+  const unbindInteractive = () => {
+    if (!isInteractiveBound) return;
+    if (!parallaxContainer) return;
+    parallaxContainer.removeEventListener('mousemove', onMouseMove);
+    parallaxContainer.removeEventListener('mouseleave', resetLayers);
+    resetLayers();
+    isInteractiveBound = false;
+  };
+
+  const syncInteractive = () => {
+    if (!parallaxContainer) return;
+    if (isInteractiveAllowed()) bindInteractive();
+    else unbindInteractive();
+  };
+
   if (parallaxContainer) {
-    parallaxContainer.addEventListener('mousemove', e => {
-      const rect = parallaxContainer.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / rect.width - 0.5;
-      const y = (e.clientY - rect.top) / rect.height - 0.5;
+    syncInteractive();
 
-      const layers = parallaxContainer.querySelectorAll('.parallax-layer');
-      layers.forEach(layer => {
-        const depth = parseFloat(layer.getAttribute('data-depth') || '0');
-        const moveX = x * depth * 100;
-        const moveY = y * depth * 100;
-        const rotateX = y * depth * 20;
-        const rotateY = x * depth * 20;
-
-        (layer as HTMLElement).style.transform =
-          `translateX(${moveX}px) translateY(${moveY}px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    if (usesDemoLabControls) {
+      const observer = new MutationObserver(syncInteractive);
+      observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['data-demo-paused', 'data-demo-reduced-motion'],
       });
-    });
+      if (moduleRoot) {
+        observer.observe(moduleRoot, {
+          attributes: true,
+          attributeFilter: ['data-demo-paused', 'data-demo-reduced-motion'],
+        });
+      }
 
-    parallaxContainer.addEventListener('mouseleave', () => {
-      const layers = parallaxContainer.querySelectorAll('.parallax-layer');
-      layers.forEach(layer => {
-        (layer as HTMLElement).style.transform =
-          'translateX(0) translateY(0) rotateX(0) rotateY(0)';
-      });
-    });
+      const onRMChange = () => syncInteractive();
+      if ('addEventListener' in prefersReducedMotion) {
+        prefersReducedMotion.addEventListener('change', onRMChange);
+      } else {
+        // @ts-expect-error older Safari
+        prefersReducedMotion.addListener(onRMChange);
+      }
+
+      window.addEventListener(
+        'beforeunload',
+        () => {
+          observer.disconnect();
+          unbindInteractive();
+          if ('removeEventListener' in prefersReducedMotion) {
+            prefersReducedMotion.removeEventListener('change', onRMChange);
+          } else {
+            // @ts-expect-error older Safari
+            prefersReducedMotion.removeListener(onRMChange);
+          }
+        },
+        { once: true }
+      );
+    }
   }
 </script>
