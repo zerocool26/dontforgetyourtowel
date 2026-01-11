@@ -110,6 +110,15 @@
     transition: background 0.3s ease;
   }
 
+  /* Mobile Safari ergonomics: prevent iOS zoom-on-focus by keeping form controls >= 16px */
+  @media (max-width: 768px) {
+    input,
+    select,
+    textarea {
+      font-size: 16px;
+    }
+  }
+
   /* Sticky header behavior (used by src/scripts/header.ts) */
   header {
     transition:
@@ -496,6 +505,36 @@
 }
 
 @layer utilities {
+  /* Mobile-first ergonomics */
+  .min-h-touch {
+    min-height: 48px;
+  }
+
+  .min-w-touch {
+    min-width: 48px;
+  }
+
+  /* iOS safe area helpers (requires viewport-fit=cover) */
+  .safe-area-inset {
+    padding-top: env(safe-area-inset-top);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+  }
+
+  .safe-area-inset-top {
+    padding-top: max(0px, env(safe-area-inset-top));
+  }
+
+  .safe-area-inset-bottom {
+    padding-bottom: max(0px, env(safe-area-inset-bottom));
+  }
+
+  .safe-area-inset-x {
+    padding-left: max(0px, env(safe-area-inset-left));
+    padding-right: max(0px, env(safe-area-inset-right));
+  }
+
   /* Text Gradients */
   .text-gradient {
     background: linear-gradient(135deg, #38bdf8, #6366f1 40%, #a855f7 80%);
