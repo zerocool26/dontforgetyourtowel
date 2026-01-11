@@ -9,6 +9,10 @@ export default function LiveChat() {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
 
+  const nameId = 'livechat-name';
+  const emailId = 'livechat-email';
+  const messageId = 'livechat-message';
+
   useEffect(() => {
     const t = window.setTimeout(() => {
       // proactive greeting: keep unobtrusive
@@ -71,16 +75,27 @@ export default function LiveChat() {
               setOpen(false);
             }}
           >
+            <label class="sr-only" htmlFor={nameId}>
+              Name (optional)
+            </label>
             <input
               class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white"
+              id={nameId}
+              aria-label="Name (optional)"
               type="text"
               placeholder="Name (optional)"
               value={name}
               onInput={e => setName((e.target as HTMLInputElement).value)}
               autoComplete="name"
             />
+
+            <label class="sr-only" htmlFor={emailId}>
+              Email
+            </label>
             <input
               class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white"
+              id={emailId}
+              aria-label="Email"
               type="email"
               placeholder="Email"
               value={email}
@@ -88,8 +103,14 @@ export default function LiveChat() {
               autoComplete="email"
               required
             />
+
+            <label class="sr-only" htmlFor={messageId}>
+              Message
+            </label>
             <textarea
               class="min-h-[120px] w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white"
+              id={messageId}
+              aria-label="Message"
               placeholder="How can we help?"
               value={message}
               onInput={e => setMessage((e.target as HTMLTextAreaElement).value)}

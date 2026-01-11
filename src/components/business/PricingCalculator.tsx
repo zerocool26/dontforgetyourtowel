@@ -23,6 +23,8 @@ export default function PricingCalculator() {
   const [tier, setTier] = useState<Tier>('silver');
   const [addons, setAddons] = useState<Set<AddOnId>>(new Set());
 
+  const usersId = 'pricing-users';
+
   const base = useMemo(() => users * PRICES_PER_USER[tier], [users, tier]);
   const addOnTotal = useMemo(() => {
     let sum = 0;
@@ -42,16 +44,23 @@ export default function PricingCalculator() {
 
       <div class="mt-6 grid gap-6 lg:grid-cols-2">
         <div class="space-y-5">
-          <label class="block">
-            <span class="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-400">
+          <label class="block" htmlFor={usersId}>
+            <span
+              id={`${usersId}-label`}
+              class="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-400"
+            >
               Users: {users}
             </span>
-            <input
+          </label>
+          <input
               class="mt-3 w-full"
+              id={usersId}
+              name="users"
               type="range"
               min={10}
               max={500}
               value={users}
+              aria-labelledby={`${usersId}-label`}
               onInput={e =>
                 setUsers(Number((e.target as HTMLInputElement).value))
               }
@@ -60,7 +69,6 @@ export default function PricingCalculator() {
               <span>10</span>
               <span>500</span>
             </div>
-          </label>
 
           <div>
             <p class="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-400">
@@ -98,6 +106,7 @@ export default function PricingCalculator() {
                   <input
                     type="checkbox"
                     class="mt-1"
+                    aria-label={a.label}
                     checked={addons.has(a.id)}
                     onChange={e => {
                       const checked = (e.target as HTMLInputElement).checked;

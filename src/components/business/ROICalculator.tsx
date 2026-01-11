@@ -6,6 +6,10 @@ export default function ROICalculator() {
   const [estimatedSavingsPct, setEstimatedSavingsPct] = useState(20);
   const [oneTimeTransitionCost, setOneTimeTransitionCost] = useState(10000);
 
+  const currentMonthlyCostId = 'roi-current-monthly-cost';
+  const estimatedSavingsPctId = 'roi-estimated-savings-pct';
+  const oneTimeTransitionCostId = 'roi-one-time-transition-cost';
+
   const savingsMonthly = useMemo(() => {
     return Math.max(0, (currentMonthlyCost * estimatedSavingsPct) / 100);
   }, [currentMonthlyCost, estimatedSavingsPct]);
@@ -24,57 +28,75 @@ export default function ROICalculator() {
 
       <div class="mt-6 grid gap-6 lg:grid-cols-2">
         <div class="space-y-4">
-          <label class="block">
-            <span class="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-400">
+          <label class="block" htmlFor={currentMonthlyCostId}>
+            <span
+              id={`${currentMonthlyCostId}-label`}
+              class="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-400"
+            >
               Current IT cost (monthly)
             </span>
-            <input
+          </label>
+          <input
               class="mt-2 w-full rounded-xl border border-white/10 bg-zinc-950/40 px-4 py-3 text-sm text-white"
+              id={currentMonthlyCostId}
+              name="currentMonthlyCost"
               type="number"
               min={0}
               value={currentMonthlyCost}
+              aria-labelledby={`${currentMonthlyCostId}-label`}
               onInput={e =>
                 setCurrentMonthlyCost(
                   Number((e.target as HTMLInputElement).value)
                 )
               }
             />
-          </label>
 
-          <label class="block">
-            <span class="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-400">
+          <label class="block" htmlFor={estimatedSavingsPctId}>
+            <span
+              id={`${estimatedSavingsPctId}-label`}
+              class="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-400"
+            >
               Estimated savings (%)
             </span>
-            <input
+          </label>
+          <input
               class="mt-2 w-full rounded-xl border border-white/10 bg-zinc-950/40 px-4 py-3 text-sm text-white"
+              id={estimatedSavingsPctId}
+              name="estimatedSavingsPct"
               type="number"
               min={0}
               max={80}
               value={estimatedSavingsPct}
+              aria-labelledby={`${estimatedSavingsPctId}-label`}
               onInput={e =>
                 setEstimatedSavingsPct(
                   Number((e.target as HTMLInputElement).value)
                 )
               }
             />
-          </label>
 
-          <label class="block">
-            <span class="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-400">
+          <label class="block" htmlFor={oneTimeTransitionCostId}>
+            <span
+              id={`${oneTimeTransitionCostId}-label`}
+              class="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-400"
+            >
               One-time transition cost
             </span>
-            <input
+          </label>
+          <input
               class="mt-2 w-full rounded-xl border border-white/10 bg-zinc-950/40 px-4 py-3 text-sm text-white"
+              id={oneTimeTransitionCostId}
+              name="oneTimeTransitionCost"
               type="number"
               min={0}
               value={oneTimeTransitionCost}
+              aria-labelledby={`${oneTimeTransitionCostId}-label`}
               onInput={e =>
                 setOneTimeTransitionCost(
                   Number((e.target as HTMLInputElement).value)
                 )
               }
             />
-          </label>
         </div>
 
         <div class="rounded-2xl border border-white/10 bg-zinc-950/50 p-6">

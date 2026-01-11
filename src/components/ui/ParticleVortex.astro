@@ -456,15 +456,16 @@ import ModernButton from './ModernButton.astro';
   };
 
   const applyMode = (mode: string) => {
+    const count = particles.length;
     particles.forEach((particle, i) => {
-      const angle = (i / 120) * 360 * 6;
-      const baseRadius = 50 + (i / 120) * 300;
-      const baseHeight = (i / 120) * 700 - 350;
+      const angle = (i / count) * 360 * 6;
+      const baseRadius = 50 + (i / count) * 300;
+      const baseHeight = (i / count) * 700 - 350;
 
       switch (mode) {
         case 'sphere': {
-          const phi = Math.acos(-1 + (2 * i) / 120);
-          const theta = Math.sqrt(120 * Math.PI) * phi;
+          const phi = Math.acos(-1 + (2 * i) / count);
+          const theta = Math.sqrt(count * Math.PI) * phi;
           particle.style.setProperty('--radius', `${Math.sin(phi) * 250}px`);
           particle.style.setProperty('--height', `${Math.cos(phi) * 250}px`);
           particle.style.setProperty(
@@ -508,43 +509,69 @@ import ModernButton from './ModernButton.astro';
 
   let isInteractiveBound = false;
 
-  const onMouseMove = (e: MouseEvent) => {
-    if (!vortexContainer) return;
-    const rect = vortexContainer.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
+  let lastX = 0;
+  let lastY = 0;
+  let hasPointer = false;
+  let rafId: number | null = null;
 
-    const rotateX = y * 40;
-    const rotateY = x * 40;
+  const cancelFrame = () => {
+    if (rafId !== null) {
+      cancelAnimationFrame(rafId);
+      rafId = null;
+    }
+  };
+
+  const renderFrame = () => {
+    rafId = null;
+
+    if (!vortexContainer) return;
+    if (!hasPointer) return;
+
+    const rotateX = lastY * 40;
+    const rotateY = lastX * 40;
     vortexContainer.style.transform = `perspective(2000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
 
     // Perf mode: avoid per-particle work (still looks lively via CSS spin/pulse).
     if (isDemoPerf()) return;
 
-    const maxParticles = isDemoPerf() ? 0 : particles.length;
     const now = Date.now() * 0.001;
+    const scale = 1 + Math.abs(lastX + lastY) * 0.3;
 
-    for (let i = 0; i < maxParticles; i++) {
+    for (let i = 0; i < particles.length; i++) {
       const particle = particles[i];
-      const delay = i * 0.02;
-      const attractionX = x * 50 * Math.sin(now + i);
-      const attractionY = y * 50 * Math.cos(now + i);
+      const t = now + i * 0.02;
+      const attractionX = lastX * 50 * Math.sin(t + i);
+      const attractionY = lastY * 50 * Math.cos(t + i);
 
-      setTimeout(() => {
-        particle.style.transform = `
+      particle.style.transform = `
           translateX(-50%)
           translateY(-50%)
           rotateY(var(--angle))
           translateX(calc(var(--radius) + ${attractionX}px))
           translateZ(calc(var(--height) + ${attractionY}px))
-          scale(${1 + Math.abs(x + y) * 0.3})
+          scale(${scale})
         `;
-      }, delay * 1000);
     }
+  };
+
+  const requestFrame = () => {
+    if (rafId !== null) return;
+    rafId = requestAnimationFrame(renderFrame);
+  };
+
+  const onMouseMove = (e: MouseEvent) => {
+    if (!vortexContainer) return;
+    const rect = vortexContainer.getBoundingClientRect();
+    lastX = (e.clientX - rect.left) / rect.width - 0.5;
+    lastY = (e.clientY - rect.top) / rect.height - 0.5;
+    hasPointer = true;
+    requestFrame();
   };
 
   const onMouseLeave = () => {
     if (!vortexContainer) return;
+    hasPointer = false;
+    cancelFrame();
     vortexContainer.style.transform =
       'perspective(2000px) rotateX(0) rotateY(0)';
     particles.forEach(particle => {
