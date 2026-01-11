@@ -286,18 +286,18 @@ describe('Functional Programming Utilities', () => {
 
       it('should map over right', () => {
         const either = right(5).map(x => x * 2);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        expect(
-          (either as any).match({ left: () => 0, right: (x: number) => x })
-        ).toBe(10);
+        expect(either.isRight()).toBe(true);
+        if (either.isRight()) {
+          expect(either.unwrap()).toBe(10);
+        }
       });
 
       it('should flatMap', () => {
         const either = right(5).flatMap(x => right(x * 2));
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        expect(
-          (either as any).match({ left: () => 0, right: (x: number) => x })
-        ).toBe(10);
+        expect(either.isRight()).toBe(true);
+        if (either.isRight()) {
+          expect(either.unwrap()).toBe(10);
+        }
       });
     });
 
@@ -310,18 +310,18 @@ describe('Functional Programming Utilities', () => {
 
       it('should not map left', () => {
         const either = left('error').map((x: number) => x * 2);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        expect(
-          (either as any).match({ left: (e: string) => e, right: () => '' })
-        ).toBe('error');
+        expect(either.isLeft()).toBe(true);
+        if (either.isLeft()) {
+          expect(either.unwrap()).toBe('error');
+        }
       });
 
       it('should mapLeft', () => {
         const either = left('error').mapLeft((e: string) => e.toUpperCase());
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        expect(
-          (either as any).match({ left: (e: string) => e, right: () => '' })
-        ).toBe('ERROR');
+        expect(either.isLeft()).toBe(true);
+        if (either.isLeft()) {
+          expect(either.unwrap()).toBe('ERROR');
+        }
       });
     });
   });
@@ -355,8 +355,9 @@ describe('Functional Programming Utilities', () => {
   describe('Currying Functions', () => {
     it('should curry functions', () => {
       const add = (a: number, b: number, c: number) => a + b + c;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const curried = curry(add) as any;
+      const curried = curry(add) as (
+        a: number
+      ) => (b: number) => (c: number) => number;
 
       expect(curried(1)(2)(3)).toBe(6);
       expect(curried(1, 2)(3)).toBe(6);

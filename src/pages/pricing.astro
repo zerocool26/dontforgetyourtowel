@@ -2,232 +2,255 @@
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 import ModernCard from '../components/ui/ModernCard.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
-import { resolveHref, withBasePath } from '../utils/helpers';
+import PricingTier from '../components/business/PricingTier.astro';
+import ContactForm from '../components/ContactForm.astro';
+import PricingCalculator from '../components/business/PricingCalculator.tsx';
+import ROICalculator from '../components/business/ROICalculator.tsx';
+import { withBasePath } from '../utils/helpers';
+
+const consultationHref = '#consultation';
 
 const tiers = [
   {
-    name: 'Starter',
-    price: '$0',
-    description: 'Clone the repo, follow the README, and deploy manually.',
+    name: 'Essentials',
+    price: '$99 / user / mo',
+    description:
+      'A reliable foundation for helpdesk, patching, backups, and monitoring.',
     perks: [
-      'Fully static Astro + Tailwind build configured for GitHub Pages.',
-      'Sample content collections and RSS feed.',
-      'MIT license for personal and commercial use.',
+      'Monitoring + alerting (workstations & key services)',
+      'Ticketing + response SLAs',
+      'Patch management cadence',
+      'Backup oversight + restore testing',
     ],
-    cta: 'Get the template',
-    href: 'https://github.com/tariqdude/Github-Pages-Project-v1',
+    highlight: false,
   },
   {
-    name: 'Team Launch',
-    price: '$1,200',
-    description: 'One-week engagement to tailor the template to your org.',
+    name: 'Growth',
+    price: '$149 / user / mo',
+    description:
+      'The best fit for growing teams who need stronger security and more proactive IT.',
     perks: [
-      'Brand styling updates and content migration assistance.',
-      'Automation scripts for lint, test, and GitHub Pages deploy.',
-      'Live working session to review maintenance workflows.',
+      'Everything in Essentials',
+      'Identity hardening (MFA, SSO guidance)',
+      'Security baseline + policy templates',
+      'Quarterly roadmap review',
     ],
-    cta: 'Book a kickoff call',
-    href: '/contact',
     highlight: true,
   },
   {
-    name: 'Retainer',
-    price: 'Custom',
-    description: 'Ongoing support for releases, audits, and new sections.',
+    name: 'Secure+',
+    price: '$199 / user / mo',
+    description:
+      'Advanced security coverage, governance, and incident readiness for regulated environments.',
     perks: [
-      'Quarterly accessibility, performance, and security reviews.',
-      'Copywriting and content strategy assistance for updates.',
-      'Priority response from the maintainers.',
+      'Everything in Growth',
+      'Managed EDR + response playbooks',
+      'Security awareness + phishing program',
+      'Compliance support (SOC 2 / ISO-style controls)',
     ],
-    cta: 'Start a conversation',
-    href: '/contact',
+    highlight: false,
+  },
+  {
+    name: 'Custom',
+    price: 'Quoted',
+    description:
+      'Complex environments, multi-site networks, or dedicated vCISO / SOC requirements.',
+    perks: [
+      'Device + server-based pricing options',
+      'Custom SLA & escalation',
+      'Dedicated security program support',
+      'Cloud migration + modernization workstreams',
+    ],
+    highlight: false,
   },
 ];
 
 const faqs = [
   {
-    question: 'Do you offer payment schedules?',
-    answer:
-      'Yes. For Team Launch and Retainer packages we split payments into kickoff and handover invoices, with optional monthly plans for retainers.',
+    q: 'Do you support co-managed IT?',
+    a: 'Yes. We can partner with your internal IT team—handling monitoring, escalations, security, and projects while your team stays close to the business.',
   },
   {
-    question: 'Can we start from an existing Astro project?',
-    answer:
-      'Absolutely. We audit your current repository, identify blockers to static deployment, and adapt this system to fit without rewriting every page.',
+    q: 'What impacts pricing the most?',
+    a: 'User and device counts, compliance scope, server footprint, and response SLAs. We confirm scope during discovery and onboarding.',
   },
   {
-    question: 'What happens after handover?',
-    answer:
-      'You keep the documentation, scripts, and workshop recordings. Retainers add quarterly reviews and priority support from the maintainers.',
+    q: 'Can you help with SOC 2 readiness?',
+    a: 'We can help build security controls, evidence collection habits, and vendor/process documentation to support readiness efforts. We do not act as an auditor.',
+  },
+  {
+    q: 'How fast can we onboard?',
+    a: 'Many SMB environments onboard within 10–14 days. Larger or multi-site environments can take longer depending on tooling and access readiness.',
   },
 ];
 ---
 
 <MarketingLayout
-  title="Pricing | Elite Project"
-  description="Transparent pricing for adapting and maintaining the Elite Project starter."
+  title="Pricing | Apex Managed IT"
+  description="Simple, transparent pricing for managed IT, security, cloud support, and AI readiness."
 >
-  <section
-    class="relative overflow-hidden bg-zinc-950 text-zinc-50 border-b border-zinc-800"
-  >
+  <section class="relative overflow-hidden bg-zinc-950 text-zinc-50">
     <div
-      class="absolute inset-0 bg-[linear-gradient(to_right,#18181b_1px,transparent_1px),linear-gradient(to_bottom,#18181b_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-20"
+      class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(0,102,255,0.16),_transparent_55%)]"
     >
     </div>
-    <div class="relative mx-auto max-w-5xl px-6 pb-24 pt-28 text-center">
-      <p
-        class="text-xs font-bold uppercase tracking-[0.35em] text-accent-500 font-mono"
-      >
-        Pricing
-      </p>
-      <h1
-        class="mt-6 text-4xl font-bold sm:text-5xl font-display uppercase tracking-tight"
-      >
-        Choose the level of support that keeps you shipping.
-      </h1>
-      <p class="mt-6 mx-auto max-w-3xl text-lg text-zinc-400 font-mono">
-        Whether you want to self-host or rely on our team for ongoing
-        improvements, every tier keeps the Astro site simple, reliable, and well
-        documented.
-      </p>
+    <div class="relative mx-auto max-w-[1220px] px-6 pb-16 pt-28">
+      <div class="max-w-3xl space-y-6">
+        <p
+          class="text-xs font-semibold uppercase tracking-[0.32em] text-zinc-400"
+        >
+          Pricing
+        </p>
+        <h1 class="text-4xl font-bold text-white sm:text-5xl">
+          Plans that scale with your business—
+          <span class="text-accent-300">without surprises.</span>
+        </h1>
+        <p class="text-base text-zinc-300">
+          Our pricing is typically per user, with add-ons for advanced security
+          and special compliance scope. We’ll confirm the best-fit plan during a
+          free consultation.
+        </p>
+        <div class="flex flex-col gap-3 sm:flex-row">
+          <ModernButton
+            href={withBasePath('services/')}
+            variant="secondary"
+            className="min-h-[48px]"
+          >
+            Review services
+          </ModernButton>
+          <ModernButton
+            href={consultationHref}
+            variant="primary"
+            className="min-h-[48px]"
+          >
+            Get a quote
+          </ModernButton>
+        </div>
+      </div>
+
       <ModernCard
         variant="minimal"
-        className="mt-10 inline-flex items-center gap-6 bg-zinc-900/60 px-6 py-3 text-sm text-zinc-300 font-mono"
+        className="mt-10 border-white/10 bg-white/5 p-6"
       >
-        <span class="inline-flex h-2 w-2 bg-accent-500 animate-pulse"></span>
-        <span
-          >All paid tiers include documentation, training, and priority inbox
-          access.</span
-        >
+        <p class="text-sm text-zinc-300">
+          <span class="font-semibold text-white">All plans include</span> onboarding,
+          documented runbooks, and monthly reporting.
+        </p>
       </ModernCard>
     </div>
   </section>
 
-  <section class="bg-zinc-900">
-    <div class="mx-auto grid max-w-6xl gap-8 px-6 py-20 lg:grid-cols-3">
-      {
-        tiers.map((tier, index) => (
-          <ModernCard
-            variant="minimal"
-            className={`flex h-full flex-col gap-6 p-8 animate-fade-in-up ${tier.highlight ? 'border-accent-500 bg-zinc-950' : 'bg-zinc-950/50'}`}
-            style={`animation-delay: ${index * 100}ms; opacity: 0;`}
-          >
-            <div class="space-y-3">
-              <span
-                class={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.25em] ${tier.highlight ? 'bg-accent-500/20 text-accent-200' : 'bg-zinc-800 text-zinc-400'}`}
-              >
-                {tier.highlight ? 'Recommended' : 'Package'}
-              </span>
-              <h2 class="text-3xl font-semibold text-white">{tier.name}</h2>
-              <p class="text-4xl font-semibold text-white">{tier.price}</p>
-              <p class="text-sm text-zinc-400">{tier.description}</p>
-            </div>
-            <ul class="space-y-3 text-sm text-zinc-400">
-              {tier.perks.map(perk => (
-                <li class="flex items-start gap-2">
-                  <span
-                    class={`mt-1 inline-flex h-2 w-2 rounded-full ${tier.highlight ? 'bg-accent-400' : 'bg-accent-500'}`}
-                  />
-                  <span>{perk}</span>
-                </li>
-              ))}
-            </ul>
-            <div class="mt-auto">
-              <ModernButton
-                className="w-full"
-                variant={tier.highlight ? 'primary' : 'secondary'}
-                href={resolveHref(tier.href)}
-              >
-                {tier.cta}
-              </ModernButton>
-            </div>
-          </ModernCard>
-        ))
-      }
-    </div>
-  </section>
-
-  <section class="border-y border-zinc-800 bg-zinc-950">
-    <div class="mx-auto max-w-5xl px-6 py-20">
-      <div class="grid gap-12 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
-        <div>
-          <p
-            class="text-xs font-semibold uppercase tracking-[0.3em] text-accent-500"
-          >
-            Not sure where to start?
-          </p>
-          <h2 class="mt-4 text-3xl font-semibold text-white">
-            We tailor every engagement scope before you commit.
-          </h2>
-          <p class="mt-6 text-base text-zinc-400">
-            Send a short brief or link to your existing site. We will suggest
-            the tier that best balances your requirements, infrastructure, and
-            timeline.
-          </p>
-          <div class="mt-8 flex flex-wrap gap-4">
-            <ModernButton variant="primary" href={withBasePath('contact/')}>
-              Talk with the team
-            </ModernButton>
-            <ModernButton variant="secondary" href={withBasePath('services/')}>
-              Review services
-            </ModernButton>
-          </div>
-        </div>
-        <ModernCard
-          variant="minimal"
-          className="p-6 shadow-[0_40px_80px_-60px_rgba(17,17,17,0.25)]"
-        >
-          <h3 class="text-lg font-semibold text-white">Every plan includes</h3>
-          <ul class="mt-5 space-y-3 text-sm text-zinc-400">
-            <li class="flex items-start gap-2">
-              <span class="mt-1 inline-flex h-2 w-2 rounded-full bg-accent-500"
-              ></span>
-              <span
-                >Documentation bundle covering setup, content publishing, and
-                maintenance routines.</span
-              >
-            </li>
-            <li class="flex items-start gap-2">
-              <span class="mt-1 inline-flex h-2 w-2 rounded-full bg-accent-500"
-              ></span>
-              <span>Recorded walkthrough and Q&A session with your team.</span>
-            </li>
-            <li class="flex items-start gap-2">
-              <span class="mt-1 inline-flex h-2 w-2 rounded-full bg-accent-500"
-              ></span>
-              <span>30 days of follow-up support for clarifying questions.</span
-              >
-            </li>
-          </ul>
-        </ModernCard>
-      </div>
-    </div>
-  </section>
-
-  <section class="border-t border-zinc-800 bg-zinc-900/30 py-24">
-    <div class="mx-auto max-w-4xl px-6">
-      <h2
-        class="text-3xl font-bold text-center text-white font-display uppercase tracking-tight mb-16"
-      >
-        Frequently Asked Questions
-      </h2>
-      <div class="grid gap-8">
+  <section class="border-y border-white/5 bg-zinc-900/30">
+    <div class="mx-auto max-w-[1220px] px-6 py-16">
+      <div class="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
         {
-          faqs.map(faq => (
-            <ModernCard
-              variant="minimal"
-              className="bg-zinc-950 p-8 hover:border-zinc-700 transition-colors"
-            >
-              <h3 class="text-lg font-bold text-white font-display uppercase tracking-wide mb-4">
-                {faq.question}
-              </h3>
-              <p class="text-zinc-400 font-mono leading-relaxed">
-                {faq.answer}
-              </p>
-            </ModernCard>
+          tiers.map(t => (
+            <PricingTier
+              name={t.name}
+              price={t.price}
+              description={t.description}
+              perks={t.perks}
+              highlight={t.highlight}
+              ctaLabel={t.highlight ? 'Choose Growth' : 'Talk to sales'}
+              ctaHref={consultationHref}
+            />
           ))
         }
       </div>
+      <p class="mt-6 text-xs text-zinc-500">
+        Prices are illustrative. Final pricing depends on device counts, server
+        footprint, compliance scope, and SLA.
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-zinc-950">
+    <div class="mx-auto max-w-[1220px] px-6 py-20">
+      <div class="grid gap-10 lg:grid-cols-2 lg:items-start">
+        <div class="space-y-4">
+          <h2 class="text-3xl font-semibold text-white">
+            Estimate your monthly cost
+          </h2>
+          <p class="text-sm text-zinc-300">
+            Use the calculator for a ballpark estimate. We’ll validate
+            assumptions and produce a detailed quote in discovery.
+          </p>
+        </div>
+        <PricingCalculator client:only="preact" />
+      </div>
+    </div>
+  </section>
+
+  <section class="border-y border-white/5 bg-zinc-900/30">
+    <div class="mx-auto max-w-[1220px] px-6 py-20">
+      <div class="grid gap-10 lg:grid-cols-2 lg:items-start">
+        <div class="space-y-4">
+          <h2 class="text-3xl font-semibold text-white">Estimate ROI</h2>
+          <p class="text-sm text-zinc-300">
+            A quick planning tool to evaluate payback periods. Real savings
+            often come from reduced downtime, stronger security controls, and
+            fewer emergency projects.
+          </p>
+        </div>
+        <ROICalculator client:only="preact" />
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-zinc-950" id="faq">
+    <div class="mx-auto max-w-[1220px] px-6 py-20">
+      <div class="max-w-3xl space-y-4">
+        <h2 class="text-3xl font-semibold text-white">FAQs</h2>
+        <p class="text-sm text-zinc-300">
+          If you don’t see your question here, schedule a consultation and we’ll
+          walk you through options.
+        </p>
+      </div>
+
+      <div class="mt-10 grid gap-4">
+        {
+          faqs.map(item => (
+            <details class="rounded-2xl border border-white/10 bg-white/5 p-6">
+              <summary class="cursor-pointer select-none text-sm font-semibold text-white">
+                {item.q}
+              </summary>
+              <p class="mt-3 text-sm leading-relaxed text-zinc-300">{item.a}</p>
+            </details>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="border-t border-white/5 bg-zinc-900/30" id="consultation">
+    <div class="mx-auto max-w-[1220px] px-6 py-20">
+      <div class="grid gap-10 lg:grid-cols-2 lg:items-start">
+        <div class="space-y-4">
+          <h2 class="text-3xl font-semibold text-white">
+            Request a detailed quote
+          </h2>
+          <p class="text-sm text-zinc-300">
+            Tell us your user count, key apps, and compliance needs. We’ll
+            respond with a best-fit plan and recommended add-ons.
+          </p>
+          <div class="pt-2">
+            <ModernButton
+              href={withBasePath('/#consultation')}
+              variant="secondary"
+              className="min-h-[48px]"
+            >
+              Prefer the homepage form?
+            </ModernButton>
+          </div>
+        </div>
+        <div class="rounded-2xl border border-white/10 bg-white/5 p-6">
+          <ContactForm />
+        </div>
+      </div>
+      <p class="mt-6 text-xs text-zinc-500">
+        We do not sell your data. Response times depend on business hours and
+        intake volume.
+      </p>
     </div>
   </section>
 </MarketingLayout>

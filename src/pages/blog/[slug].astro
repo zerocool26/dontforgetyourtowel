@@ -1,22 +1,10 @@
 ---
-import { type CollectionEntry, getCollection, render } from 'astro:content';
-import BlogPost from '../../layouts/BlogPost.astro';
+// Legacy blog route intentionally disabled for the MSP site.
+// Returning an empty list ensures Astro generates no /blog/:slug pages in static output.
 
 export const prerender = true;
 
 export async function getStaticPaths() {
-  const posts = await getCollection('blog');
-  return posts.map(post => ({
-    params: { slug: post.id },
-    props: post,
-  }));
+  return [];
 }
-type Props = CollectionEntry<'blog'>;
-
-const post = Astro.props;
-const { Content, headings } = await render(post);
 ---
-
-<BlogPost {...post.data} headings={headings}>
-  <Content />
-</BlogPost>

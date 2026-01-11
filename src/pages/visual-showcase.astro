@@ -17,6 +17,7 @@ import ExplodingGrid from '../components/ui/ExplodingGrid.astro';
 import PrismaticSphere from '../components/ui/PrismaticSphere.astro';
 import MatrixRain from '../components/ui/MatrixRain.astro';
 import { withBasePath } from '../utils/helpers';
+import LegacyRedirect from '../components/LegacyRedirect.astro';
 
 const title = 'Visual Showcase - Interactive 2D & 3D Demonstrations';
 const description =
@@ -237,6 +238,12 @@ const materialSwatches = [
 ];
 ---
 
+<LegacyRedirect
+  destination="/"
+  reason="This page was part of the original starter template and has been removed."
+/>
+
+<!--
 <MarketingLayout
   title={title}
   description={description}
@@ -613,791 +620,662 @@ const materialSwatches = [
   </section>
 
   <!-- Advanced 3D Showcase - Maximum Capabilities -->
-  <section
-    id="advanced-3d"
-    class="py-32 relative bg-gradient-to-b from-neutral-950 via-indigo-950/20 to-neutral-900"
-  >
-    <div class="absolute inset-0 opacity-20">
-      <div
-        class="absolute top-0 left-1/4 w-96 h-96 bg-purple-500 rounded-full filter blur-[128px] animate-pulse"
-      >
-      </div>
-      <div
-        class="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500 rounded-full filter blur-[128px] animate-pulse"
-        style="animation-delay: 1s"
-      >
-      </div>
-    </div>
-    <div class="container mx-auto px-6 relative z-10">
-      <RevealOnScroll animation="slide-up">
-        <div class="text-center mb-20">
-          <div
-            class="inline-block px-6 py-3 mb-6 rounded-full border border-purple-500/30 bg-purple-500/10 backdrop-blur-sm"
-          >
-            <span
-              class="text-purple-300 text-sm font-semibold tracking-wider uppercase"
-              >Pure CSS • No JavaScript</span
-            >
-          </div>
-          <h2
-            class="text-8xl md:text-9xl font-black text-center mb-8 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent"
-          >
-            3D Mastery
-          </h2>
-          <p
-            class="text-2xl md:text-3xl text-neutral-300 text-center max-w-4xl mx-auto leading-relaxed"
-          >
-            Experience the absolute limits of CSS 3D transforms, perspective
-            depth, and GPU-accelerated animations
-          </p>
-        </div>
-      </RevealOnScroll>
-
-      <Advanced3DShowcase />
-    </div>
-  </section>
-
-  <!-- Cubic Matrix Section -->
-  <section
-    id="cubic-matrix"
-    class="py-32 relative bg-gradient-to-b from-neutral-900 to-neutral-950"
-  >
+<section
+  id="advanced-3d"
+  class="relative bg-gradient-to-b from-neutral-950 via-indigo-950/20 to-neutral-900 py-32"
+>
+  <div class="absolute inset-0 opacity-20">
     <div
-      class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.1),transparent_70%)]"
+      class="absolute left-1/4 top-0 h-96 w-96 animate-pulse rounded-full bg-purple-500 blur-[128px] filter"
     >
     </div>
-    <div class="relative z-10">
-      <CubicMatrix />
+    <div
+      class="absolute bottom-0 right-1/4 h-96 w-96 animate-pulse rounded-full bg-blue-500 blur-[128px] filter"
+      style="animation-delay: 1s"
+    >
     </div>
-  </section>
-
-  <!-- Holographic Cards Section -->
-  <section
-    id="holographic"
-    class="py-32 relative bg-gradient-to-b from-neutral-950 via-purple-950/10 to-neutral-900"
-  >
-    <div class="absolute inset-0">
-      <div
-        class="absolute top-1/2 left-0 w-[500px] h-[500px] bg-purple-600 rounded-full filter blur-[150px] opacity-20"
-      >
-      </div>
-      <div
-        class="absolute top-1/2 right-0 w-[500px] h-[500px] bg-pink-600 rounded-full filter blur-[150px] opacity-20"
-      >
-      </div>
-    </div>
-    <div class="relative z-10">
-      <HolographicCards />
-    </div>
-  </section>
-
-  <!-- DNA Helix Section -->
-  <section
-    id="dna-helix"
-    class="py-32 relative bg-gradient-to-b from-neutral-900 to-black"
-  >
-    <div class="absolute inset-0">
-      <div
-        class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiM2MzY2ZjEiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDE2YzAtMi4yMS0xLjc5LTQtNC00cy00IDEuNzktNCA0IDEuNzkgNCA0IDQgNC0xLjc5IDQtNHptMCAwIi8+PC9nPjwvZz48L3N2Zz4=')] opacity-30"
-      >
-      </div>
-    </div>
-    <div class="relative z-10">
-      <DNAHelix />
-    </div>
-  </section>
-
-  <!-- Infinity Tunnel Section -->
-  <section
-    id="infinity-tunnel"
-    class="py-32 relative bg-gradient-to-b from-black via-blue-950/10 to-neutral-900"
-  >
-    <div class="absolute inset-0">
-      <div
-        class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-600 rounded-full filter blur-[200px] opacity-10 animate-pulse"
-      >
-      </div>
-    </div>
-    <div class="relative z-10">
-      <InfinityTunnel />
-    </div>
-  </section>
-
-  <!-- Floating Islands Section -->
-  <section
-    id="floating-islands"
-    class="py-32 relative bg-gradient-to-b from-neutral-900 to-neutral-950"
-  >
-    <div class="absolute inset-0 overflow-hidden">
-      <div
-        class="absolute top-0 left-1/4 w-[600px] h-[600px] bg-cyan-600 rounded-full filter blur-[180px] opacity-10"
-      >
-      </div>
-      <div
-        class="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-purple-600 rounded-full filter blur-[180px] opacity-10"
-      >
-      </div>
-    </div>
-    <div class="relative z-10">
-      <FloatingIslands />
-    </div>
-  </section>
-
-  <!-- Particle Vortex Section -->
-  <section
-    id="particle-vortex"
-    class="py-32 relative bg-gradient-to-b from-neutral-950 via-purple-950/10 to-black"
-  >
-    <div class="absolute inset-0">
-      <div
-        class="absolute inset-0 bg-gradient-radial from-purple-900/20 via-transparent to-transparent animate-pulse"
-        style="animation-duration: 8s"
-      >
-      </div>
-    </div>
-    <div class="relative z-10">
-      <ParticleVortex />
-    </div>
-  </section>
-
-  <!-- Layered Cards Section -->
-  <section
-    id="layered-cards"
-    class="py-32 relative bg-gradient-to-b from-black to-neutral-900"
-  >
-    <div class="absolute inset-0">
-      <div
-        class="absolute top-1/3 left-0 w-[500px] h-[500px] bg-indigo-600 rounded-full filter blur-[150px] opacity-15"
-      >
-      </div>
-      <div
-        class="absolute bottom-1/3 right-0 w-[500px] h-[500px] bg-violet-600 rounded-full filter blur-[150px] opacity-15"
-      >
-      </div>
-    </div>
-    <div class="relative z-10">
-      <LayeredCards />
-    </div>
-  </section>
-
-  <!-- Exploding Grid Section -->
-  <section
-    id="exploding-grid"
-    class="py-32 relative bg-gradient-to-b from-neutral-900 via-pink-950/10 to-neutral-950"
-  >
-    <div class="absolute inset-0">
-      <div
-        class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(236,72,153,0.15),transparent_70%)]"
-      >
-      </div>
-    </div>
-    <div class="relative z-10">
-      <ExplodingGrid />
-    </div>
-  </section>
-
-  <!-- Prismatic Sphere Section -->
-  <section
-    id="prismatic-sphere"
-    class="py-32 relative bg-gradient-to-b from-neutral-950 to-black"
-  >
-    <div class="absolute inset-0 overflow-hidden">
-      <div
-        class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-gradient-conic from-purple-600 via-pink-600 to-purple-600 rounded-full filter blur-[250px] opacity-20 animate-spin"
-        style="animation-duration: 20s"
-      >
-      </div>
-    </div>
-    <div class="relative z-10">
-      <PrismaticSphere />
-    </div>
-  </section>
-
-  <!-- Matrix Rain Section -->
-  <section
-    id="matrix-rain"
-    class="py-32 relative bg-gradient-to-b from-black via-green-950/20 to-neutral-900"
-  >
-    <div class="absolute inset-0">
-      <div
-        class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(34,197,94,0.1),transparent_70%)]"
-      >
-      </div>
-    </div>
-    <div class="relative z-10">
-      <MatrixRain />
-    </div>
-  </section>
-
-  <!-- Interactive Demo Section -->
-  <section class="py-32 relative">
-    <div class="container mx-auto px-6">
-      <RevealOnScroll animation="slide-up">
-        <h2 class="text-6xl font-bold text-center mb-6 text-gradient">
-          Interactive Demonstrations
-        </h2>
-        <p class="text-xl text-neutral-400 text-center mb-20 max-w-2xl mx-auto">
-          Click, hover, and interact with these live examples
-        </p>
-      </RevealOnScroll>
-
-      <div class="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">
-        <!-- Morphing Card Demo -->
-        <RevealOnScroll animation="slide-right" delay={100}>
-          <ModernCard variant="glass" className="interactive-demo-card p-8">
-            <h3 class="text-3xl font-bold mb-4 text-gradient-blue">
-              Morphing Shapes
-            </h3>
-            <p class="text-neutral-400 mb-6">
-              Organic blob animations with smooth transitions
-            </p>
-            <div
-              class="demo-container h-64 flex items-center justify-center relative"
-            >
-              <div class="morphing-blob-1"></div>
-              <div class="morphing-blob-2"></div>
-              <div class="morphing-blob-3"></div>
-            </div>
-          </ModernCard>
-        </RevealOnScroll>
-
-        <!-- Particle System Demo -->
-        <RevealOnScroll animation="slide-left" delay={200}>
-          <ModernCard variant="glass" className="interactive-demo-card p-8">
-            <h3 class="text-3xl font-bold mb-4 text-gradient-purple">
-              Particle System
-            </h3>
-            <p class="text-neutral-400 mb-6">
-              Dynamic particle generation and physics
-            </p>
-            <div
-              class="demo-container h-64 flex items-center justify-center relative overflow-hidden particle-demo"
-            >
-              <!-- Particles added via JavaScript -->
-            </div>
-          </ModernCard>
-        </RevealOnScroll>
-
-        <!-- Wave Animation Demo -->
-        <RevealOnScroll animation="slide-right" delay={300}>
-          <ModernCard variant="glass" className="interactive-demo-card p-8">
-            <h3 class="text-3xl font-bold mb-4 text-shine">Wave Distortion</h3>
-            <p class="text-neutral-400 mb-6">
-              Sin wave patterns with fluid motion
-            </p>
-            <div class="demo-container h-64 flex items-center justify-center">
-              <svg viewBox="0 0 400 200" class="w-full h-full">
-                {
-                  Array.from({ length: 8 }).map((_, i) => (
-                    <path
-                      class={`wave-path wave-${i + 1}`}
-                      d="M0,100 Q50,50 100,100 T200,100 T300,100 T400,100"
-                      fill="none"
-                      stroke={`rgba(${99 + i * 20}, ${102 + i * 10}, 241, 0.${8 - i})`}
-                      stroke-width="2"
-                      style={`animation-delay: ${i * 0.1}s`}
-                    />
-                  ))
-                }
-              </svg>
-            </div>
-          </ModernCard>
-        </RevealOnScroll>
-
-        <!-- Gradient Mesh Demo -->
-        <RevealOnScroll animation="slide-left" delay={400}>
-          <ModernCard variant="glass" className="interactive-demo-card p-8">
-            <h3 class="text-3xl font-bold mb-4 text-gradient">Color Mesh</h3>
-            <p class="text-neutral-400 mb-6">
-              Dynamic gradient mesh animations
-            </p>
-            <div
-              class="demo-container h-64 flex items-center justify-center relative overflow-hidden"
-            >
-              <div class="gradient-orb orb-1"></div>
-              <div class="gradient-orb orb-2"></div>
-              <div class="gradient-orb orb-3"></div>
-              <div class="gradient-orb orb-4"></div>
-            </div>
-          </ModernCard>
-        </RevealOnScroll>
-      </div>
-    </div>
-  </section>
-
-  <!-- Typography Showcase -->
-  <section class="py-32 relative bg-neutral-900/50">
-    <div class="container mx-auto px-6">
-      <div class="max-w-5xl mx-auto space-y-20">
-        <RevealOnScroll animation="fade">
-          <div class="text-center">
-            <h2
-              class="text-8xl md:text-9xl font-bold text-gradient animate-gradient bg-[length:200%_200%] mb-4"
-            >
-              ANIMATED
-            </h2>
-            <p class="text-neutral-400 text-xl">
-              Smooth gradient color transitions
-            </p>
-          </div>
-        </RevealOnScroll>
-
-        <RevealOnScroll animation="fade" delay={200}>
-          <div class="text-center">
-            <h2
-              class="text-8xl md:text-9xl font-bold text-shine bg-clip-text text-transparent bg-gradient-to-r from-white via-purple-300 to-white bg-[length:200%_100%] animate-shimmer mb-4"
-            >
-              SHIMMER
-            </h2>
-            <p class="text-neutral-400 text-xl">Metallic light sweep effect</p>
-          </div>
-        </RevealOnScroll>
-
-        <RevealOnScroll animation="fade" delay={400}>
-          <div class="text-center">
-            <h2
-              class="text-8xl md:text-9xl font-bold glow-strong text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 mb-4"
-            >
-              LUMINOUS
-            </h2>
-            <p class="text-neutral-400 text-xl">Glowing neon-style text</p>
-          </div>
-        </RevealOnScroll>
-      </div>
-    </div>
-  </section>
-
-  <!-- Interactive Cards Grid -->
-  <section class="py-32 relative">
-    <div class="container mx-auto px-6">
-      <RevealOnScroll animation="slide-up">
-        <h2 class="text-6xl font-bold text-center mb-6 text-gradient-purple">
-          Micro-Interactions
-        </h2>
-        <p class="text-xl text-neutral-400 text-center mb-20 max-w-2xl mx-auto">
-          Hover and click to see responsive animations
-        </p>
-      </RevealOnScroll>
-
-      <div class="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6">
-        {
-          Array.from({ length: 8 }).map((_, i) => (
-            <RevealOnScroll animation="scale" delay={i * 50}>
-              <ModernCard
-                variant="glass"
-                className="interactive-tile aspect-square cursor-pointer group hover:scale-110 transition-all duration-500 hover:rotate-3 hover:shadow-2xl relative overflow-hidden"
-              >
-                <div class="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-pink-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div class="absolute inset-0 flex items-center justify-center">
-                  <span class="text-6xl group-hover:scale-125 transition-transform duration-500 filter drop-shadow-glow">
-                    {['⚡', '🌟', '🎯', '🔮', '💎', '🎨', '✨', '🚀'][i]}
-                  </span>
-                </div>
-                <div class="absolute inset-0 pattern-dots opacity-5" />
-              </ModernCard>
-            </RevealOnScroll>
-          ))
-        }
-      </div>
-    </div>
-  </section>
-
-  <!-- Button Showcase -->
-  <section
-    class="py-32 relative bg-gradient-to-b from-transparent via-purple-950/20 to-transparent"
-  >
-    <div class="container mx-auto px-6">
-      <RevealOnScroll animation="slide-up">
-        <h2 class="text-6xl font-bold text-center mb-6 text-gradient">
-          Advanced Buttons
-        </h2>
-        <p class="text-xl text-neutral-400 text-center mb-20 max-w-2xl mx-auto">
-          Each features ripple effects, shimmer animations, and smooth
-          transitions
-        </p>
-      </RevealOnScroll>
-
-      <div class="max-w-4xl mx-auto space-y-12">
-        <div class="flex flex-wrap gap-6 justify-center items-center">
-          <ModernButton variant="primary" size="lg" shadow="xl"
-            >Primary</ModernButton
-          >
-          <ModernButton variant="gradient" size="lg" shadow="xl"
-            >Gradient</ModernButton
-          >
-          <ModernButton variant="neon" size="lg" shadow="xl"
-            >Neon Glow</ModernButton
-          >
-          <ModernButton variant="outline" size="lg">Outlined</ModernButton>
-        </div>
-
-        <div class="flex flex-wrap gap-6 justify-center items-center">
-          <ModernButton variant="success" size="md" shadow="lg"
-            >Success</ModernButton
-          >
-          <ModernButton variant="warning" size="md" shadow="lg"
-            >Warning</ModernButton
-          >
-          <ModernButton variant="destructive" size="md" shadow="lg"
-            >Danger</ModernButton
-          >
-          <ModernButton variant="ghost" size="md">Ghost</ModernButton>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Final CTA -->
-  <section class="py-32 relative">
-    <div class="container mx-auto px-6">
-      <RevealOnScroll animation="scale">
-        <ModernCard
-          variant="glass"
-          className="max-w-4xl mx-auto text-center p-16"
-          glow
+  </div>
+  <div class="container relative z-10 mx-auto px-6">
+    <RevealOnScroll animation="slide-up">
+      <div class="mb-20 text-center">
+        <div
+          class="mb-6 inline-block rounded-full border border-purple-500/30 bg-purple-500/10 px-6 py-3 backdrop-blur-sm"
         >
-          <h2 class="text-5xl md:text-6xl font-bold mb-6 text-gradient-purple">
-            Ready to Build Something Amazing?
-          </h2>
-          <p class="text-xl text-neutral-400 mb-12 max-w-2xl mx-auto">
-            These demonstrations showcase what's possible with modern web
-            technologies. Every element is crafted for performance and visual
-            excellence.
+          <span
+            class="text-sm font-semibold uppercase tracking-wider text-purple-300"
+            >Pure CSS • No JavaScript</span
+          >
+        </div>
+        <h2
+          class="mb-8 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-center text-8xl font-black text-transparent md:text-9xl"
+        >
+          3D Mastery
+        </h2>
+        <p
+          class="mx-auto max-w-4xl text-center text-2xl leading-relaxed text-neutral-300 md:text-3xl"
+        >
+          Experience the absolute limits of CSS 3D transforms, perspective
+          depth, and GPU-accelerated animations
+        </p>
+      </div>
+    </RevealOnScroll>
+
+    <Advanced3DShowcase />
+  </div>
+</section>
+
+<!-- Cubic Matrix Section -->
+<section
+  id="cubic-matrix"
+  class="relative bg-gradient-to-b from-neutral-900 to-neutral-950 py-32"
+>
+  <div
+    class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.1),transparent_70%)]"
+  >
+  </div>
+  <div class="relative z-10">
+    <CubicMatrix />
+  </div>
+</section>
+
+<!-- Holographic Cards Section -->
+<section
+  id="holographic"
+  class="relative bg-gradient-to-b from-neutral-950 via-purple-950/10 to-neutral-900 py-32"
+>
+  <div class="absolute inset-0">
+    <div
+      class="absolute left-0 top-1/2 h-[500px] w-[500px] rounded-full bg-purple-600 opacity-20 blur-[150px] filter"
+    >
+    </div>
+    <div
+      class="absolute right-0 top-1/2 h-[500px] w-[500px] rounded-full bg-pink-600 opacity-20 blur-[150px] filter"
+    >
+    </div>
+  </div>
+  <div class="relative z-10">
+    <HolographicCards />
+  </div>
+</section>
+
+<!-- DNA Helix Section -->
+<section
+  id="dna-helix"
+  class="relative bg-gradient-to-b from-neutral-900 to-black py-32"
+>
+  <div class="absolute inset-0">
+    <div
+      class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiM2MzY2ZjEiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDE2YzAtMi4yMS0xLjc5LTQtNC00cy00IDEuNzktNCA0IDEuNzkgNCA0IDQgNC0xLjc5IDQtNHptMCAwIi8+PC9nPjwvZz48L3N2Zz4=')] opacity-30"
+    >
+    </div>
+  </div>
+  <div class="relative z-10">
+    <DNAHelix />
+  </div>
+</section>
+
+<!-- Infinity Tunnel Section -->
+<section
+  id="infinity-tunnel"
+  class="relative bg-gradient-to-b from-black via-blue-950/10 to-neutral-900 py-32"
+>
+  <div class="absolute inset-0">
+    <div
+      class="absolute left-1/2 top-1/2 h-[800px] w-[800px] -translate-x-1/2 -translate-y-1/2 transform animate-pulse rounded-full bg-blue-600 opacity-10 blur-[200px] filter"
+    >
+    </div>
+  </div>
+  <div class="relative z-10">
+    <InfinityTunnel />
+  </div>
+</section>
+
+<!-- Floating Islands Section -->
+<section
+  id="floating-islands"
+  class="relative bg-gradient-to-b from-neutral-900 to-neutral-950 py-32"
+>
+  <div class="absolute inset-0 overflow-hidden">
+    <div
+      class="absolute left-1/4 top-0 h-[600px] w-[600px] rounded-full bg-cyan-600 opacity-10 blur-[180px] filter"
+    >
+    </div>
+    <div
+      class="absolute bottom-0 right-1/4 h-[600px] w-[600px] rounded-full bg-purple-600 opacity-10 blur-[180px] filter"
+    >
+    </div>
+  </div>
+  <div class="relative z-10">
+    <FloatingIslands />
+  </div>
+</section>
+
+<!-- Particle Vortex Section -->
+<section
+  id="particle-vortex"
+  class="relative bg-gradient-to-b from-neutral-950 via-purple-950/10 to-black py-32"
+>
+  <div class="absolute inset-0">
+    <div
+      class="absolute inset-0 animate-pulse bg-gradient-radial from-purple-900/20 via-transparent to-transparent"
+      style="animation-duration: 8s"
+    >
+    </div>
+  </div>
+  <div class="relative z-10">
+    <ParticleVortex />
+  </div>
+</section>
+
+<!-- Layered Cards Section -->
+<section
+  id="layered-cards"
+  class="relative bg-gradient-to-b from-black to-neutral-900 py-32"
+>
+  <div class="absolute inset-0">
+    <div
+      class="absolute left-0 top-1/3 h-[500px] w-[500px] rounded-full bg-indigo-600 opacity-15 blur-[150px] filter"
+    >
+    </div>
+    <div
+      class="absolute bottom-1/3 right-0 h-[500px] w-[500px] rounded-full bg-violet-600 opacity-15 blur-[150px] filter"
+    >
+    </div>
+  </div>
+  <div class="relative z-10">
+    <LayeredCards />
+  </div>
+</section>
+
+<!-- Exploding Grid Section -->
+<section
+  id="exploding-grid"
+  class="relative bg-gradient-to-b from-neutral-900 via-pink-950/10 to-neutral-950 py-32"
+>
+  <div class="absolute inset-0">
+    <div
+      class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(236,72,153,0.15),transparent_70%)]"
+    >
+    </div>
+  </div>
+  <div class="relative z-10">
+    <ExplodingGrid />
+  </div>
+</section>
+
+<!-- Prismatic Sphere Section -->
+<section
+  id="prismatic-sphere"
+  class="relative bg-gradient-to-b from-neutral-950 to-black py-32"
+>
+  <div class="absolute inset-0 overflow-hidden">
+    <div
+      class="absolute left-1/2 top-1/2 h-[1000px] w-[1000px] -translate-x-1/2 -translate-y-1/2 transform animate-spin rounded-full bg-gradient-conic from-purple-600 via-pink-600 to-purple-600 opacity-20 blur-[250px] filter"
+      style="animation-duration: 20s"
+    >
+    </div>
+  </div>
+  <div class="relative z-10">
+    <PrismaticSphere />
+  </div>
+</section>
+
+<!-- Matrix Rain Section -->
+<section
+  id="matrix-rain"
+  class="relative bg-gradient-to-b from-black via-green-950/20 to-neutral-900 py-32"
+>
+  <div class="absolute inset-0">
+    <div
+      class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(34,197,94,0.1),transparent_70%)]"
+    >
+    </div>
+  </div>
+  <div class="relative z-10">
+    <MatrixRain />
+  </div>
+</section>
+
+<!-- Interactive Demo Section -->
+<section class="relative py-32">
+  <div class="container mx-auto px-6">
+    <RevealOnScroll animation="slide-up">
+      <h2 class="mb-6 text-center text-6xl font-bold text-gradient">
+        Interactive Demonstrations
+      </h2>
+      <p class="mx-auto mb-20 max-w-2xl text-center text-xl text-neutral-400">
+        Click, hover, and interact with these live examples
+      </p>
+    </RevealOnScroll>
+
+    <div class="mx-auto grid max-w-6xl gap-12 md:grid-cols-2">
+      <!-- Morphing Card Demo -->
+      <RevealOnScroll animation="slide-right" delay={100}>
+        <ModernCard variant="glass" className="interactive-demo-card p-8">
+          <h3 class="mb-4 text-3xl font-bold text-gradient-blue">
+            Morphing Shapes
+          </h3>
+          <p class="mb-6 text-neutral-400">
+            Organic blob animations with smooth transitions
           </p>
-          <div class="flex gap-6 justify-center flex-wrap">
-            <ModernButton variant="neon" size="xl" shadow="xl">
-              Get Started
-            </ModernButton>
-            <ModernButton variant="outline" size="xl">
-              View Documentation
-            </ModernButton>
+          <div
+            class="demo-container relative flex h-64 items-center justify-center"
+          >
+            <div class="morphing-blob-1"></div>
+            <div class="morphing-blob-2"></div>
+            <div class="morphing-blob-3"></div>
+          </div>
+        </ModernCard>
+      </RevealOnScroll>
+
+      <!-- Particle System Demo -->
+      <RevealOnScroll animation="slide-left" delay={200}>
+        <ModernCard variant="glass" className="interactive-demo-card p-8">
+          <h3 class="mb-4 text-3xl font-bold text-gradient-purple">
+            Particle System
+          </h3>
+          <p class="mb-6 text-neutral-400">
+            Dynamic particle generation and physics
+          </p>
+          <div
+            class="demo-container particle-demo relative flex h-64 items-center justify-center overflow-hidden"
+          >
+            <!-- Particles added via JavaScript -->
+          </div>
+        </ModernCard>
+      </RevealOnScroll>
+
+      <!-- Wave Animation Demo -->
+      <RevealOnScroll animation="slide-right" delay={300}>
+        <ModernCard variant="glass" className="interactive-demo-card p-8">
+          <h3 class="text-shine mb-4 text-3xl font-bold">Wave Distortion</h3>
+          <p class="mb-6 text-neutral-400">
+            Sin wave patterns with fluid motion
+          </p>
+          <div class="demo-container flex h-64 items-center justify-center">
+            <svg viewBox="0 0 400 200" class="h-full w-full">
+              {
+                Array.from({ length: 8 }).map((_, i) => (
+                  <path
+                    class={`wave-path wave-${i + 1}`}
+                    d="M0,100 Q50,50 100,100 T200,100 T300,100 T400,100"
+                    fill="none"
+                    stroke={`rgba(${99 + i * 20}, ${102 + i * 10}, 241, 0.${8 - i})`}
+                    stroke-width="2"
+                    style={`animation-delay: ${i * 0.1}s`}
+                  />
+                ))
+              }
+            </svg>
+          </div>
+        </ModernCard>
+      </RevealOnScroll>
+
+      <!-- Gradient Mesh Demo -->
+      <RevealOnScroll animation="slide-left" delay={400}>
+        <ModernCard variant="glass" className="interactive-demo-card p-8">
+          <h3 class="mb-4 text-3xl font-bold text-gradient">Color Mesh</h3>
+          <p class="mb-6 text-neutral-400">Dynamic gradient mesh animations</p>
+          <div
+            class="demo-container relative flex h-64 items-center justify-center overflow-hidden"
+          >
+            <div class="gradient-orb orb-1"></div>
+            <div class="gradient-orb orb-2"></div>
+            <div class="gradient-orb orb-3"></div>
+            <div class="gradient-orb orb-4"></div>
           </div>
         </ModernCard>
       </RevealOnScroll>
     </div>
-  </section>
+  </div>
+</section>
 
-  <style>
-    /* Defer rendering of heavy sections until visible */
-    main > section {
-      content-visibility: auto;
-      contain: layout paint style;
-      contain-intrinsic-size: 900px;
+<!-- Typography Showcase -->
+<section class="relative bg-neutral-900/50 py-32">
+  <div class="container mx-auto px-6">
+    <div class="mx-auto max-w-5xl space-y-20">
+      <RevealOnScroll animation="fade">
+        <div class="text-center">
+          <h2
+            class="mb-4 animate-gradient bg-[length:200%_200%] text-8xl font-bold text-gradient md:text-9xl"
+          >
+            ANIMATED
+          </h2>
+          <p class="text-xl text-neutral-400">
+            Smooth gradient color transitions
+          </p>
+        </div>
+      </RevealOnScroll>
+
+      <RevealOnScroll animation="fade" delay={200}>
+        <div class="text-center">
+          <h2
+            class="text-shine mb-4 animate-shimmer bg-gradient-to-r from-white via-purple-300 to-white bg-[length:200%_100%] bg-clip-text text-8xl font-bold text-transparent md:text-9xl"
+          >
+            SHIMMER
+          </h2>
+          <p class="text-xl text-neutral-400">Metallic light sweep effect</p>
+        </div>
+      </RevealOnScroll>
+
+      <RevealOnScroll animation="fade" delay={400}>
+        <div class="text-center">
+          <h2
+            class="glow-strong mb-4 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-8xl font-bold text-transparent md:text-9xl"
+          >
+            LUMINOUS
+          </h2>
+          <p class="text-xl text-neutral-400">Glowing neon-style text</p>
+        </div>
+      </RevealOnScroll>
+    </div>
+  </div>
+</section>
+
+<!-- Interactive Cards Grid -->
+<section class="relative py-32">
+  <div class="container mx-auto px-6">
+    <RevealOnScroll animation="slide-up">
+      <h2 class="mb-6 text-center text-6xl font-bold text-gradient-purple">
+        Micro-Interactions
+      </h2>
+      <p class="mx-auto mb-20 max-w-2xl text-center text-xl text-neutral-400">
+        Hover and click to see responsive animations
+      </p>
+    </RevealOnScroll>
+
+    <div class="mx-auto grid max-w-6xl grid-cols-2 gap-6 md:grid-cols-4">
+      {
+        Array.from({ length: 8 }).map((_, i) => (
+          <RevealOnScroll animation="scale" delay={i * 50}>
+            <ModernCard
+              variant="glass"
+              className="interactive-tile aspect-square cursor-pointer group hover:scale-110 transition-all duration-500 hover:rotate-3 hover:shadow-2xl relative overflow-hidden"
+            >
+              <div class="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-pink-500/20 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+              <div class="absolute inset-0 flex items-center justify-center">
+                <span class="drop-shadow-glow text-6xl filter transition-transform duration-500 group-hover:scale-125">
+                  {['⚡', '🌟', '🎯', '🔮', '💎', '🎨', '✨', '🚀'][i]}
+                </span>
+              </div>
+              <div class="absolute inset-0 opacity-5 pattern-dots" />
+            </ModernCard>
+          </RevealOnScroll>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<!-- Button Showcase -->
+<section
+  class="relative bg-gradient-to-b from-transparent via-purple-950/20 to-transparent py-32"
+>
+  <div class="container mx-auto px-6">
+    <RevealOnScroll animation="slide-up">
+      <h2 class="mb-6 text-center text-6xl font-bold text-gradient">
+        Advanced Buttons
+      </h2>
+      <p class="mx-auto mb-20 max-w-2xl text-center text-xl text-neutral-400">
+        Each features ripple effects, shimmer animations, and smooth transitions
+      </p>
+    </RevealOnScroll>
+
+    <div class="mx-auto max-w-4xl space-y-12">
+      <div class="flex flex-wrap items-center justify-center gap-6">
+        <ModernButton variant="primary" size="lg" shadow="xl"
+          >Primary</ModernButton
+        >
+        <ModernButton variant="gradient" size="lg" shadow="xl"
+          >Gradient</ModernButton
+        >
+        <ModernButton variant="neon" size="lg" shadow="xl"
+          >Neon Glow</ModernButton
+        >
+        <ModernButton variant="outline" size="lg">Outlined</ModernButton>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-center gap-6">
+        <ModernButton variant="success" size="md" shadow="lg"
+          >Success</ModernButton
+        >
+        <ModernButton variant="warning" size="md" shadow="lg"
+          >Warning</ModernButton
+        >
+        <ModernButton variant="destructive" size="md" shadow="lg"
+          >Danger</ModernButton
+        >
+        <ModernButton variant="ghost" size="md">Ghost</ModernButton>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Final CTA -->
+<section class="relative py-32">
+  <div class="container mx-auto px-6">
+    <RevealOnScroll animation="scale">
+      <ModernCard
+        variant="glass"
+        className="mx-auto max-w-4xl p-16 text-center"
+        glow
+      >
+        <h2 class="mb-6 text-5xl font-bold text-gradient-purple md:text-6xl">
+          Ready to Build Something Amazing?
+        </h2>
+        <p class="mx-auto mb-12 max-w-2xl text-xl text-neutral-400">
+          These demonstrations showcase what's possible with modern web
+          technologies. Every element is crafted for performance and visual
+          excellence.
+        </p>
+        <div class="flex flex-wrap justify-center gap-6">
+          <ModernButton variant="neon" size="xl" shadow="xl">
+            Get Started
+          </ModernButton>
+          <ModernButton variant="outline" size="xl">
+            View Documentation
+          </ModernButton>
+        </div>
+      </ModernCard>
+    </RevealOnScroll>
+  </div>
+</section>
+
+<style>
+  /* Defer rendering of heavy sections until visible */
+  main > section {
+    content-visibility: auto;
+    contain: layout paint style;
+    contain-intrinsic-size: 900px;
+  }
+
+  /* Morphing blobs */
+  .morphing-blob-1,
+  .morphing-blob-2,
+  .morphing-blob-3 {
+    position: absolute;
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+    animation:
+      morph 8s ease-in-out infinite,
+      float 6s ease-in-out infinite;
+    filter: blur(40px);
+  }
+
+  .morphing-blob-1 {
+    width: 200px;
+    height: 200px;
+    background: linear-gradient(
+      135deg,
+      rgba(99, 102, 241, 0.6),
+      rgba(168, 85, 247, 0.6)
+    );
+  }
+
+  .morphing-blob-2 {
+    width: 180px;
+    height: 180px;
+    background: linear-gradient(
+      135deg,
+      rgba(236, 72, 153, 0.5),
+      rgba(239, 68, 68, 0.5)
+    );
+    animation-delay: -2s;
+  }
+
+  .morphing-blob-3 {
+    width: 160px;
+    height: 160px;
+    background: linear-gradient(
+      135deg,
+      rgba(59, 130, 246, 0.5),
+      rgba(16, 185, 129, 0.5)
+    );
+    animation-delay: -4s;
+  }
+
+  @keyframes morph {
+    0%,
+    100% {
+      border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
     }
+    25% {
+      border-radius: 58% 42% 75% 25% / 76% 46% 54% 24%;
+    }
+    50% {
+      border-radius: 50% 50% 33% 67% / 55% 27% 73% 45%;
+    }
+    75% {
+      border-radius: 33% 67% 58% 42% / 63% 68% 32% 37%;
+    }
+  }
 
-    /* Morphing blobs */
+  /* Wave animations */
+  .wave-path {
+    animation: wave-flow 3s ease-in-out infinite;
+  }
+
+  @keyframes wave-flow {
+    0%,
+    100% {
+      d: path('M0,100 Q50,50 100,100 T200,100 T300,100 T400,100');
+    }
+    50% {
+      d: path('M0,100 Q50,150 100,100 T200,100 T300,100 T400,100');
+    }
+  }
+
+  /* Gradient orbs */
+  .gradient-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    animation: float-orb 8s ease-in-out infinite;
+    mix-blend-mode: screen;
+  }
+
+  .orb-1 {
+    width: 150px;
+    height: 150px;
+    background: rgba(99, 102, 241, 0.7);
+    top: 20%;
+    left: 20%;
+  }
+
+  .orb-2 {
+    width: 120px;
+    height: 120px;
+    background: rgba(236, 72, 153, 0.7);
+    top: 60%;
+    right: 20%;
+    animation-delay: -2s;
+  }
+
+  .orb-3 {
+    width: 100px;
+    height: 100px;
+    background: rgba(59, 130, 246, 0.7);
+    bottom: 20%;
+    left: 30%;
+    animation-delay: -4s;
+  }
+
+  .orb-4 {
+    width: 130px;
+    height: 130px;
+    background: rgba(168, 85, 247, 0.7);
+    top: 40%;
+    right: 40%;
+    animation-delay: -6s;
+  }
+
+  @keyframes float-orb {
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1);
+    }
+    33% {
+      transform: translate(30px, -30px) scale(1.1);
+    }
+    66% {
+      transform: translate(-20px, 20px) scale(0.9);
+    }
+  }
+
+  /* Interactive tile hover effect */
+  .interactive-tile::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: linear-gradient(45deg, #6366f1, #a855f7, #ec4899, #6366f1);
+    background-size: 300% 300%;
+    border-radius: inherit;
+    opacity: 0;
+    transition: opacity 0.5s;
+    animation: gradient-rotate 4s linear infinite;
+    z-index: -1;
+  }
+
+  .interactive-tile:hover::before {
+    opacity: 1;
+  }
+
+  @keyframes gradient-rotate {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  /* Demo card styles */
+  .interactive-demo-card {
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .interactive-demo-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 60px rgba(168, 85, 247, 0.3);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
     .morphing-blob-1,
     .morphing-blob-2,
-    .morphing-blob-3 {
-      position: absolute;
-      border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
-      animation:
-        morph 8s ease-in-out infinite,
-        float 6s ease-in-out infinite;
-      filter: blur(40px);
+    .morphing-blob-3,
+    .interactive-tile::before,
+    .interactive-demo-card,
+    .particle-generated {
+      animation: none !important;
+      transition: none !important;
     }
-
-    .morphing-blob-1 {
-      width: 200px;
-      height: 200px;
-      background: linear-gradient(
-        135deg,
-        rgba(99, 102, 241, 0.6),
-        rgba(168, 85, 247, 0.6)
-      );
-    }
-
-    .morphing-blob-2 {
-      width: 180px;
-      height: 180px;
-      background: linear-gradient(
-        135deg,
-        rgba(236, 72, 153, 0.5),
-        rgba(239, 68, 68, 0.5)
-      );
-      animation-delay: -2s;
-    }
-
-    .morphing-blob-3 {
-      width: 160px;
-      height: 160px;
-      background: linear-gradient(
-        135deg,
-        rgba(59, 130, 246, 0.5),
-        rgba(16, 185, 129, 0.5)
-      );
-      animation-delay: -4s;
-    }
-
-    @keyframes morph {
-      0%,
-      100% {
-        border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
-      }
-      25% {
-        border-radius: 58% 42% 75% 25% / 76% 46% 54% 24%;
-      }
-      50% {
-        border-radius: 50% 50% 33% 67% / 55% 27% 73% 45%;
-      }
-      75% {
-        border-radius: 33% 67% 58% 42% / 63% 68% 32% 37%;
-      }
-    }
-
-    /* Wave animations */
-    .wave-path {
-      animation: wave-flow 3s ease-in-out infinite;
-    }
-
-    @keyframes wave-flow {
-      0%,
-      100% {
-        d: path('M0,100 Q50,50 100,100 T200,100 T300,100 T400,100');
-      }
-      50% {
-        d: path('M0,100 Q50,150 100,100 T200,100 T300,100 T400,100');
-      }
-    }
-
-    /* Gradient orbs */
-    .gradient-orb {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(60px);
-      animation: float-orb 8s ease-in-out infinite;
-      mix-blend-mode: screen;
-    }
-
-    .orb-1 {
-      width: 150px;
-      height: 150px;
-      background: rgba(99, 102, 241, 0.7);
-      top: 20%;
-      left: 20%;
-    }
-
-    .orb-2 {
-      width: 120px;
-      height: 120px;
-      background: rgba(236, 72, 153, 0.7);
-      top: 60%;
-      right: 20%;
-      animation-delay: -2s;
-    }
-
-    .orb-3 {
-      width: 100px;
-      height: 100px;
-      background: rgba(59, 130, 246, 0.7);
-      bottom: 20%;
-      left: 30%;
-      animation-delay: -4s;
-    }
-
-    .orb-4 {
-      width: 130px;
-      height: 130px;
-      background: rgba(168, 85, 247, 0.7);
-      top: 40%;
-      right: 40%;
-      animation-delay: -6s;
-    }
-
-    @keyframes float-orb {
-      0%,
-      100% {
-        transform: translate(0, 0) scale(1);
-      }
-      33% {
-        transform: translate(30px, -30px) scale(1.1);
-      }
-      66% {
-        transform: translate(-20px, 20px) scale(0.9);
-      }
-    }
-
-    /* Interactive tile hover effect */
-    .interactive-tile::before {
-      content: '';
-      position: absolute;
-      inset: -2px;
-      background: linear-gradient(45deg, #6366f1, #a855f7, #ec4899, #6366f1);
-      background-size: 300% 300%;
-      border-radius: inherit;
-      opacity: 0;
-      transition: opacity 0.5s;
-      animation: gradient-rotate 4s linear infinite;
-      z-index: -1;
-    }
-
-    .interactive-tile:hover::before {
-      opacity: 1;
-    }
-
-    @keyframes gradient-rotate {
-      0% {
-        background-position: 0% 50%;
-      }
-      50% {
-        background-position: 100% 50%;
-      }
-      100% {
-        background-position: 0% 50%;
-      }
-    }
-
-    /* Demo card styles */
-    .interactive-demo-card {
-      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
     .interactive-demo-card:hover {
-      transform: translateY(-8px) scale(1.02);
-      box-shadow: 0 20px 60px rgba(168, 85, 247, 0.3);
+      transform: none;
+      box-shadow: none;
     }
+  }
+</style>
 
-    @media (prefers-reduced-motion: reduce) {
-      .morphing-blob-1,
-      .morphing-blob-2,
-      .morphing-blob-3,
-      .interactive-tile::before,
-      .interactive-demo-card,
-      .particle-generated {
-        animation: none !important;
-        transition: none !important;
-      }
-      .interactive-demo-card:hover {
-        transform: none;
-        box-shadow: none;
-      }
-    }
-  </style>
-
-  <script>
-    // Particle system generator (paused when offscreen or reduced motion)
-    function createParticleSystem() {
-      const demo = document.querySelector('.particle-demo');
-      if (!demo) return;
-      const prefersReducedMotion = window.matchMedia(
-        '(prefers-reduced-motion: reduce)'
-      );
-      if (prefersReducedMotion.matches) return;
-
-      let intervalId = null;
-
-      const spawnParticle = () => {
-        const particle = document.createElement('div');
-        particle.className = 'particle-generated';
-        particle.style.cssText = `
-            position: absolute;
-            width: ${2 + Math.random() * 4}px;
-            height: ${2 + Math.random() * 4}px;
-            background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(168,85,247,0.8) 50%, transparent 100%);
-            border-radius: 50%;
-            left: ${Math.random() * 100}%;
-            top: 100%;
-            pointer-events: none;
-            animation: rise-particle ${2 + Math.random() * 3}s ease-out forwards;
-          `;
-        demo.appendChild(particle);
-
-        setTimeout(() => particle.remove(), 5000);
-      };
-
-      const start = () => {
-        if (intervalId !== null) return;
-        intervalId = window.setInterval(spawnParticle, 220);
-      };
-
-      const stop = () => {
-        if (intervalId !== null) {
-          clearInterval(intervalId);
-          intervalId = null;
-        }
-      };
-
-      // Add keyframe animation for particles
-      const style = document.createElement('style');
-      style.textContent = `
-          @keyframes rise-particle {
-            0% {
-              transform: translateY(0) scale(1);
-              opacity: 0;
-            }
-            10% {
-              opacity: 1;
-            }
-            90% {
-              opacity: 1;
-            }
-            100% {
-              transform: translateY(-300px) translateX(${Math.random() * 100 - 50}px) scale(0);
-              opacity: 0;
-            }
-          }
-        `;
-      document.head.appendChild(style);
-
-      const observer = new IntersectionObserver(
-        entries => {
-          entries.forEach(entry => {
-            if (entry.isIntersecting) {
-              start();
-            } else {
-              stop();
-            }
-          });
-        },
-        { rootMargin: '100px' }
-      );
-
-      observer.observe(demo);
-
-      // Clean up on navigation away
-      window.addEventListener('beforeunload', stop);
-    }
-
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', createParticleSystem);
-    } else {
-      createParticleSystem();
-    }
-
-    // Magnetic effect on buttons (skip when reduced motion)
-    const prefersReducedMotion = window.matchMedia(
-      '(prefers-reduced-motion: reduce)'
-    );
-    if (!prefersReducedMotion.matches) {
-      document.querySelectorAll('button, .interactive-tile').forEach(el => {
-        el.addEventListener('mousemove', e => {
-          if (!(e instanceof MouseEvent)) return;
-          if (!(el instanceof HTMLElement)) return;
-          const rect = el.getBoundingClientRect();
-          const x = ((e.clientX - rect.left) / rect.width - 0.5) * 20;
-          const y = ((e.clientY - rect.top) / rect.height - 0.5) * 20;
-          el.style.transform = `translate(${x * 0.5}px, ${y * 0.5}px)`;
-        });
-
-        el.addEventListener('mouseleave', () => {
-          if (!(el instanceof HTMLElement)) return;
-          el.style.transform = '';
-        });
-      });
-    }
-
-    // Scroll progress indicator
-    const progressBar = document.createElement('div');
-    progressBar.style.cssText =
-      'position: fixed; top: 0; left: 0; height: 4px; background: linear-gradient(90deg, #8b5cf6, #ec4899, #3b82f6); width: 0%; z-index: 9999; transition: width 0.1s ease;';
-    document.body.appendChild(progressBar);
-
-    window.addEventListener('scroll', () => {
-      const scrolled =
-        (window.scrollY /
-          (document.documentElement.scrollHeight - window.innerHeight)) *
-        100;
-      progressBar.style.width = scrolled + '%';
-    });
-  </script>
-</MarketingLayout>
+-->

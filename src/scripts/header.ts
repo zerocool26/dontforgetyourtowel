@@ -213,4 +213,10 @@ function initHeader() {
 document.addEventListener('DOMContentLoaded', initHeader);
 document.addEventListener('astro:page-load', initHeader);
 
+// If the module loads after DOMContentLoaded (can happen in static builds),
+// ensure we still initialize immediately.
+if (document.readyState !== 'loading') {
+  initHeader();
+}
+
 export { EnhancedHeader };

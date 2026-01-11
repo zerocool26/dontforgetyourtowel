@@ -11,70 +11,71 @@ const navSections = [
       { label: 'About', href: withBasePath('about/') },
       { label: 'Services', href: withBasePath('services/') },
       { label: 'Pricing', href: withBasePath('pricing/') },
-      { label: 'Blog', href: withBasePath('blog/') },
+      { label: 'Privacy', href: withBasePath('privacy/') },
+      { label: 'Terms', href: withBasePath('terms/') },
     ],
   },
   {
-    title: 'Operations',
+    title: 'Get started',
     items: [
-      { label: 'Status playbook', href: withBasePath('dashboard/') },
-      { label: 'Modernisation notes', href: withBasePath('dashboard-v2/') },
       {
-        label: 'Error review workflow',
-        href: withBasePath('error-dashboard/'),
+        label: 'Schedule consultation',
+        href: withBasePath('/#consultation'),
       },
+      { label: 'Request a quote', href: withBasePath('pricing/') },
+      { label: 'Explore services', href: withBasePath('services/') },
     ],
   },
 ];
 ---
 
 <footer
-  class="border-t border-zinc-800 bg-zinc-950 text-zinc-400 relative overflow-hidden"
+  class="relative overflow-hidden border-t border-zinc-800 bg-zinc-950 text-zinc-400"
   role="contentinfo"
 >
   <!-- Technical Grid Background for Footer -->
   <div
-    class="absolute inset-0 pointer-events-none opacity-10"
+    class="pointer-events-none absolute inset-0 opacity-10"
     style="background-image: linear-gradient(var(--color-border) 1px, transparent 1px), linear-gradient(90deg, var(--color-border) 1px, transparent 1px); background-size: 20px 20px;"
   >
   </div>
 
-  <div class="mx-auto max-w-[1400px] px-6 py-16 relative z-10">
+  <div class="relative z-10 mx-auto max-w-[1400px] px-6 py-16">
     <div class="grid gap-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
       <div class="space-y-6">
         <div class="flex items-center gap-3">
           <span
             class="inline-flex h-10 w-10 items-center justify-center border border-zinc-700 bg-zinc-900 text-sm font-bold uppercase tracking-widest text-zinc-100"
           >
-            EP
+            IT
           </span>
           <div class="leading-tight">
-            <p class="text-sm font-bold text-zinc-100 font-display uppercase">
-              Elite Project
+            <p class="font-display text-sm font-bold uppercase text-zinc-100">
+              Apex Managed IT
             </p>
             <p
-              class="text-xs uppercase tracking-widest text-accent-500 font-mono"
+              class="font-mono text-xs uppercase tracking-widest text-accent-500"
             >
-              Operations Intelligence
+              Managed Services • Security • Cloud • AI
             </p>
           </div>
         </div>
         <p
-          class="max-w-lg text-sm text-zinc-400 font-mono leading-relaxed border-l-2 border-zinc-800 pl-4"
+          class="max-w-lg border-l-2 border-zinc-800 pl-4 font-mono text-sm leading-relaxed text-zinc-400"
         >
-          // SYSTEM_NOTE: Purpose-built Astro starter for industrial product
-          teams. Lean components, thoughtful defaults, and deployment patterns
-          that keep GitHub Pages fast and predictable.
+          Enterprise-grade IT with the personal touch of a dedicated partner. We
+          protect, optimize, and transform your technology so you can focus on
+          growing your business.
         </p>
         <div class="flex flex-wrap gap-4">
           <a
-            class="btn btn-primary text-xs uppercase tracking-wider font-mono rounded-sm"
-            href={withBasePath('contact/')}
+            class="btn btn-primary rounded-sm font-mono text-xs uppercase tracking-wider"
+            href={withBasePath('/#consultation')}
           >
-            Schedule Strategy Call
+            Schedule Free Consultation
           </a>
           <a
-            class="btn btn-secondary text-xs uppercase tracking-wider font-mono rounded-sm"
+            class="btn btn-secondary rounded-sm font-mono text-xs uppercase tracking-wider"
             href={withBasePath('pricing/')}
           >
             View Pricing
@@ -82,8 +83,8 @@ const navSections = [
         </div>
         <div class="flex gap-3 text-zinc-500">
           <a
-            class="inline-flex h-10 w-10 items-center justify-center border border-zinc-800 bg-zinc-900 transition hover:border-accent-500 hover:text-accent-500 rounded-sm"
-            href="https://github.com/tariqdude/Github-Pages-Project-v1"
+            class="inline-flex h-10 w-10 items-center justify-center rounded-sm border border-zinc-800 bg-zinc-900 transition hover:border-accent-500 hover:text-accent-500"
+            href="https://github.com"
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -95,7 +96,7 @@ const navSections = [
             </svg>
           </a>
           <a
-            class="inline-flex h-10 w-10 items-center justify-center border border-zinc-800 bg-zinc-900 transition hover:border-accent-500 hover:text-accent-500 rounded-sm"
+            class="inline-flex h-10 w-10 items-center justify-center rounded-sm border border-zinc-800 bg-zinc-900 transition hover:border-accent-500 hover:text-accent-500"
             href="https://www.linkedin.com"
             target="_blank"
             rel="noopener noreferrer"
@@ -108,9 +109,9 @@ const navSections = [
             </svg>
           </a>
         </div>
-        <div class="pt-6 border-t border-zinc-800/50">
+        <div class="border-t border-zinc-800/50 pt-6">
           <p
-            class="font-mono text-[10px] text-zinc-600 uppercase tracking-widest"
+            class="font-mono text-[10px] uppercase tracking-widest text-zinc-600"
           >
             Build ID: {
               new Date().toISOString().split('T')[0].replace(/-/g, '')
@@ -123,7 +124,7 @@ const navSections = [
         {
           navSections.map(section => (
             <ModernCard variant="minimal" className="p-6 bg-zinc-900/50">
-              <p class="text-xs font-bold uppercase tracking-widest text-zinc-500 font-mono border-b border-zinc-800 pb-2 mb-4">
+              <p class="mb-4 border-b border-zinc-800 pb-2 font-mono text-xs font-bold uppercase tracking-widest text-zinc-500">
                 {section.title}
               </p>
               <ul class="space-y-2 text-sm">
@@ -142,17 +143,16 @@ const navSections = [
             </ModernCard>
           ))
         }
-        <ModernCard variant="glass" className="p-6 border-white/10">
+        <ModernCard variant="glass" className="border-white/10 p-6">
           <p
             class="text-xs font-semibold uppercase tracking-[0.32em] text-slate-400"
           >
             Contact
           </p>
           <ul class="mt-4 space-y-2 text-sm text-slate-200">
-            <li>123 Innovation Street</li>
-            <li>Tech City, USA</li>
+            <li>Serving North America (remote + on-site)</li>
             <li>+1 (555) 123-4567</li>
-            <li>hello@eliteproject.dev</li>
+            <li>hello@yourmsp.com</li>
           </ul>
         </ModernCard>
       </div>
@@ -161,9 +161,8 @@ const navSections = [
     <div
       class="mt-12 flex flex-col gap-3 border-t border-white/10 pt-8 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between"
     >
-      <p>&copy; {today.getFullYear()} Elite Project. All rights reserved.</p>
-      <p>Astro + Tailwind. Deployed statically on GitHub Pages.</p>
+      <p>&copy; {today.getFullYear()} Apex Managed IT. All rights reserved.</p>
+      <p>Astro + Tailwind. Built for performance and accessibility.</p>
     </div>
   </div>
 </footer>
-

@@ -4,6 +4,7 @@
  * @description Monads, functors, and functional programming helpers
  * including Option, Result, Either, and composition utilities.
  */
+/* eslint-disable no-redeclare */
 
 // ============================================================================
 // Option Monad (Maybe)
@@ -657,7 +658,10 @@ class PipelineBuilder<TInput, TOutput> {
 
   build(): (input: TInput) => TOutput {
     return (input: TInput) =>
-      this.fns.reduce((acc, fn) => fn(acc), input) as TOutput;
+      this.fns.reduce<unknown>(
+        (acc, fn) => fn(acc),
+        input as unknown
+      ) as TOutput;
   }
 }
 

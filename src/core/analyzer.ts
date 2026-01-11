@@ -341,7 +341,7 @@ export class ProjectAnalyzer {
           ) {
             deploymentChecklist = result.value.module.getLastChecklist();
           }
-        } else {
+        } else if (result.status === 'rejected') {
           logger.error(
             'An analysis module promise was rejected',
             result.reason
@@ -392,24 +392,26 @@ export class ProjectAnalyzer {
     items: T[],
     limit: number,
     worker: (item: T) => Promise<R>
-  ): Promise<Array<PromiseSettledResult<R & { module?: AnalysisModule }>>> {
-    const results: Array<PromiseSettledResult<R & { module?: AnalysisModule }>> =
-      Array(items.length);
+  ): Promise<Array<PromiseSettledResult<R>>> {
+    const results: Array<PromiseSettledResult<R>> = Array(items.length);
     let index = 0;
 
-    const runners = Array.from({ length: Math.min(limit, items.length) }, async () => {
-      while (true) {
-        const currentIndex = index++;
-        if (currentIndex >= items.length) break;
+    const runners = Array.from(
+      { length: Math.min(limit, items.length) },
+      async () => {
+        while (true) {
+          const currentIndex = index++;
+          if (currentIndex >= items.length) break;
 
-        try {
-          const value = await worker(items[currentIndex]);
-          results[currentIndex] = { status: 'fulfilled', value };
-        } catch (reason) {
-          results[currentIndex] = { status: 'rejected', reason };
+          try {
+            const value = await worker(items[currentIndex]);
+            results[currentIndex] = { status: 'fulfilled', value };
+          } catch (reason) {
+            results[currentIndex] = { status: 'rejected', reason };
+          }
         }
       }
-    });
+    );
 
     await Promise.all(runners);
     return results;

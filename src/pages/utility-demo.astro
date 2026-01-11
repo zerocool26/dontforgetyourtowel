@@ -3,12 +3,19 @@ import MarketingLayout from '../layouts/MarketingLayout.astro';
 import Card from '../components/ui/Card.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
 import Animate from '../components/ui/Animate.astro';
+import LegacyRedirect from '../components/LegacyRedirect.astro';
 
 const title = 'Utility Library Demo';
 const description =
   'Interactive demonstration of the built-in utility library including events, HTTP, accessibility, validation, and state management.';
 ---
 
+<LegacyRedirect
+  destination="/"
+  reason="This page was part of the original starter template and has been removed."
+/>
+
+<!--
 <MarketingLayout title={title} description={description}>
   <main class="container mx-auto px-4 py-12 max-w-6xl">
     <Animate animation="fade-in">
@@ -23,394 +30,374 @@ const description =
 
     <div class="space-y-12">
       <!-- Events Section -->
-      <section>
-        <Animate animation="slide-up">
-          <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
-            <span
-              class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 text-sm font-mono"
-              >01</span
-            >
-            Events & Keyboard Shortcuts
-          </h2>
-        </Animate>
+<section>
+  <Animate animation="slide-up">
+    <h2 class="mb-6 flex items-center gap-3 text-2xl font-bold">
+      <span
+        class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/20 font-mono text-sm text-indigo-400"
+        >01</span
+      >
+      Events & Keyboard Shortcuts
+    </h2>
+  </Animate>
 
-        <div class="grid md:grid-cols-2 gap-6">
-          <Card>
-            <h3 class="font-semibold mb-4">Keyboard Shortcuts</h3>
-            <p class="text-sm text-zinc-400 mb-4">
-              Press these keyboard shortcuts to see them in action:
-            </p>
-            <ul class="space-y-2 text-sm">
-              <li class="flex items-center gap-2">
-                <kbd class="px-2 py-1 bg-zinc-800 rounded text-xs"
-                  >Ctrl/Cmd + K</kbd
-                >
-                <span class="text-zinc-400">Open Command Palette</span>
-              </li>
-              <li class="flex items-center gap-2">
-                <kbd class="px-2 py-1 bg-zinc-800 rounded text-xs">Ctrl + M</kbd
-                >
-                <span class="text-zinc-400">Toggle Mobile Menu (on mobile)</span
-                >
-              </li>
-              <li class="flex items-center gap-2">
-                <kbd class="px-2 py-1 bg-zinc-800 rounded text-xs">Alt + 1</kbd>
-                <span class="text-zinc-400">Skip to Main Content</span>
-              </li>
-              <li class="flex items-center gap-2">
-                <kbd class="px-2 py-1 bg-zinc-800 rounded text-xs">Escape</kbd>
-                <span class="text-zinc-400">Close Modals/Menus</span>
-              </li>
-            </ul>
-            <div
-              id="shortcut-display"
-              class="mt-4 p-3 bg-zinc-800/50 rounded text-sm font-mono hidden"
-            >
-              Last shortcut: <span id="shortcut-text"></span>
-            </div>
-          </Card>
+  <div class="grid gap-6 md:grid-cols-2">
+    <Card>
+      <h3 class="mb-4 font-semibold">Keyboard Shortcuts</h3>
+      <p class="mb-4 text-sm text-zinc-400">
+        Press these keyboard shortcuts to see them in action:
+      </p>
+      <ul class="space-y-2 text-sm">
+        <li class="flex items-center gap-2">
+          <kbd class="rounded bg-zinc-800 px-2 py-1 text-xs">Ctrl/Cmd + K</kbd>
+          <span class="text-zinc-400">Open Command Palette</span>
+        </li>
+        <li class="flex items-center gap-2">
+          <kbd class="rounded bg-zinc-800 px-2 py-1 text-xs">Ctrl + M</kbd>
+          <span class="text-zinc-400">Toggle Mobile Menu (on mobile)</span>
+        </li>
+        <li class="flex items-center gap-2">
+          <kbd class="rounded bg-zinc-800 px-2 py-1 text-xs">Alt + 1</kbd>
+          <span class="text-zinc-400">Skip to Main Content</span>
+        </li>
+        <li class="flex items-center gap-2">
+          <kbd class="rounded bg-zinc-800 px-2 py-1 text-xs">Escape</kbd>
+          <span class="text-zinc-400">Close Modals/Menus</span>
+        </li>
+      </ul>
+      <div
+        id="shortcut-display"
+        class="mt-4 hidden rounded bg-zinc-800/50 p-3 font-mono text-sm"
+      >
+        Last shortcut: <span id="shortcut-text"></span>
+      </div>
+    </Card>
 
-          <Card>
-            <h3 class="font-semibold mb-4">Event Emitter Demo</h3>
-            <p class="text-sm text-zinc-400 mb-4">
-              Type-safe event system with subscription management:
-            </p>
-            <div class="space-y-3">
-              <ModernButton id="emit-event" variant="secondary" size="sm">
-                Emit Custom Event
-              </ModernButton>
-              <div
-                id="event-log"
-                class="p-3 bg-zinc-800/50 rounded text-sm font-mono max-h-32 overflow-auto"
-              >
-                <p class="text-zinc-500">Event log will appear here...</p>
-              </div>
-            </div>
-          </Card>
+    <Card>
+      <h3 class="mb-4 font-semibold">Event Emitter Demo</h3>
+      <p class="mb-4 text-sm text-zinc-400">
+        Type-safe event system with subscription management:
+      </p>
+      <div class="space-y-3">
+        <ModernButton id="emit-event" variant="secondary" size="sm">
+          Emit Custom Event
+        </ModernButton>
+        <div
+          id="event-log"
+          class="max-h-32 overflow-auto rounded bg-zinc-800/50 p-3 font-mono text-sm"
+        >
+          <p class="text-zinc-500">Event log will appear here...</p>
         </div>
-      </section>
+      </div>
+    </Card>
+  </div>
+</section>
 
-      <!-- Notifications Section -->
-      <section>
-        <Animate animation="slide-up">
-          <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
-            <span
-              class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-green-500/20 text-green-400 text-sm font-mono"
-              >02</span
-            >
-            Notifications & Store
-          </h2>
-        </Animate>
+<!-- Notifications Section -->
+<section>
+  <Animate animation="slide-up">
+    <h2 class="mb-6 flex items-center gap-3 text-2xl font-bold">
+      <span
+        class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-green-500/20 font-mono text-sm text-green-400"
+        >02</span
+      >
+      Notifications & Store
+    </h2>
+  </Animate>
 
-        <Card>
-          <h3 class="font-semibold mb-4">Toast Notification System</h3>
-          <p class="text-sm text-zinc-400 mb-4">
-            Reactive notification system with auto-dismiss and screen reader
-            support:
-          </p>
-          <div class="flex flex-wrap gap-3">
-            <ModernButton id="notify-success" variant="primary" size="sm">
-              Success Toast
-            </ModernButton>
-            <ModernButton id="notify-error" variant="secondary" size="sm">
-              Error Toast
-            </ModernButton>
-            <ModernButton id="notify-warning" variant="secondary" size="sm">
-              Warning Toast
-            </ModernButton>
-            <ModernButton id="notify-info" variant="secondary" size="sm">
-              Info Toast
-            </ModernButton>
-          </div>
-        </Card>
-      </section>
+  <Card>
+    <h3 class="mb-4 font-semibold">Toast Notification System</h3>
+    <p class="mb-4 text-sm text-zinc-400">
+      Reactive notification system with auto-dismiss and screen reader support:
+    </p>
+    <div class="flex flex-wrap gap-3">
+      <ModernButton id="notify-success" variant="primary" size="sm">
+        Success Toast
+      </ModernButton>
+      <ModernButton id="notify-error" variant="secondary" size="sm">
+        Error Toast
+      </ModernButton>
+      <ModernButton id="notify-warning" variant="secondary" size="sm">
+        Warning Toast
+      </ModernButton>
+      <ModernButton id="notify-info" variant="secondary" size="sm">
+        Info Toast
+      </ModernButton>
+    </div>
+  </Card>
+</section>
 
-      <!-- Accessibility Section -->
-      <section>
-        <Animate animation="slide-up">
-          <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
-            <span
-              class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-purple-500/20 text-purple-400 text-sm font-mono"
-              >03</span
-            >
-            Accessibility Utilities
-          </h2>
-        </Animate>
+<!-- Accessibility Section -->
+<section>
+  <Animate animation="slide-up">
+    <h2 class="mb-6 flex items-center gap-3 text-2xl font-bold">
+      <span
+        class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/20 font-mono text-sm text-purple-400"
+        >03</span
+      >
+      Accessibility Utilities
+    </h2>
+  </Animate>
 
-        <div class="grid md:grid-cols-2 gap-6">
-          <Card>
-            <h3 class="font-semibold mb-4">Screen Reader Announcements</h3>
-            <p class="text-sm text-zinc-400 mb-4">
-              ARIA live region announcements for dynamic content:
-            </p>
-            <div class="space-y-3">
-              <ModernButton id="announce-polite" variant="secondary" size="sm">
-                Polite Announcement
-              </ModernButton>
-              <ModernButton
-                id="announce-assertive"
-                variant="secondary"
-                size="sm"
-              >
-                Assertive Announcement
-              </ModernButton>
-              <p class="text-xs text-zinc-500">
-                Enable a screen reader to hear the announcements
-              </p>
-            </div>
-          </Card>
+  <div class="grid gap-6 md:grid-cols-2">
+    <Card>
+      <h3 class="mb-4 font-semibold">Screen Reader Announcements</h3>
+      <p class="mb-4 text-sm text-zinc-400">
+        ARIA live region announcements for dynamic content:
+      </p>
+      <div class="space-y-3">
+        <ModernButton id="announce-polite" variant="secondary" size="sm">
+          Polite Announcement
+        </ModernButton>
+        <ModernButton id="announce-assertive" variant="secondary" size="sm">
+          Assertive Announcement
+        </ModernButton>
+        <p class="text-xs text-zinc-500">
+          Enable a screen reader to hear the announcements
+        </p>
+      </div>
+    </Card>
 
-          <Card>
-            <h3 class="font-semibold mb-4">Focus Trap Demo</h3>
-            <p class="text-sm text-zinc-400 mb-4">
-              Tab key navigation is trapped within the highlighted area:
-            </p>
-            <div
-              id="focus-trap-demo"
-              class="p-4 border-2 border-dashed border-zinc-700 rounded-lg space-y-3"
-            >
-              <input
-                type="text"
-                aria-label="First input for focus trap demo"
-                placeholder="First input"
-                class="w-full px-3 py-2 bg-zinc-800 rounded border border-zinc-700 text-sm"
-              />
-              <input
-                type="text"
-                aria-label="Second input for focus trap demo"
-                placeholder="Second input"
-                class="w-full px-3 py-2 bg-zinc-800 rounded border border-zinc-700 text-sm"
-              />
-              <ModernButton
-                id="toggle-focus-trap"
-                variant="secondary"
-                size="sm"
-                className="w-full"
-              >
-                Toggle Focus Trap
-              </ModernButton>
-            </div>
-          </Card>
+    <Card>
+      <h3 class="mb-4 font-semibold">Focus Trap Demo</h3>
+      <p class="mb-4 text-sm text-zinc-400">
+        Tab key navigation is trapped within the highlighted area:
+      </p>
+      <div
+        id="focus-trap-demo"
+        class="space-y-3 rounded-lg border-2 border-dashed border-zinc-700 p-4"
+      >
+        <input
+          type="text"
+          aria-label="First input for focus trap demo"
+          placeholder="First input"
+          class="w-full rounded border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm"
+        />
+        <input
+          type="text"
+          aria-label="Second input for focus trap demo"
+          placeholder="Second input"
+          class="w-full rounded border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm"
+        />
+        <ModernButton
+          id="toggle-focus-trap"
+          variant="secondary"
+          size="sm"
+          className="w-full"
+        >
+          Toggle Focus Trap
+        </ModernButton>
+      </div>
+    </Card>
+  </div>
+</section>
+
+<!-- Media & Device Section -->
+<section>
+  <Animate animation="slide-up">
+    <h2 class="mb-6 flex items-center gap-3 text-2xl font-bold">
+      <span
+        class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500/20 font-mono text-sm text-orange-400"
+        >04</span
+      >
+      Media & Device Detection
+    </h2>
+  </Animate>
+
+  <Card>
+    <h3 class="mb-4 font-semibold">Device & Viewport Information</h3>
+    <div id="device-info" class="grid gap-4 text-sm md:grid-cols-3">
+      <div class="rounded bg-zinc-800/50 p-3">
+        <p class="mb-1 text-xs text-zinc-500">Current Breakpoint</p>
+        <p id="breakpoint" class="font-mono">Loading...</p>
+      </div>
+      <div class="rounded bg-zinc-800/50 p-3">
+        <p class="mb-1 text-xs text-zinc-500">Viewport Size</p>
+        <p id="viewport" class="font-mono">Loading...</p>
+      </div>
+      <div class="rounded bg-zinc-800/50 p-3">
+        <p class="mb-1 text-xs text-zinc-500">Device Type</p>
+        <p id="device-type" class="font-mono">Loading...</p>
+      </div>
+      <div class="rounded bg-zinc-800/50 p-3">
+        <p class="mb-1 text-xs text-zinc-500">Touch Support</p>
+        <p id="touch-support" class="font-mono">Loading...</p>
+      </div>
+      <div class="rounded bg-zinc-800/50 p-3">
+        <p class="mb-1 text-xs text-zinc-500">Orientation</p>
+        <p id="orientation" class="font-mono">Loading...</p>
+      </div>
+      <div class="rounded bg-zinc-800/50 p-3">
+        <p class="mb-1 text-xs text-zinc-500">Color Scheme</p>
+        <p id="color-scheme" class="font-mono">Loading...</p>
+      </div>
+    </div>
+  </Card>
+</section>
+
+<!-- Validation Section -->
+<section>
+  <Animate animation="slide-up">
+    <h2 class="mb-6 flex items-center gap-3 text-2xl font-bold">
+      <span
+        class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-500/20 font-mono text-sm text-cyan-400"
+        >05</span
+      >
+      Validation Utilities
+    </h2>
+  </Animate>
+
+  <Card>
+    <h3 class="mb-4 font-semibold">Schema Validation with Zod</h3>
+    <p class="mb-4 text-sm text-zinc-400">
+      Real-time validation with detailed error messages:
+    </p>
+    <div class="space-y-4">
+      <div>
+        <label class="mb-1 block text-sm text-zinc-400">Email Validation</label>
+        <input
+          id="validate-email"
+          type="text"
+          placeholder="Enter an email address"
+          class="w-full rounded border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm"
+        />
+        <p id="email-result" class="mt-1 text-xs"></p>
+      </div>
+      <div>
+        <label class="mb-1 block text-sm text-zinc-400">Phone Validation</label>
+        <input
+          id="validate-phone"
+          type="text"
+          placeholder="Enter a phone number"
+          class="w-full rounded border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm"
+        />
+        <p id="phone-result" class="mt-1 text-xs"></p>
+      </div>
+      <div>
+        <label class="mb-1 block text-sm text-zinc-400">Password Strength</label
+        >
+        <input
+          id="validate-password"
+          type="password"
+          placeholder="Enter a password"
+          class="w-full rounded border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm"
+        />
+        <p id="password-result" class="mt-1 text-xs"></p>
+      </div>
+    </div>
+  </Card>
+</section>
+
+<!-- Crypto Section -->
+<section>
+  <Animate animation="slide-up">
+    <h2 class="mb-6 flex items-center gap-3 text-2xl font-bold">
+      <span
+        class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-red-500/20 font-mono text-sm text-red-400"
+        >06</span
+      >
+      Crypto Utilities
+    </h2>
+  </Animate>
+
+  <div class="grid gap-6 md:grid-cols-2">
+    <Card>
+      <h3 class="mb-4 font-semibold">UUID Generation</h3>
+      <p class="mb-4 text-sm text-zinc-400">Generate unique identifiers:</p>
+      <div class="space-y-3">
+        <ModernButton id="generate-uuid" variant="secondary" size="sm">
+          Generate UUID
+        </ModernButton>
+        <ModernButton id="generate-short-id" variant="secondary" size="sm">
+          Generate Short ID
+        </ModernButton>
+        <div
+          id="uuid-display"
+          class="break-all rounded bg-zinc-800/50 p-3 font-mono text-sm"
+        >
+          Click a button to generate...
         </div>
-      </section>
+      </div>
+    </Card>
 
-      <!-- Media & Device Section -->
-      <section>
-        <Animate animation="slide-up">
-          <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
-            <span
-              class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-orange-500/20 text-orange-400 text-sm font-mono"
-              >04</span
-            >
-            Media & Device Detection
-          </h2>
-        </Animate>
-
-        <Card>
-          <h3 class="font-semibold mb-4">Device & Viewport Information</h3>
-          <div id="device-info" class="grid md:grid-cols-3 gap-4 text-sm">
-            <div class="p-3 bg-zinc-800/50 rounded">
-              <p class="text-zinc-500 text-xs mb-1">Current Breakpoint</p>
-              <p id="breakpoint" class="font-mono">Loading...</p>
-            </div>
-            <div class="p-3 bg-zinc-800/50 rounded">
-              <p class="text-zinc-500 text-xs mb-1">Viewport Size</p>
-              <p id="viewport" class="font-mono">Loading...</p>
-            </div>
-            <div class="p-3 bg-zinc-800/50 rounded">
-              <p class="text-zinc-500 text-xs mb-1">Device Type</p>
-              <p id="device-type" class="font-mono">Loading...</p>
-            </div>
-            <div class="p-3 bg-zinc-800/50 rounded">
-              <p class="text-zinc-500 text-xs mb-1">Touch Support</p>
-              <p id="touch-support" class="font-mono">Loading...</p>
-            </div>
-            <div class="p-3 bg-zinc-800/50 rounded">
-              <p class="text-zinc-500 text-xs mb-1">Orientation</p>
-              <p id="orientation" class="font-mono">Loading...</p>
-            </div>
-            <div class="p-3 bg-zinc-800/50 rounded">
-              <p class="text-zinc-500 text-xs mb-1">Color Scheme</p>
-              <p id="color-scheme" class="font-mono">Loading...</p>
-            </div>
-          </div>
-        </Card>
-      </section>
-
-      <!-- Validation Section -->
-      <section>
-        <Animate animation="slide-up">
-          <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
-            <span
-              class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-400 text-sm font-mono"
-              >05</span
-            >
-            Validation Utilities
-          </h2>
-        </Animate>
-
-        <Card>
-          <h3 class="font-semibold mb-4">Schema Validation with Zod</h3>
-          <p class="text-sm text-zinc-400 mb-4">
-            Real-time validation with detailed error messages:
-          </p>
-          <div class="space-y-4">
-            <div>
-              <label class="text-sm text-zinc-400 block mb-1"
-                >Email Validation</label
-              >
-              <input
-                id="validate-email"
-                type="text"
-                placeholder="Enter an email address"
-                class="w-full px-3 py-2 bg-zinc-800 rounded border border-zinc-700 text-sm"
-              />
-              <p id="email-result" class="text-xs mt-1"></p>
-            </div>
-            <div>
-              <label class="text-sm text-zinc-400 block mb-1"
-                >Phone Validation</label
-              >
-              <input
-                id="validate-phone"
-                type="text"
-                placeholder="Enter a phone number"
-                class="w-full px-3 py-2 bg-zinc-800 rounded border border-zinc-700 text-sm"
-              />
-              <p id="phone-result" class="text-xs mt-1"></p>
-            </div>
-            <div>
-              <label class="text-sm text-zinc-400 block mb-1"
-                >Password Strength</label
-              >
-              <input
-                id="validate-password"
-                type="password"
-                placeholder="Enter a password"
-                class="w-full px-3 py-2 bg-zinc-800 rounded border border-zinc-700 text-sm"
-              />
-              <p id="password-result" class="text-xs mt-1"></p>
-            </div>
-          </div>
-        </Card>
-      </section>
-
-      <!-- Crypto Section -->
-      <section>
-        <Animate animation="slide-up">
-          <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
-            <span
-              class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-500/20 text-red-400 text-sm font-mono"
-              >06</span
-            >
-            Crypto Utilities
-          </h2>
-        </Animate>
-
-        <div class="grid md:grid-cols-2 gap-6">
-          <Card>
-            <h3 class="font-semibold mb-4">UUID Generation</h3>
-            <p class="text-sm text-zinc-400 mb-4">
-              Generate unique identifiers:
-            </p>
-            <div class="space-y-3">
-              <ModernButton id="generate-uuid" variant="secondary" size="sm">
-                Generate UUID
-              </ModernButton>
-              <ModernButton
-                id="generate-short-id"
-                variant="secondary"
-                size="sm"
-              >
-                Generate Short ID
-              </ModernButton>
-              <div
-                id="uuid-display"
-                class="p-3 bg-zinc-800/50 rounded text-sm font-mono break-all"
-              >
-                Click a button to generate...
-              </div>
-            </div>
-          </Card>
-
-          <Card>
-            <h3 class="font-semibold mb-4">Hashing Demo</h3>
-            <p class="text-sm text-zinc-400 mb-4">
-              SHA-256 hashing with Web Crypto API:
-            </p>
-            <div class="space-y-3">
-              <input
-                id="hash-input"
-                type="text"
-                placeholder="Enter text to hash"
-                class="w-full px-3 py-2 bg-zinc-800 rounded border border-zinc-700 text-sm"
-              />
-              <ModernButton
-                id="hash-btn"
-                variant="secondary"
-                size="sm"
-                className="w-full"
-              >
-                Generate Hash
-              </ModernButton>
-              <div
-                id="hash-display"
-                class="p-3 bg-zinc-800/50 rounded text-sm font-mono break-all text-zinc-400"
-              >
-                Hash will appear here...
-              </div>
-            </div>
-          </Card>
+    <Card>
+      <h3 class="mb-4 font-semibold">Hashing Demo</h3>
+      <p class="mb-4 text-sm text-zinc-400">
+        SHA-256 hashing with Web Crypto API:
+      </p>
+      <div class="space-y-3">
+        <input
+          id="hash-input"
+          type="text"
+          placeholder="Enter text to hash"
+          class="w-full rounded border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm"
+        />
+        <ModernButton
+          id="hash-btn"
+          variant="secondary"
+          size="sm"
+          className="w-full"
+        >
+          Generate Hash
+        </ModernButton>
+        <div
+          id="hash-display"
+          class="break-all rounded bg-zinc-800/50 p-3 font-mono text-sm text-zinc-400"
+        >
+          Hash will appear here...
         </div>
-      </section>
+      </div>
+    </Card>
+  </div>
+</section>
 
-      <!-- HTTP Section -->
-      <section>
-        <Animate animation="slide-up">
-          <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
-            <span
-              class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-yellow-500/20 text-yellow-400 text-sm font-mono"
-              >07</span
-            >
-            HTTP Client
-          </h2>
-        </Animate>
+<!-- HTTP Section -->
+<section>
+  <Animate animation="slide-up">
+    <h2 class="mb-6 flex items-center gap-3 text-2xl font-bold">
+      <span
+        class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-yellow-500/20 font-mono text-sm text-yellow-400"
+        >07</span
+      >
+      HTTP Client
+    </h2>
+  </Animate>
 
-        <Card>
-          <h3 class="font-semibold mb-4">Type-Safe HTTP Client</h3>
-          <p class="text-sm text-zinc-400 mb-4">
-            Feature-rich HTTP client with interceptors, retry logic, and more:
-          </p>
-          <div class="space-y-3">
-            <ModernButton id="fetch-demo" variant="secondary" size="sm">
-              Fetch Data Demo
-            </ModernButton>
-            <div
-              id="http-result"
-              class="p-3 bg-zinc-800/50 rounded text-sm font-mono max-h-40 overflow-auto"
-            >
-              Click button to fetch data...
-            </div>
-          </div>
-        </Card>
-      </section>
+  <Card>
+    <h3 class="mb-4 font-semibold">Type-Safe HTTP Client</h3>
+    <p class="mb-4 text-sm text-zinc-400">
+      Feature-rich HTTP client with interceptors, retry logic, and more:
+    </p>
+    <div class="space-y-3">
+      <ModernButton id="fetch-demo" variant="secondary" size="sm">
+        Fetch Data Demo
+      </ModernButton>
+      <div
+        id="http-result"
+        class="max-h-40 overflow-auto rounded bg-zinc-800/50 p-3 font-mono text-sm"
+      >
+        Click button to fetch data...
+      </div>
+    </div>
+  </Card>
+</section>
 
-      <!-- Usage Code Section -->
-      <section>
-        <Animate animation="slide-up">
-          <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
-            <span
-              class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-zinc-500/20 text-zinc-400 text-sm font-mono"
-              >08</span
-            >
-            Usage Examples
-          </h2>
-        </Animate>
+<!-- Usage Code Section -->
+<section>
+  <Animate animation="slide-up">
+    <h2 class="mb-6 flex items-center gap-3 text-2xl font-bold">
+      <span
+        class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-500/20 font-mono text-sm text-zinc-400"
+        >08</span
+      >
+      Usage Examples
+    </h2>
+  </Animate>
 
-        <Card>
-          <h3 class="font-semibold mb-4">Import and Use</h3>
-          <pre
-            class="p-4 bg-zinc-900 rounded-lg overflow-x-auto text-sm"><code class="text-green-400">{`// Import individual utilities
+  <Card>
+    <h3 class="mb-4 font-semibold">Import and Use</h3>
+    <pre
+      class="overflow-x-auto rounded-lg bg-zinc-900 p-4 text-sm"><code class="text-green-400">{`// Import individual utilities
 import { onKeyboardShortcut } from '@/utils/events';
 import { createFocusTrap, announce } from '@/utils/a11y';
 import { get, post } from '@/utils/http';
@@ -434,11 +421,10 @@ const result = emailSchema.safeParse(email);
 if (!result.success) {
   console.error(result.error.issues);
 }`}</code></pre>
-        </Card>
-      </section>
-    </div>
-  </main>
-</MarketingLayout>
+  </Card>
+</section>
+
+-->
 
 <script>
   // Import our utilities to power the demo

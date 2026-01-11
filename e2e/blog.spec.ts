@@ -1,6 +1,8 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Blog Section', () => {
+test.describe.skip('Blog Section (decommissioned)', () => {
+  // This project has been repurposed into an MSP marketing site.
+  // Legacy blog routes are intentionally disabled/redirected.
   test('should load blog index successfully', async ({ page }) => {
     await page.goto('/blog');
     await expect(page).toHaveTitle(/Blog/i);

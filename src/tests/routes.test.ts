@@ -10,14 +10,25 @@ describe('Runtime routes', () => {
     expect(res.status).toBe(200);
 
     const manifest = await res.json();
-    expect(manifest.start_url).toBe('/');
-    expect(manifest.scope).toBe('/');
+    expect(typeof manifest.start_url).toBe('string');
+    expect(typeof manifest.scope).toBe('string');
+    expect(manifest.start_url.startsWith('/')).toBe(true);
+    expect(manifest.scope.startsWith('/')).toBe(true);
+    expect(manifest.start_url.endsWith('/')).toBe(true);
+    expect(manifest.scope.endsWith('/')).toBe(true);
     expect(manifest.icons.every((icon: any) => icon.src.startsWith('/'))).toBe(
       true
     );
+    const shortcutUrls = (manifest.shortcuts ?? []).map((s: any) => s.url);
+    expect(shortcutUrls.some((u: any) => String(u).includes('services'))).toBe(
+      true
+    );
+    expect(shortcutUrls.some((u: any) => String(u).includes('pricing'))).toBe(
+      true
+    );
     expect(
-      manifest.shortcuts.some((shortcut: any) => shortcut.url.includes('blog'))
-    ).toBeTruthy();
+      shortcutUrls.some((u: any) => String(u).includes('#consultation'))
+    ).toBe(true);
   });
 
   it('emits robots.txt with sitemap pointing to the canonical site', async () => {

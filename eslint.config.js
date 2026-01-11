@@ -71,7 +71,27 @@ export default [
   },
   // Ignore generated & build output
   {
-    ignores: ['dist', '.astro', 'node_modules'],
+    ignores: [
+      'dist',
+      '.astro',
+      'node_modules',
+      'coverage',
+      'playwright-report',
+      'test-results',
+      // Legacy/demo routes kept only for compatibility or archives
+      'src/pages/blog/**',
+      'src/pages/components.astro',
+      'src/pages/dashboard.astro',
+      'src/pages/dashboard-v2.astro',
+      'src/pages/demo.astro',
+      'src/pages/error-dashboard.astro',
+      'src/pages/offline.astro',
+      'src/pages/showcase.astro',
+      'src/pages/ultimate-3d-gallery.astro',
+      'src/pages/utility-demo.astro',
+      'src/pages/visual-showcase.astro',
+      'src/pages/rss.xml.js',
+    ],
   },
   // Prettier last to disable stylistic conflicts
   prettier,

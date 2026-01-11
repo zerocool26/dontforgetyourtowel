@@ -1,6 +1,8 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Search Functionality', () => {
+test.describe.skip('Search Functionality (decommissioned)', () => {
+  // Search UI was tied to the legacy blog experience.
+  // The MSP marketing site focuses on Services/Pricing/About + consultation CTA.
   test('should display search component on blog page', async ({ page }) => {
     await page.goto('/blog/');
 

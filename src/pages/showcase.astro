@@ -6,6 +6,7 @@ import ModernCard from '../components/ui/ModernCard.astro';
 import ThemeToggle from '../components/ui/ThemeToggle.astro';
 import Grid from '../components/ui/Grid.astro';
 import Stats from '../components/ui/Stats.astro';
+import LegacyRedirect from '../components/LegacyRedirect.astro';
 
 type CardVariant =
   | 'outline'
@@ -154,6 +155,12 @@ const statShowcase = {
 };
 ---
 
+<LegacyRedirect
+  destination="/"
+  reason="This page was part of the original starter template and has been removed."
+/>
+
+<!--
 <MarketingLayout
   title="Showcase | Elite Project"
   description="Browse the reusable patterns and content sections that ship with this simplified Astro starter."
@@ -410,3 +417,4 @@ const statShowcase = {
     </div>
   </section>
 </MarketingLayout>
+-->

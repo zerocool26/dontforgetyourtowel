@@ -27,7 +27,12 @@ const swScope = withBasePath('');
   const SW_PATH = configEl?.dataset.swPath || '/sw.js';
   const SW_SCOPE = configEl?.dataset.swScope || '/';
 
-  if ('serviceWorker' in navigator) {
+  // Avoid flakey reloads during automated testing.
+  // Playwright sets navigator.webdriver=true.
+  const isAutomated =
+    typeof navigator !== 'undefined' && (navigator as any).webdriver === true;
+
+  if (!isAutomated && 'serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker
         .register(SW_PATH, { scope: SW_SCOPE })
@@ -125,15 +130,15 @@ const swScope = withBasePath('');
 <!-- Update Notification -->
 <div
   id="pwa-notification"
-  class="hidden fixed bottom-4 right-4 z-50 max-w-sm p-4 bg-slate-800 border border-slate-700 rounded-lg shadow-2xl"
+  class="fixed bottom-4 right-4 z-50 hidden max-w-sm rounded-lg border border-slate-700 bg-slate-800 p-4 shadow-2xl"
   role="alert"
 >
   <div class="flex items-start gap-3">
     <div
-      class="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-blue-500/20 rounded-lg"
+      class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-blue-500/20"
     >
       <svg
-        class="w-6 h-6 text-blue-400"
+        class="h-6 w-6 text-blue-400"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -177,10 +182,10 @@ const swScope = withBasePath('');
 <ModernButton
   id="pwa-install-btn"
   variant="gradient"
-  className="hidden fixed bottom-4 left-4 z-50"
+  className="fixed bottom-4 left-4 z-50 hidden"
 >
   <svg
-    class="inline-block w-5 h-5 mr-2 -mt-0.5"
+    class="-mt-0.5 mr-2 inline-block h-5 w-5"
     fill="none"
     stroke="currentColor"
     viewBox="0 0 24 24"

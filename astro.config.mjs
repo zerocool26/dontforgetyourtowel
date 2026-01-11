@@ -19,7 +19,23 @@ export default defineConfig({
   output: 'static',
   integrations: [
     mdx(),
-    sitemap(),
+    sitemap({
+      filter: page => {
+        const legacyPrefixes = [
+          '/blog',
+          '/components',
+          '/dashboard',
+          '/dashboard-v2',
+          '/demo',
+          '/error-dashboard',
+          '/showcase',
+          '/ultimate-3d-gallery',
+          '/utility-demo',
+          '/visual-showcase',
+        ];
+        return !legacyPrefixes.some(prefix => page.startsWith(prefix));
+      },
+    }),
     tailwind({
       applyBaseStyles: false,
       configFile: './tailwind.config.ts',

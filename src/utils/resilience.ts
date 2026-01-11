@@ -237,11 +237,12 @@ function calculateDelay(attempt: number, options: RetryOptions): number {
     case 'exponential':
       delay = baseDelay * Math.pow(2, attempt - 1);
       break;
-    case 'jitter':
+    case 'jitter': {
       // Exponential backoff with full jitter
       const maxJitterDelay = baseDelay * Math.pow(2, attempt - 1);
       delay = Math.random() * maxJitterDelay;
       break;
+    }
     default:
       delay = baseDelay;
   }
@@ -836,7 +837,12 @@ export function compose<T extends (...args: unknown[]) => Promise<unknown>>(
     ) => (...args: unknown[]) => Promise<unknown>
   >
 ): (...args: Parameters<T>) => Promise<Awaited<ReturnType<T>>> {
-  return wrappers.reduce((wrapped, wrapper) => wrapper(wrapped), fn) as (
+  const base = fn as (...args: unknown[]) => Promise<unknown>;
+  const composed = wrappers.reduce(
+    (wrapped, wrapper) => wrapper(wrapped),
+    base
+  );
+  return composed as (
     ...args: Parameters<T>
   ) => Promise<Awaited<ReturnType<T>>>;
 }

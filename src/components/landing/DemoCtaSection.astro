@@ -69,39 +69,39 @@ const hoverColors: Record<HoverColor, { border: string; text: string }> = {
     </div>
   </div>
   <div class="relative mx-auto max-w-[1220px] px-6">
-    <header class="text-center mb-16">
+    <header class="mb-16 text-center">
       <span
-        class="inline-block px-4 py-2 bg-indigo-500/10 border border-indigo-500/20 rounded-full text-indigo-400 text-xs font-semibold uppercase tracking-[0.32em] mb-4"
+        class="mb-4 inline-block rounded-full border border-indigo-500/20 bg-indigo-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.32em] text-indigo-400"
         aria-hidden="true"
       >
         Experience it live
       </span>
       <h2
         id={`${demoSectionId}-title`}
-        class="text-3xl font-semibold text-white sm:text-4xl mb-4"
+        class="mb-4 text-3xl font-semibold text-white sm:text-4xl"
       >
         Explore Our Interactive Demo Center
       </h2>
-      <p class="text-sm text-slate-300 max-w-2xl mx-auto">
+      <p class="mx-auto max-w-2xl text-sm text-slate-300">
         Choose from 6 guided experiences showcasing different aspects of the
         platform—from 3D graphics to accessibility features
       </p>
     </header>
 
-    <nav class="grid md:grid-cols-3 gap-6 mb-12" aria-label="Demo experiences">
+    <nav class="mb-12 grid gap-6 md:grid-cols-3" aria-label="Demo experiences">
       {
         demoCards.map((card, index) => (
           <a
             href={withBasePath(card.href)}
-            class={`group glass-panel border border-white/10 p-6 ${hoverColors[card.hoverColor].border} transition-all hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-slate-950`}
+            class={`glass-panel group border border-white/10 p-6 ${hoverColors[card.hoverColor].border} transition-all hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-slate-950`}
             aria-labelledby={`demo-card-${index}-title`}
           >
-            <div class="text-4xl mb-3" role="img" aria-label={card.emojiLabel}>
+            <div class="mb-3 text-4xl" role="img" aria-label={card.emojiLabel}>
               {card.emoji}
             </div>
             <h3
               id={`demo-card-${index}-title`}
-              class={`text-xl font-semibold text-white mb-2 ${hoverColors[card.hoverColor].text} transition-colors`}
+              class={`mb-2 text-xl font-semibold text-white ${hoverColors[card.hoverColor].text} transition-colors`}
             >
               {card.title}
             </h3>
@@ -114,12 +114,12 @@ const hoverColors: Record<HoverColor, { border: string; text: string }> = {
     <div class="text-center">
       <a
         href={withBasePath('demo/')}
-        class="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl hover:scale-105 transition-transform shadow-lg shadow-indigo-500/50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-slate-950"
+        class="inline-flex items-center gap-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-4 font-bold text-white shadow-lg shadow-indigo-500/50 transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-slate-950"
       >
         <span class="text-xl" role="img" aria-label="game controller">🎮</span>
         <span>Explore All Demos</span>
         <svg
-          class="w-5 h-5"
+          class="h-5 w-5"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -174,7 +174,7 @@ const hoverColors: Record<HoverColor, { border: string; text: string }> = {
         </a>
         <a
           class="btn btn-secondary focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-900"
-          href="https://github.com/tariqdude/Github-Pages-Project-v1"
+          href="https://github.com/tariqdude/dontforgetyourtowel"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -185,4 +185,3 @@ const hoverColors: Record<HoverColor, { border: string; text: string }> = {
     </div>
   </div>
 </section>
-

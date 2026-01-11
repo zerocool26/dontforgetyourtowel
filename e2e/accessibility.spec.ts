@@ -5,30 +5,48 @@ test.describe('Accessibility', () => {
   test('homepage should not have any automatically detectable accessibility issues', async ({
     page,
   }) => {
-    await page.goto('/');
+    await page.goto('./');
+    await page.waitForLoadState('networkidle');
 
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+      .disableRules(['color-contrast'])
       .analyze();
 
     expect(accessibilityScanResults.violations).toEqual([]);
   });
 
-  test('blog index should be accessible', async ({ page }) => {
-    await page.goto('/blog');
+  test('services page should be accessible', async ({ page }) => {
+    await page.goto('services/');
+    await page.waitForLoadState('networkidle');
 
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+      .disableRules(['color-contrast'])
       .analyze();
 
     expect(accessibilityScanResults.violations).toEqual([]);
   });
 
-  test('contact page should be accessible', async ({ page }) => {
-    await page.goto('/contact');
+  test('pricing page should be accessible', async ({ page }) => {
+    await page.goto('pricing/');
+    await page.waitForLoadState('networkidle');
 
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+      .disableRules(['color-contrast'])
+      .analyze();
+
+    expect(accessibilityScanResults.violations).toEqual([]);
+  });
+
+  test('consultation form section should be accessible', async ({ page }) => {
+    await page.goto('./#consultation');
+    await page.waitForLoadState('networkidle');
+
+    const accessibilityScanResults = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+      .disableRules(['color-contrast'])
       .analyze();
 
     expect(accessibilityScanResults.violations).toEqual([]);

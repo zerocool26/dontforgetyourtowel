@@ -1,20 +1,23 @@
 import { getCollection } from 'astro:content';
 import rss from '@astrojs/rss';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import { withBasePath } from '../utils/helpers';
 
 export const prerender = true;
 
 export async function GET(context) {
-  const posts = await getCollection('blog');
-  const baseUrl = import.meta.env.BASE_URL || '/';
+  const caseStudies = await getCollection('caseStudies');
 
   return rss({
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
     site: context.site,
-    items: posts.map(post => ({
-      ...post.data,
-      link: new URL(`${baseUrl}blog/${post.id}/`, context.site).href,
+    items: caseStudies.map(entry => ({
+      title: entry.data.title,
+      description: entry.data.summary,
+      pubDate: entry.data.published ?? new Date(),
+      // Case studies are presented on the Services page in this site.
+      link: new URL(withBasePath('services/#case-studies'), context.site).href,
     })),
   });
 }

@@ -145,14 +145,14 @@ describe('form utilities', () => {
     describe('matches', () => {
       it('should fail when values do not match', () => {
         const rule = validators.matches('password');
-        expect(rule.validate('different', { password: 'secret' })).toBe(
+        expect(rule.validate('different', { password: 'example' })).toBe(
           'Must match password'
         );
       });
 
       it('should pass when values match', () => {
         const rule = validators.matches('password');
-        expect(rule.validate('secret', { password: 'secret' })).toBe(null);
+        expect(rule.validate('example', { password: 'example' })).toBe(null);
       });
     });
 

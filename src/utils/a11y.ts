@@ -181,7 +181,15 @@ export function getFocusableElements(container: Element): HTMLElement[] {
     focusableSelectors.join(', ')
   );
 
-  return Array.from(elements).filter(el => {
+  const ordered = Array.from(elements).sort((a, b) => {
+    if (a === b) return 0;
+    const pos = a.compareDocumentPosition(b);
+    if (pos & Node.DOCUMENT_POSITION_PRECEDING) return 1;
+    if (pos & Node.DOCUMENT_POSITION_FOLLOWING) return -1;
+    return 0;
+  });
+
+  return ordered.filter(el => {
     // Check if element is visible
     const style = window.getComputedStyle(el);
     return (

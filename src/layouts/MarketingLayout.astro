@@ -2,20 +2,19 @@
 import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import FloatingDemoButton from '../components/ui/FloatingDemoButton.astro';
 import PWARegistration from '../components/PWARegistration.astro';
 import WebVitals from '../components/WebVitals.astro';
 import ErrorTracking from '../components/ErrorTracking.astro';
 import StructuredData from '../components/StructuredData.astro';
-import CommandPalette from '../components/CommandPalette';
-import ToastContainer from '../components/ToastContainer';
+import MobileNav from '../components/business/MobileNav.astro';
+import StickyCTA from '../components/business/StickyCTA.astro';
+import LiveChat from '../components/business/LiveChat';
 
 interface Props {
   title: string;
   description: string;
   mainClass?: string;
   bodyClass?: string;
-  showDemoButton?: boolean;
 }
 
 const {
@@ -23,7 +22,6 @@ const {
   description,
   mainClass = 'space-y-24 pb-24',
   bodyClass = '',
-  showDemoButton = true,
 } = Astro.props as Props;
 ---
 
@@ -46,11 +44,9 @@ const {
     </main>
     <Footer />
 
-    {
-      showDemoButton && (
-        <FloatingDemoButton variant="default" position="bottom-right" />
-      )
-    }
+    <StickyCTA />
+    <MobileNav />
+    <LiveChat client:only="preact" />
 
     <script is:inline>
       // Add loading indicator for internal navigation
@@ -68,8 +64,6 @@ const {
         });
       });
     </script>
-    <CommandPalette client:only="preact" />
-    <ToastContainer client:only="preact" />
     <PWARegistration />
     <WebVitals />
     <ErrorTracking />

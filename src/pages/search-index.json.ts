@@ -1,76 +1,58 @@
 import { getCollection } from 'astro:content';
+import { withBasePath } from '../utils/helpers';
 
 export async function GET() {
-  const posts = await getCollection('blog');
-  const authors = await getCollection('authors');
+  const caseStudies = await getCollection('caseStudies');
 
-  const blogItems = posts.map(post => ({
-    id: `blog-${post.id}`,
-    title: post.data.title,
-    description: post.data.description,
-    category: 'Blog',
-    url: `/blog/${post.id}`,
-    date: post.data.pubDate,
-    tags: post.data.tags,
-  }));
-
-  const authorItems = authors.map(author => ({
-    id: `author-${author.id}`,
-    title: author.data.name,
-    description: `${author.data.role} - ${author.data.bio}`,
-    category: 'Authors',
-    url: `/authors/${author.id}`,
-    date: new Date().toISOString(), // Authors don't have a date, use current
-    tags: ['author', author.data.role],
+  const caseStudyItems = caseStudies.map(entry => ({
+    id: `case-${entry.id}`,
+    title: entry.data.title,
+    description: entry.data.summary,
+    category: 'Case Study',
+    url: withBasePath('services/#case-studies'),
+    date: (entry.data.published ?? new Date()).toISOString(),
+    tags: ['case-study', entry.data.industry, ...entry.data.tags],
   }));
 
   const staticPages = [
     {
       id: 'page-home',
       title: 'Home',
-      description: 'Welcome to the Ops Center',
+      description: 'Enterprise IT solutions that scale with your business',
       category: 'Page',
-      url: '/',
+      url: withBasePath('/'),
       tags: ['home', 'landing'],
     },
     {
       id: 'page-about',
       title: 'About Us',
-      description: 'Learn more about our team and mission',
+      description: 'Company story, leadership, and certifications',
       category: 'Page',
-      url: '/about',
+      url: withBasePath('about/'),
       tags: ['about', 'team'],
     },
     {
-      id: 'page-contact',
-      title: 'Contact',
-      description: 'Get in touch with us',
+      id: 'page-services',
+      title: 'Services',
+      description: 'Managed IT, cybersecurity, cloud, and AI consulting',
       category: 'Page',
-      url: '/contact',
-      tags: ['contact', 'support'],
+      url: withBasePath('services/'),
+      tags: ['services', 'msp', 'security', 'cloud', 'ai'],
     },
     {
-      id: 'page-components',
-      title: 'Components',
-      description: 'Explore our UI component library',
+      id: 'page-pricing',
+      title: 'Pricing',
+      description: 'Transparent tiers and calculators for planning',
       category: 'Page',
-      url: '/components',
-      tags: ['components', 'ui', 'design'],
-    },
-    {
-      id: 'page-showcase',
-      title: 'Showcase',
-      description: 'See what we have built',
-      category: 'Page',
-      url: '/showcase',
-      tags: ['showcase', 'portfolio'],
+      url: withBasePath('pricing/'),
+      tags: ['pricing', 'tiers', 'calculator'],
     },
   ].map(page => ({
     ...page,
     date: new Date().toISOString(),
   }));
 
-  const searchItems = [...blogItems, ...authorItems, ...staticPages];
+  const searchItems = [...caseStudyItems, ...staticPages];
 
   return new Response(JSON.stringify(searchItems), {
     status: 200,

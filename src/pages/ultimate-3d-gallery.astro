@@ -3,12 +3,19 @@ import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { withBasePath } from '../utils/helpers';
+import LegacyRedirect from '../components/LegacyRedirect.astro';
 
 const title = 'Ultimate 3D Gallery - Experimental Showcase';
 const description =
   'Pushing CSS 3D to its absolute limits with experimental effects';
 ---
 
+<LegacyRedirect
+  destination="/"
+  reason="This page was part of the original starter template and has been removed."
+/>
+
+<!--
 <!doctype html>
 <html lang="en" class="dark">
   <head>
@@ -19,302 +26,299 @@ const description =
 
     <main class="relative">
       <!-- Hero -->
-      <section class="relative min-h-screen flex items-center justify-center">
-        <div
-          class="absolute inset-0 bg-gradient-to-b from-purple-950/30 via-black to-black"
-        >
-        </div>
+<section class="relative flex min-h-screen items-center justify-center">
+  <div
+    class="absolute inset-0 bg-gradient-to-b from-purple-950/30 via-black to-black"
+  >
+  </div>
 
-        <div class="relative z-10 container mx-auto px-6 text-center">
-          <div class="mb-8">
-            <span
-              class="px-6 py-2 bg-gradient-to-r from-purple-600/20 to-pink-600/20 backdrop-blur-sm rounded-full text-purple-300 text-sm font-semibold border border-purple-500/30"
-            >
-              🚀 EXPERIMENTAL GALLERY
-            </span>
-          </div>
-
-          <h1 class="text-8xl md:text-[12rem] font-black mb-8 leading-none">
-            <span
-              class="block bg-gradient-to-r from-purple-400 via-pink-400 to-red-400 bg-clip-text text-transparent"
-              style="filter: drop-shadow(0 0 60px rgba(168, 85, 247, 0.5));"
-            >
-              ULTIMATE
-            </span>
-            <span
-              class="block bg-gradient-to-r from-blue-400 via-cyan-400 to-teal-400 bg-clip-text text-transparent"
-              style="filter: drop-shadow(0 0 60px rgba(59, 130, 246, 0.5));"
-            >
-              3D REALM
-            </span>
-          </h1>
-
-          <p
-            class="text-2xl text-neutral-400 mb-12 max-w-4xl mx-auto font-light"
-          >
-            Mind-bending 3D experiments that push the boundaries of pure CSS
-          </p>
-
-          <div class="flex gap-6 justify-center flex-wrap">
-            <a
-              href="#galaxy"
-              class="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full font-bold hover:scale-105 transition-transform"
-            >
-              Start Journey
-            </a>
-            <a
-              href={withBasePath('visual-showcase/')}
-              class="px-8 py-4 bg-white/10 backdrop-blur-sm rounded-full font-bold border border-white/20 hover:bg-white/20 transition-colors"
-            >
-              Main Showcase
-            </a>
-          </div>
-        </div>
-
-        <!-- Animated background elements -->
-        <div class="absolute inset-0 overflow-hidden pointer-events-none">
-          <div
-            class="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-purple-600 rounded-full filter blur-[150px] opacity-20 animate-float"
-          >
-          </div>
-          <div
-            class="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-blue-600 rounded-full filter blur-[150px] opacity-20 animate-float"
-            style="animation-delay: 2s"
-          >
-          </div>
-        </div>
-      </section>
-
-      <!-- Rotating Galaxy -->
-      <section
-        id="galaxy"
-        class="py-32 relative bg-gradient-to-b from-black via-purple-950/20 to-black min-h-screen flex items-center"
+  <div class="container relative z-10 mx-auto px-6 text-center">
+    <div class="mb-8">
+      <span
+        class="rounded-full border border-purple-500/30 bg-gradient-to-r from-purple-600/20 to-pink-600/20 px-6 py-2 text-sm font-semibold text-purple-300 backdrop-blur-sm"
       >
-        <div class="container mx-auto px-6">
-          <h2
-            class="text-6xl font-black text-center mb-6 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent"
-          >
-            Spiral Galaxy
-          </h2>
-          <p class="text-xl text-neutral-400 text-center mb-16">
-            3D spiral with hundreds of star particles
-          </p>
+        🚀 EXPERIMENTAL GALLERY
+      </span>
+    </div>
 
-          <div class="galaxy-container">
-            <div class="galaxy">
-              {
-                Array.from({ length: 200 }).map((_, i) => {
-                  const angle = (i / 200) * 720;
-                  const radius = 50 + (i / 200) * 400;
-                  return (
-                    <div
-                      class="star"
-                      style={`
+    <h1 class="mb-8 text-8xl font-black leading-none md:text-[12rem]">
+      <span
+        class="block bg-gradient-to-r from-purple-400 via-pink-400 to-red-400 bg-clip-text text-transparent"
+        style="filter: drop-shadow(0 0 60px rgba(168, 85, 247, 0.5));"
+      >
+        ULTIMATE
+      </span>
+      <span
+        class="block bg-gradient-to-r from-blue-400 via-cyan-400 to-teal-400 bg-clip-text text-transparent"
+        style="filter: drop-shadow(0 0 60px rgba(59, 130, 246, 0.5));"
+      >
+        3D REALM
+      </span>
+    </h1>
+
+    <p class="mx-auto mb-12 max-w-4xl text-2xl font-light text-neutral-400">
+      Mind-bending 3D experiments that push the boundaries of pure CSS
+    </p>
+
+    <div class="flex flex-wrap justify-center gap-6">
+      <a
+        href="#galaxy"
+        class="rounded-full bg-gradient-to-r from-purple-600 to-pink-600 px-8 py-4 font-bold transition-transform hover:scale-105"
+      >
+        Start Journey
+      </a>
+      <a
+        href={withBasePath('visual-showcase/')}
+        class="rounded-full border border-white/20 bg-white/10 px-8 py-4 font-bold backdrop-blur-sm transition-colors hover:bg-white/20"
+      >
+        Main Showcase
+      </a>
+    </div>
+  </div>
+
+  <!-- Animated background elements -->
+  <div class="pointer-events-none absolute inset-0 overflow-hidden">
+    <div
+      class="absolute left-1/4 top-1/4 h-[500px] w-[500px] animate-float rounded-full bg-purple-600 opacity-20 blur-[150px] filter"
+    >
+    </div>
+    <div
+      class="absolute bottom-1/4 right-1/4 h-[500px] w-[500px] animate-float rounded-full bg-blue-600 opacity-20 blur-[150px] filter"
+      style="animation-delay: 2s"
+    >
+    </div>
+  </div>
+</section>
+
+<!-- Rotating Galaxy -->
+<section
+  id="galaxy"
+  class="relative flex min-h-screen items-center bg-gradient-to-b from-black via-purple-950/20 to-black py-32"
+>
+  <div class="container mx-auto px-6">
+    <h2
+      class="mb-6 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-center text-6xl font-black text-transparent"
+    >
+      Spiral Galaxy
+    </h2>
+    <p class="mb-16 text-center text-xl text-neutral-400">
+      3D spiral with hundreds of star particles
+    </p>
+
+    <div class="galaxy-container">
+      <div class="galaxy">
+        {
+          Array.from({ length: 200 }).map((_, i) => {
+            const angle = (i / 200) * 720;
+            const radius = 50 + (i / 200) * 400;
+            return (
+              <div
+                class="star"
+                style={`
                       --angle: ${angle}deg;
                       --radius: ${radius}px;
                       --delay: ${i * 0.02}s;
                       --size: ${2 + Math.random() * 4}px;
                     `}
-                    />
-                  );
-                })
-              }
-            </div>
-          </div>
+              />
+            );
+          })
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Tesseract (4D Cube) -->
+<section
+  class="relative flex min-h-screen items-center bg-gradient-to-b from-black via-blue-950/20 to-black py-32"
+>
+  <div class="container mx-auto px-6">
+    <h2
+      class="mb-6 bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-center text-6xl font-black text-transparent"
+    >
+      Tesseract Hypercube
+    </h2>
+    <p class="mb-16 text-center text-xl text-neutral-400">
+      4D cube projection into 3D space
+    </p>
+
+    <div class="tesseract-container">
+      <div class="tesseract">
+        <!-- Outer cube -->
+        <div class="cube outer-cube">
+          <div class="cube-face front"></div>
+          <div class="cube-face back"></div>
+          <div class="cube-face right"></div>
+          <div class="cube-face left"></div>
+          <div class="cube-face top"></div>
+          <div class="cube-face bottom"></div>
         </div>
-      </section>
 
-      <!-- Tesseract (4D Cube) -->
-      <section
-        class="py-32 relative bg-gradient-to-b from-black via-blue-950/20 to-black min-h-screen flex items-center"
-      >
-        <div class="container mx-auto px-6">
-          <h2
-            class="text-6xl font-black text-center mb-6 bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent"
-          >
-            Tesseract Hypercube
-          </h2>
-          <p class="text-xl text-neutral-400 text-center mb-16">
-            4D cube projection into 3D space
-          </p>
-
-          <div class="tesseract-container">
-            <div class="tesseract">
-              <!-- Outer cube -->
-              <div class="cube outer-cube">
-                <div class="cube-face front"></div>
-                <div class="cube-face back"></div>
-                <div class="cube-face right"></div>
-                <div class="cube-face left"></div>
-                <div class="cube-face top"></div>
-                <div class="cube-face bottom"></div>
-              </div>
-
-              <!-- Inner cube -->
-              <div class="cube inner-cube">
-                <div class="cube-face front"></div>
-                <div class="cube-face back"></div>
-                <div class="cube-face right"></div>
-                <div class="cube-face left"></div>
-                <div class="cube-face top"></div>
-                <div class="cube-face bottom"></div>
-              </div>
-
-              <!-- Connecting lines -->
-              {
-                Array.from({ length: 8 }).map((_, i) => (
-                  <div class={`connector connector-${i}`} />
-                ))
-              }
-            </div>
-          </div>
+        <!-- Inner cube -->
+        <div class="cube inner-cube">
+          <div class="cube-face front"></div>
+          <div class="cube-face back"></div>
+          <div class="cube-face right"></div>
+          <div class="cube-face left"></div>
+          <div class="cube-face top"></div>
+          <div class="cube-face bottom"></div>
         </div>
-      </section>
 
-      <!-- Wormhole -->
-      <section
-        class="py-32 relative bg-gradient-to-b from-black via-indigo-950/20 to-black min-h-screen flex items-center"
-      >
-        <div class="container mx-auto px-6">
-          <h2
-            class="text-6xl font-black text-center mb-6 bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent"
-          >
-            Wormhole Portal
-          </h2>
-          <p class="text-xl text-neutral-400 text-center mb-16">
-            Recursive portal with infinite depth illusion
-          </p>
+        <!-- Connecting lines -->
+        {
+          Array.from({ length: 8 }).map((_, i) => (
+            <div class={`connector connector-${i}`} />
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>
 
-          <div class="wormhole-container">
-            <div class="wormhole">
-              {
-                Array.from({ length: 40 }).map((_, i) => (
-                  <div
-                    class="wormhole-ring"
-                    style={`
+<!-- Wormhole -->
+<section
+  class="relative flex min-h-screen items-center bg-gradient-to-b from-black via-indigo-950/20 to-black py-32"
+>
+  <div class="container mx-auto px-6">
+    <h2
+      class="mb-6 bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-center text-6xl font-black text-transparent"
+    >
+      Wormhole Portal
+    </h2>
+    <p class="mb-16 text-center text-xl text-neutral-400">
+      Recursive portal with infinite depth illusion
+    </p>
+
+    <div class="wormhole-container">
+      <div class="wormhole">
+        {
+          Array.from({ length: 40 }).map((_, i) => (
+            <div
+              class="wormhole-ring"
+              style={`
                     --index: ${i};
                     --scale: ${1 - i * 0.025};
                     --depth: ${i * -80}px;
                   `}
-                  />
-                ))
-              }
-            </div>
-          </div>
-        </div>
-      </section>
+            />
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>
 
-      <!-- Fractal Tree -->
-      <section
-        class="py-32 relative bg-gradient-to-b from-black via-green-950/20 to-black min-h-screen flex items-center"
-      >
-        <div class="container mx-auto px-6">
-          <h2
-            class="text-6xl font-black text-center mb-6 bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent"
-          >
-            Fractal Tree
-          </h2>
-          <p class="text-xl text-neutral-400 text-center mb-16">
-            Self-similar branching structure
-          </p>
+<!-- Fractal Tree -->
+<section
+  class="relative flex min-h-screen items-center bg-gradient-to-b from-black via-green-950/20 to-black py-32"
+>
+  <div class="container mx-auto px-6">
+    <h2
+      class="mb-6 bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-center text-6xl font-black text-transparent"
+    >
+      Fractal Tree
+    </h2>
+    <p class="mb-16 text-center text-xl text-neutral-400">
+      Self-similar branching structure
+    </p>
 
-          <div class="fractal-container">
-            <div class="fractal-tree">
-              <!-- Trunk -->
-              <div class="branch trunk"></div>
+    <div class="fractal-container">
+      <div class="fractal-tree">
+        <!-- Trunk -->
+        <div class="branch trunk"></div>
 
-              <!-- Level 1 -->
-              <div class="branch level-1 branch-1"></div>
-              <div class="branch level-1 branch-2"></div>
+        <!-- Level 1 -->
+        <div class="branch level-1 branch-1"></div>
+        <div class="branch level-1 branch-2"></div>
 
-              <!-- Level 2 -->
-              <div class="branch level-2 branch-3"></div>
-              <div class="branch level-2 branch-4"></div>
-              <div class="branch level-2 branch-5"></div>
-              <div class="branch level-2 branch-6"></div>
+        <!-- Level 2 -->
+        <div class="branch level-2 branch-3"></div>
+        <div class="branch level-2 branch-4"></div>
+        <div class="branch level-2 branch-5"></div>
+        <div class="branch level-2 branch-6"></div>
 
-              <!-- Level 3 -->
-              <div class="branch level-3 branch-7"></div>
-              <div class="branch level-3 branch-8"></div>
-              <div class="branch level-3 branch-9"></div>
-              <div class="branch level-3 branch-10"></div>
-              <div class="branch level-3 branch-11"></div>
-              <div class="branch level-3 branch-12"></div>
-              <div class="branch level-3 branch-13"></div>
-              <div class="branch level-3 branch-14"></div>
+        <!-- Level 3 -->
+        <div class="branch level-3 branch-7"></div>
+        <div class="branch level-3 branch-8"></div>
+        <div class="branch level-3 branch-9"></div>
+        <div class="branch level-3 branch-10"></div>
+        <div class="branch level-3 branch-11"></div>
+        <div class="branch level-3 branch-12"></div>
+        <div class="branch level-3 branch-13"></div>
+        <div class="branch level-3 branch-14"></div>
 
-              <!-- Leaves -->
-              {
-                Array.from({ length: 30 }).map(() => (
-                  <div
-                    class="leaf"
-                    style={`
+        <!-- Leaves -->
+        {
+          Array.from({ length: 30 }).map(() => (
+            <div
+              class="leaf"
+              style={`
                     --leaf-angle: ${Math.random() * 360}deg;
                     --leaf-x: ${-100 + Math.random() * 200}px;
                     --leaf-y: ${-200 + Math.random() * 100}px;
                     --leaf-delay: ${Math.random() * 2}s;
                   `}
-                  />
-                ))
-              }
-            </div>
-          </div>
-        </div>
-      </section>
+            />
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>
 
-      <!-- Crystal Formation -->
-      <section
-        class="py-32 relative bg-gradient-to-b from-black via-cyan-950/20 to-black min-h-screen flex items-center"
-      >
-        <div class="container mx-auto px-6">
-          <h2
-            class="text-6xl font-black text-center mb-6 bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent"
-          >
-            Crystal Formation
-          </h2>
-          <p class="text-xl text-neutral-400 text-center mb-16">
-            Geometric crystal structure with light refraction
-          </p>
+<!-- Crystal Formation -->
+<section
+  class="relative flex min-h-screen items-center bg-gradient-to-b from-black via-cyan-950/20 to-black py-32"
+>
+  <div class="container mx-auto px-6">
+    <h2
+      class="mb-6 bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-center text-6xl font-black text-transparent"
+    >
+      Crystal Formation
+    </h2>
+    <p class="mb-16 text-center text-xl text-neutral-400">
+      Geometric crystal structure with light refraction
+    </p>
 
-          <div class="crystal-container">
-            <div class="crystal-structure">
-              <!-- Center crystal -->
-              <div class="crystal main-crystal"></div>
+    <div class="crystal-container">
+      <div class="crystal-structure">
+        <!-- Center crystal -->
+        <div class="crystal main-crystal"></div>
 
-              <!-- Surrounding crystals -->
-              {
-                Array.from({ length: 8 }).map((_, i) => (
-                  <div
-                    class="crystal satellite-crystal"
-                    style={`
+        <!-- Surrounding crystals -->
+        {
+          Array.from({ length: 8 }).map((_, i) => (
+            <div
+              class="crystal satellite-crystal"
+              style={`
                     --angle: ${i * 45}deg;
                     --delay: ${i * 0.2}s;
                   `}
-                  />
-                ))
-              }
+            />
+          ))
+        }
 
-              <!-- Energy beams -->
-              {
-                Array.from({ length: 12 }).map((_, i) => (
-                  <div
-                    class="energy-beam"
-                    style={`
+        <!-- Energy beams -->
+        {
+          Array.from({ length: 12 }).map((_, i) => (
+            <div
+              class="energy-beam"
+              style={`
                     --beam-angle: ${i * 30}deg;
                     --beam-delay: ${i * 0.1}s;
                   `}
-                  />
-                ))
-              }
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
+            />
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>
 
-    <Footer />
-  </body>
-</html>
+<Footer />
+
+-->
 
 <style>
   @keyframes float {

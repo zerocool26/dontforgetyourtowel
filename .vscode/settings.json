@@ -64,7 +64,11 @@
   "search.exclude": {
     "**/node_modules": true,
     "**/dist": true,
-    "**/.astro": true
+    "**/.astro": true,
+    "**/.cache": true,
+    "**/coverage": true,
+    "**/playwright-report": true,
+    "**/test-results": true
   },
 
   // File watcher exclusions for performance
@@ -72,6 +76,10 @@
     "**/node_modules/**": true,
     "**/dist/**": true,
     "**/.astro/**": true,
+    "**/.cache/**": true,
+    "**/coverage/**": true,
+    "**/playwright-report/**": true,
+    "**/test-results/**": true,
     "**/.git/objects/**": true,
     "**/.git/subtree-cache/**": true
   }

@@ -38,6 +38,7 @@ describe('Configuration System', () => {
         autoFix: true,
         watchMode: false,
         enableCache: true,
+        concurrencyLimit: 4,
       };
 
       const result = AnalyzerConfigSchema.parse(validConfig);

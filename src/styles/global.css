@@ -110,6 +110,23 @@
     transition: background 0.3s ease;
   }
 
+  /* Sticky header behavior (used by src/scripts/header.ts) */
+  header {
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+    will-change: transform;
+  }
+
+  header.scrolled {
+    box-shadow: 0 10px 30px -18px rgba(0, 0, 0, 0.8);
+  }
+
+  header.header-hidden {
+    transform: translateY(-110%);
+    pointer-events: none;
+  }
+
   /* Loading indicator for link clicks */
   body.navigating {
     cursor: progress;

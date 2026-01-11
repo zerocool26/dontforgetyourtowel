@@ -54,64 +54,99 @@ test.describe('Interactivity Features', () => {
     });
   });
 
-  test.describe('Dynamic Content Filtering (Tags)', () => {
-    test('should filter posts by tag', async ({ page }) => {
-      await page.goto('blog/');
+  test.describe('Lead-gen widgets', () => {
+    test('services quiz should recommend a starting point', async ({
+      page,
+    }) => {
+      await page.goto('./');
 
-      // Find a tag link (assuming TagCloud is present)
-      // We added tags 'astro' and 'blogging' to first-post.md
-      const tagLink = page.getByRole('link', { name: /astro/i }).first();
+      const quizHeading = page.getByRole('heading', {
+        name: /60-second services quiz/i,
+      });
+      await expect(quizHeading).toBeVisible({ timeout: 10000 });
 
-      // If no tags are visible, this test might fail or skip.
-      // We assume at least one post has tags and TagCloud is rendered.
-      if (await tagLink.isVisible()) {
-        await tagLink.click();
+      const quiz = page.locator('section', { has: quizHeading }).first();
+      await quiz.scrollIntoViewIfNeeded();
+      // Offset sticky header
+      await page.evaluate(() => window.scrollBy(0, -140));
 
-        // Verify URL
-        await expect(page).toHaveURL(/\/blog\/tag\/astro/);
+      // Wait for the first question to actually render (client:only island)
+      await expect(
+        quiz.getByText(/what is your top priority right now\?/i)
+      ).toBeVisible({ timeout: 10000 });
 
-        // Verify header contains tag name
-        await expect(page.locator('h1')).toContainText('astro');
-      }
+      // Click through 3 questions
+      const opt1 = quiz.getByRole('button', {
+        name: /reduce it firefighting/i,
+      });
+      await expect(opt1).toBeVisible({ timeout: 10000 });
+      await opt1.dispatchEvent('click');
+      await expect(
+        quiz.getByText(/which risk feels most urgent\?/i)
+      ).toBeVisible({ timeout: 10000 });
+
+      const opt2 = quiz.getByRole('button', { name: /unpatched devices/i });
+      await expect(opt2).toBeVisible({ timeout: 10000 });
+      await opt2.dispatchEvent('click');
+      await expect(
+        quiz.getByText(/how fast do you need results\?/i)
+      ).toBeVisible({ timeout: 10000 });
+
+      const opt3 = quiz.getByRole('button', { name: /this quarter/i });
+      await expect(opt3).toBeVisible({ timeout: 10000 });
+      await opt3.dispatchEvent('click');
+
+      await expect(quiz.getByText(/recommended starting point/i)).toBeVisible({
+        timeout: 10000,
+      });
+      await expect(
+        quiz.getByText(/Managed IT Services \(Bronze/i)
+      ).toBeVisible();
     });
 
-    test('should navigate back to all posts', async ({ page }) => {
-      await page.goto('blog/tag/astro/');
+    test('pricing calculator should update when tier changes', async ({
+      page,
+    }) => {
+      await page.goto('pricing/');
+      await page.waitForTimeout(750);
 
-      const backButton = page.getByRole('link', { name: /Back to All Posts/i });
-      if (await backButton.isVisible()) {
-        await backButton.click();
-        await expect(page).toHaveURL(/\/blog\/?$/);
-      }
+      await expect(
+        page.getByRole('heading', { name: /pricing calculator/i })
+      ).toBeVisible();
+
+      const calculator = page
+        .locator('section')
+        .filter({
+          has: page.getByRole('heading', { name: /pricing calculator/i }),
+        })
+        .first();
+
+      const totalValue = calculator.locator('p.text-4xl').first();
+      const before = await totalValue.textContent();
+
+      await page.getByRole('button', { name: 'GOLD' }).click();
+      await page.waitForTimeout(150);
+
+      const after = await totalValue.textContent();
+      expect(after).not.toEqual(before);
     });
-  });
 
-  test.describe('Smart Table of Contents', () => {
-    test('should display TOC on blog post with headings', async ({ page }) => {
-      // Set viewport BEFORE navigation for lg: breakpoint (1024px+)
-      await page.setViewportSize({ width: 1280, height: 800 });
+    test('ROI calculator should compute savings and payback', async ({
+      page,
+    }) => {
+      await page.goto('pricing/');
+      await page.waitForTimeout(750);
 
-      // Navigate using relative path (no leading slash) so baseURL is used correctly
-      await page.goto('blog/first-post/');
+      await expect(
+        page.getByRole('heading', { name: /roi calculator/i })
+      ).toBeVisible();
 
-      // Wait for page to load fully
-      await page.waitForLoadState('domcontentloaded');
-      await page.waitForTimeout(500);
+      await page.getByLabel(/current it cost/i).fill('10000');
+      await page.getByLabel(/estimated savings/i).fill('25');
+      await page.getByLabel(/one-time transition cost/i).fill('5000');
 
-      // Check that the page loaded correctly by verifying title exists
-      await expect(page.locator('h1')).toContainText('First post');
-
-      // Check that headings exist using the correct selector
-      const introHeading = page.locator('#introduction');
-      await expect(introHeading).toBeVisible({ timeout: 5000 });
-
-      // TOC uses class "toc" and is visible at lg: breakpoint
-      const toc = page.locator('nav.toc');
-      await expect(toc).toBeVisible({ timeout: 5000 });
-
-      // Check for specific headings in TOC
-      await expect(toc).toContainText('Introduction');
-      await expect(toc).toContainText('Main Concepts');
+      await expect(page.getByText('$2,500')).toBeVisible();
+      await expect(page.getByText(/2\.0 months/i)).toBeVisible();
     });
   });
 });

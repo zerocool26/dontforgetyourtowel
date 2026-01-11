@@ -1,0 +1,80 @@
+---
+import ModernButton from '../ui/ModernButton.astro';
+import { withBasePath } from '../../utils/helpers';
+
+const href = withBasePath('/#consultation');
+---
+
+<div
+  id="sticky-cta"
+  class="pointer-events-none fixed bottom-16 left-0 right-0 z-40 hidden px-4 md:hidden"
+>
+  <div
+    class="pointer-events-auto mx-auto flex max-w-[740px] items-center justify-between gap-4 rounded-2xl border border-white/10 bg-zinc-950/90 px-4 py-3 backdrop-blur"
+  >
+    <p class="text-sm text-zinc-200">
+      Want a clear IT plan in 30 minutes?
+      <span class="text-zinc-400">No obligation.</span>
+    </p>
+    <ModernButton
+      href={href}
+      variant="primary"
+      className="pointer-events-auto min-h-[48px] whitespace-nowrap"
+    >
+      Schedule
+    </ModernButton>
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    const el = document.getElementById('sticky-cta');
+    if (!el) return;
+
+    let shouldShow = false;
+    let suppressed = false;
+
+    function applyVisibility() {
+      if (suppressed) {
+        el.classList.add('hidden');
+        return;
+      }
+
+      if (shouldShow) {
+        el.classList.remove('hidden');
+      } else {
+        el.classList.add('hidden');
+      }
+    }
+
+    function onScroll() {
+      // show after scrolling past ~1 viewport height
+      shouldShow = window.scrollY > window.innerHeight * 0.8;
+      applyVisibility();
+    }
+
+    // Prevent the sticky CTA from blocking interactions with important sections
+    // (especially on mobile where fixed overlays can intercept taps).
+    const suppressTargets = [
+      document.getElementById('consultation'),
+      document.getElementById('services-quiz'),
+    ].filter(Boolean);
+
+    if ('IntersectionObserver' in window && suppressTargets.length > 0) {
+      const observer = new IntersectionObserver(
+        entries => {
+          suppressed = entries.some(entry => entry.isIntersecting);
+          applyVisibility();
+        },
+        {
+          threshold: 0.01,
+        }
+      );
+
+      for (const target of suppressTargets) observer.observe(target);
+    }
+
+    document.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  })();
+</script>

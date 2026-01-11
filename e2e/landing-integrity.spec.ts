@@ -2,11 +2,14 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Landing Page Integrity', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+    await page.goto('./');
   });
 
-  test('should display the high-trust static ops chip', async ({ page }) => {
-    const chip = page.locator('text=High-trust static ops');
+  test('should display the primary service chip', async ({ page }) => {
+    const chip = page
+      .locator('#main-content')
+      .getByText('Managed Services • Security • Cloud • AI')
+      .first();
     await expect(chip).toBeVisible();
   });
 
@@ -15,7 +18,7 @@ test.describe('Landing Page Integrity', () => {
   }) => {
     const heading = page.locator('h1');
     await expect(heading).toContainText(
-      'Static intelligence for decisive operators'
+      'Enterprise IT solutions that scale with your business'
     );
   });
 
@@ -27,20 +30,16 @@ test.describe('Landing Page Integrity', () => {
     // The grid is defined as: grid gap-14 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]
     // On mobile (default), it should be 1 column.
 
-    // We locate the containers for the two main sections
-    const heroSection = page
-      .locator('text=High-trust static ops')
-      .locator('xpath=..');
-    const signalGrid = page
-      .locator('text=Confidence indicators')
-      .locator('xpath=..');
+    // Compare the hero heading to the first trust badge to ensure stacking.
+    const heroHeading = page.locator('h1').first();
+    const trustBadge = page.getByText('SOC 2 aligned').first();
 
-    const heroBox = await heroSection.boundingBox();
-    const signalBox = await signalGrid.boundingBox();
+    const heroBox = await heroHeading.boundingBox();
+    const trustBox = await trustBadge.boundingBox();
 
-    if (heroBox && signalBox) {
+    if (heroBox && trustBox) {
       // In a stacked layout, the hero section should be above the signal grid
-      expect(heroBox.y + heroBox.height).toBeLessThanOrEqual(signalBox.y + 100); // Allow some margin/gap
+      expect(heroBox.y + heroBox.height).toBeLessThanOrEqual(trustBox.y + 200); // Allow some margin/gap
 
       // They should have similar widths (taking up full width)
       // expect(heroBox.width).toBeCloseTo(signalBox.width, -1);

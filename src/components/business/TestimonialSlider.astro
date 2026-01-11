@@ -1,0 +1,53 @@
+---
+import { getCollection } from 'astro:content';
+import ModernCard from '../ui/ModernCard.astro';
+
+// Note: Astro's generated `DataEntryMap` updates via `astro sync`.
+// Cast locally to avoid editor stale-type errors.
+const testimonials = ((await getCollection('testimonials' as never)) as any[])
+  .sort((a, b) => Number(b.data.featured) - Number(a.data.featured))
+  .slice(0, 8);
+---
+
+<div class="relative">
+  <div
+    class="flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth pb-2 [-ms-overflow-style:none] [scrollbar-width:none]"
+    role="region"
+    aria-label="Testimonials"
+    tabindex="0"
+  >
+    {
+      testimonials.map(t => (
+        <ModernCard
+          variant="minimal"
+          className="min-w-[85%] sm:min-w-[55%] lg:min-w-[35%] snap-start p-6 bg-zinc-950/60 border-white/10"
+        >
+          <p class="text-sm leading-relaxed text-zinc-200">“{t.data.quote}”</p>
+          <div class="mt-5 flex items-center justify-between gap-4">
+            <div>
+              <p class="text-sm font-semibold text-white">{t.data.name}</p>
+              <p class="text-xs text-zinc-400">
+                {[t.data.role, t.data.company].filter(Boolean).join(' · ')}
+              </p>
+            </div>
+            <span
+              class="flex items-center gap-1 text-accent-300"
+              role="img"
+              aria-label={`${t.data.rating} out of 5 stars`}
+            >
+              {Array.from({ length: t.data.rating }).map(() => (
+                <span aria-hidden="true">★</span>
+              ))}
+            </span>
+          </div>
+        </ModernCard>
+      ))
+    }
+  </div>
+  <style>
+    /* Hide scrollbar (WebKit) */
+    div::-webkit-scrollbar {
+      display: none;
+    }
+  </style>
+</div>

@@ -1,152 +1,162 @@
 ---
 import MarketingLayout from '../layouts/MarketingLayout.astro';
-import SystemHighlights from '../components/SystemHighlights.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
 import ModernCard from '../components/ui/ModernCard.astro';
+import ServiceCard from '../components/business/ServiceCard.astro';
+import CaseStudyCard from '../components/business/CaseStudyCard.astro';
+import TestimonialSlider from '../components/business/TestimonialSlider.astro';
+import ContactForm from '../components/ContactForm.astro';
+import ServicesQuiz from '../components/business/ServicesQuiz.tsx';
+import { getCollection } from 'astro:content';
 import { withBasePath } from '../utils/helpers';
 
-const offerings = [
+const consultationHref = '#consultation';
+
+const services = [
   {
-    name: 'Template setup',
-    summary:
-      'Clone, configure, and document the Elite Project starter for your organisation.',
-    details: [
-      'Repository bootstrap with base path configuration for GitHub Pages.',
-      'Automated checks for content collections and RSS feeds.',
-      'Deployment walkthrough including caching and asset considerations.',
+    id: 'managed-it',
+    title: 'Managed IT Services',
+    description:
+      'Reliable operations, responsive support, and a clear roadmap—so IT becomes predictable.',
+    bullets: [
+      '24/7 monitoring & alerting',
+      'Helpdesk + onsite dispatch options',
+      'Patch management & asset lifecycle',
+      'Backup/DR testing and reporting',
     ],
   },
   {
-    name: 'Content migration',
-    summary:
-      'Move existing documentation or status updates into Markdown collections.',
-    details: [
-      'Frontmatter templates for posts and changelog entries.',
-      'Structured metadata for RSS, sitemap, and search visibility.',
-      'Training session showing non-technical contributors how to publish updates.',
+    id: 'cybersecurity',
+    title: 'Cybersecurity',
+    description:
+      'Reduce risk with layered controls, visibility, and response playbooks tailored to your environment.',
+    bullets: [
+      'Endpoint protection + hardening',
+      'Email security & phishing defense',
+      'MFA, SSO, identity governance',
+      'Incident response guidance',
     ],
   },
   {
-    name: 'Design tuning',
-    summary:
-      'Extend the Tailwind theme with your brand tokens while staying utility-first.',
-    details: [
-      'Accessible colour palette audit with contrast checks.',
-      'Reusable section patterns for hero, CTA, and resource grids.',
-      'Light/dark mode polish without introducing client-side frameworks.',
+    id: 'cloud',
+    title: 'Cloud Solutions',
+    description:
+      'Modernize safely: migrations, governance, cost optimization, and resilience by default.',
+    bullets: [
+      'Microsoft 365 / Google Workspace optimization',
+      'Azure/AWS migrations & landing zones',
+      'Network + access modernization',
+      'Cost controls + policy guardrails',
+    ],
+  },
+  {
+    id: 'ai',
+    title: 'AI Integration',
+    description:
+      'Adopt AI responsibly with guardrails, privacy protections, and measurable productivity gains.',
+    bullets: [
+      'AI readiness & data classification',
+      'Workflow automation & copilots',
+      'Policy, training, and governance',
+      'Security reviews for AI tooling',
     ],
   },
 ];
 
-const highlightItems = [
+const engagementModel = [
   {
-    label: '01',
-    title: 'Static-first implementation',
-    description:
-      'We adapt the starter with your routes, copy, and assets while preserving static builds that deploy cleanly to GitHub Pages.',
+    phase: 'Assess',
+    outcomes: [
+      'Environment inventory',
+      'Risk baseline',
+      'Quick-win action plan',
+    ],
   },
   {
-    label: '02',
-    title: 'Operational playbooks',
-    description:
-      'You receive maintenance guides, content workflows, and CLI scripts so teams can publish confidently without new tooling.',
+    phase: 'Onboard',
+    outcomes: [
+      'Monitoring & agent rollout',
+      'Security hardening',
+      'Runbooks + escalation',
+    ],
   },
   {
-    label: '03',
-    title: 'Long-term resilience',
-    description:
-      'Accessibility, performance checks, and type-safe content collections keep the site stable as your library grows.',
-  },
-];
-
-const deliverables = [
-  {
-    name: 'Static-ready codebase',
-    detail:
-      'Astro + Tailwind project tuned for base paths, asset handling, and repeatable GitHub Pages deploys.',
+    phase: 'Operate',
+    outcomes: ['Helpdesk + ticketing', 'Patch cadence', 'Monthly reporting'],
   },
   {
-    name: 'Documented workflows',
-    detail:
-      'Publishing handbook covering content collections, quality checks, RSS updates, and rollout cadence.',
-  },
-  {
-    name: 'Optional automation',
-    detail:
-      'GitHub Actions blueprints for type checks, linting, and scheduled builds when your team is ready.',
+    phase: 'Optimize',
+    outcomes: [
+      'Roadmap sessions',
+      'Cost optimization',
+      'Quarterly security review',
+    ],
   },
 ];
 
-const process = [
+const industries = [
+  { name: 'Healthcare', note: 'HIPAA-aligned controls and audit support' },
+  { name: 'Financial Services', note: 'SOC 2 readiness + vendor risk' },
   {
-    phase: 'Discovery',
-    duration: 'Week 1',
-    focus:
-      'Audit existing content, confirm hosting constraints, and align on navigation hierarchy.',
+    name: 'Manufacturing',
+    note: 'Operational continuity + endpoint resilience',
   },
   {
-    phase: 'Implementation',
-    duration: 'Weeks 2-3',
-    focus:
-      'Adapt the starter, wire in your copy, and align Tailwind tokens with your brand palette.',
+    name: 'Professional Services',
+    note: 'Secure collaboration + identity governance',
   },
-  {
-    phase: 'Transition',
-    duration: 'Week 4',
-    focus:
-      'Deliver documentation, run training sessions, and set up optional automation for ongoing updates.',
-  },
+  { name: 'Retail', note: 'Device management + network segmentation' },
+  { name: 'SaaS & Tech', note: 'Cloud guardrails + security program support' },
 ];
+
+const caseStudies = (await getCollection('caseStudies' as never)) as any[];
+const featuredCaseStudies = caseStudies.slice(0, 3);
+const testimonials = (await getCollection('testimonials' as never)) as any[];
+const featuredTestimonials = testimonials
+  .filter(t => t?.data?.featured)
+  .slice(0, 6);
 ---
 
 <MarketingLayout
-  title="Services | Elite Project"
-  description="A focused list of services to adapt the Elite Project starter to your needs."
+  title="Services | Apex Managed IT"
+  description="Managed IT, cybersecurity, cloud, and AI services designed for reliability and risk reduction."
 >
-  <section
-    class="relative overflow-hidden bg-zinc-950 pt-28 pb-20 border-b border-zinc-800"
-  >
+  <section class="relative overflow-hidden bg-zinc-950 pb-16 pt-28">
     <div
-      class="absolute inset-0 bg-[linear-gradient(to_right,#18181b_1px,transparent_1px),linear-gradient(to_bottom,#18181b_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-20"
+      class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(0,102,255,0.16),_transparent_55%)]"
     >
     </div>
-    <div class="relative mx-auto max-w-[1220px] px-6">
-      <div class="grid lg:grid-cols-2 gap-12 items-center">
-        <div class="max-w-2xl">
-          <span
-            class="inline-block border border-accent-500/30 bg-accent-500/10 px-3 py-1 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-accent-400 font-mono mb-6"
+    <div class="mx-auto max-w-[1220px] px-6">
+      <div class="grid gap-10 lg:grid-cols-2 lg:items-center">
+        <div class="space-y-6">
+          <p
+            class="text-xs font-semibold uppercase tracking-[0.32em] text-zinc-400"
           >
             Services
-          </span>
-          <h1
-            class="text-4xl font-bold leading-tight text-white sm:text-5xl lg:text-6xl font-display uppercase tracking-tight"
-          >
-            Practical support for <span class="text-accent-500">static ops</span
-            >.
-          </h1>
-          <p
-            class="mt-6 text-lg text-zinc-400 font-mono border-l-2 border-zinc-800 pl-6"
-          >
-            Every engagement focuses on delivering a GitHub Pages-ready Astro
-            build, with documentation and tooling that keep your releases
-            predictable.
           </p>
-          <div class="mt-10 flex flex-wrap gap-4">
+          <h1 class="text-4xl font-bold text-white sm:text-5xl">
+            Clear, complete coverage for your
+            <span class="text-accent-300"> IT and security.</span>
+          </h1>
+          <p class="max-w-2xl text-base text-zinc-300">
+            We deliver the fundamentals (uptime, backups, patching, support) and
+            the advanced layers (security, cloud modernization, AI adoption)
+            with one accountable team.
+          </p>
+          <div class="flex flex-col gap-3 sm:flex-row">
             <ModernButton
               href={withBasePath('pricing/')}
-              variant="primary"
-              rounded="sm"
-              className="font-mono uppercase tracking-wider text-xs"
+              variant="secondary"
+              className="min-h-[48px]"
             >
-              View pricing guide
+              View pricing
             </ModernButton>
             <ModernButton
-              href={withBasePath('contact/')}
-              variant="secondary"
-              rounded="sm"
-              className="font-mono uppercase tracking-wider text-xs"
+              href={consultationHref}
+              variant="primary"
+              className="min-h-[48px]"
             >
-              Schedule a scoping call
+              Schedule consultation
             </ModernButton>
           </div>
         </div>
@@ -154,199 +164,116 @@ const process = [
         <div class="grid gap-4">
           <ModernCard
             variant="minimal"
-            className="p-6 relative group hover:border-accent-500/50 transition-colors"
+            className="border-white/10 bg-zinc-950/60 p-6"
           >
-            <div
-              class="absolute top-0 left-0 w-2 h-2 border-t border-l border-zinc-600 group-hover:border-accent-500 transition-colors"
-            >
-            </div>
-            <p
-              class="text-xs font-bold uppercase tracking-widest text-zinc-500 font-mono mb-2"
-            >
-              Engagement span
-            </p>
-            <p class="text-sm text-zinc-300 font-mono">
-              Typical delivery completes within four weeks including
-              documentation and training handover.
+            <p class="text-sm font-semibold text-white">Fast onboarding</p>
+            <p class="mt-2 text-sm text-zinc-300">
+              Most environments are fully monitored within 10–14 days (depending
+              on size and complexity).
             </p>
           </ModernCard>
-          <div class="grid grid-cols-2 gap-4">
-            <ModernCard
-              variant="minimal"
-              className="p-6 relative group hover:border-accent-500/50 transition-colors"
-            >
-              <div
-                class="absolute top-0 right-0 w-2 h-2 border-t border-r border-zinc-600 group-hover:border-accent-500 transition-colors"
-              >
-              </div>
-              <p class="text-3xl font-bold text-white font-display">48h</p>
-              <p
-                class="mt-2 text-[0.65rem] uppercase tracking-wider text-zinc-500 font-mono"
-              >
-                First content publish
-              </p>
-            </ModernCard>
-            <ModernCard
-              variant="minimal"
-              className="p-6 relative group hover:border-accent-500/50 transition-colors"
-            >
-              <div
-                class="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-zinc-600 group-hover:border-accent-500 transition-colors"
-              >
-              </div>
-              <p class="text-3xl font-bold text-white font-display">0</p>
-              <p
-                class="mt-2 text-[0.65rem] uppercase tracking-wider text-zinc-500 font-mono"
-              >
-                Server dependencies
-              </p>
-            </ModernCard>
-          </div>
+          <ModernCard
+            variant="minimal"
+            className="border-white/10 bg-zinc-950/60 p-6"
+          >
+            <p class="text-sm font-semibold text-white">
+              Transparent reporting
+            </p>
+            <p class="mt-2 text-sm text-zinc-300">
+              Monthly health reports and quarterly roadmap reviews—no mystery
+              work.
+            </p>
+          </ModernCard>
         </div>
       </div>
     </div>
   </section>
 
-  <SystemHighlights
-    eyebrow="Why teams hire us"
-    title="Outcomes we commit to"
-    intro="Each package focuses on predictable releases and maintainable infrastructure for static documentation and operations hubs."
-    items={highlightItems}
-  />
-
-  <section class="bg-zinc-950 py-24 border-t border-zinc-800">
-    <div class="mx-auto max-w-[1220px] px-6">
-      <div class="grid gap-8">
+  <section class="border-y border-white/5 bg-zinc-900/30">
+    <div class="mx-auto max-w-[1220px] px-6 py-16">
+      <div class="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
         {
-          offerings.map((offering, index) => (
-            <ModernCard
-              variant="minimal"
-              className="p-8 hover:border-accent-500/50 transition-colors group relative overflow-hidden"
-            >
-              <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-100 transition-opacity">
-                <span class="font-mono text-6xl font-bold text-zinc-800 group-hover:text-accent-500/10">
-                  0{index + 1}
-                </span>
-              </div>
+          services.map(s => (
+            <ServiceCard
+              title={s.title}
+              description={s.description}
+              bullets={s.bullets}
+              href={`#${s.id}`}
+            />
+          ))
+        }
+      </div>
+    </div>
+  </section>
 
-              <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between relative z-10">
-                <div class="max-w-2xl">
-                  <h2 class="text-2xl font-bold text-white font-display uppercase tracking-wide">
-                    {offering.name}
-                  </h2>
-                  <p class="mt-3 text-sm text-zinc-400 font-mono border-l border-zinc-800 pl-4">
-                    {offering.summary}
-                  </p>
-
-                  <ul class="mt-6 grid gap-3 text-sm text-zinc-300 font-mono">
-                    {offering.details.map(item => (
-                      <li class="flex items-start gap-3">
-                        <span class="mt-1.5 h-1.5 w-1.5 bg-accent-500 flex-shrink-0" />
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+  {
+    services.map(s => (
+      <section id={s.id} class="bg-zinc-950">
+        <div class="mx-auto max-w-[1220px] px-6 py-20">
+          <div class="grid gap-10 lg:grid-cols-2 lg:items-start">
+            <div class="space-y-4">
+              <h2 class="text-3xl font-semibold text-white">{s.title}</h2>
+              <p class="text-sm text-zinc-300">{s.description}</p>
+              <div class="pt-2">
                 <ModernButton
-                  href={withBasePath('contact/')}
-                  variant="outline"
-                  className="border-zinc-700 bg-zinc-800 text-zinc-300 hover:border-accent-500 hover:text-white font-mono text-xs font-bold uppercase tracking-widest"
+                  href={consultationHref}
+                  variant="primary"
+                  className="min-h-[48px]"
                 >
-                  Discuss Service
+                  Discuss your needs
                 </ModernButton>
               </div>
-            </ModernCard>
-          ))
-        }
-      </div>
-    </div>
-  </section>
-
-  <section class="bg-zinc-900/30 border-t border-zinc-800 py-24">
-    <div class="mx-auto max-w-[1220px] px-6">
-      <div
-        class="flex flex-col gap-16 lg:flex-row lg:items-start lg:justify-between"
-      >
-        <div class="max-w-sm sticky top-24">
-          <p
-            class="text-xs font-bold uppercase tracking-[0.35em] text-accent-500 font-mono"
-          >
-            Implementation cadence
-          </p>
-          <h2
-            class="mt-4 text-3xl font-bold text-white font-display uppercase tracking-tight"
-          >
-            How we deliver
-          </h2>
-          <p
-            class="mt-4 text-sm text-zinc-400 font-mono leading-relaxed border-l-2 border-zinc-800 pl-4"
-          >
-            We work in focused weekly sprints with demos at each milestone. The
-            plan adapts to your content volume and internal review cycles.
-          </p>
-        </div>
-        <div class="flex-1 w-full">
-          <div class="grid gap-6">
-            {
-              process.map(step => (
-                <ModernCard
-                  variant="minimal"
-                  className="bg-zinc-950 p-8 hover:border-accent-500/50 transition-colors group relative"
-                >
-                  <div class="absolute left-0 top-0 bottom-0 w-1 bg-zinc-800 group-hover:bg-accent-500 transition-colors" />
-                  <div class="flex flex-col md:flex-row md:items-center gap-6">
-                    <div class="md:w-32 flex-shrink-0">
-                      <p class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500 font-mono group-hover:text-accent-400 transition-colors">
-                        {step.duration}
-                      </p>
-                    </div>
-                    <div>
-                      <h3 class="text-lg font-bold text-white font-display uppercase tracking-wide mb-2">
-                        {step.phase}
-                      </h3>
-                      <p class="text-sm text-zinc-400 font-mono">
-                        {step.focus}
-                      </p>
-                    </div>
-                  </div>
-                </ModernCard>
-              ))
-            }
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="bg-zinc-950 border-t border-zinc-800 py-24">
-    <div class="mx-auto max-w-[1220px] px-6">
-      <div class="mb-16">
-        <h2
-          class="text-3xl font-bold text-white font-display uppercase tracking-tight"
-        >
-          Deliverables at handover
-        </h2>
-        <p
-          class="mt-4 max-w-2xl text-sm text-zinc-400 font-mono border-l-2 border-zinc-800 pl-4"
-        >
-          You leave with more than files. Every project wraps with
-          documentation, automation hooks, and assurances that your content team
-          can ship updates without additional support.
-        </p>
-      </div>
-      <div class="grid gap-6 md:grid-cols-3">
-        {
-          deliverables.map(item => (
+            </div>
             <ModernCard
               variant="minimal"
-              className="p-6 hover:border-accent-500/50 transition-colors"
+              className="p-6 bg-zinc-950/60 border-white/10"
             >
-              <h3 class="text-lg font-bold text-white font-display uppercase tracking-wide">
-                {item.name}
-              </h3>
-              <p class="mt-3 text-sm leading-relaxed text-zinc-400 font-mono">
-                {item.detail}
+              <p class="text-sm font-semibold text-white">What’s included</p>
+              <ul class="mt-4 space-y-2 text-sm text-zinc-300">
+                {s.bullets.map(item => (
+                  <li class="flex items-start gap-2">
+                    <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 bg-accent-500" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <p class="mt-5 text-xs text-zinc-400">
+                Exact scope depends on your plan and environment. We’ll confirm
+                inclusions during onboarding.
               </p>
+            </ModernCard>
+          </div>
+        </div>
+      </section>
+    ))
+  }
+
+  <section class="border-y border-white/5 bg-zinc-900/30" id="engagement-model">
+    <div class="mx-auto max-w-[1220px] px-6 py-20">
+      <div class="max-w-3xl space-y-4">
+        <h2 class="text-3xl font-semibold text-white">How we work</h2>
+        <p class="text-sm text-zinc-300">
+          A simple engagement model: assess risk, onboard cleanly, operate with
+          discipline, and optimize continuously.
+        </p>
+      </div>
+
+      <div class="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+        {
+          engagementModel.map(step => (
+            <ModernCard
+              variant="minimal"
+              className="p-6 bg-zinc-950/60 border-white/10"
+            >
+              <p class="text-sm font-semibold text-white">{step.phase}</p>
+              <ul class="mt-4 space-y-2 text-sm text-zinc-300">
+                {step.outcomes.map(outcome => (
+                  <li class="flex items-start gap-2">
+                    <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 bg-accent-500" />
+                    <span>{outcome}</span>
+                  </li>
+                ))}
+              </ul>
             </ModernCard>
           ))
         }
@@ -354,52 +281,130 @@ const process = [
     </div>
   </section>
 
-  <section class="bg-zinc-900/30 border-t border-zinc-800">
-    <div class="mx-auto max-w-5xl px-6 py-24">
-      <ModernCard
-        variant="minimal"
-        className="bg-zinc-950 px-8 py-14 text-center relative overflow-hidden group"
-      >
-        <div
-          class="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.05)_50%,transparent_75%,transparent_100%)] bg-[length:250%_250%,100%_100%] bg-[position:-100%_0,0_0] bg-no-repeat transition-[background-position] duration-[0s] hover:bg-[position:200%_0,0_0] hover:duration-[1.5s]"
-        >
-        </div>
+  <section class="bg-zinc-950" id="industries">
+    <div class="mx-auto max-w-[1220px] px-6 py-20">
+      <div class="max-w-3xl space-y-4">
+        <h2 class="text-3xl font-semibold text-white">Industries we support</h2>
+        <p class="text-sm text-zinc-300">
+          We bring proven playbooks, documentation, and controls to regulated
+          and fast-moving environments.
+        </p>
+      </div>
 
-        <p
-          class="text-xs font-bold uppercase tracking-[0.35em] text-accent-500 font-mono relative z-10"
+      <div class="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        {
+          industries.map(i => (
+            <ModernCard
+              variant="minimal"
+              className="p-6 bg-zinc-950/60 border-white/10"
+            >
+              <p class="text-sm font-semibold text-white">{i.name}</p>
+              <p class="mt-2 text-sm text-zinc-300">{i.note}</p>
+            </ModernCard>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="border-y border-white/5 bg-zinc-900/30" id="case-studies">
+    <div class="mx-auto max-w-[1220px] px-6 py-20">
+      <div
+        class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between"
+      >
+        <div class="max-w-3xl space-y-3">
+          <h2 class="text-3xl font-semibold text-white">Recent outcomes</h2>
+          <p class="text-sm text-zinc-300">
+            A few examples of modernization, security hardening, and automation
+            delivered for real teams.
+          </p>
+        </div>
+        <ModernButton
+          href={withBasePath('pricing/')}
+          variant="secondary"
+          className="min-h-[48px]"
         >
-          Next step
-        </p>
-        <h2
-          class="mt-6 text-3xl font-bold text-white font-display uppercase tracking-tight relative z-10"
-        >
-          Bring us in when you need reliable documentation infrastructure
-        </h2>
-        <p
-          class="mt-5 text-sm text-zinc-400 font-mono max-w-2xl mx-auto relative z-10"
-        >
-          Share your current stack and launch goals—we will identify the fastest
-          path to a static site your team can extend.
-        </p>
-        <div class="mt-8 flex flex-wrap justify-center gap-4 relative z-10">
+          Compare plans
+        </ModernButton>
+      </div>
+
+      <div class="mt-10 grid gap-5 md:grid-cols-3">
+        {
+          featuredCaseStudies.map((entry: any) => (
+            <CaseStudyCard
+              title={entry.data?.title ?? entry.slug}
+              industry={entry.data?.industry}
+              summary={entry.data?.summary}
+              results={entry.data?.results}
+              href={withBasePath('services/#case-studies')}
+            />
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-zinc-950">
+    <div class="mx-auto max-w-[1220px] px-6 py-20">
+      <div class="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
+        <div class="space-y-4">
+          <h2 class="text-3xl font-semibold text-white">
+            Not sure what you need?
+          </h2>
+          <p class="text-sm text-zinc-300">
+            Take a 60-second quiz and we’ll recommend a starting package.
+          </p>
           <ModernButton
-            href={withBasePath('contact/')}
-            variant="primary"
-            rounded="sm"
-            className="font-mono uppercase tracking-wider text-xs"
-          >
-            Book a consultation
-          </ModernButton>
-          <ModernButton
-            href={withBasePath('pricing/')}
+            href={consultationHref}
             variant="secondary"
-            rounded="sm"
-            className="font-mono uppercase tracking-wider text-xs"
+            className="min-h-[48px]"
           >
-            Review pricing tiers
+            Or talk to an expert
           </ModernButton>
         </div>
-      </ModernCard>
+        <div class="rounded-2xl border border-white/10 bg-white/5 p-6">
+          <ServicesQuiz client:only="preact" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="border-t border-white/5 bg-zinc-900/30" id="testimonials">
+    <div class="mx-auto max-w-[1220px] px-6 py-20">
+      <div class="max-w-3xl space-y-4">
+        <h2 class="text-3xl font-semibold text-white">What clients say</h2>
+        <p class="text-sm text-zinc-300">
+          Trust is earned in the day-to-day: reliable support, clear reporting,
+          and real risk reduction.
+        </p>
+      </div>
+
+      <div class="mt-10">
+        <TestimonialSlider testimonials={featuredTestimonials} />
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-zinc-950" id="consultation">
+    <div class="mx-auto max-w-[1220px] px-6 py-20">
+      <div class="grid gap-10 lg:grid-cols-2 lg:items-start">
+        <div class="space-y-4">
+          <h2 class="text-3xl font-semibold text-white">
+            Get a tailored recommendation
+          </h2>
+          <p class="text-sm text-zinc-300">
+            Tell us a bit about your environment (users, devices, compliance
+            needs) and we’ll follow up with a practical plan.
+          </p>
+        </div>
+        <div class="rounded-2xl border border-white/10 bg-white/5 p-6">
+          <ContactForm />
+        </div>
+      </div>
+      <p class="mt-6 text-xs text-zinc-500">
+        By submitting, you agree to be contacted about our services. We do not
+        sell your data.
+      </p>
     </div>
   </section>
 </MarketingLayout>

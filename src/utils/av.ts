@@ -22,9 +22,11 @@ export function getAudioContext(): AudioContext {
   }
 
   if (!audioContext) {
-    audioContext = new (window.AudioContext ||
+    audioContext = new (
+      window.AudioContext ||
       (window as unknown as { webkitAudioContext: typeof AudioContext })
-        .webkitAudioContext)();
+        .webkitAudioContext
+    )();
   }
 
   // Resume if suspended (required after user interaction)
@@ -154,7 +156,7 @@ export async function createSound(
     };
   };
 
-  return {
+  const sound: Sound = {
     async play(): Promise<void> {
       if (playing) return;
 
@@ -201,7 +203,7 @@ export async function createSound(
 
     resume(): void {
       if (playing) return;
-      this.play();
+      void sound.play();
     },
 
     setVolume(vol: number): void {
@@ -229,10 +231,10 @@ export async function createSound(
 
     setCurrentTime(time: number): void {
       const wasPlaying = playing;
-      this.stop();
+      sound.stop();
       pauseTime = time;
       if (wasPlaying) {
-        this.play();
+        void sound.play();
       }
     },
 
@@ -248,6 +250,8 @@ export async function createSound(
       listeners[event].delete(callback);
     },
   };
+
+  return sound;
 }
 
 /**

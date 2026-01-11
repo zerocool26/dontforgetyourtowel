@@ -48,4 +48,7 @@ README-ERRORS.md
 playwright-report/
 test-results/
 
+# Local debug helpers
+scripts/_playwright_debug_hit_test.js
+
 a11y-fixture-*/

@@ -14,8 +14,28 @@ export default defineConfig({
     ? [['html'], ['list'], ['github']]
     : [['html'], ['list']],
   use: {
-    baseURL:
-      process.env.BASE_URL || 'http://localhost:4321/github-pages-project-v1',
+    // NOTE: Do not use BASE_URL here.
+    // This repo's deployment config treats BASE_URL as a *base path* hint,
+    // so setting it to a full URL would break Astro's `base`.
+    baseURL: (() => {
+      const normalizeBasePath = (value: string) => {
+        const trimmed = String(value || '').trim();
+        if (!trimmed || trimmed === '/') return '/';
+        const noSlashes = trimmed.replace(/^\/+/g, '').replace(/\/+$/g, '');
+        return `/${noSlashes}/`;
+      };
+
+      const basePath = normalizeBasePath(
+        process.env.E2E_BASE_PATH ?? '/dontforgetyourtowel/'
+      );
+      const fallback = `http://localhost:4321${basePath === '/' ? '/' : basePath}`;
+      return process.env.PLAYWRIGHT_BASE_URL || fallback;
+    })(),
+    // `reducedMotion` is a browser context option; keep it nested so TS stays happy
+    // across Playwright type versions.
+    contextOptions: {
+      reducedMotion: 'reduce',
+    },
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },
@@ -29,25 +49,41 @@ export default defineConfig({
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] },
     },
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
+    ...(process.platform === 'win32'
+      ? []
+      : [
+          {
+            name: 'webkit',
+            use: { ...devices['Desktop Safari'] },
+          },
+        ]),
     {
       name: 'Mobile Chrome',
       use: { ...devices['Pixel 5'] },
     },
-    {
-      name: 'Mobile Safari',
-      use: { ...devices['iPhone 12'] },
-    },
+    ...(process.platform === 'win32'
+      ? []
+      : [
+          {
+            name: 'Mobile Safari',
+            use: { ...devices['iPhone 12'] },
+          },
+        ]),
   ],
 
-  // webServer disabled - start manually with: npm run preview
-  // webServer: {
-  //   command: 'npx astro preview',
-  //   url: 'http://localhost:4321/github-pages-project-v1',
-  //   reuseExistingServer: true,
-  //   timeout: 30 * 1000,
-  // },
+  webServer: {
+    // Build + preview the static output so E2E is deterministic.
+    command: 'npm run build && npm run preview -- --host 127.0.0.1 --port 4321',
+    url:
+      process.env.PLAYWRIGHT_BASE_URL ||
+      `http://localhost:4321${
+        (process.env.E2E_BASE_PATH ?? '/dontforgetyourtowel/')
+          .toString()
+          .startsWith('/')
+          ? (process.env.E2E_BASE_PATH ?? '/dontforgetyourtowel/')
+          : `/${process.env.E2E_BASE_PATH ?? 'dontforgetyourtowel'}/`
+      }`,
+    reuseExistingServer: !process.env.CI,
+    timeout: 120 * 1000,
+  },
 });

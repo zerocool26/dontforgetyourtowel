@@ -1,0 +1,31 @@
+---
+export interface Props {
+  label: string;
+  sublabel?: string;
+}
+
+const { label, sublabel } = Astro.props as Props;
+---
+
+<div
+  class="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3"
+>
+  <span
+    class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-accent-500/15 text-accent-200"
+  >
+    <svg
+      viewBox="0 0 24 24"
+      class="h-5 w-5"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.5"
+    >
+      <path d="M12 2l7 4v6c0 5-3 9-7 10-4-1-7-5-7-10V6l7-4z"></path>
+      <path d="M9 12l2 2 4-4"></path>
+    </svg>
+  </span>
+  <div class="leading-tight">
+    <p class="text-sm font-semibold text-white">{label}</p>
+    {sublabel && <p class="text-xs text-zinc-400">{sublabel}</p>}
+  </div>
+</div>

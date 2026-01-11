@@ -532,7 +532,10 @@ export class LFUCache<K, V> {
     const keys = this.freqMap.get(this.minFreq);
     if (!keys || keys.size === 0) return;
 
-    const keyToEvict = keys.values().next().value;
+    const next = keys.values().next();
+    if (next.done) return;
+
+    const keyToEvict = next.value;
     keys.delete(keyToEvict);
 
     if (keys.size === 0) {
@@ -854,7 +857,7 @@ export class BloomFilter {
     for (let i = 0; i < this.numHashes; i++) {
       const hash = this.hash(str, i);
       const index = hash % this.size;
-      this.bits[Math.floor(index / 8)] |= 1 << index % 8;
+      this.bits[Math.floor(index / 8)] |= 1 << (index % 8);
     }
   }
 
@@ -868,7 +871,7 @@ export class BloomFilter {
     for (let i = 0; i < this.numHashes; i++) {
       const hash = this.hash(str, i);
       const index = hash % this.size;
-      if ((this.bits[Math.floor(index / 8)] & (1 << index % 8)) === 0) {
+      if ((this.bits[Math.floor(index / 8)] & (1 << (index % 8))) === 0) {
         return false;
       }
     }

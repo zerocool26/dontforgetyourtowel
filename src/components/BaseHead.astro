@@ -14,13 +14,13 @@ import '@fontsource/jetbrains-mono/400.css';
 import '@fontsource/jetbrains-mono/600.css';
 
 import type { ImageMetadata } from 'astro';
-import FallbackImage from '../assets/blog-placeholder-1.jpg';
-import { SITE_TITLE } from '../consts';
+import { FEATURES, SITE_CONFIG, SITE_TITLE } from '../consts';
+import { withBasePath } from '../utils/helpers';
 
 interface Props {
   title: string;
   description: string;
-  image?: ImageMetadata;
+  image?: ImageMetadata | string;
   type?: 'website' | 'article';
   author?: string;
   publishDate?: Date;
@@ -33,7 +33,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const {
   title,
   description,
-  image = FallbackImage,
+  image = withBasePath(SITE_CONFIG.seo.ogImage),
   type = 'website',
   author,
   publishDate,
@@ -47,7 +47,10 @@ import { ClientRouter } from 'astro:transitions';
 const metaTags = generateMetaTags({
   title,
   description,
-  image: new URL(image.src, Astro.url).toString(),
+  image:
+    typeof image === 'string'
+      ? new URL(image, Astro.site).toString()
+      : new URL(image.src, Astro.url).toString(),
   url: canonicalURL,
   type,
   author,
@@ -60,7 +63,7 @@ const metaTags = generateMetaTags({
 <!-- Global Metadata -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<meta name="theme-color" content="#09090b" />
+<meta name="theme-color" content="#0A1F44" />
 <ClientRouter />
 <script>
   import '../scripts/animations';
@@ -83,12 +86,16 @@ const metaTags = generateMetaTags({
 <meta name="apple-mobile-web-app-title" content={SITE_TITLE} />
 
 <link rel="sitemap" href={`${import.meta.env.BASE_URL}sitemap-index.xml`} />
-<link
-  rel="alternate"
-  type="application/rss+xml"
-  title={SITE_TITLE}
-  href={new URL('rss.xml', Astro.site)}
-/>
+{
+  FEATURES.enableRSS && (
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={SITE_TITLE}
+      href={new URL('rss.xml', Astro.site)}
+    />
+  )
+}
 <meta name="generator" content={Astro.generator} />
 
 <!-- Theme Initialization Script (Prevents FOUC) -->

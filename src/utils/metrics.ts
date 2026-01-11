@@ -754,11 +754,13 @@ export class Summary {
 // Registry
 // ============================================================================
 
+type AnyMetric = Counter | Gauge | Histogram | Summary;
+
 /**
  * Registry for managing metrics
  */
 export class MetricsRegistry {
-  private metrics = new Map<string, any>();
+  private metrics = new Map<string, AnyMetric>();
 
   createCounter(
     name: string,
@@ -809,11 +811,11 @@ export class MetricsRegistry {
     return metric;
   }
 
-  getMetric(name: string): any | undefined {
+  getMetric(name: string): AnyMetric | undefined {
     return this.metrics.get(name);
   }
 
-  getAllMetrics(): any[] {
+  getAllMetrics(): AnyMetric[] {
     return Array.from(this.metrics.values());
   }
 
@@ -1002,13 +1004,28 @@ export function resetAllMetrics(): void {
 
 export function getMetricsSnapshot(
   registry: MetricsRegistry = defaultRegistry
-): any[] {
-  return registry.getAllMetrics().map(metric => ({
-    name: metric.name,
-    help: metric.help,
-    type: metric.type,
-    value: metric.value ?? (metric.getAll ? metric.getAll() : undefined),
-  }));
+): Array<{
+  name: string;
+  help: string;
+  type: MetricType;
+  value: unknown;
+}> {
+  return registry.getAllMetrics().map(metric => {
+    let value: unknown;
+
+    if (metric.type === 'counter' || metric.type === 'gauge') {
+      value = (metric as Counter | Gauge).value;
+    } else {
+      value = metric.getAll();
+    }
+
+    return {
+      name: metric.name,
+      help: metric.help,
+      type: metric.type,
+      value,
+    };
+  });
 }
 
 export function exportPrometheus(
@@ -1019,31 +1036,54 @@ export function exportPrometheus(
     output += `# HELP ${metric.name} ${metric.help}\n`;
     output += `# TYPE ${metric.name} ${metric.type}\n`;
 
-    if (metric.getAll) {
-      const values = metric.getAll();
+    const formatLabels = (labels: Labels): string => {
+      const entries = Object.entries(labels);
+      if (entries.length === 0) return '';
+      return entries.map(([k, val]) => `${k}="${val}"`).join(',');
+    };
+
+    if (metric.type === 'histogram') {
+      const values = (metric as Histogram).getAll();
       for (const v of values) {
-        const labels = Object.entries(v.labels || {})
-          .map(([k, val]) => `${k}="${val}"`)
-          .join(',');
+        const labels = formatLabels(v.labels || {});
+        const labelStr = labels ? `{${labels}}` : '';
+        const labelPrefix = labels ? `${labels},` : '';
 
-        if (metric.type === 'histogram') {
-          const labelStr = labels ? `{${labels}}` : '';
-          const labelPrefix = labels ? `${labels},` : '';
-
-          // Buckets
-          for (const b of v.buckets) {
-            const le = b.le === Infinity ? '+Inf' : b.le;
-            output += `${metric.name}_bucket{${labelPrefix}le="${le}"} ${b.count}\n`;
-          }
-          // Sum
-          output += `${metric.name}_sum${labelStr} ${v.sum}\n`;
-          // Count
-          output += `${metric.name}_count${labelStr} ${v.count}\n`;
-        } else {
-          const labelStr = labels ? `{${labels}}` : '';
-          output += `${metric.name}${labelStr} ${v.value}\n`;
+        for (const b of v.buckets) {
+          const le = b.le === Infinity ? '+Inf' : b.le;
+          output += `${metric.name}_bucket{${labelPrefix}le="${le}"} ${b.count}\n`;
         }
+
+        output += `${metric.name}_sum${labelStr} ${v.sum}\n`;
+        output += `${metric.name}_count${labelStr} ${v.count}\n`;
       }
+      continue;
+    }
+
+    if (metric.type === 'summary') {
+      const values = (metric as Summary).getAll();
+      for (const v of values) {
+        const baseLabels = v.labels || {};
+        const baseLabelStr = formatLabels(baseLabels);
+        const baseLabelPrefix = baseLabelStr ? `${baseLabelStr},` : '';
+        const baseLabelBlock = baseLabelStr ? `{${baseLabelStr}}` : '';
+
+        for (const [quantile, value] of v.quantiles.entries()) {
+          output += `${metric.name}{${baseLabelPrefix}quantile="${quantile}"} ${value}\n`;
+        }
+
+        output += `${metric.name}_sum${baseLabelBlock} ${v.sum}\n`;
+        output += `${metric.name}_count${baseLabelBlock} ${v.count}\n`;
+      }
+      continue;
+    }
+
+    // counter / gauge
+    const values = (metric as Counter | Gauge).getAll();
+    for (const v of values) {
+      const labels = formatLabels(v.labels || {});
+      const labelStr = labels ? `{${labels}}` : '';
+      output += `${metric.name}${labelStr} ${v.value}\n`;
     }
   }
   return output;

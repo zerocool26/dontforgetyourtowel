@@ -39,8 +39,8 @@ export async function compressString(
 
   const cs = new CompressionStream(format);
   const writer = cs.writable.getWriter();
-  writer.write(inputBytes);
-  writer.close();
+  await writer.write(inputBytes as unknown as BufferSource);
+  await writer.close();
 
   const chunks: Uint8Array[] = [];
   const reader = cs.readable.getReader();
@@ -79,8 +79,8 @@ export async function decompressToString(
 
   const ds = new DecompressionStream(format);
   const writer = ds.writable.getWriter();
-  writer.write(data);
-  writer.close();
+  await writer.write(data as unknown as BufferSource);
+  await writer.close();
 
   const chunks: Uint8Array[] = [];
   const reader = ds.readable.getReader();

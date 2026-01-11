@@ -12,17 +12,23 @@ const analyticsFlag = import.meta.env.PUBLIC_ENABLE_ANALYTICS;
 const analyticsEnabled =
   analyticsFlag === 'true' || analyticsFlag === '1' || analyticsFlag === true;
 
-export const SITE_TITLE = 'GitHub Pages Project v1';
+// MSP/IT services branding (safe defaults; customise as needed)
+export const SITE_TITLE = 'Apex Managed IT';
 export const SITE_DESCRIPTION =
-  'Static intelligence for decisive operators. Build executive-ready status hubs with Astro.';
+  'Enterprise-grade managed IT, cybersecurity, cloud, and AI consulting for growing businesses.';
 export const SITE_URL = DEPLOYMENT.siteUrl;
 export const BASE_PATH = DEPLOYMENT.basePath;
 export const DEPLOYMENT_CONFIG = DEPLOYMENT;
 
+// Static site contact: uses a mailto: link (configurable via env for later)
+export const CONTACT_EMAIL =
+  (import.meta.env.PUBLIC_CONTACT_EMAIL as string | undefined) ||
+  'hello@example.com';
+
 export const SITE_CONFIG = {
   title: SITE_TITLE,
   description: SITE_DESCRIPTION,
-  author: 'GitHub Pages Project Team',
+  author: 'Apex Managed IT',
   defaultLanguage: 'en-US',
   // Social links
   social: {
@@ -75,5 +81,6 @@ export const FEATURES = {
   enablePWA: true,
   enableDarkMode: true,
   enableSearch: true,
-  enableRSS: true,
+  // MSP site: no blog/RSS by default (can be re-enabled later)
+  enableRSS: false,
 } as const;

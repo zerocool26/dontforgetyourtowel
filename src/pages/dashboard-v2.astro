@@ -3,6 +3,7 @@ import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { withBasePath } from '../utils/helpers';
+import LegacyRedirect from '../components/LegacyRedirect.astro';
 
 type FocusArea = { title: string; description: string };
 type WorkflowStep = string;
@@ -51,6 +52,12 @@ const upgradeHighlights: UpgradeHighlight[] = [
 ];
 ---
 
+<LegacyRedirect
+  destination="/"
+  reason="This page was part of the original starter template and has been removed."
+/>
+
+<!--
 <!doctype html>
 <html lang="en">
   <head>
@@ -152,3 +159,4 @@ const upgradeHighlights: UpgradeHighlight[] = [
     <Footer />
   </body>
 </html>
+-->

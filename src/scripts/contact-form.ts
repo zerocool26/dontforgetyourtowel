@@ -4,6 +4,7 @@
  */
 
 import { announce, setAriaAttributes } from '../utils/a11y';
+import { CONTACT_EMAIL } from '../consts';
 import { emailSchema, phoneSchema } from '../utils/validation';
 import { addNotification, notify } from '../store/index';
 
@@ -177,7 +178,7 @@ Subject: ${subject}
 Message:
 ${message}`;
 
-      const mailtoLink = `mailto:hello@eliteproject.dev?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      const mailtoLink = `mailto:${encodeURIComponent(CONTACT_EMAIL)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
       // Open mailto
       window.location.href = mailtoLink;
@@ -187,14 +188,13 @@ ${message}`;
       addNotification({
         type: 'info',
         title: 'Email Client',
-        message:
-          'If nothing happens, please email us directly at hello@eliteproject.dev',
+        message: `If nothing happens, please email us directly at ${CONTACT_EMAIL}`,
         duration: 8000,
       });
 
       this.showStatus(
         'info',
-        'Opening your email client... If nothing happens, please email us directly at hello@eliteproject.dev'
+        `Opening your email client... If nothing happens, please email us directly at ${CONTACT_EMAIL}`
       );
 
       // Announce success
@@ -210,7 +210,7 @@ ${message}`;
       notify.error('Unable to open email client');
       this.showStatus(
         'error',
-        'Unable to open email client. Please email us directly at hello@eliteproject.dev'
+        `Unable to open email client. Please email us directly at ${CONTACT_EMAIL}`
       );
       announce('Error submitting form. Please try again.', 'assertive');
     } finally {

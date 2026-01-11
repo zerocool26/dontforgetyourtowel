@@ -2,6 +2,7 @@
 import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import LegacyRedirect from '../components/LegacyRedirect.astro';
 
 type PainPoint = { title: string; description: string };
 type WorkflowStep = { heading: string; detail: string };
@@ -94,6 +95,12 @@ const resources: ResourceLink[] = [
 ];
 ---
 
+<LegacyRedirect
+  destination="/"
+  reason="This page was part of the original starter template and has been removed."
+/>
+
+<!--
 <!doctype html>
 <html lang="en">
   <head>
@@ -226,3 +233,4 @@ const resources: ResourceLink[] = [
     <Footer />
   </body>
 </html>
+-->

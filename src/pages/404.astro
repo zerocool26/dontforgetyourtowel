@@ -30,20 +30,15 @@ const quickLinks = [
     description: 'Check pricing plans',
   },
   {
-    label: 'Blog',
-    href: withBasePath('blog/'),
-    description: 'Read our articles',
-  },
-  {
-    label: 'Contact',
-    href: withBasePath('contact/'),
-    description: 'Get in touch',
+    label: 'Consultation',
+    href: withBasePath('/#consultation'),
+    description: 'Schedule a free consultation',
   },
 ];
 ---
 
 <MarketingLayout
-  title="Page Not Found | Elite Project"
+  title="Page Not Found | Apex Managed IT"
   description="The page you're looking for doesn't exist. Use the links below to navigate."
 >
   <section
@@ -60,28 +55,28 @@ const quickLinks = [
     <main class="relative mx-auto max-w-[800px] px-6 py-20 text-center">
       <ModernCard
         variant="minimal"
-        className="bg-zinc-900/80 px-10 py-16 sm:px-14 sm:py-20 backdrop-blur-sm relative"
+        className="relative bg-zinc-900/80 px-10 py-16 backdrop-blur-sm sm:px-14 sm:py-20"
         role="alert"
         aria-live="polite"
       >
         {/* Decorative corners */}
         <div
-          class="absolute top-0 left-0 w-2 h-2 border-t border-l border-zinc-700"
+          class="absolute left-0 top-0 h-2 w-2 border-l border-t border-zinc-700"
           aria-hidden="true"
         >
         </div>
         <div
-          class="absolute top-0 right-0 w-2 h-2 border-t border-r border-zinc-700"
+          class="absolute right-0 top-0 h-2 w-2 border-r border-t border-zinc-700"
           aria-hidden="true"
         >
         </div>
         <div
-          class="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-zinc-700"
+          class="absolute bottom-0 left-0 h-2 w-2 border-b border-l border-zinc-700"
           aria-hidden="true"
         >
         </div>
         <div
-          class="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-zinc-700"
+          class="absolute bottom-0 right-0 h-2 w-2 border-b border-r border-zinc-700"
           aria-hidden="true"
         >
         </div>
@@ -90,7 +85,7 @@ const quickLinks = [
         <div class="mb-8 flex justify-center">
           <ModernCard
             variant="minimal"
-            className="inline-flex h-24 w-24 items-center justify-center bg-zinc-950 text-4xl font-mono font-bold text-accent-500"
+            className="inline-flex h-24 w-24 items-center justify-center bg-zinc-950 font-mono text-4xl font-bold text-accent-500"
             aria-hidden="true"
           >
             404
@@ -99,21 +94,21 @@ const quickLinks = [
 
         <h1
           id="error-title"
-          class="text-4xl font-display font-bold text-white sm:text-5xl uppercase tracking-tight"
+          class="font-display text-4xl font-bold uppercase tracking-tight text-white sm:text-5xl"
         >
           Page Not Found
         </h1>
 
-        <p class="mt-6 text-lg text-zinc-400 font-mono max-w-md mx-auto">
+        <p class="mx-auto mt-6 max-w-md font-mono text-lg text-zinc-400">
           The page you're looking for doesn't exist or has been moved. Try one
           of the links below to get back on track.
         </p>
 
         {/* Current URL display */}
-        <p class="mt-4 text-sm text-zinc-500 font-mono">
+        <p class="mt-4 font-mono text-sm text-zinc-500">
           <span class="sr-only">Requested URL:</span>
           Requested: <code
-            class="bg-zinc-950 border border-zinc-800 px-2 py-1 text-accent-500 break-all"
+            class="break-all border border-zinc-800 bg-zinc-950 px-2 py-1 text-accent-500"
             id="current-url"
             aria-label="Current URL path"></code>
         </p>
@@ -130,7 +125,7 @@ const quickLinks = [
             className="font-mono uppercase tracking-wider"
           >
             <svg
-              class="w-4 h-4 mr-2"
+              class="mr-2 h-4 w-4"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -146,12 +141,12 @@ const quickLinks = [
             Return Home
           </ModernButton>
           <ModernButton
-            href={withBasePath('contact/')}
+            href={withBasePath('/#consultation')}
             variant="secondary"
             className="font-mono uppercase tracking-wider"
           >
             <svg
-              class="w-4 h-4 mr-2"
+              class="mr-2 h-4 w-4"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -164,7 +159,7 @@ const quickLinks = [
                 d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
               ></path>
             </svg>
-            Contact Support
+            Schedule Consultation
           </ModernButton>
         </div>
 
@@ -180,7 +175,7 @@ const quickLinks = [
         {/* Quick links navigation */}
         <div class="mt-12 border-t border-zinc-800 pt-10">
           <p
-            class="text-xs font-mono font-bold uppercase tracking-widest text-zinc-500"
+            class="font-mono text-xs font-bold uppercase tracking-widest text-zinc-500"
             id="quick-links-title"
           >
             Quick Links
@@ -192,7 +187,7 @@ const quickLinks = [
             {
               quickLinks.map(link => (
                 <a
-                  class="text-sm font-mono text-zinc-400 transition hover:text-accent-500 uppercase tracking-wider focus:outline-none focus:text-accent-500 focus:underline"
+                  class="font-mono text-sm uppercase tracking-wider text-zinc-400 transition hover:text-accent-500 focus:text-accent-500 focus:underline focus:outline-none"
                   href={link.href}
                   title={link.description}
                 >

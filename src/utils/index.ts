@@ -309,10 +309,7 @@ export { buildUrl, parseQuery, withBasePath, resolveHref } from './url';
 
 export { cn, cssVariables } from './css';
 
-/* ==================== BLOG UTILITIES ==================== */
-
-export { extractExcerpt, filterPosts } from './blog';
-
+/* ==================== CONTENT UTILITIES ==================== */
 // Re-export calculateReadingTime from reading-time.ts
 // Note: This changes the return type from number to ReadingTimeResult compared to the old inline version
 export { calculateReadingTime } from './reading-time';
@@ -698,42 +695,36 @@ export {
   equals,
   fill,
   indexOf,
-  includes,
-  reverse,
-  xor,
+  split,
+  zeros,
+  random,
+  copy,
 
   // Bit operations
   getBit,
   setBit,
   clearBit,
   toggleBit,
-  countSetBits,
-  isPowerOfTwo,
-  nextPowerOfTwo,
+  popCount,
+  highestBit,
+  lowestBit,
+  isPowerOf2,
+  nextPowerOf2,
+  reverseBits,
   rotateLeft,
   rotateRight,
 
   // BitSet class
   BitSet,
 
-  // ByteBuffer class
-  ByteBuffer,
+  // Readers/Writers
+  BinaryReader,
+  BinaryWriter,
 
-  // Binary search
-  binarySearch,
-  lowerBound,
-  upperBound,
-
-  // Int conversions
-  intToBytes,
-  bytesToInt,
-  floatToBytes,
-  bytesToFloat,
-
-  // Hex utilities
-  isValidHex,
-  hexDump,
-  parseHexDump,
+  // Checksums
+  adler32,
+  xorChecksum,
+  sumChecksum,
 } from './binary';
 
 /* ==================== GRAPH UTILITIES ==================== */
@@ -747,12 +738,9 @@ export {
   isForest,
 } from './graph';
 export type {
-  GraphNode,
-  GraphEdge,
-  GraphOptions,
+  Edge,
   TraversalOptions,
-  PathResult,
-  MSTResult,
+  ShortestPathResult,
   GraphStats,
 } from './graph';
 
@@ -777,22 +765,18 @@ export {
 
 export {
   // Option monad
-  Option,
   Some,
   None,
   fromNullable,
   fromPredicate,
 
   // Result monad
-  Result,
   Ok,
   Err,
   tryCatch as tryOption,
-  tryCatchAsync,
   fromPromise,
 
   // Either monad
-  Either,
   Left,
   Right,
 
@@ -841,6 +825,8 @@ export {
   isNotEmpty,
 } from './functional';
 
+export type { Option, Result, Either } from './functional';
+
 /* ==================== METRICS UTILITIES ==================== */
 
 export {
@@ -881,9 +867,12 @@ export {
 } from './metrics';
 export type {
   MetricType,
-  MetricSnapshot,
-  BucketEntry,
+  Labels,
+  MetricOptions,
   HistogramOptions,
   SummaryOptions,
-  TimingResult,
+  MetricValue,
+  HistogramBucket,
+  HistogramValue,
+  SummaryValue,
 } from './metrics';
