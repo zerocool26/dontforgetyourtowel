@@ -10,8 +10,8 @@ interface CodeExample {
 
 const examples: CodeExample[] = [
   {
-    title: "Static Data Mapping",
-    language: "astro",
+    title: 'Static Data Mapping',
+    language: 'astro',
     code: `---
 const caseStudies = [
   { name: 'Northwind Ops', outcome: 'Deployed as a static status site' },
@@ -27,52 +27,55 @@ const caseStudies = [
     </li>
   ))}
 </ul>`,
-    description: "Render repeatable sections with plain data—no client runtime needed."
+    description:
+      'Render repeatable sections with plain data—no client runtime needed.',
   },
   {
-    title: "Build-Time Collections",
-    language: "astro",
+    title: 'Build-Time Collections',
+    language: 'astro',
     code: `---
 import { getCollection } from 'astro:content';
+  import { withBasePath } from '../utils/helpers';
 
-const posts = await getCollection('blog', ({ data }) => data.published);
-const latest = posts.slice(0, 3);
+const caseStudies = await getCollection('caseStudies');
+const featured = caseStudies.slice(0, 3);
 ---
 
 <section>
-  <h2>Latest updates</h2>
+  <h2>Featured case studies</h2>
   <ul>
-    {latest.map(({ slug, data }) => (
+    {featured.map(({ data }) => (
       <li>
-        <a href=\`/blog/\${slug}/\`>{data.title}</a>
-        <span>{data.pubDate.toLocaleDateString()}</span>
+        <a href={withBasePath('services/#case-studies')}>{data.title}</a>
+        <span>{data.industry}</span>
       </li>
     ))}
   </ul>
 </section>`,
-    description: "Query Markdown content at build time and ship a static listing."
+    description:
+      'Query Markdown content at build time and ship a static listing.',
   },
   {
-    title: "Content Collections",
-    language: "typescript",
+    title: 'Content Collections',
+    language: 'typescript',
     code: `// src/content/config.ts
 import { defineCollection, z } from 'astro:content';
 
-const blog = defineCollection({
+const caseStudies = defineCollection({
   schema: z.object({
     title: z.string(),
-    pubDate: z.date(),
-    author: z.string().default('Docs Team'),
+    industry: z.string(),
+    summary: z.string(),
     tags: z.array(z.string()).default([]),
   }),
 });
 
-export const collections = { blog };`,
-    description: "Type-safe Markdown frontmatter keeps every post consistent."
+export const collections = { caseStudies };`,
+    description: 'Type-safe Markdown frontmatter keeps every post consistent.',
   },
   {
-    title: "No-Backend Contact Form",
-    language: "astro",
+    title: 'No-Backend Contact Form',
+    language: 'astro',
     code: `<form action="https://formspree.io/f/demo" method="POST">
   <label>
     Your email
@@ -85,62 +88,74 @@ export const collections = { blog };`,
   <p class="note">Hosted forms forward submissions by email.</p>
   <button type="submit">Send message</button>
 </form>`,
-    description: "Pair the static site with a hosted form service when submissions are required."
-  }
+    description:
+      'Pair the static site with a hosted form service when submissions are required.',
+  },
 ];
 ---
 
 <div class="space-y-8">
-  {examples.map((example) => (
-    <div class="group">
-      <div class="bg-gray-900 rounded-2xl overflow-hidden shadow-2xl border border-gray-700">
-        <!-- Header -->
-        <div class="flex items-center justify-between p-4 bg-gray-800 border-b border-gray-700">
-          <div class="flex items-center space-x-3">
-            <div class="flex space-x-2">
-              <div class="w-3 h-3 bg-red-500 rounded-full"></div>
-              <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
-              <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+  {
+    examples.map(example => (
+      <div class="group">
+        <div class="overflow-hidden rounded-2xl border border-gray-700 bg-gray-900 shadow-2xl">
+          {/* Header */}
+          <div class="flex items-center justify-between border-b border-gray-700 bg-gray-800 p-4">
+            <div class="flex items-center space-x-3">
+              <div class="flex space-x-2">
+                <div class="h-3 w-3 rounded-full bg-red-500" />
+                <div class="h-3 w-3 rounded-full bg-yellow-500" />
+                <div class="h-3 w-3 rounded-full bg-green-500" />
+              </div>
+              <span class="font-medium text-gray-300">{example.title}</span>
             </div>
-            <span class="text-gray-300 font-medium">{example.title}</span>
+            <div class="flex items-center space-x-2">
+              <span class="rounded bg-gray-700 px-2 py-1 text-xs text-gray-400">
+                {example.language}
+              </span>
+              <ModernButton
+                variant="ghost"
+                className="text-gray-400 hover:text-white transition-colors p-1 min-w-0 h-auto"
+              >
+                <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                  <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
+                </svg>
+              </ModernButton>
+            </div>
           </div>
-          <div class="flex items-center space-x-2">
-            <span class="text-xs text-gray-400 px-2 py-1 bg-gray-700 rounded">
-              {example.language}
-            </span>
-            <ModernButton variant="ghost" className="text-gray-400 hover:text-white transition-colors p-1 min-w-0 h-auto">
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"></path>
-                <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"></path>
-              </svg>
-            </ModernButton>
+
+          {/* Code content */}
+          <div class="relative">
+            <pre class="overflow-x-auto p-6 text-sm">
+              <code class={`language-${example.language} text-gray-300`}>
+                {example.code}
+              </code>
+            </pre>
+
+            {/* Line numbers */}
+            <div class="pointer-events-none absolute left-0 top-0 select-none p-6 font-mono text-sm text-gray-500">
+              {example.code.split('\n').map((_, i) => (
+                <div class="leading-6">{i + 1}</div>
+              ))}
+            </div>
           </div>
-        </div>
 
-        <!-- Code content -->
-        <div class="relative">
-          <pre class="p-6 text-sm overflow-x-auto"><code class={`language-${example.language} text-gray-300`}>{example.code}</code></pre>
-
-          <!-- Line numbers -->
-          <div class="absolute left-0 top-0 p-6 text-gray-500 text-sm font-mono select-none pointer-events-none">
-            {example.code.split('\n').map((_, i) => (
-              <div class="leading-6">{i + 1}</div>
-            ))}
+          {/* Description */}
+          <div class="border-t border-gray-700 bg-gray-800/50 p-4">
+            <p class="text-sm text-gray-300">{example.description}</p>
           </div>
-        </div>
-
-        <!-- Description -->
-        <div class="p-4 bg-gray-800/50 border-t border-gray-700">
-          <p class="text-gray-300 text-sm">{example.description}</p>
         </div>
       </div>
-    </div>
-  ))}
+    ))
+  }
 </div>
 
 <style>
   pre {
-    font-family: 'SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', 'Consolas', 'Courier New', monospace;
+    font-family:
+      'SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', 'Consolas',
+      'Courier New', monospace;
   }
 
   code {

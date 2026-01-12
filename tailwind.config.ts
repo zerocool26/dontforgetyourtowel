@@ -287,6 +287,24 @@ export default {
             'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)',
           backgroundSize: '30px 30px',
         },
+
+        /* Mobile tap target helpers (opt-in; avoids global layout shifts) */
+        '.tap-target': {
+          minHeight: '48px',
+          minWidth: '48px',
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          touchAction: 'manipulation',
+        },
+        '.tap-target-sm': {
+          minHeight: '44px',
+          minWidth: '44px',
+        },
+        '.tap-target-inline': {
+          minHeight: '48px',
+          touchAction: 'manipulation',
+        },
       };
       addUtilities(newUtilities);
     },

@@ -1,7 +1,6 @@
 ---
 import { Image } from 'astro:assets';
 import { getEntry } from 'astro:content';
-import type { CollectionEntry } from 'astro:content';
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
@@ -14,11 +13,27 @@ import CommandPalette from '../components/CommandPalette';
 import ToastContainer from '../components/ToastContainer';
 import TableOfContents from '../components/TableOfContents.astro';
 import type { MarkdownHeading } from 'astro';
+import { withBasePath } from '../utils/helpers';
 
-type Props = CollectionEntry<'blog'>['data'] & {
+export interface Props {
+  title: string;
+  description: string;
+  pubDate: Date;
+  updatedDate?: Date;
+  tags?: string[];
+  heroImage?: any;
+  draft?: boolean;
   readingTime?: string;
   headings?: MarkdownHeading[];
-};
+  author?: unknown;
+  relatedPosts?: Array<{
+    id: string;
+    title: string;
+    description: string;
+    url: string;
+    pubDate?: Date;
+  }>;
+}
 
 const {
   title,
@@ -29,6 +44,7 @@ const {
   readingTime,
   author,
   headings,
+  relatedPosts,
 } = Astro.props;
 
 // Define local interface to bypass potential stale type generation issues
@@ -44,8 +60,11 @@ interface AuthorEntry {
 }
 
 const authorData = (
-  author ? await getEntry(author) : null
+  author && typeof author !== 'string' ? await getEntry(author as any) : null
 ) as AuthorEntry | null;
+
+const authorName = typeof author === 'string' ? author : authorData?.data?.name;
+const authorRole = authorData?.data?.role;
 
 // Calculate reading time from slot content if not provided
 let displayReadingTime = readingTime;
@@ -63,7 +82,7 @@ if (!displayReadingTime && Astro.slots.has('default')) {
       description={description}
       image={heroImage}
       type="article"
-      author={authorData?.data.name}
+      author={authorName}
       publishDate={pubDate}
     />
     <StructuredData
@@ -166,18 +185,47 @@ if (!displayReadingTime && Astro.slots.has('default')) {
               </div>
               <h1>{title}</h1>
               {
-                authorData && (
+                authorName && (
                   <div class="author-info">
-                    <span class="byline">By {authorData.data.name}</span>
-                    {authorData.data.role && (
-                      <span class="role"> · {authorData.data.role}</span>
-                    )}
+                    <span class="byline">By {authorName}</span>
+                    {authorRole && <span class="role"> · {authorRole}</span>}
                   </div>
                 )
               }
               <hr />
             </header>
             <slot />
+
+            {
+              relatedPosts && relatedPosts.length > 0 && (
+                <aside
+                  class="mt-12 border-t border-white/10 pt-8"
+                  aria-labelledby="related-posts-title"
+                >
+                  <h2
+                    id="related-posts-title"
+                    class="m-0 text-xl font-semibold text-white"
+                  >
+                    Related posts
+                  </h2>
+                  <ul class="mt-4 grid list-none gap-4 p-0 sm:grid-cols-2">
+                    {relatedPosts.map(post => (
+                      <li class="m-0 rounded-xl border border-white/10 bg-zinc-950/40 p-4">
+                        <a
+                          class="text-base font-semibold text-accent-300 hover:underline"
+                          href={withBasePath(post.url)}
+                        >
+                          {post.title}
+                        </a>
+                        <p class="mt-2 text-sm leading-relaxed text-zinc-300">
+                          {post.description}
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
+                </aside>
+              )
+            }
           </div>
           {
             headings && headings.length > 0 && (
@@ -190,8 +238,8 @@ if (!displayReadingTime && Astro.slots.has('default')) {
       </article>
     </main>
     <Footer />
-    <CommandPalette client:idle />
-    <ToastContainer client:idle />
+    <CommandPalette client:only="preact" />
+    <ToastContainer client:only="preact" />
     <WebVitals />
     <ErrorTracking />
   </body>

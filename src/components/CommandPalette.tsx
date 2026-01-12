@@ -26,14 +26,14 @@ import { onKeyboardShortcut, type KeyboardShortcut } from '../utils/events';
 import { createFocusTrap, announce } from '../utils/a11y';
 import { get as httpGet } from '../utils/http';
 import { withBasePath } from '../utils/helpers';
+import { isLegacyRouteUrl } from '../utils/legacy-routes';
 
 type CommandCategory =
   | 'Navigation'
   | 'Theme'
   | 'Actions'
-  | 'Blog'
-  | 'Authors'
-  | 'Page';
+  | 'Page'
+  | 'Case Study';
 
 interface CommandItem {
   id: string;
@@ -54,6 +54,12 @@ interface SearchIndexItem {
   date: string;
   tags: string[];
 }
+
+const normalizeSearchCategory = (rawCategory: string): CommandCategory => {
+  if (rawCategory === 'Page') return 'Page';
+  if (rawCategory === 'Case Study') return 'Case Study';
+  return 'Page';
+};
 
 type SearchableCommand = Pick<
   CommandItem,
@@ -117,6 +123,14 @@ const BASE_COMMANDS: CommandItem[] = [
     category: 'Navigation',
     keywords: ['demo', 'lab', 'animations', 'motion'],
   },
+  {
+    id: 'nav-shop-demo',
+    label: 'Open Shop Demo',
+    icon: Box,
+    action: () => navigate(withBasePath('shop-demo/')),
+    category: 'Navigation',
+    keywords: ['shop', 'demo', 'ecommerce', 'cart', 'checkout'],
+  },
   // Theme
   {
     id: 'theme-ops',
@@ -170,21 +184,22 @@ export default function CommandPalette() {
       const response = await httpGet<SearchIndexItem[]>(
         withBasePath('search-index.json')
       );
-      const items = response.data.map((item: SearchIndexItem) => {
-        let icon = FileText;
-        if (item.category === 'Authors') icon = User;
-        if (item.category === 'Page') icon = Layout;
+      const items = response.data
+        .filter(item => !isLegacyRouteUrl(item.url))
+        .map((item: SearchIndexItem) => {
+          const category = normalizeSearchCategory(item.category);
+          const icon = category === 'Page' ? Layout : FileText;
 
-        return {
-          id: item.id,
-          label: item.title,
-          icon,
-          action: () => navigate(withBasePath(item.url)),
-          category: item.category as CommandItem['category'],
-          keywords: item.tags,
-          description: item.description,
-        };
-      });
+          return {
+            id: item.id,
+            label: item.title,
+            icon,
+            action: () => navigate(withBasePath(item.url)),
+            category,
+            keywords: item.tags,
+            description: item.description,
+          };
+        });
       setSearchItems(items);
       // Announce to screen readers using our a11y utility
       announce(`Loaded ${items.length} searchable items`, 'polite');

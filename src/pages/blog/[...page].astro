@@ -1,8 +1,105 @@
 ---
-// Legacy blog route intentionally disabled for the MSP site.
-// Returning an empty list ensures Astro generates no /blog pages in static output.
+import { getCollection } from 'astro:content';
+import MarketingLayout from '../../layouts/MarketingLayout.astro';
+import ModernCard from '../../components/ui/ModernCard.astro';
+import ModernButton from '../../components/ui/ModernButton.astro';
+import { withBasePath } from '../../utils/helpers';
 
-export async function getStaticPaths() {
-  return [];
+export const prerender = true;
+
+export async function getStaticPaths({ paginate }: { paginate: any }) {
+  const posts = await getCollection('blog');
+  const published = posts
+    .filter(entry => !entry.data.draft)
+    .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+  return paginate(published, { pageSize: 10 });
 }
+
+// Cast to avoid editor stale-type issues in this repo.
+const page = (Astro.props as any).page;
 ---
+
+<MarketingLayout
+  title="Blog"
+  description="Insights, playbooks, and practical notes on shipping modern web experiences."
+  mainClass="pb-20 pt-10"
+>
+  <section class="mx-auto max-w-[1100px] px-6">
+    <header class="space-y-3">
+      <h1 class="font-display text-3xl font-semibold text-white sm:text-4xl">
+        Blog
+      </h1>
+      <p class="max-w-[75ch] text-sm leading-relaxed text-zinc-300">
+        Build-time rendered posts. No server required.
+      </p>
+    </header>
+
+    <div class="mt-10 grid gap-5 sm:grid-cols-2">
+      {
+        page.data.map((entry: any) => (
+          <ModernCard variant="glass" className="p-5">
+            <div class="space-y-2">
+              <div class="font-mono text-xs uppercase tracking-widest text-zinc-400">
+                {new Date(entry.data.pubDate).toLocaleDateString()}
+              </div>
+              <h2 class="text-lg font-semibold text-white">
+                <a
+                  class="hover:underline"
+                  href={withBasePath(`blog/${entry.id}/`)}
+                >
+                  {entry.data.title}
+                </a>
+              </h2>
+              <p class="text-sm leading-relaxed text-zinc-300">
+                {entry.data.description}
+              </p>
+              {entry.data.tags?.length ? (
+                <div class="flex flex-wrap gap-2 pt-2">
+                  {entry.data.tags.slice(0, 6).map((tag: string) => (
+                    <span class="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[11px] text-zinc-200">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          </ModernCard>
+        ))
+      }
+    </div>
+
+    <nav
+      class="mt-10 flex items-center justify-between"
+      aria-label="Pagination"
+    >
+      <div>
+        {
+          page.url.prev ? (
+            <ModernButton
+              href={withBasePath(page.url.prev)}
+              variant="secondary"
+            >
+              Newer
+            </ModernButton>
+          ) : null
+        }
+      </div>
+      <div class="font-mono text-xs text-zinc-400">
+        Page {page.currentPage} of {page.lastPage}
+      </div>
+      <div>
+        {
+          page.url.next ? (
+            <ModernButton
+              href={withBasePath(page.url.next)}
+              variant="secondary"
+            >
+              Older
+            </ModernButton>
+          ) : null
+        }
+      </div>
+    </nav>
+  </section>
+</MarketingLayout>

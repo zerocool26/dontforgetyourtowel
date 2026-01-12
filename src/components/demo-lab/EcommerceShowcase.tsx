@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { getEffectiveDemoFlags } from '@/utils/demo-lab';
+import { useGesture } from '@/utils/gestures';
 import { demoProducts, type DemoProduct } from '../../data/demo-ecommerce';
 
 type CartLine = {
@@ -308,6 +309,7 @@ export default function EcommerceShowcase() {
 
   const cartDialogRef = useRef<HTMLDivElement | null>(null);
   const quickViewDialogRef = useRef<HTMLDivElement | null>(null);
+  const quickViewGalleryRef = useRef<HTMLDivElement | null>(null);
   const compareDialogRef = useRef<HTMLDivElement | null>(null);
   const searchRef = useRef<HTMLInputElement | null>(null);
 
@@ -693,31 +695,25 @@ export default function EcommerceShowcase() {
     });
   }
 
-  // Swipe handling for image carousel.
-  const swipe = useRef<{
-    startX: number;
-    startY: number;
-    active: boolean;
-  } | null>(null);
-  function onPointerDown(e: PointerEvent) {
-    if (flags.paused) return;
-    swipe.current = { startX: e.clientX, startY: e.clientY, active: true };
-  }
-  function onPointerUp(product: DemoProduct, e: PointerEvent) {
-    const s = swipe.current;
-    swipe.current = null;
-    if (!s?.active) return;
+  // Swipe handling for quick-view image carousel (mobile-friendly).
+  useGesture(
+    quickViewGalleryRef,
+    {
+      onSwipe: e => {
+        if (flags.paused) return;
+        if (!quickViewProduct) return;
 
-    const dx = e.clientX - s.startX;
-    const dy = e.clientY - s.startY;
-
-    // Ignore vertical scrolls.
-    if (Math.abs(dy) > Math.abs(dx)) return;
-
-    if (Math.abs(dx) > 40) {
-      nextImage(product, dx < 0 ? 1 : -1);
+        if (e.direction === 'left') nextImage(quickViewProduct, 1);
+        if (e.direction === 'right') nextImage(quickViewProduct, -1);
+      },
+    },
+    {
+      swipeThreshold: 40,
+      swipeMaxDuration: 900,
+      preventScrollDuringSwipe: true,
+      enabled: !flags.paused,
     }
-  }
+  );
 
   const quickViewProduct = quickViewProductId
     ? getProductById(quickViewProductId)
@@ -1421,12 +1417,7 @@ export default function EcommerceShowcase() {
               <div class="space-y-3">
                 <div
                   class="relative overflow-hidden rounded-2xl border border-white/10 bg-black/30"
-                  onPointerDown={e =>
-                    onPointerDown(e as unknown as PointerEvent)
-                  }
-                  onPointerUp={e =>
-                    onPointerUp(quickViewProduct, e as unknown as PointerEvent)
-                  }
+                  ref={quickViewGalleryRef}
                 >
                   <img
                     src={quickViewProduct.images[quickViewImageIndex]}

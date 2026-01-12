@@ -9,6 +9,7 @@ import solid from '@astrojs/solid-js';
 import { defineConfig } from 'astro/config';
 
 import { createDeploymentConfig } from './config/deployment.js';
+import { isLegacyRoutePath } from './config/legacyRoutes.js';
 
 const { basePath, siteUrl } = createDeploymentConfig();
 
@@ -21,19 +22,7 @@ export default defineConfig({
     mdx(),
     sitemap({
       filter: page => {
-        const legacyPrefixes = [
-          '/blog',
-          '/components',
-          '/dashboard',
-          '/dashboard-v2',
-          '/demo',
-          '/error-dashboard',
-          '/showcase',
-          '/ultimate-3d-gallery',
-          '/utility-demo',
-          '/visual-showcase',
-        ];
-        return !legacyPrefixes.some(prefix => page.startsWith(prefix));
+        return !isLegacyRoutePath(page);
       },
     }),
     tailwind({

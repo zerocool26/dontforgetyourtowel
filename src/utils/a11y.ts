@@ -724,17 +724,19 @@ export function onReducedMotionChange(
   callback(mediaQuery.matches);
 
   // Prefer modern API; fall back for older Safari.
-  if ('addEventListener' in mediaQuery) {
+  if (typeof (mediaQuery as MediaQueryList).addEventListener === 'function') {
     mediaQuery.addEventListener('change', handler);
     return () => mediaQuery.removeEventListener('change', handler);
   }
 
-  // @ts-expect-error older Safari
-  if ('addListener' in mediaQuery) {
-    // @ts-expect-error older Safari
-    mediaQuery.addListener(handler);
-    // @ts-expect-error older Safari
-    return () => mediaQuery.removeListener(handler);
+  const legacyMediaQuery = mediaQuery as unknown as {
+    addListener?: (listener: typeof handler) => void;
+    removeListener?: (listener: typeof handler) => void;
+  };
+
+  if (typeof legacyMediaQuery.addListener === 'function') {
+    legacyMediaQuery.addListener(handler);
+    return () => legacyMediaQuery.removeListener?.(handler);
   }
 
   return () => {};

@@ -1,10 +1,40 @@
 ---
-// Legacy blog route intentionally disabled for the MSP site.
-// Returning an empty list ensures Astro generates no /blog/:slug pages in static output.
+import { getCollection, render } from 'astro:content';
+import BlogPost from '../../layouts/BlogPost.astro';
+import { getRelatedBlogPosts } from '../../utils/related-content';
 
 export const prerender = true;
 
 export async function getStaticPaths() {
-  return [];
+  // Cast to avoid editor stale-type issues (repo uses this pattern elsewhere).
+  const posts = (await getCollection('blog' as never)) as any[];
+  const published = posts.filter(entry => !entry.data.draft);
+  return published.map(entry => ({ params: { slug: entry.id } }));
 }
+
+const { slug } = Astro.params;
+if (!slug) throw new Error('Missing blog slug');
+
+const posts = (await getCollection('blog' as never)) as any[];
+const entry = posts.find(e => e.id === slug);
+
+if (!entry || entry.data?.draft) {
+  throw new Error(`Blog post not found: ${slug}`);
+}
+
+const { Content, headings } = await render(entry);
+
+const published = posts.filter(e => !e?.data?.draft);
+const relatedEntries = getRelatedBlogPosts(entry, published, 3);
+const relatedPosts = relatedEntries.map((e: any) => ({
+  id: e.id,
+  title: e.data.title,
+  description: e.data.description,
+  url: `blog/${e.id}/`,
+  pubDate: e.data.pubDate,
+}));
 ---
+
+<BlogPost {...entry.data} headings={headings} relatedPosts={relatedPosts}>
+  <Content />
+</BlogPost>

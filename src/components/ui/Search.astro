@@ -1,12 +1,11 @@
 ---
 /**
  * Search Component
- * Client-side search for blog posts and site content using Fuse.js
- * Includes keyboard shortcuts (Cmd+K / Ctrl+K) and instant results
+ * Client-side search for site content using Fuse.js.
+ * Uses the shared `search-index.json` endpoint.
  */
 
 import { withBasePath } from '../../utils/helpers';
-import { getCollection } from 'astro:content';
 
 export interface Props {
   placeholder?: string;
@@ -15,40 +14,29 @@ export interface Props {
 }
 
 const {
-  placeholder = 'Search posts...',
+  placeholder = 'Search site...',
   maxResults = 5,
   class: className = '',
 } = Astro.props;
 
-// Get all blog posts for search indexing
-const posts = await getCollection('blog');
-
-const searchData = posts.map(post => ({
-  title: post.data.title,
-  description: post.data.description,
-  id: post.id.replace('.md', '').replace('.mdx', ''),
-  pubDate: post.data.pubDate,
-}));
-
-const blogBasePath = withBasePath('blog/');
+const indexUrl = withBasePath('search-index.json');
 const searchId = `search-${Math.random().toString(36).slice(2, 9)}`;
 ---
 
 <div
   class={`search-wrapper ${className}`}
   data-search-wrapper
-  data-search-data={JSON.stringify(searchData)}
+  data-index-url={indexUrl}
   data-max-results={maxResults}
-  data-blog-base-path={blogBasePath}
 >
   <div class="relative" role="search">
-    <label for={searchId} class="sr-only">Search posts</label>
+    <label for={searchId} class="sr-only">Search site</label>
     <input
-      aria-label="Search posts"
+      aria-label="Search site"
       type="search"
       id={searchId}
       placeholder={placeholder}
-      class="w-full px-4 py-3 pl-12 pr-16 bg-slate-800/50 border border-slate-700 rounded-lg text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+      class="w-full rounded-lg border border-slate-700 bg-slate-800/50 px-4 py-3 pl-12 pr-16 text-slate-200 placeholder-slate-400 transition-all focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
       aria-describedby={`${searchId}-hint`}
       aria-controls={`${searchId}-results`}
       aria-expanded="false"
@@ -56,7 +44,7 @@ const searchId = `search-${Math.random().toString(36).slice(2, 9)}`;
       spellcheck="false"
     />
     <svg
-      class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none"
+      class="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400"
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
@@ -68,13 +56,6 @@ const searchId = `search-${Math.random().toString(36).slice(2, 9)}`;
         stroke-width="2"
         d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
     </svg>
-    <kbd
-      class="absolute right-4 top-1/2 -translate-y-1/2 px-2 py-1 text-xs text-slate-400 bg-slate-900 border border-slate-700 rounded pointer-events-none"
-      aria-hidden="true"
-    >
-      <span class="hidden sm:inline">⌘K</span>
-      <span class="sm:hidden">Ctrl+K</span>
-    </kbd>
     <span id={`${searchId}-hint`} class="sr-only">
       Type at least 2 characters to search. Use arrow keys to navigate results.
     </span>
@@ -83,7 +64,7 @@ const searchId = `search-${Math.random().toString(36).slice(2, 9)}`;
   <!-- Search Results -->
   <div
     id={`${searchId}-results`}
-    class="hidden absolute z-50 w-full mt-2 bg-slate-800 border border-slate-700 rounded-lg shadow-2xl max-h-96 overflow-y-auto"
+    class="absolute z-50 mt-2 hidden max-h-96 w-full overflow-y-auto rounded-lg border border-slate-700 bg-slate-800 shadow-2xl"
     role="listbox"
     aria-label="Search results"
   >
@@ -101,16 +82,38 @@ const searchId = `search-${Math.random().toString(36).slice(2, 9)}`;
 <script>
   import Fuse from 'fuse.js';
   import { debounce } from '../../utils/function';
+  import { withBasePath } from '../../utils/helpers';
+
+  const CACHE_KEY = '__siteSearchIndexCache__';
+
+  async function loadIndex(indexUrl: string) {
+    const w = window as unknown as Record<string, any>;
+    if (!w[CACHE_KEY]) {
+      w[CACHE_KEY] = new Map();
+    }
+
+    const cache: Map<string, Promise<any>> = w[CACHE_KEY];
+    const cached = cache.get(indexUrl);
+    if (cached) return cached;
+
+    const promise = fetch(indexUrl).then(async response => {
+      if (!response.ok) {
+        throw new Error(`Failed to load search index: ${response.status}`);
+      }
+      return response.json();
+    });
+
+    cache.set(indexUrl, promise);
+    return promise;
+  }
 
   function initSearch(wrapper: Element) {
     if (!(wrapper instanceof HTMLElement)) return;
 
-    const searchDataStr = wrapper.dataset.searchData;
-    if (!searchDataStr) return;
+    const indexUrl = wrapper.dataset.indexUrl;
+    if (!indexUrl) return;
 
-    const searchData = JSON.parse(searchDataStr);
     const maxResults = parseInt(wrapper.dataset.maxResults || '5', 10);
-    const blogBasePath = wrapper.dataset.blogBasePath || '/blog/';
 
     const input = wrapper.querySelector(
       'input[type="search"]'
@@ -124,15 +127,30 @@ const searchId = `search-${Math.random().toString(36).slice(2, 9)}`;
 
     if (!results || !resultsList) return;
 
-    const fuse = new Fuse(searchData, {
-      keys: [
-        { name: 'title', weight: 2 },
-        { name: 'description', weight: 1 },
-      ],
-      threshold: 0.4,
-      includeScore: true,
-      minMatchCharLength: 2,
-    });
+    let fuse: any = null;
+    let indexReady = false;
+    let indexError: string | null = null;
+
+    const ensureIndex = async () => {
+      if (indexReady || indexError) return;
+      try {
+        const items = await loadIndex(indexUrl);
+        fuse = new Fuse(items, {
+          keys: [
+            { name: 'title', weight: 2 },
+            { name: 'description', weight: 1 },
+            { name: 'tags', weight: 1 },
+            { name: 'category', weight: 0.5 },
+          ],
+          threshold: 0.35,
+          includeScore: true,
+          minMatchCharLength: 2,
+        });
+        indexReady = true;
+      } catch (err) {
+        indexError = err instanceof Error ? err.message : String(err);
+      }
+    };
 
     let selectedIndex = -1;
 
@@ -151,6 +169,26 @@ const searchId = `search-${Math.random().toString(36).slice(2, 9)}`;
       if (!query || query.length < 2) {
         results?.classList.add('hidden');
         input.setAttribute('aria-expanded', 'false');
+        return;
+      }
+
+      if (!indexReady) {
+        // kick off index load and show a tiny status for screen readers
+        void ensureIndex().then(() => performSearch(query));
+
+        if (resultsList) {
+          resultsList.textContent = '';
+          const loadingDiv = document.createElement('div');
+          loadingDiv.className = 'px-4 py-3 text-slate-400 text-sm';
+          loadingDiv.setAttribute('role', 'status');
+          loadingDiv.textContent = indexError
+            ? 'Search is temporarily unavailable.'
+            : 'Loading search…';
+          resultsList.appendChild(loadingDiv);
+        }
+
+        results?.classList.remove('hidden');
+        input.setAttribute('aria-expanded', 'true');
         return;
       }
 
@@ -176,9 +214,9 @@ const searchId = `search-${Math.random().toString(36).slice(2, 9)}`;
       }
 
       if (resultsList) {
-        searchResults.forEach((result, index) => {
+        searchResults.forEach((result: any, index: number) => {
           const link = document.createElement('a');
-          link.href = `${blogBasePath}${encodeURIComponent(result.item.id)}`;
+          link.href = withBasePath(result.item.url || '/');
           link.className = `block px-4 py-3 hover:bg-slate-700 focus:bg-slate-700 focus:outline-none transition-colors ${index === selectedIndex ? 'bg-slate-700' : ''}`;
           link.dataset.resultIndex = index.toString();
           link.setAttribute('role', 'option');
@@ -191,6 +229,14 @@ const searchId = `search-${Math.random().toString(36).slice(2, 9)}`;
           titleDiv.className = 'font-semibold text-slate-200';
           titleDiv.textContent = result.item.title;
           link.appendChild(titleDiv);
+
+          if (result.item.category) {
+            const metaDiv = document.createElement('div');
+            metaDiv.className =
+              'mt-1 text-[0.7rem] uppercase tracking-widest text-slate-500';
+            metaDiv.textContent = result.item.category;
+            link.appendChild(metaDiv);
+          }
 
           const descDiv = document.createElement('div');
           descDiv.className = 'text-sm text-slate-400 mt-1 line-clamp-2';
@@ -208,9 +254,10 @@ const searchId = `search-${Math.random().toString(36).slice(2, 9)}`;
     }
 
     // Input handler with debounce
-    const handleInput = debounce((e: Event) => {
-      const target = e.target as HTMLInputElement;
-      performSearch(target.value);
+    const handleInput = debounce((...args: unknown[]) => {
+      const e = args[0] as Event | undefined;
+      const target = (e?.target as HTMLInputElement | null) ?? null;
+      performSearch(target?.value || '');
     }, 200);
 
     input.addEventListener('input', handleInput);
@@ -256,14 +303,6 @@ const searchId = `search-${Math.random().toString(36).slice(2, 9)}`;
       if (!wrapper.contains(e.target as Node)) {
         results?.classList.add('hidden');
         input.setAttribute('aria-expanded', 'false');
-      }
-    });
-
-    // Keyboard shortcut (Cmd+K / Ctrl+K)
-    document.addEventListener('keydown', e => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        input.focus();
       }
     });
   }

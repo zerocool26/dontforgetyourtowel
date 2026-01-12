@@ -9,8 +9,12 @@ interface Props {
 
 const { activeTag, className = '' } = Astro.props;
 
-const posts = await getCollection('blog');
-const tags = posts.flatMap(post => post.data.tags || []);
+// The MSP site has blog routes disabled; this tag cloud is scoped to case studies.
+const caseStudies = await getCollection('caseStudies');
+const tags = caseStudies.flatMap(entry => [
+  entry.data.industry,
+  ...(entry.data.tags || []),
+]);
 const tagCounts = tags.reduce(
   (acc, tag) => {
     acc[tag] = (acc[tag] || 0) + 1;
@@ -24,7 +28,7 @@ const sortedTags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]);
 
 <div class={`flex flex-wrap gap-2 ${className}`}>
   <a
-    href={withBasePath('blog/')}
+    href={withBasePath('services/#case-studies')}
     class={`px-3 py-1 rounded-full text-xs font-medium transition-colors border ${
       !activeTag
         ? 'bg-indigo-600 text-white border-indigo-500'
@@ -38,11 +42,13 @@ const sortedTags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]);
       const isActive = tag === activeTag;
       return (
         <a
-          href={withBasePath(`blog/tag/${tag}/`)}
-          class={`px-3 py-1 rounded-full text-xs font-medium transition-colors border ${
+          href={withBasePath(
+            `services/#case-studies?tag=${encodeURIComponent(tag)}`
+          )}
+          class={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
             isActive
-              ? 'bg-indigo-600 text-white border-indigo-500'
-              : 'bg-slate-800/50 text-slate-300 border-slate-700 hover:border-slate-500 hover:text-white'
+              ? 'border-indigo-500 bg-indigo-600 text-white'
+              : 'border-slate-700 bg-slate-800/50 text-slate-300 hover:border-slate-500 hover:text-white'
           }`}
         >
           {tag} <span class="ml-1 opacity-60">({count})</span>

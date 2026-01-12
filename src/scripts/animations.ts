@@ -3,6 +3,8 @@
  * Scroll animations, parallax, reveal effects, and more
  */
 
+import { networkAdapter } from '../utils/network-adapter';
+
 // ============================================================================
 // CONFIGURATION
 // ============================================================================
@@ -47,7 +49,8 @@ export function prefersReducedMotion(): boolean {
 }
 
 function shouldAnimate(): boolean {
-  return !(config.respectReducedMotion && prefersReducedMotion());
+  if (config.respectReducedMotion && prefersReducedMotion()) return false;
+  return networkAdapter.shouldEnableAnimations();
 }
 
 // ============================================================================

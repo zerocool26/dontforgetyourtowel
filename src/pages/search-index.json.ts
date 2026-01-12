@@ -1,7 +1,9 @@
 import { getCollection } from 'astro:content';
+import { isLegacyRouteUrl } from '../utils/legacy-routes';
 
 export async function GET() {
   const caseStudies = await getCollection('caseStudies');
+  const blogPosts = await getCollection('blog');
 
   const caseStudyItems = caseStudies.map(entry => ({
     id: `case-${entry.id}`,
@@ -14,6 +16,20 @@ export async function GET() {
     date: (entry.data.published ?? new Date()).toISOString(),
     tags: ['case-study', entry.data.industry, ...entry.data.tags],
   }));
+
+  const blogItems = blogPosts
+    .filter(entry => !entry.data.draft)
+    .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+    .map(entry => ({
+      id: `blog-${entry.id}`,
+      title: entry.data.title,
+      description: entry.data.description,
+      category: 'Page',
+      // Base-agnostic URL (consumer applies withBasePath)
+      url: `blog/${entry.id}/`,
+      date: entry.data.pubDate.toISOString(),
+      tags: ['blog', ...entry.data.tags],
+    }));
 
   const staticPages = [
     {
@@ -93,7 +109,9 @@ export async function GET() {
     date: new Date().toISOString(),
   }));
 
-  const searchItems = [...caseStudyItems, ...staticPages];
+  const searchItems = [...caseStudyItems, ...blogItems, ...staticPages].filter(
+    item => !isLegacyRouteUrl(item.url)
+  );
 
   return new Response(JSON.stringify(searchItems), {
     status: 200,

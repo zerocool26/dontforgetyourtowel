@@ -11,6 +11,16 @@
 
   :root,
   [data-theme='ops-center'] {
+    /* Safe area insets (notch / dynamic island / gesture bar devices) */
+    --safe-area-inset-top: env(safe-area-inset-top);
+    --safe-area-inset-right: env(safe-area-inset-right);
+    --safe-area-inset-bottom: env(safe-area-inset-bottom);
+    --safe-area-inset-left: env(safe-area-inset-left);
+
+    /* Mobile viewport height helpers (prevents 100vh issues with browser chrome) */
+    --viewport-height: 100vh;
+    --viewport-height-dynamic: 100vh;
+
     --color-background: #09090b;
     --color-surface: #18181b;
     --color-surface-subtle: rgba(24, 24, 27, 0.6);
@@ -93,6 +103,13 @@
     background-color: var(--color-background);
   }
 
+  @supports (height: 100dvh) {
+    :root {
+      --viewport-height: 100dvh;
+      --viewport-height-dynamic: 100dvh;
+    }
+  }
+
   body {
     min-height: 100vh;
     margin: 0;
@@ -127,6 +144,40 @@
     }
   }
 
+  /* Mobile tap ergonomics */
+  button,
+  [role='button'],
+  input[type='submit'],
+  input[type='button'] {
+    touch-action: manipulation;
+  }
+
+  .no-tap-highlight {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    -webkit-tap-highlight-color: rgba(99, 102, 241, 0.25);
+  }
+
+  @layer utilities {
+    .safe-top {
+      padding-top: max(var(--safe-area-inset-top), 1rem);
+    }
+    .safe-right {
+      padding-right: max(var(--safe-area-inset-right), 1rem);
+    }
+    .safe-bottom {
+      padding-bottom: max(var(--safe-area-inset-bottom), 1rem);
+    }
+    .safe-left {
+      padding-left: max(var(--safe-area-inset-left), 1rem);
+    }
+
+    .min-h-screen-mobile {
+      min-height: var(--viewport-height);
+    }
+  }
   /* Sticky header behavior (used by src/scripts/header.ts) */
   header {
     transition:
