@@ -2,6 +2,23 @@ import { defineCollection, z } from 'astro:content';
 import type { ImageFunction } from 'astro:content';
 import { glob } from 'astro/loaders';
 
+const blog = defineCollection({
+  loader: glob({
+    base: './src/content/blog',
+    pattern: '**/*.{md,mdx}',
+  }),
+  schema: ({ image }: { image: ImageFunction }) =>
+    z.object({
+      title: z.string(),
+      description: z.string(),
+      pubDate: z.coerce.date(),
+      updatedDate: z.coerce.date().optional(),
+      tags: z.array(z.string()).default([]),
+      heroImage: image().optional(),
+      draft: z.boolean().default(false),
+    }),
+});
+
 const caseStudies = defineCollection({
   loader: glob({
     base: './src/content/case-studies',
@@ -51,4 +68,4 @@ const testimonials = defineCollection({
   }),
 });
 
-export const collections = { caseStudies, testimonials };
+export const collections = { blog, caseStudies, testimonials };
