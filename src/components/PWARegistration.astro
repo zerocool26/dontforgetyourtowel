@@ -43,13 +43,18 @@ const swScope = withBasePath('');
       typeof navigator !== 'undefined' && (navigator as any).webdriver === true;
 
     if (!isAutomated && 'serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
+      const registerServiceWorker = () => {
         navigator.serviceWorker
           .register(SW_PATH, { scope: SW_SCOPE })
           .then(registration => {
             console.log('[PWA] Service Worker registered:', registration.scope);
 
             swRegistration = registration;
+
+            // If an update is already waiting (e.g., user navigated back while a SW updated), surface it.
+            if (registration.waiting && navigator.serviceWorker.controller) {
+              showUpdateNotification();
+            }
 
             // Check for updates conservatively and only when it makes sense.
             // (Polling too frequently can waste battery/CPU and cause noisy updates.)
@@ -104,7 +109,14 @@ const swScope = withBasePath('');
           refreshing = true;
           window.location.reload();
         });
-      });
+      };
+
+      // If the script runs after `load` (rare, but possible with deferred hydration), don’t miss registration.
+      if (document.readyState === 'complete') {
+        registerServiceWorker();
+      } else {
+        window.addEventListener('load', registerServiceWorker, { once: true });
+      }
     }
 
     // Track whether the user is likely navigating with keyboard.
