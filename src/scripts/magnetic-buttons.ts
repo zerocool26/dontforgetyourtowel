@@ -8,6 +8,11 @@ export function setupMagneticButtons() {
   buttons.forEach(btn => {
     if (!(btn instanceof HTMLElement)) return;
 
+    // Prevent duplicate listeners when this runs on both initial load and
+    // Astro view transitions.
+    if (btn.hasAttribute('data-magnetic-bound')) return;
+    btn.setAttribute('data-magnetic-bound', '');
+
     btn.addEventListener('mousemove', (e: MouseEvent) => {
       const rect = btn.getBoundingClientRect();
       const x = e.clientX - rect.left;
@@ -32,12 +37,13 @@ export function setupMagneticButtons() {
   });
 }
 
-// Run on initial load
-if (document.readyState === 'complete') {
-  setupMagneticButtons();
+// Run on initial load and View Transitions navigation
+const runMagneticButtons = () => setupMagneticButtons();
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', runMagneticButtons);
 } else {
-  document.addEventListener('DOMContentLoaded', setupMagneticButtons);
+  runMagneticButtons();
 }
 
-// Run on View Transitions navigation
-document.addEventListener('astro:page-load', setupMagneticButtons);
+document.addEventListener('astro:page-load', runMagneticButtons);

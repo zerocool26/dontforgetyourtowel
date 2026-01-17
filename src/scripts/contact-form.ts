@@ -536,10 +536,27 @@ ${message}`;
 
 // Initialize on DOM load and Astro page transitions
 function initContactForm() {
+  const form = document.getElementById(
+    'contact-form'
+  ) as HTMLFormElement | null;
+  if (!form) return;
+
+  // Avoid duplicate listeners when this runs on both initial load and Astro
+  // view transitions.
+  if (form.hasAttribute('data-contact-form-initialized')) return;
+  form.setAttribute('data-contact-form-initialized', '');
+
   new EnhancedContactForm();
 }
 
-document.addEventListener('DOMContentLoaded', initContactForm);
-document.addEventListener('astro:page-load', initContactForm);
+const runContactFormInit = () => initContactForm();
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', runContactFormInit);
+} else {
+  runContactFormInit();
+}
+
+document.addEventListener('astro:page-load', runContactFormInit);
 
 export { EnhancedContactForm };

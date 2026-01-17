@@ -18,6 +18,7 @@ class EnhancedHeader {
   private focusTrap: ReturnType<typeof createFocusTrap> | null = null;
   private cleanupFunctions: (() => void)[] = [];
   private scrollYBeforeOpen = 0;
+  private abortController = new AbortController();
 
   constructor() {
     this.toggle = document.getElementById(
@@ -32,8 +33,10 @@ class EnhancedHeader {
   }
 
   private init(): void {
+    const { signal } = this.abortController;
+
     // Mobile menu toggle
-    this.toggle!.addEventListener('click', () => this.toggleMenu());
+    this.toggle!.addEventListener('click', () => this.toggleMenu(), { signal });
 
     // Set up keyboard shortcuts
     this.setupKeyboardShortcuts();
@@ -46,22 +49,30 @@ class EnhancedHeader {
 
     // Close menu when clicking links
     this.menu!.querySelectorAll('a').forEach(link => {
-      link.addEventListener('click', () => {
-        setTimeout(() => this.closeMenu(), 100);
-      });
+      link.addEventListener(
+        'click',
+        () => {
+          setTimeout(() => this.closeMenu(), 100);
+        },
+        { signal }
+      );
     });
 
     // Close menu when clicking outside
-    document.addEventListener('click', event => {
-      const target = event.target as Node;
-      if (
-        !this.menu!.hasAttribute('hidden') &&
-        !this.menu!.contains(target) &&
-        !this.toggle!.contains(target)
-      ) {
-        this.closeMenu();
-      }
-    });
+    document.addEventListener(
+      'click',
+      event => {
+        const target = event.target as Node;
+        if (
+          !this.menu!.hasAttribute('hidden') &&
+          !this.menu!.contains(target) &&
+          !this.toggle!.contains(target)
+        ) {
+          this.closeMenu();
+        }
+      },
+      { signal }
+    );
   }
 
   private setupKeyboardShortcuts(): void {
@@ -201,9 +212,18 @@ class EnhancedHeader {
     this.cleanupFunctions.forEach(fn => fn());
     this.cleanupFunctions = [];
 
+    // Abort any DOM event listeners installed by this instance.
+    this.abortController.abort();
+
     if (this.focusTrap) {
       this.focusTrap.deactivate();
       this.focusTrap = null;
+    }
+
+    // Ensure the menu is not left open when we re-init.
+    if (this.menu && !this.menu.hasAttribute('hidden')) {
+      this.menu.setAttribute('hidden', '');
+      this.toggle?.setAttribute('aria-expanded', 'false');
     }
 
     this.unlockScroll();
@@ -255,13 +275,14 @@ function initHeader() {
   headerInstance = new EnhancedHeader();
 }
 
-document.addEventListener('DOMContentLoaded', initHeader);
-document.addEventListener('astro:page-load', initHeader);
+const runHeaderInit = () => initHeader();
 
-// If the module loads after DOMContentLoaded (can happen in static builds),
-// ensure we still initialize immediately.
-if (document.readyState !== 'loading') {
-  initHeader();
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', runHeaderInit);
+} else {
+  runHeaderInit();
 }
+
+document.addEventListener('astro:page-load', runHeaderInit);
 
 export { EnhancedHeader };

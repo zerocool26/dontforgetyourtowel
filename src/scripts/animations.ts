@@ -35,6 +35,27 @@ const defaultConfig: AnimationConfig = {
 
 let config = { ...defaultConfig };
 
+// Keep global listeners idempotent across Astro view transitions.
+let scrollProgressBars: HTMLElement[] = [];
+let scrollProgressListenerBound = false;
+
+let smoothScrollSelector = 'a[href^="#"]';
+let smoothScrollOffset = 80;
+let smoothScrollListenerBound = false;
+
+function updateScrollProgress(): void {
+  if (scrollProgressBars.length === 0) return;
+
+  const scrollTop = window.scrollY;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+
+  scrollProgressBars.forEach(bar => {
+    bar.style.width = `${progress}%`;
+    bar.setAttribute('aria-valuenow', String(Math.round(progress)));
+  });
+}
+
 export function setAnimationConfig(newConfig: Partial<AnimationConfig>) {
   config = { ...config, ...newConfig };
 }
@@ -160,6 +181,11 @@ export function setupScrollAnimations(selector = '.scroll-animate') {
   const elements = document.querySelectorAll(selector);
   elements.forEach(el => {
     const htmlEl = el as HTMLElement;
+
+    // Avoid re-binding on the same element when this runs multiple times.
+    if (htmlEl.hasAttribute('data-scroll-animate-bound')) return;
+    htmlEl.setAttribute('data-scroll-animate-bound', '');
+
     const animationType =
       (htmlEl.dataset.animation as AnimationType) || 'fade-in-up';
     const duration = parseInt(
@@ -318,23 +344,17 @@ export function setupAdvancedParallax(selector = '.parallax-advanced') {
  * Create a scroll progress indicator
  */
 export function setupScrollProgress(selector = '.scroll-progress') {
-  const progressBars = document.querySelectorAll<HTMLElement>(selector);
-  if (progressBars.length === 0) return;
+  scrollProgressBars = Array.from(
+    document.querySelectorAll<HTMLElement>(selector)
+  );
+  if (scrollProgressBars.length === 0) return;
 
-  const updateProgress = () => {
-    const scrollTop = window.scrollY;
-    const docHeight =
-      document.documentElement.scrollHeight - window.innerHeight;
-    const progress = (scrollTop / docHeight) * 100;
+  if (!scrollProgressListenerBound) {
+    scrollProgressListenerBound = true;
+    window.addEventListener('scroll', updateScrollProgress, { passive: true });
+  }
 
-    progressBars.forEach(bar => {
-      bar.style.width = `${progress}%`;
-      bar.setAttribute('aria-valuenow', String(Math.round(progress)));
-    });
-  };
-
-  window.addEventListener('scroll', updateProgress, { passive: true });
-  updateProgress();
+  updateScrollProgress();
 }
 
 /**
@@ -694,7 +714,13 @@ export function setupScrollCounters(selector = '.count-up') {
     { threshold: 0.5 }
   );
 
-  elements.forEach(el => observer.observe(el));
+  elements.forEach(el => {
+    // Avoid observing the same element multiple times across repeated
+    // initialization (initial load + view transitions).
+    if (el.hasAttribute('data-countup-bound')) return;
+    el.setAttribute('data-countup-bound', '');
+    observer.observe(el);
+  });
 }
 
 // ============================================================================
@@ -751,19 +777,40 @@ export function smoothScrollTo(
  * Setup smooth scroll for anchor links
  */
 export function setupSmoothScroll(selector = 'a[href^="#"]', offset = 80) {
-  document.querySelectorAll<HTMLAnchorElement>(selector).forEach(anchor => {
-    anchor.addEventListener('click', e => {
+  smoothScrollSelector = selector;
+  smoothScrollOffset = offset;
+
+  if (smoothScrollListenerBound) return;
+  smoothScrollListenerBound = true;
+
+  document.addEventListener(
+    'click',
+    event => {
+      // Only handle primary clicks without modifier keys.
+      if (event.defaultPrevented) return;
+      if (event.button !== 0) return;
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+        return;
+      }
+
+      const target = event.target as Element | null;
+      const anchor = target?.closest?.(
+        smoothScrollSelector
+      ) as HTMLAnchorElement | null;
+      if (!anchor) return;
+
       const href = anchor.getAttribute('href');
       if (!href || href === '#') return;
 
-      const target = document.querySelector(href);
-      if (target) {
-        e.preventDefault();
-        smoothScrollTo(target as HTMLElement, { offset });
-        history.pushState(null, '', href);
-      }
-    });
-  });
+      const dest = document.querySelector(href);
+      if (!dest) return;
+
+      event.preventDefault();
+      void smoothScrollTo(dest as HTMLElement, { offset: smoothScrollOffset });
+      history.pushState(null, '', href);
+    },
+    { capture: true }
+  );
 }
 
 // ============================================================================
@@ -782,12 +829,14 @@ export function initializeAnimations() {
 
 // Run on initial load if not using View Transitions
 if (typeof document !== 'undefined') {
-  if (document.readyState === 'complete') {
-    initializeAnimations();
+  const runInitializeAnimations = () => initializeAnimations();
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', runInitializeAnimations);
   } else {
-    document.addEventListener('DOMContentLoaded', initializeAnimations);
+    runInitializeAnimations();
   }
 
   // Run on View Transitions navigation
-  document.addEventListener('astro:page-load', initializeAnimations);
+  document.addEventListener('astro:page-load', runInitializeAnimations);
 }
