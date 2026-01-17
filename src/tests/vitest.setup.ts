@@ -15,6 +15,14 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 });
 
+// JSDOM does not implement Canvas APIs by default. Some components/utilities probe for
+// canvas support (or call getContext), which would otherwise emit noisy warnings.
+// We stub a minimal getContext implementation for test stability.
+if (typeof HTMLCanvasElement !== 'undefined') {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (HTMLCanvasElement.prototype as any).getContext = vi.fn(() => null);
+}
+
 // Global test setup
 beforeEach(() => {
   vi.clearAllMocks();
