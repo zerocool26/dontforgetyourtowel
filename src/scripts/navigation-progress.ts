@@ -6,6 +6,12 @@
  * Compatible with Astro page transitions (clears on `astro:page-load`).
  */
 
+declare global {
+  interface Window {
+    __navigationProgressBound?: boolean;
+  }
+}
+
 let clearTimer: number | undefined;
 
 function clearNavigating(): void {
@@ -94,15 +100,21 @@ function onDocumentClick(event: MouseEvent): void {
 
 // Attach once.
 if (typeof document !== 'undefined') {
-  document.addEventListener('click', onDocumentClick, { capture: true });
+  if (!window.__navigationProgressBound) {
+    window.__navigationProgressBound = true;
 
-  // Clear on any successful navigation.
-  document.addEventListener(
-    'astro:page-load',
-    clearNavigating as EventListener
-  );
+    document.addEventListener('click', onDocumentClick, { capture: true });
 
-  // Also clear on browser back/forward cache restores.
-  window.addEventListener('pageshow', clearNavigating);
-  window.addEventListener('popstate', clearNavigating);
+    // Clear on any successful navigation.
+    document.addEventListener(
+      'astro:page-load',
+      clearNavigating as EventListener
+    );
+
+    // Also clear on browser back/forward cache restores.
+    window.addEventListener('pageshow', clearNavigating);
+    window.addEventListener('popstate', clearNavigating);
+  }
 }
+
+export {};
