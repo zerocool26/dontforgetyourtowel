@@ -10,6 +10,7 @@ let clearTimer: number | undefined;
 
 function clearNavigating(): void {
   document.body?.classList.remove('navigating');
+  document.body?.removeAttribute('aria-busy');
   if (clearTimer) {
     window.clearTimeout(clearTimer);
     clearTimer = undefined;
@@ -82,6 +83,7 @@ function onDocumentClick(event: MouseEvent): void {
     if (!shouldShowProgress(anchor, event)) return;
 
     document.body.classList.add('navigating');
+    document.body.setAttribute('aria-busy', 'true');
 
     // Safety: ensure we don’t get stuck if the navigation is cancelled.
     clearTimer = window.setTimeout(() => {
