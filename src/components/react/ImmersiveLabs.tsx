@@ -81,12 +81,16 @@ const useIsMobile = () => {
 const Scene = ({ isMobile }: { isMobile: boolean }) => {
   const groupRef = useRef<THREE.Group>(null);
   const coreRef = useRef<THREE.Mesh>(null);
-  const coreMat = useRef<THREE.MeshStandardMaterial>(null);
+  const coreMat = useRef<THREE.MeshPhysicalMaterial>(null);
   const nodeGroup = useRef<THREE.Group>(null);
   const ringRef = useRef<THREE.Mesh>(null);
+  const pulseRingRef = useRef<THREE.Mesh>(null);
+  const pulseRingMat = useRef<THREE.MeshBasicMaterial>(null);
   const { camera, pointer } = useThree();
   const [hovered, setHovered] = useState<number | null>(null);
   const pulseRef = useRef(0);
+  const hoverTarget = useRef(0);
+  const hoverValue = useRef(0);
 
   useCursor(hovered !== null);
 
@@ -112,6 +116,10 @@ const Scene = ({ isMobile }: { isMobile: boolean }) => {
   }, []);
 
   const rigValues = useRef<RigValues>(theatre.rig.value as RigValues);
+  const chromaOffset = useMemo(
+    () => new THREE.Vector2(chroma, chroma),
+    [chroma]
+  );
 
   const nodes = useMemo(() => {
     const count = isMobile ? 7 : 12;
@@ -166,7 +174,8 @@ const Scene = ({ isMobile }: { isMobile: boolean }) => {
     if (coreMat.current) {
       coreMat.current.color.setHSL(0.62 + rig.hueShift, 0.8, 0.55);
       coreMat.current.emissive.setHSL(0.75 + rig.hueShift, 0.85, 0.25);
-      coreMat.current.emissiveIntensity = 0.7 + rig.pulse * 0.8;
+      coreMat.current.emissiveIntensity =
+        0.7 + rig.pulse * 0.8 + hoverValue.current * 0.6;
     }
 
     if (nodeGroup.current) {
@@ -192,7 +201,17 @@ const Scene = ({ isMobile }: { isMobile: boolean }) => {
 
     if (ringRef.current) {
       ringRef.current.rotation.z += dt * 0.3;
+      ringRef.current.scale.setScalar(1 + hoverValue.current * 0.08);
     }
+
+    if (pulseRingRef.current && pulseRingMat.current) {
+      const pulse = pulseRef.current;
+      const scale = 1 + pulse * 0.55;
+      pulseRingRef.current.scale.setScalar(scale);
+      pulseRingMat.current.opacity = pulse * 0.5;
+    }
+
+    hoverValue.current += (hoverTarget.current - hoverValue.current) * 0.12;
 
     if (pulseRef.current > 0) {
       pulseRef.current = Math.max(0, pulseRef.current - dt * 0.8);
@@ -210,7 +229,7 @@ const Scene = ({ isMobile }: { isMobile: boolean }) => {
         <Float speed={1.4} rotationIntensity={0.6} floatIntensity={0.6}>
           <mesh ref={coreRef}>
             <icosahedronGeometry args={[1.35, 4]} />
-            <meshStandardMaterial
+            <meshPhysicalMaterial
               ref={coreMat}
               metalness={0.6}
               roughness={0.2}
@@ -236,8 +255,14 @@ const Scene = ({ isMobile }: { isMobile: boolean }) => {
         {nodes.map(node => (
           <mesh
             key={node.id}
-            onPointerOver={() => setHovered(node.id)}
-            onPointerOut={() => setHovered(null)}
+            onPointerOver={() => {
+              setHovered(node.id);
+              hoverTarget.current = 1;
+            }}
+            onPointerOut={() => {
+              setHovered(null);
+              hoverTarget.current = 0;
+            }}
             onClick={() => {
               pulseRef.current = 1;
             }}
@@ -262,6 +287,18 @@ const Scene = ({ isMobile }: { isMobile: boolean }) => {
           emissiveIntensity={0.8}
           transparent
           opacity={0.35}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+
+      <mesh ref={pulseRingRef} rotation={[Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[2.65, 2.72, 120]} />
+        <meshBasicMaterial
+          ref={pulseRingMat}
+          color={new THREE.Color(0.3, 0.7, 1)}
+          transparent
+          opacity={0}
+          blending={THREE.AdditiveBlending}
           side={THREE.DoubleSide}
         />
       </mesh>
@@ -291,16 +328,17 @@ const Scene = ({ isMobile }: { isMobile: boolean }) => {
       <EffectComposer multisampling={isMobile ? 0 : 4}>
         <Bloom intensity={bloom} luminanceThreshold={0.3} />
         <ChromaticAberration
-          offset={[chroma, chroma]}
+          offset={chromaOffset}
           blendFunction={BlendFunction.NORMAL}
+          radialModulation={false}
+          modulationOffset={0}
         />
-        {!isMobile && (
-          <DepthOfField
-            focusDistance={0.02}
-            focalLength={0.05}
-            bokehScale={2}
-          />
-        )}
+        <DepthOfField
+          focusDistance={0.02}
+          focalLength={0.05}
+          bokehScale={isMobile ? 0 : 2}
+          blendFunction={isMobile ? BlendFunction.SKIP : BlendFunction.NORMAL}
+        />
         <Noise opacity={noise} premultiply />
         <Vignette eskil={false} offset={0.2} darkness={vignette} />
       </EffectComposer>

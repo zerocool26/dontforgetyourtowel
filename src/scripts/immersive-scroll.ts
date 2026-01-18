@@ -45,10 +45,16 @@ const setupScrollMotion = (): Cleanup | null => {
   const railItems = Array.from(
     root.querySelectorAll<HTMLElement>('[data-ih-rail-item]')
   );
+  const modeButtons = Array.from(
+    root.querySelectorAll<HTMLButtonElement>('[data-ih-mode]')
+  );
 
   let lastPointerX = window.innerWidth * 0.5;
   let lastPointerY = window.innerHeight * 0.5;
   let lastPointerTime = performance.now();
+  let energyTarget = 0;
+  let energyValue = 0;
+  let lastProgress = 0;
 
   panels.forEach(panel => {
     gsap.fromTo(
@@ -75,7 +81,10 @@ const setupScrollMotion = (): Cleanup | null => {
     end: 'bottom bottom',
     onUpdate: self => {
       const progress = self.progress;
+      const direction = progress >= lastProgress ? 1 : -1;
+      lastProgress = progress;
       root.style.setProperty('--ih-progress', progress.toFixed(4));
+      root.style.setProperty('--ih-direction', direction.toFixed(0));
 
       if (railItems.length > 0) {
         const idx = Math.min(
@@ -115,12 +124,22 @@ const setupScrollMotion = (): Cleanup | null => {
 
   ScrollTrigger.refresh();
 
+  const defaultMode = 'calm';
+  root.dataset.mode = root.dataset.mode ?? defaultMode;
+  modeButtons.forEach(button => {
+    button.classList.toggle(
+      'is-active',
+      button.dataset.mode === root.dataset.mode
+    );
+  });
+
   const onPointerMove = (event: PointerEvent) => {
     const now = performance.now();
     const dx = event.clientX - lastPointerX;
     const dy = event.clientY - lastPointerY;
     const dt = Math.max(16, now - lastPointerTime);
     const speed = Math.min(1.5, Math.hypot(dx, dy) / dt);
+    energyTarget = speed;
 
     root.style.setProperty(
       '--ih-pointer-x',
@@ -137,12 +156,36 @@ const setupScrollMotion = (): Cleanup | null => {
     lastPointerTime = now;
   };
 
+  const onModeClick = (event: Event) => {
+    const target = event.currentTarget as HTMLButtonElement;
+    const mode = target.dataset.mode ?? defaultMode;
+    root.dataset.mode = mode;
+    modeButtons.forEach(button => {
+      button.classList.toggle('is-active', button === target);
+    });
+  };
+
   window.addEventListener('pointermove', onPointerMove, { passive: true });
+  modeButtons.forEach(button => {
+    button.addEventListener('click', onModeClick);
+  });
+
+  const energyTicker = () => {
+    energyValue += (energyTarget - energyValue) * 0.08;
+    energyTarget *= 0.88;
+    root.style.setProperty('--ih-energy-soft', energyValue.toFixed(4));
+  };
+
+  gsap.ticker.add(energyTicker);
 
   return () => {
     ScrollTrigger.getAll().forEach((trigger: ScrollTrigger) => trigger.kill());
     railTrigger.kill();
     window.removeEventListener('pointermove', onPointerMove);
+    modeButtons.forEach(button => {
+      button.removeEventListener('click', onModeClick);
+    });
+    gsap.ticker.remove(energyTicker);
     if (lenis) lenis.destroy();
     if (rafHandler) gsap.ticker.remove(rafHandler);
   };
