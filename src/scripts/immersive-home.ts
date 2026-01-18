@@ -2,7 +2,12 @@ import * as THREE from 'three';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
+import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
+import gsap from 'gsap';
+import { TransitionPass } from './transition-pass';
 
 type SceneId =
   | 'ignite'
@@ -116,6 +121,58 @@ const SCENE_CONFIG: Record<SceneId, SceneConfig> = {
   },
 };
 
+const FilmicShader = {
+  uniforms: {
+    tDiffuse: { value: null },
+    time: { value: 0 },
+    grainIntensity: { value: 0.035 },
+    chromaticAberration: { value: 0.0012 },
+    vignetteIntensity: { value: 0.25 },
+    vignetteSmoothness: { value: 0.4 },
+  },
+  vertexShader: `
+    varying vec2 vUv;
+    void main() {
+      vUv = uv;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `,
+  fragmentShader: `
+    uniform sampler2D tDiffuse;
+    uniform float time;
+    uniform float grainIntensity;
+    uniform float chromaticAberration;
+    uniform float vignetteIntensity;
+    uniform float vignetteSmoothness;
+    varying vec2 vUv;
+
+    float random(vec2 co) {
+      return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
+    }
+
+    void main() {
+      vec2 uv = vUv;
+      vec2 center = uv - 0.5;
+
+      float dist = length(center);
+      vec2 dir = center * chromaticAberration * dist;
+      float r = texture2D(tDiffuse, uv + dir).r;
+      float g = texture2D(tDiffuse, uv).g;
+      float b = texture2D(tDiffuse, uv - dir).b;
+      vec3 color = vec3(r, g, b);
+
+      float vignette = 1.0 -
+        smoothstep(vignetteSmoothness, 0.9, dist * vignetteIntensity * 2.0);
+      color *= vignette;
+
+      float grain = random(uv + fract(time * 0.01)) * 2.0 - 1.0;
+      color += grain * grainIntensity;
+
+      gl_FragColor = vec4(color, 1.0);
+    }
+  `,
+};
+
 const clamp = (v: number, min: number, max: number) =>
   Math.min(max, Math.max(min, v));
 
@@ -175,7 +232,9 @@ class ImmersiveThreeController {
   private renderer: THREE.WebGLRenderer;
   private composer: EffectComposer | null = null;
   private bloomPass: UnrealBloomPass | null = null;
-  private envGenerator: THREE.PMREMGenerator | null = null;
+  private filmicPass: ShaderPass | null = null;
+  private fxaaPass: ShaderPass | null = null;
+  private transitionPass: TransitionPass | null = null;
   private environment: THREE.Texture | null = null;
   private scene = new THREE.Scene();
   private camera = new THREE.PerspectiveCamera(45, 1, 0.1, 60);
@@ -208,12 +267,16 @@ class ImmersiveThreeController {
   private pointerTarget = new THREE.Vector2();
   private tilt = new THREE.Vector2();
   private kick = new THREE.Vector2();
+  private lastPointer = new THREE.Vector2();
+  private pointerVelocity = new THREE.Vector2();
+  private cameraRoll = 0;
 
   private burst = 0;
   private event = 0;
   private pinch = 0;
   private pinchTarget = 0;
   private lastChapterIdx = -1;
+  private currentChapterIdx = -1;
   private stingerChapterIdx = -1;
   private stingerFired = false;
 
@@ -249,14 +312,11 @@ class ImmersiveThreeController {
     });
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.1;
+    this.renderer.toneMappingExposure = 0.95;
     this.renderer.setClearColor(new THREE.Color(0x05070f));
-
-    this.envGenerator = new THREE.PMREMGenerator(this.renderer);
-    const room = new RoomEnvironment();
-    this.environment = this.envGenerator.fromScene(room, 0.04).texture;
-    this.scene.environment = this.environment;
     this.scene.background = new THREE.Color(0x05070f);
+
+    void this.loadEnvironment();
 
     this.scene.add(this.group);
     this.scene.fog = new THREE.FogExp2(0x070b18, 0.06);
@@ -553,15 +613,58 @@ class ImmersiveThreeController {
       this.composer.addPass(new RenderPass(this.scene, this.camera));
       this.bloomPass = new UnrealBloomPass(
         new THREE.Vector2(width, height),
-        0.6,
-        0.6,
-        0.8
+        0.45,
+        0.5,
+        0.75
       );
       this.composer.addPass(this.bloomPass);
+
+      this.fxaaPass = new ShaderPass(FXAAShader);
+      this.composer.addPass(this.fxaaPass);
+
+      this.transitionPass = new TransitionPass();
+      this.composer.addPass(this.transitionPass);
+
+      this.filmicPass = new ShaderPass(FilmicShader);
+      this.composer.addPass(this.filmicPass);
     }
 
     this.composer.setSize(width, height);
     this.composer.setPixelRatio(ratio);
+
+    if (this.fxaaPass) {
+      this.fxaaPass.uniforms['resolution'].value.set(
+        1 / (width * ratio),
+        1 / (height * ratio)
+      );
+    }
+  }
+
+  private async loadEnvironment(): Promise<void> {
+    const pmremGenerator = new THREE.PMREMGenerator(this.renderer);
+    pmremGenerator.compileEquirectangularShader();
+
+    const applyEnvironment = (texture: THREE.Texture) => {
+      if (this.environment) {
+        this.environment.dispose();
+      }
+      this.environment = texture;
+      this.scene.environment = texture;
+    };
+
+    try {
+      const rgbeLoader = new RGBELoader();
+      const hdrTexture = await rgbeLoader.loadAsync('/hdr/studio_small.hdr');
+      const envMap = pmremGenerator.fromEquirectangular(hdrTexture).texture;
+      applyEnvironment(envMap);
+      hdrTexture.dispose();
+      pmremGenerator.dispose();
+    } catch {
+      const room = new RoomEnvironment();
+      const envMap = pmremGenerator.fromScene(room, 0.04).texture;
+      applyEnvironment(envMap);
+      pmremGenerator.dispose();
+    }
   }
 
   private computeScroll(): { progress: number; velocity: number } {
@@ -619,6 +722,8 @@ class ImmersiveThreeController {
     // Burst decays; scroll velocity injects energy.
     this.burst = clamp(this.burst * 0.92 + velocity * 0.22, 0, 1);
     this.pinch = damp(this.pinch, this.pinchTarget, 6, dt);
+    this.kick.x += (Math.random() - 0.5) * this.burst * 0.02;
+    this.kick.y += (Math.random() - 0.5) * this.burst * 0.015;
 
     // Chapter transitions trigger a cinematic event pulse.
     if (idx !== this.lastChapterIdx) {
@@ -628,6 +733,24 @@ class ImmersiveThreeController {
 
       this.stingerChapterIdx = idx;
       this.stingerFired = false;
+    }
+
+    if (idx !== this.currentChapterIdx) {
+      this.currentChapterIdx = idx;
+      if (this.transitionPass) {
+        gsap.to(this.transitionPass.uniforms.intensity, {
+          value: 0.6,
+          duration: 0.15,
+          ease: 'expo.out',
+          onComplete: () => {
+            gsap.to(this.transitionPass?.uniforms.intensity ?? { value: 0 }, {
+              value: 0,
+              duration: 0.4,
+              ease: 'expo.out',
+            });
+          },
+        });
+      }
     }
 
     if (!this.stingerFired && idx === this.stingerChapterIdx && localT > 0.7) {
@@ -658,6 +781,12 @@ class ImmersiveThreeController {
       dt
     );
     this.kick.multiplyScalar(0.9);
+
+    this.pointerVelocity.set(
+      (this.pointer.x - this.lastPointer.x) / Math.max(0.001, dt),
+      (this.pointer.y - this.lastPointer.y) / Math.max(0.001, dt)
+    );
+    this.lastPointer.copy(this.pointer);
 
     // Scene-specific effects
     const collapse =
@@ -799,16 +928,30 @@ class ImmersiveThreeController {
     this.group.scale.setScalar(1 + this.event * 0.05);
 
     const dolly = (progress - 0.5) * 1.2;
-    this.camera.position.set(
-      this.pointer.x * 1.2,
-      this.pointer.y * 1.0,
-      config.camZ + dolly
+    const breathX = Math.sin(time * 0.3) * 0.015;
+    const breathY = Math.cos(time * 0.23) * 0.01;
+    this.camera.position.x = damp(
+      this.camera.position.x,
+      this.pointer.x * 1.2 + breathX,
+      6,
+      dt
     );
+    this.camera.position.y = damp(
+      this.camera.position.y,
+      this.pointer.y * 1.0 + breathY,
+      6,
+      dt
+    );
+    this.camera.position.z = config.camZ + dolly;
+    const rollTarget = this.pointerVelocity.x * 0.02;
+    this.cameraRoll = damp(this.cameraRoll, rollTarget, 4, dt);
     this.camera.lookAt(0, 0, 0);
+    this.camera.rotation.z = this.cameraRoll;
 
     // Lighting & fog
-    this.key.intensity = 1.2 * config.lightPower;
-    this.fill.intensity = 0.9 * config.lightPower;
+    const lightBreath = 1 + Math.sin(time * 0.5) * 0.05;
+    this.key.intensity = 1.2 * config.lightPower * lightBreath;
+    this.fill.intensity = 0.9 * config.lightPower * (2 - lightBreath);
     this.hemi.intensity = 0.5 + config.grade * 0.8;
     if (this.scene.fog && this.scene.fog instanceof THREE.FogExp2) {
       this.scene.fog.density = config.fog + this.event * 0.02;
@@ -845,8 +988,18 @@ class ImmersiveThreeController {
       this.bloomPass.threshold = 0.25 + (1 - config.grade) * 0.25;
     }
 
+    if (this.filmicPass) {
+      this.filmicPass.uniforms.time.value = time;
+      this.filmicPass.uniforms.grainIntensity.value =
+        0.025 + this.burst * 0.02 + this.event * 0.01;
+    }
+
+    if (this.transitionPass) {
+      this.transitionPass.uniforms.progress.value = progress;
+    }
+
     this.renderer.toneMappingExposure =
-      1.02 + config.grade * 0.4 + this.burst * 0.12;
+      0.95 + config.grade * 0.35 + this.burst * 0.1;
 
     if (this.composer && this.quality * this.mobileScale > 0.72) {
       this.composer.render();
@@ -879,9 +1032,6 @@ class ImmersiveThreeController {
     this.renderer.dispose();
     if (this.composer && 'dispose' in this.composer) {
       this.composer.dispose();
-    }
-    if (this.envGenerator) {
-      this.envGenerator.dispose();
     }
     if (this.environment) {
       this.environment.dispose();

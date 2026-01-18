@@ -59,17 +59,18 @@ const setupScrollMotion = (): Cleanup | null => {
   panels.forEach(panel => {
     gsap.fromTo(
       panel,
-      { autoAlpha: 0, y: 48 },
+      { autoAlpha: 0, y: 64, scale: 0.97 },
       {
         autoAlpha: 1,
         y: 0,
-        duration: 1.1,
-        ease: 'power2.out',
+        scale: 1,
+        duration: 1.4,
+        ease: 'expo.out',
         scrollTrigger: {
           trigger: panel,
-          start: 'top 85%',
-          end: 'top 55%',
-          scrub: reducedMotion ? false : true,
+          start: 'top 88%',
+          end: 'top 50%',
+          scrub: reducedMotion ? false : 0.8,
         },
       }
     );
@@ -104,19 +105,18 @@ const setupScrollMotion = (): Cleanup | null => {
   words.forEach((word, index) => {
     gsap.fromTo(
       word,
-      { y: 14, opacity: 0 },
+      { y: 20, opacity: 0, rotateX: -15 },
       {
         y: 0,
         opacity: 1,
-        duration: 0.6,
-        delay: index * 0.015,
-        ease: 'power2.out',
+        rotateX: 0,
+        duration: 0.7,
+        delay: index * 0.02,
+        ease: 'power3.out',
         scrollTrigger: {
           trigger: word,
-          start: 'top 92%',
-          end: 'top 70%',
-          scrub: false,
-          once: true,
+          start: 'top 94%',
+          toggleActions: 'play none none none',
         },
       }
     );
