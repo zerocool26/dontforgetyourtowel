@@ -6,171 +6,146 @@ import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
-import gsap from 'gsap';
-import { TransitionPass } from './transition-pass';
+
+type OnBeforeCompileShader = Parameters<
+  NonNullable<THREE.Material['onBeforeCompile']>
+>[0];
 
 type SceneId =
-  | 'ignite'
-  | 'prism'
-  | 'swarm'
-  | 'rift'
-  | 'singularity'
+  | 'origin'
+  | 'interference'
+  | 'field'
+  | 'lensing'
+  | 'collapse'
   | 'afterglow';
 
 type SceneConfig = {
   hue: number;
   hue2: number;
-  grade: number;
-  heroScale: number;
-  heroTwist: number;
-  orbRadius: number;
-  particleRadius: number;
-  ringScale: number;
-  lightPower: number;
-  camZ: number;
+  exposure: number;
   fog: number;
+  camZ: number;
+
+  membraneAmp: number;
+  membraneFreq: number;
+  membraneMetalness: number;
+  membraneRoughness: number;
+
+  lineCount: number;
+  lineRadius: number;
+
+  particles: number;
+  particleRadius: number;
+
+  bloom: number;
 };
 
 const SCENES: SceneId[] = [
-  'ignite',
-  'prism',
-  'swarm',
-  'rift',
-  'singularity',
+  'origin',
+  'interference',
+  'field',
+  'lensing',
+  'collapse',
   'afterglow',
 ];
 
 const SCENE_CONFIG: Record<SceneId, SceneConfig> = {
-  ignite: {
-    hue: 205,
-    hue2: 265,
-    grade: 0.18,
-    heroScale: 1.05,
-    heroTwist: 0.7,
-    orbRadius: 2.0,
-    particleRadius: 5.5,
-    ringScale: 1.1,
-    lightPower: 1.2,
-    camZ: 7.2,
-    fog: 0.06,
+  origin: {
+    hue: 208,
+    hue2: 250,
+    exposure: 0.9,
+    fog: 0.05,
+    camZ: 7.6,
+    membraneAmp: 0.18,
+    membraneFreq: 1.55,
+    membraneMetalness: 0.25,
+    membraneRoughness: 0.34,
+    lineCount: 12,
+    lineRadius: 1.9,
+    particles: 220,
+    particleRadius: 4.6,
+    bloom: 0.12,
   },
-  prism: {
+  interference: {
     hue: 235,
     hue2: 285,
-    grade: 0.25,
-    heroScale: 1.1,
-    heroTwist: 1.3,
-    orbRadius: 2.3,
-    particleRadius: 6.2,
-    ringScale: 1.25,
-    lightPower: 1.35,
-    camZ: 7.4,
-    fog: 0.065,
+    exposure: 0.98,
+    fog: 0.055,
+    camZ: 7.3,
+    membraneAmp: 0.26,
+    membraneFreq: 1.85,
+    membraneMetalness: 0.35,
+    membraneRoughness: 0.28,
+    lineCount: 18,
+    lineRadius: 2.2,
+    particles: 280,
+    particleRadius: 5.2,
+    bloom: 0.16,
   },
-  swarm: {
+  field: {
     hue: 260,
-    hue2: 300,
-    grade: 0.32,
-    heroScale: 1.18,
-    heroTwist: 1.6,
-    orbRadius: 2.6,
-    particleRadius: 7.0,
-    ringScale: 1.35,
-    lightPower: 1.55,
-    camZ: 7.8,
-    fog: 0.07,
+    hue2: 312,
+    exposure: 1.02,
+    fog: 0.06,
+    camZ: 7.2,
+    membraneAmp: 0.22,
+    membraneFreq: 1.25,
+    membraneMetalness: 0.2,
+    membraneRoughness: 0.38,
+    lineCount: 26,
+    lineRadius: 2.45,
+    particles: 320,
+    particleRadius: 5.6,
+    bloom: 0.15,
   },
-  rift: {
-    hue: 285,
-    hue2: 330,
-    grade: 0.36,
-    heroScale: 1.22,
-    heroTwist: 2.1,
-    orbRadius: 2.9,
-    particleRadius: 7.6,
-    ringScale: 1.5,
-    lightPower: 1.7,
-    camZ: 8.2,
-    fog: 0.075,
+  lensing: {
+    hue: 290,
+    hue2: 332,
+    exposure: 1.05,
+    fog: 0.062,
+    camZ: 7.0,
+    membraneAmp: 0.3,
+    membraneFreq: 2.05,
+    membraneMetalness: 0.42,
+    membraneRoughness: 0.22,
+    lineCount: 22,
+    lineRadius: 2.3,
+    particles: 300,
+    particleRadius: 5.2,
+    bloom: 0.22,
   },
-  singularity: {
-    hue: 310,
-    hue2: 350,
-    grade: 0.42,
-    heroScale: 0.95,
-    heroTwist: 2.6,
-    orbRadius: 1.8,
-    particleRadius: 5.0,
-    ringScale: 0.9,
-    lightPower: 1.9,
+  collapse: {
+    hue: 318,
+    hue2: 355,
+    exposure: 0.88,
+    fog: 0.072,
     camZ: 6.8,
-    fog: 0.085,
+    membraneAmp: 0.14,
+    membraneFreq: 1.0,
+    membraneMetalness: 0.16,
+    membraneRoughness: 0.5,
+    lineCount: 10,
+    lineRadius: 1.6,
+    particles: 180,
+    particleRadius: 4.0,
+    bloom: 0.08,
   },
   afterglow: {
-    hue: 28,
-    hue2: 45,
-    grade: 0.28,
-    heroScale: 1.3,
-    heroTwist: 1.1,
-    orbRadius: 3.2,
-    particleRadius: 7.8,
-    ringScale: 1.6,
-    lightPower: 1.45,
-    camZ: 8.6,
-    fog: 0.06,
+    hue: 32,
+    hue2: 58,
+    exposure: 1.04,
+    fog: 0.055,
+    camZ: 7.7,
+    membraneAmp: 0.2,
+    membraneFreq: 1.35,
+    membraneMetalness: 0.18,
+    membraneRoughness: 0.44,
+    lineCount: 14,
+    lineRadius: 2.05,
+    particles: 240,
+    particleRadius: 4.8,
+    bloom: 0.14,
   },
-};
-
-const FilmicShader = {
-  uniforms: {
-    tDiffuse: { value: null },
-    time: { value: 0 },
-    grainIntensity: { value: 0.035 },
-    chromaticAberration: { value: 0.0012 },
-    vignetteIntensity: { value: 0.25 },
-    vignetteSmoothness: { value: 0.4 },
-  },
-  vertexShader: `
-    varying vec2 vUv;
-    void main() {
-      vUv = uv;
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-    }
-  `,
-  fragmentShader: `
-    uniform sampler2D tDiffuse;
-    uniform float time;
-    uniform float grainIntensity;
-    uniform float chromaticAberration;
-    uniform float vignetteIntensity;
-    uniform float vignetteSmoothness;
-    varying vec2 vUv;
-
-    float random(vec2 co) {
-      return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
-    }
-
-    void main() {
-      vec2 uv = vUv;
-      vec2 center = uv - 0.5;
-
-      float dist = length(center);
-      vec2 dir = center * chromaticAberration * dist;
-      float r = texture2D(tDiffuse, uv + dir).r;
-      float g = texture2D(tDiffuse, uv).g;
-      float b = texture2D(tDiffuse, uv - dir).b;
-      vec3 color = vec3(r, g, b);
-
-      float vignette = 1.0 -
-        smoothstep(vignetteSmoothness, 0.9, dist * vignetteIntensity * 2.0);
-      color *= vignette;
-
-      float grain = random(uv + fract(time * 0.01)) * 2.0 - 1.0;
-      color += grain * grainIntensity;
-
-      gl_FragColor = vec4(color, 1.0);
-    }
-  `,
 };
 
 const clamp = (v: number, min: number, max: number) =>
@@ -178,18 +153,13 @@ const clamp = (v: number, min: number, max: number) =>
 
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
+const damp = (current: number, target: number, lambda: number, dt: number) =>
+  lerp(current, target, 1 - Math.exp(-lambda * dt));
+
 const smoothstep = (t: number) => {
   const x = clamp(t, 0, 1);
   return x * x * (3 - 2 * x);
 };
-
-const hash = (n: number) => {
-  const x = Math.sin(n) * 43758.5453123;
-  return x - Math.floor(x);
-};
-
-const damp = (current: number, target: number, lambda: number, dt: number) =>
-  lerp(current, target, 1 - Math.exp(-lambda * dt));
 
 const blendConfig = (
   a: SceneConfig,
@@ -198,33 +168,25 @@ const blendConfig = (
 ): SceneConfig => ({
   hue: lerp(a.hue, b.hue, t),
   hue2: lerp(a.hue2, b.hue2, t),
-  grade: lerp(a.grade, b.grade, t),
-  heroScale: lerp(a.heroScale, b.heroScale, t),
-  heroTwist: lerp(a.heroTwist, b.heroTwist, t),
-  orbRadius: lerp(a.orbRadius, b.orbRadius, t),
-  particleRadius: lerp(a.particleRadius, b.particleRadius, t),
-  ringScale: lerp(a.ringScale, b.ringScale, t),
-  lightPower: lerp(a.lightPower, b.lightPower, t),
-  camZ: lerp(a.camZ, b.camZ, t),
+  exposure: lerp(a.exposure, b.exposure, t),
   fog: lerp(a.fog, b.fog, t),
+  camZ: lerp(a.camZ, b.camZ, t),
+  membraneAmp: lerp(a.membraneAmp, b.membraneAmp, t),
+  membraneFreq: lerp(a.membraneFreq, b.membraneFreq, t),
+  membraneMetalness: lerp(a.membraneMetalness, b.membraneMetalness, t),
+  membraneRoughness: lerp(a.membraneRoughness, b.membraneRoughness, t),
+  lineCount: Math.round(lerp(a.lineCount, b.lineCount, t)),
+  lineRadius: lerp(a.lineRadius, b.lineRadius, t),
+  particles: Math.round(lerp(a.particles, b.particles, t)),
+  particleRadius: lerp(a.particleRadius, b.particleRadius, t),
+  bloom: lerp(a.bloom, b.bloom, t),
 });
 
-type OrbitNode = {
-  radius: number;
+type LineNode = {
+  phase: number;
   speed: number;
-  height: number;
-  wobble: number;
-  offset: number;
-};
-
-type CardNode = {
-  x: number;
-  y: number;
-  z: number;
-  drift: number;
-  sway: number;
-  offset: number;
-  spin: number;
+  twist: number;
+  lift: number;
 };
 
 class ImmersiveThreeController {
@@ -235,61 +197,58 @@ class ImmersiveThreeController {
   private renderer: THREE.WebGLRenderer;
   private composer: EffectComposer | null = null;
   private bloomPass: UnrealBloomPass | null = null;
-  private filmicPass: ShaderPass | null = null;
   private fxaaPass: ShaderPass | null = null;
-  private transitionPass: TransitionPass | null = null;
   private environment: THREE.Texture | null = null;
-  private scene = new THREE.Scene();
-  private camera = new THREE.PerspectiveCamera(45, 1, 0.1, 60);
-  private group = new THREE.Group();
 
-  private hero: THREE.Mesh;
-  private heroAura: THREE.Mesh;
-  private heroCore: THREE.Mesh;
-  private orbiters: THREE.InstancedMesh;
-  private orbitNodes: OrbitNode[] = [];
-  private cards!: THREE.InstancedMesh;
-  private cardNodes: CardNode[] = [];
-  private particlePoints: THREE.Points;
-  private particleBase!: Float32Array;
-  private particleCount = 1400;
-  private orbiterCount = 180;
-  private cardCount = 140;
-  private stars!: THREE.Points;
-  private rings: THREE.Mesh[] = [];
+  private scene = new THREE.Scene();
+  private camera = new THREE.PerspectiveCamera(45, 1, 0.1, 80);
+  private group = new THREE.Group();
 
   private hemi: THREE.HemisphereLight;
   private key: THREE.DirectionalLight;
   private fill: THREE.PointLight;
 
-  private lastScrollY = window.scrollY;
-  private lastScrollTime = performance.now();
-  private lastFrameTime = performance.now() / 1000;
-
-  private pointer = new THREE.Vector2();
-  private pointerTarget = new THREE.Vector2();
-  private tilt = new THREE.Vector2();
-  private kick = new THREE.Vector2();
-  private lastPointer = new THREE.Vector2();
-  private pointerVelocity = new THREE.Vector2();
-  private cameraRoll = 0;
-
-  private burst = 0;
-  private event = 0;
-  private pinch = 0;
-  private pinchTarget = 0;
-  private lastChapterIdx = -1;
-  private currentChapterIdx = -1;
-  private stingerChapterIdx = -1;
-  private stingerFired = false;
+  private reducedMotion = false;
+  private visible = true;
+  private io: IntersectionObserver | null = null;
 
   private quality = 1;
   private mobileScale = 1;
   private perfLP = 16.7;
+  private lastFrameTime = performance.now() / 1000;
+
+  private pointer = new THREE.Vector2();
+  private pointerTarget = new THREE.Vector2();
+  private lastPointer = new THREE.Vector2();
+  private pointerVelocity = new THREE.Vector2();
+  private cameraRoll = 0;
+
+  private lastScrollY = window.scrollY;
+  private lastScrollTime = performance.now();
+
+  private energy = 0;
+  private burst = 0;
+  private pinchTarget = 0;
+  private pinch = 0;
+  private lastChapterIdx = -1;
+
+  private stars: THREE.Points;
+  private membrane: THREE.Mesh;
+  private membraneMaterial: THREE.MeshPhysicalMaterial;
+  private membraneShader: OnBeforeCompileShader | null = null;
+
+  private fieldLines: THREE.Line[] = [];
+  private lineNodes: LineNode[] = [];
+  private linePoints = 44;
+  private maxLines = 34;
+
+  private particles: THREE.Points;
+  private particleBase: Float32Array;
+
+  private probe: THREE.Mesh;
+  private lens: THREE.Mesh;
 
   private raf = 0;
-  private reducedMotion = false;
-
   private abortController = new AbortController();
 
   constructor(root: HTMLElement) {
@@ -298,9 +257,7 @@ class ImmersiveThreeController {
       root.querySelectorAll<HTMLElement>('[data-ih-chapter]')
     );
     const canvas = root.querySelector<HTMLCanvasElement>('[data-ih-canvas]');
-    if (!canvas) {
-      throw new Error('Immersive canvas missing');
-    }
+    if (!canvas) throw new Error('Immersive canvas missing');
     this.canvas = canvas;
 
     this.reducedMotion = window.matchMedia(
@@ -315,102 +272,55 @@ class ImmersiveThreeController {
     });
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 0.95;
+    this.renderer.toneMappingExposure = 1.0;
     this.renderer.setClearColor(new THREE.Color(0x05070f));
-    this.scene.background = new THREE.Color(0x05070f);
 
-    void this.loadEnvironment();
+    this.scene.background = new THREE.Color(0x05070f);
+    this.scene.fog = new THREE.FogExp2(0x070b18, 0.055);
 
     this.scene.add(this.group);
-    this.scene.fog = new THREE.FogExp2(0x070b18, 0.06);
 
     this.stars = this.createStars();
-    this.scene.add(this.stars);
+    this.group.add(this.stars);
 
-    this.hero = this.createHero();
-    this.heroAura = this.createHeroAura();
-    this.heroCore = this.createHeroCore();
+    const { mesh: membrane, material: membraneMaterial } =
+      this.createMembrane();
+    this.membrane = membrane;
+    this.membraneMaterial = membraneMaterial;
+    this.group.add(this.membrane);
 
-    this.group.add(this.hero, this.heroAura, this.heroCore);
-    this.orbiters = this.createOrbiters();
-    this.group.add(this.orbiters);
+    this.createFieldLines();
 
-    this.cards = this.createCards();
-    this.group.add(this.cards);
+    const { points, base } = this.createParticles();
+    this.particles = points;
+    this.particleBase = base;
+    this.group.add(this.particles);
 
-    this.particlePoints = this.createParticles();
-    this.group.add(this.particlePoints);
+    this.probe = this.createProbe();
+    this.lens = this.createLens();
+    this.group.add(this.probe, this.lens);
 
-    this.rings = this.createRings();
-    this.rings.forEach(r => this.group.add(r));
-
-    this.hemi = new THREE.HemisphereLight(0xffffff, 0x080a12, 0.6);
-    this.key = new THREE.DirectionalLight(0xffffff, 1.4);
-    this.key.position.set(4, 6, 4);
-    this.fill = new THREE.PointLight(0xffffff, 1.2, 30, 2);
-    this.fill.position.set(-5, -2, 6);
-
+    this.hemi = new THREE.HemisphereLight(0xffffff, 0x070a12, 0.55);
+    this.key = new THREE.DirectionalLight(0xffffff, 1.25);
+    this.key.position.set(4.5, 6, 4);
+    this.fill = new THREE.PointLight(0xffffff, 0.9, 40, 2);
+    this.fill.position.set(-6, -2, 7);
     this.scene.add(this.hemi, this.key, this.fill);
+
+    void this.loadEnvironment();
 
     this.init();
   }
 
-  private createHero(): THREE.Mesh {
-    const geo = new THREE.TorusKnotGeometry(1.1, 0.28, 160, 18, 2, 3);
-    const mat = new THREE.MeshPhysicalMaterial({
-      color: new THREE.Color().setHSL(0.58, 0.85, 0.55),
-      metalness: 0.65,
-      roughness: 0.2,
-      clearcoat: 0.6,
-      clearcoatRoughness: 0.2,
-      reflectivity: 0.6,
-      transmission: 0.14,
-      thickness: 0.7,
-      ior: 1.25,
-      iridescence: 0.35,
-      iridescenceIOR: 1.3,
-      attenuationDistance: 1.6,
-      attenuationColor: new THREE.Color(0x4a7cff),
-    });
-    const mesh = new THREE.Mesh(geo, mat);
-    mesh.scale.set(0.85, 0.85, 0.85);
-    return mesh;
-  }
-
-  private createHeroAura(): THREE.Mesh {
-    const geo = new THREE.RingGeometry(1.8, 2.15, 64);
-    const mat = new THREE.MeshBasicMaterial({
-      color: new THREE.Color().setHSL(0.62, 0.9, 0.6),
-      transparent: true,
-      opacity: 0.12,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-      side: THREE.DoubleSide,
-    });
-    const mesh = new THREE.Mesh(geo, mat);
-    mesh.rotation.x = Math.PI / 2.4;
-    mesh.rotation.y = Math.PI / 6;
-    return mesh;
-  }
-
-  private createHeroCore(): THREE.Mesh {
-    const geo = new THREE.IcosahedronGeometry(0.48, 1);
-    const mat = new THREE.MeshStandardMaterial({
-      color: new THREE.Color().setHSL(0.6, 0.85, 0.55),
-      emissive: new THREE.Color().setHSL(0.6, 0.9, 0.4),
-      emissiveIntensity: 0.9,
-      roughness: 0.35,
-      metalness: 0.2,
-    });
-    return new THREE.Mesh(geo, mat);
-  }
-
   private createStars(): THREE.Points {
-    const count = 1200;
+    const width = Math.max(1, window.innerWidth);
+    const isMobile = width < 768;
+    const count = isMobile ? 380 : 620;
     const positions = new Float32Array(count * 3);
+
     for (let i = 0; i < count; i++) {
       const idx = i * 3;
-      const r = 25 + Math.random() * 35;
+      const r = 18 + Math.random() * 34;
       const theta = Math.random() * Math.PI * 2;
       const phi = Math.acos(2 * Math.random() - 1);
       positions[idx] = r * Math.sin(phi) * Math.cos(theta);
@@ -420,128 +330,176 @@ class ImmersiveThreeController {
 
     const geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
     const mat = new THREE.PointsMaterial({
-      color: new THREE.Color(0xffffff),
-      size: 0.045,
+      color: 0xffffff,
+      size: isMobile ? 0.035 : 0.04,
       sizeAttenuation: true,
       transparent: true,
-      opacity: 0.45,
+      opacity: 0.22,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
     });
+
     return new THREE.Points(geo, mat);
   }
 
-  private createCards(): THREE.InstancedMesh {
-    const geo = new THREE.PlaneGeometry(0.7, 0.45);
-    const mat = new THREE.MeshBasicMaterial({
-      color: new THREE.Color().setHSL(0.62, 0.7, 0.6),
+  private createMembrane(): {
+    mesh: THREE.Mesh;
+    material: THREE.MeshPhysicalMaterial;
+  } {
+    const width = Math.max(1, window.innerWidth);
+    const segments = width < 768 ? 70 : 96;
+    const geo = new THREE.PlaneGeometry(5.1, 5.1, segments, segments);
+
+    const material = new THREE.MeshPhysicalMaterial({
+      color: new THREE.Color().setHSL(0.58, 0.8, 0.56),
+      metalness: 0.25,
+      roughness: 0.33,
+      transmission: 0.12,
+      thickness: 0.7,
+      ior: 1.2,
+      clearcoat: 0.6,
+      clearcoatRoughness: 0.25,
+      reflectivity: 0.45,
       transparent: true,
-      opacity: 0.18,
+      opacity: 0.98,
+      emissive: new THREE.Color().setHSL(0.62, 0.9, 0.2),
+      emissiveIntensity: 0.16,
+    });
+
+    material.onBeforeCompile = shader => {
+      this.membraneShader = shader;
+
+      shader.uniforms.uTime = { value: 0 };
+      shader.uniforms.uEnergy = { value: 0 };
+      shader.uniforms.uProgress = { value: 0 };
+      shader.uniforms.uAmp = { value: 0.2 };
+      shader.uniforms.uFreq = { value: 1.6 };
+      shader.uniforms.uMode = { value: 0 };
+
+      shader.vertexShader = shader.vertexShader
+        .replace(
+          '#include <common>',
+          `#include <common>\nuniform float uTime;\nuniform float uEnergy;\nuniform float uProgress;\nuniform float uAmp;\nuniform float uFreq;\nuniform float uMode;`
+        )
+        .replace(
+          '#include <begin_vertex>',
+          [
+            'vec3 transformed = vec3(position);',
+            // A soft falloff so the center breathes more than the edge.
+            'float r = length(transformed.xy);',
+            'float falloff = smoothstep(2.4, 0.2, r);',
+            'float p = uProgress * 6.2831853;',
+            'float amp = uAmp * (0.75 + uEnergy * 0.85);',
+            'float f = uFreq * (0.9 + uMode * 0.2);',
+            'float w1 = sin((transformed.x * f) + (uTime * 1.15) + p);',
+            'float w2 = cos((transformed.y * f * 0.92) - (uTime * 1.05) + p);',
+            'float w3 = sin((r * f * 1.6) + (uTime * 0.8) - p) * 0.35;',
+            'float displacement = (w1 * 0.5 + w2 * 0.5 + w3) * amp * falloff;',
+            'transformed.z += displacement;',
+          ].join('\n')
+        );
+    };
+
+    const mesh = new THREE.Mesh(geo, material);
+    mesh.rotation.x = -Math.PI / 2.25;
+    mesh.position.y = -0.05;
+
+    return { mesh, material };
+  }
+
+  private createFieldLines(): void {
+    const baseMat = new THREE.LineBasicMaterial({
+      color: new THREE.Color().setHSL(0.6, 0.85, 0.65),
+      transparent: true,
+      opacity: 0.16,
       blending: THREE.AdditiveBlending,
-      side: THREE.DoubleSide,
       depthWrite: false,
     });
 
-    const mesh = new THREE.InstancedMesh(geo, mat, this.cardCount);
-    mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    for (let i = 0; i < this.maxLines; i++) {
+      const positions = new Float32Array(this.linePoints * 3);
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      const mat = baseMat.clone();
+      const line = new THREE.Line(geo, mat);
+      line.frustumCulled = false;
 
-    this.cardNodes = Array.from({ length: this.cardCount }).map(() => ({
-      x: (Math.random() - 0.5) * 6.5,
-      y: (Math.random() - 0.5) * 4.5,
-      z: (Math.random() - 0.5) * 5.5,
-      drift: 0.2 + Math.random() * 0.5,
-      sway: (Math.random() - 0.5) * 0.4,
-      offset: Math.random() * Math.PI * 2,
-      spin: (Math.random() - 0.5) * 1.6,
-    }));
+      this.fieldLines.push(line);
+      this.lineNodes.push({
+        phase: Math.random() * Math.PI * 2,
+        speed: 0.14 + Math.random() * 0.28,
+        twist: 0.7 + Math.random() * 1.2,
+        lift: (Math.random() - 0.5) * 0.45,
+      });
 
-    return mesh;
+      this.group.add(line);
+    }
   }
 
-  private createOrbiters(): THREE.InstancedMesh {
-    const count = this.orbiterCount;
-    const geo = new THREE.ConeGeometry(0.08, 0.5, 5, 1);
-    const mat = new THREE.MeshStandardMaterial({
-      color: new THREE.Color().setHSL(0.58, 0.8, 0.6),
-      emissive: new THREE.Color().setHSL(0.58, 0.8, 0.35),
-      emissiveIntensity: 0.6,
-      roughness: 0.4,
-      metalness: 0.4,
-    });
-    const mesh = new THREE.InstancedMesh(geo, mat, count);
-    mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-
-    this.orbitNodes = Array.from({ length: count }).map((_, i) => ({
-      radius: 0.7 + (i % 12) * 0.06 + Math.random() * 0.4,
-      speed: 0.25 + Math.random() * 0.7,
-      height: (i / count - 0.5) * 6 + (Math.random() - 0.5) * 0.8,
-      wobble: (Math.random() - 0.5) * 0.6,
-      offset: Math.random() * Math.PI * 2,
-    }));
-
-    return mesh;
-  }
-
-  private createParticles(): THREE.Points {
-    const count = this.particleCount;
+  private createParticles(): { points: THREE.Points; base: Float32Array } {
+    const count = 360;
     const positions = new Float32Array(count * 3);
     const base = new Float32Array(count * 3);
 
     for (let i = 0; i < count; i++) {
       const idx = i * 3;
-      const t = i / count;
-      const angle = t * Math.PI * 10;
-      const radius = 1.6 + Math.sin(t * Math.PI * 4) * 0.6;
-      const x = Math.cos(angle) * radius;
-      const y = (t - 0.5) * 7.5 + Math.sin(angle * 0.4) * 0.6;
-      const z = Math.sin(angle) * radius;
-
+      const r = 2.2 + Math.random() * 3.4;
+      const theta = Math.random() * Math.PI * 2;
+      const y = (Math.random() - 0.5) * 2.6;
+      const x = Math.cos(theta) * r;
+      const z = Math.sin(theta) * r;
       positions[idx] = x;
       positions[idx + 1] = y;
       positions[idx + 2] = z;
-
       base[idx] = x;
       base[idx + 1] = y;
       base[idx + 2] = z;
     }
 
-    this.particleBase = base;
     const geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
     const mat = new THREE.PointsMaterial({
-      color: new THREE.Color().setHSL(0.6, 0.9, 0.65),
-      size: 0.04,
+      color: new THREE.Color().setHSL(0.62, 0.85, 0.66),
+      size: 0.03,
       sizeAttenuation: true,
       transparent: true,
-      opacity: 0.6,
-      depthWrite: false,
+      opacity: 0.4,
       blending: THREE.AdditiveBlending,
+      depthWrite: false,
     });
-    return new THREE.Points(geo, mat);
+
+    return { points: new THREE.Points(geo, mat), base };
   }
 
-  private createRings(): THREE.Mesh[] {
-    const slices: THREE.Mesh[] = [];
-    const sliceGeo = new THREE.PlaneGeometry(4.4, 0.6);
+  private createProbe(): THREE.Mesh {
+    const geo = new THREE.SphereGeometry(0.08, 18, 18);
+    const mat = new THREE.MeshStandardMaterial({
+      color: new THREE.Color().setHSL(0.62, 0.8, 0.62),
+      emissive: new THREE.Color().setHSL(0.62, 0.9, 0.34),
+      emissiveIntensity: 1.1,
+      roughness: 0.25,
+      metalness: 0.15,
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(0.9, 0.25, 0.8);
+    return mesh;
+  }
+
+  private createLens(): THREE.Mesh {
+    const geo = new THREE.TorusGeometry(0.62, 0.038, 14, 96);
     const mat = new THREE.MeshBasicMaterial({
-      color: new THREE.Color().setHSL(0.6, 0.85, 0.6),
+      color: new THREE.Color().setHSL(0.62, 0.9, 0.65),
       transparent: true,
-      opacity: 0.22,
+      opacity: 0.24,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
-      side: THREE.DoubleSide,
     });
-
-    for (let i = 0; i < 3; i++) {
-      const slice = new THREE.Mesh(sliceGeo, mat.clone());
-      slice.rotation.x = Math.random() * Math.PI;
-      slice.rotation.y = Math.random() * Math.PI;
-      slice.rotation.z = Math.random() * Math.PI;
-      slices.push(slice);
-    }
-
-    return slices;
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.rotation.x = Math.PI / 2.2;
+    return mesh;
   }
 
   private init(): void {
@@ -560,7 +518,7 @@ class ImmersiveThreeController {
     window.addEventListener(
       'pointerdown',
       () => {
-        this.burst = Math.min(1, this.burst + 0.75);
+        this.burst = Math.min(1, this.burst + 0.8);
         this.pinchTarget = 1;
       },
       { passive: true, signal }
@@ -582,22 +540,19 @@ class ImmersiveThreeController {
       { passive: true, signal }
     );
 
-    window.addEventListener(
-      'deviceorientation',
-      evt => {
-        if (this.reducedMotion) return;
-        const gx = typeof evt.gamma === 'number' ? evt.gamma / 45 : 0;
-        const by = typeof evt.beta === 'number' ? evt.beta / 45 : 0;
-        this.tilt.set(
-          clamp(gx * 0.25, -0.35, 0.35),
-          clamp(by * 0.2, -0.35, 0.35)
-        );
-      },
-      { passive: true, signal }
-    );
-
     const onResize = () => this.resize();
     window.addEventListener('resize', onResize, { passive: true, signal });
+
+    if ('IntersectionObserver' in window) {
+      this.io = new IntersectionObserver(
+        entries => {
+          const entry = entries[0];
+          this.visible = Boolean(entry?.isIntersecting);
+        },
+        { root: null, threshold: 0.02 }
+      );
+      this.io.observe(this.root);
+    }
 
     this.resize();
     this.loop();
@@ -606,12 +561,15 @@ class ImmersiveThreeController {
   private resize(): void {
     const width = Math.max(1, window.innerWidth);
     const height = Math.max(1, window.innerHeight);
+
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
 
-    this.mobileScale = width < 640 ? 0.7 : width < 1024 ? 0.85 : 1;
+    this.mobileScale = width < 640 ? 0.72 : width < 1024 ? 0.86 : 1;
+
     const baseDpr = clamp(window.devicePixelRatio || 1, 1, 2);
-    const ratio = clamp(baseDpr * this.quality * this.mobileScale, 0.7, 2);
+    const ratio = clamp(baseDpr * this.quality * this.mobileScale, 0.75, 2);
+
     this.renderer.setPixelRatio(ratio);
     this.renderer.setSize(width, height, false);
 
@@ -622,22 +580,17 @@ class ImmersiveThreeController {
     if (!this.composer) {
       this.composer = new EffectComposer(this.renderer);
       this.composer.addPass(new RenderPass(this.scene, this.camera));
+
       this.bloomPass = new UnrealBloomPass(
         new THREE.Vector2(width, height),
-        0.45,
-        0.5,
-        0.75
+        0.12,
+        0.55,
+        0.85
       );
       this.composer.addPass(this.bloomPass);
 
       this.fxaaPass = new ShaderPass(FXAAShader);
       this.composer.addPass(this.fxaaPass);
-
-      this.transitionPass = new TransitionPass();
-      this.composer.addPass(this.transitionPass);
-
-      this.filmicPass = new ShaderPass(FilmicShader);
-      this.composer.addPass(this.filmicPass);
     }
 
     this.composer.setSize(width, height);
@@ -656,9 +609,7 @@ class ImmersiveThreeController {
     pmremGenerator.compileEquirectangularShader();
 
     const applyEnvironment = (texture: THREE.Texture) => {
-      if (this.environment) {
-        this.environment.dispose();
-      }
+      if (this.environment) this.environment.dispose();
       this.environment = texture;
       this.scene.environment = texture;
     };
@@ -703,95 +654,74 @@ class ImmersiveThreeController {
     const x = progress * n;
     const idx = clamp(Math.floor(x), 0, n - 1);
     const localT = x - idx;
-    const scene = (this.chapters[idx]?.dataset.scene ?? 'ignite') as SceneId;
+
+    const sceneRaw = (this.chapters[idx]?.dataset.scene ?? 'origin') as SceneId;
+    const scene = SCENES.includes(sceneRaw) ? sceneRaw : 'origin';
+
     return { scene, idx, localT };
+  }
+
+  private getModeBias(): number {
+    const mode = this.root.dataset.mode ?? 'calm';
+    switch (mode) {
+      case 'boost':
+        return 0.85;
+      case 'prism':
+        return 0.55;
+      case 'pulse':
+        return 1.0;
+      case 'calm':
+      default:
+        return 0.25;
+    }
   }
 
   private update(dt: number, time: number): void {
     const { progress, velocity } = this.computeScroll();
     const { scene, idx, localT } = this.chapterFromProgress(progress);
 
-    const nextScene = (this.chapters[
-      Math.min(idx + 1, this.chapters.length - 1)
-    ]?.dataset.scene ?? scene) as SceneId;
+    const nextIdx = Math.min(idx + 1, this.chapters.length - 1);
+    const nextSceneRaw = (this.chapters[nextIdx]?.dataset.scene ?? scene) as
+      | SceneId
+      | string;
+    const nextScene: SceneId = SCENES.includes(nextSceneRaw as SceneId)
+      ? (nextSceneRaw as SceneId)
+      : scene;
 
     const blendT = smoothstep(localT);
     const config = blendConfig(
-      SCENE_CONFIG[scene] ?? SCENE_CONFIG.ignite,
-      SCENE_CONFIG[nextScene] ?? SCENE_CONFIG.ignite,
+      SCENE_CONFIG[scene] ?? SCENE_CONFIG.origin,
+      SCENE_CONFIG[nextScene] ?? SCENE_CONFIG.origin,
       blendT
     );
 
+    // Adaptive quality: keep it smooth on mobile.
     const frameDtMs = clamp((time - this.lastFrameTime) * 1000, 8, 50);
     this.lastFrameTime = time;
     this.perfLP = lerp(this.perfLP, frameDtMs, 0.06);
 
-    const baseQuality = this.perfLP < 18 ? 1 : this.perfLP < 24 ? 0.85 : 0.7;
-    const targetQuality = clamp(baseQuality * this.mobileScale, 0.6, 1);
+    const baseQuality = this.perfLP < 18 ? 1 : this.perfLP < 24 ? 0.86 : 0.7;
+    const targetQuality = clamp(baseQuality * this.mobileScale, 0.65, 1);
     this.quality = damp(this.quality, targetQuality, 2, dt);
 
-    // Burst decays; scroll velocity injects energy.
-    this.burst = clamp(this.burst * 0.92 + velocity * 0.22, 0, 1);
-    this.pinch = damp(this.pinch, this.pinchTarget, 6, dt);
-    this.kick.x += (Math.random() - 0.5) * this.burst * 0.02;
-    this.kick.y += (Math.random() - 0.5) * this.burst * 0.015;
+    this.burst = clamp(this.burst * 0.92 + velocity * 0.26, 0, 1);
+    this.pinch = damp(this.pinch, this.pinchTarget, 7, dt);
 
-    // Chapter transitions trigger a cinematic event pulse.
+    // A unified "energy" knob that influences everything (subtly).
+    const modeBias = this.getModeBias();
+    const energyTarget =
+      clamp(velocity * 0.85 + this.burst * 0.65, 0, 1) *
+      (0.7 + modeBias * 0.55);
+    this.energy = damp(this.energy, energyTarget, 4.5, dt);
+
     if (idx !== this.lastChapterIdx) {
       this.lastChapterIdx = idx;
-      this.event = 1;
-      this.burst = Math.min(1, this.burst + 0.55);
-
-      this.stingerChapterIdx = idx;
-      this.stingerFired = false;
+      this.burst = Math.min(1, this.burst + 0.38);
     }
 
-    if (idx !== this.currentChapterIdx) {
-      this.currentChapterIdx = idx;
-      if (this.transitionPass) {
-        gsap.to(this.transitionPass.uniforms.intensity, {
-          value: 0.6,
-          duration: 0.15,
-          ease: 'expo.out',
-          onComplete: () => {
-            gsap.to(this.transitionPass?.uniforms.intensity ?? { value: 0 }, {
-              value: 0,
-              duration: 0.4,
-              ease: 'expo.out',
-            });
-          },
-        });
-      }
-    }
-
-    if (!this.stingerFired && idx === this.stingerChapterIdx && localT > 0.7) {
-      this.stingerFired = true;
-      this.event = 1;
-      this.burst = Math.min(1, this.burst + 0.35);
-      const jx = (hash(idx * 13.1 + time) - 0.5) * 0.22;
-      const jy = (hash(idx * 7.7 + time + 4.2) - 0.5) * 0.18;
-      this.kick.set(jx, jy);
-    }
-    this.event = clamp(this.event * 0.9, 0, 1);
-
-    // Stars drift (subtle cinematic depth)
-    this.stars.rotation.y = time * 0.045;
-    this.stars.rotation.x = time * 0.02;
-
-    // Pointer smoothing
-    this.pointer.x = damp(
-      this.pointer.x,
-      this.pointerTarget.x + this.tilt.x + this.kick.x,
-      6,
-      dt
-    );
-    this.pointer.y = damp(
-      this.pointer.y,
-      this.pointerTarget.y + this.tilt.y + this.kick.y,
-      6,
-      dt
-    );
-    this.kick.multiplyScalar(0.9);
+    // Pointer smoothing.
+    this.pointer.x = damp(this.pointer.x, this.pointerTarget.x, 6, dt);
+    this.pointer.y = damp(this.pointer.y, this.pointerTarget.y, 6, dt);
 
     this.pointerVelocity.set(
       (this.pointer.x - this.lastPointer.x) / Math.max(0.001, dt),
@@ -799,226 +729,193 @@ class ImmersiveThreeController {
     );
     this.lastPointer.copy(this.pointer);
 
-    // Scene-specific effects
-    const collapse =
-      scene === 'singularity' ? smoothstep((localT - 0.2) / 0.6) : 0;
-    const flip = scene === 'rift' ? smoothstep((localT - 0.3) / 0.5) : 0;
-    const shear = scene === 'prism' ? smoothstep((localT - 0.2) / 0.6) : 0;
+    // Stars drift.
+    this.stars.rotation.y = time * 0.03;
+    this.stars.rotation.x = time * 0.015;
 
-    // Update hero
-    const heroScale =
-      config.heroScale * (1 + this.burst * 0.08 - collapse * 0.12);
-    this.hero.scale.setScalar(heroScale);
-    this.hero.rotation.x = time * 0.12 + this.pointer.y * 0.5 + shear * 0.2;
-    this.hero.rotation.y =
-      time * 0.18 + this.pointer.x * 0.5 + config.heroTwist * 0.18;
-    this.hero.rotation.z = time * 0.1 + flip * Math.PI * 0.25;
+    // Membrane shading / grading.
+    this.membraneMaterial.color
+      .setHSL(config.hue / 360, 0.78, 0.56)
+      .lerp(new THREE.Color().setHSL(config.hue2 / 360, 0.78, 0.56), 0.25);
 
-    const heroMat = this.hero.material as THREE.MeshPhysicalMaterial;
-    const color = new THREE.Color().setHSL(config.hue / 360, 0.85, 0.55);
-    heroMat.color.copy(color);
-    heroMat.emissive = new THREE.Color().setHSL(config.hue2 / 360, 0.9, 0.2);
-    heroMat.emissiveIntensity = 0.35 + this.burst * 0.6 + this.event * 0.35;
+    this.membraneMaterial.emissive
+      .setHSL(config.hue2 / 360, 0.9, 0.22)
+      .lerp(new THREE.Color().setHSL(config.hue / 360, 0.9, 0.22), 0.2);
 
-    const auraMat = this.heroAura.material as THREE.MeshBasicMaterial;
-    auraMat.color.setHSL(config.hue / 360, 0.85, 0.6);
-    auraMat.opacity = 0.12 + this.burst * 0.1 + this.event * 0.1;
-    this.heroAura.rotation.z = time * 0.2 + shear * 0.4;
+    this.membraneMaterial.emissiveIntensity = 0.12 + this.energy * 0.25;
+    this.membraneMaterial.metalness = config.membraneMetalness;
+    this.membraneMaterial.roughness = config.membraneRoughness;
 
-    const coreMat = this.heroCore.material as THREE.MeshStandardMaterial;
-    coreMat.color.setHSL(config.hue2 / 360, 0.85, 0.5);
-    coreMat.emissive.setHSL(config.hue2 / 360, 0.9, 0.35);
-    coreMat.emissiveIntensity = 0.8 + this.burst * 0.4;
-
-    // Orbiters
-    const temp = new THREE.Matrix4();
-    const pos = new THREE.Vector3();
-    const orbitMat = this.orbiters.material as THREE.MeshStandardMaterial;
-    orbitMat.color.setHSL(config.hue / 360, 0.8, 0.6);
-    orbitMat.emissive.setHSL(config.hue2 / 360, 0.9, 0.35);
-    orbitMat.emissiveIntensity = 0.6 + this.burst * 0.35;
-
-    const orbiterActive = Math.max(
-      30,
-      Math.floor(
-        this.orbitNodes.length * (0.6 + this.quality * 0.4) * this.mobileScale
-      )
-    );
-    this.orbiters.count = orbiterActive;
-
-    for (let i = 0; i < orbiterActive; i += 1) {
-      const node = this.orbitNodes[i];
-      const angle = time * node.speed + node.offset;
-      const radius = node.radius * (0.9 + config.ringScale * 0.5);
-      const x = Math.cos(angle) * radius;
-      const z = Math.sin(angle) * radius;
-      const y = node.height + Math.sin(angle * 1.1 + node.wobble) * 0.35;
-      pos.set(x, y, z);
-      temp.makeTranslation(pos.x, pos.y, pos.z);
-      temp.multiply(
-        new THREE.Matrix4().makeRotationFromEuler(
-          new THREE.Euler(0.1 + node.wobble, angle, node.wobble)
-        )
-      );
-      this.orbiters.setMatrixAt(i, temp);
+    if (this.membraneShader) {
+      this.membraneShader.uniforms.uTime.value = time;
+      this.membraneShader.uniforms.uEnergy.value = this.energy;
+      this.membraneShader.uniforms.uProgress.value = progress;
+      this.membraneShader.uniforms.uAmp.value =
+        config.membraneAmp * (1 + this.pinch * 0.55);
+      this.membraneShader.uniforms.uFreq.value = config.membraneFreq;
+      this.membraneShader.uniforms.uMode.value = modeBias;
     }
-    this.orbiters.instanceMatrix.needsUpdate = true;
 
-    // Cards (glassy panels)
-    const cardActive = Math.max(
-      30,
+    // Field lines.
+    const activeLines = clamp(
       Math.floor(
-        this.cardNodes.length * (0.55 + this.quality * 0.45) * this.mobileScale
-      )
+        config.lineCount * (0.7 + this.quality * 0.3) * this.mobileScale
+      ),
+      6,
+      this.maxLines
     );
-    this.cards.count = cardActive;
-    const cardMat = new THREE.Matrix4();
-    const cardQuat = new THREE.Quaternion();
-    const cardPos = new THREE.Vector3();
-    const cardScale = new THREE.Vector3();
-    const cardMaterial = this.cards.material as THREE.MeshBasicMaterial;
-    cardMaterial.color.setHSL(config.hue2 / 360, 0.75, 0.6);
-    cardMaterial.opacity = 0.16 + this.event * 0.12 + this.burst * 0.08;
 
-    for (let i = 0; i < cardActive; i += 1) {
-      const node = this.cardNodes[i];
-      const drift = Math.sin(time * node.drift + node.offset) * 0.7;
-      const sway = Math.cos(time * node.drift * 0.9 + node.offset) * 0.45;
-      cardPos.set(
-        node.x + drift,
-        node.y + sway + shear * 0.6,
-        node.z + Math.sin(time * 0.5 + node.offset) * 0.6
-      );
-      cardQuat.setFromEuler(
-        new THREE.Euler(
-          node.sway + shear * 0.45,
-          time * 0.25 + node.offset,
-          node.spin + time * 0.35
-        )
-      );
-      cardScale.setScalar(0.8 + this.event * 0.25 + this.burst * 0.1);
-      cardMat.compose(cardPos, cardQuat, cardScale);
-      this.cards.setMatrixAt(i, cardMat);
+    const lineHue = config.hue2 / 360;
+    for (let i = 0; i < this.fieldLines.length; i++) {
+      const line = this.fieldLines[i];
+      const node = this.lineNodes[i];
+
+      const active = i < activeLines;
+      line.visible = active;
+      if (!active) continue;
+
+      const positions = line.geometry.attributes.position.array as Float32Array;
+
+      const baseRadius =
+        config.lineRadius * (0.75 + (i / Math.max(1, activeLines - 1)) * 0.55);
+      const spin = time * node.speed + node.phase + progress * node.twist * 2.2;
+
+      for (let p = 0; p < this.linePoints; p++) {
+        const t = p / (this.linePoints - 1);
+        const u = t * 2 - 1;
+        const idx3 = p * 3;
+
+        const wobble =
+          Math.sin(u * 2.4 + spin) * 0.1 +
+          Math.cos(u * 3.1 - spin * 0.8) * 0.07;
+
+        const radius = baseRadius * (1 + wobble * (0.6 + this.energy * 0.8));
+        const a = spin + u * 1.05 + wobble;
+
+        const x =
+          Math.cos(a) * radius + this.pointer.x * 0.35 * (1 - Math.abs(u));
+        const z =
+          Math.sin(a) * radius + this.pointer.y * 0.22 * (1 - Math.abs(u));
+        const y = u * 1.9 + node.lift + Math.sin(spin + u * 1.3) * 0.12;
+
+        positions[idx3] = x;
+        positions[idx3 + 1] = y;
+        positions[idx3 + 2] = z;
+      }
+
+      line.geometry.attributes.position.needsUpdate = true;
+      const mat = line.material as THREE.LineBasicMaterial;
+      mat.color.setHSL(lineHue, 0.82, 0.66);
+      mat.opacity = 0.08 + this.energy * 0.12;
     }
-    this.cards.instanceMatrix.needsUpdate = true;
 
-    // Particles
-    const positions = this.particlePoints.geometry.attributes.position
+    // Particles.
+    const particleActive = clamp(
+      Math.floor(
+        config.particles * (0.65 + this.quality * 0.35) * this.mobileScale
+      ),
+      120,
+      this.particleBase.length / 3
+    );
+
+    const particlePositions = this.particles.geometry.attributes.position
       .array as Float32Array;
-    const flow = time * 0.6;
-    for (let i = 0; i < positions.length; i += 3) {
+
+    for (let i = 0; i < particleActive * 3; i += 3) {
       const bx = this.particleBase[i];
       const by = this.particleBase[i + 1];
       const bz = this.particleBase[i + 2];
-      const phase = by * 0.35 + flow;
-      positions[i] = bx + Math.sin(phase) * 0.18;
-      positions[i + 1] = by * (1 - collapse * 0.2) + Math.cos(phase) * 0.12;
-      positions[i + 2] = bz + Math.cos(phase * 0.9) * 0.18;
+
+      const radial = Math.hypot(bx, bz) / config.particleRadius;
+      const drift = Math.sin(time * 0.8 + radial * 3.2) * 0.08;
+      particlePositions[i] = bx + drift + this.pointer.x * 0.22;
+      particlePositions[i + 1] = by + Math.cos(time * 0.65 + bx) * 0.06;
+      particlePositions[i + 2] = bz - drift + this.pointer.y * 0.18;
     }
-    this.particlePoints.geometry.attributes.position.needsUpdate = true;
-    const drawCount = Math.max(
-      360,
-      Math.floor(
-        this.particleCount * (0.55 + this.quality * 0.45) * this.mobileScale
-      )
-    );
-    this.particlePoints.geometry.setDrawRange(0, drawCount);
-    const pointsMat = this.particlePoints.material as THREE.PointsMaterial;
-    pointsMat.color.setHSL(config.hue2 / 360, 0.9, 0.65);
-    pointsMat.opacity = 0.55 + this.burst * 0.25;
-    pointsMat.size = 0.035 + this.quality * 0.02 + this.event * 0.01;
 
-    // Rings
-    this.rings.forEach((slice, i) => {
-      slice.scale.setScalar(config.ringScale * (1 + i * 0.08));
-      slice.rotation.x += 0.001 + i * 0.0004;
-      slice.rotation.y += 0.002 + i * 0.0006;
-      slice.rotation.z += 0.003 + i * 0.0008;
-      const sliceMat = slice.material as THREE.MeshBasicMaterial;
-      sliceMat.color.setHSL(config.hue / 360, 0.85, 0.6);
-      sliceMat.opacity = 0.18 + this.event * 0.22 + this.burst * 0.18;
-    });
+    this.particles.geometry.setDrawRange(0, particleActive);
+    this.particles.geometry.attributes.position.needsUpdate = true;
 
-    // Group and camera
-    this.group.rotation.x =
-      this.pointer.y * -0.2 + Math.sin(time * 0.15) * 0.05;
-    this.group.rotation.y = this.pointer.x * 0.25 + time * 0.04;
-    this.group.rotation.z = (progress - 0.5) * 0.18 + shear * 0.3;
-    this.group.scale.setScalar(1 + this.event * 0.06 + this.burst * 0.03);
+    const pMat = this.particles.material as THREE.PointsMaterial;
+    pMat.color.setHSL(config.hue2 / 360, 0.86, 0.67);
+    pMat.opacity = 0.22 + this.energy * 0.26;
+    pMat.size = 0.022 + this.quality * 0.012;
 
-    const dolly = (progress - 0.5) * 1.2;
-    const breathX = Math.sin(time * 0.3) * 0.015;
-    const breathY = Math.cos(time * 0.23) * 0.01;
+    // Probe + lens respond to scroll.
+    const orbit = progress * Math.PI * 2;
+    this.probe.position.x = this.pointer.x * 1.05 + Math.cos(orbit) * 0.65;
+    this.probe.position.y = this.pointer.y * 0.55 + Math.sin(orbit * 0.9) * 0.3;
+    this.probe.position.z = 0.65 + Math.sin(orbit) * 0.35;
+
+    this.lens.position.copy(this.probe.position).multiplyScalar(0.75);
+    this.lens.rotation.z = time * 0.2 + orbit * 0.2;
+
+    // Group + camera.
+    this.group.rotation.y = this.pointer.x * 0.18 + time * 0.03;
+    this.group.rotation.x = -0.08 + this.pointer.y * -0.12;
+
     this.camera.position.x = damp(
       this.camera.position.x,
-      this.pointer.x * 1.2 + breathX,
+      this.pointer.x * 1.05,
       6,
       dt
     );
     this.camera.position.y = damp(
       this.camera.position.y,
-      this.pointer.y * 1.0 + breathY,
+      this.pointer.y * 0.75,
       6,
       dt
     );
-    this.camera.position.z = config.camZ + dolly;
+    this.camera.position.z = damp(this.camera.position.z, config.camZ, 4, dt);
+
     const rollTarget = this.pointerVelocity.x * 0.02;
     this.cameraRoll = damp(this.cameraRoll, rollTarget, 4, dt);
     this.camera.lookAt(0, 0, 0);
     this.camera.rotation.z = this.cameraRoll;
 
-    // Lighting & fog
-    const lightBreath = 1 + Math.sin(time * 0.5) * 0.05;
-    this.key.intensity = 1.2 * config.lightPower * lightBreath;
-    this.fill.intensity = 0.9 * config.lightPower * (2 - lightBreath);
-    this.hemi.intensity = 0.5 + config.grade * 0.8;
-    if (this.scene.fog && this.scene.fog instanceof THREE.FogExp2) {
-      this.scene.fog.density = config.fog + this.event * 0.02;
+    // Lighting & fog.
+    const lightBreath = 1 + Math.sin(time * 0.45) * 0.04;
+    this.key.intensity = (1.2 + this.energy * 0.55) * lightBreath;
+    this.fill.intensity = (0.85 + this.energy * 0.35) * (2 - lightBreath);
+    this.hemi.intensity = 0.5 + this.energy * 0.25;
+
+    if (this.scene.fog instanceof THREE.FogExp2) {
+      this.scene.fog.density = config.fog + this.energy * 0.01;
     }
 
-    // Update CSS variables for overlay grading
+    // Update CSS variables shared with the overlay/UI choreography.
     this.root.style.setProperty('--ih-scroll', progress.toFixed(4));
     this.root.style.setProperty('--ih-local', localT.toFixed(4));
     this.root.style.setProperty('--ih-vel', velocity.toFixed(4));
     this.root.style.setProperty('--ih-parallax-x', this.pointer.x.toFixed(4));
     this.root.style.setProperty('--ih-parallax-y', this.pointer.y.toFixed(4));
-    this.root.style.setProperty('--ih-burst', this.burst.toFixed(4));
-    this.root.style.setProperty('--ih-event', this.event.toFixed(4));
+    this.root.style.setProperty('--ih-energy-soft', this.energy.toFixed(4));
     this.root.style.setProperty('--ih-pinch', this.pinch.toFixed(4));
     this.root.style.setProperty('--ih-quality', this.quality.toFixed(4));
     this.root.style.setProperty('--ih-hue', config.hue.toFixed(2));
     this.root.style.setProperty('--ih-hue-2', config.hue2.toFixed(2));
-    this.root.style.setProperty('--ih-grade', config.grade.toFixed(3));
 
-    // Adaptive quality resize (only when needed)
+    // Adaptive pixel ratio (only when needed).
     const baseDpr = clamp(window.devicePixelRatio || 1, 1, 2);
     const desiredRatio = clamp(
       baseDpr * this.quality * this.mobileScale,
-      0.7,
+      0.75,
       2
     );
-    if (Math.abs(this.renderer.getPixelRatio() - desiredRatio) > 0.05) {
+    if (Math.abs(this.renderer.getPixelRatio() - desiredRatio) > 0.06) {
       this.renderer.setPixelRatio(desiredRatio);
     }
 
+    this.renderer.toneMappingExposure = config.exposure + this.energy * 0.08;
+
     if (this.bloomPass) {
-      this.bloomPass.strength = 0.55 + this.event * 0.7 + this.burst * 0.45;
-      this.bloomPass.radius = 0.5 + config.grade * 0.35;
-      this.bloomPass.threshold = 0.25 + (1 - config.grade) * 0.25;
+      // Bloom is deliberately subtle; mobile devices get even less.
+      const bloomScale = this.mobileScale < 0.85 ? 0.75 : 1;
+      this.bloomPass.strength =
+        (config.bloom + this.energy * 0.16) * bloomScale;
+      this.bloomPass.radius = 0.45;
+      this.bloomPass.threshold = 0.3;
     }
-
-    if (this.filmicPass) {
-      this.filmicPass.uniforms.time.value = time;
-      this.filmicPass.uniforms.grainIntensity.value =
-        0.025 + this.burst * 0.02 + this.event * 0.01;
-    }
-
-    if (this.transitionPass) {
-      this.transitionPass.uniforms.progress.value = progress;
-    }
-
-    this.renderer.toneMappingExposure =
-      0.95 + config.grade * 0.35 + this.burst * 0.1;
 
     if (this.composer && this.quality * this.mobileScale > 0.72) {
       this.composer.render();
@@ -1029,12 +926,13 @@ class ImmersiveThreeController {
 
   private loop(): void {
     let last = performance.now() / 1000;
+
     const tick = () => {
       const now = performance.now() / 1000;
       const dt = clamp(now - last, 1 / 240, 1 / 30);
       last = now;
 
-      if (!this.reducedMotion) {
+      if (!this.reducedMotion && this.visible) {
         this.update(dt, now);
       }
 
@@ -1047,20 +945,38 @@ class ImmersiveThreeController {
   public destroy(): void {
     window.cancelAnimationFrame(this.raf);
     this.abortController.abort();
+    this.io?.disconnect();
+    this.io = null;
+
+    if (this.environment) this.environment.dispose();
+
+    // Dispose custom objects that are not Mesh-traversed.
+    this.fieldLines.forEach(line => {
+      line.geometry.dispose();
+      (line.material as THREE.Material).dispose();
+    });
+
+    this.stars.geometry.dispose();
+    (this.stars.material as THREE.Material).dispose();
+
+    this.particles.geometry.dispose();
+    (this.particles.material as THREE.Material).dispose();
+
+    if (this.membrane) {
+      this.membrane.geometry.dispose();
+      (this.membrane.material as THREE.Material).dispose();
+    }
+
+    this.probe.geometry.dispose();
+    (this.probe.material as THREE.Material).dispose();
+
+    this.lens.geometry.dispose();
+    (this.lens.material as THREE.Material).dispose();
 
     this.renderer.dispose();
-    if (this.composer && 'dispose' in this.composer) {
-      this.composer.dispose();
-    }
-    if (this.environment) {
-      this.environment.dispose();
-    }
+    this.composer?.dispose();
 
-    if (this.stars) {
-      this.stars.geometry.dispose();
-      (this.stars.material as THREE.Material).dispose();
-    }
-
+    // Safety: dispose any remaining Mesh resources.
     this.scene.traverse((obj: THREE.Object3D) => {
       if (obj instanceof THREE.Mesh) {
         obj.geometry.dispose();
@@ -1103,6 +1019,7 @@ document.addEventListener('astro:before-swap', () => {
   const w = window as unknown as {
     __ihController?: ImmersiveThreeController;
   };
+
   if (w.__ihController) {
     w.__ihController.destroy();
     w.__ihController = undefined;
