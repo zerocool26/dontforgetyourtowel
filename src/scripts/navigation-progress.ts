@@ -14,9 +14,28 @@ declare global {
 
 let clearTimer: number | undefined;
 
+function setBusyState(isBusy: boolean): void {
+  const body = document.body;
+  if (!body) return;
+
+  const mainTarget = document.querySelector(
+    'main, [role="main"]'
+  ) as HTMLElement | null;
+
+  if (isBusy) {
+    body.classList.add('navigating');
+    body.setAttribute('aria-busy', 'true');
+    mainTarget?.setAttribute('aria-busy', 'true');
+    return;
+  }
+
+  body.classList.remove('navigating');
+  body.removeAttribute('aria-busy');
+  mainTarget?.removeAttribute('aria-busy');
+}
+
 function clearNavigating(): void {
-  document.body?.classList.remove('navigating');
-  document.body?.removeAttribute('aria-busy');
+  setBusyState(false);
   if (clearTimer) {
     window.clearTimeout(clearTimer);
     clearTimer = undefined;
@@ -41,6 +60,7 @@ function shouldShowProgress(
 
   // Allow opting out on a per-link basis.
   if (anchor.hasAttribute('data-no-navigation-progress')) return false;
+  if (anchor.getAttribute('aria-disabled') === 'true') return false;
 
   const hrefAttr = anchor.getAttribute('href') || '';
   if (!hrefAttr) return false;
@@ -88,8 +108,7 @@ function onDocumentClick(event: MouseEvent): void {
   queueMicrotask(() => {
     if (!shouldShowProgress(anchor, event)) return;
 
-    document.body.classList.add('navigating');
-    document.body.setAttribute('aria-busy', 'true');
+    setBusyState(true);
 
     // Safety: ensure we don’t get stuck if the navigation is cancelled.
     clearTimer = window.setTimeout(() => {
@@ -114,6 +133,12 @@ if (typeof document !== 'undefined') {
     // Also clear on browser back/forward cache restores.
     window.addEventListener('pageshow', clearNavigating);
     window.addEventListener('popstate', clearNavigating);
+    window.addEventListener('pagehide', clearNavigating);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') {
+        clearNavigating();
+      }
+    });
   }
 }
 

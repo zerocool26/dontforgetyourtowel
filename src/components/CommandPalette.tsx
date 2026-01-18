@@ -177,6 +177,7 @@ export default function CommandPalette() {
   const commandLookupRef = useRef<Map<string, CommandItem>>(new Map());
   const fuseModulePromise = useRef<Promise<FuseImport> | null>(null);
   const fuseInstance = useRef<FuseInstance | null>(null);
+  const listId = 'command-palette-list';
 
   // Fetch search index using our http utility
   const fetchSearchIndex = useCallback(async () => {
@@ -483,6 +484,10 @@ export default function CommandPalette() {
     }
   }, [selectedIndex]);
 
+  const activeDescendantId = filteredCommands[selectedIndex]
+    ? `command-option-${filteredCommands[selectedIndex].id}`
+    : undefined;
+
   if (!isOpen) return null;
 
   return (
@@ -508,6 +513,11 @@ export default function CommandPalette() {
             ref={inputRef}
             type="text"
             aria-label="Search commands"
+            role="combobox"
+            aria-autocomplete="list"
+            aria-controls={listId}
+            aria-expanded={isOpen}
+            aria-activedescendant={activeDescendantId}
             className="flex-1 bg-transparent text-lg text-white placeholder-zinc-500 focus:outline-none"
             placeholder="Type a command or search..."
             value={query}
@@ -537,14 +547,24 @@ export default function CommandPalette() {
               <p>No results found.</p>
             </div>
           ) : (
-            <ul ref={listRef} className="space-y-1">
+            <ul
+              ref={listRef}
+              id={listId}
+              role="listbox"
+              aria-label="Command results"
+              className="space-y-1"
+            >
               {filteredCommands.map((command, index) => {
                 const Icon = command.icon;
                 const isSelected = index === selectedIndex;
+                const optionId = `command-option-${command.id}`;
 
                 return (
                   <li
                     key={command.id}
+                    id={optionId}
+                    role="option"
+                    aria-selected={isSelected}
                     className={`flex cursor-pointer items-center gap-3 rounded-lg px-4 py-3 transition-colors ${
                       isSelected
                         ? 'bg-indigo-600 text-white'
