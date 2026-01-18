@@ -40,6 +40,41 @@ function clamp(n: number, min: number, max: number) {
   return Math.max(min, Math.min(max, n));
 }
 
+const WAREHOUSES = ['Phoenix, AZ', 'Columbus, OH', 'Reno, NV', 'Atlanta, GA'];
+
+function pickWarehouse(zip: string) {
+  const digits = zip.replace(/\D/g, '');
+  const seed = digits ? Number(digits.slice(-2)) : 3;
+  return WAREHOUSES[seed % WAREHOUSES.length];
+}
+
+function addDays(date: Date, days: number) {
+  return new Date(date.getTime() + days * 24 * 60 * 60 * 1000);
+}
+
+function formatDate(date: Date) {
+  return new Intl.DateTimeFormat(undefined, {
+    month: 'short',
+    day: 'numeric',
+  }).format(date);
+}
+
+function getDeliveryWindow(method: ShippingMethod, zip: string) {
+  const digits = zip.replace(/\D/g, '');
+  const shift = digits ? Number(digits[digits.length - 1]) % 2 : 0;
+  const baseMin = method === 'express' ? 1 : 3;
+  const baseMax = method === 'express' ? 2 : 5;
+  const min = baseMin + shift;
+  const max = baseMax + shift;
+  const now = new Date();
+
+  return {
+    min,
+    max,
+    label: `${formatDate(addDays(now, min))}–${formatDate(addDays(now, max))}`,
+  };
+}
+
 function getDemoFlags(): DemoFlags {
   const flags = getEffectiveDemoFlags(null);
   return {
@@ -304,6 +339,8 @@ export default function EcommerceShowcase() {
   const [shippingMethod, setShippingMethod] =
     useState<ShippingMethod>('standard');
   const [shippingZip, setShippingZip] = useState('');
+  const [giftWrap, setGiftWrap] = useState(false);
+  const [shippingProtection, setShippingProtection] = useState(false);
 
   const [toast, setToast] = useState<string | null>(null);
 
@@ -554,6 +591,29 @@ export default function EcommerceShowcase() {
     [cartLines]
   );
 
+  const storefrontStats = useMemo(() => {
+    const totalProducts = demoProducts.length;
+    const totalReviews = demoProducts.reduce(
+      (sum, p) => sum + p.reviewCount,
+      0
+    );
+    const avgRating =
+      demoProducts.reduce((sum, p) => sum + p.rating, 0) /
+      Math.max(1, totalProducts);
+    const featured = demoProducts.filter(p => p.featured).length;
+    const lowStock = demoProducts.filter(
+      p => typeof p.inventory === 'number' && p.inventory <= 20
+    ).length;
+
+    return {
+      totalProducts,
+      totalReviews,
+      avgRating,
+      featured,
+      lowStock,
+    };
+  }, []);
+
   const subtotalCents = useMemo(() => computeSubtotal(cartLines), [cartLines]);
   const hasShipFreePromo = useMemo(() => {
     const normalized = promoCode.trim().toUpperCase();
@@ -569,6 +629,28 @@ export default function EcommerceShowcase() {
   }, [subtotalCents, shippingMethod, hasShipFreePromo]);
   const taxCents = useMemo(() => computeTax(subtotalCents), [subtotalCents]);
 
+  const deliveryWindow = useMemo(
+    () => getDeliveryWindow(shippingMethod, shippingZip),
+    [shippingMethod, shippingZip]
+  );
+
+  const warehouse = useMemo(
+    () => pickWarehouse(shippingZip || '00000'),
+    [shippingZip]
+  );
+
+  const savingsCents = useMemo(() => {
+    return cartLines.reduce((sum, line) => {
+      const p = getProductById(line.productId);
+      if (!p?.compareAtCents) return sum;
+      return sum + (p.compareAtCents - p.priceCents) * line.qty;
+    }, 0);
+  }, [cartLines]);
+
+  const addOnCents = useMemo(() => {
+    return (giftWrap ? 500 : 0) + (shippingProtection ? 399 : 0);
+  }, [giftWrap, shippingProtection]);
+
   const promoDiscountCents = useMemo(() => {
     const normalized = promoCode.trim().toUpperCase();
     if (!normalized) return 0;
@@ -581,9 +663,16 @@ export default function EcommerceShowcase() {
 
   const totalCents = useMemo(() => {
     return (
-      Math.max(0, subtotalCents - promoDiscountCents) + shippingCents + taxCents
+      Math.max(0, subtotalCents - promoDiscountCents) +
+      shippingCents +
+      taxCents +
+      addOnCents
     );
-  }, [subtotalCents, promoDiscountCents, shippingCents, taxCents]);
+  }, [subtotalCents, promoDiscountCents, shippingCents, taxCents, addOnCents]);
+
+  const loyaltyPoints = useMemo(() => {
+    return Math.max(0, Math.floor(subtotalCents / 100));
+  }, [subtotalCents]);
 
   const money = useMemo(() => {
     // Fixed demo conversion (not a live rate).
@@ -735,6 +824,38 @@ export default function EcommerceShowcase() {
     () => recent.map(id => getProductById(id)).filter(Boolean) as DemoProduct[],
     [recent]
   );
+
+  const bundleProducts = useMemo(() => {
+    const cartProducts = cartLines
+      .map(line => getProductById(line.productId))
+      .filter(Boolean) as DemoProduct[];
+
+    if (!cartProducts.length) {
+      return demoProducts.filter(p => p.featured).slice(0, 2);
+    }
+
+    const tagScores = new Map<string, number>();
+    cartProducts.forEach(p => {
+      p.tags.forEach(tag => {
+        tagScores.set(tag, (tagScores.get(tag) ?? 0) + 1);
+      });
+    });
+
+    const cartIds = new Set(cartProducts.map(p => p.id));
+
+    return [...demoProducts]
+      .filter(p => !cartIds.has(p.id))
+      .map(p => {
+        const score = p.tags.reduce(
+          (sum, tag) => sum + (tagScores.get(tag) ?? 0),
+          0
+        );
+        return { product: p, score };
+      })
+      .sort((a, b) => b.score - a.score || b.product.rating - a.product.rating)
+      .slice(0, 2)
+      .map(item => item.product);
+  }, [cartLines]);
 
   return (
     <section
@@ -970,6 +1091,74 @@ export default function EcommerceShowcase() {
           </div>
         </div>
 
+        <div class="mt-4 grid gap-3 lg:grid-cols-3">
+          <div class="rounded-2xl border border-white/10 bg-black/20 p-4">
+            <p class="text-xs font-semibold uppercase tracking-widest text-zinc-400">
+              Storefront intelligence
+            </p>
+            <div class="mt-3 grid gap-2 text-sm text-zinc-200">
+              <div class="flex items-center justify-between">
+                <span>Active products</span>
+                <span class="font-semibold">
+                  {storefrontStats.totalProducts}
+                </span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span>Avg rating</span>
+                <span class="font-semibold">
+                  {storefrontStats.avgRating.toFixed(1)}
+                </span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span>Reviews</span>
+                <span class="font-semibold">
+                  {storefrontStats.totalReviews}
+                </span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span>Featured drops</span>
+                <span class="font-semibold">{storefrontStats.featured}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="rounded-2xl border border-white/10 bg-black/20 p-4">
+            <p class="text-xs font-semibold uppercase tracking-widest text-zinc-400">
+              Fulfillment window
+            </p>
+            <div class="mt-3 space-y-2 text-sm text-zinc-200">
+              <p>
+                Estimated delivery:{' '}
+                <span class="font-semibold">{deliveryWindow.label}</span>
+              </p>
+              <p>
+                Shipping method:{' '}
+                <span class="font-semibold">
+                  {shippingMethod === 'express' ? 'Express' : 'Standard'}
+                </span>
+              </p>
+              <p>
+                Routing hub: <span class="font-semibold">{warehouse}</span>
+              </p>
+              <p class="text-xs text-zinc-500">
+                Demo-only routing. Update ZIP for alternate estimates.
+              </p>
+            </div>
+          </div>
+
+          <div class="rounded-2xl border border-white/10 bg-black/20 p-4">
+            <p class="text-xs font-semibold uppercase tracking-widest text-zinc-400">
+              Buyer confidence
+            </p>
+            <ul class="mt-3 space-y-2 text-xs text-zinc-300">
+              <li>• Secure demo checkout</li>
+              <li>• 30-day return demo policy</li>
+              <li>• Real-time inventory signals</li>
+              <li>• Loyalty points on every order</li>
+            </ul>
+          </div>
+        </div>
+
         <div
           class="mt-4 flex gap-2 overflow-x-auto pb-2"
           style={{ WebkitOverflowScrolling: 'touch' }}
@@ -1035,6 +1224,46 @@ export default function EcommerceShowcase() {
             </div>
           </div>
         ) : null}
+
+        {bundleProducts.length ? (
+          <div class="mt-5 rounded-2xl border border-white/10 bg-black/20 p-4">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <p class="text-xs font-semibold uppercase tracking-widest text-zinc-400">
+                Smart bundle picks
+              </p>
+              <span class="text-xs text-zinc-500">
+                Paired by tag affinity + rating
+              </span>
+            </div>
+            <div class="mt-3 flex gap-3 overflow-x-auto pb-2">
+              {bundleProducts.map(p => (
+                <div
+                  key={p.id}
+                  class="flex min-w-[220px] flex-col gap-3 rounded-xl border border-white/10 bg-white/5 p-3"
+                >
+                  <img
+                    src={p.images[0]}
+                    alt=""
+                    class="h-28 w-full rounded-lg border border-white/10 object-cover"
+                    loading="lazy"
+                  />
+                  <div class="space-y-1">
+                    <p class="text-xs text-zinc-400">{p.brand}</p>
+                    <p class="text-sm font-semibold text-white">{p.name}</p>
+                    <p class="text-xs text-zinc-300">{money(p.priceCents)}</p>
+                  </div>
+                  <button
+                    type="button"
+                    class="min-h-touch rounded-lg bg-accent-600 px-3 py-2 text-xs font-semibold text-white hover:bg-accent-500 focus:outline-none focus:ring-2 focus:ring-accent-400"
+                    onClick={() => addToCart(p)}
+                  >
+                    Add bundle item
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
       </div>
 
       <div
@@ -1044,158 +1273,187 @@ export default function EcommerceShowcase() {
             : 'mt-6 grid gap-4'
         }
       >
-        {filteredProducts.map(product => (
-          <article
-            key={product.id}
-            class={
-              view === 'grid'
-                ? 'overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/30'
-                : 'overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/30 md:flex'
-            }
-          >
-            <div class={view === 'grid' ? '' : 'md:w-[320px]'}>
-              <button
-                type="button"
-                class="block w-full text-left"
-                onClick={() => openQuickView(product)}
-                aria-label={`Open quick view: ${product.name}`}
-                data-ecom="product-open"
-                data-product-id={product.id}
-              >
-                <div class="relative">
-                  <img
-                    src={product.images[0]}
-                    alt={`${product.name} hero`}
-                    loading="lazy"
-                    class={
-                      view === 'grid'
-                        ? 'aspect-[4/3] w-full object-cover'
-                        : 'aspect-[16/10] w-full object-cover'
-                    }
-                  />
-                  <div class="absolute left-3 top-3 flex flex-wrap gap-2">
-                    {product.tags.slice(0, 2).map(t => (
-                      <span
-                        key={t}
-                        class="rounded-full border border-white/10 bg-black/40 px-3 py-1 text-xs font-semibold text-zinc-200"
-                      >
-                        {t}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </button>
-            </div>
+        {filteredProducts.map(product => {
+          const inventoryLabel =
+            typeof product.inventory === 'number'
+              ? product.inventory <= 10
+                ? 'Low stock'
+                : product.inventory <= 30
+                  ? 'In stock'
+                  : 'Ready to ship'
+              : 'Limited release';
+          const leadTime =
+            typeof product.inventory === 'number' && product.inventory <= 10
+              ? '48h'
+              : '24h';
+          const savings = product.compareAtCents
+            ? product.compareAtCents - product.priceCents
+            : 0;
 
-            <div class={view === 'grid' ? '' : 'md:flex-1'}>
-              <div class="space-y-2 p-4">
-                <div class="flex items-start justify-between gap-3">
-                  <div>
-                    <p class="text-xs text-zinc-400">{product.brand}</p>
-                    <h4 class="text-base font-semibold text-white">
-                      {product.name}
-                    </h4>
-                  </div>
-                  <div class="text-right">
-                    <p class="text-sm font-semibold text-white">
-                      {money(product.priceCents)}
-                    </p>
-                    {product.compareAtCents ? (
-                      <p class="text-xs text-zinc-400 line-through">
-                        {money(product.compareAtCents)}
-                      </p>
-                    ) : null}
-                  </div>
-                </div>
-
-                <div class="flex flex-wrap items-center justify-between gap-3">
-                  <div class="flex items-center gap-2">
-                    <Rating value={product.rating} />
-                    <span class="text-xs text-zinc-400">
-                      ({product.reviewCount})
-                    </span>
-                    {typeof product.inventory === 'number' ? (
-                      <span class="text-xs text-zinc-500">
-                        · {product.inventory} in stock
-                      </span>
-                    ) : null}
-                  </div>
-
-                  <div class="flex items-center gap-2">
-                    <button
-                      type="button"
-                      class="min-h-touch min-w-touch rounded-xl border border-white/10 bg-white/5 px-4 text-sm font-semibold text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-accent-400"
-                      onClick={e => {
-                        e.stopPropagation();
-                        toggleWishlist(product.id);
-                      }}
-                      aria-pressed={wishlist.includes(product.id)}
-                      aria-label={
-                        wishlist.includes(product.id)
-                          ? `Remove ${product.name} from wishlist`
-                          : `Add ${product.name} to wishlist`
-                      }
-                    >
-                      {wishlist.includes(product.id) ? '♥' : '♡'}
-                    </button>
-
-                    <button
-                      type="button"
+          return (
+            <article
+              key={product.id}
+              class={
+                view === 'grid'
+                  ? 'overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/30'
+                  : 'overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/30 md:flex'
+              }
+            >
+              <div class={view === 'grid' ? '' : 'md:w-[320px]'}>
+                <button
+                  type="button"
+                  class="block w-full text-left"
+                  onClick={() => openQuickView(product)}
+                  aria-label={`Open quick view: ${product.name}`}
+                  data-ecom="product-open"
+                  data-product-id={product.id}
+                >
+                  <div class="relative">
+                    <img
+                      src={product.images[0]}
+                      alt={`${product.name} hero`}
+                      loading="lazy"
                       class={
-                        compareIds.includes(product.id)
-                          ? 'min-h-touch min-w-touch rounded-xl border border-accent-400 bg-accent-500/15 px-4 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-accent-400'
-                          : 'min-h-touch min-w-touch rounded-xl border border-white/10 bg-white/5 px-4 text-sm font-semibold text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-accent-400'
+                        view === 'grid'
+                          ? 'aspect-[4/3] w-full object-cover'
+                          : 'aspect-[16/10] w-full object-cover'
                       }
-                      onClick={e => {
-                        e.stopPropagation();
-                        toggleCompare(product.id);
-                      }}
-                      aria-pressed={compareIds.includes(product.id)}
-                      aria-label={
-                        compareIds.includes(product.id)
-                          ? `Remove ${product.name} from compare`
-                          : `Add ${product.name} to compare`
-                      }
-                      data-ecom="compare-toggle"
-                    >
-                      Compare
-                    </button>
+                    />
+                    <div class="absolute left-3 top-3 flex flex-wrap gap-2">
+                      {product.tags.slice(0, 2).map(t => (
+                        <span
+                          key={t}
+                          class="rounded-full border border-white/10 bg-black/40 px-3 py-1 text-xs font-semibold text-zinc-200"
+                        >
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </button>
+              </div>
+
+              <div class={view === 'grid' ? '' : 'md:flex-1'}>
+                <div class="space-y-2 p-4">
+                  <div class="flex items-start justify-between gap-3">
+                    <div>
+                      <p class="text-xs text-zinc-400">{product.brand}</p>
+                      <h4 class="text-base font-semibold text-white">
+                        {product.name}
+                      </h4>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-sm font-semibold text-white">
+                        {money(product.priceCents)}
+                      </p>
+                      {product.compareAtCents ? (
+                        <p class="text-xs text-zinc-400 line-through">
+                          {money(product.compareAtCents)}
+                        </p>
+                      ) : null}
+                      {savings > 0 ? (
+                        <p class="text-xs font-semibold text-emerald-300">
+                          Save {money(savings)}
+                        </p>
+                      ) : null}
+                    </div>
+                  </div>
+
+                  <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center gap-2">
+                      <Rating value={product.rating} />
+                      <span class="text-xs text-zinc-400">
+                        ({product.reviewCount})
+                      </span>
+                      {typeof product.inventory === 'number' ? (
+                        <span class="text-xs text-zinc-500">
+                          · {product.inventory} in stock
+                        </span>
+                      ) : null}
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                      <button
+                        type="button"
+                        class="min-h-touch min-w-touch rounded-xl border border-white/10 bg-white/5 px-4 text-sm font-semibold text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-accent-400"
+                        onClick={e => {
+                          e.stopPropagation();
+                          toggleWishlist(product.id);
+                        }}
+                        aria-pressed={wishlist.includes(product.id)}
+                        aria-label={
+                          wishlist.includes(product.id)
+                            ? `Remove ${product.name} from wishlist`
+                            : `Add ${product.name} to wishlist`
+                        }
+                      >
+                        {wishlist.includes(product.id) ? '♥' : '♡'}
+                      </button>
+
+                      <button
+                        type="button"
+                        class={
+                          compareIds.includes(product.id)
+                            ? 'min-h-touch min-w-touch rounded-xl border border-accent-400 bg-accent-500/15 px-4 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-accent-400'
+                            : 'min-h-touch min-w-touch rounded-xl border border-white/10 bg-white/5 px-4 text-sm font-semibold text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-accent-400'
+                        }
+                        onClick={e => {
+                          e.stopPropagation();
+                          toggleCompare(product.id);
+                        }}
+                        aria-pressed={compareIds.includes(product.id)}
+                        aria-label={
+                          compareIds.includes(product.id)
+                            ? `Remove ${product.name} from compare`
+                            : `Add ${product.name} to compare`
+                        }
+                        data-ecom="compare-toggle"
+                      >
+                        Compare
+                      </button>
+                    </div>
+                  </div>
+
+                  {view === 'list' ? (
+                    <p class="text-sm leading-relaxed text-zinc-300">
+                      {product.description}
+                    </p>
+                  ) : null}
+
+                  <div class="flex flex-wrap items-center gap-2 text-xs text-zinc-400">
+                    <span>{inventoryLabel}</span>
+                    <span aria-hidden="true">•</span>
+                    <span>Ships in {leadTime}</span>
                   </div>
                 </div>
 
-                {view === 'list' ? (
-                  <p class="text-sm leading-relaxed text-zinc-300">
-                    {product.description}
-                  </p>
-                ) : null}
-              </div>
-
-              <div class="border-t border-white/10 p-4">
-                <div class="grid gap-2 sm:grid-cols-2">
-                  <button
-                    type="button"
-                    class="min-h-touch w-full rounded-xl bg-accent-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-accent-500 focus:outline-none focus:ring-2 focus:ring-accent-400"
-                    onClick={() => {
-                      addToCart(product);
-                      setCartOpen(true);
-                    }}
-                    data-ecom="add-to-cart"
-                    data-product-id={product.id}
-                  >
-                    Add to cart
-                  </button>
-                  <button
-                    type="button"
-                    class="min-h-touch w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-accent-400"
-                    onClick={() => openQuickView(product)}
-                  >
-                    Quick view
-                  </button>
+                <div class="border-t border-white/10 p-4">
+                  <div class="grid gap-2 sm:grid-cols-2">
+                    <button
+                      type="button"
+                      class="min-h-touch w-full rounded-xl bg-accent-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-accent-500 focus:outline-none focus:ring-2 focus:ring-accent-400"
+                      onClick={() => {
+                        addToCart(product);
+                        setCartOpen(true);
+                      }}
+                      data-ecom="add-to-cart"
+                      data-product-id={product.id}
+                    >
+                      Add to cart
+                    </button>
+                    <button
+                      type="button"
+                      class="min-h-touch w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-accent-400"
+                      onClick={() => openQuickView(product)}
+                    >
+                      Quick view
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          </article>
-        ))}
+            </article>
+          );
+        })}
       </div>
 
       {/* Compare modal */}
@@ -1315,6 +1573,33 @@ export default function EcommerceShowcase() {
                           <span class="ml-2 text-xs text-zinc-400">
                             {p.reviewCount} reviews
                           </span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div class="mt-3 grid gap-3 md:grid-cols-3">
+                      <div class="text-xs font-semibold uppercase tracking-widest text-zinc-400">
+                        Fulfillment
+                      </div>
+                      {compareProducts.map(p => (
+                        <div
+                          key={`${p.id}-fulfillment`}
+                          class="text-sm text-zinc-200"
+                        >
+                          <p>
+                            Ships in{' '}
+                            {typeof p.inventory === 'number' && p.inventory <= 10
+                              ? '48h'
+                              : '24h'}
+                          </p>
+                          <p class="text-xs text-zinc-500">
+                            Routing: {warehouse}
+                          </p>
+                          <p class="text-xs text-zinc-500">
+                            {typeof p.inventory === 'number'
+                              ? `${p.inventory} in stock`
+                              : 'Limited release'}
+                          </p>
                         </div>
                       ))}
                     </div>
@@ -1507,6 +1792,37 @@ export default function EcommerceShowcase() {
                     </li>
                   ))}
                 </ul>
+
+                {quickViewProduct.specs ? (
+                  <div class="rounded-2xl border border-white/10 bg-black/30 p-4">
+                    <p class="text-xs font-semibold uppercase tracking-widest text-zinc-400">
+                      Specs
+                    </p>
+                    <dl class="mt-3 grid gap-2 text-sm text-zinc-200">
+                      {Object.entries(quickViewProduct.specs)
+                        .slice(0, 6)
+                        .map(([key, value]) => (
+                          <div
+                            key={key}
+                            class="flex items-start justify-between gap-3"
+                          >
+                            <dt class="text-zinc-400">{key}</dt>
+                            <dd class="text-right text-zinc-100">{value}</dd>
+                          </div>
+                        ))}
+                    </dl>
+                  </div>
+                ) : null}
+
+                <div class="rounded-2xl border border-white/10 bg-black/30 p-4 text-sm text-zinc-200">
+                  <p>
+                    Estimated delivery:{' '}
+                    <span class="font-semibold">{deliveryWindow.label}</span>
+                  </p>
+                  <p class="text-xs text-zinc-500">
+                    Routing hub: {warehouse}
+                  </p>
+                </div>
 
                 <div class="space-y-3">
                   <p class="text-xs font-semibold uppercase tracking-widest text-zinc-400">
@@ -1744,6 +2060,47 @@ export default function EcommerceShowcase() {
                             -{money(promoDiscountCents)}
                           </span>
                         </div>
+
+                        <div class="grid gap-2 rounded-xl border border-white/10 bg-black/40 p-3 text-sm text-zinc-200">
+                          <label class="flex items-center justify-between gap-3">
+                            <span>
+                              Gift wrap
+                              <span class="ml-2 text-xs text-zinc-500">
+                                +{money(500)}
+                              </span>
+                            </span>
+                            <input
+                              type="checkbox"
+                              checked={giftWrap}
+                              onChange={e =>
+                                setGiftWrap(
+                                  (e.currentTarget as HTMLInputElement).checked
+                                )
+                              }
+                              aria-label="Add gift wrap"
+                              class="h-5 w-5 accent-accent-400"
+                            />
+                          </label>
+                          <label class="flex items-center justify-between gap-3">
+                            <span>
+                              Package protection
+                              <span class="ml-2 text-xs text-zinc-500">
+                                +{money(399)}
+                              </span>
+                            </span>
+                            <input
+                              type="checkbox"
+                              checked={shippingProtection}
+                              onChange={e =>
+                                setShippingProtection(
+                                  (e.currentTarget as HTMLInputElement).checked
+                                )
+                              }
+                              aria-label="Add package protection"
+                              class="h-5 w-5 accent-accent-400"
+                            />
+                          </label>
+                        </div>
                         <div class="mt-2 grid gap-2 sm:grid-cols-2">
                           <label
                             class="sr-only"
@@ -1795,6 +2152,12 @@ export default function EcommerceShowcase() {
                             {money(taxCents)}
                           </span>
                         </div>
+                        <div class="flex items-center justify-between text-sm">
+                          <span class="text-zinc-300">Add-ons</span>
+                          <span class="font-semibold text-white">
+                            {money(addOnCents)}
+                          </span>
+                        </div>
                         <div class="flex items-center justify-between border-t border-white/10 pt-3">
                           <span class="text-sm font-semibold text-zinc-200">
                             Total
@@ -1805,6 +2168,17 @@ export default function EcommerceShowcase() {
                           >
                             {money(totalCents)}
                           </span>
+                        </div>
+
+                        {savingsCents > 0 ? (
+                          <div class="flex items-center justify-between text-xs text-emerald-300">
+                            <span>Savings</span>
+                            <span>-{money(savingsCents)}</span>
+                          </div>
+                        ) : null}
+                        <div class="flex items-center justify-between text-xs text-zinc-400">
+                          <span>Loyalty points</span>
+                          <span>+{loyaltyPoints}</span>
                         </div>
 
                         <div class="grid gap-2 sm:grid-cols-2">
@@ -1964,6 +2338,10 @@ export default function EcommerceShowcase() {
                     <p class="mt-3 text-sm text-zinc-200">
                       Total charged:{' '}
                       <span class="font-semibold">{money(totalCents)}</span>
+                    </p>
+                    <p class="mt-2 text-xs text-zinc-400">
+                      Add-ons: {money(addOnCents)} · Loyalty points earned:{' '}
+                      {loyaltyPoints}
                     </p>
                   </div>
 
