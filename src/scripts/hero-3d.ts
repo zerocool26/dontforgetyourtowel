@@ -518,6 +518,7 @@ class Hero3DController {
   private onPointerMove = (event: PointerEvent) => {
     if (!this.scene) return;
     if (this.container.dataset.heroTilt === 'false') return;
+    this.container.dataset.heroActive = 'true';
     if (this.pointerLocked) {
       const rect = this.container.getBoundingClientRect();
       const deltaX = event.movementX / rect.width;
@@ -540,6 +541,7 @@ class Hero3DController {
     if (this.container.dataset.heroTilt === 'false') return;
     this.isDragging = true;
     this.container.setAttribute('data-hero-drag', 'true');
+    this.container.dataset.heroActive = 'true';
     this.container.setPointerCapture(event.pointerId);
 
     if (event.shiftKey && document.pointerLockElement !== this.container) {
@@ -550,6 +552,7 @@ class Hero3DController {
   private onPointerUp = (event: PointerEvent) => {
     this.isDragging = false;
     this.container.removeAttribute('data-hero-drag');
+    this.container.dataset.heroActive = 'false';
     this.container.releasePointerCapture(event.pointerId);
 
     if (this.pointerLocked && document.pointerLockElement === this.container) {
@@ -572,6 +575,7 @@ class Hero3DController {
 
   private onPointerLeave = () => {
     this.pointerActive = false;
+    this.container.dataset.heroActive = 'false';
     if (!this.pointerLocked) {
       this.targetX = 0;
       this.targetY = 0;
@@ -662,6 +666,7 @@ class Hero3DController {
     this.isDragging = false;
     this.pointerLocked = false;
     this.container.removeAttribute('data-hero-drag');
+    this.container.dataset.heroActive = 'false';
     this.resetTilt();
     this.updateTelemetry();
   }

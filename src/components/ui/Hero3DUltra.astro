@@ -111,14 +111,19 @@ const heroStyle = {
   >
     <div class="hero-visual" aria-hidden="true">
       <div class="hero-3d-scene">
+        <div class="layer layer-stars" data-hero-anim></div>
+        <div class="layer layer-haze" data-hero-anim></div>
         <div class="layer layer-grid" data-hero-anim></div>
         <div class="layer layer-nebula" data-hero-anim></div>
         <div class="layer layer-rays" data-hero-anim></div>
+        <div class="layer layer-lens" data-hero-anim></div>
+        <div class="layer layer-cursor" data-hero-anim></div>
 
         <div class="layer layer-core" data-hero-anim>
           <div class="core-shell holo-surface"></div>
           <div class="core-icosa"></div>
           <div class="core-pulse"></div>
+          <div class="core-glint"></div>
         </div>
 
         <div class="layer layer-orbits" data-hero-anim>
@@ -193,8 +198,33 @@ const heroStyle = {
         </div>
 
         <div class="scanlines"></div>
+        <div class="hero-noise"></div>
+        <div class="hero-vignette"></div>
+      </div>
+    </div>
+
+    <div class="hero-content" role="main" data-hero-anim>
+      <span class="hero-badge" role="status">
+        <span class="badge-dot" aria-hidden="true"></span>
+        {badge}
+      </span>
+      <h1 class="hero-headline">{headline}</h1>
+      <p class="hero-subheading">{subheading}</p>
+
+      <div class="hero-ctas" role="group" aria-label="Call to action">
+        {
+          ctas.map(cta => (
+            <ModernButton href={cta.href} variant={cta.variant} size="lg">
+              {cta.label}
+            </ModernButton>
+          ))
+        }
       </div>
 
+      <slot />
+    </div>
+
+    <div class="hero-ui" aria-label="3D hero settings">
       <div class="hero-controls" aria-label="3D hero controls">
         <div class="hero-controls__group" role="group" aria-label="Intensity">
           <button
@@ -322,27 +352,6 @@ const heroStyle = {
         </div>
       </div>
     </div>
-
-    <div class="hero-content" role="main" data-hero-anim>
-      <span class="hero-badge" role="status">
-        <span class="badge-dot" aria-hidden="true"></span>
-        {badge}
-      </span>
-      <h1 class="hero-headline">{headline}</h1>
-      <p class="hero-subheading">{subheading}</p>
-
-      <div class="hero-ctas" role="group" aria-label="Call to action">
-        {
-          ctas.map(cta => (
-            <ModernButton href={cta.href} variant={cta.variant} size="lg">
-              {cta.label}
-            </ModernButton>
-          ))
-        }
-      </div>
-
-      <slot />
-    </div>
   </div>
 </div>
 
@@ -376,11 +385,13 @@ const heroStyle = {
     content-visibility: auto;
     contain-intrinsic-size: 1000px 720px;
     cursor: default;
+    display: flex;
+    flex-direction: column;
   }
 
   .hero-visual {
-    position: absolute;
-    inset: 0;
+    position: relative;
+    min-height: clamp(420px, 62vh, 760px);
   }
 
   .hero-3d[data-interactive='true'] {
@@ -392,12 +403,8 @@ const heroStyle = {
   }
 
   .hero-controls {
-    position: absolute;
-    right: clamp(1rem, 4vw, 2rem);
-    bottom: clamp(1rem, 4vw, 2rem);
     display: grid;
     gap: 0.6rem;
-    z-index: 20;
     padding: 0.75rem;
     border-radius: 16px;
     border: 1px solid rgba(255, 255, 255, 0.12);
@@ -439,12 +446,8 @@ const heroStyle = {
   }
 
   .hero-telemetry {
-    position: absolute;
-    left: clamp(1rem, 4vw, 2rem);
-    bottom: clamp(1rem, 4vw, 2rem);
     display: grid;
     gap: 0.35rem;
-    z-index: 20;
     padding: 0.75rem 0.9rem;
     border-radius: 14px;
     border: 1px solid rgba(255, 255, 255, 0.12);
@@ -456,6 +459,14 @@ const heroStyle = {
     text-transform: uppercase;
     font-family: var(--font-mono, ui-monospace);
     color: rgba(226, 232, 240, 0.75);
+  }
+
+  .hero-ui {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 1.25rem;
+    padding: 0 2rem 2.5rem;
   }
 
   .telemetry-row {
@@ -528,6 +539,10 @@ const heroStyle = {
     transition: transform 300ms ease;
   }
 
+  .hero-3d[data-hero-active='true'] .hero-3d-scene {
+    transition: transform 120ms ease;
+  }
+
   .hero-3d[data-hero-tilt='false'] .hero-3d-scene {
     transform: rotateX(0deg) rotateY(0deg);
   }
@@ -541,6 +556,43 @@ const heroStyle = {
     transform: translateZ(var(--layer-depth, 0px));
     animation: layerEnter 1200ms ease-out both;
     animation-delay: calc(var(--hero-entrance-delay) + var(--layer-delay, 0ms));
+  }
+
+  .layer-stars {
+    --layer-depth: -620px;
+    --layer-delay: 0ms;
+    background-image:
+      radial-gradient(rgba(255, 255, 255, 0.25) 1px, transparent 1px),
+      radial-gradient(rgba(255, 255, 255, 0.18) 1px, transparent 1px);
+    background-size:
+      80px 80px,
+      140px 140px;
+    background-position:
+      calc(50% + (var(--cursor-x) * 8%)) calc(50% + (var(--cursor-y) * 8%)),
+      calc(50% + (var(--cursor-x) * -12%)) calc(50% + (var(--cursor-y) * -12%));
+    opacity: 0.5;
+    animation:
+      layerEnter 1200ms ease-out both,
+      starDrift 18s ease-in-out infinite;
+    animation-delay:
+      calc(var(--hero-entrance-delay) + var(--layer-delay, 0ms)), 0ms;
+  }
+
+  .layer-haze {
+    --layer-depth: -420px;
+    --layer-delay: 80ms;
+    background: radial-gradient(
+      circle at 50% 30%,
+      rgba(var(--hero-cyber), 0.22),
+      transparent 60%
+    );
+    filter: blur(60px);
+    opacity: 0.55;
+    animation:
+      layerEnter 1200ms ease-out both,
+      hazeFloat 16s ease-in-out infinite;
+    animation-delay:
+      calc(var(--hero-entrance-delay) + var(--layer-delay, 0ms)), 0ms;
   }
 
   .layer-grid {
@@ -565,6 +617,11 @@ const heroStyle = {
     opacity: 0.35;
   }
 
+  .layer-grid::after {
+    transform: rotateX(70deg) translateY(80px)
+      translateX(calc(var(--cursor-x) * 8px));
+  }
+
   .layer-nebula {
     --layer-depth: -260px;
     --layer-delay: 100ms;
@@ -586,6 +643,8 @@ const heroStyle = {
       );
     filter: blur(calc(20px * var(--blur-enabled)));
     opacity: 0.85;
+    background-position: calc(50% + (var(--cursor-x) * 10%))
+      calc(50% + (var(--cursor-y) * 10%));
     animation:
       layerEnter 1200ms ease-out both,
       nebulaShift 14s ease-in-out infinite;
@@ -610,6 +669,39 @@ const heroStyle = {
       raysSpin 24s linear infinite;
     animation-delay:
       calc(var(--hero-entrance-delay) + var(--layer-delay, 0ms)), 0ms;
+  }
+
+  .layer-lens {
+    --layer-depth: -80px;
+    --layer-delay: 220ms;
+    background: radial-gradient(
+      circle at 50% 50%,
+      rgba(255, 255, 255, 0.08),
+      transparent 55%
+    );
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 50%;
+    inset: 8% 12% 18%;
+    opacity: 0.45;
+    animation:
+      layerEnter 1200ms ease-out both,
+      lensBreath 10s ease-in-out infinite;
+    animation-delay:
+      calc(var(--hero-entrance-delay) + var(--layer-delay, 0ms)), 0ms;
+  }
+
+  .layer-cursor {
+    --layer-depth: 40px;
+    --layer-delay: 260ms;
+    background: radial-gradient(
+      circle at calc(50% + (var(--cursor-x) * 35%))
+        calc(50% + (var(--cursor-y) * 35%)),
+      rgba(var(--hero-cyber), 0.35),
+      transparent 45%
+    );
+    mix-blend-mode: screen;
+    opacity: 0.6;
+    transition: opacity 200ms ease;
   }
 
   .layer-core {
@@ -637,6 +729,22 @@ const heroStyle = {
       holoShift 10s linear infinite;
     filter: drop-shadow(2px 0 0 rgba(255, 0, 0, 0.35))
       drop-shadow(-2px 0 0 rgba(0, 255, 255, 0.3));
+  }
+
+  .core-glint {
+    position: absolute;
+    width: min(120px, 22vw);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle at 30% 30%,
+      rgba(255, 255, 255, 0.8),
+      rgba(var(--hero-cyber), 0.2),
+      transparent 65%
+    );
+    mix-blend-mode: screen;
+    opacity: 0.5;
+    animation: glintSpin 8s linear infinite;
   }
 
   .holo-surface {
@@ -995,6 +1103,33 @@ const heroStyle = {
     opacity: 0.4;
   }
 
+  .hero-noise {
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+      radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size:
+      90px 90px,
+      140px 140px;
+    opacity: 0.25;
+    mix-blend-mode: overlay;
+    animation: noiseDrift 16s linear infinite;
+    pointer-events: none;
+  }
+
+  .hero-vignette {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      circle at center,
+      transparent 40%,
+      rgba(3, 7, 18, 0.75) 100%
+    );
+    pointer-events: none;
+    opacity: 0.5;
+  }
+
   .hero-3d[data-hero-fx='false'] .scanlines {
     display: none;
   }
@@ -1005,8 +1140,27 @@ const heroStyle = {
     filter: none;
   }
 
+  .hero-3d[data-hero-fx='false'] .layer-lens,
+  .hero-3d[data-hero-fx='false'] .layer-cursor,
+  .hero-3d[data-hero-fx='false'] .hero-noise {
+    opacity: 0.15;
+    filter: none;
+  }
+
   .hero-3d[data-hero-fx='false'] .core-shell {
     box-shadow: 0 0 30px rgba(var(--hero-primary), 0.35);
+  }
+
+  .hero-3d[data-hero-active='true'] .layer-rays,
+  .hero-3d:hover .layer-rays {
+    opacity: 0.65;
+  }
+
+  .hero-3d[data-hero-active='true'] .core-shell,
+  .hero-3d:hover .core-shell {
+    box-shadow:
+      0 0 80px rgba(var(--hero-primary), 0.75),
+      0 0 160px rgba(var(--hero-accent), 0.45);
   }
 
   .hero-content {
@@ -1113,6 +1267,16 @@ const heroStyle = {
   :global(html[data-demo-perf='true']) .hero-3d .particle {
     animation-duration: 14s;
     opacity: 0.4;
+  }
+
+  .hero-3d[data-hero-perf='true'] .layer-lens,
+  .hero-3d[data-hero-perf='true'] .layer-cursor,
+  .hero-3d[data-hero-perf='true'] .hero-noise,
+  :global(html[data-demo-perf='true']) .hero-3d .layer-lens,
+  :global(html[data-demo-perf='true']) .hero-3d .layer-cursor,
+  :global(html[data-demo-perf='true']) .hero-3d .hero-noise {
+    opacity: 0.15;
+    animation: none !important;
   }
 
   .hero-3d[data-hero-paused='true'] * {
@@ -1304,6 +1468,48 @@ const heroStyle = {
     }
   }
 
+  @keyframes starDrift {
+    0%,
+    100% {
+      transform: translateZ(var(--layer-depth, 0px)) translateY(0);
+      opacity: 0.35;
+    }
+    50% {
+      transform: translateZ(var(--layer-depth, 0px)) translateY(12px);
+      opacity: 0.65;
+    }
+  }
+
+  @keyframes hazeFloat {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes lensBreath {
+    0%,
+    100% {
+      transform: scale(0.98);
+      opacity: 0.35;
+    }
+    50% {
+      transform: scale(1.02);
+      opacity: 0.6;
+    }
+  }
+
+  @keyframes noiseDrift {
+    to {
+      background-position:
+        120px 80px,
+        -80px 120px;
+    }
+  }
+
   @keyframes raysSpin {
     to {
       transform: rotate(360deg);
@@ -1322,11 +1528,15 @@ const heroStyle = {
     }
   }
 
+  @keyframes glintSpin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
   @media (max-width: 900px) {
     .hero-3d {
       min-height: auto;
-      display: flex;
-      flex-direction: column;
     }
 
     .hero-visual {
@@ -1352,19 +1562,16 @@ const heroStyle = {
     }
 
     .hero-controls {
-      position: static;
-      margin: 0;
       width: fit-content;
     }
 
     .hero-telemetry {
-      position: static;
-      margin: 0;
       width: fit-content;
     }
 
-    .hero-content {
-      order: 3;
+    .hero-ui {
+      padding: 0 1.5rem 2rem;
+      gap: 0.75rem;
     }
   }
 
@@ -1403,6 +1610,12 @@ const heroStyle = {
     .hero-3d .layer {
       opacity: 1;
       transform: translateZ(var(--layer-depth, 0px));
+    }
+
+    .hero-3d .layer-stars,
+    .hero-3d .layer-haze,
+    .hero-3d .core-glint {
+      animation: none !important;
     }
   }
 
