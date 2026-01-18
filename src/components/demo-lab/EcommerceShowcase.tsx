@@ -1588,7 +1588,8 @@ export default function EcommerceShowcase() {
                         >
                           <p>
                             Ships in{' '}
-                            {typeof p.inventory === 'number' && p.inventory <= 10
+                            {typeof p.inventory === 'number' &&
+                            p.inventory <= 10
                               ? '48h'
                               : '24h'}
                           </p>
@@ -1819,9 +1820,7 @@ export default function EcommerceShowcase() {
                     Estimated delivery:{' '}
                     <span class="font-semibold">{deliveryWindow.label}</span>
                   </p>
-                  <p class="text-xs text-zinc-500">
-                    Routing hub: {warehouse}
-                  </p>
+                  <p class="text-xs text-zinc-500">Routing hub: {warehouse}</p>
                 </div>
 
                 <div class="space-y-3">
