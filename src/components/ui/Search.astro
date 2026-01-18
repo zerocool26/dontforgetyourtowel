@@ -107,8 +107,60 @@ const searchId = `search-${Math.random().toString(36).slice(2, 9)}`;
     return promise;
   }
 
+  declare global {
+    interface Window {
+      __searchUiBound?: boolean;
+    }
+  }
+
+  function closeSearchResults(wrapper: HTMLElement): void {
+    const input = wrapper.querySelector(
+      'input[type="search"]'
+    ) as HTMLInputElement | null;
+    if (!input) return;
+
+    const searchId = input.id;
+    const results = document.getElementById(`${searchId}-results`);
+    results?.classList.add('hidden');
+    input.setAttribute('aria-expanded', 'false');
+  }
+
+  function bindGlobalSearchCloseHandler(): void {
+    if (window.__searchUiBound) return;
+    window.__searchUiBound = true;
+
+    document.addEventListener(
+      'click',
+      e => {
+        const target = e.target as Node | null;
+        if (!target) return;
+
+        document.querySelectorAll('[data-search-wrapper]').forEach(wrapper => {
+          if (!(wrapper instanceof HTMLElement)) return;
+          if (!wrapper.isConnected) return;
+          if (wrapper.contains(target)) return;
+          closeSearchResults(wrapper);
+        });
+      },
+      { capture: true }
+    );
+
+    // Ensure results never remain open across view transitions.
+    document.addEventListener('astro:page-load', () => {
+      document.querySelectorAll('[data-search-wrapper]').forEach(wrapper => {
+        if (!(wrapper instanceof HTMLElement)) return;
+        closeSearchResults(wrapper);
+      });
+    });
+  }
+
   function initSearch(wrapper: Element) {
     if (!(wrapper instanceof HTMLElement)) return;
+
+    // Avoid duplicate listeners when init runs on both initial load and
+    // Astro view transitions.
+    if (wrapper.hasAttribute('data-search-initialized')) return;
+    wrapper.setAttribute('data-search-initialized', '');
 
     const indexUrl = wrapper.dataset.indexUrl;
     if (!indexUrl) return;
@@ -297,15 +349,9 @@ const searchId = `search-${Math.random().toString(36).slice(2, 9)}`;
         }
       });
     }
-
-    // Click outside to close
-    document.addEventListener('click', e => {
-      if (!wrapper.contains(e.target as Node)) {
-        results?.classList.add('hidden');
-        input.setAttribute('aria-expanded', 'false');
-      }
-    });
   }
+
+  bindGlobalSearchCloseHandler();
 
   // Initialize on load
   document.querySelectorAll('[data-search-wrapper]').forEach(initSearch);

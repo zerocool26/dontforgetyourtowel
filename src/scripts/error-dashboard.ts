@@ -47,6 +47,12 @@ type DashboardEventDetail = {
   statusType?: StatusType;
 };
 
+declare global {
+  interface Window {
+    __errorDashboardBound?: boolean;
+  }
+}
+
 const STATUS_ICONS: Record<StatusType, string> = {
   info: 'ℹ️',
   success: '✅',
@@ -291,6 +297,14 @@ const handleKeyboardShortcuts = (event: KeyboardEvent): void => {
 };
 
 const initializeDashboard = (): void => {
+  // Only activate on pages that actually render the dashboard.
+  const statusContainer = getElement<HTMLDivElement>('status-indicators');
+  if (!statusContainer) return;
+
+  // Bind once (Astro view transitions can re-run init).
+  if (window.__errorDashboardBound) return;
+  window.__errorDashboardBound = true;
+
   getElement<HTMLButtonElement>('refresh-btn')?.addEventListener(
     'click',
     refreshAnalysis
@@ -319,4 +333,12 @@ const initializeDashboard = (): void => {
   }, 2000);
 };
 
-document.addEventListener('DOMContentLoaded', initializeDashboard);
+const runDashboardInit = () => initializeDashboard();
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', runDashboardInit);
+} else {
+  runDashboardInit();
+}
+
+document.addEventListener('astro:page-load', runDashboardInit);
