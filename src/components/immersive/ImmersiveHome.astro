@@ -107,10 +107,7 @@ const shards = Array.from({ length: 22 }).map((_, i) => ({
         }
       </div>
 
-      <div class="ih-layer ih-ui" aria-hidden="true">
-        <span class="ih-reticle"></span>
-        <span class="ih-progress"></span>
-      </div>
+      <!-- Pure cinematic mode: no on-screen HUD -->
     </div>
   </div>
 
@@ -139,6 +136,10 @@ const shards = Array.from({ length: 22 }).map((_, i) => ({
     --ih-vel: 0;
     --ih-parallax-x: 0;
     --ih-parallax-y: 0;
+    --ih-burst: 0;
+    --ih-event: 0;
+    --ih-pinch: 0;
+    --ih-quality: 1;
   }
 
   .ih-stage {
@@ -148,6 +149,55 @@ const shards = Array.from({ length: 22 }).map((_, i) => ({
     pointer-events: none;
   }
 
+  /* Cinematic pulse/shockwave, driven by --ih-burst */
+  .ih-stage::after {
+    content: '';
+    position: absolute;
+    inset: -20%;
+    pointer-events: none;
+    opacity: calc(0.04 + (var(--ih-burst) * 0.22) + (var(--ih-event) * 0.16));
+    background: radial-gradient(
+      circle at 50% 50%,
+      rgba(255, 255, 255, 0.15),
+      rgba(56, 189, 248, 0.16) 22%,
+      rgba(99, 102, 241, 0.12) 40%,
+      rgba(236, 72, 153, 0.08) 60%,
+      rgba(2, 6, 23, 0) 72%
+    );
+    transform: scale(
+      calc(0.92 + (var(--ih-burst) * 0.22) + (var(--ih-event) * 0.08))
+    );
+    filter: blur(
+      calc(10px + (var(--ih-burst) * 18px) + (var(--ih-event) * 10px))
+    );
+    mix-blend-mode: screen;
+    transition: opacity 200ms ease;
+  }
+
+  /* Subtle scanline/glint pass during chapter flips (purely visual) */
+  .ih-stage::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: calc(var(--ih-event) * 0.22);
+    background:
+      repeating-linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.08) 0px,
+        rgba(255, 255, 255, 0) 2px,
+        rgba(255, 255, 255, 0) 10px
+      ),
+      radial-gradient(
+        120% 90% at 50% 40%,
+        rgba(56, 189, 248, 0.14),
+        rgba(2, 6, 23, 0) 58%
+      );
+    mix-blend-mode: screen;
+    filter: blur(0.2px) saturate(1.2);
+    transform: translateZ(0);
+  }
+
   .ih-canvas {
     position: absolute;
     inset: 0;
@@ -155,7 +205,10 @@ const shards = Array.from({ length: 22 }).map((_, i) => ({
     height: 100%;
     opacity: 0.95;
     mix-blend-mode: screen;
-    filter: saturate(1.1) contrast(1.08);
+    filter: saturate(calc(1.05 + (var(--ih-burst) * 0.22)))
+      contrast(calc(1.05 + (var(--ih-burst) * 0.16)))
+      brightness(calc(1 + (var(--ih-event) * 0.08)))
+      blur(calc((1 - var(--ih-quality)) * 0.9px));
   }
 
   .ih-space {
@@ -173,7 +226,8 @@ const shards = Array.from({ length: 22 }).map((_, i) => ({
       )
       rotateX(calc(var(--ih-parallax-y) * -7deg))
       rotateY(calc(var(--ih-parallax-x) * 10deg))
-      rotateZ(calc((var(--ih-scroll) - 0.5) * -6deg));
+      rotateZ(calc((var(--ih-scroll) - 0.5) * -6deg))
+      scale(calc(1 + (var(--ih-pinch) * 0.04) + (var(--ih-event) * 0.015)));
   }
 
   .ih-layer {
@@ -244,15 +298,17 @@ const shards = Array.from({ length: 22 }).map((_, i) => ({
       rgba(56, 189, 248, 0)
     );
     mask: radial-gradient(circle, transparent 46%, #000 55%);
-    filter: blur(2px);
+    filter: blur(calc(2px + (var(--ih-pinch) * 2px)));
     transform: rotate(calc(var(--ih-scroll) * 720deg));
     animation: ihPortal 10s linear infinite;
   }
 
   .ih-portal::after {
     inset: -35%;
-    opacity: 0.55;
-    filter: blur(10px);
+    opacity: calc(0.45 + (var(--ih-event) * 0.18));
+    filter: blur(
+      calc(10px + (var(--ih-burst) * 4px) + (var(--ih-event) * 8px))
+    );
     transform: rotate(calc(var(--ih-scroll) * -680deg));
   }
 
@@ -368,66 +424,6 @@ const shards = Array.from({ length: 22 }).map((_, i) => ({
     animation-delay: calc(var(--i) * -0.2s);
   }
 
-  .ih-ui {
-    pointer-events: none;
-    z-index: 5;
-  }
-
-  .ih-progress {
-    position: absolute;
-    left: 50%;
-    bottom: max(14px, env(safe-area-inset-bottom));
-    width: min(420px, 62vw);
-    height: 2px;
-    transform: translateX(-50%);
-    background: rgba(148, 163, 184, 0.18);
-    border-radius: 999px;
-    overflow: hidden;
-  }
-
-  .ih-progress::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    transform-origin: left;
-    transform: scaleX(var(--ih-scroll));
-    background: linear-gradient(
-      90deg,
-      rgba(56, 189, 248, 0.8),
-      rgba(99, 102, 241, 0.75),
-      rgba(236, 72, 153, 0.75)
-    );
-  }
-
-  .ih-reticle {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: 18px;
-    height: 18px;
-    border-radius: 999px;
-    transform: translate(-50%, -50%);
-    border: 1px solid rgba(226, 232, 240, 0.18);
-    box-shadow: 0 0 30px rgba(56, 189, 248, 0.14);
-    opacity: 0.9;
-  }
-
-  .ih-reticle::before,
-  .ih-reticle::after {
-    content: '';
-    position: absolute;
-    inset: -8px;
-    border-radius: inherit;
-    border: 1px solid rgba(99, 102, 241, 0.12);
-    animation: ihReticle 2.4s ease-in-out infinite;
-  }
-
-  .ih-reticle::after {
-    inset: -16px;
-    border-color: rgba(236, 72, 153, 0.08);
-    animation-duration: 3.2s;
-  }
-
   .ih-track {
     position: relative;
     z-index: 1;
@@ -503,18 +499,6 @@ const shards = Array.from({ length: 22 }).map((_, i) => ({
     }
     50% {
       opacity: calc(0.14 + (var(--a) * 1));
-    }
-  }
-
-  @keyframes ihReticle {
-    0%,
-    100% {
-      opacity: 0.25;
-      transform: scale(0.96);
-    }
-    50% {
-      opacity: 0.55;
-      transform: scale(1.06);
     }
   }
 

@@ -81,6 +81,27 @@ const SCENES = [
   'afterglow',
 ] as const;
 
+// Per-scene physics personality (blended between chapters)
+// - twist: swirl direction/strength
+// - gravity: subtle y acceleration
+const SCENE_TWIST: number[] = [
+  1.0, // ignite
+  0.7, // prism
+  -0.9, // swarm
+  -0.55, // rift
+  0.2, // singularity
+  1.0, // afterglow
+];
+
+const SCENE_GRAVITY: number[] = [
+  -0.06, // ignite
+  0.05, // prism
+  -0.02, // swarm
+  0.08, // rift
+  0.0, // singularity
+  -0.04, // afterglow
+];
+
 function targetFor(sceneIdx: number, i: number, u: number, v: number): Vec3 {
   // u,v are deterministic in [0,1)
   // Shapes are normalized roughly in [-1,1] then scaled later.
@@ -214,6 +235,10 @@ class ParticleField {
     blend: number;
     scroll: number;
     velocity: number;
+    quality: number;
+    burst: number;
+    pinch: number;
+    event: number;
   }): void {
     if (!this.ctx || !this.canvas) return;
 
@@ -223,8 +248,12 @@ class ParticleField {
 
     const ctx = this.ctx;
 
-    // Trail clear (keeps motion feeling alive)
-    ctx.fillStyle = 'rgba(2, 6, 23, 0.18)';
+    const blendT = smoothstep(opts.blend);
+
+    // Trail clear (keeps motion feeling alive). Higher quality => less ghosting.
+    // Event pulses momentarily reduce clearing to create a luminous smear.
+    const trail = lerp(0.22, 0.12, opts.quality) * (1 - opts.event * 0.25);
+    ctx.fillStyle = `rgba(2, 6, 23, ${trail})`;
     ctx.fillRect(0, 0, this.w, this.h);
 
     const cx = this.w * 0.5;
@@ -238,20 +267,37 @@ class ParticleField {
 
     // Physics tuning adapts with scroll velocity ("changing physics")
     const velBoost = clamp(opts.velocity * 1.8, 0, 1);
-    const stiffness = lerp(10, 42, velBoost);
+    const pinchBoost = clamp(opts.pinch, 0, 1);
+    const stiffness = lerp(10, 42, velBoost) * (1 + pinchBoost * 0.55);
     const damping = lerp(0.86, 0.78, velBoost);
 
-    // Scene scale changes subtly with scroll
-    const scale = lerp(
-      Math.min(this.w, this.h) * 0.18,
-      Math.min(this.w, this.h) * 0.26,
-      smoothstep(opts.scroll)
+    // Scene scale changes subtly with scroll and pinch
+    const scale =
+      lerp(
+        Math.min(this.w, this.h) * 0.18,
+        Math.min(this.w, this.h) * 0.26,
+        smoothstep(opts.scroll)
+      ) *
+      (1 + pinchBoost * 0.12);
+
+    // Swirl amount (blended per scene), with event pulse kick.
+    const sceneTwist = lerp(
+      SCENE_TWIST[opts.sceneA] ?? 1,
+      SCENE_TWIST[opts.sceneB] ?? 1,
+      blendT
     );
+    const swirl = (0.35 + velBoost * 1.2 + opts.event * 0.5) * sceneTwist;
 
-    // Swirl amount
-    const swirl = 0.35 + velBoost * 1.2;
+    const sceneGravity = lerp(
+      SCENE_GRAVITY[opts.sceneA] ?? 0,
+      SCENE_GRAVITY[opts.sceneB] ?? 0,
+      blendT
+    );
+    const gravity = sceneGravity * (0.8 + velBoost * 0.9 + pinchBoost * 0.6);
 
-    for (let i = 0; i < this.particles.length; i++) {
+    // Adaptive draw stride when quality drops.
+    const stride = opts.quality > 0.82 ? 1 : opts.quality > 0.6 ? 2 : 3;
+    for (let i = 0; i < this.particles.length; i += stride) {
       const part = this.particles[i];
 
       const u = hash11(part.seed + 5);
@@ -270,11 +316,24 @@ class ParticleField {
       const ay = (ty - part.p.y) * stiffness;
       const az = (tz - part.p.z) * stiffness;
 
-      // Add scroll + pointer driven curl
+      // Add scroll + pointer driven curl + burst impulse
       const curl = (hash11(part.seed + 7) - 0.5) * 2;
+      const impulse = opts.burst * (0.18 + hash11(part.seed + 8) * 0.22);
       part.v.x += (ax + -part.p.z * swirl + curl * 0.12) * dt;
-      part.v.y += (ay + curl * 0.08 + py * 0.45) * dt;
+      part.v.y += (ay + curl * 0.08 + py * 0.45 + gravity) * dt;
       part.v.z += (az + part.p.x * swirl + px * 0.35) * dt;
+
+      // Pinch introduces a "vortex pull" feeling.
+      if (pinchBoost > 0) {
+        const pull = pinchBoost * (0.12 + velBoost * 0.18);
+        part.v.x += -part.p.x * pull * dt;
+        part.v.y += -part.p.y * pull * dt;
+        part.v.z += -part.p.z * pull * dt;
+      }
+
+      part.v.x += part.p.x * impulse;
+      part.v.y += part.p.y * impulse;
+      part.v.z += part.p.z * impulse;
 
       part.v.x *= damping;
       part.v.y *= damping;
@@ -312,8 +371,14 @@ class ParticleField {
       const sy = cy + y * scale * inv;
 
       // Depth fades
-      const alpha = clamp(lerp(0.05, 0.8, 1 - (z + 1.2) / 2.4), 0.04, 0.85);
-      const size = lerp(0.6, 2.6, inv);
+      const alpha = clamp(
+        lerp(0.05, 0.8, 1 - (z + 1.2) / 2.4) + opts.burst * 0.25,
+        0.04,
+        0.92
+      );
+      const size =
+        lerp(0.6, 2.6, inv) *
+        (1 + opts.burst * 0.25 + pinchBoost * 0.08 + opts.event * 0.08);
 
       // Color responds to scroll/scene
       const hue = (opts.scroll * 280 + u * 120) % 360;
@@ -326,7 +391,10 @@ class ParticleField {
 
     // A tiny vignette / glow pass
     const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.min(cx, cy));
-    g.addColorStop(0, `rgba(255,255,255,${0.03 + velBoost * 0.05})`);
+    g.addColorStop(
+      0,
+      `rgba(255,255,255,${0.02 + velBoost * 0.05 + opts.burst * 0.07})`
+    );
     g.addColorStop(1, 'rgba(2,6,23,0.0)');
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, this.w, this.h);
@@ -340,12 +408,31 @@ class ImmersiveHomeController {
   private field = new ParticleField();
 
   private lastScrollY = window.scrollY;
-  private lastTime = performance.now();
+  private lastScrollTime = performance.now();
+  private lastFrameTime = performance.now();
   private velocityLP = 0;
 
   private pointerTarget = { x: 0, y: 0 };
+  private tilt = { x: 0, y: 0 };
+  private kick = { x: 0, y: 0 };
+
+  private activeTouches = new Map<
+    number,
+    { sx: number; sy: number; st: number; lx: number; ly: number; lt: number }
+  >();
+  private pinchBaseDist = 0;
+  private pinchTarget = 0;
+  private pinch = new SpringValue(0, 80, 14);
+
   private pointerX = new SpringValue(0, 90, 16);
   private pointerY = new SpringValue(0, 90, 16);
+
+  private burst = 0;
+  private event = 0;
+  private quality = 1;
+  private perfLP = 16.7;
+
+  private lastChapterIdx = -1;
 
   private raf = 0;
   private reducedMotion = false;
@@ -382,15 +469,96 @@ class ImmersiveHomeController {
 
     // Input
     window.addEventListener(
+      'pointerdown',
+      e => {
+        // Tap/click energizes the scene (no UI, just cinematic impact)
+        this.burst = Math.min(1, this.burst + 0.75);
+
+        if (e.pointerType === 'touch') {
+          const t = performance.now();
+          this.activeTouches.set(e.pointerId, {
+            sx: e.clientX,
+            sy: e.clientY,
+            st: t,
+            lx: e.clientX,
+            ly: e.clientY,
+            lt: t,
+          });
+        }
+      },
+      { passive: true, signal }
+    );
+
+    window.addEventListener(
       'pointermove',
       e => {
         const nx = (e.clientX / Math.max(1, window.innerWidth)) * 2 - 1;
         const ny = (e.clientY / Math.max(1, window.innerHeight)) * 2 - 1;
         this.pointerTarget.x = clamp(nx, -1, 1);
         this.pointerTarget.y = clamp(ny, -1, 1);
+
+        if (e.pointerType === 'touch') {
+          const rec = this.activeTouches.get(e.pointerId);
+          if (rec) {
+            const t = performance.now();
+            rec.lx = e.clientX;
+            rec.ly = e.clientY;
+            rec.lt = t;
+          }
+
+          // Pinch detection from first two touches
+          if (this.activeTouches.size >= 2) {
+            const vals = Array.from(this.activeTouches.values());
+            const a = vals[0];
+            const b = vals[1];
+            const dx = a.lx - b.lx;
+            const dy = a.ly - b.ly;
+            const dist = Math.hypot(dx, dy);
+            if (this.pinchBaseDist <= 0) this.pinchBaseDist = Math.max(1, dist);
+            const ratio = dist / Math.max(1, this.pinchBaseDist);
+            this.pinchTarget = clamp((ratio - 1) * 1.25, 0, 1);
+          } else {
+            this.pinchBaseDist = 0;
+            this.pinchTarget = 0;
+          }
+        }
       },
       { passive: true, signal }
     );
+
+    const endTouch = (e: PointerEvent) => {
+      if (e.pointerType !== 'touch') return;
+      const rec = this.activeTouches.get(e.pointerId);
+      if (rec) {
+        const dx = rec.lx - rec.sx;
+        const dy = rec.ly - rec.sy;
+        const dt = Math.max(1, rec.lt - rec.st);
+        const speed = Math.hypot(dx, dy) / dt; // px per ms
+
+        // Swipe adds a directional camera kick + burst.
+        const nx = clamp(dx / Math.max(1, window.innerWidth), -1, 1);
+        const ny = clamp(dy / Math.max(1, window.innerHeight), -1, 1);
+        const s = clamp(speed / 1.2, 0, 1);
+
+        if (s > 0.25) {
+          this.kick.x = clamp(this.kick.x + nx * 0.8 * s, -0.85, 0.85);
+          this.kick.y = clamp(this.kick.y + ny * 0.7 * s, -0.85, 0.85);
+          this.burst = Math.min(1, this.burst + 0.35 * s);
+        }
+      }
+
+      this.activeTouches.delete(e.pointerId);
+      if (this.activeTouches.size < 2) {
+        this.pinchBaseDist = 0;
+        this.pinchTarget = 0;
+      }
+    };
+
+    window.addEventListener('pointerup', endTouch, { passive: true, signal });
+    window.addEventListener('pointercancel', endTouch, {
+      passive: true,
+      signal,
+    });
 
     // Optional device orientation (best-effort, no UI)
     window.addEventListener(
@@ -400,9 +568,9 @@ class ImmersiveHomeController {
         // gamma: left-right tilt (-90..90), beta: front-back (-180..180)
         const gx = typeof evt.gamma === 'number' ? evt.gamma / 45 : 0;
         const by = typeof evt.beta === 'number' ? evt.beta / 45 : 0;
-        // Blend slightly with pointer target so it feels stable
-        this.pointerTarget.x = clamp(this.pointerTarget.x + gx * 0.25, -1, 1);
-        this.pointerTarget.y = clamp(this.pointerTarget.y + by * 0.18, -1, 1);
+        // Store as a separate contribution (prevents drift from accumulating)
+        this.tilt.x = clamp(gx * 0.25, -0.35, 0.35);
+        this.tilt.y = clamp(by * 0.18, -0.35, 0.35);
       },
       { passive: true, signal }
     );
@@ -425,12 +593,12 @@ class ImmersiveHomeController {
 
     const now = performance.now();
     const delta = Math.abs(window.scrollY - this.lastScrollY);
-    const dt = Math.max(16, now - this.lastTime);
+    const dt = Math.max(16, now - this.lastScrollTime);
     const v = clamp(delta / dt, 0, 1.5);
 
     this.velocityLP = lerp(this.velocityLP, v, 0.12);
     this.lastScrollY = window.scrollY;
-    this.lastTime = now;
+    this.lastScrollTime = now;
 
     return { progress, velocity: clamp(this.velocityLP, 0, 1) };
   }
@@ -452,18 +620,60 @@ class ImmersiveHomeController {
     const { progress, velocity } = this.computeScroll();
     const { scene, idx, localT } = this.chapterFromProgress(progress);
 
-    // Smooth pointer
+    const now = performance.now();
+
+    // Measure frame time for adaptive quality.
+    const frameDtMs = clamp(now - this.lastFrameTime, 8, 50);
+    this.lastFrameTime = now;
+    this.perfLP = lerp(this.perfLP, frameDtMs, 0.06);
+
+    // Adaptive quality: degrade slightly if we see sustained > ~24ms frames.
+    const targetQuality = this.perfLP < 18 ? 1 : this.perfLP < 24 ? 0.85 : 0.7;
+    this.quality = lerp(this.quality, targetQuality, 0.04);
+
     const dt = 1 / 60;
-    const px = this.pointerX.step(this.pointerTarget.x, dt);
-    const py = this.pointerY.step(this.pointerTarget.y, dt);
+    // Decay camera kick and combine inputs.
+    this.kick.x *= 0.9;
+    this.kick.y *= 0.9;
+
+    const targetX = clamp(
+      this.pointerTarget.x + this.tilt.x + this.kick.x,
+      -1,
+      1
+    );
+    const targetY = clamp(
+      this.pointerTarget.y + this.tilt.y + this.kick.y,
+      -1,
+      1
+    );
+
+    const px = this.pointerX.step(targetX, dt);
+    const py = this.pointerY.step(targetY, dt);
+
+    const pinch = this.pinch.step(this.pinchTarget, dt);
 
     this.field.setPointer(px, py);
+
+    // Burst decays over time; scroll velocity also injects energy.
+    this.burst = clamp(this.burst * 0.92 + velocity * 0.22, 0, 1);
+
+    // Chapter transitions trigger a cinematic event pulse.
+    if (idx !== this.lastChapterIdx) {
+      this.lastChapterIdx = idx;
+      this.event = 1;
+      this.burst = Math.min(1, this.burst + 0.55);
+    }
+    this.event = clamp(this.event * 0.9, 0, 1);
 
     this.root.style.setProperty('--ih-scroll', progress.toFixed(4));
     this.root.style.setProperty('--ih-vel', velocity.toFixed(4));
     this.root.style.setProperty('--ih-parallax-x', px.toFixed(4));
     this.root.style.setProperty('--ih-parallax-y', py.toFixed(4));
     this.root.style.setProperty('--ih-local', localT.toFixed(4));
+    this.root.style.setProperty('--ih-burst', this.burst.toFixed(4));
+    this.root.style.setProperty('--ih-quality', this.quality.toFixed(4));
+    this.root.style.setProperty('--ih-event', this.event.toFixed(4));
+    this.root.style.setProperty('--ih-pinch', pinch.toFixed(4));
     this.root.dataset.ihScene = scene;
 
     // Canvas tick
@@ -476,6 +686,10 @@ class ImmersiveHomeController {
         blend: localT,
         scroll: progress,
         velocity,
+        quality: this.quality,
+        burst: this.burst,
+        pinch,
+        event: this.event,
       });
     }
   }

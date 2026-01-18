@@ -17,6 +17,9 @@ interface Props {
   bodyClass?: string;
   showFooter?: boolean;
   showStickyCTA?: boolean;
+  showHeader?: boolean;
+  showMobileNav?: boolean;
+  showLiveChat?: boolean;
 }
 
 const {
@@ -26,6 +29,9 @@ const {
   bodyClass = '',
   showFooter = true,
   showStickyCTA = true,
+  showHeader = true,
+  showMobileNav = true,
+  showLiveChat = true,
 } = Astro.props as Props;
 ---
 
@@ -42,15 +48,15 @@ const {
     >
       Skip to main content
     </a>
-    <Header />
+    {showHeader ? <Header /> : null}
     <main id="main-content" class={mainClass} tabindex="-1">
       <slot />
     </main>
     {showFooter ? <Footer /> : null}
 
     {showStickyCTA ? <StickyCTA /> : null}
-    <MobileNav />
-    <LiveChat client:idle />
+    {showMobileNav ? <MobileNav /> : null}
+    {showLiveChat ? <LiveChat client:idle /> : null}
     <PWARegistration />
     <WebVitals />
     <ErrorTracking />
