@@ -48,6 +48,9 @@ class Hero3DController {
   private telemetryNodes: Record<string, HTMLElement | null> = {};
   private sparkBars: HTMLElement[] = [];
   private fpsHistory = Array(24).fill(0);
+  private lastInteraction = performance.now();
+  private gyroActive = false;
+  private gyroListener?: (event: DeviceOrientationEvent) => void;
 
   constructor(container: HTMLElement, options: HeroOptions) {
     this.container = container;
@@ -234,6 +237,11 @@ class Hero3DController {
           const next = this.container.dataset.heroTilt !== 'true';
           this.container.dataset.heroTilt = next ? 'true' : 'false';
           this.storedSettings.tilt = next;
+          if (next) {
+            this.enableGyro();
+          } else {
+            this.disableGyro();
+          }
           if (!next) {
             this.resetTilt();
           }
@@ -533,6 +541,7 @@ class Hero3DController {
       this.targetY = y;
     }
     this.pointerActive = true;
+    this.lastInteraction = performance.now();
     this.requestTick();
   };
 
@@ -543,6 +552,7 @@ class Hero3DController {
     this.container.setAttribute('data-hero-drag', 'true');
     this.container.dataset.heroActive = 'true';
     this.container.setPointerCapture(event.pointerId);
+    this.lastInteraction = performance.now();
 
     if (event.shiftKey && document.pointerLockElement !== this.container) {
       this.container.requestPointerLock?.();
@@ -583,6 +593,57 @@ class Hero3DController {
     this.requestTick();
   };
 
+  private enableGyro() {
+    if (this.gyroActive) return;
+    if (this.container.dataset.heroTilt === 'false') return;
+    if (prefersReducedMotion()) return;
+    if (!window.matchMedia('(pointer: coarse)').matches) return;
+    if (typeof DeviceOrientationEvent === 'undefined') return;
+
+    const deviceOrientation = DeviceOrientationEvent as unknown as {
+      requestPermission?: () => Promise<'granted' | 'denied'>;
+    };
+
+    const startListener = () => {
+      this.gyroListener = event => {
+        if (this.container.dataset.heroTilt === 'false') return;
+        const gamma = event.gamma ?? 0;
+        const beta = event.beta ?? 0;
+        this.targetX = clamp(gamma / 45, -0.5, 0.5);
+        this.targetY = clamp(beta / 45, -0.5, 0.5);
+        this.pointerActive = true;
+        this.lastInteraction = performance.now();
+        this.container.dataset.heroActive = 'true';
+        this.requestTick();
+      };
+      window.addEventListener('deviceorientation', this.gyroListener, {
+        passive: true,
+      });
+      this.gyroActive = true;
+      this.container.dataset.heroGyro = 'true';
+    };
+
+    if (typeof deviceOrientation.requestPermission === 'function') {
+      deviceOrientation
+        .requestPermission()
+        .then(result => {
+          if (result === 'granted') startListener();
+        })
+        .catch(() => {
+          // Ignore permission errors
+        });
+    } else {
+      startListener();
+    }
+  }
+
+  private disableGyro() {
+    if (!this.gyroActive || !this.gyroListener) return;
+    window.removeEventListener('deviceorientation', this.gyroListener);
+    this.gyroActive = false;
+    this.container.removeAttribute('data-hero-gyro');
+  }
+
   private resetTilt() {
     this.targetX = 0;
     this.targetY = 0;
@@ -594,6 +655,15 @@ class Hero3DController {
     this.container.style.setProperty('--cursor-y', '0');
   }
 
+  private shouldIdleDrift() {
+    if (prefersReducedMotion()) return false;
+    if (this.container.dataset.heroTilt === 'false') return false;
+    if (this.pointerActive || this.isDragging || this.pointerLocked)
+      return false;
+    if (this.gyroActive) return false;
+    return performance.now() - this.lastInteraction > 1200;
+  }
+
   private requestTick() {
     if (this.rafId) return;
     this.rafId = window.requestAnimationFrame(() => this.tick());
@@ -602,6 +672,12 @@ class Hero3DController {
   private tick() {
     this.rafId = 0;
     if (!this.scene) return;
+
+    if (this.shouldIdleDrift()) {
+      const t = performance.now() * 0.00025;
+      this.targetX = Math.sin(t) * 0.12;
+      this.targetY = Math.cos(t * 0.85) * 0.1;
+    }
 
     this.currentX += (this.targetX - this.currentX) * 0.1;
     this.currentY += (this.targetY - this.currentY) * 0.1;
@@ -636,7 +712,12 @@ class Hero3DController {
     if (!this.options.interactive) return;
     if (this.isInteractive) return;
     if (prefersReducedMotion()) return;
-    if (!window.matchMedia('(pointer: fine)').matches) return;
+    if (!window.matchMedia('(pointer: fine)').matches) {
+      this.enableGyro();
+      this.isInteractive = true;
+      this.updateTelemetry();
+      return;
+    }
     if (this.container.dataset.heroTilt === 'false') return;
 
     this.container.addEventListener('pointermove', this.onPointerMove, {
@@ -667,12 +748,14 @@ class Hero3DController {
     this.pointerLocked = false;
     this.container.removeAttribute('data-hero-drag');
     this.container.dataset.heroActive = 'false';
+    this.disableGyro();
     this.resetTilt();
     this.updateTelemetry();
   }
 
   public destroy() {
     this.stop();
+    this.disableGyro();
     if (this.fpsRafId) {
       window.cancelAnimationFrame(this.fpsRafId);
     }

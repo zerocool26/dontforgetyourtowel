@@ -77,6 +77,36 @@ const coordStream = [
   'X:0.73 Y:0.33 Z:0.18',
 ];
 
+const streaks = [
+  { x: '12%', y: '18%', rot: '24deg', len: '120px', delay: '0.4s' },
+  { x: '72%', y: '22%', rot: '-18deg', len: '160px', delay: '1s' },
+  { x: '18%', y: '58%', rot: '32deg', len: '140px', delay: '1.6s' },
+  { x: '64%', y: '62%', rot: '-26deg', len: '180px', delay: '0.8s' },
+  { x: '32%', y: '35%', rot: '12deg', len: '110px', delay: '2.2s' },
+  { x: '80%', y: '44%', rot: '-8deg', len: '130px', delay: '2.8s' },
+  { x: '40%', y: '78%', rot: '20deg', len: '150px', delay: '1.2s' },
+  { x: '55%', y: '14%', rot: '-30deg', len: '140px', delay: '2.4s' },
+];
+
+const dust = [
+  { x: '8%', y: '28%', size: '3px', delay: '0.2s' },
+  { x: '18%', y: '68%', size: '2px', delay: '0.6s' },
+  { x: '26%', y: '42%', size: '2px', delay: '1.1s' },
+  { x: '34%', y: '22%', size: '3px', delay: '1.5s' },
+  { x: '42%', y: '58%', size: '2px', delay: '0.9s' },
+  { x: '50%', y: '34%', size: '3px', delay: '0.4s' },
+  { x: '58%', y: '72%', size: '2px', delay: '1.8s' },
+  { x: '66%', y: '26%', size: '3px', delay: '2.2s' },
+  { x: '74%', y: '54%', size: '2px', delay: '1.3s' },
+  { x: '82%', y: '18%', size: '3px', delay: '2.6s' },
+  { x: '14%', y: '52%', size: '2px', delay: '0.8s' },
+  { x: '22%', y: '82%', size: '3px', delay: '2.9s' },
+  { x: '46%', y: '16%', size: '2px', delay: '1.9s' },
+  { x: '62%', y: '10%', size: '3px', delay: '2.1s' },
+  { x: '70%', y: '82%', size: '2px', delay: '1.7s' },
+  { x: '86%', y: '68%', size: '3px', delay: '2.4s' },
+];
+
 const particles = Array.from({ length: 80 }).map((_, i) => {
   const x = Math.round((Math.random() * 2 - 1) * 240);
   const y = Math.round((Math.random() * 2 - 1) * 200);
@@ -110,96 +140,124 @@ const heroStyle = {
     style={heroStyle}
   >
     <div class="hero-visual" aria-hidden="true">
-      <div class="hero-3d-scene">
-        <div class="layer layer-stars" data-hero-anim></div>
-        <div class="layer layer-haze" data-hero-anim></div>
-        <div class="layer layer-grid" data-hero-anim></div>
-        <div class="layer layer-nebula" data-hero-anim></div>
-        <div class="layer layer-rays" data-hero-anim></div>
-        <div class="layer layer-lens" data-hero-anim></div>
-        <div class="layer layer-cursor" data-hero-anim></div>
-
-        <div class="layer layer-core" data-hero-anim>
-          <div class="core-shell holo-surface"></div>
-          <div class="core-icosa"></div>
-          <div class="core-pulse"></div>
-          <div class="core-glint"></div>
-        </div>
-
-        <div class="layer layer-orbits" data-hero-anim>
-          <div class="orbit-ring ring-1"></div>
-          <div class="orbit-ring ring-2"></div>
-          <div class="orbit-ring ring-3"></div>
-          <div class="orbit-ring ring-4"></div>
-          <div class="energy-torus torus-1"></div>
-          <div class="energy-torus torus-2"></div>
-          <div class="fractal-stack" aria-hidden="true">
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
-          <div class="mobius-loop"></div>
-        </div>
-
-        <div class="layer layer-beams" data-hero-anim>
-          <span class="beam beam-1"></span>
-          <span class="beam beam-2"></span>
-          <span class="beam beam-3"></span>
-        </div>
-
-        <div class="layer layer-data" data-hero-anim>
-          <div class="data-ring">
+      <div class="hero-3d-stage">
+        <div class="hero-3d-scene">
+          <div class="layer layer-stars" data-hero-anim></div>
+          <div class="layer layer-haze" data-hero-anim></div>
+          <div class="layer layer-aurora" data-hero-anim></div>
+          <div class="layer layer-prism" data-hero-anim></div>
+          <div class="layer layer-grid" data-hero-anim></div>
+          <div class="layer layer-nebula" data-hero-anim></div>
+          <div class="layer layer-rays" data-hero-anim></div>
+          <div class="layer layer-lens" data-hero-anim></div>
+          <div class="layer layer-streaks" data-hero-anim>
             {
-              dataSegments.map((segment, i) => (
-                <span class="data-segment" style={`--i:${i}`}>
-                  {segment}
-                </span>
+              streaks.map(streak => (
+                <span
+                  class="streak"
+                  style={`--x:${streak.x};--y:${streak.y};--rot:${streak.rot};--len:${streak.len};--delay:${streak.delay}`}
+                />
               ))
             }
           </div>
-          <div class="binary-stream">
+          <div class="layer layer-dust" data-hero-anim>
             {
-              Array.from({ length: 28 }).map((_, i) => (
-                <span class="binary-bit" style={`--i:${i}`}>
-                  0{i % 2}
-                </span>
+              dust.map(p => (
+                <span
+                  class="dust"
+                  style={`--x:${p.x};--y:${p.y};--size:${p.size};--delay:${p.delay}`}
+                />
               ))
             }
           </div>
-          <div class="hex-stream">
-            {hexStream.map(code => <span class="hex-code">{code}</span>)}
+          <div class="layer layer-cursor" data-hero-anim></div>
+
+          <div class="layer layer-core" data-hero-anim>
+            <div class="core-shell holo-surface"></div>
+            <div class="core-icosa"></div>
+            <div class="core-pulse"></div>
+            <div class="core-glint"></div>
           </div>
-          <div class="coord-readout">
-            {coordStream.map(coord => <span class="coord-line">{coord}</span>)}
+
+          <div class="layer layer-orbits" data-hero-anim>
+            <div class="orbit-ring ring-1"></div>
+            <div class="orbit-ring ring-2"></div>
+            <div class="orbit-ring ring-3"></div>
+            <div class="orbit-ring ring-4"></div>
+            <div class="energy-torus torus-1"></div>
+            <div class="energy-torus torus-2"></div>
+            <div class="fractal-stack" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <div class="mobius-loop"></div>
           </div>
-          <div class="status-dots" aria-hidden="true">
-            <span class="status-dot"></span>
-            <span class="status-dot"></span>
-            <span class="status-dot"></span>
+
+          <div class="layer layer-beams" data-hero-anim>
+            <span class="beam beam-1"></span>
+            <span class="beam beam-2"></span>
+            <span class="beam beam-3"></span>
           </div>
-          <div class="loading-bar" aria-hidden="true">
+
+          <div class="layer layer-data" data-hero-anim>
+            <div class="data-ring">
+              {
+                dataSegments.map((segment, i) => (
+                  <span class="data-segment" style={`--i:${i}`}>
+                    {segment}
+                  </span>
+                ))
+              }
+            </div>
+            <div class="binary-stream">
+              {
+                Array.from({ length: 28 }).map((_, i) => (
+                  <span class="binary-bit" style={`--i:${i}`}>
+                    0{i % 2}
+                  </span>
+                ))
+              }
+            </div>
+            <div class="hex-stream">
+              {hexStream.map(code => <span class="hex-code">{code}</span>)}
+            </div>
+            <div class="coord-readout">
+              {
+                coordStream.map(coord => (
+                  <span class="coord-line">{coord}</span>
+                ))
+              }
+            </div>
+            <div class="status-dots" aria-hidden="true">
+              <span class="status-dot"></span>
+              <span class="status-dot"></span>
+              <span class="status-dot"></span>
+            </div>
+            <div class="loading-bar" aria-hidden="true">
+              {
+                Array.from({ length: 12 }).map(() => (
+                  <span class="loading-segment" />
+                ))
+              }
+            </div>
+          </div>
+
+          <div class="layer layer-particles" data-hero-anim>
             {
-              Array.from({ length: 12 }).map(() => (
-                <span class="loading-segment" />
+              particles.map(p => (
+                <span
+                  class="particle"
+                  style={`--x:${p.x};--y:${p.y};--z:${p.z};--delay:${p.delay}s;--size:${p.size}px`}
+                />
               ))
             }
           </div>
-        </div>
 
-        <div class="layer layer-particles" data-hero-anim>
-          {
-            particles.map(p => (
-              <span
-                class="particle"
-                style={`--x:${p.x};--y:${p.y};--z:${p.z};--delay:${p.delay}s;--size:${p.size}px`}
-              />
-            ))
-          }
+          <div class="scanlines"></div>
+          <div class="hero-noise"></div>
+          <div class="hero-vignette"></div>
         </div>
-
-        <div class="scanlines"></div>
-        <div class="hero-noise"></div>
-        <div class="hero-vignette"></div>
       </div>
     </div>
 
@@ -394,6 +452,35 @@ const heroStyle = {
     min-height: clamp(420px, 62vh, 760px);
   }
 
+  .hero-visual::before {
+    content: '';
+    position: absolute;
+    inset: 8% 6% 16%;
+    border-radius: 28px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+      0 0 80px rgba(var(--hero-primary), 0.25),
+      0 0 120px rgba(var(--hero-accent), 0.18);
+    opacity: 0.35;
+    mix-blend-mode: screen;
+    pointer-events: none;
+    animation: frameGlow 12s ease-in-out infinite;
+  }
+
+  .hero-visual::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      circle at 50% 30%,
+      rgba(var(--hero-secondary), 0.18),
+      transparent 60%
+    );
+    mix-blend-mode: screen;
+    opacity: 0.25;
+    pointer-events: none;
+  }
+
   .hero-3d[data-interactive='true'] {
     cursor: grab;
   }
@@ -530,6 +617,13 @@ const heroStyle = {
     --blur-enabled: 0;
   }
 
+  .hero-3d-stage {
+    position: absolute;
+    inset: 0;
+    transform-origin: center;
+    animation: stageFloat 18s ease-in-out infinite;
+  }
+
   .hero-3d-scene {
     position: absolute;
     inset: 0;
@@ -591,6 +685,55 @@ const heroStyle = {
     animation:
       layerEnter 1200ms ease-out both,
       hazeFloat 16s ease-in-out infinite;
+    animation-delay:
+      calc(var(--hero-entrance-delay) + var(--layer-delay, 0ms)), 0ms;
+  }
+
+  .layer-aurora {
+    --layer-depth: -360px;
+    --layer-delay: 140ms;
+    background: linear-gradient(
+      120deg,
+      rgba(var(--hero-cyber), 0.1),
+      rgba(var(--hero-secondary), 0.25),
+      rgba(var(--hero-accent), 0.2),
+      transparent 65%
+    );
+    background-size: 200% 200%;
+    mix-blend-mode: screen;
+    opacity: 0.55;
+    animation:
+      layerEnter 1200ms ease-out both,
+      auroraSweep 18s ease-in-out infinite;
+    animation-delay:
+      calc(var(--hero-entrance-delay) + var(--layer-delay, 0ms)), 0ms;
+  }
+
+  .layer-prism {
+    --layer-depth: -140px;
+    --layer-delay: 200ms;
+    background:
+      radial-gradient(
+        circle at 20% 25%,
+        rgba(var(--hero-accent), 0.25),
+        transparent 55%
+      ),
+      radial-gradient(
+        circle at 75% 40%,
+        rgba(var(--hero-primary), 0.18),
+        transparent 60%
+      ),
+      radial-gradient(
+        circle at 50% 70%,
+        rgba(var(--hero-cyber), 0.22),
+        transparent 50%
+      );
+    filter: blur(12px);
+    opacity: 0.6;
+    mix-blend-mode: screen;
+    animation:
+      layerEnter 1200ms ease-out both,
+      prismShift 12s ease-in-out infinite;
     animation-delay:
       calc(var(--hero-entrance-delay) + var(--layer-delay, 0ms)), 0ms;
   }
@@ -688,6 +831,51 @@ const heroStyle = {
       lensBreath 10s ease-in-out infinite;
     animation-delay:
       calc(var(--hero-entrance-delay) + var(--layer-delay, 0ms)), 0ms;
+  }
+
+  .layer-streaks {
+    --layer-depth: -180px;
+    --layer-delay: 260ms;
+    mix-blend-mode: screen;
+  }
+
+  .streak {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: var(--len);
+    height: 2px;
+    border-radius: 999px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(var(--hero-cyber), 0.8),
+      rgba(var(--hero-primary), 0.6),
+      transparent
+    );
+    transform: rotate(var(--rot));
+    opacity: 0.55;
+    animation: streakFlow 6s ease-in-out infinite;
+    animation-delay: var(--delay);
+  }
+
+  .layer-dust {
+    --layer-depth: -40px;
+    --layer-delay: 320ms;
+  }
+
+  .dust {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: var(--size);
+    height: var(--size);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.7);
+    box-shadow: 0 0 8px rgba(var(--hero-secondary), 0.5);
+    opacity: 0.4;
+    animation: dustFloat 8s ease-in-out infinite;
+    animation-delay: var(--delay);
   }
 
   .layer-cursor {
@@ -1140,6 +1328,12 @@ const heroStyle = {
     filter: none;
   }
 
+  .hero-3d[data-hero-fx='false'] .layer-aurora,
+  .hero-3d[data-hero-fx='false'] .layer-prism {
+    opacity: 0.18;
+    filter: none;
+  }
+
   .hero-3d[data-hero-fx='false'] .layer-lens,
   .hero-3d[data-hero-fx='false'] .layer-cursor,
   .hero-3d[data-hero-fx='false'] .hero-noise {
@@ -1242,9 +1436,23 @@ const heroStyle = {
     opacity: 0.2;
   }
 
+  .hero-3d[data-hero-perf='true'] .layer-aurora,
+  .hero-3d[data-hero-perf='true'] .layer-prism,
+  :global(html[data-demo-perf='true']) .hero-3d .layer-aurora,
+  :global(html[data-demo-perf='true']) .hero-3d .layer-prism {
+    opacity: 0.2;
+  }
+
   .hero-3d[data-hero-perf='true'] .layer-data,
   :global(html[data-demo-perf='true']) .hero-3d .layer-data {
     opacity: 0.4;
+  }
+
+  .hero-3d[data-hero-perf='true'] .layer-streaks,
+  .hero-3d[data-hero-perf='true'] .layer-dust,
+  :global(html[data-demo-perf='true']) .hero-3d .layer-streaks,
+  :global(html[data-demo-perf='true']) .hero-3d .layer-dust {
+    opacity: 0.15;
   }
 
   .hero-3d[data-hero-perf='true'] .binary-stream,
@@ -1303,6 +1511,16 @@ const heroStyle = {
     100% {
       opacity: 1;
       transform: translateZ(var(--layer-depth, 0px)) translateY(0) scale(1);
+    }
+  }
+
+  @keyframes stageFloat {
+    0%,
+    100% {
+      transform: translateY(0) scale(1);
+    }
+    50% {
+      transform: translateY(-8px) scale(1.015);
     }
   }
 
@@ -1490,6 +1708,30 @@ const heroStyle = {
     }
   }
 
+  @keyframes auroraSweep {
+    0%,
+    100% {
+      background-position: 0% 50%;
+      opacity: 0.4;
+    }
+    50% {
+      background-position: 100% 50%;
+      opacity: 0.75;
+    }
+  }
+
+  @keyframes prismShift {
+    0%,
+    100% {
+      transform: scale(0.98) translateY(0);
+      opacity: 0.45;
+    }
+    50% {
+      transform: scale(1.05) translateY(-6px);
+      opacity: 0.75;
+    }
+  }
+
   @keyframes lensBreath {
     0%,
     100% {
@@ -1507,6 +1749,42 @@ const heroStyle = {
       background-position:
         120px 80px,
         -80px 120px;
+    }
+  }
+
+  @keyframes streakFlow {
+    0%,
+    100% {
+      opacity: 0.2;
+      filter: blur(0.2px);
+    }
+    50% {
+      opacity: 0.8;
+      filter: blur(0.8px);
+    }
+  }
+
+  @keyframes frameGlow {
+    0%,
+    100% {
+      opacity: 0.25;
+      transform: translateY(0);
+    }
+    50% {
+      opacity: 0.5;
+      transform: translateY(-6px);
+    }
+  }
+
+  @keyframes dustFloat {
+    0%,
+    100% {
+      opacity: 0.3;
+      transform: translateY(0);
+    }
+    50% {
+      opacity: 0.7;
+      transform: translateY(-10px);
     }
   }
 
