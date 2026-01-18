@@ -1,6 +1,7 @@
 ---
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 import StructuredData from '../components/StructuredData.astro';
+import ImmersiveShowcase from '../components/immersive/ImmersiveShowcase.astro';
 
 import ServiceCard from '../components/business/ServiceCard.astro';
 import TrustBadge from '../components/business/TrustBadge.astro';
@@ -27,14 +28,19 @@ const featuredCaseStudies = (await getCollection('caseStudies' as never)).slice(
 ) as any[];
 ---
 
-<MarketingLayout title={headline} description={subheading}>
+<MarketingLayout
+  title={headline}
+  description={subheading}
+  bodyClass="bg-zinc-950"
+  mainClass="space-y-0 pb-24"
+>
   <StructuredData type="organization" />
+  <section class="relative bg-zinc-950">
+    <ImmersiveShowcase />
+  </section>
+
   <section class="relative overflow-hidden bg-zinc-950">
-    <div
-      class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(0,102,255,0.16),_transparent_55%)]"
-    >
-    </div>
-    <div class="mx-auto max-w-[1220px] px-6 pb-16 pt-24">
+    <div class="mx-auto max-w-[1220px] px-6 pb-16 pt-10">
       <HeroSection
         headline={headline}
         subheading={subheading}

@@ -8,7 +8,7 @@ type HeroSettings = {
   intensity?: 'subtle' | 'medium' | 'intense';
   data?: boolean;
   perf?: boolean;
-  preset?: 'signal' | 'cinematic' | 'clarity';
+  preset?: 'signal' | 'cinematic' | 'clarity' | 'mobile';
   tilt?: boolean;
   fx?: boolean;
   ambient?: boolean;
@@ -352,24 +352,32 @@ class Hero3DController {
     this.updateTelemetry();
   }
 
-  private applyPreset(preset: 'signal' | 'cinematic' | 'clarity') {
+  private applyPreset(preset: 'signal' | 'cinematic' | 'clarity' | 'mobile') {
     const presets: Record<
-      'signal' | 'cinematic' | 'clarity',
+      'signal' | 'cinematic' | 'clarity' | 'mobile',
       {
         intensity: 'subtle' | 'medium' | 'intense';
         data: boolean;
         perf: boolean;
+        ambient: boolean;
       }
     > = {
-      signal: { intensity: 'medium', data: true, perf: false },
-      cinematic: { intensity: 'intense', data: true, perf: false },
-      clarity: { intensity: 'subtle', data: false, perf: true },
+      signal: { intensity: 'medium', data: true, perf: false, ambient: true },
+      cinematic: {
+        intensity: 'intense',
+        data: true,
+        perf: false,
+        ambient: true,
+      },
+      clarity: { intensity: 'subtle', data: false, perf: true, ambient: false },
+      mobile: { intensity: 'subtle', data: false, perf: true, ambient: false },
     };
     const target = presets[preset];
     this.container.dataset.heroPreset = preset;
     this.container.dataset.intensity = target.intensity;
     this.setDatasetBoolean('showData', target.data);
     this.setDatasetBoolean('heroPerf', target.perf);
+    this.setDatasetBoolean('heroAmbient', target.ambient);
     this.setDatasetBoolean('heroAutoPerf', !target.perf);
     this.autoPerfEnabled = !target.perf;
     this.userIntensityOverride = true;
@@ -382,7 +390,7 @@ class Hero3DController {
       preset,
       tilt: this.container.dataset.heroTilt !== 'false',
       fx: this.container.dataset.heroFx !== 'false',
-      ambient: this.container.dataset.heroAmbient !== 'false',
+      ambient: target.ambient,
     };
     this.persistSettings();
     this.updateControlStates();
