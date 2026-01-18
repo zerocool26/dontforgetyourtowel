@@ -1,4 +1,5 @@
 ---
+import ImmersiveLabs from '../react/ImmersiveLabs.tsx';
 const chapters = [
   // Longer, more cinematic scroll (chapters can repeat scenes intentionally)
   { id: 'ignite' },
@@ -132,6 +133,53 @@ const shards = Array.from({ length: 10 }).map((_, i) => ({
         <section class="ih-chapter" data-ih-chapter="" data-scene={ch.id} />
       ))
     }
+  </div>
+
+  <div class="ih-content">
+    <div class="ih-content-inner">
+      <header class="ih-panel ih-panel-intro" data-ih-panel>
+        <p class="ih-eyebrow">Immersive systems</p>
+        <h2 class="ih-title ih-split" data-split>
+          Multi-layered interaction for the full scroll journey
+        </h2>
+        <p class="ih-lede">
+          Keep the hero, but evolve everything around it: tactile copy blocks,
+          motion-driven lab modules, and a responsive R3F sandbox tuned for
+          mobile.
+        </p>
+        <div class="ih-metrics">
+          <div class="ih-metric">
+            <span>Adaptive GPU</span>
+            <strong>Smart scaling</strong>
+          </div>
+          <div class="ih-metric">
+            <span>Scroll intelligence</span>
+            <strong>Lenis + GSAP</strong>
+          </div>
+          <div class="ih-metric">
+            <span>Interactive core</span>
+            <strong>R3F + Theatre</strong>
+          </div>
+        </div>
+      </header>
+
+      <ImmersiveLabs client:visible />
+
+      <section class="ih-panel ih-panel-outro" data-ih-panel>
+        <h3 class="ih-title ih-split" data-split>
+          Motion, narrative, and data all stitched into one scroll
+        </h3>
+        <p class="ih-lede">
+          Every chapter now layers cinematic depth, tactile UI, and elastic
+          motion, so the whole homepage feels alive on desktop and mobile.
+        </p>
+        <div class="ih-pill-row">
+          <span class="ih-pill">Framer Motion reveals</span>
+          <span class="ih-pill">Leva live tuning</span>
+          <span class="ih-pill">Postprocessed R3F</span>
+        </div>
+      </section>
+    </div>
   </div>
 
   <div class="sr-only" aria-live="polite">Immersive home experience.</div>
@@ -626,6 +674,181 @@ const shards = Array.from({ length: 10 }).map((_, i) => ({
     min-height: 130vh;
   }
 
+  .ih-content {
+    position: relative;
+    z-index: 2;
+    pointer-events: auto;
+  }
+
+  .ih-content-inner {
+    width: min(1200px, 92vw);
+    margin: 0 auto;
+    padding: 14vh 0 18vh;
+    display: grid;
+    gap: clamp(48px, 8vh, 120px);
+    min-height: calc(var(--ih-chapters, 6) * 110vh);
+    align-content: space-between;
+  }
+
+  .ih-panel {
+    border-radius: 28px;
+    padding: clamp(28px, 4vw, 48px);
+    background: linear-gradient(
+      145deg,
+      rgba(15, 23, 42, 0.82),
+      rgba(2, 6, 23, 0.72)
+    );
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    box-shadow:
+      0 30px 80px rgba(15, 23, 42, 0.4),
+      inset 0 0 30px rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(16px);
+  }
+
+  .ih-eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    font-size: 0.75rem;
+    color: rgba(148, 163, 184, 0.78);
+    margin-bottom: 18px;
+  }
+
+  .ih-title {
+    font-size: clamp(2rem, 3.6vw, 3.4rem);
+    line-height: 1.05;
+    color: #f8fafc;
+    margin: 0 0 18px;
+  }
+
+  .ih-lede {
+    font-size: clamp(1rem, 1.4vw, 1.2rem);
+    color: rgba(226, 232, 240, 0.8);
+    margin: 0;
+    max-width: 56ch;
+  }
+
+  .ih-metrics {
+    margin-top: 28px;
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+
+  .ih-metric {
+    padding: 16px 18px;
+    border-radius: 18px;
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    display: grid;
+    gap: 6px;
+    color: rgba(226, 232, 240, 0.75);
+  }
+
+  .ih-metric strong {
+    color: #f8fafc;
+    font-weight: 600;
+  }
+
+  .ih-pill-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 22px;
+  }
+
+  .ih-pill {
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    color: rgba(226, 232, 240, 0.78);
+    font-size: 0.85rem;
+    background: rgba(2, 6, 23, 0.55);
+  }
+
+  .ih-split .word {
+    display: inline-block;
+    will-change: transform, opacity;
+  }
+
+  .ih-labs {
+    display: grid;
+    gap: clamp(32px, 5vw, 60px);
+  }
+
+  .ih-labs-grid {
+    display: grid;
+    gap: clamp(20px, 3vw, 32px);
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+
+  .ih-labs-scene {
+    display: grid;
+    gap: clamp(24px, 4vw, 48px);
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    align-items: center;
+  }
+
+  .ih-labs-canvas {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    border-radius: 24px;
+    overflow: hidden;
+    border: 1px solid rgba(99, 102, 241, 0.35);
+    box-shadow: 0 40px 90px rgba(15, 23, 42, 0.5);
+    background: radial-gradient(
+      120% 120% at 20% 20%,
+      rgba(99, 102, 241, 0.18),
+      rgba(2, 6, 23, 0.9)
+    );
+  }
+
+  .ih-r3f-canvas {
+    width: 100%;
+    height: 100%;
+  }
+
+  .ih-labs-copy {
+    display: grid;
+    gap: 18px;
+  }
+
+  .ih-labs-tag {
+    align-self: start;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(99, 102, 241, 0.18);
+    color: rgba(224, 231, 255, 0.8);
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .ih-labs-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 12px;
+    color: rgba(226, 232, 240, 0.78);
+  }
+
+  .ih-labs-list li {
+    padding-left: 20px;
+    position: relative;
+  }
+
+  .ih-labs-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: linear-gradient(120deg, #22d3ee, #6366f1);
+    box-shadow: 0 0 12px rgba(34, 211, 238, 0.6);
+  }
+
   @keyframes ihStars {
     to {
       background-position:
@@ -696,6 +919,22 @@ const shards = Array.from({ length: 10 }).map((_, i) => ({
   }
 
   @media (max-width: 820px) {
+    .ih-content-inner {
+      padding: 12vh 0 14vh;
+    }
+
+    .ih-panel {
+      padding: 24px;
+    }
+
+    .ih-labs-scene {
+      grid-template-columns: 1fr;
+    }
+
+    .ih-labs-canvas {
+      aspect-ratio: 1 / 1;
+    }
+
     .ih-prism {
       width: calc(52px * var(--s));
       height: calc(52px * var(--s));
@@ -740,4 +979,5 @@ const shards = Array.from({ length: 10 }).map((_, i) => ({
 <script>
   // New immersive controller (scroll morphs + physics particles)
   import '../../scripts/immersive-home';
+  import '../../scripts/immersive-scroll';
 </script>

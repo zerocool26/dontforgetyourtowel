@@ -5,6 +5,7 @@ import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import tailwind from '@astrojs/tailwind';
 import preact from '@astrojs/preact';
+import react from '@astrojs/react';
 import solid from '@astrojs/solid-js';
 import { defineConfig } from 'astro/config';
 
@@ -33,6 +34,13 @@ export default defineConfig({
     // We intentionally keep both integrations, but scope them to distinct directories.
     preact({
       include: ['src/components/**/*.jsx', 'src/components/**/*.tsx'],
+      exclude: ['src/components/solid/**'],
+    }),
+    react({
+      include: [
+        'src/components/react/**/*.jsx',
+        'src/components/react/**/*.tsx',
+      ],
       exclude: ['src/components/solid/**'],
     }),
     solid({

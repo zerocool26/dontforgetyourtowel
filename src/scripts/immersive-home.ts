@@ -216,6 +216,7 @@ class ImmersiveThreeController {
   private stingerFired = false;
 
   private quality = 1;
+  private mobileScale = 1;
   private perfLP = 16.7;
 
   private raf = 0;
@@ -518,8 +519,9 @@ class ImmersiveThreeController {
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
 
+    this.mobileScale = width < 640 ? 0.7 : width < 1024 ? 0.85 : 1;
     const baseDpr = clamp(window.devicePixelRatio || 1, 1, 2);
-    const ratio = baseDpr * this.quality;
+    const ratio = clamp(baseDpr * this.quality * this.mobileScale, 0.7, 2);
     this.renderer.setPixelRatio(ratio);
     this.renderer.setSize(width, height, false);
 
@@ -591,7 +593,8 @@ class ImmersiveThreeController {
     this.lastFrameTime = time;
     this.perfLP = lerp(this.perfLP, frameDtMs, 0.06);
 
-    const targetQuality = this.perfLP < 18 ? 1 : this.perfLP < 24 ? 0.85 : 0.7;
+    const baseQuality = this.perfLP < 18 ? 1 : this.perfLP < 24 ? 0.85 : 0.7;
+    const targetQuality = clamp(baseQuality * this.mobileScale, 0.6, 1);
     this.quality = damp(this.quality, targetQuality, 2, dt);
 
     // Burst decays; scroll velocity injects energy.
@@ -675,8 +678,10 @@ class ImmersiveThreeController {
     orbitMat.emissiveIntensity = 0.6 + this.burst * 0.35;
 
     const orbiterActive = Math.max(
-      40,
-      Math.floor(this.orbitNodes.length * (0.6 + this.quality * 0.4))
+      30,
+      Math.floor(
+        this.orbitNodes.length * (0.6 + this.quality * 0.4) * this.mobileScale
+      )
     );
     this.orbiters.count = orbiterActive;
 
@@ -696,8 +701,10 @@ class ImmersiveThreeController {
 
     // Cards (glassy panels)
     const cardActive = Math.max(
-      40,
-      Math.floor(this.cardNodes.length * (0.55 + this.quality * 0.45))
+      30,
+      Math.floor(
+        this.cardNodes.length * (0.55 + this.quality * 0.45) * this.mobileScale
+      )
     );
     this.cards.count = cardActive;
     const cardMat = new THREE.Matrix4();
@@ -743,8 +750,10 @@ class ImmersiveThreeController {
     }
     this.particlePoints.geometry.attributes.position.needsUpdate = true;
     const drawCount = Math.max(
-      400,
-      Math.floor(this.particleCount * (0.55 + this.quality * 0.45))
+      360,
+      Math.floor(
+        this.particleCount * (0.55 + this.quality * 0.45) * this.mobileScale
+      )
     );
     this.particlePoints.geometry.setDrawRange(0, drawCount);
     const pointsMat = this.particlePoints.material as THREE.PointsMaterial;
@@ -800,7 +809,11 @@ class ImmersiveThreeController {
 
     // Adaptive quality resize (only when needed)
     const baseDpr = clamp(window.devicePixelRatio || 1, 1, 2);
-    const desiredRatio = baseDpr * this.quality;
+    const desiredRatio = clamp(
+      baseDpr * this.quality * this.mobileScale,
+      0.7,
+      2
+    );
     if (Math.abs(this.renderer.getPixelRatio() - desiredRatio) > 0.05) {
       this.renderer.setPixelRatio(desiredRatio);
     }
@@ -814,7 +827,7 @@ class ImmersiveThreeController {
     this.renderer.toneMappingExposure =
       1.02 + config.grade * 0.4 + this.burst * 0.12;
 
-    if (this.composer && this.quality > 0.72) {
+    if (this.composer && this.quality * this.mobileScale > 0.72) {
       this.composer.render();
     } else {
       this.renderer.render(this.scene, this.camera);
