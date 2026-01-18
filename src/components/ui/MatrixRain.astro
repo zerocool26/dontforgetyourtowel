@@ -2,16 +2,60 @@
 /**
  * Matrix Rain - Digital rain effect with 3D depth
  */
+import ModernButton from './ModernButton.astro';
 ---
 
-<div class="matrix-wrapper">
+<div class="matrix-wrapper" data-density="normal" data-glow="true">
   <h2 class="matrix-title">Digital Matrix Rain</h2>
   <p class="matrix-subtitle">Cascading code with depth perspective</p>
+
+  <div class="matrix-status" aria-live="polite">
+    <span class="status-label">Density</span>
+    <span class="status-value" data-matrix-status>Normal</span>
+    <span class="status-divider" aria-hidden="true"></span>
+    <span class="status-label">Glow</span>
+    <span class="status-value" data-matrix-glow>On</span>
+  </div>
 
   <div class="matrix-hud" aria-hidden="true">
     <span class="hud-chip">Signal 94%</span>
     <span class="hud-chip">Stream sync</span>
     <span class="hud-chip">Auto focus</span>
+  </div>
+
+  <div
+    class="matrix-controls"
+    role="group"
+    aria-label="Matrix density controls"
+  >
+    <ModernButton
+      variant="neon"
+      className="matrix-btn"
+      data-density="low"
+      aria-pressed="false"
+      aria-label="Low density">Low</ModernButton
+    >
+    <ModernButton
+      variant="neon"
+      className="matrix-btn active"
+      data-density="normal"
+      aria-pressed="true"
+      aria-label="Normal density">Normal</ModernButton
+    >
+    <ModernButton
+      variant="neon"
+      className="matrix-btn"
+      data-density="high"
+      aria-pressed="false"
+      aria-label="High density">High</ModernButton
+    >
+    <ModernButton
+      variant="neon"
+      className="matrix-btn active"
+      data-matrix-toggle="glow"
+      aria-pressed="true"
+      aria-label="Toggle glow">Glow</ModernButton
+    >
   </div>
 
   <div class="matrix-container">
@@ -155,6 +199,49 @@
     text-transform: uppercase;
   }
 
+  .matrix-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem;
+    padding: 0.45rem 0.9rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(5, 15, 8, 0.6);
+    color: rgba(187, 247, 208, 0.9);
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-family: var(--font-mono, ui-monospace);
+    margin: 0 auto 2rem;
+    width: fit-content;
+    position: relative;
+    z-index: 10;
+  }
+
+  .status-divider {
+    width: 1px;
+    height: 14px;
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .matrix-controls {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 3rem;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 10;
+  }
+
+  .matrix-btn.active {
+    background: rgba(34, 197, 94, 0.25) !important;
+    border-color: rgba(34, 197, 94, 0.7) !important;
+    color: #fff !important;
+    box-shadow: 0 0 30px rgba(34, 197, 94, 0.5) !important;
+  }
+
   .matrix-container {
     perspective: 1500px;
     height: 600px;
@@ -263,6 +350,10 @@
     opacity: 0.8;
   }
 
+  .matrix-wrapper[data-glow='false'] .matrix-char {
+    text-shadow: none;
+  }
+
   .matrix-char:first-child {
     color: #fff;
     font-size: 2rem;
@@ -281,6 +372,17 @@
   .matrix-char:nth-last-child(-n + 3) {
     color: rgba(34, 197, 94, 0.4);
     text-shadow: 0 0 5px rgba(34, 197, 94, 0.6);
+  }
+
+  .matrix-wrapper[data-density='low'] .matrix-column:nth-child(n + 19),
+  :global(html[data-demo-perf='true'])
+    .matrix-wrapper
+    .matrix-column:nth-child(n + 19) {
+    display: none;
+  }
+
+  .matrix-wrapper[data-density='normal'] .matrix-column:nth-child(n + 27) {
+    display: none;
   }
 
   @keyframes charFlicker {
@@ -334,6 +436,15 @@
 
     .matrix-char:first-child {
       font-size: 1.5rem;
+    }
+
+    .matrix-controls {
+      gap: 0.5rem;
+    }
+
+    .matrix-status {
+      font-size: 0.6rem;
+      letter-spacing: 0.16em;
     }
   }
 
@@ -452,11 +563,79 @@
       return stop;
     }
 
-    const matrixWrapper = document.querySelector('.matrix-wrapper');
+    const matrixWrapper = document.querySelector(
+      '.matrix-wrapper'
+    ) as HTMLElement | null;
+    const densityButtons = document.querySelectorAll('[data-density]');
+    const glowButton = document.querySelector('[data-matrix-toggle="glow"]');
+    const statusValue = document.querySelector('[data-matrix-status]');
+    const glowValue = document.querySelector('[data-matrix-glow]');
     let cleanup: null | (() => void) = null;
 
     if (matrixWrapper) {
+      const setDensityState = (active: Element) => {
+        densityButtons.forEach(btn => {
+          const pressed = btn === active;
+          btn.classList.toggle('active', pressed);
+          btn.setAttribute('aria-pressed', pressed ? 'true' : 'false');
+        });
+      };
+
+      densityButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const density = btn.getAttribute('data-density') || 'normal';
+          matrixWrapper.setAttribute('data-density', density);
+          setDensityState(btn);
+          if (statusValue) {
+            statusValue.textContent =
+              density === 'low'
+                ? 'Low'
+                : density === 'high'
+                  ? 'High'
+                  : 'Normal';
+          }
+        });
+      });
+
+      if (glowButton) {
+        glowButton.addEventListener('click', () => {
+          const next = matrixWrapper.dataset.glow !== 'true';
+          matrixWrapper.dataset.glow = next ? 'true' : 'false';
+          glowButton.classList.toggle('active', next);
+          glowButton.setAttribute('aria-pressed', next ? 'true' : 'false');
+          if (glowValue) {
+            glowValue.textContent = next ? 'On' : 'Off';
+          }
+        });
+      }
+
+      const syncPerf = () => {
+        const perf = getEffectiveDemoFlags(
+          getDemoModuleRoot(matrixWrapper)
+        )?.perfMode;
+        if (perf) {
+          matrixWrapper.dataset.density = 'low';
+          matrixWrapper.dataset.glow = 'false';
+          if (statusValue) statusValue.textContent = 'Low';
+          if (glowValue) glowValue.textContent = 'Off';
+        }
+      };
+
+      syncPerf();
       cleanup = startMatrixFlicker(matrixWrapper);
+
+      const stopPerfObserver = observeDemoLabFlags(syncPerf, {
+        moduleRoot: getDemoModuleRoot(matrixWrapper),
+        includePerf: true,
+      });
+
+      window.addEventListener(
+        'beforeunload',
+        () => {
+          stopPerfObserver();
+        },
+        { once: true }
+      );
     }
 
     window.addEventListener(

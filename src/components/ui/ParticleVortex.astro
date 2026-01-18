@@ -12,6 +12,14 @@ import ModernButton from './ModernButton.astro';
     Interactive 3D spiral • Move mouse to attract particles
   </p>
 
+  <div class="vortex-status" aria-live="polite">
+    <span class="status-label">Mode</span>
+    <span class="status-value" data-vortex-status>Spiral</span>
+    <span class="status-divider" aria-hidden="true"></span>
+    <span class="status-label">Field</span>
+    <span class="status-value" data-vortex-field>On</span>
+  </div>
+
   <div class="vortex-hud" aria-hidden="true">
     <div class="hud-pill">Live field</div>
     <div class="hud-pill">Magnetic arcs</div>
@@ -51,9 +59,16 @@ import ModernButton from './ModernButton.astro';
       aria-pressed="false"
       aria-label="Chaos pattern">Chaos</ModernButton
     >
+    <ModernButton
+      variant="neon"
+      className="vortex-btn"
+      data-vortex-toggle="field"
+      aria-pressed="true"
+      aria-label="Toggle energy field">Field</ModernButton
+    >
   </div>
 
-  <div class="vortex-container" data-vortex-interactive>
+  <div class="vortex-container" data-vortex-interactive data-field="true">
     <div class="vortex" data-vortex-system data-mode="spiral">
       {
         Array.from({ length: 120 }).map((_, i) => {
@@ -87,6 +102,11 @@ import ModernButton from './ModernButton.astro';
             <div class="core-ring" style={`--ring-index: ${i}`} />
           ))
         }
+      </div>
+
+      <div class="vortex-lattice" aria-hidden="true"></div>
+      <div class="vortex-streaks" aria-hidden="true">
+        {Array.from({ length: 8 }).map(() => <span class="streak" />)}
       </div>
 
       <div class="vortex-grid" aria-hidden="true"></div>
@@ -192,6 +212,32 @@ import ModernButton from './ModernButton.astro';
     text-transform: uppercase;
   }
 
+  .vortex-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem;
+    padding: 0.45rem 0.9rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(15, 23, 42, 0.5);
+    color: rgba(226, 232, 240, 0.85);
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-family: var(--font-mono, ui-monospace);
+    margin: 0 auto 2.5rem;
+    width: fit-content;
+    position: relative;
+    z-index: 10;
+  }
+
+  .status-divider {
+    width: 1px;
+    height: 14px;
+    background: rgba(255, 255, 255, 0.2);
+  }
+
   .vortex-container {
     perspective: 2000px;
     height: 700px;
@@ -208,6 +254,73 @@ import ModernButton from './ModernButton.astro';
     height: 700px;
     transform-style: preserve-3d;
     animation: vortexSpin 30s linear infinite;
+  }
+
+  .vortex-lattice {
+    position: absolute;
+    inset: 12% 18%;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: radial-gradient(
+      circle,
+      rgba(168, 85, 247, 0.15),
+      transparent 65%
+    );
+    transform: translateZ(-160px);
+    animation: latticeSpin 18s linear infinite;
+    pointer-events: none;
+  }
+
+  .vortex-streaks {
+    position: absolute;
+    inset: -20% 0;
+    pointer-events: none;
+  }
+
+  .streak {
+    position: absolute;
+    width: 2px;
+    height: 140px;
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      rgba(139, 92, 246, 0.6),
+      transparent
+    );
+    animation: streakDrift 6s ease-in-out infinite;
+  }
+
+  .streak:nth-child(1) {
+    left: 20%;
+    animation-delay: 0s;
+  }
+  .streak:nth-child(2) {
+    left: 35%;
+    animation-delay: 0.8s;
+  }
+  .streak:nth-child(3) {
+    left: 50%;
+    animation-delay: 1.6s;
+  }
+  .streak:nth-child(4) {
+    left: 65%;
+    animation-delay: 2.4s;
+  }
+  .streak:nth-child(5) {
+    left: 80%;
+    animation-delay: 3.2s;
+  }
+  .streak:nth-child(6) {
+    left: 15%;
+    animation-delay: 4s;
+  }
+  .streak:nth-child(7) {
+    left: 60%;
+    animation-delay: 4.8s;
+  }
+  .streak:nth-child(8) {
+    left: 75%;
+    animation-delay: 5.6s;
   }
 
   .vortex[data-mode='sphere'] {
@@ -228,6 +341,24 @@ import ModernButton from './ModernButton.astro';
     }
     100% {
       transform: rotateY(360deg) rotateX(20deg);
+    }
+  }
+
+  @keyframes latticeSpin {
+    to {
+      transform: translateZ(-160px) rotate(360deg);
+    }
+  }
+
+  @keyframes streakDrift {
+    0%,
+    100% {
+      transform: translateY(0);
+      opacity: 0.2;
+    }
+    50% {
+      transform: translateY(-30px);
+      opacity: 0.6;
     }
   }
 
@@ -447,6 +578,13 @@ import ModernButton from './ModernButton.astro';
     pointer-events: none;
   }
 
+  .vortex-container[data-field='false'] .energy-field,
+  .vortex-container[data-field='false'] .vortex-arc,
+  .vortex-container[data-field='false'] .vortex-streaks,
+  .vortex-container[data-field='false'] .particle-trail {
+    display: none;
+  }
+
   @keyframes fieldPulse {
     0%,
     100% {
@@ -482,6 +620,11 @@ import ModernButton from './ModernButton.astro';
     .vortex-controls {
       gap: 0.5rem;
     }
+
+    .vortex-status {
+      font-size: 0.6rem;
+      letter-spacing: 0.16em;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -507,6 +650,12 @@ import ModernButton from './ModernButton.astro';
       animation: none !important;
     }
   }
+
+  :global(html[data-demo-perf='true']) .vortex-container .streak,
+  :global(html[data-demo-perf='true']) .vortex-container .vortex-lattice {
+    animation: none !important;
+    opacity: 0.2;
+  }
 </style>
 
 <script>
@@ -527,6 +676,8 @@ import ModernButton from './ModernButton.astro';
     '[data-particle]'
   ) as NodeListOf<HTMLElement>;
   const buttons = document.querySelectorAll('.vortex-btn');
+  const statusValue = document.querySelector('[data-vortex-status]');
+  const fieldValue = document.querySelector('[data-vortex-field]');
 
   const moduleRoot = vortexContainer
     ? getDemoModuleRoot(vortexContainer)
@@ -598,9 +749,30 @@ import ModernButton from './ModernButton.astro';
   // Mode controls are safe to keep enabled; they don't run continuously.
   buttons.forEach(btn => {
     btn.addEventListener('click', () => {
+      if (btn.getAttribute('data-vortex-toggle') === 'field') {
+        if (!vortexContainer) return;
+        const next = vortexContainer.dataset.field !== 'true';
+        vortexContainer.dataset.field = next ? 'true' : 'false';
+        btn.classList.toggle('active', next);
+        btn.setAttribute('aria-pressed', next ? 'true' : 'false');
+        if (fieldValue) {
+          fieldValue.textContent = next ? 'On' : 'Off';
+        }
+        return;
+      }
       setModeButtonState(btn);
       const mode = btn.getAttribute('data-mode') || 'spiral';
       applyMode(mode);
+      if (statusValue) {
+        statusValue.textContent =
+          mode === 'sphere'
+            ? 'Sphere'
+            : mode === 'explosion'
+              ? 'Burst'
+              : mode === 'chaos'
+                ? 'Chaos'
+                : 'Spiral';
+      }
     });
   });
 

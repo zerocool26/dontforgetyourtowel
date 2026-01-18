@@ -12,6 +12,14 @@ import ModernButton from './ModernButton.astro';
     Interactive depth with mouse-controlled perspective • Click to toggle speed
   </p>
 
+  <div class="tunnel-status" aria-live="polite">
+    <span class="status-label">Speed</span>
+    <span class="status-value" data-tunnel-status>Normal</span>
+    <span class="status-divider" aria-hidden="true"></span>
+    <span class="status-label">Focus</span>
+    <span class="status-value" data-tunnel-focus>Normal</span>
+  </div>
+
   <div
     class="tunnel-controls"
     role="group"
@@ -45,11 +53,19 @@ import ModernButton from './ModernButton.astro';
       aria-pressed="false"
       aria-label="Tunnel speed: reverse">Reverse</ModernButton
     >
+    <ModernButton
+      variant="neon"
+      className="tunnel-btn"
+      data-focus="toggle"
+      aria-pressed="false"
+      aria-label="Toggle focus mode">Focus</ModernButton
+    >
   </div>
 
-  <div class="tunnel-container" data-tunnel-interactive>
+  <div class="tunnel-container" data-tunnel-interactive data-focus="false">
     <div class="tunnel" data-tunnel-rotation data-speed="normal">
       <div class="tunnel-lens" aria-hidden="true"></div>
+      <div class="tunnel-noise" aria-hidden="true"></div>
       {
         Array.from({ length: 60 }).map((_, i) => (
           <div
@@ -131,6 +147,30 @@ import ModernButton from './ModernButton.astro';
     flex-wrap: wrap;
   }
 
+  .tunnel-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem;
+    padding: 0.45rem 0.9rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(15, 23, 42, 0.5);
+    color: rgba(226, 232, 240, 0.85);
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-family: var(--font-mono, ui-monospace);
+    margin: 0 auto 2rem;
+    width: fit-content;
+  }
+
+  .status-divider {
+    width: 1px;
+    height: 14px;
+    background: rgba(255, 255, 255, 0.2);
+  }
+
   /* .tunnel-btn styles replaced by ModernButton variant="neon" */
 
   .tunnel-btn.active {
@@ -168,6 +208,36 @@ import ModernButton from './ModernButton.astro';
     height: 100%;
     transform-style: preserve-3d;
     animation: tunnelRotate 20s linear infinite;
+  }
+
+  .tunnel-noise {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(
+        circle at 30% 40%,
+        rgba(255, 255, 255, 0.08),
+        transparent 45%
+      ),
+      radial-gradient(
+        circle at 70% 60%,
+        rgba(59, 130, 246, 0.15),
+        transparent 55%
+      );
+    mix-blend-mode: screen;
+    opacity: 0.6;
+    animation: noiseDrift 12s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  @keyframes noiseDrift {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(16px);
+    }
   }
 
   .tunnel-lens {
@@ -388,6 +458,18 @@ import ModernButton from './ModernButton.astro';
     pointer-events: none;
   }
 
+  .tunnel-container[data-focus='true'] .tunnel-lens,
+  .tunnel-container[data-focus='true'] .ring-glow,
+  .tunnel-container[data-focus='true'] .tunnel-halo {
+    opacity: 0.2;
+    filter: none;
+  }
+
+  .tunnel-container[data-focus='true'] .tunnel-ring {
+    border-color: rgba(255, 255, 255, 0.8);
+    box-shadow: none;
+  }
+
   @keyframes haloSpin {
     to {
       transform: rotate(360deg);
@@ -433,6 +515,11 @@ import ModernButton from './ModernButton.astro';
     .tunnel-controls {
       gap: 0.5rem;
     }
+
+    .tunnel-status {
+      font-size: 0.6rem;
+      letter-spacing: 0.16em;
+    }
   }
 
   /* Coarse pointer devices tend to be the most sensitive to deep 3D + blur. */
@@ -468,6 +555,10 @@ import ModernButton from './ModernButton.astro';
     box-shadow: none !important;
   }
 
+  :global(html[data-demo-perf='true']) .tunnel-noise {
+    opacity: 0.2;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .tunnel,
     .tunnel::before,
@@ -482,7 +573,8 @@ import ModernButton from './ModernButton.astro';
       transition: none !important;
     }
     .tunnel-lens,
-    .tunnel-halo {
+    .tunnel-halo,
+    .tunnel-noise {
       animation: none !important;
     }
     .tunnel-container {
@@ -510,6 +602,8 @@ import ModernButton from './ModernButton.astro';
     '[data-tunnel-rotation]'
   ) as HTMLElement | null;
   const buttons = document.querySelectorAll('.tunnel-btn');
+  const statusValue = document.querySelector('[data-tunnel-status]');
+  const focusValue = document.querySelector('[data-tunnel-focus]');
 
   const moduleRoot = tunnelContainer
     ? getDemoModuleRoot(tunnelContainer)
@@ -534,9 +628,20 @@ import ModernButton from './ModernButton.astro';
 
   buttons.forEach(btn => {
     btn.addEventListener('click', () => {
+      const isFocus = btn.getAttribute('data-focus') === 'toggle';
+      if (!tunnel) return;
+      if (isFocus && tunnelContainer) {
+        const next = tunnelContainer.dataset.focus !== 'true';
+        tunnelContainer.dataset.focus = next ? 'true' : 'false';
+        btn.classList.toggle('active', next);
+        btn.setAttribute('aria-pressed', next ? 'true' : 'false');
+        if (focusValue) {
+          focusValue.textContent = next ? 'Focus' : 'Normal';
+        }
+        return;
+      }
       setSpeedButtonState(btn);
       const speed = btn.getAttribute('data-speed');
-      if (!tunnel) return;
       tunnel.dataset.speed = speed || 'normal';
       tunnel.style.animationDuration =
         speed === 'slow'
@@ -548,6 +653,16 @@ import ModernButton from './ModernButton.astro';
               : '20s';
       tunnel.style.animationDirection =
         speed === 'reverse' ? 'reverse' : 'normal';
+      if (statusValue) {
+        statusValue.textContent =
+          speed === 'slow'
+            ? 'Slow'
+            : speed === 'fast'
+              ? 'Fast'
+              : speed === 'reverse'
+                ? 'Reverse'
+                : 'Normal';
+      }
     });
   });
 

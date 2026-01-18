@@ -1,8 +1,57 @@
 ---
+import ModernButton from './ModernButton.astro';
+
 const ariaLabel = 'Decorative aurora field animation';
 ---
 
-<div class="aurora-stage" role="img" aria-label={ariaLabel}>
+<div
+  class="aurora-stage"
+  role="img"
+  aria-label={ariaLabel}
+  data-aurora
+  data-aurora-prism="true"
+  data-aurora-beam="true"
+  data-aurora-boost="false"
+>
+  <div class="aurora-status" aria-live="polite">
+    <span class="status-label">Prisms</span>
+    <span class="status-value" data-aurora-status="prism">On</span>
+    <span class="status-divider" aria-hidden="true"></span>
+    <span class="status-label">Beams</span>
+    <span class="status-value" data-aurora-status="beam">On</span>
+    <span class="status-divider" aria-hidden="true"></span>
+    <span class="status-label">Boost</span>
+    <span class="status-value" data-aurora-status="boost">Off</span>
+  </div>
+  <div class="aurora-controls" role="group" aria-label="Aurora controls">
+    <ModernButton
+      variant="neon"
+      className="aurora-btn active"
+      data-aurora-toggle="prism"
+      aria-pressed="true"
+      aria-label="Toggle prisms"
+    >
+      Prisms
+    </ModernButton>
+    <ModernButton
+      variant="neon"
+      className="aurora-btn active"
+      data-aurora-toggle="beam"
+      aria-pressed="true"
+      aria-label="Toggle beams"
+    >
+      Beams
+    </ModernButton>
+    <ModernButton
+      variant="neon"
+      className="aurora-btn"
+      data-aurora-toggle="boost"
+      aria-pressed="false"
+      aria-label="Toggle boost"
+    >
+      Boost
+    </ModernButton>
+  </div>
   <div class="aurora-layer layer-1"></div>
   <div class="aurora-layer layer-2"></div>
   <div class="aurora-layer layer-3"></div>
@@ -32,6 +81,48 @@ const ariaLabel = 'Decorative aurora field animation';
     isolation: isolate;
   }
 
+  .aurora-status {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(9, 12, 20, 0.6);
+    color: rgba(226, 232, 240, 0.85);
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-family: var(--font-mono, ui-monospace);
+    z-index: 5;
+  }
+
+  .status-divider {
+    width: 1px;
+    height: 12px;
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .aurora-controls {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    z-index: 5;
+  }
+
+  .aurora-btn.active {
+    background: rgba(99, 102, 241, 0.25) !important;
+    border-color: rgba(99, 102, 241, 0.7) !important;
+    color: #fff !important;
+    box-shadow: 0 0 30px rgba(99, 102, 241, 0.5) !important;
+  }
+
   .aurora-layer {
     position: absolute;
     inset: -20% 0 0 -20%;
@@ -47,6 +138,11 @@ const ariaLabel = 'Decorative aurora field animation';
     filter: blur(30px) saturate(140%);
     animation: aurora-spin 18s linear infinite;
     opacity: 0.7;
+  }
+
+  .aurora-stage[data-aurora-boost='true'] .aurora-layer {
+    opacity: 0.9;
+    filter: blur(24px) saturate(170%);
   }
 
   .aurora-layer.layer-2 {
@@ -81,6 +177,10 @@ const ariaLabel = 'Decorative aurora field animation';
     animation: aurora-breathe 9s ease-in-out infinite;
   }
 
+  .aurora-stage[data-aurora-boost='true'] .aurora-mist {
+    opacity: 0.8;
+  }
+
   .aurora-grid {
     position: absolute;
     inset: 10% 12%;
@@ -109,6 +209,10 @@ const ariaLabel = 'Decorative aurora field animation';
     animation: beamSweep 16s linear infinite;
   }
 
+  .aurora-stage[data-aurora-beam='false'] .aurora-beams {
+    display: none;
+  }
+
   @keyframes beamSweep {
     0% {
       transform: translateX(-10%) rotate(8deg);
@@ -122,6 +226,10 @@ const ariaLabel = 'Decorative aurora field animation';
     position: absolute;
     inset: 0;
     pointer-events: none;
+  }
+
+  .aurora-stage[data-aurora-prism='false'] .aurora-prisms {
+    display: none;
   }
 
   .prism {
@@ -213,6 +321,10 @@ const ariaLabel = 'Decorative aurora field animation';
     animation: aurora-pulse 6s ease-in-out infinite;
   }
 
+  .aurora-stage[data-aurora-boost='true'] .core-spark {
+    filter: blur(2px) saturate(140%);
+  }
+
   @keyframes aurora-spin {
     to {
       transform: rotate(360deg);
@@ -272,4 +384,50 @@ const ariaLabel = 'Decorative aurora field animation';
       animation: none !important;
     }
   }
+
+  @media (max-width: 720px) {
+    .aurora-controls {
+      position: static;
+      margin: 1rem;
+      justify-content: flex-start;
+    }
+
+    .aurora-status {
+      position: static;
+      margin: 1rem;
+      width: fit-content;
+    }
+  }
 </style>
+
+<script>
+  const stage = document.querySelector('[data-aurora]') as HTMLElement | null;
+  const buttons = document.querySelectorAll('[data-aurora-toggle]');
+  const prismStatus = document.querySelector('[data-aurora-status="prism"]');
+  const beamStatus = document.querySelector('[data-aurora-status="beam"]');
+  const boostStatus = document.querySelector('[data-aurora-status="boost"]');
+
+  if (stage) {
+    buttons.forEach(button => {
+      button.addEventListener('click', () => {
+        const key = button.getAttribute('data-aurora-toggle');
+        if (!key) return;
+        const attr = `data-aurora-${key}`;
+        const next = stage.getAttribute(attr) !== 'true';
+        stage.setAttribute(attr, next ? 'true' : 'false');
+        button.classList.toggle('active', next);
+        button.setAttribute('aria-pressed', next ? 'true' : 'false');
+
+        if (key === 'prism' && prismStatus) {
+          prismStatus.textContent = next ? 'On' : 'Off';
+        }
+        if (key === 'beam' && beamStatus) {
+          beamStatus.textContent = next ? 'On' : 'Off';
+        }
+        if (key === 'boost' && boostStatus) {
+          boostStatus.textContent = next ? 'On' : 'Off';
+        }
+      });
+    });
+  }
+</script>
