@@ -4,6 +4,15 @@ type HeroOptions = {
   interactive: boolean;
 };
 
+type HeroSettings = {
+  intensity?: 'subtle' | 'medium' | 'intense';
+  data?: boolean;
+  perf?: boolean;
+  preset?: 'signal' | 'cinematic' | 'clarity';
+};
+
+const STORAGE_KEY = 'hero3d:settings:v1';
+
 class Hero3DController {
   private container: HTMLElement;
   private scene: HTMLElement | null;
@@ -19,6 +28,20 @@ class Hero3DController {
   private observer?: IntersectionObserver;
   private stopReducedMotion?: () => void;
   private options: HeroOptions;
+  private storedSettings: HeroSettings = {};
+  private fpsFrames = 0;
+  private fpsLastTime = 0;
+  private lastFps = 0;
+  private fpsSlowTicks = 0;
+  private fpsRecoveryTicks = 0;
+  private fpsRafId = 0;
+  private autoPerfEnabled = true;
+  private baseIntensity: 'subtle' | 'medium' | 'intense' = 'medium';
+  private userIntensityOverride = false;
+  private autoPerfTriggered = false;
+  private telemetryNodes: Record<string, HTMLElement | null> = {};
+  private sparkBars: HTMLElement[] = [];
+  private fpsHistory = Array(24).fill(0);
 
   constructor(container: HTMLElement, options: HeroOptions) {
     this.container = container;
@@ -29,6 +52,11 @@ class Hero3DController {
 
   private init() {
     if (!this.scene) return;
+    this.loadStoredSettings();
+    this.applyStoredSettings();
+    this.baseIntensity =
+      (this.container.dataset.intensity as 'subtle' | 'medium' | 'intense') ??
+      'medium';
     this.updateReducedMotion(prefersReducedMotion());
 
     this.stopReducedMotion = onReducedMotionChange(prefers => {
@@ -51,17 +79,374 @@ class Hero3DController {
     );
 
     this.observer.observe(this.container);
+
+    this.initControls();
+    this.initAutoPerf();
+    this.initTelemetry();
+    this.updateTelemetry();
   }
 
   private updateReducedMotion(prefers: boolean) {
     if (prefers) {
       this.container.setAttribute('data-hero-reduced', 'true');
       this.stop();
+      this.updateTelemetry();
       return;
     }
 
     this.container.removeAttribute('data-hero-reduced');
     this.start();
+    this.updateTelemetry();
+  }
+
+  private loadStoredSettings() {
+    try {
+      const raw = window.localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as HeroSettings;
+      this.storedSettings = parsed ?? {};
+    } catch {
+      this.storedSettings = {};
+    }
+  }
+
+  private persistSettings() {
+    try {
+      window.localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(this.storedSettings)
+      );
+    } catch {
+      // Ignore storage failures
+    }
+  }
+
+  private applyStoredSettings() {
+    if (this.storedSettings.intensity) {
+      this.container.dataset.intensity = this.storedSettings.intensity;
+      this.userIntensityOverride = true;
+    }
+    if (typeof this.storedSettings.data === 'boolean') {
+      this.container.dataset.showData = this.storedSettings.data
+        ? 'true'
+        : 'false';
+    }
+    if (typeof this.storedSettings.perf === 'boolean') {
+      this.container.dataset.heroPerf = this.storedSettings.perf
+        ? 'true'
+        : 'false';
+      this.autoPerfEnabled = !this.storedSettings.perf;
+    }
+    if (this.storedSettings.preset) {
+      this.container.dataset.heroPreset = this.storedSettings.preset;
+    }
+    this.container.dataset.heroAutoPerf = this.autoPerfEnabled
+      ? 'true'
+      : 'false';
+  }
+
+  private initControls() {
+    const intensityButtons = this.container.querySelectorAll<HTMLElement>(
+      '[data-hero-intensity]'
+    );
+    const presetButtons =
+      this.container.querySelectorAll<HTMLElement>('[data-hero-preset]');
+    const toggleButtons =
+      this.container.querySelectorAll<HTMLElement>('[data-hero-toggle]');
+    const actionButtons =
+      this.container.querySelectorAll<HTMLElement>('[data-hero-action]');
+
+    intensityButtons.forEach(button => {
+      const value = button.dataset.heroIntensity as
+        | 'subtle'
+        | 'medium'
+        | 'intense'
+        | undefined;
+      if (!value) return;
+      button.addEventListener('click', () => {
+        this.container.dataset.intensity = value;
+        this.container.removeAttribute('data-hero-preset');
+        this.storedSettings.intensity = value;
+        this.storedSettings.preset = undefined;
+        this.userIntensityOverride = true;
+        this.persistSettings();
+        this.updateControlStates();
+      });
+    });
+
+    presetButtons.forEach(button => {
+      const preset = button.dataset.heroPreset as
+        | 'signal'
+        | 'cinematic'
+        | 'clarity'
+        | undefined;
+      if (!preset) return;
+      button.addEventListener('click', () => {
+        this.applyPreset(preset);
+      });
+    });
+
+    toggleButtons.forEach(button => {
+      const toggle = button.dataset.heroToggle;
+      if (!toggle) return;
+      button.addEventListener('click', () => {
+        if (toggle === 'data') {
+          const next = this.container.dataset.showData !== 'true';
+          this.container.dataset.showData = next ? 'true' : 'false';
+          this.storedSettings.data = next;
+          this.container.removeAttribute('data-hero-preset');
+          this.storedSettings.preset = undefined;
+        }
+        if (toggle === 'perf') {
+          const next = this.container.dataset.heroPerf !== 'true';
+          this.container.dataset.heroPerf = next ? 'true' : 'false';
+          this.storedSettings.perf = next;
+          this.autoPerfEnabled = !next;
+          this.container.dataset.heroAutoPerf = this.autoPerfEnabled
+            ? 'true'
+            : 'false';
+          this.container.removeAttribute('data-hero-preset');
+          this.storedSettings.preset = undefined;
+          this.autoPerfTriggered = false;
+          if (this.autoPerfEnabled) {
+            this.initAutoPerf();
+          }
+        }
+        this.persistSettings();
+        this.updateControlStates();
+      });
+    });
+
+    actionButtons.forEach(button => {
+      const action = button.dataset.heroAction;
+      if (!action) return;
+      button.addEventListener('click', () => {
+        if (action === 'replay') {
+          this.replayAnimations();
+        }
+      });
+    });
+
+    this.updateControlStates();
+  }
+
+  private updateControlStates() {
+    const intensityButtons = this.container.querySelectorAll<HTMLElement>(
+      '[data-hero-intensity]'
+    );
+    const presetButtons =
+      this.container.querySelectorAll<HTMLElement>('[data-hero-preset]');
+    const toggleButtons =
+      this.container.querySelectorAll<HTMLElement>('[data-hero-toggle]');
+
+    intensityButtons.forEach(button => {
+      const value = button.dataset.heroIntensity;
+      const active = value === this.container.dataset.intensity;
+      button.dataset.active = active ? 'true' : 'false';
+    });
+
+    presetButtons.forEach(button => {
+      const preset = button.dataset.heroPreset;
+      const active = preset === this.container.dataset.heroPreset;
+      button.dataset.active = active ? 'true' : 'false';
+    });
+
+    toggleButtons.forEach(button => {
+      const toggle = button.dataset.heroToggle;
+      let active = false;
+      if (toggle === 'data') {
+        active = this.container.dataset.showData !== 'false';
+      }
+      if (toggle === 'perf') {
+        active = this.container.dataset.heroPerf === 'true';
+      }
+      button.dataset.active = active ? 'true' : 'false';
+    });
+
+    this.updateTelemetry();
+  }
+
+  private applyPreset(preset: 'signal' | 'cinematic' | 'clarity') {
+    const presets: Record<
+      'signal' | 'cinematic' | 'clarity',
+      {
+        intensity: 'subtle' | 'medium' | 'intense';
+        data: boolean;
+        perf: boolean;
+      }
+    > = {
+      signal: { intensity: 'medium', data: true, perf: false },
+      cinematic: { intensity: 'intense', data: true, perf: false },
+      clarity: { intensity: 'subtle', data: false, perf: true },
+    };
+    const target = presets[preset];
+    this.container.dataset.heroPreset = preset;
+    this.container.dataset.intensity = target.intensity;
+    this.container.dataset.showData = target.data ? 'true' : 'false';
+    this.container.dataset.heroPerf = target.perf ? 'true' : 'false';
+    this.container.dataset.heroAutoPerf = target.perf ? 'false' : 'true';
+    this.autoPerfEnabled = !target.perf;
+    this.userIntensityOverride = true;
+    this.baseIntensity = target.intensity;
+    this.autoPerfTriggered = false;
+    this.storedSettings = {
+      intensity: target.intensity,
+      data: target.data,
+      perf: target.perf,
+      preset,
+    };
+    this.persistSettings();
+    this.updateControlStates();
+  }
+
+  private initTelemetry() {
+    this.telemetryNodes = {
+      fps: this.container.querySelector<HTMLElement>(
+        '[data-hero-telemetry="fps"]'
+      ),
+      mode: this.container.querySelector<HTMLElement>(
+        '[data-hero-telemetry="mode"]'
+      ),
+      tier: this.container.querySelector<HTMLElement>(
+        '[data-hero-telemetry="tier"]'
+      ),
+      intensity: this.container.querySelector<HTMLElement>(
+        '[data-hero-telemetry="intensity"]'
+      ),
+      data: this.container.querySelector<HTMLElement>(
+        '[data-hero-telemetry="data"]'
+      ),
+      cap: this.container.querySelector<HTMLElement>(
+        '[data-hero-telemetry="cap"]'
+      ),
+    };
+    this.sparkBars = Array.from(
+      this.container.querySelectorAll<HTMLElement>('[data-hero-spark]')
+    );
+  }
+
+  private updateTelemetry() {
+    const { fps, mode, tier, intensity, data, cap } = this.telemetryNodes;
+    if (fps) fps.textContent = this.lastFps ? String(this.lastFps) : '--';
+    if (intensity) {
+      intensity.textContent =
+        this.container.dataset.intensity ?? this.baseIntensity;
+    }
+    if (data) {
+      data.textContent =
+        this.container.dataset.showData === 'false' ? 'Off' : 'On';
+    }
+    if (tier) {
+      tier.textContent = this.getQualityTier();
+    }
+    if (cap) {
+      cap.textContent =
+        this.container.dataset.heroAutoPerf === 'true' ? 'Auto' : 'Manual';
+    }
+    if (mode) {
+      const reduced = this.container.dataset.heroReduced === 'true';
+      const paused = this.container.dataset.heroPaused === 'true';
+      const perf = this.container.dataset.heroPerf === 'true';
+      const auto = this.container.dataset.heroAutoPerf === 'true';
+      if (reduced) mode.textContent = 'Reduced';
+      else if (paused) mode.textContent = 'Paused';
+      else if (perf && auto) mode.textContent = 'Calm Auto';
+      else if (perf) mode.textContent = 'Calm';
+      else mode.textContent = 'Active';
+    }
+  }
+
+  private getQualityTier() {
+    const perf = this.container.dataset.heroPerf === 'true';
+    if (perf) return 'Calm';
+    const intensity =
+      (this.container.dataset.intensity as 'subtle' | 'medium' | 'intense') ??
+      this.baseIntensity;
+    if (intensity === 'intense') return 'Ultra';
+    if (intensity === 'subtle') return 'Steady';
+    return 'Balanced';
+  }
+
+  private pushFpsHistory(fps: number) {
+    const normalized = Math.max(0, Math.min(1, fps / 60));
+    this.fpsHistory.push(normalized);
+    if (this.fpsHistory.length > 24) {
+      this.fpsHistory.shift();
+    }
+    this.updateSparkline();
+  }
+
+  private updateSparkline() {
+    if (!this.sparkBars.length) return;
+    this.sparkBars.forEach((bar, index) => {
+      const value = this.fpsHistory[index] ?? 0;
+      bar.style.setProperty('--spark', value.toFixed(2));
+      let level = 'low';
+      if (value >= 0.8) level = 'high';
+      else if (value >= 0.55) level = 'mid';
+      bar.dataset.level = level;
+    });
+  }
+
+  private replayAnimations() {
+    if (prefersReducedMotion()) return;
+    const animNodes =
+      this.container.querySelectorAll<HTMLElement>('[data-hero-anim]');
+    animNodes.forEach(node => {
+      node.style.animation = 'none';
+    });
+    void this.container.getBoundingClientRect();
+    animNodes.forEach(node => {
+      node.style.animation = '';
+    });
+  }
+
+  private initAutoPerf() {
+    if (this.fpsRafId) return;
+    if (prefersReducedMotion()) return;
+    this.fpsLastTime = performance.now();
+    const loop = (now: number) => {
+      this.fpsFrames += 1;
+      const delta = now - this.fpsLastTime;
+      if (delta >= 1000) {
+        const fps = (this.fpsFrames / delta) * 1000;
+        this.lastFps = Math.round(fps);
+        this.pushFpsHistory(fps);
+        this.fpsFrames = 0;
+        this.fpsLastTime = now;
+        if (this.autoPerfEnabled && fps < 50) {
+          this.fpsSlowTicks += 1;
+          this.fpsRecoveryTicks = 0;
+        } else {
+          this.fpsSlowTicks = 0;
+          this.fpsRecoveryTicks += 1;
+        }
+        if (this.autoPerfEnabled && this.fpsSlowTicks >= 2) {
+          this.container.dataset.heroPerf = 'true';
+          this.container.dataset.heroAutoPerf = 'true';
+          if (!this.userIntensityOverride) {
+            this.container.dataset.intensity = 'subtle';
+          }
+          this.autoPerfTriggered = true;
+          this.updateControlStates();
+        }
+        if (
+          this.autoPerfEnabled &&
+          this.autoPerfTriggered &&
+          this.fpsRecoveryTicks >= 4 &&
+          !this.userIntensityOverride
+        ) {
+          this.container.dataset.heroPerf = 'false';
+          this.container.dataset.heroAutoPerf = 'false';
+          this.container.dataset.intensity = this.baseIntensity;
+          this.autoPerfTriggered = false;
+          this.updateControlStates();
+        }
+        this.updateTelemetry();
+      }
+      this.fpsRafId = window.requestAnimationFrame(loop);
+    };
+    this.fpsRafId = window.requestAnimationFrame(loop);
   }
 
   private onPointerMove = (event: PointerEvent) => {
@@ -181,6 +566,7 @@ class Hero3DController {
     });
     document.addEventListener('pointerlockchange', this.onPointerLockChange);
     this.isInteractive = true;
+    this.updateTelemetry();
   }
 
   private stop() {
@@ -196,10 +582,14 @@ class Hero3DController {
     this.isDragging = false;
     this.pointerLocked = false;
     this.container.removeAttribute('data-hero-drag');
+    this.updateTelemetry();
   }
 
   public destroy() {
     this.stop();
+    if (this.fpsRafId) {
+      window.cancelAnimationFrame(this.fpsRafId);
+    }
     this.observer?.disconnect();
     this.stopReducedMotion?.();
   }

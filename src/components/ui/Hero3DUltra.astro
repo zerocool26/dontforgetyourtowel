@@ -108,17 +108,17 @@ const heroStyle = {
     style={heroStyle}
   >
     <div class="hero-3d-scene" aria-hidden="true">
-      <div class="layer layer-grid"></div>
-      <div class="layer layer-nebula"></div>
-      <div class="layer layer-rays"></div>
+      <div class="layer layer-grid" data-hero-anim></div>
+      <div class="layer layer-nebula" data-hero-anim></div>
+      <div class="layer layer-rays" data-hero-anim></div>
 
-      <div class="layer layer-core">
+      <div class="layer layer-core" data-hero-anim>
         <div class="core-shell holo-surface"></div>
         <div class="core-icosa"></div>
         <div class="core-pulse"></div>
       </div>
 
-      <div class="layer layer-orbits">
+      <div class="layer layer-orbits" data-hero-anim>
         <div class="orbit-ring ring-1"></div>
         <div class="orbit-ring ring-2"></div>
         <div class="orbit-ring ring-3"></div>
@@ -133,13 +133,13 @@ const heroStyle = {
         <div class="mobius-loop"></div>
       </div>
 
-      <div class="layer layer-beams">
+      <div class="layer layer-beams" data-hero-anim>
         <span class="beam beam-1"></span>
         <span class="beam beam-2"></span>
         <span class="beam beam-3"></span>
       </div>
 
-      <div class="layer layer-data">
+      <div class="layer layer-data" data-hero-anim>
         <div class="data-ring">
           {
             dataSegments.map((segment, i) => (
@@ -178,7 +178,7 @@ const heroStyle = {
         </div>
       </div>
 
-      <div class="layer layer-particles">
+      <div class="layer layer-particles" data-hero-anim>
         {
           particles.map(p => (
             <span
@@ -192,7 +192,7 @@ const heroStyle = {
       <div class="scanlines"></div>
     </div>
 
-    <div class="hero-content" role="main">
+    <div class="hero-content" role="main" data-hero-anim>
       <span class="hero-badge" role="status">
         <span class="badge-dot" aria-hidden="true"></span>
         {badge}
@@ -211,6 +211,106 @@ const heroStyle = {
       </div>
 
       <slot />
+    </div>
+
+    <div class="hero-controls" aria-label="3D hero controls">
+      <div class="hero-controls__group" role="group" aria-label="Intensity">
+        <button
+          type="button"
+          class="hero-control-btn"
+          data-hero-intensity="subtle"
+        >
+          Subtle
+        </button>
+        <button
+          type="button"
+          class="hero-control-btn"
+          data-hero-intensity="medium"
+        >
+          Medium
+        </button>
+        <button
+          type="button"
+          class="hero-control-btn"
+          data-hero-intensity="intense"
+        >
+          Intense
+        </button>
+      </div>
+      <div class="hero-controls__group" role="group" aria-label="Presets">
+        <button
+          type="button"
+          class="hero-control-btn"
+          data-hero-preset="signal"
+        >
+          Signal
+        </button>
+        <button
+          type="button"
+          class="hero-control-btn"
+          data-hero-preset="cinematic"
+        >
+          Cinematic
+        </button>
+        <button
+          type="button"
+          class="hero-control-btn"
+          data-hero-preset="clarity"
+        >
+          Clarity
+        </button>
+      </div>
+      <div class="hero-controls__group" role="group" aria-label="Modes">
+        <button type="button" class="hero-control-btn" data-hero-toggle="data">
+          Data
+        </button>
+        <button type="button" class="hero-control-btn" data-hero-toggle="perf">
+          Calm
+        </button>
+        <button
+          type="button"
+          class="hero-control-btn"
+          data-hero-action="replay"
+        >
+          Replay
+        </button>
+      </div>
+    </div>
+
+    <div class="hero-telemetry" aria-live="polite">
+      <div class="telemetry-row">
+        <span class="telemetry-label">FPS</span>
+        <span class="telemetry-value" data-hero-telemetry="fps">--</span>
+      </div>
+      <div class="telemetry-row">
+        <span class="telemetry-label">Mode</span>
+        <span class="telemetry-value" data-hero-telemetry="mode">Active</span>
+      </div>
+      <div class="telemetry-row">
+        <span class="telemetry-label">Tier</span>
+        <span class="telemetry-value" data-hero-telemetry="tier">Balanced</span>
+      </div>
+      <div class="telemetry-row">
+        <span class="telemetry-label">Intensity</span>
+        <span class="telemetry-value" data-hero-telemetry="intensity">
+          {intensity}
+        </span>
+      </div>
+      <div class="telemetry-row">
+        <span class="telemetry-label">Data</span>
+        <span class="telemetry-value" data-hero-telemetry="data">On</span>
+      </div>
+      <div class="telemetry-row">
+        <span class="telemetry-label">Cap</span>
+        <span class="telemetry-value" data-hero-telemetry="cap">Auto</span>
+      </div>
+      <div class="telemetry-spark" aria-hidden="true">
+        {
+          Array.from({ length: 24 }).map(() => (
+            <span class="telemetry-bar" data-hero-spark />
+          ))
+        }
+      </div>
     </div>
   </div>
 </div>
@@ -253,6 +353,110 @@ const heroStyle = {
 
   .hero-3d[data-hero-drag='true'] {
     cursor: grabbing;
+  }
+
+  .hero-controls {
+    position: absolute;
+    right: clamp(1rem, 4vw, 2rem);
+    bottom: clamp(1rem, 4vw, 2rem);
+    display: grid;
+    gap: 0.6rem;
+    z-index: 20;
+    padding: 0.75rem;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(6, 9, 16, 0.7);
+    backdrop-filter: blur(10px);
+  }
+
+  .hero-controls__group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .hero-control-btn {
+    min-height: 36px;
+    padding: 0 0.75rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(226, 232, 240, 0.85);
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-family: var(--font-mono, ui-monospace);
+    transition:
+      border-color 200ms ease,
+      background 200ms ease;
+  }
+
+  .hero-control-btn:hover {
+    border-color: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+  .hero-control-btn[data-active='true'] {
+    border-color: rgba(var(--hero-cyber), 0.7);
+    background: rgba(var(--hero-cyber), 0.18);
+    color: #fff;
+  }
+
+  .hero-telemetry {
+    position: absolute;
+    left: clamp(1rem, 4vw, 2rem);
+    bottom: clamp(1rem, 4vw, 2rem);
+    display: grid;
+    gap: 0.35rem;
+    z-index: 20;
+    padding: 0.75rem 0.9rem;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(6, 9, 16, 0.7);
+    backdrop-filter: blur(12px);
+    min-width: 160px;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-family: var(--font-mono, ui-monospace);
+    color: rgba(226, 232, 240, 0.75);
+  }
+
+  .telemetry-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+  }
+
+  .telemetry-value {
+    color: rgba(226, 232, 240, 0.95);
+  }
+
+  .telemetry-spark {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 4px;
+    margin-top: 0.35rem;
+  }
+
+  .telemetry-bar {
+    height: calc(18px * var(--spark, 0.25));
+    min-height: 4px;
+    border-radius: 999px;
+    background: rgba(var(--hero-cyber), 0.35);
+    align-self: end;
+    transition:
+      height 300ms ease,
+      background 300ms ease;
+  }
+
+  .telemetry-bar[data-level='mid'] {
+    background: rgba(var(--hero-secondary), 0.45);
+  }
+
+  .telemetry-bar[data-level='high'] {
+    background: rgba(var(--hero-primary), 0.6);
   }
 
   .hero-3d[data-intensity='subtle'] {
@@ -1076,6 +1280,17 @@ const heroStyle = {
     .data-ring {
       inset: 24% 24%;
     }
+
+    .hero-controls {
+      position: static;
+      margin: 1.5rem 0 0 auto;
+    }
+
+    .hero-telemetry {
+      position: static;
+      margin: 1rem 0 0;
+      width: fit-content;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -1091,6 +1306,11 @@ const heroStyle = {
         #0b1120 65%
       );
     }
+
+    .hero-3d .layer {
+      opacity: 1;
+      transform: translateZ(var(--layer-depth, 0px));
+    }
   }
 
   .hero-3d[data-hero-reduced='true'] * {
@@ -1100,6 +1320,11 @@ const heroStyle = {
 
   .hero-3d[data-hero-reduced='true'] .scanlines {
     display: none;
+  }
+
+  .hero-3d[data-hero-reduced='true'] .layer {
+    opacity: 1;
+    transform: translateZ(var(--layer-depth, 0px));
   }
 </style>
 
