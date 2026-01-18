@@ -1,0 +1,53 @@
+---
+interface Props {
+  dataSegments: string[];
+  hexStream: string[];
+  coordStream: string[];
+  className?: string;
+  animate?: boolean;
+}
+
+const {
+  dataSegments,
+  hexStream,
+  coordStream,
+  className = 'layer layer-data',
+  animate = true,
+} = Astro.props as Props;
+const animAttrs = animate ? { 'data-hero-anim': true } : {};
+---
+
+<div class={className} {...animAttrs}>
+  <div class="data-ring">
+    {
+      dataSegments.map((segment, i) => (
+        <span class="data-segment" style={`--i:${i}`}>
+          {segment}
+        </span>
+      ))
+    }
+  </div>
+  <div class="binary-stream">
+    {
+      Array.from({ length: 28 }).map((_, i) => (
+        <span class="binary-bit" style={`--i:${i}`}>
+          0{i % 2}
+        </span>
+      ))
+    }
+  </div>
+  <div class="hex-stream">
+    {hexStream.map(code => <span class="hex-code">{code}</span>)}
+  </div>
+  <div class="coord-readout">
+    {coordStream.map(coord => <span class="coord-line">{coord}</span>)}
+  </div>
+  <div class="status-dots" aria-hidden="true">
+    <span class="status-dot"></span>
+    <span class="status-dot"></span>
+    <span class="status-dot"></span>
+  </div>
+  <div class="loading-bar" aria-hidden="true">
+    {Array.from({ length: 12 }).map(() => <span class="loading-segment" />)}
+  </div>
+</div>

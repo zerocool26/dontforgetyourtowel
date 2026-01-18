@@ -1,0 +1,57 @@
+---
+interface Streak {
+  x: string;
+  y: string;
+  rot: string;
+  len: string;
+  delay: string;
+}
+
+interface Dust {
+  x: string;
+  y: string;
+  size: string;
+  delay: string;
+}
+
+interface Props {
+  streaks: Streak[];
+  dust: Dust[];
+  animate?: boolean;
+}
+
+const { streaks, dust, animate = true } = Astro.props as Props;
+const animAttrs = animate ? { 'data-hero-anim': true } : {};
+---
+
+<>
+  <div class="layer layer-stars" {...animAttrs}></div>
+  <div class="layer layer-haze" {...animAttrs}></div>
+  <div class="layer layer-aurora" {...animAttrs}></div>
+  <div class="layer layer-prism" {...animAttrs}></div>
+  <div class="layer layer-grid" {...animAttrs}></div>
+  <div class="layer layer-nebula" {...animAttrs}></div>
+  <div class="layer layer-rays" {...animAttrs}></div>
+  <div class="layer layer-lens" {...animAttrs}></div>
+  <div class="layer layer-streaks" {...animAttrs}>
+    {
+      streaks.map(streak => (
+        <span
+          class="streak"
+          style={`--x:${streak.x};--y:${streak.y};--rot:${streak.rot};--len:${streak.len};--delay:${streak.delay}`}
+        />
+      ))
+    }
+  </div>
+  <div class="layer layer-dust" {...animAttrs}>
+    {
+      dust.map(p => (
+        <span
+          class="dust"
+          style={`--x:${p.x};--y:${p.y};--size:${p.size};--delay:${p.delay}`}
+        />
+      ))
+    }
+  </div>
+  <div class="layer layer-cursor" {...animAttrs}></div>
+</>

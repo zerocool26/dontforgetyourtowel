@@ -1,0 +1,25 @@
+---
+interface Props {
+  className?: string;
+  animate?: boolean;
+}
+
+const { className = 'layer layer-orbits', animate = true } =
+  Astro.props as Props;
+const animAttrs = animate ? { 'data-hero-anim': true } : {};
+---
+
+<div class={className} {...animAttrs}>
+  <div class="orbit-ring ring-1"></div>
+  <div class="orbit-ring ring-2"></div>
+  <div class="orbit-ring ring-3"></div>
+  <div class="orbit-ring ring-4"></div>
+  <div class="energy-torus torus-1"></div>
+  <div class="energy-torus torus-2"></div>
+  <div class="fractal-stack" aria-hidden="true">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+  <div class="mobius-loop"></div>
+</div>

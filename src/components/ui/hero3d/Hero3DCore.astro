@@ -1,0 +1,16 @@
+---
+interface Props {
+  className?: string;
+  animate?: boolean;
+}
+
+const { className = 'layer layer-core', animate = true } = Astro.props as Props;
+const animAttrs = animate ? { 'data-hero-anim': true } : {};
+---
+
+<div class={className} {...animAttrs}>
+  <div class="core-shell holo-surface"></div>
+  <div class="core-icosa"></div>
+  <div class="core-pulse"></div>
+  <div class="core-glint"></div>
+</div>

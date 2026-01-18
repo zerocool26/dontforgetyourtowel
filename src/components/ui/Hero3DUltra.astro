@@ -1,5 +1,11 @@
 ---
 import ModernButton from './ModernButton.astro';
+import Hero3DEnvironment from './hero3d/Hero3DEnvironment.astro';
+import Hero3DCore from './hero3d/Hero3DCore.astro';
+import Hero3DOrbits from './hero3d/Hero3DOrbits.astro';
+import Hero3DBeams from './hero3d/Hero3DBeams.astro';
+import Hero3DData from './hero3d/Hero3DData.astro';
+import Hero3DParticles from './hero3d/Hero3DParticles.astro';
 
 interface HeroProps {
   /** Intensity of 3D effects: 'subtle' | 'medium' | 'intense' */
@@ -144,117 +150,16 @@ const heroStyle = {
     <div class="hero-visual" aria-hidden="true">
       <div class="hero-3d-stage">
         <div class="hero-3d-scene">
-          <div class="layer layer-stars" data-hero-anim></div>
-          <div class="layer layer-haze" data-hero-anim></div>
-          <div class="layer layer-aurora" data-hero-anim></div>
-          <div class="layer layer-prism" data-hero-anim></div>
-          <div class="layer layer-grid" data-hero-anim></div>
-          <div class="layer layer-nebula" data-hero-anim></div>
-          <div class="layer layer-rays" data-hero-anim></div>
-          <div class="layer layer-lens" data-hero-anim></div>
-          <div class="layer layer-streaks" data-hero-anim>
-            {
-              streaks.map(streak => (
-                <span
-                  class="streak"
-                  style={`--x:${streak.x};--y:${streak.y};--rot:${streak.rot};--len:${streak.len};--delay:${streak.delay}`}
-                />
-              ))
-            }
-          </div>
-          <div class="layer layer-dust" data-hero-anim>
-            {
-              dust.map(p => (
-                <span
-                  class="dust"
-                  style={`--x:${p.x};--y:${p.y};--size:${p.size};--delay:${p.delay}`}
-                />
-              ))
-            }
-          </div>
-          <div class="layer layer-cursor" data-hero-anim></div>
-
-          <div class="layer layer-core" data-hero-anim>
-            <div class="core-shell holo-surface"></div>
-            <div class="core-icosa"></div>
-            <div class="core-pulse"></div>
-            <div class="core-glint"></div>
-          </div>
-
-          <div class="layer layer-orbits" data-hero-anim>
-            <div class="orbit-ring ring-1"></div>
-            <div class="orbit-ring ring-2"></div>
-            <div class="orbit-ring ring-3"></div>
-            <div class="orbit-ring ring-4"></div>
-            <div class="energy-torus torus-1"></div>
-            <div class="energy-torus torus-2"></div>
-            <div class="fractal-stack" aria-hidden="true">
-              <span></span>
-              <span></span>
-              <span></span>
-            </div>
-            <div class="mobius-loop"></div>
-          </div>
-
-          <div class="layer layer-beams" data-hero-anim>
-            <span class="beam beam-1"></span>
-            <span class="beam beam-2"></span>
-            <span class="beam beam-3"></span>
-          </div>
-
-          <div class="layer layer-data" data-hero-anim>
-            <div class="data-ring">
-              {
-                dataSegments.map((segment, i) => (
-                  <span class="data-segment" style={`--i:${i}`}>
-                    {segment}
-                  </span>
-                ))
-              }
-            </div>
-            <div class="binary-stream">
-              {
-                Array.from({ length: 28 }).map((_, i) => (
-                  <span class="binary-bit" style={`--i:${i}`}>
-                    0{i % 2}
-                  </span>
-                ))
-              }
-            </div>
-            <div class="hex-stream">
-              {hexStream.map(code => <span class="hex-code">{code}</span>)}
-            </div>
-            <div class="coord-readout">
-              {
-                coordStream.map(coord => (
-                  <span class="coord-line">{coord}</span>
-                ))
-              }
-            </div>
-            <div class="status-dots" aria-hidden="true">
-              <span class="status-dot"></span>
-              <span class="status-dot"></span>
-              <span class="status-dot"></span>
-            </div>
-            <div class="loading-bar" aria-hidden="true">
-              {
-                Array.from({ length: 12 }).map(() => (
-                  <span class="loading-segment" />
-                ))
-              }
-            </div>
-          </div>
-
-          <div class="layer layer-particles" data-hero-anim>
-            {
-              particles.map(p => (
-                <span
-                  class="particle"
-                  style={`--x:${p.x};--y:${p.y};--z:${p.z};--delay:${p.delay}s;--size:${p.size}px`}
-                />
-              ))
-            }
-          </div>
+          <Hero3DEnvironment streaks={streaks} dust={dust} />
+          <Hero3DCore />
+          <Hero3DOrbits />
+          <Hero3DBeams />
+          <Hero3DData
+            dataSegments={dataSegments}
+            hexStream={hexStream}
+            coordStream={coordStream}
+          />
+          <Hero3DParticles particles={particles} />
 
           <div class="hero-ripple-layer" aria-hidden="true"></div>
 

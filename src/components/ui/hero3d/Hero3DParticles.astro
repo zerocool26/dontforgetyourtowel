@@ -1,0 +1,33 @@
+---
+interface Particle {
+  x: number;
+  y: number;
+  z: number;
+  delay: number;
+  size: number;
+}
+
+interface Props {
+  particles: Particle[];
+  className?: string;
+  animate?: boolean;
+}
+
+const {
+  particles,
+  className = 'layer layer-particles',
+  animate = true,
+} = Astro.props as Props;
+const animAttrs = animate ? { 'data-hero-anim': true } : {};
+---
+
+<div class={className} {...animAttrs}>
+  {
+    particles.map(p => (
+      <span
+        class="particle"
+        style={`--x:${p.x};--y:${p.y};--z:${p.z};--delay:${p.delay}s;--size:${p.size}px`}
+      />
+    ))
+  }
+</div>

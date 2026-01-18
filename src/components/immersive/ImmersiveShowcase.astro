@@ -1,4 +1,7 @@
 ---
+import Hero3DCore from '../ui/hero3d/Hero3DCore.astro';
+import Hero3DOrbits from '../ui/hero3d/Hero3DOrbits.astro';
+
 const scenes = [
   {
     id: 'signal',
@@ -53,17 +56,13 @@ const particles = Array.from({ length: 42 }).map((_, i) => {
       <div class="scene-layer layer-matrix"></div>
       <div class="scene-layer layer-vortex"></div>
       <div class="scene-layer layer-spark"></div>
-      <div class="scene-layer layer-orbits">
-        <span class="orbit orbit-1"></span>
-        <span class="orbit orbit-2"></span>
-        <span class="orbit orbit-3"></span>
-      </div>
-      <div class="scene-layer layer-core">
-        <span class="core-shell"></span>
-        <span class="core-glow"></span>
-        <span class="core-ring"></span>
-      </div>
+      <Hero3DOrbits className="scene-layer layer-orbits" animate={false} />
+      <Hero3DCore className="scene-layer layer-core" animate={false} />
       <div class="scene-layer layer-streams">
+       <div class="scene-layer layer-tunnel"></div>
+       <div class="scene-layer layer-glitch"></div>
+       <div class="scene-layer layer-wave"></div>
+       <div class="scene-layer layer-constellation"></div>
         {
           Array.from({ length: 12 }).map((_, i) => (
             <span class="stream" style={`--i:${i}`} />
@@ -94,7 +93,14 @@ const particles = Array.from({ length: 42 }).map((_, i) => {
       <div class="panel-content">
         <p class="immersive-kicker">Immersive 3D Lab</p>
         <h1 class="immersive-title">
-          Fullscreen scroll, cinematic depth, endless ideas.
+          <span
+            class="depth-text"
+            data-text="Fullscreen scroll, cinematic depth, endless ideas."
+          >
+            <span class="depth-text__inner">
+              Fullscreen scroll, cinematic depth, endless ideas.
+            </span>
+          </span>
         </h1>
         <p class="immersive-subtitle">
           A real multi‑scene scroll experience that keeps the 3D stage locked
@@ -126,7 +132,11 @@ const particles = Array.from({ length: 42 }).map((_, i) => {
         >
           <div class="panel-content">
             <p class="panel-tag">Scene {scene.label}</p>
-            <h2>{scene.label}</h2>
+            <h2>
+              <span class="depth-text" data-text={scene.label}>
+                <span class="depth-text__inner">{scene.label}</span>
+              </span>
+            </h2>
             <p>{scene.desc}</p>
             <div class="panel-chips">
               {scene.chips.map(chip => (
@@ -487,6 +497,8 @@ const particles = Array.from({ length: 42 }).map((_, i) => {
     padding: clamp(4rem, 8vw, 7rem) clamp(1.5rem, 6vw, 6rem);
     border-top: 1px solid rgba(148, 163, 184, 0.12);
     position: relative;
+    perspective: 1400px;
+    transform-style: preserve-3d;
   }
 
   .immersive-panel::before {
@@ -515,8 +527,12 @@ const particles = Array.from({ length: 42 }).map((_, i) => {
 
   .panel-content {
     max-width: 680px;
-    background: rgba(2, 6, 23, 0.6);
-    border: 1px solid rgba(148, 163, 184, 0.2);
+    background: linear-gradient(
+      135deg,
+      rgba(2, 6, 23, 0.55),
+      rgba(15, 23, 42, 0.35)
+    );
+    border: 1px solid rgba(var(--accent), 0.25);
     border-radius: 28px;
     padding: clamp(2rem, 4vw, 3rem);
     box-shadow: 0 24px 60px rgba(2, 6, 23, 0.5);
@@ -526,6 +542,23 @@ const particles = Array.from({ length: 42 }).map((_, i) => {
     transition:
       transform 400ms ease,
       box-shadow 400ms ease;
+    transform: translateZ(calc(var(--panel-depth, 0) * 1px))
+      rotateX(calc(var(--panel-tilt, 0) * 1deg));
+    transform-style: preserve-3d;
+  }
+
+  .panel-content::before {
+    content: '';
+    position: absolute;
+    inset: 6% 6% 70%;
+    border-radius: 20px;
+    background: radial-gradient(
+      circle,
+      rgba(var(--accent), 0.25),
+      transparent 70%
+    );
+    opacity: 0.8;
+    pointer-events: none;
   }
 
   .panel-tag {
@@ -625,6 +658,13 @@ const particles = Array.from({ length: 42 }).map((_, i) => {
     box-shadow:
       0 28px 70px rgba(2, 6, 23, 0.6),
       0 0 40px rgba(var(--accent), 0.2);
+  }
+
+  .immersive-panel.is-active .panel-content h2,
+  .immersive-panel.is-active .panel-content h1 {
+    text-shadow:
+      0 0 20px rgba(var(--accent), 0.35),
+      0 0 60px rgba(var(--accent), 0.2);
   }
 
   .is-hero .panel-content {
@@ -846,10 +886,11 @@ const particles = Array.from({ length: 42 }).map((_, i) => {
 
 <script>
   const root = document.querySelector('[data-immersive]');
-  if (root) {
+  if (root instanceof HTMLElement) {
+    const rootEl = root;
     const panels = Array.from(
-      root.querySelectorAll<HTMLElement>('[data-panel]')
-    );
+      rootEl.querySelectorAll<HTMLElement>('[data-panel]')
+    ) as HTMLElement[];
     let lastScroll = window.scrollY;
     let lastTime = performance.now();
     let ticking = false;
@@ -868,6 +909,15 @@ const particles = Array.from({ length: 42 }).map((_, i) => {
           closestDistance = distance;
           closestPanel = panel;
         }
+
+        const maxDistance = window.innerHeight * 0.8;
+        const normalized = Math.min(1, distance / maxDistance);
+        const depth = Math.round((1 - normalized) * 80);
+        const tilt =
+          ((viewportCenter - (rect.top + rect.height * 0.5)) / viewportCenter) *
+          6;
+        panel.style.setProperty('--panel-depth', String(depth));
+        panel.style.setProperty('--panel-tilt', tilt.toFixed(2));
       });
 
       panels.forEach(panel => {
@@ -875,14 +925,14 @@ const particles = Array.from({ length: 42 }).map((_, i) => {
       });
 
       const scene = closestPanel?.dataset.scene;
-      if (scene) root.dataset.immersiveActive = scene;
+      if (scene) rootEl.dataset.immersiveActive = scene;
 
       if (closestPanel) {
         const styles = getComputedStyle(closestPanel);
         const accent = styles.getPropertyValue('--accent').trim();
         const glow = styles.getPropertyValue('--glow').trim();
-        if (accent) root.style.setProperty('--active-accent', accent);
-        if (glow) root.style.setProperty('--active-glow', glow);
+        if (accent) rootEl.style.setProperty('--active-accent', accent);
+        if (glow) rootEl.style.setProperty('--active-glow', glow);
       }
     };
 
@@ -890,7 +940,7 @@ const particles = Array.from({ length: 42 }).map((_, i) => {
       if (ticking) return;
       ticking = true;
       requestAnimationFrame(() => {
-        const rect = root.getBoundingClientRect();
+        const rect = rootEl.getBoundingClientRect();
         const total = rect.height - window.innerHeight;
         const progress =
           total > 0 ? Math.min(1, Math.max(0, -rect.top / total)) : 0;
@@ -898,8 +948,8 @@ const particles = Array.from({ length: 42 }).map((_, i) => {
         const delta = Math.abs(window.scrollY - lastScroll);
         const time = Math.max(16, now - lastTime);
         const velocity = Math.min(1, delta / time);
-        root.style.setProperty('--scroll-progress', progress.toFixed(3));
-        root.style.setProperty('--scroll-velocity', velocity.toFixed(3));
+        rootEl.style.setProperty('--scroll-progress', progress.toFixed(3));
+        rootEl.style.setProperty('--scroll-velocity', velocity.toFixed(3));
         updateActivePanel();
         lastScroll = window.scrollY;
         lastTime = now;
