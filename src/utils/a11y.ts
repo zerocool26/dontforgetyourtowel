@@ -486,7 +486,12 @@ export function setAriaAttributes(
     posinset: number;
   }>
 ): void {
-  for (const [key, value] of Object.entries(attributes)) {
+  // TS can infer Object.entries() of a typed Partial<> as a union that includes
+  // `undefined`, which breaks destructuring in strict mode. Cast to a generic
+  // record for safe iteration.
+  for (const [key, value] of Object.entries(
+    attributes as Record<string, unknown>
+  )) {
     if (value === undefined || value === null) continue;
 
     if (key === 'role') {

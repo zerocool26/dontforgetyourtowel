@@ -2,78 +2,25 @@
 import ImmersiveLabs from '../react/ImmersiveLabs.tsx';
 const chapters = [
   // Longer, more cinematic scroll (chapters can repeat scenes intentionally)
-  { id: 'ignite' },
-  { id: 'ignite' },
-  { id: 'prism' },
-  { id: 'prism' },
-  { id: 'swarm' },
-  { id: 'swarm' },
-  { id: 'swarm' },
-  { id: 'rift' },
-  { id: 'rift' },
-  { id: 'singularity' },
-  { id: 'singularity' },
-  { id: 'afterglow' },
+  { id: 'origin' },
+  { id: 'origin' },
+  { id: 'interference' },
+  { id: 'interference' },
+  { id: 'field' },
+  { id: 'field' },
+  { id: 'lensing' },
+  { id: 'lensing' },
+  { id: 'collapse' },
+  { id: 'collapse' },
   { id: 'afterglow' },
   { id: 'afterglow' },
 ];
-
-function mulberry32(seed: number) {
-  return function () {
-    let t = (seed += 0x6d2b79f5);
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-const rnd = mulberry32(907198);
-const r = (min: number, max: number) => min + (max - min) * rnd();
-const ri = (min: number, max: number) => Math.round(r(min, max));
-
-const ribbons = Array.from({ length: 12 }).map((_, i) => ({
-  i,
-  x: ri(-40, 40),
-  y: ri(-30, 30),
-  z: ri(-520, 520),
-  rx: ri(-40, 40),
-  ry: ri(0, 360),
-  w: ri(3, 10),
-  a: r(0.18, 0.6).toFixed(3),
-  h: ri(180, 320),
-}));
-
-const prisms = Array.from({ length: 18 }).map((_, i) => ({
-  i,
-  x: ri(-45, 45),
-  y: ri(-38, 38),
-  z: ri(-820, 820),
-  rx: ri(0, 360),
-  ry: ri(0, 360),
-  rz: ri(0, 360),
-  s: r(0.5, 1.7).toFixed(3),
-  a: r(0.12, 0.5).toFixed(3),
-  h: ri(190, 340),
-}));
-
-const shards = Array.from({ length: 10 }).map((_, i) => ({
-  i,
-  x: ri(-44, 44),
-  y: ri(-36, 36),
-  z: ri(-900, 900),
-  rx: ri(0, 360),
-  ry: ri(0, 360),
-  rz: ri(0, 360),
-  s: r(0.4, 1.5).toFixed(3),
-  a: r(0.08, 0.28).toFixed(3),
-  h: ri(210, 360),
-}));
 ---
 
 <section
   class="ih"
   data-ih=""
-  data-ih-scene="ignite"
+  data-ih-scene="origin"
   style={`--ih-chapters:${chapters.length}`}
 >
   <div class="ih-stage" aria-hidden="true">
@@ -82,48 +29,8 @@ const shards = Array.from({ length: 10 }).map((_, i) => ({
     <div class="ih-space">
       <div class="ih-layer ih-stars"></div>
       <div class="ih-layer ih-fog"></div>
-      <div class="ih-layer ih-grid"></div>
-      <div class="ih-layer ih-signal"></div>
-      <div class="ih-layer ih-portal"></div>
-      <div class="ih-layer ih-core">
-        <span class="ih-core-shell"></span>
-        <span class="ih-core-spark"></span>
-      </div>
       <div class="ih-layer ih-halo"></div>
       <div class="ih-layer ih-sweep"></div>
-
-      <div class="ih-layer ih-ribbons">
-        {
-          ribbons.map(rib => (
-            <span
-              class="ih-ribbon"
-              style={`--i:${rib.i};--x:${rib.x};--y:${rib.y};--z:${rib.z};--rx:${rib.rx};--ry:${rib.ry};--w:${rib.w};--a:${rib.a};--h:${rib.h}`}
-            />
-          ))
-        }
-      </div>
-
-      <div class="ih-layer ih-prisms">
-        {
-          prisms.map(p => (
-            <span
-              class="ih-prism"
-              style={`--i:${p.i};--x:${p.x};--y:${p.y};--z:${p.z};--rx:${p.rx};--ry:${p.ry};--rz:${p.rz};--s:${p.s};--a:${p.a};--h:${p.h}`}
-            />
-          ))
-        }
-      </div>
-
-      <div class="ih-layer ih-shards">
-        {
-          shards.map(s => (
-            <span
-              class="ih-shard"
-              style={`--i:${s.i};--x:${s.x};--y:${s.y};--z:${s.z};--rx:${s.rx};--ry:${s.ry};--rz:${s.rz};--s:${s.s};--a:${s.a};--h:${s.h}`}
-            />
-          ))
-        }
-      </div>
 
       <!-- Pure cinematic mode: no on-screen HUD -->
     </div>
@@ -177,11 +84,11 @@ const shards = Array.from({ length: 10 }).map((_, i) => ({
         <div class="ih-rail-track">
           {
             [
-              'Ignite',
-              'Prism',
-              'Swarm',
-              'Rift',
-              'Singularity',
+              'Origin',
+              'Interference',
+              'Field',
+              'Lensing',
+              'Collapse',
               'Afterglow',
             ].map((label, i) => (
               <div class="ih-rail-item" data-ih-rail-item data-index={i}>
@@ -696,119 +603,6 @@ const shards = Array.from({ length: 10 }).map((_, i) => ({
     transform: rotate(calc(var(--ih-scroll) * -680deg));
   }
 
-  .ih-ribbons {
-    transform: translateZ(260px);
-    opacity: 0.9;
-    mix-blend-mode: screen;
-  }
-
-  .ih-ribbon {
-    position: absolute;
-    left: calc(50% + (var(--x) * 1%));
-    top: calc(50% + (var(--y) * 1%));
-    width: calc(var(--w) * 1px);
-    height: 140vh;
-    border-radius: 999px;
-    opacity: var(--a);
-
-    background: linear-gradient(
-      180deg,
-      hsla(var(--h), 95%, 70%, 0),
-      hsla(var(--h), 95%, 70%, 0.85),
-      hsla(var(--h), 95%, 70%, 0)
-    );
-
-    transform: translate3d(-50%, -50%, calc(var(--z) * 1px))
-      rotateX(calc(var(--rx) * 1deg)) rotateY(calc(var(--ry) * 1deg))
-      rotateZ(calc((var(--i) * 12deg) + (var(--ih-scroll) * 220deg)))
-      scaleY(calc(0.7 + (var(--ih-vel) * 0.7)));
-
-    filter: blur(calc(0.2px + (var(--ih-vel) * 0.9px)));
-    animation: ihRibbon 6.5s ease-in-out infinite;
-    animation-delay: calc(var(--i) * -0.18s);
-  }
-
-  .ih-prisms {
-    opacity: 0.78;
-    transform: translateZ(0);
-    mix-blend-mode: screen;
-  }
-
-  .ih-prism {
-    position: absolute;
-    left: calc(50% + (var(--x) * 1%));
-    top: calc(50% + (var(--y) * 1%));
-    width: calc(60px * var(--s));
-    height: calc(60px * var(--s));
-
-    clip-path: polygon(50% 0%, 92% 22%, 100% 62%, 50% 100%, 0 62%, 8% 22%);
-    border-radius: 14px;
-
-    background:
-      linear-gradient(
-        135deg,
-        hsla(var(--h), 95%, 65%, calc(var(--a) * 0.9)),
-        rgba(255, 255, 255, 0)
-      ),
-      radial-gradient(
-        circle at 30% 30%,
-        rgba(255, 255, 255, 0.9),
-        rgba(255, 255, 255, 0) 55%
-      );
-
-    border: 1px solid hsla(var(--h), 95%, 70%, calc(var(--a) * 0.8));
-    box-shadow:
-      0 0 30px hsla(var(--h), 95%, 70%, calc(var(--a) * 0.55)),
-      0 0 90px hsla(var(--h), 95%, 70%, calc(var(--a) * 0.2));
-
-    opacity: calc(0.15 + (var(--a) * 1));
-
-    transform: translate3d(-50%, -50%, calc(var(--z) * 1px))
-      rotateX(calc(var(--rx) * 1deg)) rotateY(calc(var(--ry) * 1deg))
-      rotateZ(calc(var(--rz) * 1deg))
-      scale(calc(0.85 + (var(--ih-local) * 0.35)))
-      translateZ(calc(var(--ih-vel) * 70px));
-
-    filter: blur(calc(0.2px + (var(--ih-vel) * 0.85px))) saturate(1.08);
-    animation: ihPrism 9s ease-in-out infinite;
-    animation-delay: calc(var(--i) * -0.22s);
-  }
-
-  .ih-shards {
-    opacity: 0.4;
-    transform: translateZ(0);
-    mix-blend-mode: screen;
-  }
-
-  .ih-shard {
-    position: absolute;
-    left: calc(50% + (var(--x) * 1%));
-    top: calc(50% + (var(--y) * 1%));
-    width: calc(90px * var(--s));
-    height: calc(42px * var(--s));
-
-    clip-path: polygon(0% 20%, 55% 0%, 100% 30%, 75% 100%, 20% 80%);
-
-    background: linear-gradient(
-      90deg,
-      rgba(255, 255, 255, calc(var(--a) * 0.7)),
-      hsla(var(--h), 95%, 70%, calc(var(--a) * 0.7)),
-      rgba(255, 255, 255, 0)
-    );
-
-    opacity: calc(0.08 + (var(--a) * 1));
-
-    transform: translate3d(-50%, -50%, calc(var(--z) * 1px))
-      rotateX(calc(var(--rx) * 1deg)) rotateY(calc(var(--ry) * 1deg))
-      rotateZ(calc(var(--rz) * 1deg))
-      translateY(calc((var(--ih-scroll) - 0.5) * -90px))
-      translateZ(calc(var(--ih-vel) * 120px));
-
-    filter: blur(calc(0.35px + (var(--ih-vel) * 1.05px)));
-    animation: ihShard 7s ease-in-out infinite;
-    animation-delay: calc(var(--i) * -0.2s);
-  }
-
   .ih-track {
     position: relative;
     z-index: 1;
@@ -1134,48 +928,6 @@ const shards = Array.from({ length: 10 }).map((_, i) => ({
     }
   }
 
-  @keyframes ihRibbon {
-    0%,
-    100% {
-      opacity: calc(var(--a) * 0.7);
-    }
-    50% {
-      opacity: calc(var(--a) * 1);
-    }
-  }
-
-  @keyframes ihPrism {
-    0%,
-    100% {
-      transform: translate3d(-50%, -50%, calc(var(--z) * 1px))
-        rotateX(calc(var(--rx) * 1deg)) rotateY(calc(var(--ry) * 1deg))
-        rotateZ(calc(var(--rz) * 1deg));
-      opacity: calc(0.12 + (var(--a) * 0.85));
-    }
-    50% {
-      transform: translate3d(
-          -50%,
-          -50%,
-          calc((var(--z) * 1px) + (var(--ih-vel) * 140px))
-        )
-        rotateX(calc((var(--rx) + 40) * 1deg))
-        rotateY(calc((var(--ry) - 60) * 1deg))
-        rotateZ(calc((var(--rz) + 30) * 1deg))
-        scale(calc(1 + (var(--ih-local) * 0.6)));
-      opacity: calc(0.18 + (var(--a) * 1));
-    }
-  }
-
-  @keyframes ihShard {
-    0%,
-    100% {
-      opacity: calc(0.08 + (var(--a) * 0.55));
-    }
-    50% {
-      opacity: calc(0.14 + (var(--a) * 1));
-    }
-  }
-
   @media (max-width: 820px) {
     .ih-content-inner {
       padding: 12vh 0 14vh;
@@ -1201,25 +953,10 @@ const shards = Array.from({ length: 10 }).map((_, i) => ({
       right: 10px;
       width: 4px;
     }
-
-    .ih-prism {
-      width: calc(52px * var(--s));
-      height: calc(52px * var(--s));
-    }
-
-    .ih-ribbon {
-      height: 120vh;
-    }
   }
 
   @media (pointer: coarse) {
-    .ih-ribbons {
-      opacity: 0.65;
-    }
-
-    .ih-shards {
-      display: none;
-    }
+    /* Keep coarse-pointer visuals calm and low-noise. */
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -1231,20 +968,11 @@ const shards = Array.from({ length: 10 }).map((_, i) => ({
     .ih-canvas {
       display: none;
     }
-
-    .ih-ribbons,
-    .ih-shards {
-      display: none;
-    }
-
-    .ih-prism {
-      filter: none;
-    }
   }
 </style>
 
 <script>
   // New immersive controller (scroll morphs + physics particles)
-  import '../../scripts/immersive-home';
+  import '../../scripts/immersive-home-v2';
   import '../../scripts/immersive-scroll';
 </script>

@@ -22,10 +22,10 @@ const setupScrollMotion = (): Cleanup | null => {
     lenis = new Lenis({
       duration: 1.1,
       smoothWheel: true,
-      smoothTouch: false,
+      syncTouch: false,
       wheelMultiplier: 0.9,
       touchMultiplier: 1.1,
-      normalizeWheel: true,
+      stopInertiaOnNavigate: true,
     });
 
     rafHandler = (time: number) => {
@@ -37,7 +37,15 @@ const setupScrollMotion = (): Cleanup | null => {
     lenis.on('scroll', ScrollTrigger.update);
   }
 
-  Splitting({ target: root.querySelectorAll('[data-split]') });
+  // Splitting mutates DOM and doesn't provide a universal revert.
+  // On initial load, both DOMContentLoaded and astro:page-load can fire,
+  // so keep this resilient by only splitting nodes that haven't been split.
+  const splitTargets = Array.from(
+    root.querySelectorAll<HTMLElement>('[data-split]')
+  ).filter(el => !el.hasAttribute('data-splitting'));
+  if (splitTargets.length > 0) {
+    Splitting({ target: splitTargets });
+  }
 
   const panels = Array.from(
     root.querySelectorAll<HTMLElement>('[data-ih-panel]')
@@ -192,10 +200,18 @@ const setupScrollMotion = (): Cleanup | null => {
 };
 
 let cleanup: Cleanup | null = null;
+let mountedRoot: HTMLElement | null = null;
 
 const mount = () => {
+  const root = document.querySelector<HTMLElement>('[data-ih]');
+
+  // If we're being called twice for the same DOM (common with ClientRouter),
+  // keep the first initialization alive to avoid double-splitting + overlap.
+  if (root && root === mountedRoot && cleanup) return;
+
   cleanup?.();
   cleanup = setupScrollMotion();
+  mountedRoot = root;
 };
 
 if (document.readyState === 'loading') {
@@ -209,4 +225,5 @@ document.addEventListener('astro:page-load', mount);
 document.addEventListener('astro:before-swap', () => {
   cleanup?.();
   cleanup = null;
+  mountedRoot = null;
 });
