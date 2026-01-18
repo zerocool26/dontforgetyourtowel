@@ -26,7 +26,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "lib": ["ESNext", "DOM", "DOM.Iterable", "WebWorker"],
-    "types": ["node", "vite/client", "astro/client"],
+    "types": ["node", "vite/client", "astro/client", "three"],
     "jsx": "react-jsx",
     "jsxImportSource": "preact",
     "baseUrl": ".",
