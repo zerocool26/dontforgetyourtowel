@@ -34,9 +34,14 @@ const chapters = [
 
       <div class="ih-debug" data-ih-debug aria-hidden="true"></div>
 
+      <div class="ih-hint" data-ih-hint aria-hidden="true">
+        <span class="ih-hint-pill">Tap to pulse · Pinch to zoom</span>
+      </div>
+
       <div class="ih-layer ih-stars"></div>
       <div class="ih-layer ih-fog"></div>
       <div class="ih-layer ih-halo"></div>
+      <div class="ih-layer ih-rings"></div>
       <div class="ih-layer ih-sweep"></div>
 
       <!-- Pure cinematic mode: no on-screen HUD -->
@@ -280,12 +285,12 @@ const chapters = [
     inset: -20%;
     pointer-events: none;
     opacity: calc(0.04 + (var(--ih-burst) * 0.22) + (var(--ih-event) * 0.16));
+    /* Cleaner grade: two-tone (cyan -> violet) instead of rainbow */
     background: radial-gradient(
       circle at 50% 50%,
-      rgba(255, 255, 255, 0.15),
-      rgba(56, 189, 248, 0.16) 22%,
-      rgba(99, 102, 241, 0.12) 40%,
-      rgba(236, 72, 153, 0.08) 60%,
+      rgba(255, 255, 255, 0.12),
+      hsla(var(--ih-hue), 90%, 60%, 0.14) 22%,
+      hsla(var(--ih-hue-2), 90%, 62%, 0.1) 46%,
       rgba(2, 6, 23, 0) 72%
     );
     transform: scale(
@@ -296,6 +301,102 @@ const chapters = [
     );
     mix-blend-mode: screen;
     transition: opacity 200ms ease;
+  }
+
+  /* Clean cinematic rings (scroll + touch driven) */
+  .ih-rings {
+    position: absolute;
+    inset: 0;
+    transform: translateZ(140px);
+    opacity: calc(0.18 + (var(--ih-impact) * 0.42));
+    mix-blend-mode: screen;
+    pointer-events: none;
+  }
+
+  .ih-rings::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: min(90vmin, 920px);
+    height: min(90vmin, 920px);
+    transform: translate(-50%, -50%)
+      rotate(calc((var(--ih-scroll) * 220deg) + (var(--ih-parallax-x) * 8deg)))
+      scale(calc(0.92 + (var(--ih-impact) * 0.08) + (var(--ih-pinch) * 0.03)));
+    border-radius: 999px;
+    background:
+      radial-gradient(
+        circle at 50% 50%,
+        rgba(255, 255, 255, 0) 46%,
+        rgba(255, 255, 255, 1) 56%,
+        rgba(255, 255, 255, 0) 66%
+      ),
+      radial-gradient(
+        circle at 50% 50%,
+        rgba(255, 255, 255, 0) 28%,
+        rgba(255, 255, 255, 1) 38%,
+        rgba(255, 255, 255, 0) 48%
+      ),
+      radial-gradient(
+        circle at 50% 50%,
+        rgba(255, 255, 255, 0) 62%,
+        rgba(255, 255, 255, 1) 70%,
+        rgba(255, 255, 255, 0) 78%
+      );
+    mask:
+      radial-gradient(
+        circle at 50% 50%,
+        transparent 0 22%,
+        #000 26% 84%,
+        transparent 88%
+      ),
+      radial-gradient(circle at 42% 38%, #000 0 26%, transparent 52%);
+    -webkit-mask:
+      radial-gradient(
+        circle at 50% 50%,
+        transparent 0 22%,
+        #000 26% 84%,
+        transparent 88%
+      ),
+      radial-gradient(circle at 42% 38%, #000 0 26%, transparent 52%);
+    filter: blur(1px) saturate(1.1);
+    opacity: calc(0.18 + (var(--ih-impact) * 0.58));
+  }
+
+  .ih-rings::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: min(72vmin, 720px);
+    height: min(72vmin, 720px);
+    transform: translate(-50%, -50%)
+      rotate(
+        calc((var(--ih-scroll) * -260deg) + (var(--ih-parallax-y) * -10deg))
+      )
+      scale(calc(0.94 + (var(--ih-event) * 0.06) + (var(--ih-burst) * 0.06)));
+    border-radius: 999px;
+    background: conic-gradient(
+      from 90deg,
+      rgba(255, 255, 255, 0),
+      hsla(var(--ih-hue), 90%, 62%, 0.22),
+      hsla(var(--ih-hue-2), 90%, 62%, 0.18),
+      rgba(255, 255, 255, 0)
+    );
+    mask: radial-gradient(
+      circle at 50% 50%,
+      transparent 54%,
+      #000 62%,
+      transparent 70%
+    );
+    -webkit-mask: radial-gradient(
+      circle at 50% 50%,
+      transparent 54%,
+      #000 62%,
+      transparent 70%
+    );
+    filter: blur(2.2px) saturate(1.15);
+    opacity: calc(0.12 + (var(--ih-impact) * 0.55));
   }
 
   /* Subtle scanline/glint pass during chapter flips (purely visual) */
@@ -380,6 +481,47 @@ const chapters = [
     white-space: pre-wrap;
   }
 
+  .ih-hint {
+    position: absolute;
+    left: 50%;
+    bottom: clamp(16px, 4vh, 40px);
+    transform: translateX(-50%);
+    z-index: 4;
+    opacity: 0;
+    transition:
+      opacity 260ms ease,
+      transform 260ms ease;
+    pointer-events: none;
+  }
+
+  .ih-hint-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 999px;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(226, 232, 240, 0.82);
+    background: rgba(2, 6, 23, 0.55);
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 18px 60px rgba(2, 6, 23, 0.45);
+  }
+
+  @media (pointer: coarse) {
+    .ih[data-ih-rendered='1'] .ih-hint {
+      opacity: 0.92;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .ih[data-ih-touched='1'] .ih-hint {
+      opacity: 0;
+      transform: translateX(-50%) translateY(8px);
+    }
+  }
+
   .ih[data-ih-debug='1'] .ih-debug {
     opacity: 1;
     transform: translateY(0);
@@ -407,6 +549,11 @@ const chapters = [
       opacity: 1;
       /* Avoid filter chains that can cause banding or near-invisibility on some GPUs */
       filter: none;
+    }
+
+    .ih-rings {
+      mix-blend-mode: normal;
+      opacity: calc(0.12 + (var(--ih-impact) * 0.28));
     }
   }
 

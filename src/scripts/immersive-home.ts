@@ -301,6 +301,14 @@ class ImmersiveThreeController {
   private pointerVelocity = new THREE.Vector2();
   private cameraRoll = 0;
 
+  // Mobile-first interactions
+  private pointers = new Map<number, { x: number; y: number; type: string }>();
+  private pinchBaseDist = 0;
+  private lastTapTime = 0;
+  private gyroTarget = new THREE.Vector2();
+  private gyro = new THREE.Vector2();
+  private gyroEnabled = false;
+
   private lastScrollY = window.scrollY;
   private lastScrollTime = performance.now();
 
@@ -546,6 +554,62 @@ class ImmersiveThreeController {
     };
 
     this.init();
+  }
+
+  private shouldUsePostFX(): boolean {
+    // Mobile-first: avoid postprocessing unless we're clearly on a capable desktop.
+    const maxPrec = this.root.dataset.ihPrec ?? '';
+    const isMobile = this.isLikelyMobileDevice();
+    return (
+      !isMobile &&
+      this.renderer.capabilities.isWebGL2 &&
+      maxPrec === 'highp' &&
+      this.quality * this.mobileScale > 0.82
+    );
+  }
+
+  private maybeEnableGyro(): void {
+    if (this.gyroEnabled) return;
+    if (!this.isLikelyMobileDevice()) return;
+
+    const DeviceOrientationEventAny = DeviceOrientationEvent as unknown as
+      | {
+          requestPermission?: () => Promise<'granted' | 'denied'>;
+        }
+      | undefined;
+
+    const start = () => {
+      if (this.gyroEnabled) return;
+      this.gyroEnabled = true;
+      window.addEventListener(
+        'deviceorientation',
+        e => {
+          // beta: front-back [-180..180], gamma: left-right [-90..90]
+          const g = typeof e.gamma === 'number' ? e.gamma : 0;
+          const b = typeof e.beta === 'number' ? e.beta : 0;
+
+          // Map to a tame -1..1 range.
+          const x = clamp(g / 30, -1, 1);
+          const y = clamp(b / 35, -1, 1);
+          this.gyroTarget.set(x, y);
+        },
+        { passive: true, signal: this.abortController.signal }
+      );
+    };
+
+    // iOS Safari requires a user gesture + permission.
+    if (DeviceOrientationEventAny?.requestPermission) {
+      void DeviceOrientationEventAny.requestPermission()
+        .then(result => {
+          if (result === 'granted') start();
+        })
+        .catch(() => {
+          // ignore
+        });
+      return;
+    }
+
+    start();
   }
 
   private createHoloCore(
@@ -1633,9 +1697,11 @@ void main(){
       { signal }
     );
 
+    // Desktop pointer tracking (lightweight). Mobile uses multi-pointer logic below.
     window.addEventListener(
       'pointermove',
       e => {
+        if (e.pointerType === 'touch') return;
         const nx = (e.clientX / Math.max(1, window.innerWidth)) * 2 - 1;
         const ny = (e.clientY / Math.max(1, window.innerHeight)) * 2 - 1;
         this.pointerTarget.set(clamp(nx, -1, 1), clamp(ny, -1, 1));
@@ -1643,29 +1709,124 @@ void main(){
       { passive: true, signal }
     );
 
-    window.addEventListener(
-      'pointerdown',
-      () => {
-        this.burst = Math.min(1, this.burst + 0.8);
-        this.pinchTarget = 1;
-      },
-      { passive: true, signal }
-    );
+    // Mobile-first, touch-driven interactions (pinch + double tap + drag).
+    const updateFromPointers = () => {
+      if (this.pointers.size === 0) return;
 
-    window.addEventListener(
-      'pointerup',
-      () => {
+      let sx = 0;
+      let sy = 0;
+      const pts: Array<{ x: number; y: number }> = [];
+      for (const p of this.pointers.values()) {
+        sx += p.x;
+        sy += p.y;
+        pts.push({ x: p.x, y: p.y });
+      }
+
+      const cx = sx / this.pointers.size;
+      const cy = sy / this.pointers.size;
+      const nx = (cx / Math.max(1, window.innerWidth)) * 2 - 1;
+      const ny = (cy / Math.max(1, window.innerHeight)) * 2 - 1;
+      this.pointerTarget.set(clamp(nx, -1, 1), clamp(ny, -1, 1));
+
+      if (pts.length >= 2) {
+        const dx = pts[1].x - pts[0].x;
+        const dy = pts[1].y - pts[0].y;
+        const dist = Math.hypot(dx, dy);
+        if (this.pinchBaseDist <= 0) this.pinchBaseDist = dist;
+        const raw =
+          (dist - this.pinchBaseDist) / Math.max(1, this.pinchBaseDist);
+        this.pinchTarget = clamp(raw * 1.4, -1, 1);
+      }
+    };
+
+    const shouldIgnoreInteractiveTarget = (target: EventTarget | null) => {
+      const el = target instanceof Element ? target : null;
+      if (!el) return false;
+      return Boolean(
+        el.closest(
+          'a,button,input,select,textarea,[role="button"],[data-ih-mode]'
+        )
+      );
+    };
+
+    const onPointerDown = (e: PointerEvent) => {
+      if (shouldIgnoreInteractiveTarget(e.target)) return;
+
+      // Used by UI to fade the mobile interaction hint.
+      this.root.dataset.ihTouched = '1';
+
+      // First user gesture: try to enable gyro parallax on mobile.
+      this.maybeEnableGyro();
+
+      this.pointers.set(e.pointerId, {
+        x: e.clientX,
+        y: e.clientY,
+        type: e.pointerType,
+      });
+
+      // Double-tap => overcharge beat.
+      const now = performance.now();
+      const dt = now - this.lastTapTime;
+      this.lastTapTime = now;
+      if (e.pointerType === 'touch' && dt > 0 && dt < 320) {
+        this.accent = Math.min(1, this.accent + 1.0);
+        this.burst = Math.min(1, this.burst + 0.95);
+      } else {
+        this.burst = Math.min(1, this.burst + 0.75);
+      }
+
+      // Touch down => slight pinch in.
+      this.pinchTarget = Math.max(this.pinchTarget, 0.55);
+      updateFromPointers();
+    };
+
+    const onPointerMove = (e: PointerEvent) => {
+      const p = this.pointers.get(e.pointerId);
+      if (!p) return;
+      p.x = e.clientX;
+      p.y = e.clientY;
+      updateFromPointers();
+    };
+
+    const onPointerUp = (e: PointerEvent) => {
+      if (this.pointers.has(e.pointerId)) {
+        this.pointers.delete(e.pointerId);
+      }
+      if (this.pointers.size < 2) {
+        this.pinchBaseDist = 0;
         this.pinchTarget = 0;
-      },
-      { passive: true, signal }
-    );
+      }
+    };
 
-    window.addEventListener(
+    this.root.addEventListener('pointerdown', onPointerDown, {
+      passive: true,
+      capture: true,
+      signal,
+    });
+    this.root.addEventListener('pointermove', onPointerMove, {
+      passive: true,
+      capture: true,
+      signal,
+    });
+    this.root.addEventListener('pointerup', onPointerUp, {
+      passive: true,
+      capture: true,
+      signal,
+    });
+    this.root.addEventListener('pointercancel', onPointerUp, {
+      passive: true,
+      capture: true,
+      signal,
+    });
+    this.root.addEventListener(
       'pointerleave',
       () => {
+        // If the browser fires this on touch, it can otherwise leave pinch stuck.
+        this.pinchBaseDist = 0;
         this.pinchTarget = 0;
+        this.pointers.clear();
       },
-      { passive: true, signal }
+      { passive: true, capture: true, signal }
     );
 
     const onResize = () => this.resize();
@@ -1727,7 +1888,14 @@ void main(){
       );
     }
 
-    this.setupComposer(width, height, ratio);
+    if (this.shouldUsePostFX()) {
+      this.setupComposer(width, height, ratio);
+    } else if (this.composer) {
+      this.composer.dispose();
+      this.composer = null;
+      this.bloomPass = null;
+      this.fxaaPass = null;
+    }
   }
 
   private setupComposer(width: number, height: number, ratio: number): void {
@@ -1767,6 +1935,15 @@ void main(){
       this.environment = texture;
       this.scene.environment = texture;
     };
+
+    // Mobile-first: avoid downloading HDRIs on mobile; use procedural env.
+    if (this.isLikelyMobileDevice()) {
+      const room = new RoomEnvironment();
+      const envMap = pmremGenerator.fromScene(room, 0.04).texture;
+      applyEnvironment(envMap);
+      pmremGenerator.dispose();
+      return;
+    }
 
     try {
       const rgbeLoader = new RGBELoader();
@@ -1874,8 +2051,9 @@ void main(){
 
     // A unified "energy" knob that influences everything (subtly).
     const modeBias = this.getModeBias();
+    const pinchBoost = clamp(Math.abs(this.pinch) * 0.35, 0, 0.35);
     const energyTarget =
-      clamp(velocity * 0.85 + this.burst * 0.65, 0, 1) *
+      clamp(velocity * 0.85 + this.burst * 0.65 + pinchBoost, 0, 1) *
       (0.7 + modeBias * 0.55);
     this.energy = damp(this.energy, energyTarget, 4.5, dt);
 
@@ -1898,6 +2076,16 @@ void main(){
     const techMix = clamp(techFactor, 0, 1) * (0.25 + mobileLimiter * 0.75);
 
     // Pointer smoothing.
+    // On mobile, if there's no active touch, blend in gyro parallax for a
+    // more "alive" hero even while the user is scrolling.
+    if (this.isLikelyMobileDevice() && this.pointers.size === 0) {
+      this.gyro.x = damp(this.gyro.x, this.gyroTarget.x, 3, dt);
+      this.gyro.y = damp(this.gyro.y, this.gyroTarget.y, 3, dt);
+      const gyroMix = this.gyroEnabled ? 0.55 : 0.0;
+      this.pointerTarget.x = lerp(this.pointerTarget.x, this.gyro.x, gyroMix);
+      this.pointerTarget.y = lerp(this.pointerTarget.y, this.gyro.y, gyroMix);
+    }
+
     this.pointer.x = damp(this.pointer.x, this.pointerTarget.x, 6, dt);
     this.pointer.y = damp(this.pointer.y, this.pointerTarget.y, 6, dt);
 
@@ -2059,7 +2247,9 @@ void main(){
       6,
       dt
     );
-    this.camera.position.z = damp(this.camera.position.z, config.camZ, 4, dt);
+    // Pinch gesture gives a tactile zoom-in/zoom-out on mobile.
+    const camZ = config.camZ - this.pinch * 0.9;
+    this.camera.position.z = damp(this.camera.position.z, camZ, 4, dt);
 
     const rollTarget = this.pointerVelocity.x * 0.02;
     this.cameraRoll = damp(this.cameraRoll, rollTarget, 4, dt);
@@ -2116,6 +2306,20 @@ void main(){
     this.root.style.setProperty('--ih-parallax-x', this.pointer.x.toFixed(4));
     this.root.style.setProperty('--ih-parallax-y', this.pointer.y.toFixed(4));
     this.root.style.setProperty('--ih-energy-soft', this.energy.toFixed(4));
+    // Cinematic impact layers (these were referenced by CSS but not driven).
+    this.root.style.setProperty('--ih-burst', this.burst.toFixed(4));
+    this.root.style.setProperty('--ih-event', this.accent.toFixed(4));
+    this.root.style.setProperty('--ih-grade', techMix.toFixed(4));
+    // A single clean "intensity" signal for cinematic overlays.
+    const impact = clamp(
+      this.burst * 0.85 +
+        this.accent * 0.95 +
+        Math.abs(this.pinch) * 0.35 +
+        velocity * 0.18,
+      0,
+      1
+    );
+    this.root.style.setProperty('--ih-impact', impact.toFixed(4));
     this.root.style.setProperty('--ih-pinch', this.pinch.toFixed(4));
     this.root.style.setProperty('--ih-quality', this.quality.toFixed(4));
     this.root.style.setProperty('--ih-hue', config.hue.toFixed(2));
@@ -2143,7 +2347,7 @@ void main(){
       this.bloomPass.threshold = 0.3;
     }
 
-    if (this.composer && this.quality * this.mobileScale > 0.72) {
+    if (this.composer && this.shouldUsePostFX()) {
       this.composer.render();
     } else {
       this.renderer.render(this.scene, this.camera);
