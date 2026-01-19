@@ -317,6 +317,7 @@ class ImmersiveThreeController {
   private holoMaterialFull: THREE.ShaderMaterial | null = null;
   private holoMaterialMobile: THREE.ShaderMaterial | null = null;
   private holoMaterialSafe: THREE.ShaderMaterial | null = null;
+  private holoMaterialUltraSafe: THREE.ShaderMaterial | null = null;
   private cameraRot3 = new THREE.Matrix3();
 
   private fieldLines: THREE.Line[] = [];
@@ -337,6 +338,21 @@ class ImmersiveThreeController {
   private renderedOnce = false;
   private shaderFallbackStep = 0;
   private lastStaticRender = 0;
+
+  private recordActiveShaderMeta(
+    label: string,
+    mat: THREE.ShaderMaterial | null
+  ): void {
+    this.root.dataset.ihShaderProfile = label;
+    if (!mat) return;
+
+    const frag = String(mat.fragmentShader || '');
+    this.root.dataset.ihFragLen = String(frag.length);
+
+    // Keep dataset sizes bounded; full shader is large.
+    const snippet = frag.slice(0, 700);
+    this.root.dataset.ihFragSnippet = snippet;
+  }
 
   constructor(root: HTMLElement) {
     this.root = root;
@@ -385,15 +401,20 @@ class ImmersiveThreeController {
     const preferSafeCore =
       maxPrec !== 'highp' || !this.renderer.capabilities.isWebGL2;
     const preferMobileCore = !preferSafeCore && this.isLikelyMobileDevice();
+    const preferUltraCore = preferSafeCore && this.isLikelyMobileDevice();
 
     root.dataset.ihCenter = preferSafeCore
-      ? 'webgl-safe'
+      ? preferUltraCore
+        ? 'webgl-ultra'
+        : 'webgl-safe'
       : preferMobileCore
         ? 'webgl-mobile'
         : 'webgl';
 
     const initialProfile = preferSafeCore
-      ? 'safe'
+      ? preferUltraCore
+        ? 'ultra'
+        : 'safe'
       : preferMobileCore
         ? 'mobile'
         : 'full';
@@ -404,13 +425,18 @@ class ImmersiveThreeController {
       fullMaterial,
       mobileMaterial,
       safeMaterial,
+      ultraSafeMaterial,
     } = this.createHoloCore(initialProfile);
     this.holoCore = holoCore;
     this.holoMaterial = holoMaterial;
     this.holoMaterialFull = fullMaterial;
     this.holoMaterialMobile = mobileMaterial;
     this.holoMaterialSafe = safeMaterial;
+    this.holoMaterialUltraSafe = ultraSafeMaterial;
     this.scene.add(this.holoCore);
+
+    // Record which shader profile actually got attached.
+    this.recordActiveShaderMeta(root.dataset.ihCenter, this.holoMaterial);
 
     this.createFieldLines();
 
@@ -456,8 +482,8 @@ class ImmersiveThreeController {
         // ignore
       }
 
-      // Fall back in steps: full -> mobileHQ -> safe -> CSS.
-      if (this.shaderFallbackStep > 2) return;
+      // Fall back in steps: full -> mobileHQ -> safe -> ultraSafe -> CSS.
+      if (this.shaderFallbackStep > 3) return;
       this.shaderFallbackStep += 1;
 
       const current = this.holoMaterial;
@@ -473,6 +499,7 @@ class ImmersiveThreeController {
         this.root.dataset.ihStatus = 'shader-error';
         this.root.dataset.ihStatusDetail =
           'Full shader compile failed; switched to mobile HQ shader';
+        this.recordActiveShaderMeta('webgl-mobile', this.holoMaterial);
       } else if (
         this.holoCore &&
         this.holoMaterialSafe &&
@@ -484,11 +511,26 @@ class ImmersiveThreeController {
         this.root.dataset.ihStatus = 'shader-error';
         this.root.dataset.ihStatusDetail =
           'Shader compile failed; switched to safe holo shader';
+        this.recordActiveShaderMeta('webgl-safe', this.holoMaterial);
+      } else if (
+        this.holoCore &&
+        this.holoMaterialUltraSafe &&
+        current !== this.holoMaterialUltraSafe
+      ) {
+        // This shader is intentionally tiny and should compile basically everywhere.
+        this.holoCore.material = this.holoMaterialUltraSafe;
+        this.holoMaterial = this.holoMaterialUltraSafe;
+        this.root.dataset.ihCenter = 'webgl-ultra';
+        this.root.dataset.ihStatus = 'shader-error';
+        this.root.dataset.ihStatusDetail =
+          'Shader compile failed; switched to ultra-safe WebGL shader';
+        this.recordActiveShaderMeta('webgl-ultra', this.holoMaterial);
       } else {
         this.root.dataset.ihCenter = 'css';
         this.root.dataset.ihStatus = 'shader-error';
         this.root.dataset.ihStatusDetail =
           'Shader compile failed; switched to CSS fallback';
+        this.recordActiveShaderMeta('css', null);
       }
 
       this.updateDebugOverlay();
@@ -497,12 +539,15 @@ class ImmersiveThreeController {
     this.init();
   }
 
-  private createHoloCore(profile: 'full' | 'mobile' | 'safe' = 'full'): {
+  private createHoloCore(
+    profile: 'full' | 'mobile' | 'safe' | 'ultra' = 'full'
+  ): {
     mesh: THREE.Mesh;
     material: THREE.ShaderMaterial;
     fullMaterial: THREE.ShaderMaterial;
     mobileMaterial: THREE.ShaderMaterial;
     safeMaterial: THREE.ShaderMaterial;
+    ultraSafeMaterial: THREE.ShaderMaterial;
   } {
     // Fullscreen quad (clip-space). The fragment shader raymarches a high-detail
     // "holo-processor" core and fades out toward the edges.
@@ -1289,12 +1334,73 @@ void main(){
 `,
     });
 
+    // Ultra-minimal shader: no raymarch loops, no exp/tan dependence, no mat3 usage.
+    // Goal: produce a visible, high-contrast center on *any* WebGL implementation
+    // before we ever drop to a CSS-only fallback.
+    const ultraSafeMaterial = new THREE.ShaderMaterial({
+      transparent: true,
+      depthWrite: false,
+      depthTest: false,
+      blending: THREE.NormalBlending,
+      uniforms: {
+        uHue: material.uniforms.uHue,
+        uHue2: material.uniforms.uHue2,
+        uAspect: material.uniforms.uAspect,
+        uTime: material.uniforms.uTime,
+      },
+      vertexShader: material.vertexShader,
+      fragmentShader: `
+precision mediump float;
+varying vec2 vUv;
+
+uniform float uHue;
+uniform float uHue2;
+uniform float uAspect;
+uniform float uTime;
+
+vec3 hsl2rgb(vec3 c){
+  vec3 rgb = clamp(abs(mod(c.x * 6.0 + vec3(0.0, 4.0, 2.0), 6.0) - 3.0) - 1.0, 0.0, 1.0);
+  return c.z + c.y * (rgb - 0.5) * (1.0 - abs(2.0 * c.z - 1.0));
+}
+
+float saturate(float x){ return clamp(x, 0.0, 1.0); }
+
+void main(){
+  vec2 p = vUv * 2.0 - 1.0;
+  p.x *= uAspect;
+  float r = length(p);
+
+  float pulse = 0.5 + 0.5 * sin(uTime * 0.9);
+  // Larger shapes for small screens.
+  float core = 1.0 - smoothstep(0.26, 0.78, r);
+  float ringA = 1.0 - smoothstep(0.008, 0.022, abs(r - (0.58 + pulse * 0.02)));
+  float ringB = 1.0 - smoothstep(0.010, 0.024, abs(r - (0.42 - pulse * 0.015)));
+  float vign = smoothstep(1.15, 0.25, r);
+
+  // Gentle scanline shimmer to keep it feeling "alive" without heavy math.
+  float scan = abs(fract(vUv.y * 6.0 + uTime * 0.18) - 0.5);
+  scan = 1.0 - smoothstep(0.46, 0.5, scan);
+
+  vec3 cA = hsl2rgb(vec3(fract(uHue), 0.92, 0.55));
+  vec3 cB = hsl2rgb(vec3(fract(uHue2), 0.92, 0.55));
+  vec3 glow = mix(cA, cB, 0.55);
+  vec3 col = glow * (core * 0.85 + ringA * 0.40 + ringB * 0.25);
+  col += glow * scan * 0.06;
+
+  float alpha = vign * saturate(0.18 + core * 0.9 + ringA * 0.55 + ringB * 0.35);
+  gl_FragColor = vec4(col, alpha);
+}
+`,
+    });
+
     const activeMaterial =
-      profile === 'safe'
-        ? safeMaterial
-        : profile === 'mobile'
-          ? mobileMaterial
-          : material;
+      profile === 'ultra'
+        ? ultraSafeMaterial
+        : profile === 'safe'
+          ? safeMaterial
+          : profile === 'mobile'
+            ? mobileMaterial
+            : material;
 
     const mesh = new THREE.Mesh(geo, activeMaterial);
     mesh.frustumCulled = false;
@@ -1305,6 +1411,7 @@ void main(){
       fullMaterial: material,
       mobileMaterial,
       safeMaterial,
+      ultraSafeMaterial,
     };
   }
 
@@ -1333,6 +1440,11 @@ void main(){
     lines.push(`ihStatus: ${status || 'ok'}`);
     if (detail) lines.push(detail);
     lines.push(`center: ${this.root.dataset.ihCenter ?? ''}`);
+    if (this.root.dataset.ihShaderProfile) {
+      lines.push(
+        `shader: ${this.root.dataset.ihShaderProfile}  fragLen: ${this.root.dataset.ihFragLen ?? ''}`
+      );
+    }
     lines.push(
       `webgl: ${this.root.dataset.ihWebgl ?? ''}  prec: ${this.root.dataset.ihPrec ?? ''}`
     );
@@ -1344,6 +1456,12 @@ void main(){
     if (shaderLog && (debugEnabled || status === 'shader-error')) {
       lines.push('--- shader log ---');
       lines.push(shaderLog);
+    }
+
+    const fragSnippet = this.root.dataset.ihFragSnippet ?? '';
+    if (fragSnippet && debugEnabled) {
+      lines.push('--- frag snippet ---');
+      lines.push(fragSnippet);
     }
 
     this.debugEl.textContent = lines.join('\n');

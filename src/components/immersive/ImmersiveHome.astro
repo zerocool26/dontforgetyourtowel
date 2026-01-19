@@ -395,10 +395,18 @@ const chapters = [
      appear almost invisible against a dark background. Prefer normal compositing
      and simpler filters for reliability. */
   @media (max-width: 768px) {
+    .ih-stage::before,
+    .ih-stage::after {
+      mix-blend-mode: normal;
+      filter: none;
+      opacity: calc(0.02 + (var(--ih-event) * 0.14) + (var(--ih-burst) * 0.12));
+    }
+
     .ih-canvas {
       mix-blend-mode: normal;
       opacity: 1;
-      filter: saturate(1.1) contrast(1.1) brightness(1.04);
+      /* Avoid filter chains that can cause banding or near-invisibility on some GPUs */
+      filter: none;
     }
   }
 
