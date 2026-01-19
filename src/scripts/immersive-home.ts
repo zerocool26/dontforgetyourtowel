@@ -679,10 +679,7 @@ void main(){
   // Accumulated glow along the ray (gives "holo" depth)
   float glow = 0.0;
 
-  int steps = int(mix(56.0, 92.0, saturate(uQuality)));
-
   for(int i=0;i<84;i++){
-    if (i >= steps) break;
     pos = ro + rd * t;
     float em;
     float d = mapCore(pos, em);
@@ -693,6 +690,15 @@ void main(){
   }
 
   vec3 col = vec3(0.01, 0.015, 0.03);
+
+  // A stable "always-on" tech glow so the centerpiece is never fully absent,
+  // even if the raymarch misses on a particular driver/frame.
+  float hueA = fract(uHue);
+  float hueB = fract(uHue2);
+  vec3 glowCBase = hsl2rgb(vec3(mix(hueA, hueB, 0.55), 0.95, 0.55));
+  glowCBase = mix(glowCBase, vec3(0.10, 0.85, 1.00), 0.55);
+  float coreGlow = smoothstep(0.95, 0.15, length(p));
+  col += glowCBase * coreGlow * (0.035 + uTech * 0.065 + uAccent * 0.06);
 
   if(hit > 0.5){
     vec3 n = calcNormal(pos);
@@ -708,6 +714,8 @@ void main(){
     ndl *= mix(0.65, 1.0, sh);
 
     // Tech palette
+    // (These are already computed above, but re-declared in the original code.
+    // Keep them here for clarity and to preserve shader readability.)
     float hueA = fract(uHue);
     float hueB = fract(uHue2);
     vec3 baseA = hsl2rgb(vec3(hueA, 0.62, 0.12));
@@ -762,7 +770,7 @@ void main(){
   }
 
   // Volume glow always contributes (even if we didn't "hit")
-  col += hsl2rgb(vec3(fract(mix(uHue, uHue2, 0.6)), 0.95, 0.55)) * glow * (0.42 + uAccent * 0.35);
+  col += hsl2rgb(vec3(fract(mix(uHue, uHue2, 0.6)), 0.95, 0.55)) * glow * (0.5 + uAccent * 0.42);
 
   // Dither to reduce banding (especially on mobile + low DPR)
   float dither = ih_hash(gl_FragCoord.xy) - 0.5;
@@ -771,7 +779,8 @@ void main(){
   // Gamma-ish shaping
   col = pow(max(col, 0.0), vec3(0.98));
 
-  float alpha = vign * (0.25 + hit * 0.75);
+  // Slightly higher baseline alpha so "no hit" still reads on small screens.
+  float alpha = vign * (0.32 + hit * 0.68);
   // Keep it polite on mobile / low quality.
   alpha *= mix(0.85, 1.0, uQuality);
 
@@ -1173,36 +1182,6 @@ void main(){
     this.stars.rotation.y = time * 0.03;
     this.stars.rotation.x = time * 0.015;
 
-    // Holo core shader uniforms.
-    if (this.holoMaterial) {
-      this.holoMaterial.uniforms.uTime.value = time;
-      this.holoMaterial.uniforms.uProgress.value = progress;
-      this.holoMaterial.uniforms.uEnergy.value = this.energy;
-      this.holoMaterial.uniforms.uAccent.value = accentFactor;
-      this.holoMaterial.uniforms.uTech.value = techFactor * mobileLimiter;
-      this.holoMaterial.uniforms.uQuality.value = clamp(
-        this.quality * this.mobileScale,
-        0.65,
-        1
-      );
-      this.holoMaterial.uniforms.uHue.value = config.hue / 360;
-      this.holoMaterial.uniforms.uHue2.value = config.hue2 / 360;
-      this.holoMaterial.uniforms.uAspect.value = this.camera.aspect;
-      this.holoMaterial.uniforms.uFov.value = THREE.MathUtils.degToRad(
-        this.camera.fov
-      );
-      this.holoMaterial.uniforms.uCamPos.value.copy(this.camera.position);
-      this.cameraRot3.setFromMatrix4(this.camera.matrixWorld);
-      this.holoMaterial.uniforms.uCamRot.value.copy(this.cameraRot3);
-      this.holoMaterial.uniforms.uPointer.value.copy(this.pointer);
-
-      this.holoMaterial.uniforms.uSwirl.value = motif.swirl * wowFactor;
-      this.holoMaterial.uniforms.uSink.value =
-        motif.sink * (0.9 + wowFactor * 0.1);
-      this.holoMaterial.uniforms.uInterf.value = motif.interference * wowFactor;
-      this.holoMaterial.uniforms.uDetail.value = motif.detail * wowFactor;
-    }
-
     // Field lines.
     const activeLines = clamp(
       Math.floor(
@@ -1357,6 +1336,39 @@ void main(){
     this.cameraRoll = damp(this.cameraRoll, rollTarget, 4, dt);
     this.camera.lookAt(0, 0, 0);
     this.camera.rotation.z = this.cameraRoll;
+
+    // Ensure camera matrices are current before sampling matrixWorld for the holo shader.
+    this.camera.updateMatrixWorld();
+
+    // Holo core shader uniforms (after camera update to avoid flicker/misses).
+    if (this.holoMaterial) {
+      this.holoMaterial.uniforms.uTime.value = time;
+      this.holoMaterial.uniforms.uProgress.value = progress;
+      this.holoMaterial.uniforms.uEnergy.value = this.energy;
+      this.holoMaterial.uniforms.uAccent.value = accentFactor;
+      this.holoMaterial.uniforms.uTech.value = techFactor * mobileLimiter;
+      this.holoMaterial.uniforms.uQuality.value = clamp(
+        this.quality * this.mobileScale,
+        0.65,
+        1
+      );
+      this.holoMaterial.uniforms.uHue.value = config.hue / 360;
+      this.holoMaterial.uniforms.uHue2.value = config.hue2 / 360;
+      this.holoMaterial.uniforms.uAspect.value = this.camera.aspect;
+      this.holoMaterial.uniforms.uFov.value = THREE.MathUtils.degToRad(
+        this.camera.fov
+      );
+      this.holoMaterial.uniforms.uCamPos.value.copy(this.camera.position);
+      this.cameraRot3.setFromMatrix4(this.camera.matrixWorld);
+      this.holoMaterial.uniforms.uCamRot.value.copy(this.cameraRot3);
+      this.holoMaterial.uniforms.uPointer.value.copy(this.pointer);
+
+      this.holoMaterial.uniforms.uSwirl.value = motif.swirl * wowFactor;
+      this.holoMaterial.uniforms.uSink.value =
+        motif.sink * (0.9 + wowFactor * 0.1);
+      this.holoMaterial.uniforms.uInterf.value = motif.interference * wowFactor;
+      this.holoMaterial.uniforms.uDetail.value = motif.detail * wowFactor;
+    }
 
     // Lighting & fog.
     const lightBreath = 1 + Math.sin(time * 0.45) * 0.04;
