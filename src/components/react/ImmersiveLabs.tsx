@@ -162,7 +162,8 @@ const Scene = ({ isMobile }: { isMobile: boolean }) => {
     camera.lookAt(0, 0, 0);
 
     if (groupRef.current) {
-      groupRef.current.rotation.y = time * 0.4 + rig.twist;
+      const rotationSpeed = hovered !== null ? time * 0.8 : time * 0.4;
+      groupRef.current.rotation.y = rotationSpeed + rig.twist;
       groupRef.current.rotation.x = Math.sin(time * 0.4) * 0.2 + rig.lift;
       groupRef.current.position.y = Math.sin(time * 0.6) * 0.15;
     }
@@ -239,16 +240,18 @@ const Scene = ({ isMobile }: { isMobile: boolean }) => {
             />
           </mesh>
         </Float>
-        <mesh rotation={[0.4, 0, 0]}>
-          <torusGeometry args={[2.2, 0.08, 24, 160]} />
-          <meshStandardMaterial
-            color={new THREE.Color(0.45, 0.6, 1)}
-            emissive={new THREE.Color(0.2, 0.4, 0.9)}
-            emissiveIntensity={0.6}
-            roughness={0.4}
-            metalness={0.4}
-          />
-        </mesh>
+        <Float speed={1.2} rotationIntensity={0.4} floatIntensity={0.5}>
+          <mesh rotation={[0.4, 0, 0]}>
+            <torusGeometry args={[2.2, 0.08, 24, 160]} />
+            <meshStandardMaterial
+              color={new THREE.Color(0.45, 0.6, 1)}
+              emissive={new THREE.Color(0.2, 0.4, 0.9)}
+              emissiveIntensity={0.6}
+              roughness={0.4}
+              metalness={0.4}
+            />
+          </mesh>
+        </Float>
       </group>
 
       <group ref={nodeGroup}>
@@ -310,6 +313,15 @@ const Scene = ({ isMobile }: { isMobile: boolean }) => {
         opacity={0.4}
         scale={6}
         color="#9bdbff"
+      />
+      {/* Warp Speed effect - denser and faster sparkles */}
+      <Sparkles
+        count={isMobile ? 120 : 220}
+        size={isMobile ? 1.5 : 2.5}
+        speed={1.8}
+        opacity={0.6}
+        scale={8}
+        color="#ffffff"
       />
       <Stars radius={12} depth={8} count={isMobile ? 300 : 700} factor={2} />
       <Text
