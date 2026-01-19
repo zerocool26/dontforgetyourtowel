@@ -40,6 +40,16 @@ type SceneConfig = {
   bloom: number;
 };
 
+type Motif = {
+  // 0..1 values blended across chapters.
+  swirl: number; // rotational flow
+  sink: number; // pulls toward center ("collapse")
+  interference: number; // dual-wave interference
+  detail: number; // fine deformation detail
+  lineCurl: number; // bends field lines into arcs
+  orbit: number; // particle orbital flow
+};
+
 const SCENES: SceneId[] = [
   'origin',
   'interference',
@@ -148,6 +158,57 @@ const SCENE_CONFIG: Record<SceneId, SceneConfig> = {
   },
 };
 
+const SCENE_MOTIF: Record<SceneId, Motif> = {
+  origin: {
+    swirl: 0.08,
+    sink: 0.0,
+    interference: 0.22,
+    detail: 0.25,
+    lineCurl: 0.22,
+    orbit: 0.28,
+  },
+  interference: {
+    swirl: 0.18,
+    sink: 0.05,
+    interference: 1.0,
+    detail: 0.55,
+    lineCurl: 0.45,
+    orbit: 0.38,
+  },
+  field: {
+    swirl: 0.14,
+    sink: 0.08,
+    interference: 0.55,
+    detail: 0.72,
+    lineCurl: 0.8,
+    orbit: 0.55,
+  },
+  lensing: {
+    swirl: 0.82,
+    sink: 0.18,
+    interference: 0.42,
+    detail: 0.86,
+    lineCurl: 0.9,
+    orbit: 0.95,
+  },
+  collapse: {
+    swirl: 0.3,
+    sink: 1.0,
+    interference: 0.18,
+    detail: 0.55,
+    lineCurl: 0.55,
+    orbit: 0.35,
+  },
+  afterglow: {
+    swirl: 0.12,
+    sink: 0.05,
+    interference: 0.15,
+    detail: 0.35,
+    lineCurl: 0.35,
+    orbit: 0.25,
+  },
+};
+
 const clamp = (v: number, min: number, max: number) =>
   Math.min(max, Math.max(min, v));
 
@@ -180,6 +241,15 @@ const blendConfig = (
   particles: Math.round(lerp(a.particles, b.particles, t)),
   particleRadius: lerp(a.particleRadius, b.particleRadius, t),
   bloom: lerp(a.bloom, b.bloom, t),
+});
+
+const blendMotif = (a: Motif, b: Motif, t: number): Motif => ({
+  swirl: lerp(a.swirl, b.swirl, t),
+  sink: lerp(a.sink, b.sink, t),
+  interference: lerp(a.interference, b.interference, t),
+  detail: lerp(a.detail, b.detail, t),
+  lineCurl: lerp(a.lineCurl, b.lineCurl, t),
+  orbit: lerp(a.orbit, b.orbit, t),
 });
 
 type LineNode = {
@@ -228,6 +298,7 @@ class ImmersiveThreeController {
 
   private energy = 0;
   private burst = 0;
+  private accent = 0;
   private pinchTarget = 0;
   private pinch = 0;
   private lastChapterIdx = -1;
@@ -378,27 +449,139 @@ class ImmersiveThreeController {
       shader.uniforms.uFreq = { value: 1.6 };
       shader.uniforms.uMode = { value: 0 };
 
+      // New motion language uniforms (motif-driven).
+      shader.uniforms.uSwirl = { value: 0 };
+      shader.uniforms.uSink = { value: 0 };
+      shader.uniforms.uInterf = { value: 0 };
+      shader.uniforms.uDetail = { value: 0 };
+      shader.uniforms.uAccent = { value: 0 };
+      shader.uniforms.uTech = { value: 0 };
+      shader.uniforms.uScan = { value: 0 };
+
       shader.vertexShader = shader.vertexShader
         .replace(
           '#include <common>',
-          `#include <common>\nuniform float uTime;\nuniform float uEnergy;\nuniform float uProgress;\nuniform float uAmp;\nuniform float uFreq;\nuniform float uMode;`
+          `#include <common>
+uniform float uTime;
+uniform float uEnergy;
+uniform float uProgress;
+uniform float uAmp;
+uniform float uFreq;
+uniform float uMode;
+uniform float uSwirl;
+uniform float uSink;
+uniform float uInterf;
+uniform float uDetail;
+uniform float uAccent;
+
+// Cheap-ish value noise + fbm (good enough for vertex displacement).
+float ih_hash(vec2 p){
+  p = fract(p * vec2(123.34, 345.45));
+  p += dot(p, p + 34.345);
+  return fract(p.x * p.y);
+}
+
+float ih_noise(vec2 p){
+  vec2 i = floor(p);
+  vec2 f = fract(p);
+  float a = ih_hash(i);
+  float b = ih_hash(i + vec2(1.0, 0.0));
+  float c = ih_hash(i + vec2(0.0, 1.0));
+  float d = ih_hash(i + vec2(1.0, 1.0));
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+}
+
+float ih_fbm(vec2 p){
+  float v = 0.0;
+  float a = 0.5;
+  for(int i=0;i<4;i++){
+    v += a * ih_noise(p);
+    p = p * 2.02 + vec2(13.1, 7.7);
+    a *= 0.5;
+  }
+  return v;
+}
+`
         )
         .replace(
           '#include <begin_vertex>',
           [
             'vec3 transformed = vec3(position);',
-            // A soft falloff so the center breathes more than the edge.
+            // A soft falloff so the center moves more than the edge.
             'float r = length(transformed.xy);',
-            'float falloff = smoothstep(2.4, 0.2, r);',
+            'float falloff = smoothstep(2.55, 0.15, r);',
             'float p = uProgress * 6.2831853;',
-            'float amp = uAmp * (0.75 + uEnergy * 0.85);',
-            'float f = uFreq * (0.9 + uMode * 0.2);',
-            'float w1 = sin((transformed.x * f) + (uTime * 1.15) + p);',
-            'float w2 = cos((transformed.y * f * 0.92) - (uTime * 1.05) + p);',
-            'float w3 = sin((r * f * 1.6) + (uTime * 0.8) - p) * 0.35;',
-            'float displacement = (w1 * 0.5 + w2 * 0.5 + w3) * amp * falloff;',
+            'float amp = uAmp * (0.7 + uEnergy * 0.95);',
+            'float f = uFreq * (0.85 + uMode * 0.25);',
+
+            // Motif-driven domain warp (swirl + slight sink).
+            'float swirl = uSwirl * (0.25 + uEnergy * 0.35);',
+            'float sink = uSink * (0.35 + uEnergy * 0.25);',
+            'float ang = swirl * (r * r) + uTime * (0.08 + swirl * 0.06);',
+            'mat2 rot = mat2(cos(ang), -sin(ang), sin(ang), cos(ang));',
+            'vec2 q = rot * transformed.xy;',
+
+            // New: a layered wave field + interference + fbm detail.
+            'float wA = sin((q.x * f) + (uTime * 1.05) + p);',
+            'float wB = cos((q.y * f * 0.92) - (uTime * 0.95) + p);',
+            'float wR = sin((r * f * 1.55) + (uTime * 0.75) - p) * 0.35;',
+            'float interf = uInterf;',
+            'float wI = sin((q.x + q.y) * (f * 0.72) + uTime * 1.22 + p * 0.75) * interf;',
+            'float n = ih_fbm((q * (0.55 + uDetail * 0.65)) + vec2(uTime * 0.08, -uTime * 0.06));',
+            'float detail = (n - 0.5) * (0.6 + uDetail * 1.2);',
+
+            // Tasteful "hero" accent used on chapter transitions (short-lived).
+            'float wP = sin((q.x - q.y) * (f * 0.9) + uTime * 1.55 + p * 0.35) * (uAccent * 0.18);',
+
+            'float displacement = (wA * 0.42 + wB * 0.42 + wR + wI * 0.35 + detail * 0.28 + wP) * amp * (1.0 + uAccent * 0.22) * falloff;',
+            // Center sink for "collapse" (kept elegant, not noisy).
+            'displacement -= sink * exp(-r * 1.8) * (0.55 + uEnergy * 0.25);',
             'transformed.z += displacement;',
           ].join('\n')
+        );
+
+      // High-tech overlay (fragment): subtle circuit/grid emissive + scanline.
+      // Kept deliberately restrained and clamped on mobile via uTech.
+      shader.fragmentShader = shader.fragmentShader
+        .replace(
+          '#include <common>',
+          `#include <common>
+uniform float uTime;
+uniform float uEnergy;
+uniform float uProgress;
+uniform float uAccent;
+uniform float uTech;
+uniform float uScan;
+
+float ih_grid(vec2 uv, float scale, float width){
+  vec2 p = uv * scale;
+  vec2 a = abs(fract(p - 0.5) - 0.5);
+  vec2 w = fwidth(p);
+  float lx = 1.0 - smoothstep(width * w.x, (width + 1.2) * w.x, a.x);
+  float ly = 1.0 - smoothstep(width * w.y, (width + 1.2) * w.y, a.y);
+  return max(lx, ly);
+}
+`
+        )
+        .replace(
+          'vec3 totalEmissiveRadiance = emissive;',
+          `// Tech emissive overlay (grid + scanline), blended into emissive.
+vec2 ih_uv = vUv;
+float g1 = ih_grid(ih_uv + vec2(uTime * 0.015, -uTime * 0.012), 18.0, 0.9);
+float g2 = ih_grid(ih_uv + vec2(-uTime * 0.01, uTime * 0.02), 42.0, 0.85) * 0.6;
+
+// Scanline: thin moving band (kept subtle).
+float scan = abs(fract(ih_uv.y * 6.0 + uScan) - 0.5);
+scan = 1.0 - smoothstep(0.48, 0.5, scan);
+
+float techI = clamp(uTech, 0.0, 1.25) * (0.12 + uEnergy * 0.18);
+techI += uAccent * 0.06;
+
+vec3 techColor = vec3(0.12, 0.92, 1.0);
+emissive += techColor * (g1 * 0.55 + g2 * 0.35 + scan * 0.25) * techI;
+
+vec3 totalEmissiveRadiance = emissive;`
         );
     };
 
@@ -695,6 +878,12 @@ class ImmersiveThreeController {
       blendT
     );
 
+    const motif = blendMotif(
+      SCENE_MOTIF[scene] ?? SCENE_MOTIF.origin,
+      SCENE_MOTIF[nextScene] ?? SCENE_MOTIF.origin,
+      blendT
+    );
+
     // Adaptive quality: keep it smooth on mobile.
     const frameDtMs = clamp((time - this.lastFrameTime) * 1000, 8, 50);
     this.lastFrameTime = time;
@@ -705,6 +894,9 @@ class ImmersiveThreeController {
     this.quality = damp(this.quality, targetQuality, 2, dt);
 
     this.burst = clamp(this.burst * 0.92 + velocity * 0.26, 0, 1);
+    // Accent pulse: a short, controlled "wow" beat (used on chapter transitions).
+    // Kept self-limiting and mobile-aware.
+    this.accent = damp(this.accent, 0, 1.8, dt);
     this.pinch = damp(this.pinch, this.pinchTarget, 7, dt);
 
     // A unified "energy" knob that influences everything (subtly).
@@ -717,7 +909,20 @@ class ImmersiveThreeController {
     if (idx !== this.lastChapterIdx) {
       this.lastChapterIdx = idx;
       this.burst = Math.min(1, this.burst + 0.38);
+      this.accent = Math.min(1, this.accent + 0.95);
     }
+
+    // "Holy crap" on desktop, polite on mobile.
+    // mobileLimiter: 0 (small devices) .. 1 (desktop / fast devices).
+    const mobileLimiter = clamp((this.mobileScale - 0.68) / 0.32, 0, 1);
+    const wowFactor = lerp(0.82, 1.38, mobileLimiter);
+    const accentFactor = this.accent * (0.55 + mobileLimiter * 0.45);
+
+    // High-tech factor: increases crisp, digital accents (grid/scan + neon bias)
+    // while staying mobile-friendly.
+    const techBase = clamp(0.25 + motif.interference * 0.85, 0, 1.4);
+    const techFactor = clamp(techBase * (0.75 + wowFactor * 0.25), 0, 1.25);
+    const techMix = clamp(techFactor, 0, 1) * (0.25 + mobileLimiter * 0.75);
 
     // Pointer smoothing.
     this.pointer.x = damp(this.pointer.x, this.pointerTarget.x, 6, dt);
@@ -754,6 +959,18 @@ class ImmersiveThreeController {
         config.membraneAmp * (1 + this.pinch * 0.55);
       this.membraneShader.uniforms.uFreq.value = config.membraneFreq;
       this.membraneShader.uniforms.uMode.value = modeBias;
+
+      // Motif-driven motion (chapter identity) — this is what makes it feel
+      // "smarter" and less like a bag of random effects.
+      this.membraneShader.uniforms.uSwirl.value = motif.swirl * wowFactor;
+      this.membraneShader.uniforms.uSink.value =
+        motif.sink * (0.9 + wowFactor * 0.1);
+      this.membraneShader.uniforms.uInterf.value =
+        motif.interference * wowFactor;
+      this.membraneShader.uniforms.uDetail.value = motif.detail * wowFactor;
+      this.membraneShader.uniforms.uAccent.value = accentFactor;
+      this.membraneShader.uniforms.uTech.value = techFactor * mobileLimiter;
+      this.membraneShader.uniforms.uScan.value = time * 0.35 + progress * 0.85;
     }
 
     // Field lines.
@@ -765,7 +982,9 @@ class ImmersiveThreeController {
       this.maxLines
     );
 
-    const lineHue = config.hue2 / 360;
+    const baseLineHue = config.hue2 / 360;
+    const techHue = 0.55; // ~198deg (cyan)
+    const lineHue = lerp(baseLineHue, techHue, techMix);
     for (let i = 0; i < this.fieldLines.length; i++) {
       const line = this.fieldLines[i];
       const node = this.lineNodes[i];
@@ -778,7 +997,15 @@ class ImmersiveThreeController {
 
       const baseRadius =
         config.lineRadius * (0.75 + (i / Math.max(1, activeLines - 1)) * 0.55);
-      const spin = time * node.speed + node.phase + progress * node.twist * 2.2;
+      const curl =
+        motif.lineCurl *
+        wowFactor *
+        (0.55 + this.energy * 0.55) *
+        (1 + accentFactor * 0.25);
+      const spin =
+        time * (node.speed * (0.85 + curl * 0.55)) +
+        node.phase +
+        progress * node.twist * (1.6 + curl * 1.25);
 
       for (let p = 0; p < this.linePoints; p++) {
         const t = p / (this.linePoints - 1);
@@ -786,16 +1013,20 @@ class ImmersiveThreeController {
         const idx3 = p * 3;
 
         const wobble =
-          Math.sin(u * 2.4 + spin) * 0.1 +
-          Math.cos(u * 3.1 - spin * 0.8) * 0.07;
+          Math.sin(u * (2.2 + curl * 1.2) + spin) * (0.085 + curl * 0.045) +
+          Math.cos(u * (3.0 + curl * 0.9) - spin * 0.8) * (0.06 + curl * 0.03);
 
         const radius = baseRadius * (1 + wobble * (0.6 + this.energy * 0.8));
-        const a = spin + u * 1.05 + wobble;
+        const a = spin + u * (0.95 + curl * 0.55) + wobble;
 
+        // Lines gently lens toward the pointer and slightly toward center in collapse.
+        const sinkPull = motif.sink * (1 - Math.abs(u)) * 0.12;
         const x =
-          Math.cos(a) * radius + this.pointer.x * 0.35 * (1 - Math.abs(u));
+          Math.cos(a) * radius * (1 - sinkPull) +
+          this.pointer.x * (0.28 + curl * 0.1) * (1 - Math.abs(u));
         const z =
-          Math.sin(a) * radius + this.pointer.y * 0.22 * (1 - Math.abs(u));
+          Math.sin(a) * radius * (1 - sinkPull) +
+          this.pointer.y * (0.18 + curl * 0.08) * (1 - Math.abs(u));
         const y = u * 1.9 + node.lift + Math.sin(spin + u * 1.3) * 0.12;
 
         positions[idx3] = x;
@@ -806,7 +1037,7 @@ class ImmersiveThreeController {
       line.geometry.attributes.position.needsUpdate = true;
       const mat = line.material as THREE.LineBasicMaterial;
       mat.color.setHSL(lineHue, 0.82, 0.66);
-      mat.opacity = 0.08 + this.energy * 0.12;
+      mat.opacity = 0.08 + this.energy * 0.12 + accentFactor * 0.035;
     }
 
     // Particles.
@@ -821,25 +1052,49 @@ class ImmersiveThreeController {
     const particlePositions = this.particles.geometry.attributes.position
       .array as Float32Array;
 
+    const orbitBias =
+      motif.orbit *
+      wowFactor *
+      (0.55 + this.energy * 0.55) *
+      (1 + accentFactor * 0.22);
+    const sinkBias = motif.sink * (0.55 + this.energy * 0.35);
+
     for (let i = 0; i < particleActive * 3; i += 3) {
       const bx = this.particleBase[i];
       const by = this.particleBase[i + 1];
       const bz = this.particleBase[i + 2];
 
-      const radial = Math.hypot(bx, bz) / config.particleRadius;
-      const drift = Math.sin(time * 0.8 + radial * 3.2) * 0.08;
-      particlePositions[i] = bx + drift + this.pointer.x * 0.22;
-      particlePositions[i + 1] = by + Math.cos(time * 0.65 + bx) * 0.06;
-      particlePositions[i + 2] = bz - drift + this.pointer.y * 0.18;
+      const baseR = Math.hypot(bx, bz);
+      const radial = baseR / Math.max(0.001, config.particleRadius);
+      const baseA = Math.atan2(bz, bx);
+
+      const flow =
+        time * (0.18 + orbitBias * 0.42) +
+        radial * (0.65 + orbitBias * 1.15) +
+        (bx + bz) * 0.08;
+
+      const a = baseA + flow;
+      const wobble = Math.sin(time * 0.9 + radial * 4.2 + baseA) * 0.12;
+
+      const sink = sinkBias * Math.exp(-baseR * 0.55);
+      const r = baseR * (1 - sink * 0.22) + wobble * (0.25 + orbitBias * 0.2);
+
+      particlePositions[i] = Math.cos(a) * r + this.pointer.x * 0.22;
+      particlePositions[i + 1] =
+        by +
+        Math.cos(time * 0.65 + baseA * 2.0) * (0.06 + orbitBias * 0.06) -
+        sink * 0.15;
+      particlePositions[i + 2] = Math.sin(a) * r + this.pointer.y * 0.18;
     }
 
     this.particles.geometry.setDrawRange(0, particleActive);
     this.particles.geometry.attributes.position.needsUpdate = true;
 
     const pMat = this.particles.material as THREE.PointsMaterial;
-    pMat.color.setHSL(config.hue2 / 360, 0.86, 0.67);
-    pMat.opacity = 0.22 + this.energy * 0.26;
-    pMat.size = 0.022 + this.quality * 0.012;
+    pMat.color.setHSL(lerp(config.hue2 / 360, 0.55, techMix), 0.86, 0.67);
+    pMat.opacity = 0.22 + this.energy * 0.26 + techMix * 0.05;
+    pMat.size =
+      (0.022 + this.quality * 0.012) * lerp(0.95, 1.12, mobileLimiter);
 
     // Probe + lens respond to scroll.
     const orbit = progress * Math.PI * 2;
@@ -912,7 +1167,7 @@ class ImmersiveThreeController {
       // Bloom is deliberately subtle; mobile devices get even less.
       const bloomScale = this.mobileScale < 0.85 ? 0.75 : 1;
       this.bloomPass.strength =
-        (config.bloom + this.energy * 0.16) * bloomScale;
+        (config.bloom + this.energy * 0.16 + accentFactor * 0.09) * bloomScale;
       this.bloomPass.radius = 0.45;
       this.bloomPass.threshold = 0.3;
     }
@@ -995,9 +1250,15 @@ function mount(): void {
   const root = document.querySelector<HTMLElement>('[data-ih]');
   if (!root) return;
 
-  const w = window as unknown as {
+  type IHWindow = Window & {
     __ihController?: ImmersiveThreeController;
   };
+
+  const w = window as IHWindow;
+
+  // On initial load, both DOMContentLoaded and astro:page-load can fire.
+  // If we already mounted for this exact DOM node, do nothing.
+  if (root === mountedRoot && w.__ihController) return;
 
   if (w.__ihController) {
     w.__ihController.destroy();
@@ -1005,10 +1266,13 @@ function mount(): void {
   }
 
   w.__ihController = new ImmersiveThreeController(root);
+  mountedRoot = root;
 }
 
+let mountedRoot: HTMLElement | null = null;
+
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', mount);
+  document.addEventListener('DOMContentLoaded', mount, { once: true });
 } else {
   mount();
 }
@@ -1016,7 +1280,7 @@ if (document.readyState === 'loading') {
 document.addEventListener('astro:page-load', mount);
 
 document.addEventListener('astro:before-swap', () => {
-  const w = window as unknown as {
+  const w = window as Window & {
     __ihController?: ImmersiveThreeController;
   };
 
@@ -1024,4 +1288,6 @@ document.addEventListener('astro:before-swap', () => {
     w.__ihController.destroy();
     w.__ihController = undefined;
   }
+
+  mountedRoot = null;
 });

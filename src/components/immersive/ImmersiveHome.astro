@@ -155,7 +155,10 @@ const chapters = [
 <style>
   .ih {
     position: relative;
-    min-height: calc(var(--ih-chapters, 6) * 130vh);
+    /* The scroll experience is intentionally long.
+       Use dynamic viewport height where available to prevent "ending early"
+       on mobile browsers with collapsing address bars. */
+    min-height: calc(var(--ih-chapters, 6) * 160vh);
     background:
       radial-gradient(
         120% 90% at 50% 18%,
@@ -190,6 +193,24 @@ const chapters = [
     --ih-hue: 210;
     --ih-hue-2: 280;
     --ih-grade: 0.2;
+  }
+
+  @supports (height: 100dvh) {
+    .ih {
+      min-height: calc(var(--ih-chapters, 6) * 1.6 * var(--viewport-height));
+    }
+  }
+
+  @media (max-width: 768px) {
+    .ih {
+      min-height: calc(var(--ih-chapters, 6) * 200vh);
+    }
+
+    @supports (height: 100dvh) {
+      .ih {
+        min-height: calc(var(--ih-chapters, 6) * 2 * var(--viewport-height));
+      }
+    }
   }
 
   .ih-stage {

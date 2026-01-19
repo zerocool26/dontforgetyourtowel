@@ -5,9 +5,15 @@ import ScrollTrigger from 'gsap/ScrollTrigger';
 
 type Cleanup = () => void;
 
+type TweenWithScrollTrigger = gsap.core.Tween & {
+  scrollTrigger?: ScrollTrigger;
+};
+
 const setupScrollMotion = (): Cleanup | null => {
   const root = document.querySelector<HTMLElement>('[data-ih]');
   if (!root) return null;
+
+  const triggers: ScrollTrigger[] = [];
 
   const reducedMotion = window.matchMedia(
     '(prefers-reduced-motion: reduce)'
@@ -65,7 +71,7 @@ const setupScrollMotion = (): Cleanup | null => {
   let lastProgress = 0;
 
   panels.forEach(panel => {
-    gsap.fromTo(
+    const tween = gsap.fromTo(
       panel,
       { autoAlpha: 0, y: 64, scale: 0.97 },
       {
@@ -82,6 +88,10 @@ const setupScrollMotion = (): Cleanup | null => {
         },
       }
     );
+
+    // Track created triggers so cleanup doesn't nuke ScrollTriggers app-wide.
+    const st = (tween as TweenWithScrollTrigger).scrollTrigger;
+    if (st) triggers.push(st);
   });
 
   const railTrigger = ScrollTrigger.create({
@@ -107,11 +117,13 @@ const setupScrollMotion = (): Cleanup | null => {
     },
   });
 
+  triggers.push(railTrigger);
+
   const words = Array.from(
     root.querySelectorAll<HTMLElement>('.ih-split .word')
   );
   words.forEach((word, index) => {
-    gsap.fromTo(
+    const tween = gsap.fromTo(
       word,
       { y: 20, opacity: 0, rotateX: -15 },
       {
@@ -128,6 +140,9 @@ const setupScrollMotion = (): Cleanup | null => {
         },
       }
     );
+
+    const st = (tween as TweenWithScrollTrigger).scrollTrigger;
+    if (st) triggers.push(st);
   });
 
   ScrollTrigger.refresh();
@@ -187,8 +202,7 @@ const setupScrollMotion = (): Cleanup | null => {
   gsap.ticker.add(energyTicker);
 
   return () => {
-    ScrollTrigger.getAll().forEach((trigger: ScrollTrigger) => trigger.kill());
-    railTrigger.kill();
+    triggers.forEach(trigger => trigger.kill());
     window.removeEventListener('pointermove', onPointerMove);
     modeButtons.forEach(button => {
       button.removeEventListener('click', onModeClick);
