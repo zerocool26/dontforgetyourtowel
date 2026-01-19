@@ -27,6 +27,13 @@ const chapters = [
     <canvas class="ih-canvas" data-ih-canvas></canvas>
 
     <div class="ih-space">
+      <div class="ih-core" data-ih-css-core aria-hidden="true">
+        <div class="ih-core-shell"></div>
+        <div class="ih-core-spark"></div>
+      </div>
+
+      <div class="ih-debug" data-ih-debug aria-hidden="true"></div>
+
       <div class="ih-layer ih-stars"></div>
       <div class="ih-layer ih-fog"></div>
       <div class="ih-layer ih-halo"></div>
@@ -326,6 +333,73 @@ const chapters = [
       contrast(calc(1.05 + (var(--ih-burst) * 0.16) + (var(--ih-grade) * 0.08)))
       brightness(calc(1 + (var(--ih-event) * 0.08) + (var(--ih-grade) * 0.06)))
       blur(calc((1 - var(--ih-quality)) * 0.9px));
+  }
+
+  /* CSS-only fallback core (shown when WebGL is unavailable/disabled). */
+  .ih-core {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+    transform: translateZ(320px);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .ih[data-ih-center='css'] .ih-core {
+    opacity: 0.95;
+  }
+
+  .ih[data-ih-center='css'] .ih-canvas {
+    display: none;
+  }
+
+  .ih-debug {
+    position: absolute;
+    left: 12px;
+    bottom: 12px;
+    z-index: 4;
+    max-width: min(92vw, 560px);
+    padding: 10px 12px;
+    border-radius: 12px;
+    font-family:
+      ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+      'Courier New', monospace;
+    font-size: 12px;
+    line-height: 1.35;
+    color: rgba(226, 232, 240, 0.92);
+    background: rgba(2, 6, 23, 0.55);
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 18px 60px rgba(2, 6, 23, 0.45);
+    opacity: 0;
+    transform: translateY(6px);
+    transition:
+      opacity 180ms ease,
+      transform 180ms ease;
+    pointer-events: none;
+    white-space: pre-wrap;
+  }
+
+  .ih[data-ih-debug='1'] .ih-debug {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .ih[data-ih-status]:not([data-ih-status='ok']):not([data-ih-status=''])
+    .ih-debug {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Mobile Safari / low-power GPUs: screen blend can make a darker WebGL frame
+     appear almost invisible against a dark background. Prefer normal compositing
+     and simpler filters for reliability. */
+  @media (max-width: 768px) {
+    .ih-canvas {
+      mix-blend-mode: normal;
+      opacity: 1;
+      filter: saturate(1.1) contrast(1.1) brightness(1.04);
+    }
   }
 
   .ih-space {
@@ -988,6 +1062,10 @@ const chapters = [
 
     .ih-canvas {
       display: none;
+    }
+
+    .ih-core {
+      opacity: 0.95;
     }
   }
 </style>

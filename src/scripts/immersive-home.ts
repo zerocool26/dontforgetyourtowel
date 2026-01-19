@@ -332,6 +332,7 @@ class ImmersiveThreeController {
 
   private raf = 0;
   private abortController = new AbortController();
+  private contextLost = false;
 
   constructor(root: HTMLElement) {
     this.root = root;
@@ -356,6 +357,14 @@ class ImmersiveThreeController {
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.0;
     this.renderer.setClearColor(new THREE.Color(0x05070f));
+
+    // Expose basic GPU/capability info for debugging and CSS fallbacks.
+    // (Useful when a deployed mobile device behaves differently from desktop.)
+    const maxPrec = this.renderer.capabilities.getMaxPrecision('highp');
+    root.dataset.ihWebgl = this.renderer.capabilities.isWebGL2
+      ? 'webgl2'
+      : 'webgl1';
+    root.dataset.ihPrec = maxPrec;
 
     this.scene.background = new THREE.Color(0x05070f);
     this.scene.fog = new THREE.FogExp2(0x070b18, 0.055);
@@ -923,6 +932,28 @@ void main(){
   private init(): void {
     const { signal } = this.abortController;
 
+    // Mobile browsers can lose WebGL contexts (memory pressure, backgrounding).
+    // Without handling this, the canvas may go permanently blank.
+    this.canvas.addEventListener(
+      'webglcontextlost',
+      e => {
+        e.preventDefault();
+        this.contextLost = true;
+        this.root.dataset.ihWebglState = 'lost';
+      },
+      { signal }
+    );
+
+    this.canvas.addEventListener(
+      'webglcontextrestored',
+      () => {
+        this.contextLost = false;
+        this.root.dataset.ihWebglState = 'restored';
+        this.resize();
+      },
+      { signal }
+    );
+
     window.addEventListener(
       'pointermove',
       e => {
@@ -1430,7 +1461,9 @@ void main(){
       last = now;
 
       if (!this.reducedMotion && this.visible) {
-        this.update(dt, now);
+        if (!this.contextLost) {
+          this.update(dt, now);
+        }
       }
 
       this.raf = window.requestAnimationFrame(tick);
