@@ -255,7 +255,9 @@ const chapters = [
     transform: translate(-50%, -50%);
     border-radius: 999px;
     pointer-events: none;
-    opacity: calc(0.1 + var(--ih-impact, 0) * 0.22);
+    opacity: calc(
+      0.08 + var(--ih-impact, 0) * 0.22 + var(--ih-pressure, 0) * 0.18
+    );
     will-change: transform, opacity;
 
     /* A crisp ring + soft inner sheen. Keep it cheap: no blur filters. */
@@ -268,7 +270,8 @@ const chapters = [
       radial-gradient(
         circle at 50% 50%,
         transparent 60%,
-        rgba(148, 163, 184, 0.18) 64%,
+        hsla(var(--ih-hue), 90%, 70%, 0.16) 62%,
+        hsla(var(--ih-hue-2), 90%, 72%, 0.12) 66%,
         transparent 70%
       );
   }
@@ -793,6 +796,42 @@ const chapters = [
     transform: translateZ(-900px);
     animation: ihStars 22s linear infinite;
     will-change: transform, opacity, background-position;
+  }
+
+  /* Inside the glass portal, stars intensify slightly (cheap mask, no filters). */
+  .ih-stars::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+
+    background-image:
+      radial-gradient(hsla(var(--ih-hue), 90%, 80%, 0.38) 1px, transparent 1px),
+      radial-gradient(rgba(255, 255, 255, 0.32) 1px, transparent 1px);
+    background-size:
+      110px 110px,
+      180px 180px;
+    background-position:
+      10px 18px,
+      80px 120px;
+
+    opacity: calc(
+      0.06 + var(--ih-impact, 0) * 0.12 + var(--ih-pressure, 0) * 0.16
+    );
+    animation: ihStars 22s linear infinite;
+
+    -webkit-mask-image: radial-gradient(
+      circle at calc(var(--ih-portal-x, 0.5) * 100%)
+        calc(var(--ih-portal-y, 0.5) * 100%),
+      #000 0 calc(var(--ih-portal-r, 0.36) * 100vmin),
+      transparent calc((var(--ih-portal-r, 0.36) * 100vmin) + 12vmin)
+    );
+    mask-image: radial-gradient(
+      circle at calc(var(--ih-portal-x, 0.5) * 100%)
+        calc(var(--ih-portal-y, 0.5) * 100%),
+      #000 0 calc(var(--ih-portal-r, 0.36) * 100vmin),
+      transparent calc((var(--ih-portal-r, 0.36) * 100vmin) + 12vmin)
+    );
   }
 
   .ih-fog {

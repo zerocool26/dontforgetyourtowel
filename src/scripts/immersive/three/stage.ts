@@ -53,6 +53,7 @@ export class ThreeStage {
   private portalCenterX = 0.5;
   private portalCenterY = 0.5;
   private portalRadius = 0.36;
+  private portalPressure = 0;
 
   private input: InputState;
   private pointers = new Map<
@@ -210,6 +211,7 @@ export class ThreeStage {
       uDistort: { value: 0.02 },
       uEnergy: { value: 0 },
       uBeat: { value: 0 },
+      uPressure: { value: 0 },
       uRipples: { value: this.portalRipples },
     };
 
@@ -237,6 +239,7 @@ export class ThreeStage {
         uniform float uDistort;
         uniform float uEnergy;
         uniform float uBeat;
+        uniform float uPressure;
         uniform vec4 uRipples[3];
         varying vec2 vUv;
 
@@ -304,6 +307,7 @@ export class ThreeStage {
           float distort = uDistort;
           distort += (0.008 + uEnergy * 0.02) * (0.6 + 0.4 * n);
           distort += beat * 0.018;
+          distort += uPressure * 0.030;
 
           float field = (rip * 0.65 + (n - 0.5) * 0.38);
           // Depth-aware refraction: slightly stronger where depth suggests “more volume”.
@@ -336,7 +340,7 @@ export class ThreeStage {
           float caust = pow(streaks, 2.0);
           caust *= (0.35 + 0.65 * n);
           vec3 caustCol = mix(vec3(0.25, 0.50, 0.75), vec3(0.65, 0.35, 0.95), 0.35 + uEnergy * 0.35);
-          col += caustCol * band * caust * (0.06 + uEnergy * 0.08 + uBeat * 0.12);
+          col += caustCol * band * caust * (0.06 + uEnergy * 0.08 + uBeat * 0.12 + uPressure * 0.14);
 
           // Outside portal: slightly darker to emphasize the lens.
           col *= 1.0 - (1.0 - mask) * 0.085;
@@ -567,6 +571,7 @@ export class ThreeStage {
         if (!this.isClientPointInRoot(e.clientX, e.clientY)) return;
         this.root.dataset.ihTouched = '1';
         this.burst = Math.min(1, this.burst + 0.55);
+        this.portalPressure = Math.min(1, this.portalPressure + 0.9);
         this.setPointerTargetFromClient(e.clientX, e.clientY);
 
         // Glass ripple impulse.
@@ -647,6 +652,7 @@ export class ThreeStage {
 
       // Tap burst.
       this.burst = Math.min(1, this.burst + 0.5);
+      this.portalPressure = Math.min(1, this.portalPressure + 0.85);
 
       // Glass ripple impulse (use the first touch as the origin).
       const t0 = e.touches.item(0);
@@ -951,6 +957,11 @@ export class ThreeStage {
     const dt = Math.min(1 / 30, Math.max(1 / 240, now - this.lastT));
     this.lastT = now;
 
+    // Portal pressure decays smoothly (press/tap adds energy to the lens).
+    const damp = (cur: number, tgt: number, lambda: number) =>
+      cur + (tgt - cur) * (1 - Math.exp(-lambda * dt));
+    this.portalPressure = damp(this.portalPressure, 0, 2.6);
+
     if (!this.inView) {
       // Keep CSS vars updated occasionally for UI consistency.
       if (Math.random() < 0.02) this.writeCssVars(now);
@@ -958,8 +969,6 @@ export class ThreeStage {
     }
 
     // Smooth input.
-    const damp = (cur: number, tgt: number, lambda: number) =>
-      cur + (tgt - cur) * (1 - Math.exp(-lambda * dt));
 
     this.input.pointer.x = damp(
       this.input.pointer.x,
@@ -1156,6 +1165,7 @@ export class ThreeStage {
         distortBase + (0.012 + this.energy * 0.02) + this.sceneBeat * 0.012;
       u.uEnergy.value = this.energy;
       u.uBeat.value = this.sceneBeat;
+      u.uPressure.value = this.portalPressure;
     }
 
     // Render.
@@ -1197,6 +1207,10 @@ export class ThreeStage {
     );
     this.root.style.setProperty('--ih-energy-soft', this.energy.toFixed(4));
     this.root.style.setProperty('--ih-burst', this.burst.toFixed(4));
+    this.root.style.setProperty(
+      '--ih-pressure',
+      this.portalPressure.toFixed(4)
+    );
     this.root.style.setProperty(
       '--ih-event',
       Math.min(1, this.energy * 0.85).toFixed(4)
