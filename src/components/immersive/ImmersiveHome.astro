@@ -1076,6 +1076,27 @@ const chapters = [
     will-change: transform, opacity;
   }
 
+  /* Mobile / reduced-GSAP reveal fallback (JS adds these classes). */
+  .ih-reveal {
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (pointer: coarse) {
+    .ih-reveal {
+      opacity: 0;
+      transform: translateY(16px);
+      transition:
+        opacity 520ms ease,
+        transform 760ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .ih-reveal.is-in {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
   .ih-labs {
     display: grid;
     gap: clamp(32px, 5vw, 60px);
@@ -1229,7 +1250,6 @@ const chapters = [
 </style>
 
 <script>
-  // Immersive controller (calm, chapter-driven)
-  import '../../scripts/immersive-home';
-  import '../../scripts/immersive-scroll';
+  // Immersive controller (modular rewrite)
+  import '../../scripts/immersive';
 </script>
