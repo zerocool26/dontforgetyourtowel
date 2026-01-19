@@ -32,6 +32,10 @@ export class ThreeStage {
   private shell: THREE.LineSegments;
   private particles: THREE.Points;
 
+  private particlesBasePositions: Float32Array | null = null;
+  private particlesPhase: Float32Array | null = null;
+  private particlesSpeed: Float32Array | null = null;
+
   private input: InputState;
   private pointers = new Map<
     number,
@@ -47,10 +51,30 @@ export class ThreeStage {
   private debugEl: HTMLElement | null = null;
 
   private lastT = performance.now() / 1000;
+  private lastFrameT = this.lastT;
+  private readonly frameInterval: number;
   private energy = 0;
   private burst = 0;
 
+  private sceneHueA = 210;
+  private sceneHueB = 280;
+  private fogDensity = 0.055;
+
+  private lastSceneId: string | undefined;
+  private sceneBeat = 0;
+
+  private ringTiltX = Math.PI / 2.4;
+  private ringTiltXTarget = Math.PI / 2.4;
+  private ringTiltY = 0;
+  private ringTiltYTarget = 0;
+  private shellOpacityTarget = 0.18;
+  private particleOpacityTarget = 0.32;
+
   private cleanup: Cleanup[] = [];
+
+  private viewportW = 1;
+  private viewportH = 1;
+  private stableViewportH = 1;
 
   constructor(
     root: HTMLElement,
@@ -63,7 +87,7 @@ export class ThreeStage {
 
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0x05070f);
-    this.scene.fog = new THREE.FogExp2(0x070b18, 0.055);
+    this.scene.fog = new THREE.FogExp2(0x070b18, this.fogDensity);
 
     this.camera = new THREE.PerspectiveCamera(45, 1, 0.1, 80);
     this.camera.position.set(0, 0, 7.2);
@@ -92,6 +116,9 @@ export class ThreeStage {
     this.renderer.toneMappingExposure = 1.0;
     this.renderer.setClearColor(new THREE.Color(0x05070f));
 
+    // Mobile-first perf: cap coarse pointer devices to 30fps.
+    this.frameInterval = caps.coarsePointer ? 1 / 30 : 1 / 60;
+
     this.debugEl = this.root.querySelector<HTMLElement>('[data-ih-debug]');
 
     // Lighting: stable, cheap.
@@ -114,12 +141,16 @@ export class ThreeStage {
     this.installInputHandlers();
     this.installVisibility();
 
+    this.syncViewportSize(true);
     this.resize();
 
     this.setDataset({ center: 'webgl', status: 'ok' });
 
     // Used by the UI hint to show after the first successful init.
     this.root.dataset.ihRendered = '1';
+
+    // Seed scene tracking so the first tick can still do a beat if desired.
+    this.lastSceneId = this.root.dataset.ihScene;
   }
 
   public getStatus(): ThreeStageStatus {
@@ -209,9 +240,58 @@ export class ThreeStage {
     this.cleanup.push(() => this.io?.disconnect());
   }
 
+  private readViewportSize(): { w: number; h: number } {
+    // Prefer VisualViewport if available; it tracks the actually visible area.
+    const vv = (
+      window as unknown as {
+        visualViewport?: { width: number; height: number };
+      }
+    ).visualViewport;
+
+    const w = Math.max(1, Math.round(vv?.width ?? window.innerWidth));
+    const h = Math.max(1, Math.round(vv?.height ?? window.innerHeight));
+    return { w, h };
+  }
+
+  private syncViewportSize(force: boolean): void {
+    const { w, h } = this.readViewportSize();
+
+    // Mobile Chrome/Safari can fire resize events repeatedly while the URL bar
+    // collapses/expands during scroll. Resizing the WebGL backbuffer each time
+    // can cause visible flicker. We keep a *non-shrinking* stable height on
+    // coarse pointer devices and only resize when width changes or the stable
+    // height grows.
+    if (this.caps.coarsePointer) {
+      const widthChanged = w !== this.viewportW;
+      if (force || widthChanged) {
+        this.viewportW = w;
+        this.viewportH = h;
+        this.stableViewportH = h;
+        return;
+      }
+
+      // Grow-only height (prevents thrash when address bar shows/hides).
+      if (h > this.stableViewportH) {
+        this.stableViewportH = h;
+      }
+
+      // Keep using the stable height.
+      this.viewportW = w;
+      this.viewportH = this.stableViewportH;
+      return;
+    }
+
+    // Desktop / fine pointer: reflect actual viewport.
+    this.viewportW = w;
+    this.viewportH = h;
+    this.stableViewportH = h;
+  }
+
   private setPointerTargetFromClient(x: number, y: number): void {
-    const nx = (x / Math.max(1, window.innerWidth)) * 2 - 1;
-    const ny = (y / Math.max(1, window.innerHeight)) * 2 - 1;
+    // Use our stabilized viewport size so touch mapping doesn't jitter when
+    // mobile browser chrome changes the visual viewport.
+    const nx = (x / Math.max(1, this.viewportW)) * 2 - 1;
+    const ny = (y / Math.max(1, this.viewportH)) * 2 - 1;
     this.input.pointerTarget.set(
       Math.max(-1, Math.min(1, nx)),
       Math.max(-1, Math.min(1, ny))
@@ -242,6 +322,19 @@ export class ThreeStage {
       'pointermove',
       e => {
         if (e.pointerType === 'touch') return;
+        this.setPointerTargetFromClient(e.clientX, e.clientY);
+      },
+      { passive: true, signal }
+    );
+
+    // Desktop click burst (parity with tap).
+    window.addEventListener(
+      'pointerdown',
+      e => {
+        if (e.pointerType === 'touch') return;
+        if (!this.isClientPointInRoot(e.clientX, e.clientY)) return;
+        this.root.dataset.ihTouched = '1';
+        this.burst = Math.min(1, this.burst + 0.55);
         this.setPointerTargetFromClient(e.clientX, e.clientY);
       },
       { passive: true, signal }
@@ -409,6 +502,9 @@ export class ThreeStage {
     const count = this.caps.coarsePointer ? 220 : 420;
     const positions = new Float32Array(count * 3);
 
+    const phase = new Float32Array(count);
+    const speed = new Float32Array(count);
+
     for (let i = 0; i < count; i++) {
       const idx = i * 3;
       const r = 2.6 + Math.random() * 3.2;
@@ -417,7 +513,15 @@ export class ThreeStage {
       positions[idx] = Math.cos(a) * r;
       positions[idx + 1] = y;
       positions[idx + 2] = Math.sin(a) * r;
+
+      phase[i] = Math.random() * Math.PI * 2;
+      speed[i] = 0.6 + Math.random() * 1.1;
     }
+
+    // Keep a stable base for cheap per-frame drift.
+    this.particlesBasePositions = positions.slice();
+    this.particlesPhase = phase;
+    this.particlesSpeed = speed;
 
     const geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
@@ -437,8 +541,9 @@ export class ThreeStage {
   public resize(): void {
     if (this.destroyed) return;
 
-    const w = Math.max(1, window.innerWidth);
-    const h = Math.max(1, window.innerHeight);
+    this.syncViewportSize(false);
+    const w = Math.max(1, this.viewportW);
+    const h = Math.max(1, this.viewportH);
 
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
@@ -450,9 +555,133 @@ export class ThreeStage {
 
   private computeScrollProgress(): number {
     const rect = this.root.getBoundingClientRect();
-    const total = rect.height - window.innerHeight;
+    // Use the stabilized viewport height to avoid energy/scroll jitter on
+    // mobile browsers that change innerHeight during URL bar collapse.
+    const total = rect.height - Math.max(1, this.viewportH);
     if (total <= 0) return 0;
     return Math.min(1, Math.max(0, -rect.top / total));
+  }
+
+  private getSceneConfig(scene: string | undefined): {
+    hueA: number;
+    hueB: number;
+    fog: number;
+    energyMul: number;
+    hueAmp: number;
+    ringTiltX: number;
+    ringTiltY: number;
+    shellOpacity: number;
+    particleOpacity: number;
+  } {
+    switch (scene) {
+      case 'interference':
+        return {
+          hueA: 190,
+          hueB: 300,
+          fog: 0.062,
+          energyMul: 1.05,
+          hueAmp: 46,
+          ringTiltX: Math.PI / 2.55,
+          ringTiltY: 0.08,
+          shellOpacity: 0.2,
+          particleOpacity: 0.34,
+        };
+      case 'field':
+        return {
+          hueA: 165,
+          hueB: 255,
+          fog: 0.052,
+          energyMul: 1.0,
+          hueAmp: 38,
+          ringTiltX: Math.PI / 2.35,
+          ringTiltY: -0.06,
+          shellOpacity: 0.16,
+          particleOpacity: 0.28,
+        };
+      case 'lensing':
+        return {
+          hueA: 210,
+          hueB: 320,
+          fog: 0.058,
+          energyMul: 1.1,
+          hueAmp: 44,
+          ringTiltX: Math.PI / 2.7,
+          ringTiltY: 0.12,
+          shellOpacity: 0.18,
+          particleOpacity: 0.33,
+        };
+      case 'collapse':
+        return {
+          hueA: 245,
+          hueB: 330,
+          fog: 0.07,
+          energyMul: 1.18,
+          hueAmp: 52,
+          ringTiltX: Math.PI / 2.9,
+          ringTiltY: -0.14,
+          shellOpacity: 0.24,
+          particleOpacity: 0.38,
+        };
+      case 'afterglow':
+        return {
+          hueA: 36,
+          hueB: 285,
+          fog: 0.048,
+          energyMul: 0.92,
+          hueAmp: 34,
+          ringTiltX: Math.PI / 2.25,
+          ringTiltY: 0.04,
+          shellOpacity: 0.12,
+          particleOpacity: 0.22,
+        };
+      case 'origin':
+      default:
+        return {
+          hueA: 210,
+          hueB: 280,
+          fog: 0.055,
+          energyMul: 1.0,
+          hueAmp: 40,
+          ringTiltX: Math.PI / 2.4,
+          ringTiltY: 0,
+          shellOpacity: 0.18,
+          particleOpacity: 0.32,
+        };
+    }
+  }
+
+  private getModeBias(mode: string | undefined): {
+    energyMul: number;
+    burstMul: number;
+    ringMul: number;
+    hueAmpMul: number;
+  } {
+    switch (mode) {
+      case 'boost':
+        return {
+          energyMul: 1.25,
+          burstMul: 1.1,
+          ringMul: 1.25,
+          hueAmpMul: 1.05,
+        };
+      case 'prism':
+        return {
+          energyMul: 1.08,
+          burstMul: 1.05,
+          ringMul: 1.35,
+          hueAmpMul: 1.25,
+        };
+      case 'pulse':
+        return {
+          energyMul: 1.15,
+          burstMul: 1.35,
+          ringMul: 1.2,
+          hueAmpMul: 1.1,
+        };
+      case 'calm':
+      default:
+        return { energyMul: 1.0, burstMul: 1.0, ringMul: 1.0, hueAmpMul: 1.0 };
+    }
   }
 
   public tick(): void {
@@ -462,6 +691,22 @@ export class ThreeStage {
     if (!this.tabVisible) return;
 
     const now = performance.now() / 1000;
+
+    // Simple FPS limiter to reduce mobile jank/thermals.
+    if (this.caps.coarsePointer) {
+      const elapsed = now - this.lastFrameT;
+      if (elapsed < this.frameInterval) return;
+      this.lastFrameT = now;
+    }
+
+    // In case the visual viewport grew (URL bar collapsed), adopt the larger
+    // size occasionally without constantly reallocating.
+    if (this.caps.coarsePointer && Math.random() < 0.03) {
+      const beforeH = this.viewportH;
+      this.syncViewportSize(false);
+      if (this.viewportH !== beforeH) this.resize();
+    }
+
     const dt = Math.min(1 / 30, Math.max(1 / 240, now - this.lastT));
     this.lastT = now;
 
@@ -489,6 +734,26 @@ export class ThreeStage {
 
     const progress = this.computeScrollProgress();
 
+    const sceneId = this.root.dataset.ihScene;
+    const mode = this.root.dataset.mode;
+    const sceneCfg = this.getSceneConfig(sceneId);
+    const modeBias = this.getModeBias(mode);
+
+    // Scene-change impulse: a tiny “beat” to help the scroll journey feel intentional.
+    if (sceneId !== this.lastSceneId) {
+      this.lastSceneId = sceneId;
+      this.sceneBeat = 1;
+      this.burst = Math.min(1, this.burst + 0.35);
+      this.root.style.setProperty('--ih-scene-beat', '1');
+      this.root.dataset.ihSceneBeat = String(Date.now());
+    }
+
+    // Beat decays over time.
+    const beatDamp = (cur: number, tgt: number, lambda: number) =>
+      cur + (tgt - cur) * (1 - Math.exp(-lambda * dt));
+    this.sceneBeat = beatDamp(this.sceneBeat, 0, 3.6);
+    this.root.style.setProperty('--ih-scene-beat', this.sceneBeat.toFixed(4));
+
     // Energy is scroll + touch + subtle idle.
     const energyTarget =
       0.15 +
@@ -499,8 +764,27 @@ export class ThreeStage {
         Math.hypot(this.input.pointer.x, this.input.pointer.y) * 0.18
       );
 
-    this.energy = damp(this.energy, energyTarget, 3.8);
-    this.burst = Math.min(1, this.burst * 0.92 + this.energy * 0.06);
+    const energyTargetBiased =
+      energyTarget * sceneCfg.energyMul * modeBias.energyMul;
+
+    this.energy = damp(this.energy, energyTargetBiased, 3.8);
+    this.burst = Math.min(
+      1,
+      this.burst * 0.92 + this.energy * 0.06 * modeBias.burstMul
+    );
+
+    // Smoothly drift scene palette + fog.
+    this.sceneHueA = damp(this.sceneHueA, sceneCfg.hueA, 1.6);
+    this.sceneHueB = damp(this.sceneHueB, sceneCfg.hueB, 1.6);
+    this.fogDensity = damp(this.fogDensity, sceneCfg.fog, 1.0);
+    const fog = this.scene.fog as THREE.FogExp2 | null;
+    if (fog) fog.density = this.fogDensity;
+
+    // Scene motion targets (beats).
+    this.ringTiltXTarget = sceneCfg.ringTiltX;
+    this.ringTiltYTarget = sceneCfg.ringTiltY;
+    this.shellOpacityTarget = sceneCfg.shellOpacity;
+    this.particleOpacityTarget = sceneCfg.particleOpacity;
 
     // Animate.
     this.group.rotation.y = now * 0.15 + this.input.pointer.x * 0.35;
@@ -512,6 +796,16 @@ export class ThreeStage {
     this.core.scale.setScalar(1 + wobble);
 
     this.ring.rotation.z = now * (0.35 + this.energy * 0.25);
+    this.ringTiltX = damp(this.ringTiltX, this.ringTiltXTarget, 2.0);
+    this.ringTiltY = damp(this.ringTiltY, this.ringTiltYTarget, 2.0);
+    this.ring.rotation.x = this.ringTiltX + this.sceneBeat * 0.12;
+    this.ring.rotation.y =
+      this.ringTiltY + Math.sin(now * 0.9) * 0.04 * this.energy;
+
+    // Tiny scale breathing to keep the silhouette feeling alive.
+    const ringBreath = 1 + Math.sin(now * 1.0) * 0.01 + this.sceneBeat * 0.05;
+    this.ring.scale.setScalar(ringBreath);
+
     this.shell.rotation.y = now * 0.2;
 
     const camZ = 7.2 - this.input.pinch * 0.9;
@@ -528,9 +822,12 @@ export class ThreeStage {
     this.camera.position.z = damp(this.camera.position.z, camZ, 4);
     this.camera.lookAt(0, 0, 0);
 
-    // Subtle color drift.
-    const hue = 0.55 + Math.sin(progress * Math.PI * 2) * 0.07;
-    const hue2 = 0.62 + Math.cos(progress * Math.PI * 2) * 0.08;
+    // Subtle color drift (scene-driven base + scroll drift).
+    const hueAmp = (sceneCfg.hueAmp * modeBias.hueAmpMul) / 360;
+    const hue =
+      this.sceneHueA / 360 + Math.sin(progress * Math.PI * 2) * hueAmp;
+    const hue2 =
+      this.sceneHueB / 360 + Math.cos(progress * Math.PI * 2) * hueAmp;
 
     const coreMat = this.core.material as THREE.MeshStandardMaterial;
     coreMat.color.setHSL(hue, 0.65, 0.18);
@@ -539,15 +836,55 @@ export class ThreeStage {
 
     const ringMat = this.ring.material as THREE.MeshBasicMaterial;
     ringMat.color.setHSL(hue2, 0.95, 0.62);
-    ringMat.opacity = 0.12 + this.energy * 0.22;
+    ringMat.opacity = (0.12 + this.energy * 0.22) * modeBias.ringMul;
 
     const shellMat = this.shell.material as THREE.LineBasicMaterial;
     shellMat.color.setHSL(hue, 0.9, 0.65);
-    shellMat.opacity = 0.08 + this.energy * 0.18;
+    shellMat.opacity =
+      0.06 + this.energy * 0.16 + this.shellOpacityTarget * 0.3;
 
     const pMat = this.particles.material as THREE.PointsMaterial;
     pMat.color.setHSL(hue, 0.85, 0.67);
-    pMat.opacity = 0.18 + this.energy * 0.24;
+    pMat.opacity =
+      0.14 + this.energy * 0.22 + this.particleOpacityTarget * 0.25;
+
+    // Lightweight particle drift (CPU) for better motion richness.
+    // This stays intentionally subtle and avoids any allocations per frame.
+    const base = this.particlesBasePositions;
+    const phase = this.particlesPhase;
+    const speed = this.particlesSpeed;
+    const pGeo = this.particles.geometry as THREE.BufferGeometry;
+    const pAttr = pGeo.getAttribute('position') as THREE.BufferAttribute | null;
+    if (base && phase && speed && pAttr?.array instanceof Float32Array) {
+      const arr = pAttr.array as Float32Array;
+      const count = phase.length;
+      const driftScale =
+        (0.04 + this.energy * 0.08) * (this.caps.coarsePointer ? 0.8 : 1);
+      const beat = this.sceneBeat;
+
+      for (let i = 0; i < count; i++) {
+        const idx = i * 3;
+        const bx = base[idx];
+        const by = base[idx + 1];
+        const bz = base[idx + 2];
+
+        const w = now * speed[i] + phase[i];
+        const bob = Math.sin(w) * driftScale;
+        const swirl = Math.cos(w * 0.72) * driftScale * 0.55;
+        const pulse = Math.sin(w * 1.35) * (0.012 + beat * 0.04);
+
+        const r = Math.hypot(bx, bz) || 1;
+        const nx = bx / r;
+        const nz = bz / r;
+
+        arr[idx] = bx + nx * (swirl + pulse);
+        arr[idx + 1] = by + bob;
+        arr[idx + 2] = bz + nz * (swirl + pulse);
+      }
+
+      pAttr.needsUpdate = true;
+      pMat.size = 0.028 + this.energy * 0.01;
+    }
 
     // Render.
     this.renderer.render(this.scene, this.camera);
@@ -587,11 +924,18 @@ export class ThreeStage {
       (this.caps.coarsePointer ? 0.75 : 1).toFixed(4)
     );
 
-    // Match existing CSS expectations.
-    const hue = 210 + Math.sin(progress * Math.PI * 2) * 35;
-    const hue2 = 280 + Math.cos(progress * Math.PI * 2) * 35;
+    // Match existing CSS expectations (scene-driven base in degrees).
+    const sceneId = this.root.dataset.ihScene;
+    const mode = this.root.dataset.mode;
+    const sceneCfg = this.getSceneConfig(sceneId);
+    const modeBias = this.getModeBias(mode);
+
+    const hueAmpDeg = sceneCfg.hueAmp * modeBias.hueAmpMul;
+    const hue = this.sceneHueA + Math.sin(progress * Math.PI * 2) * hueAmpDeg;
+    const hue2 = this.sceneHueB + Math.cos(progress * Math.PI * 2) * hueAmpDeg;
     this.root.style.setProperty('--ih-hue', hue.toFixed(2));
     this.root.style.setProperty('--ih-hue-2', hue2.toFixed(2));
+    this.root.style.setProperty('--ih-scene', sceneId ?? '');
 
     // Clean intensity signal.
     const impact = Math.min(

@@ -19,6 +19,11 @@ const mount = () => {
 
   const caps = getImmersiveCaps();
 
+  // Expose lightweight runtime hints for CSS tuning (e.g., Chrome mobile flicker mitigations).
+  root.dataset.ihBrowser = caps.browser;
+  root.dataset.ihOs = caps.os;
+  root.dataset.ihVv = caps.hasVisualViewport ? '1' : '0';
+
   // Default: assume WebGL unless we explicitly fall back.
   root.dataset.ihCenter = 'webgl';
   root.dataset.ihStatus = 'ok';
@@ -55,9 +60,23 @@ const mount = () => {
     }
   }
 
-  const onResize = () => stage?.resize();
+  let resizeRaf = 0;
+  const onResize = () => {
+    if (!stage) return;
+    if (resizeRaf) return;
+    resizeRaf = window.requestAnimationFrame(() => {
+      resizeRaf = 0;
+      stage?.resize();
+    });
+  };
   window.addEventListener('resize', onResize, { passive: true });
-  cleanups.push(() => window.removeEventListener('resize', onResize));
+  // Orientation changes can be especially noisy on mobile; handle explicitly.
+  window.addEventListener('orientationchange', onResize, { passive: true });
+  cleanups.push(() => {
+    window.cancelAnimationFrame(resizeRaf);
+    window.removeEventListener('resize', onResize);
+    window.removeEventListener('orientationchange', onResize);
+  });
 
   // Single RAF loop for the 3D (only when WebGL is active).
   let raf = 0;

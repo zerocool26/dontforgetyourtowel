@@ -6,6 +6,41 @@ export type ImmersiveCaps = {
   webgl: boolean;
   webgl2: boolean;
   maxPrecision: 'highp' | 'mediump' | 'lowp';
+  browser: 'chrome' | 'firefox' | 'safari' | 'edge' | 'other';
+  os: 'android' | 'ios' | 'other';
+  hasVisualViewport: boolean;
+};
+
+const detectBrowser = (): ImmersiveCaps['browser'] => {
+  try {
+    const ua = (navigator.userAgent || '').toLowerCase();
+    if (ua.includes('firefox')) return 'firefox';
+    if (ua.includes('edg')) return 'edge';
+    // iOS Chrome uses CriOS (WebKit), but we still treat it as chrome-ish for tuning.
+    if (ua.includes('crios') || (ua.includes('chrome') && !ua.includes('edg')))
+      return 'chrome';
+    if (
+      ua.includes('safari') &&
+      !ua.includes('chrome') &&
+      !ua.includes('crios')
+    )
+      return 'safari';
+    return 'other';
+  } catch {
+    return 'other';
+  }
+};
+
+const detectOs = (): ImmersiveCaps['os'] => {
+  try {
+    const ua = (navigator.userAgent || '').toLowerCase();
+    if (ua.includes('android')) return 'android';
+    if (ua.includes('iphone') || ua.includes('ipad') || ua.includes('ipod'))
+      return 'ios';
+    return 'other';
+  } catch {
+    return 'other';
+  }
 };
 
 const getMaxPrecision = (): 'highp' | 'mediump' | 'lowp' => {
@@ -64,6 +99,12 @@ export const getImmersiveCaps = (): ImmersiveCaps => {
 
   const maxPrecision = getMaxPrecision();
 
+  const browser = detectBrowser();
+  const os = detectOs();
+  const hasVisualViewport =
+    typeof (window as unknown as { visualViewport?: unknown })
+      .visualViewport !== 'undefined';
+
   return {
     coarsePointer,
     reducedMotion,
@@ -72,5 +113,8 @@ export const getImmersiveCaps = (): ImmersiveCaps => {
     webgl,
     webgl2,
     maxPrecision,
+    browser,
+    os,
+    hasVisualViewport,
   };
 };

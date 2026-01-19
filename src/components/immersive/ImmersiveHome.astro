@@ -236,6 +236,8 @@ const chapters = [
     inset: 0;
     z-index: 1;
     pointer-events: none;
+    transform: translateZ(0);
+    will-change: transform;
   }
 
   .ih-progress {
@@ -563,6 +565,20 @@ const chapters = [
       mix-blend-mode: normal;
       opacity: calc(0.12 + (var(--ih-impact) * 0.28));
     }
+
+    /* Chrome mobile tends to flicker when animating large blurred layers while
+       a fixed WebGL canvas is updating beneath. Firefox mobile is typically fine.
+       Keep the look, reduce the most expensive compositing work only on Chrome. */
+    .ih[data-ih-browser='chrome'] .ih-fog {
+      animation: none;
+      filter: blur(14px) saturate(1.1);
+      opacity: 0.78;
+    }
+
+    .ih[data-ih-browser='chrome'] .ih-stars {
+      animation-duration: 34s;
+      opacity: 0.34;
+    }
   }
 
   .ih-space {
@@ -743,6 +759,7 @@ const chapters = [
     opacity: 0.42;
     transform: translateZ(-900px);
     animation: ihStars 22s linear infinite;
+    will-change: transform, opacity, background-position;
   }
 
   .ih-fog {
@@ -766,6 +783,7 @@ const chapters = [
       );
     filter: blur(22px) saturate(1.2);
     animation: ihFog 12s ease-in-out infinite;
+    will-change: transform, opacity, filter;
   }
 
   .ih-grid {

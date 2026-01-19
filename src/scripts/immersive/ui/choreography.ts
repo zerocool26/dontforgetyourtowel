@@ -15,6 +15,108 @@ export const setupImmersiveChoreography = (
 ): Cleanup => {
   const cleanups: Cleanup[] = [];
 
+  const getViewportHeight = () => {
+    const vv = (window as unknown as { visualViewport?: { height: number } })
+      .visualViewport;
+    return vv?.height ?? window.innerHeight;
+  };
+
+  // Chapters -> scene routing (drives data-ih-scene for 3D + CSS).
+  const setupSceneRouting = (): Cleanup => {
+    const chapters = Array.from(
+      root.querySelectorAll<HTMLElement>('[data-ih-chapter]')
+    );
+    if (chapters.length === 0) return () => {};
+
+    const indexByEl = new Map<HTMLElement, number>();
+    chapters.forEach((el, idx) => indexByEl.set(el, idx));
+
+    const setScene = (scene: string, index: number) => {
+      if (scene && root.dataset.ihScene !== scene) root.dataset.ihScene = scene;
+      root.dataset.ihSceneIndex = String(index);
+      root.style.setProperty('--ih-scene-index', String(index));
+    };
+
+    // Initialize from markup.
+    const initialScene = root.dataset.ihScene;
+    if (initialScene) setScene(initialScene, 0);
+
+    // Preferred: IntersectionObserver chooses the chapter nearest a viewport anchor.
+    if (typeof window.IntersectionObserver !== 'undefined') {
+      const active = new Map<HTMLElement, IntersectionObserverEntry>();
+      const anchorY = () => (getViewportHeight() || 1) * 0.38;
+
+      const pickBest = () => {
+        let best: { scene: string; index: number; dist: number } | undefined =
+          undefined;
+
+        for (const entry of active.values()) {
+          if (!entry.isIntersecting) continue;
+          const el = entry.target as HTMLElement;
+          const scene = el.dataset.scene;
+          if (!scene) continue;
+          const idx = indexByEl.get(el) ?? 0;
+          const rect = entry.boundingClientRect;
+          const centerY = rect.top + rect.height * 0.5;
+          const dist = Math.abs(centerY - anchorY());
+          if (!best || dist < best.dist) best = { scene, index: idx, dist };
+        }
+
+        if (best) setScene(best.scene, best.index);
+      };
+
+      const observer = new IntersectionObserver(
+        entries => {
+          entries.forEach(entry => {
+            active.set(entry.target as HTMLElement, entry);
+          });
+          pickBest();
+        },
+        {
+          threshold: [0, 0.01, 0.15],
+          // Bias toward the middle-ish of the viewport.
+          rootMargin: '-35% 0px -55% 0px',
+        }
+      );
+
+      chapters.forEach(el => observer.observe(el));
+
+      const onResize = () => pickBest();
+      window.addEventListener('resize', onResize, { passive: true });
+
+      return () => {
+        window.removeEventListener('resize', onResize);
+        observer.disconnect();
+        active.clear();
+      };
+    }
+
+    // Fallback: map scroll progress to chapter index.
+    const onScroll = () => {
+      const rect = root.getBoundingClientRect();
+      const total = rect.height - getViewportHeight();
+      const progress =
+        total > 0 ? Math.min(1, Math.max(0, -rect.top / total)) : 0;
+      const idx = Math.min(
+        chapters.length - 1,
+        Math.max(0, Math.floor(progress * chapters.length))
+      );
+      const scene = chapters[idx]?.dataset.scene;
+      if (scene) setScene(scene, idx);
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    onScroll();
+
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
+  };
+
+  cleanups.push(setupSceneRouting());
+
   // Mobile-first: keep it extremely reliable.
   // Desktop: allow GSAP ScrollTrigger + Splitting.
   const enableGsap = !caps.reducedMotion && !caps.coarsePointer;
@@ -125,7 +227,7 @@ export const setupImmersiveChoreography = (
     if (caps.reducedMotion) {
       const onScroll = () => {
         const rect = root.getBoundingClientRect();
-        const total = rect.height - window.innerHeight;
+        const total = rect.height - getViewportHeight();
         const progress =
           total > 0 ? Math.min(1, Math.max(0, -rect.top / total)) : 0;
         root.style.setProperty('--ih-progress', progress.toFixed(4));
@@ -148,7 +250,7 @@ export const setupImmersiveChoreography = (
     // Mobile / reduced motion path: IntersectionObserver-driven class toggles.
     // No GSAP ticker, no ScrollTrigger, no smooth scrolling.
     const observer =
-      'IntersectionObserver' in window
+      typeof window.IntersectionObserver !== 'undefined'
         ? new IntersectionObserver(
             entries => {
               entries.forEach(entry => {
@@ -174,7 +276,7 @@ export const setupImmersiveChoreography = (
     // Keep rail progress driven by scroll position (no GSAP required).
     const onScroll = () => {
       const rect = root.getBoundingClientRect();
-      const total = rect.height - window.innerHeight;
+      const total = rect.height - getViewportHeight();
       const progress =
         total > 0 ? Math.min(1, Math.max(0, -rect.top / total)) : 0;
       root.style.setProperty('--ih-progress', progress.toFixed(4));
