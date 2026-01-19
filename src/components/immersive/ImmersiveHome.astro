@@ -35,7 +35,9 @@ const chapters = [
       <div class="ih-debug" data-ih-debug aria-hidden="true"></div>
 
       <div class="ih-hint" data-ih-hint aria-hidden="true">
-        <span class="ih-hint-pill">Tap to pulse · Pinch to zoom</span>
+        <span class="ih-hint-pill"
+          >Tap to pulse · Hold to charge · Pinch to zoom</span
+        >
       </div>
 
       <div class="ih-layer ih-stars"></div>
@@ -208,6 +210,7 @@ const chapters = [
     --ih-direction: 1;
     --ih-burst: 0;
     --ih-event: 0;
+    --ih-pressure: 0;
     --ih-pinch: 0;
     --ih-quality: 1;
     --ih-hue: 210;
@@ -735,6 +738,38 @@ const chapters = [
     opacity: 0.7;
   }
 
+  /* Portal-coupled halo: a subtle “inside-lens” lift without extra blur filters. */
+  .ih-halo::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: 999px;
+
+    background: radial-gradient(
+      85% 60% at 50% 50%,
+      hsla(var(--ih-hue-2), 90%, 70%, 0.14),
+      rgba(2, 6, 23, 0) 62%
+    );
+
+    opacity: calc(
+      0.02 + (var(--ih-impact, 0) * 0.08) + (var(--ih-pressure, 0) * 0.14)
+    );
+
+    -webkit-mask-image: radial-gradient(
+      circle at calc(var(--ih-portal-x, 0.5) * 100%)
+        calc(var(--ih-portal-y, 0.5) * 100%),
+      #000 0 calc(var(--ih-portal-r, 0.36) * 100vmin),
+      transparent calc((var(--ih-portal-r, 0.36) * 100vmin) + 14vmin)
+    );
+    mask-image: radial-gradient(
+      circle at calc(var(--ih-portal-x, 0.5) * 100%)
+        calc(var(--ih-portal-y, 0.5) * 100%),
+      #000 0 calc(var(--ih-portal-r, 0.36) * 100vmin),
+      transparent calc((var(--ih-portal-r, 0.36) * 100vmin) + 14vmin)
+    );
+  }
+
   .ih-halo::before {
     content: '';
     position: absolute;
@@ -771,6 +806,39 @@ const chapters = [
     transform: translateZ(40px) rotate(calc(var(--ih-scroll) * 80deg))
       translateY(calc((var(--ih-scroll) - 0.5) * 120px));
     filter: blur(6px);
+  }
+
+  /* Portal-coupled sweep: a tighter sheen that appears “inside” the glass. */
+  .ih-sweep::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+
+    background: linear-gradient(
+      120deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.16) 45%,
+      rgba(255, 255, 255, 0) 60%
+    );
+
+    opacity: calc(
+      0.02 + (var(--ih-impact, 0) * 0.06) + (var(--ih-pressure, 0) * 0.12)
+    );
+    mix-blend-mode: screen;
+
+    -webkit-mask-image: radial-gradient(
+      circle at calc(var(--ih-portal-x, 0.5) * 100%)
+        calc(var(--ih-portal-y, 0.5) * 100%),
+      #000 0 calc(var(--ih-portal-r, 0.36) * 100vmin),
+      transparent calc((var(--ih-portal-r, 0.36) * 100vmin) + 12vmin)
+    );
+    mask-image: radial-gradient(
+      circle at calc(var(--ih-portal-x, 0.5) * 100%)
+        calc(var(--ih-portal-y, 0.5) * 100%),
+      #000 0 calc(var(--ih-portal-r, 0.36) * 100vmin),
+      transparent calc((var(--ih-portal-r, 0.36) * 100vmin) + 12vmin)
+    );
   }
 
   .ih-layer {

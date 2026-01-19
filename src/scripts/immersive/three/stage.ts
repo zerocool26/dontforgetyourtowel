@@ -54,6 +54,11 @@ export class ThreeStage {
   private portalCenterY = 0.5;
   private portalRadius = 0.36;
   private portalPressure = 0;
+  private portalPressing = false;
+  private portalCharge = 0;
+  private portalPressStartT = 0;
+  private portalPressClientX = 0;
+  private portalPressClientY = 0;
 
   private input: InputState;
   private pointers = new Map<
@@ -548,6 +553,61 @@ export class ThreeStage {
     this.input.pinchTarget = Math.max(-1, Math.min(1, raw * 1.2));
   }
 
+  private startPortalPress(clientX: number, clientY: number): void {
+    this.portalPressing = true;
+    this.portalCharge = 0;
+    this.portalPressStartT = performance.now() / 1000;
+    this.portalPressClientX = clientX;
+    this.portalPressClientY = clientY;
+
+    // Immediate feedback without committing to a full “tap” yet.
+    this.burst = Math.min(1, this.burst + 0.18);
+    this.portalPressure = Math.min(1, Math.max(this.portalPressure, 0.28));
+    this.setPointerTargetFromClient(clientX, clientY);
+  }
+
+  private updatePortalPress(clientX: number, clientY: number): void {
+    if (!this.portalPressing) return;
+    this.portalPressClientX = clientX;
+    this.portalPressClientY = clientY;
+  }
+
+  private cancelPortalPress(): void {
+    this.portalPressing = false;
+    this.portalCharge = 0;
+  }
+
+  private releasePortalPress(): void {
+    if (!this.portalPressing) return;
+    this.portalPressing = false;
+
+    const now = performance.now() / 1000;
+    const held = Math.max(0, now - this.portalPressStartT);
+    const charge = this.portalCharge;
+    const x = this.portalPressClientX;
+    const y = this.portalPressClientY;
+    this.portalCharge = 0;
+
+    // Tap vs hold:
+    // - quick releases behave like the old tap/click pulse
+    // - longer holds “charge” tension and release a heavier ripple
+    const tapThreshold = this.caps.coarsePointer ? 0.24 : 0.2;
+    const isTap = held <= tapThreshold;
+
+    if (isTap) {
+      this.burst = Math.min(1, this.burst + 0.48);
+      this.portalPressure = Math.min(1, this.portalPressure + 0.85);
+      this.addPortalRippleFromClient(x, y, 0.9);
+      return;
+    }
+
+    const amp = Math.min(1, 0.55 + charge * 0.45);
+    this.burst = Math.min(1, this.burst + 0.65);
+    this.portalPressure = Math.min(1, this.portalPressure + 0.95);
+    this.sceneBeat = Math.min(1, this.sceneBeat + 0.25);
+    this.addPortalRippleFromClient(x, y, amp);
+  }
+
   private installInputHandlers(): void {
     const abort = new AbortController();
     const { signal } = abort;
@@ -559,6 +619,7 @@ export class ThreeStage {
       e => {
         if (e.pointerType === 'touch') return;
         this.setPointerTargetFromClient(e.clientX, e.clientY);
+        this.updatePortalPress(e.clientX, e.clientY);
       },
       { passive: true, signal }
     );
@@ -570,12 +631,34 @@ export class ThreeStage {
         if (e.pointerType === 'touch') return;
         if (!this.isClientPointInRoot(e.clientX, e.clientY)) return;
         this.root.dataset.ihTouched = '1';
-        this.burst = Math.min(1, this.burst + 0.55);
-        this.portalPressure = Math.min(1, this.portalPressure + 0.9);
-        this.setPointerTargetFromClient(e.clientX, e.clientY);
+        this.startPortalPress(e.clientX, e.clientY);
+      },
+      { passive: true, signal }
+    );
 
-        // Glass ripple impulse.
-        this.addPortalRippleFromClient(e.clientX, e.clientY, 0.9);
+    window.addEventListener(
+      'pointerup',
+      e => {
+        if (e.pointerType === 'touch') return;
+        this.updatePortalPress(e.clientX, e.clientY);
+        this.releasePortalPress();
+      },
+      { passive: true, signal }
+    );
+
+    window.addEventListener(
+      'pointercancel',
+      e => {
+        if (e.pointerType === 'touch') return;
+        this.cancelPortalPress();
+      },
+      { passive: true, signal }
+    );
+
+    window.addEventListener(
+      'blur',
+      () => {
+        this.cancelPortalPress();
       },
       { passive: true, signal }
     );
@@ -650,13 +733,22 @@ export class ThreeStage {
       this.root.dataset.ihTouched = '1';
       if (e.touches.length >= 2) this.input.pinchBaseDist = 0;
 
-      // Tap burst.
-      this.burst = Math.min(1, this.burst + 0.5);
-      this.portalPressure = Math.min(1, this.portalPressure + 0.85);
-
-      // Glass ripple impulse (use the first touch as the origin).
-      const t0 = e.touches.item(0);
-      if (t0) this.addPortalRippleFromClient(t0.clientX, t0.clientY, 0.85);
+      // If a second finger comes in, cancel any “charge” and treat it as pinch.
+      if (e.touches.length >= 2) {
+        this.cancelPortalPress();
+      } else {
+        // Single touch inside our section starts a press-to-charge.
+        // We defer the real ripple to touchend so taps don’t double-fire.
+        let t0: Touch | null = null;
+        for (let i = 0; i < e.touches.length; i++) {
+          const t = e.touches.item(i);
+          if (!t) continue;
+          if (!this.isClientPointInRoot(t.clientX, t.clientY)) continue;
+          t0 = t;
+          break;
+        }
+        if (t0) this.startPortalPress(t0.clientX, t0.clientY);
+      }
 
       syncTouches(e.touches);
     };
@@ -674,11 +766,22 @@ export class ThreeStage {
       if (!anyInside) return;
 
       if (e.touches.length >= 2) e.preventDefault();
+      if (e.touches.length >= 2) {
+        this.cancelPortalPress();
+      } else {
+        const t0 = e.touches.item(0);
+        if (t0) this.updatePortalPress(t0.clientX, t0.clientY);
+      }
       syncTouches(e.touches);
     };
 
     const onTouchEnd = (e: TouchEvent) => {
       syncTouches(e.touches);
+
+      // Release when there are no remaining touch pointers inside our section.
+      if (this.portalPressing && this.pointers.size === 0) {
+        this.releasePortalPress();
+      }
     };
 
     window.addEventListener('touchstart', onTouchStart, {
@@ -961,6 +1064,15 @@ export class ThreeStage {
     const damp = (cur: number, tgt: number, lambda: number) =>
       cur + (tgt - cur) * (1 - Math.exp(-lambda * dt));
     this.portalPressure = damp(this.portalPressure, 0, 2.6);
+
+    // Hold-to-charge: while the pointer is down, build tension smoothly.
+    // We keep this intentionally subtle to avoid feeling “gamey”.
+    if (this.portalPressing) {
+      const chargeRate = this.caps.coarsePointer ? 0.9 : 1.15;
+      this.portalCharge = Math.min(1, this.portalCharge + dt * chargeRate);
+      const floor = 0.2 + this.portalCharge * 0.85;
+      this.portalPressure = Math.min(1, Math.max(this.portalPressure, floor));
+    }
 
     if (!this.inView) {
       // Keep CSS vars updated occasionally for UI consistency.
