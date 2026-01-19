@@ -274,6 +274,7 @@ class ImmersiveThreeController {
   private root: HTMLElement;
   private chapters: HTMLElement[];
   private canvas: HTMLCanvasElement;
+  private debugEl: HTMLElement | null = null;
 
   private renderer: THREE.WebGLRenderer;
   private composer: EffectComposer | null = null;
@@ -317,6 +318,7 @@ class ImmersiveThreeController {
   private stars: THREE.Points;
   private holoCore: THREE.Mesh;
   private holoMaterial: THREE.ShaderMaterial;
+  private holoMaterialSafe: THREE.ShaderMaterial | null = null;
   private cameraRot3 = new THREE.Matrix3();
 
   private fieldLines: THREE.Line[] = [];
@@ -334,6 +336,10 @@ class ImmersiveThreeController {
   private abortController = new AbortController();
   private contextLost = false;
 
+  private renderedOnce = false;
+  private shaderFailed = false;
+  private lastStaticRender = 0;
+
   constructor(root: HTMLElement) {
     this.root = root;
     this.chapters = Array.from(
@@ -342,6 +348,8 @@ class ImmersiveThreeController {
     const canvas = root.querySelector<HTMLCanvasElement>('[data-ih-canvas]');
     if (!canvas) throw new Error('Immersive canvas missing');
     this.canvas = canvas;
+
+    this.debugEl = root.querySelector<HTMLElement>('[data-ih-debug]');
 
     this.reducedMotion = window.matchMedia(
       '(prefers-reduced-motion: reduce)'
@@ -365,6 +373,8 @@ class ImmersiveThreeController {
       ? 'webgl2'
       : 'webgl1';
     root.dataset.ihPrec = maxPrec;
+    root.dataset.ihCenter = 'webgl';
+    root.dataset.ihStatus = 'ok';
 
     this.scene.background = new THREE.Color(0x05070f);
     this.scene.fog = new THREE.FogExp2(0x070b18, 0.055);
@@ -374,9 +384,18 @@ class ImmersiveThreeController {
     this.stars = this.createStars();
     this.group.add(this.stars);
 
-    const { mesh: holoCore, material: holoMaterial } = this.createHoloCore();
+    const preferSafeCore =
+      maxPrec !== 'highp' || !this.renderer.capabilities.isWebGL2;
+    root.dataset.ihCenter = preferSafeCore ? 'webgl-safe' : 'webgl';
+
+    const {
+      mesh: holoCore,
+      material: holoMaterial,
+      safeMaterial,
+    } = this.createHoloCore(preferSafeCore);
     this.holoCore = holoCore;
     this.holoMaterial = holoMaterial;
+    this.holoMaterialSafe = safeMaterial;
     this.scene.add(this.holoCore);
 
     this.createFieldLines();
@@ -399,12 +418,38 @@ class ImmersiveThreeController {
 
     void this.loadEnvironment();
 
+    // If the holo shader fails compilation/linking on a mobile driver, swap to
+    // a simpler shader profile. If that still fails, the CSS core fallback will
+    // be shown via data attributes.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (this.renderer.debug as any).onShaderError = () => {
+      if (this.shaderFailed) return;
+      this.shaderFailed = true;
+
+      if (this.holoCore && this.holoMaterialSafe) {
+        this.holoCore.material = this.holoMaterialSafe;
+        this.holoMaterial = this.holoMaterialSafe;
+        this.root.dataset.ihCenter = 'webgl-safe';
+        this.root.dataset.ihStatus = 'shader-error';
+        this.root.dataset.ihStatusDetail =
+          'Shader compile failed; switched to safe holo shader';
+      } else {
+        this.root.dataset.ihCenter = 'css';
+        this.root.dataset.ihStatus = 'shader-error';
+        this.root.dataset.ihStatusDetail =
+          'Shader compile failed; switched to CSS fallback';
+      }
+
+      this.updateDebugOverlay();
+    };
+
     this.init();
   }
 
-  private createHoloCore(): {
+  private createHoloCore(safe = false): {
     mesh: THREE.Mesh;
     material: THREE.ShaderMaterial;
+    safeMaterial: THREE.ShaderMaterial;
   } {
     // Fullscreen quad (clip-space). The fragment shader raymarches a high-detail
     // "holo-processor" core and fades out toward the edges.
@@ -798,10 +843,203 @@ void main(){
 `,
     });
 
-    const mesh = new THREE.Mesh(geo, material);
+    // Safer, smaller fragment shader for weak/mobile GPUs and WebGL1 mediump.
+    // Shares uniforms with the full material so we can swap without extra wiring.
+    const safeMaterial = new THREE.ShaderMaterial({
+      transparent: true,
+      depthWrite: false,
+      depthTest: false,
+      blending: THREE.NormalBlending,
+      uniforms: material.uniforms,
+      vertexShader: material.vertexShader,
+      fragmentShader: `
+precision mediump float;
+precision mediump int;
+varying vec2 vUv;
+
+uniform float uTime;
+uniform float uProgress;
+uniform float uEnergy;
+uniform float uAccent;
+uniform float uTech;
+uniform float uQuality;
+uniform vec2 uResolution;
+uniform float uHue;
+uniform float uHue2;
+uniform float uFov;
+uniform float uAspect;
+uniform vec3 uCamPos;
+uniform mat3 uCamRot;
+uniform vec2 uPointer;
+
+uniform float uSwirl;
+uniform float uSink;
+uniform float uInterf;
+uniform float uDetail;
+
+#define PI 3.141592653589793
+
+float saturate(float x){ return clamp(x, 0.0, 1.0); }
+
+vec3 hsl2rgb(vec3 c){
+  vec3 rgb = clamp(abs(mod(c.x * 6.0 + vec3(0.0, 4.0, 2.0), 6.0) - 3.0) - 1.0, 0.0, 1.0);
+  return c.z + c.y * (rgb - 0.5) * (1.0 - abs(2.0 * c.z - 1.0));
+}
+
+mat2 rot(float a){
+  float c = cos(a), s = sin(a);
+  return mat2(c, -s, s, c);
+}
+
+float ih_hash(vec2 p){
+  p = fract(p * vec2(123.34, 345.45));
+  p += dot(p, p + 34.345);
+  return fract(p.x * p.y);
+}
+
+float sdSphere(vec3 p, float r){ return length(p) - r; }
+float sdTorus(vec3 p, vec2 t){
+  vec2 q = vec2(length(p.xz) - t.x, p.y);
+  return length(q) - t.y;
+}
+
+float smin(float a, float b, float k){
+  float h = saturate(0.5 + 0.5 * (b - a) / k);
+  return mix(b, a, h) - k * h * (1.0 - h);
+}
+
+float mapSafe(in vec3 p, out float mEm){
+  p.xy += uPointer * 0.05;
+  float r = length(p.xy);
+  float ang = (uSwirl * 0.35) * (r * r) + uProgress * 0.9;
+  p.xy = rot(ang) * p.xy;
+  p.z -= uSink * exp(-r * 1.5) * 0.18;
+
+  float core = sdSphere(p, 0.65);
+  float ring = sdTorus(p, vec2(0.9, 0.04));
+  float ring2 = sdTorus(p + vec3(0.0, 0.16 + uEnergy * 0.12, 0.0), vec2(0.78, 0.03));
+  float d = smin(core, ring, 0.24);
+  d = smin(d, ring2, 0.22);
+
+  float edge = smoothstep(0.05, 0.0, abs(core));
+  float rings = smoothstep(0.05, 0.0, abs(min(ring, ring2)));
+  mEm = saturate(edge * 0.6 + rings * 0.9);
+  return d;
+}
+
+vec3 calcNormalSafe(vec3 p){
+  float e = 0.0028;
+  float tmp;
+  float dx = mapSafe(p + vec3(e, 0.0, 0.0), tmp) - mapSafe(p - vec3(e, 0.0, 0.0), tmp);
+  float dy = mapSafe(p + vec3(0.0, e, 0.0), tmp) - mapSafe(p - vec3(0.0, e, 0.0), tmp);
+  float dz = mapSafe(p + vec3(0.0, 0.0, e), tmp) - mapSafe(p - vec3(0.0, 0.0, e), tmp);
+  return normalize(vec3(dx, dy, dz));
+}
+
+void main(){
+  vec2 uv = vUv;
+  vec2 p = (uv * 2.0 - 1.0);
+  p.x *= uAspect;
+  float vign = smoothstep(1.2, 0.25, length(p));
+
+  float z = -1.0;
+  float k = tan(uFov * 0.5);
+  vec3 rdCam = normalize(vec3(p.x * k, p.y * k, z));
+  vec3 rd = normalize(uCamRot * rdCam);
+  vec3 ro = uCamPos;
+
+  float t = 0.0;
+  float maxT = 13.0;
+  float hit = 0.0;
+  float mEm = 0.0;
+  vec3 pos = ro;
+  float eps = 0.0026;
+  float glow = 0.0;
+
+  for(int i=0;i<64;i++){
+    pos = ro + rd * t;
+    float em;
+    float d = mapSafe(pos, em);
+    glow += exp(-d * 12.0) * 0.008;
+    if (d < eps){ hit = 1.0; mEm = em; break; }
+    t += d * 0.9;
+    if (t > maxT) break;
+  }
+
+  float hueA = fract(uHue);
+  float hueB = fract(uHue2);
+  vec3 glowC = hsl2rgb(vec3(mix(hueA, hueB, 0.55), 0.95, 0.55));
+  glowC = mix(glowC, vec3(0.10, 0.85, 1.00), 0.55);
+
+  vec3 col = vec3(0.01, 0.015, 0.03);
+  float coreGlow = smoothstep(0.95, 0.15, length(p));
+  col += glowC * coreGlow * (0.03 + uTech * 0.05 + uAccent * 0.05);
+
+  if(hit > 0.5){
+    vec3 n = calcNormalSafe(pos);
+    vec3 l = normalize(vec3(0.45, 0.75, 0.55));
+    float ndl = saturate(dot(n, l));
+    float fres = pow(1.0 - saturate(dot(n, -rd)), 3.0);
+
+    vec3 baseA = hsl2rgb(vec3(hueA, 0.62, 0.12));
+    vec3 baseB = hsl2rgb(vec3(hueB, 0.72, 0.14));
+    vec3 base = mix(baseA, baseB, saturate(0.35 + uTech * 0.55));
+    float emI = (0.25 + uTech * 0.75) * (0.65 + uEnergy * 0.8) + uAccent * 0.8;
+    vec3 emissive = glowC * mEm * 1.2 * emI;
+
+    vec3 h = normalize(l - rd);
+    float spec = pow(saturate(dot(n, h)), 120.0) * (0.08 + uTech * 0.22);
+
+    col = base;
+    col += ndl * vec3(0.12, 0.14, 0.18);
+    col += fres * glowC * 0.26;
+    col += emissive;
+    col += glowC * spec;
+  }
+
+  col += glowC * glow * (0.45 + uAccent * 0.35);
+  float dither = ih_hash(gl_FragCoord.xy) - 0.5;
+  col += dither * 0.006 * (0.35 + uTech * 0.65);
+  col = pow(max(col, 0.0), vec3(0.98));
+  float alpha = vign * (0.34 + hit * 0.66);
+  alpha *= mix(0.9, 1.0, uQuality);
+  gl_FragColor = vec4(col, alpha);
+}
+`,
+    });
+
+    const activeMaterial = safe ? safeMaterial : material;
+
+    const mesh = new THREE.Mesh(geo, activeMaterial);
     mesh.frustumCulled = false;
     mesh.renderOrder = -10;
-    return { mesh, material };
+    return { mesh, material: activeMaterial, safeMaterial };
+  }
+
+  private updateDebugOverlay(): void {
+    if (!this.debugEl) return;
+
+    const debugEnabled = this.root.dataset.ihDebug === '1';
+    const status = this.root.dataset.ihStatus ?? '';
+    const detail = this.root.dataset.ihStatusDetail ?? '';
+
+    if (!debugEnabled && (!status || status === 'ok')) {
+      this.debugEl.textContent = '';
+      return;
+    }
+
+    const lines: string[] = [];
+    lines.push(`ihStatus: ${status || 'ok'}`);
+    if (detail) lines.push(detail);
+    lines.push(`center: ${this.root.dataset.ihCenter ?? ''}`);
+    lines.push(
+      `webgl: ${this.root.dataset.ihWebgl ?? ''}  prec: ${this.root.dataset.ihPrec ?? ''}`
+    );
+    if (this.root.dataset.ihWebglState) {
+      lines.push(`ctx: ${this.root.dataset.ihWebglState}`);
+    }
+
+    this.debugEl.textContent = lines.join('\n');
   }
 
   private createStars(): THREE.Points {
@@ -940,6 +1178,10 @@ void main(){
         e.preventDefault();
         this.contextLost = true;
         this.root.dataset.ihWebglState = 'lost';
+        this.root.dataset.ihStatus = 'context-lost';
+        this.root.dataset.ihStatusDetail =
+          'WebGL context lost (mobile memory pressure/backgrounding)';
+        this.updateDebugOverlay();
       },
       { signal }
     );
@@ -949,7 +1191,10 @@ void main(){
       () => {
         this.contextLost = false;
         this.root.dataset.ihWebglState = 'restored';
+        this.root.dataset.ihStatus = 'ok';
+        this.root.dataset.ihStatusDetail = '';
         this.resize();
+        this.updateDebugOverlay();
       },
       { signal }
     );
@@ -1004,6 +1249,17 @@ void main(){
     }
 
     this.resize();
+
+    // Ensure we render at least once even if IntersectionObserver hasn't fired
+    // yet (some mobile browsers delay it), to avoid an empty center.
+    if (!this.contextLost) {
+      const now = performance.now() / 1000;
+      this.update(1 / 60, now);
+      this.renderedOnce = true;
+      this.root.dataset.ihRendered = '1';
+      this.lastStaticRender = now;
+    }
+
     this.loop();
   }
 
@@ -1460,10 +1716,27 @@ void main(){
       const dt = clamp(now - last, 1 / 240, 1 / 30);
       last = now;
 
-      if (!this.reducedMotion && this.visible) {
-        if (!this.contextLost) {
+      if (!this.contextLost) {
+        const shouldAnimate = !this.reducedMotion && this.visible;
+
+        if (shouldAnimate) {
           this.update(dt, now);
+          this.renderedOnce = true;
+          this.root.dataset.ihRendered = '1';
+        } else {
+          // Low-frequency render prevents "blank" appearance on mobile Safari
+          // and also respects reduced-motion by minimizing changes.
+          const needsFirstFrame = !this.renderedOnce;
+          const needsOccasional = now - this.lastStaticRender > 0.6;
+          if (needsFirstFrame || needsOccasional) {
+            this.update(1 / 60, now);
+            this.renderedOnce = true;
+            this.root.dataset.ihRendered = '1';
+            this.lastStaticRender = now;
+          }
         }
+
+        this.updateDebugOverlay();
       }
 
       this.raf = window.requestAnimationFrame(tick);
@@ -1525,6 +1798,15 @@ function mount(): void {
   const root = document.querySelector<HTMLElement>('[data-ih]');
   if (!root) return;
 
+  // Debug overlay opt-in: add ?ihDebug=1 to the URL.
+  const params = new URLSearchParams(window.location.search);
+  root.dataset.ihDebug = params.get('ihDebug') === '1' ? '1' : '0';
+
+  // Respect reduced-motion with a CSS fallback (canvas hidden by CSS).
+  const reducedMotion = window.matchMedia(
+    '(prefers-reduced-motion: reduce)'
+  ).matches;
+
   type IHWindow = Window & {
     __ihController?: ImmersiveThreeController;
   };
@@ -1540,7 +1822,24 @@ function mount(): void {
     w.__ihController = undefined;
   }
 
-  w.__ihController = new ImmersiveThreeController(root);
+  if (reducedMotion) {
+    root.dataset.ihCenter = 'css';
+    root.dataset.ihStatus = 'reduced-motion';
+    root.dataset.ihStatusDetail =
+      'prefers-reduced-motion is enabled; using CSS fallback';
+    mountedRoot = root;
+    return;
+  }
+
+  try {
+    w.__ihController = new ImmersiveThreeController(root);
+  } catch (err) {
+    root.dataset.ihCenter = 'css';
+    root.dataset.ihStatus = 'init-failed';
+    root.dataset.ihStatusDetail =
+      err instanceof Error ? err.message : 'WebGL init failed';
+    w.__ihController = undefined;
+  }
   mountedRoot = root;
 }
 
