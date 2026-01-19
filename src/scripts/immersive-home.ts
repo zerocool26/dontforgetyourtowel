@@ -252,6 +252,17 @@ const blendMotif = (a: Motif, b: Motif, t: number): Motif => ({
   orbit: lerp(a.orbit, b.orbit, t),
 });
 
+const withBaseUrl = (path: string): string => {
+  const base = (import.meta as unknown as { env?: { BASE_URL?: string } }).env
+    ?.BASE_URL;
+  const normalizedBase = base ? String(base) : '/';
+  const prefix = normalizedBase.endsWith('/')
+    ? normalizedBase
+    : `${normalizedBase}/`;
+  const clean = String(path).replace(/^\/+/, '');
+  return `${prefix}${clean}`;
+};
+
 type LineNode = {
   phase: number;
   speed: number;
@@ -304,9 +315,9 @@ class ImmersiveThreeController {
   private lastChapterIdx = -1;
 
   private stars: THREE.Points;
-  private membrane: THREE.Mesh;
-  private membraneMaterial: THREE.MeshPhysicalMaterial;
-  private membraneShader: OnBeforeCompileShader | null = null;
+  private holoCore: THREE.Mesh;
+  private holoMaterial: THREE.ShaderMaterial;
+  private cameraRot3 = new THREE.Matrix3();
 
   private fieldLines: THREE.Line[] = [];
   private lineNodes: LineNode[] = [];
@@ -354,11 +365,10 @@ class ImmersiveThreeController {
     this.stars = this.createStars();
     this.group.add(this.stars);
 
-    const { mesh: membrane, material: membraneMaterial } =
-      this.createMembrane();
-    this.membrane = membrane;
-    this.membraneMaterial = membraneMaterial;
-    this.group.add(this.membrane);
+    const { mesh: holoCore, material: holoMaterial } = this.createHoloCore();
+    this.holoCore = holoCore;
+    this.holoMaterial = holoMaterial;
+    this.scene.add(this.holoCore);
 
     this.createFieldLines();
 
@@ -381,6 +391,319 @@ class ImmersiveThreeController {
     void this.loadEnvironment();
 
     this.init();
+  }
+
+  private createHoloCore(): {
+    mesh: THREE.Mesh;
+    material: THREE.ShaderMaterial;
+  } {
+    // Fullscreen quad (clip-space). The fragment shader raymarches a high-detail
+    // "holo-processor" core and fades out toward the edges.
+    const geo = new THREE.BufferGeometry();
+    const positions = new Float32Array([
+      -1, -1, 0, 1, -1, 0, 1, 1, 0, -1, -1, 0, 1, 1, 0, -1, 1, 0,
+    ]);
+    const uvs = new Float32Array([0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1]);
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geo.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
+
+    const material = new THREE.ShaderMaterial({
+      transparent: true,
+      depthWrite: false,
+      depthTest: false,
+      blending: THREE.NormalBlending,
+      uniforms: {
+        uTime: { value: 0 },
+        uProgress: { value: 0 },
+        uEnergy: { value: 0 },
+        uAccent: { value: 0 },
+        uTech: { value: 0 },
+        uQuality: { value: 1 },
+        uResolution: { value: new THREE.Vector2(1, 1) },
+        uFov: { value: THREE.MathUtils.degToRad(45) },
+        uAspect: { value: 1 },
+        uCamPos: { value: new THREE.Vector3() },
+        uCamRot: { value: new THREE.Matrix3() },
+        uPointer: { value: new THREE.Vector2() },
+
+        // Motif identity (chapter-based).
+        uSwirl: { value: 0 },
+        uSink: { value: 0 },
+        uInterf: { value: 0 },
+        uDetail: { value: 0 },
+      },
+      vertexShader: `
+varying vec2 vUv;
+void main(){
+  vUv = uv;
+  gl_Position = vec4(position.xy, 0.0, 1.0);
+}
+`,
+      fragmentShader: `
+precision highp float;
+varying vec2 vUv;
+
+uniform float uTime;
+uniform float uProgress;
+uniform float uEnergy;
+uniform float uAccent;
+uniform float uTech;
+uniform float uQuality;
+uniform vec2 uResolution;
+uniform float uFov;
+uniform float uAspect;
+uniform vec3 uCamPos;
+uniform mat3 uCamRot;
+uniform vec2 uPointer;
+
+uniform float uSwirl;
+uniform float uSink;
+uniform float uInterf;
+uniform float uDetail;
+
+#define PI 3.141592653589793
+
+float saturate(float x){ return clamp(x, 0.0, 1.0); }
+
+// Hash / noise
+float ih_hash(vec2 p){
+  p = fract(p * vec2(123.34, 345.45));
+  p += dot(p, p + 34.345);
+  return fract(p.x * p.y);
+}
+
+float ih_noise(vec2 p){
+  vec2 i = floor(p);
+  vec2 f = fract(p);
+  float a = ih_hash(i);
+  float b = ih_hash(i + vec2(1.0, 0.0));
+  float c = ih_hash(i + vec2(0.0, 1.0));
+  float d = ih_hash(i + vec2(1.0, 1.0));
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+}
+
+float ih_fbm(vec2 p){
+  float v = 0.0;
+  float a = 0.5;
+  for (int i = 0; i < 5; i++) {
+    v += a * ih_noise(p);
+    p = p * 2.02 + vec2(13.1, 7.7);
+    a *= 0.5;
+  }
+  return v;
+}
+
+mat2 rot(float a){
+  float c = cos(a), s = sin(a);
+  return mat2(c, -s, s, c);
+}
+
+// Signed distance primitives
+float sdSphere(vec3 p, float r){ return length(p) - r; }
+float sdBox(vec3 p, vec3 b){
+  vec3 q = abs(p) - b;
+  return length(max(q, 0.0)) + min(max(q.x, max(q.y, q.z)), 0.0);
+}
+float sdTorus(vec3 p, vec2 t){
+  vec2 q = vec2(length(p.xz) - t.x, p.y);
+  return length(q) - t.y;
+}
+
+float smin(float a, float b, float k){
+  float h = saturate(0.5 + 0.5 * (b - a) / k);
+  return mix(b, a, h) - k * h * (1.0 - h);
+}
+
+// Polar repetition helper
+vec2 pModPolar(vec2 p, float repetitions){
+  float angle = 2.0 * PI / repetitions;
+  float a = atan(p.y, p.x) + angle * 0.5;
+  float r = length(p);
+  float c = floor(a / angle);
+  a = mod(a, angle) - angle * 0.5;
+  p = vec2(cos(a), sin(a)) * r;
+  return p;
+}
+
+// Scene SDF. Returns distance; secondary outputs for material IDs / emissive masks.
+float mapCore(in vec3 p, out float mEmissive){
+  // Chapter-driven morphology
+  float boot = smoothstep(0.02, 0.18, uProgress) * (0.7 + uEnergy * 0.6);
+  float collapse = uSink * (0.25 + uEnergy * 0.35);
+  float swirl = uSwirl * (0.55 + uEnergy * 0.4);
+  float detail = uDetail;
+
+  // Subtle pointer parallax (kept small; UI remains legible)
+  p.xy += uPointer * 0.06;
+
+  // Swirl domain warp
+  float r = length(p.xy);
+  float ang = swirl * (r * r) + uTime * (0.12 + swirl * 0.08) + uProgress * 0.8;
+  p.xy = rot(ang) * p.xy;
+  p.z -= collapse * exp(-r * 1.6) * 0.22;
+
+  // Central core + outer housing
+  float core = sdSphere(p, 0.62);
+  float shell = abs(sdSphere(p, 0.9)) - 0.08;
+  float d = smin(core, shell, 0.25);
+
+  // Orbiting ring system (scroll separates rings; collapse squeezes)
+  vec3 pr = p;
+  float ringSep = (0.12 + boot * 0.26) * (1.0 - collapse * 0.65);
+  pr.y += sin(uTime * 0.7 + uProgress * 4.0) * 0.05;
+  float ringA = sdTorus(pr + vec3(0.0, ringSep, 0.0), vec2(0.9, 0.035));
+  float ringB = sdTorus(pr - vec3(0.0, ringSep, 0.0), vec2(0.78, 0.03));
+  d = smin(d, ringA, 0.22);
+  d = smin(d, ringB, 0.22);
+
+  // Radial fins / vents (cheap high-detail)
+  vec3 pf = p;
+  pf.xz = vec2(pf.x, pf.z);
+  vec2 q = pModPolar(pf.xz, 12.0);
+  pf.x = q.x;
+  pf.z = q.y;
+  float fin = sdBox(pf - vec3(0.78, 0.0, 0.0), vec3(0.16, 0.06, 0.02));
+  d = smin(d, fin, 0.15);
+
+  // Interference "channel" cut
+  float interf = uInterf;
+  float wave = sin((p.x + p.y) * 5.2 + uTime * 1.3 + uProgress * 5.0) * 0.06 * interf;
+  float channel = sdTorus(p + vec3(0.0, wave, 0.0), vec2(0.58, 0.05));
+  d = min(d, channel);
+
+  // Micro detail (adds machined feel without geometry)
+  float n = ih_fbm(p.xz * (2.4 + detail * 3.0) + vec2(uTime * 0.12, -uTime * 0.08));
+  d += (n - 0.5) * (0.03 + detail * 0.05);
+
+  // Emissive mask: edges + rings + fins.
+  float edge = smoothstep(0.06, 0.0, abs(core));
+  float rings = smoothstep(0.05, 0.0, abs(min(ringA, ringB)));
+  float fins = smoothstep(0.05, 0.0, abs(fin));
+  mEmissive = saturate(edge * 0.65 + rings * 0.85 + fins * 0.55);
+
+  return d;
+}
+
+vec3 calcNormal(vec3 p){
+  float e = 0.0015;
+  float tmp;
+  float dx = mapCore(p + vec3(e, 0.0, 0.0), tmp) - mapCore(p - vec3(e, 0.0, 0.0), tmp);
+  float dy = mapCore(p + vec3(0.0, e, 0.0), tmp) - mapCore(p - vec3(0.0, e, 0.0), tmp);
+  float dz = mapCore(p + vec3(0.0, 0.0, e), tmp) - mapCore(p - vec3(0.0, 0.0, e), tmp);
+  return normalize(vec3(dx, dy, dz));
+}
+
+float grid(vec2 uv, float scale, float width){
+  vec2 p = uv * scale;
+  vec2 a = abs(fract(p - 0.5) - 0.5);
+  vec2 w = fwidth(p);
+  float lx = 1.0 - smoothstep(width * w.x, (width + 1.2) * w.x, a.x);
+  float ly = 1.0 - smoothstep(width * w.y, (width + 1.2) * w.y, a.y);
+  return max(lx, ly);
+}
+
+void main(){
+  // Centered UV
+  vec2 uv = vUv;
+  vec2 p = (uv * 2.0 - 1.0);
+  p.x *= uAspect;
+
+  // Soft mask so the core lives "in the middle" (not full-screen noise)
+  float vign = smoothstep(1.15, 0.25, length(p));
+
+  // Camera ray (approx from fov/aspect) then rotate into world.
+  float z = -1.0;
+  float k = tan(uFov * 0.5);
+  vec3 rdCam = normalize(vec3(p.x * k, p.y * k, z));
+  vec3 rd = normalize(uCamRot * rdCam);
+  vec3 ro = uCamPos;
+
+  // March toward origin-ish; keep range tight for perf.
+  float t = 0.0;
+  float maxT = 14.0;
+  float hit = 0.0;
+  float mEm = 0.0;
+  vec3 pos = ro;
+
+  // Quality-based epsilon.
+  float eps = mix(0.0028, 0.0012, saturate(uQuality));
+
+  // Accumulated glow along the ray (gives "holo" depth)
+  float glow = 0.0;
+
+  for(int i=0;i<84;i++){
+    pos = ro + rd * t;
+    float em;
+    float d = mapCore(pos, em);
+    glow += exp(-d * 12.0) * 0.008 * (0.7 + uTech * 0.6);
+    if (d < eps){ hit = 1.0; mEm = em; break; }
+    t += d * (0.85 + (1.0 - uQuality) * 0.35);
+    if (t > maxT) break;
+  }
+
+  vec3 col = vec3(0.01, 0.015, 0.03);
+
+  if(hit > 0.5){
+    vec3 n = calcNormal(pos);
+
+    // Lighting (simple and crisp)
+    vec3 l = normalize(vec3(0.45, 0.75, 0.55));
+    float ndl = saturate(dot(n, l));
+    float fres = pow(1.0 - saturate(dot(n, -rd)), 3.0);
+
+    // Tech palette
+    vec3 base = mix(vec3(0.03, 0.04, 0.07), vec3(0.03, 0.06, 0.08), uTech);
+    vec3 glowC = mix(vec3(0.10, 0.85, 1.00), vec3(0.85, 0.20, 1.00), uInterf * 0.35);
+
+    // Circuit/traces on the surface (procedural)
+    vec2 suv = pos.xz * 0.85 + pos.y * 0.15;
+    float g1 = grid(suv + vec2(uTime * 0.02, -uTime * 0.015), 10.0, 0.85);
+    float g2 = grid(suv + vec2(-uTime * 0.015, uTime * 0.02), 24.0, 0.8) * 0.7;
+    float traces = saturate(g1 * 0.7 + g2 * 0.5);
+
+    // Data packets (moving bright segments)
+    float lane = sin(suv.x * 7.0 + suv.y * 5.0) * 0.5 + 0.5;
+    float packet = abs(fract((uTime * (0.45 + uTech * 0.55) + uProgress * 2.1) + suv.x * 0.35 + suv.y * 0.22) - 0.5);
+    packet = 1.0 - smoothstep(0.46, 0.5, packet);
+    packet *= smoothstep(0.25, 0.85, lane);
+
+    // Emissive intensity (accent boosts on chapter transitions)
+    float emI = (0.25 + uTech * 0.75) * (0.65 + uEnergy * 0.8);
+    emI += uAccent * 0.8;
+
+    vec3 emissive = glowC * (mEm * 0.9 + traces * 0.55 + packet * 0.9) * emI;
+
+    col = base;
+    col += ndl * vec3(0.08, 0.10, 0.14);
+    col += fres * glowC * (0.18 + uTech * 0.22);
+    col += emissive;
+
+    // Subtle scanline shimmer (very restrained)
+    float scan = abs(fract(uv.y * 7.0 + uTime * 0.35 + uProgress * 0.8) - 0.5);
+    scan = 1.0 - smoothstep(0.47, 0.5, scan);
+    col += glowC * scan * (0.02 + uTech * 0.03);
+  }
+
+  // Volume glow always contributes (even if we didn't "hit")
+  col += vec3(0.08, 0.75, 1.0) * glow * (0.55 + uAccent * 0.25);
+
+  // Gamma-ish shaping
+  col = pow(max(col, 0.0), vec3(0.98));
+
+  float alpha = vign * (0.25 + hit * 0.75);
+  // Keep it polite on mobile / low quality.
+  alpha *= mix(0.85, 1.0, uQuality);
+
+  gl_FragColor = vec4(col, alpha);
+}
+`,
+    });
+
+    const mesh = new THREE.Mesh(geo, material);
+    mesh.frustumCulled = false;
+    mesh.renderOrder = -10;
+    return { mesh, material };
   }
 
   private createStars(): THREE.Points {
@@ -413,183 +736,6 @@ class ImmersiveThreeController {
     });
 
     return new THREE.Points(geo, mat);
-  }
-
-  private createMembrane(): {
-    mesh: THREE.Mesh;
-    material: THREE.MeshPhysicalMaterial;
-  } {
-    const width = Math.max(1, window.innerWidth);
-    const segments = width < 768 ? 70 : 96;
-    const geo = new THREE.PlaneGeometry(5.1, 5.1, segments, segments);
-
-    const material = new THREE.MeshPhysicalMaterial({
-      color: new THREE.Color().setHSL(0.58, 0.8, 0.56),
-      metalness: 0.25,
-      roughness: 0.33,
-      transmission: 0.12,
-      thickness: 0.7,
-      ior: 1.2,
-      clearcoat: 0.6,
-      clearcoatRoughness: 0.25,
-      reflectivity: 0.45,
-      transparent: true,
-      opacity: 0.98,
-      emissive: new THREE.Color().setHSL(0.62, 0.9, 0.2),
-      emissiveIntensity: 0.16,
-    });
-
-    material.onBeforeCompile = shader => {
-      this.membraneShader = shader;
-
-      shader.uniforms.uTime = { value: 0 };
-      shader.uniforms.uEnergy = { value: 0 };
-      shader.uniforms.uProgress = { value: 0 };
-      shader.uniforms.uAmp = { value: 0.2 };
-      shader.uniforms.uFreq = { value: 1.6 };
-      shader.uniforms.uMode = { value: 0 };
-
-      // New motion language uniforms (motif-driven).
-      shader.uniforms.uSwirl = { value: 0 };
-      shader.uniforms.uSink = { value: 0 };
-      shader.uniforms.uInterf = { value: 0 };
-      shader.uniforms.uDetail = { value: 0 };
-      shader.uniforms.uAccent = { value: 0 };
-      shader.uniforms.uTech = { value: 0 };
-      shader.uniforms.uScan = { value: 0 };
-
-      shader.vertexShader = shader.vertexShader
-        .replace(
-          '#include <common>',
-          `#include <common>
-uniform float uTime;
-uniform float uEnergy;
-uniform float uProgress;
-uniform float uAmp;
-uniform float uFreq;
-uniform float uMode;
-uniform float uSwirl;
-uniform float uSink;
-uniform float uInterf;
-uniform float uDetail;
-uniform float uAccent;
-
-// Cheap-ish value noise + fbm (good enough for vertex displacement).
-float ih_hash(vec2 p){
-  p = fract(p * vec2(123.34, 345.45));
-  p += dot(p, p + 34.345);
-  return fract(p.x * p.y);
-}
-
-float ih_noise(vec2 p){
-  vec2 i = floor(p);
-  vec2 f = fract(p);
-  float a = ih_hash(i);
-  float b = ih_hash(i + vec2(1.0, 0.0));
-  float c = ih_hash(i + vec2(0.0, 1.0));
-  float d = ih_hash(i + vec2(1.0, 1.0));
-  vec2 u = f * f * (3.0 - 2.0 * f);
-  return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
-}
-
-float ih_fbm(vec2 p){
-  float v = 0.0;
-  float a = 0.5;
-  for(int i=0;i<4;i++){
-    v += a * ih_noise(p);
-    p = p * 2.02 + vec2(13.1, 7.7);
-    a *= 0.5;
-  }
-  return v;
-}
-`
-        )
-        .replace(
-          '#include <begin_vertex>',
-          [
-            'vec3 transformed = vec3(position);',
-            // A soft falloff so the center moves more than the edge.
-            'float r = length(transformed.xy);',
-            'float falloff = smoothstep(2.55, 0.15, r);',
-            'float p = uProgress * 6.2831853;',
-            'float amp = uAmp * (0.7 + uEnergy * 0.95);',
-            'float f = uFreq * (0.85 + uMode * 0.25);',
-
-            // Motif-driven domain warp (swirl + slight sink).
-            'float swirl = uSwirl * (0.25 + uEnergy * 0.35);',
-            'float sink = uSink * (0.35 + uEnergy * 0.25);',
-            'float ang = swirl * (r * r) + uTime * (0.08 + swirl * 0.06);',
-            'mat2 rot = mat2(cos(ang), -sin(ang), sin(ang), cos(ang));',
-            'vec2 q = rot * transformed.xy;',
-
-            // New: a layered wave field + interference + fbm detail.
-            'float wA = sin((q.x * f) + (uTime * 1.05) + p);',
-            'float wB = cos((q.y * f * 0.92) - (uTime * 0.95) + p);',
-            'float wR = sin((r * f * 1.55) + (uTime * 0.75) - p) * 0.35;',
-            'float interf = uInterf;',
-            'float wI = sin((q.x + q.y) * (f * 0.72) + uTime * 1.22 + p * 0.75) * interf;',
-            'float n = ih_fbm((q * (0.55 + uDetail * 0.65)) + vec2(uTime * 0.08, -uTime * 0.06));',
-            'float detail = (n - 0.5) * (0.6 + uDetail * 1.2);',
-
-            // Tasteful "hero" accent used on chapter transitions (short-lived).
-            'float wP = sin((q.x - q.y) * (f * 0.9) + uTime * 1.55 + p * 0.35) * (uAccent * 0.18);',
-
-            'float displacement = (wA * 0.42 + wB * 0.42 + wR + wI * 0.35 + detail * 0.28 + wP) * amp * (1.0 + uAccent * 0.22) * falloff;',
-            // Center sink for "collapse" (kept elegant, not noisy).
-            'displacement -= sink * exp(-r * 1.8) * (0.55 + uEnergy * 0.25);',
-            'transformed.z += displacement;',
-          ].join('\n')
-        );
-
-      // High-tech overlay (fragment): subtle circuit/grid emissive + scanline.
-      // Kept deliberately restrained and clamped on mobile via uTech.
-      shader.fragmentShader = shader.fragmentShader
-        .replace(
-          '#include <common>',
-          `#include <common>
-uniform float uTime;
-uniform float uEnergy;
-uniform float uProgress;
-uniform float uAccent;
-uniform float uTech;
-uniform float uScan;
-
-float ih_grid(vec2 uv, float scale, float width){
-  vec2 p = uv * scale;
-  vec2 a = abs(fract(p - 0.5) - 0.5);
-  vec2 w = fwidth(p);
-  float lx = 1.0 - smoothstep(width * w.x, (width + 1.2) * w.x, a.x);
-  float ly = 1.0 - smoothstep(width * w.y, (width + 1.2) * w.y, a.y);
-  return max(lx, ly);
-}
-`
-        )
-        .replace(
-          'vec3 totalEmissiveRadiance = emissive;',
-          `// Tech emissive overlay (grid + scanline), blended into emissive.
-vec2 ih_uv = vUv;
-float g1 = ih_grid(ih_uv + vec2(uTime * 0.015, -uTime * 0.012), 18.0, 0.9);
-float g2 = ih_grid(ih_uv + vec2(-uTime * 0.01, uTime * 0.02), 42.0, 0.85) * 0.6;
-
-// Scanline: thin moving band (kept subtle).
-float scan = abs(fract(ih_uv.y * 6.0 + uScan) - 0.5);
-scan = 1.0 - smoothstep(0.48, 0.5, scan);
-
-float techI = clamp(uTech, 0.0, 1.25) * (0.12 + uEnergy * 0.18);
-techI += uAccent * 0.06;
-
-vec3 techColor = vec3(0.12, 0.92, 1.0);
-emissive += techColor * (g1 * 0.55 + g2 * 0.35 + scan * 0.25) * techI;
-
-vec3 totalEmissiveRadiance = emissive;`
-        );
-    };
-
-    const mesh = new THREE.Mesh(geo, material);
-    mesh.rotation.x = -Math.PI / 2.25;
-    mesh.position.y = -0.05;
-
-    return { mesh, material };
   }
 
   private createFieldLines(): void {
@@ -756,6 +902,13 @@ vec3 totalEmissiveRadiance = emissive;`
     this.renderer.setPixelRatio(ratio);
     this.renderer.setSize(width, height, false);
 
+    if (this.holoMaterial) {
+      (this.holoMaterial.uniforms.uResolution.value as THREE.Vector2).set(
+        width * ratio,
+        height * ratio
+      );
+    }
+
     this.setupComposer(width, height, ratio);
   }
 
@@ -799,7 +952,9 @@ vec3 totalEmissiveRadiance = emissive;`
 
     try {
       const rgbeLoader = new RGBELoader();
-      const hdrTexture = await rgbeLoader.loadAsync('/hdr/studio_small.hdr');
+      const hdrTexture = await rgbeLoader.loadAsync(
+        withBaseUrl('hdr/studio_small.hdr')
+      );
       const envMap = pmremGenerator.fromEquirectangular(hdrTexture).texture;
       applyEnvironment(envMap);
       hdrTexture.dispose();
@@ -938,39 +1093,32 @@ vec3 totalEmissiveRadiance = emissive;`
     this.stars.rotation.y = time * 0.03;
     this.stars.rotation.x = time * 0.015;
 
-    // Membrane shading / grading.
-    this.membraneMaterial.color
-      .setHSL(config.hue / 360, 0.78, 0.56)
-      .lerp(new THREE.Color().setHSL(config.hue2 / 360, 0.78, 0.56), 0.25);
+    // Holo core shader uniforms.
+    if (this.holoMaterial) {
+      this.holoMaterial.uniforms.uTime.value = time;
+      this.holoMaterial.uniforms.uProgress.value = progress;
+      this.holoMaterial.uniforms.uEnergy.value = this.energy;
+      this.holoMaterial.uniforms.uAccent.value = accentFactor;
+      this.holoMaterial.uniforms.uTech.value = techFactor * mobileLimiter;
+      this.holoMaterial.uniforms.uQuality.value = clamp(
+        this.quality * this.mobileScale,
+        0.65,
+        1
+      );
+      this.holoMaterial.uniforms.uAspect.value = this.camera.aspect;
+      this.holoMaterial.uniforms.uFov.value = THREE.MathUtils.degToRad(
+        this.camera.fov
+      );
+      this.holoMaterial.uniforms.uCamPos.value.copy(this.camera.position);
+      this.cameraRot3.setFromMatrix4(this.camera.matrixWorld);
+      this.holoMaterial.uniforms.uCamRot.value.copy(this.cameraRot3);
+      this.holoMaterial.uniforms.uPointer.value.copy(this.pointer);
 
-    this.membraneMaterial.emissive
-      .setHSL(config.hue2 / 360, 0.9, 0.22)
-      .lerp(new THREE.Color().setHSL(config.hue / 360, 0.9, 0.22), 0.2);
-
-    this.membraneMaterial.emissiveIntensity = 0.12 + this.energy * 0.25;
-    this.membraneMaterial.metalness = config.membraneMetalness;
-    this.membraneMaterial.roughness = config.membraneRoughness;
-
-    if (this.membraneShader) {
-      this.membraneShader.uniforms.uTime.value = time;
-      this.membraneShader.uniforms.uEnergy.value = this.energy;
-      this.membraneShader.uniforms.uProgress.value = progress;
-      this.membraneShader.uniforms.uAmp.value =
-        config.membraneAmp * (1 + this.pinch * 0.55);
-      this.membraneShader.uniforms.uFreq.value = config.membraneFreq;
-      this.membraneShader.uniforms.uMode.value = modeBias;
-
-      // Motif-driven motion (chapter identity) — this is what makes it feel
-      // "smarter" and less like a bag of random effects.
-      this.membraneShader.uniforms.uSwirl.value = motif.swirl * wowFactor;
-      this.membraneShader.uniforms.uSink.value =
+      this.holoMaterial.uniforms.uSwirl.value = motif.swirl * wowFactor;
+      this.holoMaterial.uniforms.uSink.value =
         motif.sink * (0.9 + wowFactor * 0.1);
-      this.membraneShader.uniforms.uInterf.value =
-        motif.interference * wowFactor;
-      this.membraneShader.uniforms.uDetail.value = motif.detail * wowFactor;
-      this.membraneShader.uniforms.uAccent.value = accentFactor;
-      this.membraneShader.uniforms.uTech.value = techFactor * mobileLimiter;
-      this.membraneShader.uniforms.uScan.value = time * 0.35 + progress * 0.85;
+      this.holoMaterial.uniforms.uInterf.value = motif.interference * wowFactor;
+      this.holoMaterial.uniforms.uDetail.value = motif.detail * wowFactor;
     }
 
     // Field lines.
@@ -1217,9 +1365,9 @@ vec3 totalEmissiveRadiance = emissive;`
     this.particles.geometry.dispose();
     (this.particles.material as THREE.Material).dispose();
 
-    if (this.membrane) {
-      this.membrane.geometry.dispose();
-      (this.membrane.material as THREE.Material).dispose();
+    if (this.holoCore) {
+      this.holoCore.geometry.dispose();
+      (this.holoCore.material as THREE.Material).dispose();
     }
 
     this.probe.geometry.dispose();
