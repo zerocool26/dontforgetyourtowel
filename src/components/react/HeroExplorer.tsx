@@ -39,58 +39,72 @@ const chapters: Chapter[] = [
   {
     id: 'lens',
     title: 'Portal Lens',
-    copy: 'Intro pulse: refractive torus ignites, guiding the scroll into the core.',
-    cam: { position: [0, 0, 7], lookAt: [0, 0, 0] },
+    copy: 'Hero reveal + burst interaction: refractive portal, additive rings, filmic bloom ramp.',
+    cam: { position: [0, 0.05, 7], lookAt: [0, 0, 0] },
     hue: 210,
+  },
+  {
+    id: 'tunnel',
+    title: 'Warp Tunnel',
+    copy: 'Instanced ring tunnel + parallax drift. Feels like forward motion without shaders.',
+    cam: { position: [0, 0, 6.1], lookAt: [0, 0, 0] },
+    hue: 196,
+  },
+  {
+    id: 'glyphcity',
+    title: 'Glyph City',
+    copy: 'Procedural voxel skyline (instancing) + kinetic glyph swarm in a single canvas.',
+    cam: { position: [1.2, 0.35, 7.2], lookAt: [0, 0.1, 0] },
+    hue: 248,
   },
   {
     id: 'nebula',
     title: 'Data Nebula',
-    copy: 'Volumetric noise field and glyph sprites drift around the portal.',
-    cam: { position: [0.8, 0.2, 5.8], lookAt: [0, 0, 0] },
-    hue: 248,
+    copy: 'Deep-space particles + glyph orbit. Scroll drives hue grading + fog color.',
+    cam: { position: [0.8, 0.15, 5.9], lookAt: [0, 0, 0] },
+    hue: 232,
   },
   {
     id: 'field',
-    title: 'Magnetic Field',
-    copy: 'Ribbon lines react to tilt/scroll; chroma ramps up with intensity.',
-    cam: { position: [-0.6, 0.25, 5.2], lookAt: [0, 0, 0] },
+    title: 'Magnetic HUD',
+    copy: 'Camera-facing 2D/3D hybrid overlays (billboard planes) + ribbon field motion.',
+    cam: { position: [-0.6, 0.25, 5.4], lookAt: [0, 0, 0] },
     hue: 190,
-  },
-  {
-    id: 'afterglow',
-    title: 'Afterglow Lab',
-    copy: 'Scene opens to reveal discovery rail thumbnails and micro shaders.',
-    cam: { position: [0, -0.2, 6.2], lookAt: [0, 0, 0] },
-    hue: 310,
   },
   {
     id: 'prism',
     title: 'Prismatic Shards',
-    copy: 'Glass fragments wake up and orbit; scroll increases shimmer and density.',
+    copy: 'Instanced prismatic fragments: shimmer, emissive accents, and responsive bloom.',
     cam: { position: [0.35, 0.25, 5.35], lookAt: [0, 0, 0] },
     hue: 285,
   },
   {
     id: 'lattice',
     title: 'Data Lattice',
-    copy: 'A faint lattice grid emerges behind the portal, bending with depth.',
+    copy: 'Wireframe lattice plane + depth parallax. Clean geometry, big vibe.',
     cam: { position: [-0.55, -0.05, 5.7], lookAt: [0, 0, 0] },
     hue: 220,
   },
   {
     id: 'flare',
     title: 'Ion Flare',
-    copy: 'Energy ring surges; particles accelerate and the bloom blooms harder.',
+    copy: 'Radial jets + shockwave pulse. Burst interaction spikes chroma + noise.',
     cam: { position: [0.0, 0.15, 5.05], lookAt: [0, 0, 0] },
     hue: 185,
   },
   {
     id: 'horizon',
     title: 'Horizon Drift',
-    copy: 'Long tail: the portal stabilizes into a calm field with subtle motion.',
-    cam: { position: [0.0, -0.35, 6.75], lookAt: [0, 0, 0] },
+    copy: 'Calm finale: halo ring + low-motion atmosphere. End panel reveals after scroll.',
+    cam: { position: [0.0, -0.35, 6.85], lookAt: [0, 0, 0] },
     hue: 205,
+  },
+  {
+    id: 'afterglow',
+    title: 'Afterglow / Index',
+    copy: 'Content reveal: chapter index + interactive discovery rail appears only at the end.',
+    cam: { position: [0, -0.2, 6.2], lookAt: [0, 0, 0] },
+    hue: 310,
   },
 ];
 
@@ -159,25 +173,199 @@ const CameraRig = ({ chapters }: { chapters: Chapter[] }) => {
   const scroll = useScroll();
   const { camera } = useThree();
 
+  const vPos = useMemo(() => new THREE.Vector3(), []);
+  const vPosNext = useMemo(() => new THREE.Vector3(), []);
+  const vLook = useMemo(() => new THREE.Vector3(), []);
+  const vLookNext = useMemo(() => new THREE.Vector3(), []);
+
   useFrame(() => {
     const { idx, nextIdx, t } = getChapterBlend(scroll.offset, chapters.length);
 
     const current = chapters[idx];
     const next = chapters[nextIdx];
 
-    const pos = new THREE.Vector3().fromArray(current.cam.position);
-    const posNext = new THREE.Vector3().fromArray(next.cam.position);
-    pos.lerp(posNext, t);
+    vPos.fromArray(current.cam.position);
+    vPosNext.fromArray(next.cam.position);
+    vPos.lerp(vPosNext, t);
 
-    const look = new THREE.Vector3().fromArray(current.cam.lookAt);
-    const lookNext = new THREE.Vector3().fromArray(next.cam.lookAt);
-    look.lerp(lookNext, t);
+    vLook.fromArray(current.cam.lookAt);
+    vLookNext.fromArray(next.cam.lookAt);
+    vLook.lerp(vLookNext, t);
 
-    camera.position.lerp(pos, 0.08);
-    camera.lookAt(look);
+    camera.position.lerp(vPos, 0.08);
+    camera.lookAt(vLook);
   });
 
   return null;
+};
+
+const TunnelRings = ({ quality }: { quality: QualityTier }) => {
+  const scroll = useScroll();
+  const meshRef = useRef<THREE.InstancedMesh>(null);
+  const matRef = useRef<THREE.MeshBasicMaterial>(null);
+  const dummy = useMemo(() => new THREE.Object3D(), []);
+
+  const count = quality === 'desktop' ? 56 : quality === 'mobile' ? 40 : 28;
+  const seeds = useMemo(
+    () =>
+      Array.from({ length: count }).map((_, i) => ({
+        z: -10 + (i / Math.max(1, count - 1)) * 20,
+        r: 1.9 + Math.random() * 0.7,
+        w: 0.08 + Math.random() * 0.12,
+        twist: (Math.random() - 0.5) * 1.4,
+      })),
+    [count]
+  );
+
+  useFrame(({ clock }) => {
+    if (!meshRef.current || !matRef.current) return;
+    const { idx, nextIdx, t } = getChapterBlend(scroll.offset, chapters.length);
+    const gate = chapterGate('tunnel', idx, nextIdx, t);
+
+    const time = clock.getElapsedTime();
+    const hue = THREE.MathUtils.lerp(chapters[idx].hue, chapters[nextIdx].hue, t);
+    const base = quality === 'desktop' ? 0.22 : 0.16;
+    matRef.current.opacity = gate * base;
+    matRef.current.color.setHSL(hue / 360, 0.85, 0.62);
+
+    const speed = 3.2;
+    const zShift = ((time * speed + scroll.offset * 18) % 20) - 10;
+    for (let i = 0; i < seeds.length; i += 1) {
+      const s = seeds[i];
+      const wob = Math.sin(time * 0.7 + i * 0.35) * 0.12;
+      dummy.position.set(0, wob * 0.3, ((s.z + zShift) % 20) - 10);
+      dummy.rotation.set(0, 0, time * 0.35 + s.twist);
+      dummy.scale.setScalar(1 + scroll.offset * 0.15);
+      dummy.updateMatrix();
+      meshRef.current.setMatrixAt(i, dummy.matrix);
+    }
+    meshRef.current.instanceMatrix.needsUpdate = true;
+    meshRef.current.visible = gate > 0.001;
+  });
+
+  return (
+    <instancedMesh
+      ref={meshRef}
+      args={[undefined, undefined, count]}
+      position={[0, 0, 0]}
+      frustumCulled={false}
+    >
+      <torusGeometry args={[2.55, 0.07, 10, quality === 'desktop' ? 72 : 48]} />
+      <meshBasicMaterial
+        ref={matRef}
+        transparent
+        opacity={0}
+        depthWrite={false}
+        blending={THREE.AdditiveBlending}
+        color="#22d3ee"
+      />
+    </instancedMesh>
+  );
+};
+
+const VoxelCity = ({ quality }: { quality: QualityTier }) => {
+  const scroll = useScroll();
+  const meshRef = useRef<THREE.InstancedMesh>(null);
+  const matRef = useRef<THREE.MeshStandardMaterial>(null);
+  const dummy = useMemo(() => new THREE.Object3D(), []);
+  const count = quality === 'desktop' ? 220 : quality === 'mobile' ? 140 : 96;
+
+  const seeds = useMemo(
+    () =>
+      Array.from({ length: count }).map(() => {
+        const a = Math.random() * Math.PI * 2;
+        const r = 2.8 + Math.random() * 4.2;
+        const x = Math.cos(a) * r;
+        const z = Math.sin(a) * r;
+        const h = 0.25 + Math.random() * 2.6;
+        return { x, z, h, a, r };
+      }),
+    [count]
+  );
+
+  useFrame(({ clock }) => {
+    if (!meshRef.current || !matRef.current) return;
+    const { idx, nextIdx, t } = getChapterBlend(scroll.offset, chapters.length);
+    const gate = chapterGate('glyphcity', idx, nextIdx, t);
+    const time = clock.getElapsedTime();
+
+    const hue = THREE.MathUtils.lerp(chapters[idx].hue, chapters[nextIdx].hue, t);
+    matRef.current.color.setHSL(hue / 360, 0.25, 0.12);
+    matRef.current.emissive.setHSL(hue / 360, 0.65, 0.22);
+    matRef.current.emissiveIntensity = (quality === 'desktop' ? 0.95 : 0.7) * gate;
+    matRef.current.opacity = gate * 0.75;
+
+    for (let i = 0; i < seeds.length; i += 1) {
+      const s = seeds[i];
+      const breath = 1 + Math.sin(time * 0.6 + i * 0.3) * 0.05;
+      dummy.position.set(s.x, s.h * 0.5, s.z);
+      dummy.rotation.set(0, time * 0.06 + s.a, 0);
+      dummy.scale.set(0.25, s.h * breath, 0.25);
+      dummy.updateMatrix();
+      meshRef.current.setMatrixAt(i, dummy.matrix);
+    }
+    meshRef.current.instanceMatrix.needsUpdate = true;
+    meshRef.current.visible = gate > 0.001;
+  });
+
+  return (
+    <instancedMesh
+      ref={meshRef}
+      args={[undefined, undefined, count]}
+      position={[0, -1.1, -2.2]}
+      frustumCulled={false}
+    >
+      <boxGeometry args={[1, 1, 1]} />
+      <meshStandardMaterial
+        ref={matRef}
+        transparent
+        opacity={0}
+        roughness={0.65}
+        metalness={0.2}
+        depthWrite={false}
+      />
+    </instancedMesh>
+  );
+};
+
+const HudBillboard = ({ quality }: { quality: QualityTier }) => {
+  const groupRef = useRef<THREE.Group>(null);
+  const matRef = useRef<THREE.MeshBasicMaterial>(null);
+  const scroll = useScroll();
+  const { camera } = useThree();
+
+  useFrame(({ clock }) => {
+    if (!groupRef.current || !matRef.current) return;
+    const { idx, nextIdx, t } = getChapterBlend(scroll.offset, chapters.length);
+    const gate = chapterGate('field', idx, nextIdx, t);
+    const time = clock.getElapsedTime();
+
+    groupRef.current.position.copy(camera.position);
+    groupRef.current.quaternion.copy(camera.quaternion);
+    groupRef.current.translateZ(-2.6);
+    groupRef.current.rotation.z += Math.sin(time * 0.15) * 0.0008;
+
+    const hue = THREE.MathUtils.lerp(chapters[idx].hue, chapters[nextIdx].hue, t);
+    matRef.current.color.setHSL(hue / 360, 0.9, 0.62);
+    matRef.current.opacity = gate * (quality === 'desktop' ? 0.18 : 0.14);
+  });
+
+  return (
+    <group ref={groupRef} frustumCulled={false}>
+      <mesh>
+        <planeGeometry args={[3.4, 2.1, quality === 'desktop' ? 28 : 18, quality === 'desktop' ? 18 : 12]} />
+        <meshBasicMaterial
+          ref={matRef}
+          transparent
+          opacity={0}
+          wireframe
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+          color="#22d3ee"
+        />
+      </mesh>
+    </group>
+  );
 };
 
 const NebulaField = ({ quality }: { quality: QualityTier }) => {
@@ -552,11 +740,30 @@ const ScrollAtmosphere = () => {
 
 const PortalTorus = ({ quality }: { quality: QualityTier }) => {
   const torusRef = useRef<THREE.Mesh>(null);
+  const matRef = useRef<THREE.MeshPhysicalMaterial>(null);
+  const scroll = useScroll();
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime();
     if (!torusRef.current) return;
     torusRef.current.rotation.x = Math.sin(t * 0.34) * 0.22 + Math.PI / 2.2;
     torusRef.current.rotation.y = t * 0.18;
+
+    const { idx, nextIdx, t: blendT } = getChapterBlend(
+      scroll.offset,
+      chapters.length
+    );
+    const gate = clamp01(
+      chapterGate('lens', idx, nextIdx, blendT) +
+        chapterGate('prism', idx, nextIdx, blendT) +
+        chapterGate('flare', idx, nextIdx, blendT) +
+        chapterGate('horizon', idx, nextIdx, blendT)
+    );
+
+    torusRef.current.visible = gate > 0.01;
+    torusRef.current.scale.setScalar(0.35 + gate * 0.65);
+    if (matRef.current) {
+      matRef.current.opacity = 0.18 + gate * 0.82;
+    }
   });
 
   return (
@@ -564,7 +771,9 @@ const PortalTorus = ({ quality }: { quality: QualityTier }) => {
       <mesh ref={torusRef} castShadow receiveShadow>
         <torusGeometry args={[2.05, 0.32, 64, 180]} />
         <meshPhysicalMaterial
+          ref={matRef}
           transparent
+          opacity={0.9}
           transmission={quality === 'desktop' ? 0.9 : 0.7}
           thickness={1.4}
           roughness={0.1}
@@ -725,6 +934,8 @@ const HorizonHalo = ({ quality }: { quality: QualityTier }) => {
 };
 
 const GlyphOrbit = ({ quality }: { quality: QualityTier }) => {
+  const groupRef = useRef<THREE.Group>(null);
+  const scroll = useScroll();
   const glyphs = useMemo(
     () =>
       Array.from({ length: quality === 'desktop' ? 32 : 18 }).map((_, i) => ({
@@ -737,8 +948,22 @@ const GlyphOrbit = ({ quality }: { quality: QualityTier }) => {
     [quality]
   );
 
+  useFrame(({ clock }) => {
+    if (!groupRef.current) return;
+    const { idx, nextIdx, t } = getChapterBlend(scroll.offset, chapters.length);
+    const gate = clamp01(
+      chapterGate('nebula', idx, nextIdx, t) +
+        chapterGate('glyphcity', idx, nextIdx, t)
+    );
+    const time = clock.getElapsedTime();
+    groupRef.current.rotation.y = time * 0.18 + scroll.offset * 2.1;
+    groupRef.current.rotation.z = Math.sin(time * 0.12) * 0.08;
+    groupRef.current.scale.setScalar(0.5 + gate * 0.5);
+    groupRef.current.visible = gate > 0.01;
+  });
+
   return (
-    <group>
+    <group ref={groupRef}>
       {glyphs.map(glyph => (
         <Text
           key={glyph.id}
@@ -842,6 +1067,9 @@ const Scene = ({ quality }: { quality: QualityTier }) => {
       />
 
       <PortalTorus quality={quality} />
+      {!reducedMotion && <TunnelRings quality={quality} />}
+      {!reducedMotion && <VoxelCity quality={quality} />}
+      {!reducedMotion && <HudBillboard quality={quality} />}
       {!reducedMotion && <EnergyRing quality={quality} />}
       {!reducedMotion && <AuroraVeil quality={quality} burstRef={burstRef} />}
       {!reducedMotion && <Shockwave burstRef={burstRef} />}
@@ -980,11 +1208,13 @@ const HeroExplorer = () => {
           <div className="hero-explorer__post-head">
             <p className="hero-explorer__post-kicker">Portal Index</p>
             <h2 className="hero-explorer__post-title">
-              Advanced motion showcase
+              Scroll-driven 3D scene showcase
             </h2>
             <p className="hero-explorer__post-sub">
-              The 3D scene stays clean while you scroll. These notes and demos
-              appear only at the end.
+              Full-screen canvas, no UI over the visuals while scrolling. Each
+              chapter is a distinct scene rig (camera choreography + lighting +
+              geometry + post FX). The index and interactive demos reveal only
+              after the scroll completes.
             </p>
           </div>
 
