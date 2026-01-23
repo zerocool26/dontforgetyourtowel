@@ -1,5 +1,5 @@
 ---
-import ImmersiveLabs from '../react/ImmersiveLabs.tsx';
+import ImmersiveLabsLazy from '../react/ImmersiveLabsLazy.tsx';
 const chapters = [
   // Longer, more cinematic scroll (chapters can repeat scenes intentionally)
   { id: 'origin' },
@@ -146,7 +146,7 @@ const chapters = [
         </div>
       </section>
 
-      <ImmersiveLabs client:visible />
+      <ImmersiveLabsLazy client:visible />
 
       <section class="ih-panel ih-panel-outro" data-ih-panel>
         <h3 class="ih-title ih-split" data-split>

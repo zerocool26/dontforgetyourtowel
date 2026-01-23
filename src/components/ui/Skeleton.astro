@@ -1,0 +1,105 @@
+---
+export interface Props {
+  variant?: 'text' | 'circular' | 'rectangular' | 'card' | 'avatar' | 'button';
+  width?: string;
+  height?: string;
+  lines?: number;
+  class?: string;
+  animation?: 'pulse' | 'wave' | 'none';
+}
+
+const {
+  variant = 'rectangular',
+  width,
+  height,
+  lines = 1,
+  class: className = '',
+  animation = 'pulse',
+} = Astro.props;
+
+const variantClasses = {
+  text: 'h-4 rounded',
+  circular: 'rounded-full',
+  rectangular: 'rounded-md',
+  card: 'rounded-lg',
+  avatar: 'rounded-full w-12 h-12',
+  button: 'rounded-lg h-10',
+};
+
+const animationClasses = {
+  pulse: 'animate-pulse',
+  wave: 'skeleton-wave',
+  none: '',
+};
+
+const baseClass = variantClasses[variant] || variantClasses.rectangular;
+const animClass = animationClasses[animation];
+
+const style = {
+  width: width || (variant === 'avatar' ? '3rem' : undefined),
+  height: height || undefined,
+};
+---
+
+{
+  variant === 'text' && lines > 1 ? (
+    <div class={`space-y-2 ${className}`}>
+      {Array.from({ length: lines }).map((_, i) => (
+        <div
+          class={`skeleton ${baseClass} ${animClass}`}
+          style={{
+            width: i === lines - 1 ? '70%' : width || '100%',
+          }}
+        />
+      ))}
+    </div>
+  ) : (
+    <div
+      class={`skeleton ${baseClass} ${animClass} ${className}`}
+      style={style}
+    />
+  )
+}
+
+<style>
+  .skeleton {
+    background: linear-gradient(
+      110deg,
+      rgba(148, 163, 184, 0.1) 8%,
+      rgba(148, 163, 184, 0.18) 18%,
+      rgba(148, 163, 184, 0.1) 33%
+    );
+    background-size: 200% 100%;
+  }
+
+  [data-theme='corporate'] .skeleton {
+    background: linear-gradient(
+      110deg,
+      rgba(100, 116, 139, 0.15) 8%,
+      rgba(100, 116, 139, 0.25) 18%,
+      rgba(100, 116, 139, 0.15) 33%
+    );
+    background-size: 200% 100%;
+  }
+
+  .skeleton-wave {
+    animation: skeleton-wave 1.6s linear infinite;
+  }
+
+  @keyframes skeleton-wave {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+
+  /* Respect reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    .skeleton {
+      animation: none;
+      background: rgba(148, 163, 184, 0.15);
+    }
+  }
+</style>

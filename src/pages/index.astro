@@ -2,6 +2,7 @@
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 import StructuredData from '../components/StructuredData.astro';
 import ImmersiveHome from '../components/immersive/ImmersiveHome.astro';
+import HeroExplorerLazy from '../components/react/HeroExplorerLazy.tsx';
 
 const headline = 'Next‑gen digital ops, engineered for motion and intelligence';
 const subheading =
@@ -20,6 +21,10 @@ const subheading =
   showLiveChat={false}
 >
   <StructuredData type="organization" />
+  <section class="relative min-h-screen bg-zinc-950">
+    <HeroExplorerLazy client:visible />
+  </section>
+
   <section class="relative min-h-screen bg-zinc-950">
     <ImmersiveHome />
   </section>

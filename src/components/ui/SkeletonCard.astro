@@ -1,0 +1,70 @@
+---
+import Skeleton from './Skeleton.astro';
+
+export interface Props {
+  class?: string;
+  hasImage?: boolean;
+  hasAvatar?: boolean;
+  lines?: number;
+}
+
+const {
+  class: className = '',
+  hasImage = true,
+  hasAvatar = false,
+  lines = 3,
+} = Astro.props;
+---
+
+<div class={`skeleton-card ${className}`}>
+  {
+    hasImage && (
+      <Skeleton
+        variant="rectangular"
+        height="12rem"
+        class="skeleton-card-image"
+      />
+    )
+  }
+  <div class="skeleton-card-content">
+    {
+      hasAvatar && (
+        <div class="mb-4 flex items-center gap-3">
+          <Skeleton variant="avatar" />
+          <div class="flex-1">
+            <Skeleton variant="text" width="40%" />
+            <Skeleton variant="text" width="60%" class="mt-1" />
+          </div>
+        </div>
+      )
+    }
+    <Skeleton variant="text" width="80%" height="1.5rem" class="mb-3" />
+    <Skeleton variant="text" lines={lines} />
+    <div class="mt-4 flex gap-2">
+      <Skeleton variant="button" width="6rem" />
+      <Skeleton variant="button" width="6rem" />
+    </div>
+  </div>
+</div>
+
+<style>
+  .skeleton-card {
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid rgba(148, 163, 184, 0.1);
+  }
+
+  .skeleton-card-image {
+    width: 100%;
+  }
+
+  .skeleton-card-content {
+    padding: 1.5rem;
+  }
+
+  [data-theme='corporate'] .skeleton-card {
+    background: rgba(255, 255, 255, 0.5);
+    border-color: rgba(100, 116, 139, 0.2);
+  }
+</style>

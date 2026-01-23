@@ -66,6 +66,17 @@ const metaTags = generateMetaTags({
   name="viewport"
   content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content"
 />
+<!-- Theme color for mobile browsers - adapts to color scheme -->
+<meta
+  name="theme-color"
+  content="#0f172a"
+  media="(prefers-color-scheme: dark)"
+/>
+<meta
+  name="theme-color"
+  content="#ffffff"
+  media="(prefers-color-scheme: light)"
+/>
 <meta name="theme-color" content="#0A1F44" />
 <ClientRouter />
 <script>
@@ -73,6 +84,33 @@ const metaTags = generateMetaTags({
   import '../scripts/navigation-progress';
   import '../scripts/focus-management';
 </script>
+<!-- DNS Prefetch for external resources -->
+<link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+<!-- Preload critical fonts to reduce FCP -->
+<link
+  rel="preload"
+  href="/node_modules/@fontsource/inter/files/inter-latin-400-normal.woff2"
+  as="font"
+  type="font/woff2"
+  crossorigin
+/>
+<link
+  rel="preload"
+  href="/node_modules/@fontsource/inter/files/inter-latin-600-normal.woff2"
+  as="font"
+  type="font/woff2"
+  crossorigin
+/>
+<link
+  rel="preload"
+  href="/node_modules/@fontsource/space-grotesk/files/space-grotesk-latin-600-normal.woff2"
+  as="font"
+  type="font/woff2"
+  crossorigin
+/>
+
 <link
   rel="icon"
   type="image/svg+xml"

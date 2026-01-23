@@ -1,0 +1,233 @@
+---
+export interface NavItem {
+  href: string;
+  label: string;
+  icon: string;
+  active?: boolean;
+}
+
+export interface Props {
+  items: NavItem[];
+  class?: string;
+}
+
+const { items, class: className = '' } = Astro.props;
+const currentPath = Astro.url.pathname;
+---
+
+<nav
+  class={`bottom-nav ${className}`}
+  role="navigation"
+  aria-label="Mobile navigation"
+>
+  <div class="bottom-nav-inner">
+    {
+      items.map(item => (
+        <a
+          href={item.href}
+          class={`bottom-nav-item ${currentPath === item.href || item.active ? 'active' : ''}`}
+          aria-label={item.label}
+          aria-current={currentPath === item.href ? 'page' : undefined}
+        >
+          <span class="bottom-nav-icon" aria-hidden="true">
+            {item.icon}
+          </span>
+          <span class="bottom-nav-label">{item.label}</span>
+        </a>
+      ))
+    }
+  </div>
+</nav>
+
+<style>
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: linear-gradient(
+      180deg,
+      rgba(15, 23, 42, 0.92),
+      rgba(15, 23, 42, 0.98)
+    );
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(148, 163, 184, 0.15);
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.1);
+
+    /* Safe area support for devices with notches/home indicator */
+    padding-bottom: env(safe-area-inset-bottom, 0);
+
+    /* Hide on desktop */
+    display: none;
+  }
+
+  @media (max-width: 768px) {
+    .bottom-nav {
+      display: block;
+    }
+  }
+
+  .bottom-nav-inner {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+    gap: 4px;
+    padding: 8px 8px 4px;
+    max-width: 100%;
+  }
+
+  .bottom-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    color: rgba(148, 163, 184, 0.8);
+    text-decoration: none;
+    transition:
+      background-color 200ms ease,
+      color 200ms ease,
+      transform 100ms ease;
+    position: relative;
+
+    /* WCAG AAA touch target - minimum 48x48px */
+    min-height: 48px;
+    min-width: 48px;
+
+    /* Improve tap response */
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  .bottom-nav-item:active {
+    transform: scale(0.95);
+  }
+
+  .bottom-nav-item:hover,
+  .bottom-nav-item:focus-visible {
+    background: rgba(99, 102, 241, 0.1);
+    color: rgba(255, 255, 255, 0.95);
+  }
+
+  .bottom-nav-item.active {
+    color: #6366f1;
+    background: rgba(99, 102, 241, 0.15);
+  }
+
+  .bottom-nav-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 24px;
+    height: 3px;
+    background: #6366f1;
+    border-radius: 0 0 3px 3px;
+  }
+
+  .bottom-nav-icon {
+    font-size: 1.25rem;
+    line-height: 1;
+    display: block;
+  }
+
+  .bottom-nav-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  /* Corporate theme adjustments */
+  [data-theme='corporate'] .bottom-nav {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.92),
+      rgba(255, 255, 255, 0.98)
+    );
+    border-top-color: rgba(100, 116, 139, 0.2);
+  }
+
+  [data-theme='corporate'] .bottom-nav-item {
+    color: rgba(51, 65, 85, 0.7);
+  }
+
+  [data-theme='corporate'] .bottom-nav-item:hover,
+  [data-theme='corporate'] .bottom-nav-item:focus-visible {
+    color: rgba(15, 23, 42, 0.95);
+    background: rgba(99, 102, 241, 0.08);
+  }
+
+  [data-theme='corporate'] .bottom-nav-item.active {
+    color: #4f46e5;
+    background: rgba(99, 102, 241, 0.12);
+  }
+
+  /* Focus indicators */
+  .bottom-nav-item:focus-visible {
+    outline: 2px solid rgba(99, 102, 241, 0.95);
+    outline-offset: 2px;
+  }
+
+  /* Animation for page load */
+  @media (prefers-reduced-motion: no-preference) {
+    .bottom-nav {
+      animation: slideUpFadeIn 300ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+  }
+
+  @keyframes slideUpFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(100%);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Respect reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .bottom-nav {
+      animation: none;
+    }
+    .bottom-nav-item {
+      transition: none;
+    }
+    .bottom-nav-item:active {
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  // Add haptic feedback on tap (iOS/Android)
+  function addHapticFeedback() {
+    const items = document.querySelectorAll<HTMLElement>('.bottom-nav-item');
+
+    items.forEach(item => {
+      item.addEventListener('click', () => {
+        // Trigger haptic feedback if available
+        if ('vibrate' in navigator) {
+          navigator.vibrate(10); // 10ms light tap
+        }
+      });
+    });
+  }
+
+  // Initialize on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', addHapticFeedback);
+  } else {
+    addHapticFeedback();
+  }
+
+  // Re-initialize on Astro page transitions
+  document.addEventListener('astro:page-load', addHapticFeedback);
+</script>

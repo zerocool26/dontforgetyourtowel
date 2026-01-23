@@ -1,0 +1,348 @@
+---
+export interface Props {
+  /** Threshold distance to trigger refresh (px) */
+  threshold?: number;
+  /** Maximum pull distance (px) */
+  maxDistance?: number;
+  /** Custom refresh handler (default: window.location.reload) */
+  onRefresh?: string;
+  class?: string;
+}
+
+const {
+  threshold = 80,
+  maxDistance = 150,
+  onRefresh,
+  class: className = '',
+} = Astro.props;
+---
+
+<div
+  class={`pull-to-refresh ${className}`}
+  data-ptr
+  data-threshold={threshold}
+  data-max={maxDistance}
+  data-refresh={onRefresh}
+>
+  <div class="ptr-indicator" data-ptr-indicator>
+    <div class="ptr-spinner" data-ptr-spinner>
+      <svg
+        class="ptr-icon"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <polyline points="23 4 23 10 17 10"></polyline>
+        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+      </svg>
+    </div>
+    <div class="ptr-text" data-ptr-text>Pull to refresh</div>
+  </div>
+</div>
+
+<style>
+  .pull-to-refresh {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .ptr-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px;
+    transform: translateY(-100%);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform;
+  }
+
+  .ptr-spinner {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: scale(0.8);
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .ptr-icon {
+    width: 100%;
+    height: 100%;
+    color: rgba(99, 102, 241, 0.9);
+    transform-origin: center;
+  }
+
+  .ptr-text {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: rgba(148, 163, 184, 0.8);
+    opacity: 0;
+    transform: translateY(-8px);
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  /* Active pulling state */
+  .pull-to-refresh.is-pulling .ptr-indicator {
+    transform: translateY(0);
+  }
+
+  .pull-to-refresh.is-pulling .ptr-spinner,
+  .pull-to-refresh.is-pulling .ptr-text {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+
+  /* Can release state */
+  .pull-to-refresh.can-release .ptr-text {
+    color: rgba(34, 211, 238, 0.9);
+  }
+
+  .pull-to-refresh.can-release .ptr-icon {
+    color: rgba(34, 211, 238, 0.9);
+  }
+
+  /* Refreshing state */
+  .pull-to-refresh.is-refreshing .ptr-icon {
+    animation: ptr-spin 0.8s linear infinite;
+  }
+
+  .pull-to-refresh.is-refreshing .ptr-text {
+    content: 'Refreshing...';
+  }
+
+  @keyframes ptr-spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* Corporate theme */
+  [data-theme='corporate'] .ptr-icon {
+    color: rgba(79, 70, 229, 0.9);
+  }
+
+  [data-theme='corporate'] .ptr-text {
+    color: rgba(51, 65, 85, 0.8);
+  }
+
+  [data-theme='corporate'] .pull-to-refresh.can-release .ptr-icon,
+  [data-theme='corporate'] .pull-to-refresh.can-release .ptr-text {
+    color: rgba(14, 165, 233, 0.9);
+  }
+
+  /* Hide on desktop */
+  @media (min-width: 769px) {
+    .pull-to-refresh {
+      display: none;
+    }
+  }
+
+  /* Respect reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .ptr-indicator,
+    .ptr-spinner,
+    .ptr-text,
+    .ptr-icon {
+      transition: none;
+      animation: none !important;
+    }
+  }
+</style>
+
+<script lang="ts">
+  import { haptic } from '../../utils/haptic';
+
+  interface PullToRefreshState {
+    startY: number;
+    currentY: number;
+    isDragging: boolean;
+    canRefresh: boolean;
+  }
+
+  class PullToRefreshManager {
+    private container: HTMLElement;
+    private indicator: HTMLElement;
+    private textElement: HTMLElement;
+    private threshold: number;
+    private maxDistance: number;
+    private onRefresh?: () => void | Promise<void>;
+    private state: PullToRefreshState = {
+      startY: 0,
+      currentY: 0,
+      isDragging: false,
+      canRefresh: false,
+    };
+
+    constructor(container: HTMLElement) {
+      this.container = container;
+      this.indicator = container.querySelector<HTMLElement>(
+        '[data-ptr-indicator]'
+      )!;
+      this.textElement =
+        container.querySelector<HTMLElement>('[data-ptr-text]')!;
+
+      this.threshold = parseInt(container.dataset.threshold || '80', 10);
+      this.maxDistance = parseInt(container.dataset.max || '150', 10);
+
+      // Parse custom refresh handler
+      const refreshHandler = container.dataset.refresh;
+      if (refreshHandler) {
+        try {
+          this.onRefresh = new Function('return ' + refreshHandler)();
+        } catch (e) {
+          console.warn('Invalid refresh handler:', e);
+        }
+      }
+
+      this.init();
+    }
+
+    private init(): void {
+      // Only enable on mobile/touch devices
+      if (!('ontouchstart' in window)) return;
+
+      document.addEventListener('touchstart', this.handleTouchStart, {
+        passive: true,
+      });
+      document.addEventListener('touchmove', this.handleTouchMove, {
+        passive: false,
+      });
+      document.addEventListener('touchend', this.handleTouchEnd);
+    }
+
+    private handleTouchStart = (e: TouchEvent): void => {
+      // Only trigger at top of page
+      if (window.scrollY > 0) return;
+
+      this.state.startY = e.touches[0].clientY;
+      this.state.isDragging = true;
+    };
+
+    private handleTouchMove = (e: TouchEvent): void => {
+      if (!this.state.isDragging || window.scrollY > 0) return;
+
+      this.state.currentY = e.touches[0].clientY;
+      const pullDistance = this.state.currentY - this.state.startY;
+
+      // Only handle downward pulls
+      if (pullDistance <= 0) return;
+
+      // Prevent default scroll behavior when pulling
+      if (pullDistance > 10) {
+        e.preventDefault();
+      }
+
+      // Apply resistance to pull distance
+      const resistedDistance = Math.min(pullDistance * 0.5, this.maxDistance);
+
+      this.updateIndicator(resistedDistance);
+
+      // Check if threshold is met
+      if (resistedDistance >= this.threshold && !this.state.canRefresh) {
+        this.state.canRefresh = true;
+        this.container.classList.add('can-release');
+        haptic.light(); // Haptic feedback when threshold reached
+        this.textElement.textContent = 'Release to refresh';
+      } else if (resistedDistance < this.threshold && this.state.canRefresh) {
+        this.state.canRefresh = false;
+        this.container.classList.remove('can-release');
+        this.textElement.textContent = 'Pull to refresh';
+      }
+    };
+
+    private handleTouchEnd = (): void => {
+      if (!this.state.isDragging) return;
+
+      this.state.isDragging = false;
+
+      if (this.state.canRefresh) {
+        this.triggerRefresh();
+      } else {
+        this.reset();
+      }
+    };
+
+    private updateIndicator(distance: number): void {
+      if (distance > 0) {
+        this.container.classList.add('is-pulling');
+        this.indicator.style.transform = `translateY(${distance - 100}%)`;
+      } else {
+        this.container.classList.remove('is-pulling');
+      }
+    }
+
+    private async triggerRefresh(): Promise<void> {
+      this.container.classList.add('is-refreshing');
+      this.container.classList.remove('can-release');
+      this.textElement.textContent = 'Refreshing...';
+
+      haptic.medium(); // Stronger feedback on refresh
+
+      try {
+        if (this.onRefresh) {
+          await this.onRefresh();
+        } else {
+          // Default: reload page
+          window.location.reload();
+        }
+      } catch (error) {
+        console.error('Refresh failed:', error);
+        haptic.error();
+      } finally {
+        setTimeout(() => this.reset(), 500);
+      }
+    }
+
+    private reset(): void {
+      this.container.classList.remove(
+        'is-pulling',
+        'can-release',
+        'is-refreshing'
+      );
+      this.indicator.style.transform = 'translateY(-100%)';
+      this.textElement.textContent = 'Pull to refresh';
+      this.state.canRefresh = false;
+      this.state.startY = 0;
+      this.state.currentY = 0;
+    }
+
+    public destroy(): void {
+      document.removeEventListener('touchstart', this.handleTouchStart);
+      document.removeEventListener('touchmove', this.handleTouchMove);
+      document.removeEventListener('touchend', this.handleTouchEnd);
+    }
+  }
+
+  // Initialize pull-to-refresh
+  function initPTR() {
+    const containers = document.querySelectorAll<HTMLElement>('[data-ptr]');
+    containers.forEach(container => new PullToRefreshManager(container));
+  }
+
+  // Initialize on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPTR);
+  } else {
+    initPTR();
+  }
+
+  // Re-initialize on page transitions
+  document.addEventListener('astro:page-load', initPTR);
+</script>
