@@ -25,7 +25,7 @@ export default defineConfig({
       const normalizeBasePath = (value: string) => {
         const trimmed = String(value || '').trim();
         if (!trimmed || trimmed === '/') return '/';
-        const noSlashes = trimmed.replace(/^\/+/g, '').replace(/\/+$/g, '');
+        const noSlashes = trimmed.replace(/^\/+/, '').replace(/\/+$/g, '');
         return `/${noSlashes}/`;
       };
 
@@ -33,7 +33,26 @@ export default defineConfig({
         process.env.E2E_BASE_PATH ?? '/dontforgetyourtowel/'
       );
       const fallback = `http://localhost:4321${basePath === '/' ? '/' : basePath}`;
-      return process.env.PLAYWRIGHT_BASE_URL || fallback;
+
+      const override = process.env.PLAYWRIGHT_BASE_URL;
+      if (!override) return fallback;
+
+      // Some runners set PLAYWRIGHT_BASE_URL to a host-only URL (e.g. http://localhost:4321).
+      // If Astro is configured with a non-root basePath, that would cause tests to hit / and get 404.
+      // Auto-append basePath only when the override URL is rooted at '/'.
+      try {
+        const url = new URL(override);
+        const pathname =
+          url.pathname && url.pathname !== '/' ? url.pathname : '/';
+        if (pathname === '/' && basePath !== '/') {
+          url.pathname = basePath;
+        } else if (!url.pathname.endsWith('/')) {
+          url.pathname = `${url.pathname}/`;
+        }
+        return url.toString();
+      } catch {
+        return override;
+      }
     })(),
     // `reducedMotion` is a browser context option; keep it nested so TS stays happy
     // across Playwright type versions.
@@ -87,15 +106,36 @@ export default defineConfig({
   webServer: {
     // Build + preview the static output so E2E is deterministic.
     command: 'npm run build && npm run preview -- --host 127.0.0.1 --port 4321',
-    url:
-      process.env.PLAYWRIGHT_BASE_URL ||
-      `http://localhost:4321${
-        (process.env.E2E_BASE_PATH ?? '/dontforgetyourtowel/')
-          .toString()
-          .startsWith('/')
-          ? (process.env.E2E_BASE_PATH ?? '/dontforgetyourtowel/')
-          : `/${process.env.E2E_BASE_PATH ?? 'dontforgetyourtowel'}/`
-      }`,
+    url: (() => {
+      const normalizeBasePath = (value: string) => {
+        const trimmed = String(value || '').trim();
+        if (!trimmed || trimmed === '/') return '/';
+        const noSlashes = trimmed.replace(/^\/+/, '').replace(/\/+$/g, '');
+        return `/${noSlashes}/`;
+      };
+
+      const basePath = normalizeBasePath(
+        process.env.E2E_BASE_PATH ?? '/dontforgetyourtowel/'
+      );
+      const fallback = `http://localhost:4321${basePath === '/' ? '/' : basePath}`;
+
+      const override = process.env.PLAYWRIGHT_BASE_URL;
+      if (!override) return fallback;
+
+      try {
+        const url = new URL(override);
+        const pathname =
+          url.pathname && url.pathname !== '/' ? url.pathname : '/';
+        if (pathname === '/' && basePath !== '/') {
+          url.pathname = basePath;
+        } else if (!url.pathname.endsWith('/')) {
+          url.pathname = `${url.pathname}/`;
+        }
+        return url.toString();
+      } catch {
+        return override;
+      }
+    })(),
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
   },

@@ -4,6 +4,7 @@
   --hero-progress: 0;
   --hero-hue: 210;
   --hero-energy: 0.2;
+  --hero-reveal: 0;
 
   /* Long scroll: driven by React setting --hero-pages */
   min-height: calc(var(--hero-pages) * 120vh);
@@ -65,69 +66,106 @@
   height: 100% !important;
 }
 
-.hero-explorer__intro {
+.hero-explorer__post {
   position: absolute;
-  inset: 0;
-  display: grid;
-  align-content: flex-end;
-  gap: 10px;
-  padding: 28px;
-  background: linear-gradient(180deg, transparent 40%, rgba(4, 7, 18, 0.72));
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+  padding: 72px 20px 56px;
+  background: linear-gradient(
+    180deg,
+    rgba(4, 7, 18, 0) 0%,
+    rgba(4, 7, 18, 0.78) 22%,
+    rgba(4, 7, 18, 0.94) 58%,
+    rgba(4, 7, 18, 0.98) 100%
+  );
+  opacity: var(--hero-reveal);
+  transform: translate3d(0, calc((1 - var(--hero-reveal)) * 24px), 0);
+  transition:
+    opacity 220ms ease,
+    transform 220ms ease;
   pointer-events: none;
 }
 
-.hero-explorer__intro-kicker {
-  letter-spacing: 0.2em;
+.hero-explorer[data-hero-end='1'] .hero-explorer__post {
+  pointer-events: auto;
+}
+
+.hero-explorer__post-inner {
+  margin: 0 auto;
+  max-width: 1100px;
+  display: grid;
+  gap: 26px;
+}
+
+.hero-explorer__post-head {
+  display: grid;
+  gap: 10px;
+}
+
+.hero-explorer__post-kicker {
+  margin: 0;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
   font-size: 0.75rem;
-  color: rgba(226, 232, 240, 0.6);
+  color: rgba(226, 232, 240, 0.62);
 }
 
-.hero-explorer__labels {
-  position: absolute;
-  top: 14vh;
-  left: 7vw;
+.hero-explorer__post-title {
+  margin: 0;
+  font-size: clamp(1.5rem, 2.6vw, 2.25rem);
+  letter-spacing: -0.02em;
+}
+
+.hero-explorer__post-sub {
+  margin: 0;
+  max-width: 70ch;
+  color: rgba(226, 232, 240, 0.74);
+}
+
+.hero-explorer__chapters {
   display: grid;
-  gap: 18px;
-  width: min(360px, 82vw);
-  pointer-events: none;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
 
-.hero-explorer__label {
-  padding: 12px 14px;
+.hero-explorer__chapter {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  background: rgba(15, 23, 42, 0.72);
+}
+
+.hero-explorer__chapter-num {
+  height: 40px;
+  width: 40px;
   border-radius: 12px;
-  background: rgba(15, 23, 42, 0.5);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(94, 234, 255, 0.14);
-  transform: translateY(calc(var(--i, 0) * 8px));
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  color: rgba(226, 232, 240, 0.85);
+  background: linear-gradient(
+    120deg,
+    rgba(94, 234, 255, 0.18),
+    rgba(99, 102, 241, 0.18)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.hero-explorer__label {
-  box-shadow:
-    0 10px 30px rgba(0, 0, 0, 0.35),
-    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
-}
-
-.hero-explorer__label h3 {
-  text-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
-}
-
-.hero-explorer__label h3 {
-  margin: 4px 0 4px;
+.hero-explorer__chapter-body h3 {
+  margin: 0 0 4px;
   font-size: 1rem;
 }
 
-.hero-explorer__label p {
+.hero-explorer__chapter-body p {
   margin: 0;
-  color: rgba(226, 232, 240, 0.78);
+  color: rgba(226, 232, 240, 0.74);
   font-size: 0.92rem;
-}
-
-.hero-explorer__kicker {
-  margin: 0;
-  font-size: 0.75rem;
-  letter-spacing: 0.12em;
-  color: rgba(226, 232, 240, 0.6);
+  line-height: 1.45;
 }
 
 .hero-explorer__rail {
@@ -186,16 +224,6 @@
 @media (max-width: 860px) {
   .hero-explorer {
     min-height: calc(var(--hero-pages) * 105vh);
-  }
-
-  .hero-explorer__labels {
-    top: 12vh;
-    left: 6vw;
-    width: 80vw;
-  }
-
-  .hero-explorer__label {
-    backdrop-filter: blur(12px);
   }
 }
 

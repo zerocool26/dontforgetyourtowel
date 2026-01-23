@@ -1,13 +1,12 @@
 /** @jsxImportSource react */
 /** @jsxRuntime automatic */
-import type { CSSProperties } from 'react';
+import type { CSSProperties, MutableRefObject } from 'react';
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import {
   Environment,
   Float,
-  Scroll,
   ScrollControls,
   Sparkles,
   Stars,
@@ -26,7 +25,7 @@ import '@/styles/hero-explorer.css';
 
 type QualityTier = 'desktop' | 'mobile' | 'low';
 
-type BurstRef = React.MutableRefObject<number>;
+type BurstRef = MutableRefObject<number>;
 
 type Chapter = {
   id: string;
@@ -96,6 +95,19 @@ const chapters: Chapter[] = [
 ];
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
+
+const chapterGate = (
+  chapterId: string,
+  idx: number,
+  nextIdx: number,
+  t: number
+) => {
+  const currentId = chapters[idx]?.id;
+  const nextId = chapters[nextIdx]?.id;
+  if (currentId === chapterId) return 1 - t;
+  if (nextId === chapterId) return t;
+  return 0;
+};
 
 const getChapterBlend = (offset: number, length: number) => {
   const total = Math.max(1, length - 1);
@@ -495,6 +507,8 @@ const ScrollAtmosphere = () => {
       hostRef.current.style.removeProperty('--hero-progress');
       hostRef.current.style.removeProperty('--hero-hue');
       hostRef.current.style.removeProperty('--hero-energy');
+      hostRef.current.style.removeProperty('--hero-reveal');
+      delete hostRef.current.dataset.heroEnd;
     };
   }, [gl]);
 
@@ -519,6 +533,12 @@ const ScrollAtmosphere = () => {
       host.style.setProperty('--hero-progress', progress.toFixed(4));
       host.style.setProperty('--hero-hue', hue.toFixed(1));
       host.style.setProperty('--hero-energy', energy.toFixed(4));
+
+      // Reveal bottom info only near the end of the scroll.
+      const reveal = clamp01((progress - 0.88) / 0.12);
+      host.style.setProperty('--hero-reveal', reveal.toFixed(4));
+      if (progress > 0.985) host.dataset.heroEnd = '1';
+      else delete host.dataset.heroEnd;
     }
 
     if (scene.fog) {
@@ -558,6 +578,149 @@ const PortalTorus = ({ quality }: { quality: QualityTier }) => {
         />
       </mesh>
     </Float>
+  );
+};
+
+const LatticePlane = ({ quality }: { quality: QualityTier }) => {
+  const meshRef = useRef<THREE.Mesh>(null);
+  const matRef = useRef<THREE.MeshBasicMaterial>(null);
+  const scroll = useScroll();
+
+  useFrame(({ clock }) => {
+    if (!meshRef.current || !matRef.current) return;
+    const { idx, nextIdx, t } = getChapterBlend(scroll.offset, chapters.length);
+    const gate = chapterGate('lattice', idx, nextIdx, t);
+    const time = clock.getElapsedTime();
+
+    const hue = THREE.MathUtils.lerp(
+      chapters[idx].hue,
+      chapters[nextIdx].hue,
+      t
+    );
+    meshRef.current.rotation.x = Math.PI / 2.1 + Math.sin(time * 0.18) * 0.08;
+    meshRef.current.rotation.z = time * 0.06;
+    meshRef.current.position.z = -3.2;
+    meshRef.current.scale.setScalar(1.0 + scroll.offset * 0.25);
+
+    const base = quality === 'desktop' ? 0.22 : 0.14;
+    matRef.current.opacity = gate * base;
+    matRef.current.color.setHSL(hue / 360, 0.55, 0.62);
+  });
+
+  return (
+    <mesh ref={meshRef} frustumCulled={false}>
+      <planeGeometry
+        args={[
+          12,
+          12,
+          quality === 'desktop' ? 64 : 32,
+          quality === 'desktop' ? 64 : 32,
+        ]}
+      />
+      <meshBasicMaterial
+        ref={matRef}
+        transparent
+        opacity={0}
+        wireframe
+        depthWrite={false}
+        blending={THREE.AdditiveBlending}
+        color="#22d3ee"
+      />
+    </mesh>
+  );
+};
+
+const IonJets = ({ quality }: { quality: QualityTier }) => {
+  const groupRef = useRef<THREE.Group>(null);
+  const matRef = useRef<THREE.MeshBasicMaterial>(null);
+  const scroll = useScroll();
+
+  useFrame(({ clock }) => {
+    if (!groupRef.current || !matRef.current) return;
+    const { idx, nextIdx, t } = getChapterBlend(scroll.offset, chapters.length);
+    const gate = chapterGate('flare', idx, nextIdx, t);
+    const time = clock.getElapsedTime();
+
+    groupRef.current.rotation.y = time * 0.32 + scroll.offset * 1.2;
+    groupRef.current.rotation.z = Math.sin(time * 0.22) * 0.2;
+
+    const hue = THREE.MathUtils.lerp(
+      chapters[idx].hue,
+      chapters[nextIdx].hue,
+      t
+    );
+    matRef.current.color.setHSL(hue / 360, 0.9, 0.62);
+    matRef.current.opacity = gate * (quality === 'desktop' ? 0.22 : 0.14);
+  });
+
+  const jets = Array.from({ length: quality === 'desktop' ? 8 : 6 }).map(
+    (_, i) => {
+      const a = (i / (quality === 'desktop' ? 8 : 6)) * Math.PI * 2;
+      return { i, a };
+    }
+  );
+
+  return (
+    <group ref={groupRef} position={[0, 0.05, 0]}>
+      {jets.map(jet => (
+        <mesh
+          key={jet.i}
+          position={[Math.cos(jet.a) * 1.35, 0.0, Math.sin(jet.a) * 1.35]}
+          rotation={[Math.PI / 2, 0, jet.a]}
+        >
+          <coneGeometry args={[0.12, 1.9, 18, 1, true]} />
+          <meshBasicMaterial
+            ref={matRef}
+            transparent
+            opacity={0}
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+            color="#22d3ee"
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+};
+
+const HorizonHalo = ({ quality }: { quality: QualityTier }) => {
+  const meshRef = useRef<THREE.Mesh>(null);
+  const matRef = useRef<THREE.MeshBasicMaterial>(null);
+  const scroll = useScroll();
+
+  useFrame(({ clock }) => {
+    if (!meshRef.current || !matRef.current) return;
+    const { idx, nextIdx, t } = getChapterBlend(scroll.offset, chapters.length);
+    const gate = chapterGate('horizon', idx, nextIdx, t);
+    const time = clock.getElapsedTime();
+    const hue = THREE.MathUtils.lerp(
+      chapters[idx].hue,
+      chapters[nextIdx].hue,
+      t
+    );
+
+    meshRef.current.rotation.z = time * 0.08;
+    meshRef.current.scale.setScalar(1.25 + Math.sin(time * 0.24) * 0.03);
+    matRef.current.opacity = gate * (quality === 'desktop' ? 0.16 : 0.12);
+    matRef.current.color.setHSL(hue / 360, 0.65, 0.6);
+  });
+
+  return (
+    <mesh
+      ref={meshRef}
+      position={[0, -0.15, -0.8]}
+      rotation={[Math.PI / 2, 0, 0]}
+    >
+      <ringGeometry args={[3.1, 3.55, quality === 'desktop' ? 240 : 160]} />
+      <meshBasicMaterial
+        ref={matRef}
+        transparent
+        opacity={0}
+        depthWrite={false}
+        blending={THREE.AdditiveBlending}
+        color="#60a5fa"
+      />
+    </mesh>
   );
 };
 
@@ -682,28 +845,13 @@ const Scene = ({ quality }: { quality: QualityTier }) => {
       {!reducedMotion && <EnergyRing quality={quality} />}
       {!reducedMotion && <AuroraVeil quality={quality} burstRef={burstRef} />}
       {!reducedMotion && <Shockwave burstRef={burstRef} />}
+      {!reducedMotion && <LatticePlane quality={quality} />}
+      {!reducedMotion && <IonJets quality={quality} />}
+      {!reducedMotion && <HorizonHalo quality={quality} />}
       <GlyphOrbit quality={quality} />
       <NebulaField quality={quality} />
       {!reducedMotion && <PrismaticShards quality={quality} />}
       {!reducedMotion && <RibbonField quality={quality} />}
-
-      <Scroll html>
-        <div className="hero-explorer__labels">
-          {chapters.map((ch, idx) => (
-            <div
-              key={ch.id}
-              className="hero-explorer__label"
-              style={{ '--i': idx } as CSSProperties}
-            >
-              <p className="hero-explorer__kicker">
-                {String(idx + 1).padStart(2, '0')}
-              </p>
-              <h3>{ch.title}</h3>
-              <p>{ch.copy}</p>
-            </div>
-          ))}
-        </div>
-      </Scroll>
 
       <Environment preset="city" />
 
@@ -783,12 +931,6 @@ const DiscoveryRail = ({ onBurst }: { onBurst: () => void }) => {
 
 const HeroExplorer = () => {
   const quality = useQualityTier();
-  const [introDone, setIntroDone] = useState(false);
-
-  useEffect(() => {
-    const t = window.setTimeout(() => setIntroDone(true), 2400);
-    return () => window.clearTimeout(t);
-  }, []);
 
   const dpr = useMemo(() => {
     const target =
@@ -831,20 +973,42 @@ const HeroExplorer = () => {
             </ScrollControls>
           </Suspense>
         </Canvas>
-        {!introDone && (
-          <div className="hero-explorer__intro">
-            <p className="hero-explorer__intro-kicker">Immersive hero v2</p>
-            <h2>Scrolling reveals the layers.</h2>
-            <p>2–3s cinematic intro, then the scene hands off to scroll.</p>
-          </div>
-        )}
       </div>
 
-      <DiscoveryRail
-        onBurst={() => {
-          window.dispatchEvent(new CustomEvent('hero:burst'));
-        }}
-      />
+      <div className="hero-explorer__post" aria-label="Portal details">
+        <div className="hero-explorer__post-inner">
+          <div className="hero-explorer__post-head">
+            <p className="hero-explorer__post-kicker">Portal Index</p>
+            <h2 className="hero-explorer__post-title">
+              Advanced motion showcase
+            </h2>
+            <p className="hero-explorer__post-sub">
+              The 3D scene stays clean while you scroll. These notes and demos
+              appear only at the end.
+            </p>
+          </div>
+
+          <div className="hero-explorer__chapters" aria-label="Chapters">
+            {chapters.map((ch, idx) => (
+              <article key={ch.id} className="hero-explorer__chapter">
+                <div className="hero-explorer__chapter-num">
+                  {String(idx + 1).padStart(2, '0')}
+                </div>
+                <div className="hero-explorer__chapter-body">
+                  <h3>{ch.title}</h3>
+                  <p>{ch.copy}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          <DiscoveryRail
+            onBurst={() => {
+              window.dispatchEvent(new CustomEvent('hero:burst'));
+            }}
+          />
+        </div>
+      </div>
     </section>
   );
 };
