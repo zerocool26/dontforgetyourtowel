@@ -1,207 +1,89 @@
 ---
 import MarketingLayout from '../layouts/MarketingLayout.astro';
-import StructuredData from '../components/StructuredData.astro';
-
-import ServiceCard from '../components/business/ServiceCard.astro';
-import TrustBadge from '../components/business/TrustBadge.astro';
-import TestimonialSlider from '../components/business/TestimonialSlider.astro';
-import CaseStudyCard from '../components/business/CaseStudyCard.astro';
-import ServicesQuiz from '../components/business/ServicesQuiz';
-import ContactForm from '../components/ContactForm.astro';
-
 import ModernButton from '../components/ui/ModernButton.astro';
-import { withBasePath } from '../utils/helpers';
-import { getCollection } from 'astro:content';
 import HeroExplorerLazy from '../components/react/HeroExplorerLazy.tsx';
+import { withBasePath } from '../utils/helpers';
 
-const headline = 'Next‑gen digital ops, engineered for motion and intelligence';
-const subheading =
-  'Ultra‑premium 3D hero systems • Intelligent demos • Performance‑safe innovation';
-const servicesHref = withBasePath('services/');
-
-const featuredCaseStudies = (await getCollection('caseStudies' as never)).slice(
-  0,
-  3
-) as any[];
+const title = 'Immersive Portal';
+const description =
+  'A dedicated, fullscreen 3D landing experience. Enter the site when you are ready.';
+const enterHref = withBasePath('home/');
+const immersiveHref = withBasePath('immersive/');
 ---
 
 <MarketingLayout
-  title={headline}
-  description={subheading}
-  bodyClass="bg-zinc-950"
-  mainClass="space-y-0 pb-24"
-  showHeader={true}
-  showMobileNav={true}
-  showStickyCTA={true}
+  title={title}
+  description={description}
+  bodyClass="bg-[#040712] overflow-x-hidden"
+  mainClass="p-0"
+  showHeader={false}
+  showFooter={false}
+  showStickyCTA={false}
+  showMobileNav={false}
+  showLiveChat={false}
 >
-  <StructuredData type="organization" />
+  <div class="scene-shell" aria-label="Immersive portal landing">
+    <HeroExplorerLazy client:load />
 
-  <section class="relative overflow-hidden bg-zinc-950" id="main-content">
-    <div class="mx-auto max-w-[1220px] px-6 pb-16 pt-10">
-      <div
-        class="grid gap-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-end"
-      >
-        <div aria-hidden="true" class="sr-only">
-          <h1>{headline}</h1>
-          <p>{subheading}</p>
-        </div>
-
-        <div class="relative">
-          <div
-            class="absolute inset-0 rounded-3xl bg-gradient-to-br from-accent-500/20 via-sky-500/10 to-transparent blur-3xl"
-            aria-hidden="true"
-          >
-          </div>
-          <div
-            class="relative overflow-hidden rounded-2xl border border-white/10"
-          >
-            <HeroExplorerLazy client:visible />
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="border-t border-white/5 bg-zinc-900/30">
-    <div
-      class="mx-auto flex max-w-[1100px] flex-wrap items-center justify-between gap-4 px-6 py-6"
-    >
-      <TrustBadge label="SOC 2 aligned" />
-      <TrustBadge label="99.99% SLA" />
-      <TrustBadge label="Zero-trust ready" />
-      <TrustBadge label="24/7 NOC + SOC" />
-      <TrustBadge label="Cloud FinOps" />
-    </div>
-  </section>
-
-  <section class="bg-gradient-to-b from-zinc-950 via-zinc-950 to-zinc-900">
-    <div class="mx-auto max-w-[1220px] px-6 py-16">
-      <div class="grid gap-12 lg:grid-cols-[0.35fr_1fr] lg:items-start">
-        <div class="space-y-4">
-          <p
-            class="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-400"
-          >
-            Core capabilities
-          </p>
-          <h2 class="text-3xl font-semibold text-white">
-            Build resilience without slowing down innovation
-          </h2>
-          <p class="text-sm text-zinc-300">
-            From secure cloud foundations to AI-enabled operations, we design
-            integrated systems that move fast—without trading off reliability.
-          </p>
-          <ModernButton href={servicesHref} variant="secondary">
-            View services
+    <div class="scene-ui" aria-label="Landing controls">
+      <div class="scene-ui-inner">
+        <div class="scene-ui-title">Immersive Portal</div>
+        <div class="scene-ui-actions">
+          <ModernButton href={enterHref} variant="primary" rounded="sm">
+            Enter site
+          </ModernButton>
+          <ModernButton href={immersiveHref} variant="secondary" rounded="sm">
+            Immersive lab
           </ModernButton>
         </div>
-
-        <div class="grid gap-4 md:grid-cols-2">
-          <ServiceCard
-            title="Managed Security"
-            description="SOC, SIEM, EDR, zero-trust rollouts with policy-as-code and continuous hardening."
-            icon="shield"
-          />
-          <ServiceCard
-            title="Cloud Operations"
-            description="SRE + FinOps for AWS/Azure; golden paths, cost guardrails, and reliability SLIs."
-            icon="cloud"
-          />
-          <ServiceCard
-            title="Networking & Edge"
-            description="SD-WAN, SSE, and secure edge deployments tuned for low latency and zero trust."
-            icon="network"
-          />
-          <ServiceCard
-            title="AI & Automation"
-            description="MLOps pipelines, observability, and LLM guardrails embedded into daily workflows."
-            icon="sparkles"
-          />
-        </div>
       </div>
     </div>
-  </section>
+  </div>
 
-  <section class="bg-zinc-900/40">
-    <div class="mx-auto max-w-[1220px] px-6 py-14">
-      <div
-        class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between"
-      >
-        <div>
-          <p
-            class="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-400"
-          >
-            Proof over promises
-          </p>
-          <h2 class="text-3xl font-semibold text-white">
-            Recent wins from enterprise teams
-          </h2>
-          <p class="max-w-2xl text-sm text-zinc-300">
-            We publish detailed case studies so you can see the architecture,
-            runbooks, and business impact—not just the headlines.
-          </p>
-        </div>
-        <ModernButton href={withBasePath('case-studies/')} variant="secondary">
-          View all case studies
-        </ModernButton>
-      </div>
+  <style>
+    .scene-shell {
+      position: relative;
+      min-height: 100vh;
+      background: #040712;
+    }
 
-      <div class="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {
-          featuredCaseStudies.map(entry => (
-            <CaseStudyCard
-              title={entry.data.title}
-              industry={entry.data.industry}
-              summary={entry.data.summary}
-              results={entry.data.results}
-              href={withBasePath(`case-studies/${entry.slug}/`)}
-            />
-          ))
-        }
-      </div>
-    </div>
-  </section>
+    .scene-ui {
+      position: fixed;
+      left: max(16px, env(safe-area-inset-left));
+      right: max(16px, env(safe-area-inset-right));
+      bottom: max(16px, env(safe-area-inset-bottom));
+      z-index: 50;
+      pointer-events: none;
+    }
 
-  <section class="border-t border-white/5 bg-zinc-950">
-    <div class="mx-auto max-w-[1100px] px-6 py-14">
-      <ServicesQuiz client:visible />
-    </div>
-  </section>
+    .scene-ui-inner {
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 12px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(4, 7, 18, 0.68);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 18px 70px rgba(0, 0, 0, 0.55);
+    }
 
-  <section class="border-t border-white/5 bg-zinc-900/40">
-    <div class="mx-auto max-w-[1220px] px-6 py-14">
-      <TestimonialSlider />
-    </div>
-  </section>
+    .scene-ui-title {
+      font-size: 12px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(226, 232, 240, 0.78);
+      white-space: nowrap;
+    }
 
-  <section class="border-t border-white/5 bg-zinc-950" id="consultation">
-    <div class="mx-auto max-w-[1100px] px-6 py-16">
-      <div class="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
-        <div class="space-y-4">
-          <p
-            class="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-400"
-          >
-            Free consultation
-          </p>
-          <h2 class="text-3xl font-semibold text-white">
-            Talk with architects who ship production systems
-          </h2>
-          <p class="text-sm text-zinc-300">
-            We’ll review your stack, surface risks, and share quick wins you can
-            implement immediately—even if you don’t work with us.
-          </p>
-          <ul class="space-y-2 text-sm text-zinc-300">
-            <li>✅ Cloud architecture + security posture review</li>
-            <li>✅ FinOps cost controls and reliability guardrails</li>
-            <li>✅ Automation and AI enablement roadmap</li>
-          </ul>
-        </div>
-
-        <div
-          class="rounded-2xl border border-white/10 bg-zinc-900/70 p-6 shadow-2xl backdrop-blur"
-        >
-          <ContactForm />
-        </div>
-      </div>
-    </div>
-  </section>
+    .scene-ui-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+  </style>
 </MarketingLayout>

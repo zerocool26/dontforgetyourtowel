@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Navigation', () => {
   test('should navigate to all main pages', async ({ page, isMobile }) => {
-    await page.goto('./');
+    await page.goto('home/');
 
     const openMobileMenuIfNeeded = async () => {
       if (!isMobile) return;
@@ -30,7 +30,7 @@ test.describe('Navigation', () => {
     await expect(page.locator('main')).toBeVisible();
 
     // Services page
-    await page.goto('./');
+    await page.goto('home/');
     if (isMobile) {
       const mobileMenu = await openMobileMenuIfNeeded();
       await mobileMenu!.getByRole('link', { name: /^services$/i }).click();
@@ -40,7 +40,7 @@ test.describe('Navigation', () => {
     await expect(page).toHaveURL(/.*\/services\/?$/);
 
     // Pricing page
-    await page.goto('./');
+    await page.goto('home/');
     if (isMobile) {
       const mobileMenu = await openMobileMenuIfNeeded();
       await mobileMenu!.getByRole('link', { name: /^pricing$/i }).click();
@@ -55,7 +55,7 @@ test.describe('Navigation', () => {
       test.skip();
     }
 
-    await page.goto('./');
+    await page.goto('home/');
 
     // Open mobile menu
     const menuButton = page.locator('#mobile-menu-button');

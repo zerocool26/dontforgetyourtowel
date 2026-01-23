@@ -44,7 +44,7 @@ test.describe('Accessibility', () => {
   });
 
   test('consultation form section should be accessible', async ({ page }) => {
-    await page.goto('./#consultation');
+    await page.goto('home/#consultation');
     await page.waitForLoadState('domcontentloaded');
     await expect(page.locator('#consultation')).toBeVisible();
 

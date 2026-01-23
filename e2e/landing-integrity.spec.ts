@@ -2,21 +2,21 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Landing Page Integrity', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('./');
+    await page.goto('home/');
   });
 
   test('should display the primary service chip', async ({ page }) => {
-    const chip = page
-      .locator('#main-content')
-      .locator('.hero-explorer')
-      .first();
-    await expect(chip).toBeVisible();
+    await expect(
+      page
+        .locator('#main-content')
+        .getByText(/Managed Services • Security • Cloud • AI/i)
+    ).toBeVisible();
   });
 
   test('should render the hero headline with correct H1 tag', async ({
     page,
   }) => {
-    await expect(page.locator('.hero-explorer')).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible();
   });
 
   test('should stack layout on mobile viewports', async ({ page }) => {
@@ -28,7 +28,7 @@ test.describe('Landing Page Integrity', () => {
     // On mobile (default), it should be 1 column.
 
     // Compare the hero heading to the first trust badge to ensure stacking.
-    const heroHeading = page.locator('.hero-explorer').first();
+    const heroHeading = page.getByRole('heading', { level: 1 }).first();
     const trustBadge = page.getByText('SOC 2 aligned').first();
 
     const heroBox = await heroHeading.boundingBox();

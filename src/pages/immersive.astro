@@ -1,17 +1,21 @@
 ---
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 import ImmersiveHome from '../components/immersive/ImmersiveHome.astro';
-import HeroExplorerLazy from '../components/react/HeroExplorerLazy.tsx';
+import ModernButton from '../components/ui/ModernButton.astro';
+import { withBasePath } from '../utils/helpers';
 
 const title = 'Immersive 3D Lab';
 const description =
-  'R3F portal hero + the original immersive CSS layers and scroll story in one dedicated space.';
+  'A dedicated immersive scene and scroll-driven animation space (no site UI behind it).';
+
+const enterHref = withBasePath('home/');
+const portalHref = withBasePath('/');
 ---
 
 <MarketingLayout
   title={title}
   description={description}
-  bodyClass="bg-zinc-950"
+  bodyClass="bg-[#020617] overflow-x-hidden"
   mainClass="p-0"
   showFooter={false}
   showStickyCTA={false}
@@ -19,9 +23,67 @@ const description =
   showMobileNav={false}
   showLiveChat={false}
 >
-  <section class="relative min-h-screen bg-zinc-950">
-    <HeroExplorerLazy client:visible />
-  </section>
+  <div class="immersive-shell" aria-label="Immersive lab">
+    <ImmersiveHome />
 
-  <ImmersiveHome />
+    <div class="immersive-ui" aria-label="Immersive navigation">
+      <div class="immersive-ui-inner">
+        <div class="immersive-ui-title">Immersive Lab</div>
+        <div class="immersive-ui-actions">
+          <ModernButton href={portalHref} variant="secondary" rounded="sm">
+            Portal
+          </ModernButton>
+          <ModernButton href={enterHref} variant="primary" rounded="sm">
+            Enter site
+          </ModernButton>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .immersive-shell {
+      position: relative;
+      background: #020617;
+    }
+
+    .immersive-ui {
+      position: fixed;
+      left: max(16px, env(safe-area-inset-left));
+      right: max(16px, env(safe-area-inset-right));
+      top: max(16px, env(safe-area-inset-top));
+      z-index: 60;
+      pointer-events: none;
+    }
+
+    .immersive-ui-inner {
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 10px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(2, 6, 23, 0.62);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 18px 70px rgba(0, 0, 0, 0.55);
+    }
+
+    .immersive-ui-title {
+      font-size: 12px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(226, 232, 240, 0.78);
+      white-space: nowrap;
+    }
+
+    .immersive-ui-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+  </style>
 </MarketingLayout>

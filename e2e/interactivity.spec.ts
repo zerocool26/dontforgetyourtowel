@@ -58,7 +58,7 @@ test.describe('Interactivity Features', () => {
     test('services quiz should recommend a starting point', async ({
       page,
     }) => {
-      await page.goto('./');
+      await page.goto('home/');
 
       const quizHeading = page.getByRole('heading', {
         name: /60-second services quiz/i,

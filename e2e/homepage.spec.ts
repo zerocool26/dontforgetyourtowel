@@ -3,9 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Homepage', () => {
   test('should load successfully', async ({ page }) => {
     await page.goto('./');
-    await expect(page).toHaveTitle(
-      /Next.?gen digital ops, engineered for motion and intelligence/i
-    );
+    await expect(page).toHaveTitle(/Immersive Portal/i);
   });
 
   test('should display hero section', async ({ page }) => {
@@ -16,39 +14,19 @@ test.describe('Homepage', () => {
   test('should have working navigation', async ({ page, isMobile }) => {
     await page.goto('./');
 
-    if (isMobile) {
-      const mobileNav = page.getByRole('navigation', {
-        name: /primary navigation/i,
-      });
-      await expect(
-        mobileNav.getByRole('link', { name: /^about$/i })
-      ).toBeVisible();
-      await expect(
-        mobileNav.getByRole('link', { name: /^services$/i })
-      ).toBeVisible();
-      await expect(
-        mobileNav.getByRole('link', { name: /^pricing$/i })
-      ).toBeVisible();
-      await expect(page.locator('#mobile-menu-button')).toBeVisible();
-      return;
-    }
+    // The portal landing is intentionally isolated (no site header/nav).
+    // Validate the primary controls that let a user enter the main site.
+    await expect(page.getByRole('link', { name: /enter site/i })).toBeVisible();
+    await expect(
+      page.getByRole('link', { name: /immersive lab/i })
+    ).toBeVisible();
 
-    // Desktop header nav links
-    const headerNav = page.getByRole('navigation', {
-      name: /main navigation/i,
-    });
-    await expect(
-      headerNav.getByRole('link', { name: /^about$/i })
-    ).toBeVisible();
-    await expect(
-      headerNav.getByRole('link', { name: /^services$/i })
-    ).toBeVisible();
-    await expect(
-      headerNav.getByRole('link', { name: /^pricing$/i })
-    ).toBeVisible();
-    await expect(
-      headerNav.getByRole('link', { name: /free consultation/i })
-    ).toBeVisible();
+    // On mobile we keep the same behavior.
+    if (isMobile) {
+      await expect(
+        page.getByRole('link', { name: /enter site/i })
+      ).toBeVisible();
+    }
   });
 
   test('should navigate using main links', async ({ page, isMobile }) => {
@@ -57,6 +35,12 @@ test.describe('Homepage', () => {
     if (isMobile) {
       test.skip();
     }
+
+    // Enter the classic marketing site, then validate header navigation.
+    await Promise.all([
+      page.waitForURL(/.*\/home\/?$/, { timeout: 15000 }),
+      page.getByRole('link', { name: /enter site/i }).click(),
+    ]);
 
     const headerNav = page.getByRole('navigation', {
       name: /main navigation/i,
