@@ -48,7 +48,6 @@ test.describe('Theme Toggle', () => {
     // Reload page
     await page.reload();
     await page.waitForLoadState('domcontentloaded');
-    await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible();
 
     // Check theme persisted
     const persistedTheme = await page

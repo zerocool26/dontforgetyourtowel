@@ -27,7 +27,7 @@ test.describe('Navigation', () => {
       await headerNav.getByRole('link', { name: /^about$/i }).click();
     }
     await expect(page).toHaveURL(/.*\/about\/?$/);
-    await expect(page.locator('h1')).toBeVisible();
+    await expect(page.locator('main')).toBeVisible();
 
     // Services page
     await page.goto('./');

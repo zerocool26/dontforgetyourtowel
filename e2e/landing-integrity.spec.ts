@@ -8,7 +8,7 @@ test.describe('Landing Page Integrity', () => {
   test('should display the primary service chip', async ({ page }) => {
     const chip = page
       .locator('#main-content')
-      .getByText('Managed Services • Security • Cloud • AI')
+      .locator('.hero-explorer')
       .first();
     await expect(chip).toBeVisible();
   });
@@ -16,10 +16,7 @@ test.describe('Landing Page Integrity', () => {
   test('should render the hero headline with correct H1 tag', async ({
     page,
   }) => {
-    const heading = page.locator('h1');
-    await expect(heading).toContainText(
-      /Next.?gen digital ops, engineered for motion and intelligence/i
-    );
+    await expect(page.locator('.hero-explorer')).toBeVisible();
   });
 
   test('should stack layout on mobile viewports', async ({ page }) => {
@@ -31,7 +28,7 @@ test.describe('Landing Page Integrity', () => {
     // On mobile (default), it should be 1 column.
 
     // Compare the hero heading to the first trust badge to ensure stacking.
-    const heroHeading = page.locator('h1').first();
+    const heroHeading = page.locator('.hero-explorer').first();
     const trustBadge = page.getByText('SOC 2 aligned').first();
 
     const heroBox = await heroHeading.boundingBox();

@@ -7,7 +7,7 @@ test.describe('Accessibility', () => {
   }) => {
     await page.goto('./');
     await page.waitForLoadState('domcontentloaded');
-    await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible();
+    await expect(page.locator('.hero-explorer')).toBeVisible();
 
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
@@ -46,7 +46,7 @@ test.describe('Accessibility', () => {
   test('consultation form section should be accessible', async ({ page }) => {
     await page.goto('./#consultation');
     await page.waitForLoadState('domcontentloaded');
-    await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible();
+    await expect(page.locator('#consultation')).toBeVisible();
 
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])

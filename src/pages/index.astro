@@ -41,52 +41,9 @@ const featuredCaseStudies = (await getCollection('caseStudies' as never)).slice(
       <div
         class="grid gap-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-end"
       >
-        <div class="space-y-5">
-          <p
-            class="text-xs font-semibold uppercase tracking-[0.32em] text-zinc-400"
-          >
-            Managed Services • Security • Cloud • AI
-          </p>
-          <h1 class="text-4xl font-semibold text-white sm:text-5xl">
-            {headline}
-          </h1>
-          <p class="text-sm text-zinc-300 sm:text-base">{subheading}</p>
-          <div class="flex flex-wrap gap-3">
-            <ModernButton
-              href={servicesHref}
-              variant="primary"
-              className="min-h-[48px]"
-            >
-              Explore services
-            </ModernButton>
-            <ModernButton
-              href="#consultation"
-              variant="secondary"
-              className="min-h-[48px]"
-            >
-              Schedule free consultation
-            </ModernButton>
-          </div>
-          <div class="flex flex-wrap gap-2 text-xs font-medium text-zinc-400">
-            <span
-              class="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-2"
-            >
-              <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
-              24/7 Monitoring
-            </span>
-            <span
-              class="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-2"
-            >
-              <span class="h-1.5 w-1.5 rounded-full bg-blue-400"></span>
-              AI-Augmented SOC
-            </span>
-            <span
-              class="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-2"
-            >
-              <span class="h-1.5 w-1.5 rounded-full bg-fuchsia-400"></span>
-              Cloud FinOps Ready
-            </span>
-          </div>
+        <div aria-hidden="true" class="sr-only">
+          <h1>{headline}</h1>
+          <p>{subheading}</p>
         </div>
 
         <div class="relative">
