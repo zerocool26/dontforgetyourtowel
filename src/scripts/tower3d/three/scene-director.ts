@@ -6,6 +6,10 @@ import type { SceneRuntime, TowerScene } from './scenes';
 
 type Cleanup = () => void;
 
+export interface DirectorOptions {
+  galleryMode?: boolean;
+}
+
 const clamp = (v: number, min: number, max: number) =>
   Math.min(max, Math.max(min, v));
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
@@ -58,10 +62,20 @@ export class SceneDirector {
   private localProgress = 0;
   private scrollProgress = 0;
 
-  constructor(root: HTMLElement, canvas: HTMLCanvasElement, caps: TowerCaps) {
+  // Gallery mode - controlled progress instead of scroll-based
+  private galleryMode = false;
+  private galleryProgress = 0;
+
+  constructor(
+    root: HTMLElement,
+    canvas: HTMLCanvasElement,
+    caps: TowerCaps,
+    options?: DirectorOptions
+  ) {
     this.root = root;
     this.canvas = canvas;
     this.caps = caps;
+    this.galleryMode = options?.galleryMode ?? false;
 
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
@@ -472,6 +486,21 @@ export class SceneDirector {
   }
 
   private computeScroll(dt: number): void {
+    // In gallery mode, use external progress control
+    if (this.galleryMode) {
+      this.scrollProgress = this.galleryProgress;
+      this.scrollProgressTarget = this.galleryProgress;
+
+      // Calculate scene index from progress
+      const count = Math.max(1, this.scenes.length);
+      const pos = this.scrollProgress * (count - 1);
+      const idx = clamp(Math.round(pos), 0, count - 1);
+      this.sceneIndex = idx;
+      this.localProgress = Math.abs(pos - idx);
+      return;
+    }
+
+    // Original scroll-based computation
     const rect = this.root.getBoundingClientRect();
     const total = rect.height - Math.max(1, this.size.height);
     const progress = total > 0 ? clamp(-rect.top / total, 0, 1) : 0;
@@ -492,6 +521,23 @@ export class SceneDirector {
     this.localProgress = pos - idx;
   }
 
+  // Gallery mode API
+  public getProgress(): number {
+    return this.scrollProgress;
+  }
+
+  public setProgress(value: number): void {
+    this.galleryProgress = clamp(value, 0, 1);
+  }
+
+  public getSceneCount(): number {
+    return this.scenes.length;
+  }
+
+  public getCurrentSceneIndex(): number {
+    return this.sceneIndex;
+  }
+
   private resetViewport(): void {
     this.renderer.setScissorTest(false);
     this.renderer.setViewport(
@@ -503,6 +549,12 @@ export class SceneDirector {
   }
 
   private resolveSceneId(): string {
+    // In gallery mode, use scene index directly
+    if (this.galleryMode) {
+      const scene = this.scenes[this.sceneIndex];
+      if (scene) return scene.id;
+    }
+
     const chapterScene = this.chapters[this.sceneIndex]?.dataset.scene;
     if (chapterScene && this.sceneById.has(chapterScene)) return chapterScene;
 

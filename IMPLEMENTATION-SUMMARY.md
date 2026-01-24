@@ -547,17 +547,18 @@ Massive upgrade to the tower scroll 3D experience transforming it into a mind-bl
 
 ### ✅ 5 New Scenes Added (Scenes 11-15)
 
-| Scene | Name | Description |
-|-------|------|-------------|
+| Scene  | Name                         | Description                                                                        |
+| ------ | ---------------------------- | ---------------------------------------------------------------------------------- |
 | **11** | Neural Network Constellation | Animated neural network with 180 nodes, 350 connections, 120 traveling data pulses |
-| **12** | Library of Babel | Infinite library with 800 floating books, warm candle lighting, rotating shelves |
-| **13** | Bioluminescent Abyss | Deep sea scene with glowing jellyfish, 500 ambient particles, rippling caustics |
-| **14** | Holographic Data City | Procedural city with 200 buildings, 30 holograms, data rain, 15 flying vehicles |
-| **15** | Reality Collapse Finale | Reality-warping distortion shader with procedural glitch effects |
+| **12** | Library of Babel             | Infinite library with 800 floating books, warm candle lighting, rotating shelves   |
+| **13** | Bioluminescent Abyss         | Deep sea scene with glowing jellyfish, 500 ambient particles, rippling caustics    |
+| **14** | Holographic Data City        | Procedural city with 200 buildings, 30 holograms, data rain, 15 flying vehicles    |
+| **15** | Reality Collapse Finale      | Reality-warping distortion shader with procedural glitch effects                   |
 
 ### ✅ All Scenes Enhanced with Gyroscope Support
 
 Every scene (00-15) now responds to device tilt on mobile:
+
 - Smooth gyroscope input handling with damping
 - iOS permission request flow for DeviceOrientationEvent
 - Gyro influences camera parallax, particle movement, lighting, and shader effects
@@ -565,19 +566,19 @@ Every scene (00-15) now responds to device tilt on mobile:
 
 ### ✅ Enhanced Existing Scenes
 
-| Scene | Enhancement |
-|-------|-------------|
-| **00 - Genesis Core** | Multi-layered geometry: plasma core, glass shell, orbital rings, wireframe shells, 3 particle systems |
-| **01 - Liquid Metal** | Gyro uniforms for tilt-influenced raymarching |
-| **02 - Million Fireflies** | Complete rewrite: 12,000 particles, boids-like flocking, custom shader, dynamic attractors |
-| **03 - Kinetic Type** | Gyro parallax for camera and particle curl interaction |
-| **04 - Corridor** | Gyro-enhanced camera with disorienting corridor effect, camera roll |
-| **05 - Crystals** | 20 crystals (up from 12), iridescence, caustic light plane shader, gyro lighting |
-| **06 - Blueprint** | Gyro rotation and camera parallax |
-| **07 - Ink** | Gyro-influenced ink flow direction shader |
-| **08 - Cloth** | Gyro-influenced wave direction and cloth shift |
-| **09 - Point Cloud** | Gyro interaction for morph jitter and rotation |
-| **10 - Fractal** | Inherits gyro from RaymarchScene base |
+| Scene                      | Enhancement                                                                                           |
+| -------------------------- | ----------------------------------------------------------------------------------------------------- |
+| **00 - Genesis Core**      | Multi-layered geometry: plasma core, glass shell, orbital rings, wireframe shells, 3 particle systems |
+| **01 - Liquid Metal**      | Gyro uniforms for tilt-influenced raymarching                                                         |
+| **02 - Million Fireflies** | Complete rewrite: 12,000 particles, boids-like flocking, custom shader, dynamic attractors            |
+| **03 - Kinetic Type**      | Gyro parallax for camera and particle curl interaction                                                |
+| **04 - Corridor**          | Gyro-enhanced camera with disorienting corridor effect, camera roll                                   |
+| **05 - Crystals**          | 20 crystals (up from 12), iridescence, caustic light plane shader, gyro lighting                      |
+| **06 - Blueprint**         | Gyro rotation and camera parallax                                                                     |
+| **07 - Ink**               | Gyro-influenced ink flow direction shader                                                             |
+| **08 - Cloth**             | Gyro-influenced wave direction and cloth shift                                                        |
+| **09 - Point Cloud**       | Gyro interaction for morph jitter and rotation                                                        |
+| **10 - Fractal**           | Inherits gyro from RaymarchScene base                                                                 |
 
 ### ✅ Advanced Transition System
 
@@ -596,13 +597,14 @@ New capability detection in `TowerCaps`:
 type TowerCaps = {
   // ... existing properties
   performanceTier: 'high' | 'medium' | 'low';
-  maxParticles: number;      // 15000 / 8000 / 3000
+  maxParticles: number; // 15000 / 8000 / 3000
   enablePostProcessing: boolean;
   enableGyroscope: boolean;
 };
 ```
 
 **Detection Logic:**
+
 - GPU tier via `WEBGL_debug_renderer_info` extension
 - Device-aware adjustments (iOS fill-rate limitations)
 - Automatic downgrade for reduced-motion preference
@@ -610,12 +612,12 @@ type TowerCaps = {
 
 ### Files Modified
 
-| File | Changes |
-|------|---------|
-| `src/scripts/tower3d/three/scenes/index.ts` | Added 5 new scene classes, enhanced all existing scenes with gyro, updated scene metadata |
-| `src/scripts/tower3d/three/scene-director.ts` | Added transition system with 4 effect types, transition type cycling |
-| `src/scripts/tower3d/core/caps.ts` | Added performance tier detection, GPU detection, feature flags |
-| `src/pages/index.astro` | Added chapter divs for scenes 11-15 |
+| File                                          | Changes                                                                                   |
+| --------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `src/scripts/tower3d/three/scenes/index.ts`   | Added 5 new scene classes, enhanced all existing scenes with gyro, updated scene metadata |
+| `src/scripts/tower3d/three/scene-director.ts` | Added transition system with 4 effect types, transition type cycling                      |
+| `src/scripts/tower3d/core/caps.ts`            | Added performance tier detection, GPU detection, feature flags                            |
+| `src/pages/index.astro`                       | Added chapter divs for scenes 11-15                                                       |
 
 ### Usage
 
@@ -625,7 +627,7 @@ Scenes automatically use the new features. To access performance tier in a scene
 init(ctx: SceneRuntime): void {
   const particleCount = ctx.caps.maxParticles;
   const tier = ctx.caps.performanceTier;
-  
+
   if (tier === 'high') {
     // Enable extra effects
   }
