@@ -82,8 +82,19 @@ export const getTowerCaps = (): TowerCaps => {
   );
 
   const devicePixelRatio = Math.max(1, Number(window.devicePixelRatio || 1));
-  // Modern phones can handle higher pixel density; still keep an upper bound.
-  const maxDpr = coarsePointer ? 2 : 2.5;
+
+  const browser = detectBrowser();
+  const os = detectOs();
+
+  // Mobile/touch devices are far more sensitive to fill-rate.
+  // iOS Safari is particularly prone to jank at high DPR.
+  const mobileCap =
+    coarsePointer && (os === 'ios' || browser === 'safari')
+      ? 1.5
+      : coarsePointer
+        ? 1.75
+        : 2.5;
+  const maxDpr = reducedMotion ? Math.min(mobileCap, 1.5) : mobileCap;
 
   let webgl = false;
   let webgl2 = false;
@@ -97,8 +108,6 @@ export const getTowerCaps = (): TowerCaps => {
   }
 
   const maxPrecision = getMaxPrecision();
-  const browser = detectBrowser();
-  const os = detectOs();
   const hasVisualViewport =
     typeof (window as unknown as { visualViewport?: unknown })
       .visualViewport !== 'undefined';

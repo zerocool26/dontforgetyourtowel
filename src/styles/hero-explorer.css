@@ -62,6 +62,27 @@
   height: 100vh;
 }
 
+@supports (height: 100svh) {
+  .hero-explorer__sticky {
+    height: 100svh;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-explorer {
+    /* Mobile browser UI makes vh unreliable; svh gives stable fit. */
+    min-height: calc(var(--hero-pages) * 100vh);
+  }
+}
+
+@supports (height: 100svh) {
+  @media (max-width: 768px) {
+    .hero-explorer {
+      min-height: calc(var(--hero-pages) * 100svh);
+    }
+  }
+}
+
 .hero-explorer canvas {
   width: 100% !important;
   height: 100% !important;

@@ -89,7 +89,8 @@ const enterHref = withBasePath('services/');
       position: sticky;
       top: 0;
       height: 100vh;
-      width: 100vw;
+      height: 100svh;
+      width: 100%;
       overflow: hidden;
       background: #040712;
       z-index: 2;
@@ -111,6 +112,16 @@ const enterHref = withBasePath('services/');
       height: 320vh;
       width: 100%;
       background: transparent;
+    }
+
+    @media (max-width: 768px) {
+      .tower3d__chapter {
+        height: 240vh;
+      }
+
+      .landing-bottom {
+        padding: 72px 18px calc(96px + env(safe-area-inset-bottom));
+      }
     }
 
     .landing-bottom {

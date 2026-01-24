@@ -259,8 +259,9 @@ export class SceneDirector {
   }
 
   private syncSize(force: boolean): void {
-    const w = Math.max(1, Math.round(window.innerWidth));
-    const h = Math.max(1, Math.round(window.innerHeight));
+    const vv = window.visualViewport;
+    const w = Math.max(1, Math.round(vv?.width ?? window.innerWidth));
+    const h = Math.max(1, Math.round(vv?.height ?? window.innerHeight));
     if (!force && w === this.size.width && h === this.size.height) return;
 
     const baseDpr = Math.max(1, this.caps.devicePixelRatio);

@@ -659,9 +659,14 @@ class SwarmScene extends SceneBase {
 }
 
 class KineticTypeScene extends SceneBase {
-  private mesh: THREE.InstancedMesh;
-  private offsets: THREE.Vector3[] = [];
-  private seeds: number[] = [];
+  private points: THREE.Points<THREE.BufferGeometry, THREE.ShaderMaterial>;
+  private geometry: THREE.BufferGeometry;
+  private material: THREE.ShaderMaterial;
+  private basePositions: Float32Array;
+  private positions: Float32Array;
+  private velocities: Float32Array;
+  private seeds: Float32Array;
+  private groups: Float32Array;
   private color = new THREE.Color();
 
   constructor() {
@@ -669,7 +674,7 @@ class KineticTypeScene extends SceneBase {
     this.scene.background = new THREE.Color(0x070a14);
     this.scene.fog = new THREE.FogExp2(0x070a14, 0.07);
     const cam = this.camera as THREE.PerspectiveCamera;
-    cam.position.set(0, 0, 8);
+    cam.position.set(0, 0, 11.5);
 
     const letters = [
       ['11111', '10001', '10101', '10001', '10001', '10001', '11111'],
@@ -690,37 +695,135 @@ class KineticTypeScene extends SceneBase {
             (letterIndex - (letters.length - 1) / 2) * spacing +
             (x - (row.length - 1) / 2) * 0.16;
           const py = ((grid.length - 1) / 2) * 0.2 - y * 0.2;
-          // Add a tiny bit of depth so it reads 3D, not a flat sprite.
-          const pz = (Math.random() - 0.5) * 0.22;
-          pixels.push(new THREE.Vector3(px, py, pz));
+          // Keep it compact so it doesn't fill the viewport.
+          const scale = 0.78;
+          const pz = (Math.random() - 0.5) * 1.1;
+          pixels.push(new THREE.Vector3(px * scale, py * scale, pz));
         });
       });
     });
 
-    // Faceted voxel-gems instead of literal cubes (avoids the "box" look).
-    const geo = new THREE.OctahedronGeometry(0.09, 0);
-    const mat = new THREE.MeshStandardMaterial({
-      color: new THREE.Color(0.6, 0.7, 0.9),
-      emissive: new THREE.Color(0.25, 0.35, 0.95),
-      metalness: 0.45,
-      roughness: 0.25,
-    });
-    this.mesh = new THREE.InstancedMesh(geo, mat, pixels.length);
+    // Particle typography + ambient halo field (avoids the "giant solid square" read).
+    const ambientCount = 1400;
+    const total = pixels.length + ambientCount;
+    this.basePositions = new Float32Array(total * 3);
+    this.positions = new Float32Array(total * 3);
+    this.velocities = new Float32Array(total * 3);
+    this.seeds = new Float32Array(total);
+    this.groups = new Float32Array(total);
+    const sizes = new Float32Array(total);
 
-    pixels.forEach((pos, i) => {
-      this.offsets.push(pos);
-      this.seeds.push(Math.random());
-      const m = new THREE.Matrix4().makeTranslation(pos.x, pos.y, pos.z);
-      this.mesh.setMatrixAt(i, m);
-    });
-    this.mesh.instanceMatrix.needsUpdate = true;
-    this.scene.add(this.mesh);
+    for (let i = 0; i < pixels.length; i++) {
+      const p = pixels[i];
+      const idx = i * 3;
+      this.basePositions[idx] = p.x;
+      this.basePositions[idx + 1] = p.y;
+      this.basePositions[idx + 2] = p.z;
+      this.positions[idx] = p.x;
+      this.positions[idx + 1] = p.y;
+      this.positions[idx + 2] = p.z;
+      this.seeds[i] = Math.random();
+      this.groups[i] = 0;
+      sizes[i] = 2.8 + Math.random() * 2.2;
+    }
 
-    const key = new THREE.DirectionalLight(0xffffff, 1.25);
-    key.position.set(3, 6, 4);
-    const fill = new THREE.PointLight(0xffffff, 0.9, 40, 2);
-    fill.position.set(-4, -2, 6);
-    this.scene.add(key, fill);
+    for (let i = 0; i < ambientCount; i++) {
+      const ii = pixels.length + i;
+      const idx = ii * 3;
+      const a = Math.random() * Math.PI * 2;
+      const r = 3.5 + Math.pow(Math.random(), 0.7) * 8.0;
+      const y = (Math.random() - 0.5) * 4.5;
+      const x = Math.cos(a) * r;
+      const z = Math.sin(a) * r;
+
+      this.basePositions[idx] = x;
+      this.basePositions[idx + 1] = y;
+      this.basePositions[idx + 2] = z;
+      this.positions[idx] = x;
+      this.positions[idx + 1] = y;
+      this.positions[idx + 2] = z;
+      this.seeds[ii] = Math.random();
+      this.groups[ii] = 1;
+      sizes[ii] = 1.4 + Math.random() * 1.7;
+    }
+
+    this.geometry = new THREE.BufferGeometry();
+    this.geometry.setAttribute(
+      'position',
+      new THREE.BufferAttribute(this.positions, 3)
+    );
+    this.geometry.setAttribute(
+      'aSeed',
+      new THREE.BufferAttribute(this.seeds, 1)
+    );
+    this.geometry.setAttribute('aSize', new THREE.BufferAttribute(sizes, 1));
+    this.geometry.setAttribute(
+      'aGroup',
+      new THREE.BufferAttribute(this.groups, 1)
+    );
+
+    this.material = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uProgress: { value: 0 },
+      },
+      vertexShader: `
+        attribute float aSeed;
+        attribute float aSize;
+        attribute float aGroup;
+        uniform float uTime;
+        uniform float uProgress;
+        varying float vSeed;
+        varying float vGroup;
+        varying float vPulse;
+        void main(){
+          vSeed = aSeed;
+          vGroup = aGroup;
+          vec4 mv = modelViewMatrix * vec4(position, 1.0);
+          float atten = 220.0 / max(1.0, -mv.z);
+          float pulse = 0.85 + 0.35 * sin(uTime * 1.2 + aSeed * 12.0);
+          float p = smoothstep(0.0, 1.0, uProgress);
+          float groupBoost = mix(1.0, 0.75, aGroup);
+          gl_PointSize = aSize * atten * (0.85 + 0.35 * p) * pulse * groupBoost;
+          gl_Position = projectionMatrix * mv;
+          vPulse = 0.25 + 0.75 * p;
+        }
+      `,
+      fragmentShader: `
+        precision highp float;
+        varying float vSeed;
+        varying float vGroup;
+        varying float vPulse;
+        void main(){
+          vec2 p = gl_PointCoord * 2.0 - 1.0;
+          float d = dot(p, p);
+          float a = smoothstep(1.0, 0.0, d);
+          a *= smoothstep(1.0, 0.65, d);
+          if(a < 0.02) discard;
+
+          vec3 cold = vec3(0.18, 0.55, 1.25);
+          vec3 hot  = vec3(1.15, 0.35, 0.95);
+          float hue = 0.5 + 0.5 * sin(vSeed * 18.0);
+          vec3 col = mix(cold, hot, 0.25 + 0.55 * hue);
+          col *= mix(1.15, 0.65, vGroup);
+
+          float core = smoothstep(0.22, 0.0, d);
+          col += core * vec3(0.35, 0.45, 0.75) * vPulse;
+          gl_FragColor = vec4(col, a);
+        }
+      `,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    });
+    this.material.toneMapped = false;
+
+    this.points = new THREE.Points(this.geometry, this.material);
+    this.points.frustumCulled = false;
+    this.scene.add(this.points);
+
+    const fog = this.scene.fog as THREE.FogExp2 | null;
+    if (fog) fog.density = 0.055;
   }
 
   update(ctx: SceneRuntime): void {
@@ -731,41 +834,92 @@ class KineticTypeScene extends SceneBase {
       0,
       1
     );
-    const breathe = 0.25 + 0.2 * Math.sin(t * 0.85);
-    const scatter =
-      Math.sin(progress * Math.PI) * 1.6 + breathe + impulse * 0.95;
+    const breathe = 0.28 + 0.22 * Math.sin(t * 0.85);
+    const mid = Math.sin(progress * Math.PI);
+    const scatter = mid * 2.1 + breathe + impulse * 1.2;
 
-    for (let i = 0; i < this.offsets.length; i++) {
-      const base = this.offsets[i];
+    const pos = this.positions;
+    const base = this.basePositions;
+    const vel = this.velocities;
+
+    const pointerWorldX = ctx.pointer.x * 1.3;
+    const pointerWorldY = ctx.pointer.y * 0.85;
+
+    const basePull = 6.2;
+    const ambientPull = 1.15;
+    const spin = 1.25 + impulse * 1.1;
+    const speed = 1.05 + scatter * 0.22;
+
+    for (let i = 0; i < this.seeds.length; i++) {
+      const idx = i * 3;
+      const bx = base[idx];
+      const by = base[idx + 1];
+      const bz = base[idx + 2];
+
+      const x = pos[idx];
+      const y = pos[idx + 1];
+      const z = pos[idx + 2];
+
       const seed = this.seeds[i];
-      const drift = (seed - 0.5) * 2.0;
-      const fracture = Math.sin(t * 1.4 + seed * 6.0) * scatter;
-      const px = base.x + drift * scatter * 0.6;
-      const py = base.y + fracture * 0.25;
-      const pz = base.z + Math.cos(t * 1.1 + seed * 8.0) * scatter * 0.4;
-      const scale = 0.85 + Math.sin(t + seed * 10.0) * 0.2;
-      const m = new THREE.Matrix4()
-        .makeTranslation(px, py, pz)
-        .multiply(new THREE.Matrix4().makeScale(scale, scale, scale));
-      this.mesh.setMatrixAt(i, m);
+      const group = this.groups[i];
+      const pull = group < 0.5 ? basePull : ambientPull;
+      const w = t * (0.8 + seed) + seed * 10.0;
+
+      // Spring back to base (letters stay legible at ends).
+      const ax = (bx - x) * pull;
+      const ay = (by - y) * pull;
+      const az = (bz - z) * pull;
+
+      // Pointer curl in XY plane.
+      const dx = x - pointerWorldX;
+      const dy = y - pointerWorldY;
+      const inv = 1.0 / (0.65 + dx * dx + dy * dy);
+      const curlX = -dy * inv * (0.35 + 0.9 * mid);
+      const curlY = dx * inv * (0.35 + 0.9 * mid);
+
+      // Time turbulence.
+      const sx = Math.sin(w) * 0.55 + curlX;
+      const sy = Math.cos(w * 0.9) * 0.45 + curlY;
+      const sz = Math.sin(w * 0.75) * 0.65;
+
+      // Scatter peaks mid-chapter; ambient points are looser.
+      const kick = scatter * (0.9 + 0.55 * group);
+      const jitter = (seed - 0.5) * kick * 0.02;
+
+      vel[idx] = vel[idx] * 0.9 + ax * 0.02 + sx * 0.02 * spin;
+      vel[idx + 1] = vel[idx + 1] * 0.9 + ay * 0.02 + sy * 0.02 * spin;
+      vel[idx + 2] = vel[idx + 2] * 0.9 + az * 0.02 + sz * 0.02 * spin;
+
+      pos[idx] = x + vel[idx] * ctx.dt * speed + jitter;
+      pos[idx + 1] = y + vel[idx + 1] * ctx.dt * speed + Math.sin(w) * jitter;
+      pos[idx + 2] = z + vel[idx + 2] * ctx.dt * speed + Math.cos(w) * jitter;
     }
-    this.mesh.instanceMatrix.needsUpdate = true;
+
+    const pAttr = this.geometry.getAttribute(
+      'position'
+    ) as THREE.BufferAttribute;
+    pAttr.needsUpdate = true;
 
     const cam = this.camera as THREE.PerspectiveCamera;
-    // Tower pointer is in [-1, 1]. Keep the camera centered and stable.
-    cam.position.x = damp(cam.position.x, ctx.pointer.x * 0.65, 4, ctx.dt);
+    cam.position.x = damp(cam.position.x, ctx.pointer.x * 0.55, 4, ctx.dt);
     cam.position.y = damp(
       cam.position.y,
-      0.1 + ctx.pointer.y * 0.35,
+      0.05 + ctx.pointer.y * 0.25,
       4,
       ctx.dt
     );
+    cam.position.z = damp(cam.position.z, 11.5 - progress * 0.9, 3, ctx.dt);
     cam.lookAt(0, 0, 0);
 
-    const mat = this.mesh.material as THREE.MeshStandardMaterial;
+    this.material.uniforms.uTime.value = t;
+    this.material.uniforms.uProgress.value = progress;
+
+    // Nudge fog density through the chapter.
+    const fog = this.scene.fog as THREE.FogExp2 | null;
+    if (fog) fog.density = 0.05 + progress * 0.03;
+
+    // Keep metadata color in sync for any other consumers.
     this.color.setHSL(0.62 + progress * 0.2, 0.75, 0.6);
-    mat.color.copy(this.color);
-    mat.emissive.setHSL(0.62 + progress * 0.1, 0.9, 0.45);
   }
 }
 
