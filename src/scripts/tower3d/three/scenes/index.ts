@@ -1538,6 +1538,8 @@ class KineticTypeScene extends SceneBase {
       uniforms: {
         uTime: { value: 0 },
         uProgress: { value: 0 },
+        uEnergy: { value: 0 },
+        uGyro: { value: new THREE.Vector2(0, 0) },
       },
       vertexShader: `
         attribute float aSeed;
@@ -1545,20 +1547,42 @@ class KineticTypeScene extends SceneBase {
         attribute float aGroup;
         uniform float uTime;
         uniform float uProgress;
+        uniform float uEnergy;
+        uniform vec2 uGyro;
         varying float vSeed;
         varying float vGroup;
         varying float vPulse;
+        varying float vEnergy;
+        varying float vDist;
         void main(){
           vSeed = aSeed;
           vGroup = aGroup;
-          vec4 mv = modelViewMatrix * vec4(position, 1.0);
-          float atten = 220.0 / max(1.0, -mv.z);
-          float pulse = 0.85 + 0.35 * sin(uTime * 1.2 + aSeed * 12.0);
+          vEnergy = uEnergy;
+
+          // Calculate distance from center for radial effects
+          vDist = length(position.xy);
+
+          // Gyro-influenced displacement
+          vec3 displaced = position;
+          displaced.x += uGyro.x * 0.15 * (1.0 - aGroup);
+          displaced.y += uGyro.y * 0.1 * (1.0 - aGroup);
+
+          vec4 mv = modelViewMatrix * vec4(displaced, 1.0);
+          float atten = 240.0 / max(1.0, -mv.z);
+
+          // Multi-frequency pulsing
+          float pulse1 = 0.85 + 0.35 * sin(uTime * 1.2 + aSeed * 12.0);
+          float pulse2 = 1.0 + 0.15 * sin(uTime * 2.5 + aSeed * 8.0);
+          float pulse3 = 1.0 + 0.1 * sin(uTime * 4.0 + vDist * 2.0);
+          float pulse = pulse1 * pulse2 * pulse3;
+
           float p = smoothstep(0.0, 1.0, uProgress);
           float groupBoost = mix(1.0, 0.75, aGroup);
-          gl_PointSize = aSize * atten * (0.85 + 0.35 * p) * pulse * groupBoost;
+          float energyBoost = 1.0 + uEnergy * 0.3;
+
+          gl_PointSize = aSize * atten * (0.85 + 0.35 * p) * pulse * groupBoost * energyBoost;
           gl_Position = projectionMatrix * mv;
-          vPulse = 0.25 + 0.75 * p;
+          vPulse = 0.25 + 0.75 * p + uEnergy * 0.2;
         }
       `,
       fragmentShader: `
@@ -1566,21 +1590,50 @@ class KineticTypeScene extends SceneBase {
         varying float vSeed;
         varying float vGroup;
         varying float vPulse;
+        varying float vEnergy;
+        varying float vDist;
+        uniform float uTime;
+
+        // HSV to RGB conversion
+        vec3 hsv2rgb(vec3 c) {
+          vec4 K = vec4(1.0, 2.0/3.0, 1.0/3.0, 3.0);
+          vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+          return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+        }
+
         void main(){
           vec2 p = gl_PointCoord * 2.0 - 1.0;
           float d = dot(p, p);
           float a = smoothstep(1.0, 0.0, d);
-          a *= smoothstep(1.0, 0.65, d);
+          a *= smoothstep(1.0, 0.6, d);
           if(a < 0.02) discard;
 
-          vec3 cold = vec3(0.18, 0.55, 1.25);
-          vec3 hot  = vec3(1.15, 0.35, 0.95);
-          float hue = 0.5 + 0.5 * sin(vSeed * 18.0);
-          vec3 col = mix(cold, hot, 0.25 + 0.55 * hue);
-          col *= mix(1.15, 0.65, vGroup);
+          // Dynamic rainbow hue based on position and time
+          float hueBase = vSeed * 0.5 + uTime * 0.1 + vDist * 0.15;
+          float hue = fract(hueBase);
 
-          float core = smoothstep(0.22, 0.0, d);
-          col += core * vec3(0.35, 0.45, 0.75) * vPulse;
+          // Core color from HSV with high saturation
+          vec3 coreColor = hsv2rgb(vec3(hue, 0.85, 1.0));
+
+          // Secondary complementary color
+          vec3 accentColor = hsv2rgb(vec3(fract(hue + 0.5), 0.9, 0.9));
+
+          // Mix based on group (letters vs ambient)
+          vec3 col = mix(coreColor, accentColor, vGroup * 0.6);
+          col *= mix(1.2, 0.7, vGroup);
+
+          // Energy ring effect
+          float ring = smoothstep(0.7, 0.5, d) * smoothstep(0.3, 0.5, d);
+          col += ring * vEnergy * vec3(0.3, 0.4, 0.6);
+
+          // Bright core
+          float core = smoothstep(0.25, 0.0, d);
+          col += core * vec3(1.0, 0.95, 0.9) * vPulse * 0.6;
+
+          // Chromatic shimmer
+          float shimmer = sin(uTime * 8.0 + vSeed * 20.0) * 0.5 + 0.5;
+          col += shimmer * vEnergy * vec3(0.1, 0.15, 0.2) * core;
+
           gl_FragColor = vec4(col, a);
         }
       `,
@@ -1692,6 +1745,11 @@ class KineticTypeScene extends SceneBase {
 
     this.material.uniforms.uTime.value = t;
     this.material.uniforms.uProgress.value = progress;
+    this.material.uniforms.uEnergy.value = impulse;
+    this.material.uniforms.uGyro.value.set(
+      gyro.x * gyroInfluence,
+      gyro.y * gyroInfluence
+    );
 
     // Nudge fog density through the chapter.
     const fog = this.scene.fog as THREE.FogExp2 | null;
@@ -1768,6 +1826,32 @@ class CorridorScene extends SceneBase {
           return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
         }
 
+        // Simplex-like noise for organic swirls
+        vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+        vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+        vec3 permute(vec3 x) { return mod289(((x*34.0)+1.0)*x); }
+        float snoise(vec2 v) {
+          const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
+          vec2 i = floor(v + dot(v, C.yy));
+          vec2 x0 = v - i + dot(i, C.xx);
+          vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+          vec4 x12 = x0.xyxy + C.xxzz;
+          x12.xy -= i1;
+          i = mod289(i);
+          vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0)) + i.x + vec3(0.0, i1.x, 1.0));
+          vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+          m = m*m; m = m*m;
+          vec3 x = 2.0 * fract(p * C.www) - 1.0;
+          vec3 h = abs(x) - 0.5;
+          vec3 ox = floor(x + 0.5);
+          vec3 a0 = x - ox;
+          m *= 1.79284291400159 - 0.85373472095314 * (a0*a0 + h*h);
+          vec3 g;
+          g.x = a0.x * x0.x + h.x * x0.y;
+          g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+          return 130.0 * dot(m, g);
+        }
+
         void main() {
           vec2 uv = vUv;
           vec2 p = uv - 0.5;
@@ -1775,17 +1859,40 @@ class CorridorScene extends SceneBase {
           float a = atan(p.y, p.x);
 
           float t = uTime * 0.25;
-          float bands = sin(a * 6.0 + t * 6.0) * 0.5 + 0.5;
-          float n = noise(p * 6.0 + vec2(t, -t));
 
-          float ring = smoothstep(0.48 + 0.1 * uProgress, 0.12, r);
-          float core = smoothstep(0.22, 0.0, r);
+          // Multi-layer swirling bands
+          float bands1 = sin(a * 6.0 + t * 6.0) * 0.5 + 0.5;
+          float bands2 = sin(a * 12.0 - t * 8.0 + r * 5.0) * 0.5 + 0.5;
+          float bands3 = sin(a * 3.0 + t * 4.0 - r * 3.0) * 0.5 + 0.5;
+          float bands = bands1 * 0.5 + bands2 * 0.3 + bands3 * 0.2;
 
-          vec3 col = mix(vec3(0.05, 0.09, 0.15), vec3(0.35, 0.75, 1.25), bands);
-          col += n * 0.35;
+          // Organic noise swirl
+          float n1 = snoise(p * 4.0 + vec2(t, -t * 0.7)) * 0.5 + 0.5;
+          float n2 = snoise(p * 8.0 - vec2(t * 0.5, t * 0.8)) * 0.5 + 0.5;
+          float n = n1 * 0.6 + n2 * 0.4;
+
+          // Ring structure with energy buildup
+          float ring = smoothstep(0.48 + 0.1 * uProgress, 0.08, r);
+          float innerRing = smoothstep(0.35, 0.25, r) * smoothstep(0.15, 0.25, r);
+          float core = smoothstep(0.18, 0.0, r);
+
+          // Electric arc effect
+          float arc = pow(abs(snoise(vec2(a * 3.0 + t * 10.0, r * 5.0))), 3.0);
+
+          // Color palette: deep blue to electric cyan to white core
+          vec3 deepBlue = vec3(0.05, 0.09, 0.18);
+          vec3 electricCyan = vec3(0.3, 0.75, 1.2);
+          vec3 hotWhite = vec3(0.8, 0.9, 1.0);
+          vec3 purple = vec3(0.4, 0.2, 0.8);
+
+          vec3 col = mix(deepBlue, electricCyan, bands);
+          col = mix(col, purple, innerRing * 0.4);
+          col += n * 0.4;
           col *= ring;
-          col += core * vec3(0.25, 0.55, 1.0);
-          float alpha = ring * (0.35 + 0.55 * uProgress);
+          col += core * hotWhite * 1.5;
+          col += arc * electricCyan * 0.4 * uProgress;
+
+          float alpha = ring * (0.4 + 0.6 * uProgress);
           gl_FragColor = vec4(col, alpha);
         }
       `,
@@ -1963,11 +2070,12 @@ class CrystalScene extends SceneBase {
     rimLight.position.set(2, -3, -2);
     this.scene.add(rimLight);
 
-    // Caustic light plane (simulated refracted light)
+    // Enhanced caustic light plane with rainbow dispersion
     this.causticMaterial = new THREE.ShaderMaterial({
       uniforms: {
         uTime: { value: 0 },
         uProgress: { value: 0 },
+        uGyro: { value: new THREE.Vector2(0, 0) },
       },
       vertexShader: `
         varying vec2 vUv;
@@ -1979,24 +2087,49 @@ class CrystalScene extends SceneBase {
       fragmentShader: `
         uniform float uTime;
         uniform float uProgress;
+        uniform vec2 uGyro;
         varying vec2 vUv;
 
-        float caustic(vec2 uv, float t) {
-          vec2 p = uv * 6.0;
+        // HSV to RGB for rainbow caustics
+        vec3 hsv2rgb(vec3 c) {
+          vec4 K = vec4(1.0, 2.0/3.0, 1.0/3.0, 3.0);
+          vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+          return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+        }
+
+        float caustic(vec2 uv, float t, float offset) {
+          vec2 p = uv * 8.0 + uGyro * 0.5;
           float c = 0.0;
-          for (int i = 0; i < 4; i++) {
+          for (int i = 0; i < 5; i++) {
             float fi = float(i);
-            p += vec2(sin(p.y * 0.9 + t * 0.4 + fi * 0.7), cos(p.x * 0.8 + t * 0.3 + fi * 1.1)) * 0.4;
-            c += sin(p.x * 1.1 + p.y * 0.9 + t * 0.5 + fi) * 0.25;
+            p += vec2(
+              sin(p.y * 0.9 + t * 0.4 + fi * 0.7 + offset),
+              cos(p.x * 0.8 + t * 0.3 + fi * 1.1 + offset)
+            ) * 0.4;
+            c += sin(p.x * 1.1 + p.y * 0.9 + t * 0.5 + fi + offset) * 0.22;
           }
-          return smoothstep(0.2, 0.8, c * 0.5 + 0.5);
+          return smoothstep(0.15, 0.85, c * 0.5 + 0.5);
         }
 
         void main() {
-          float c = caustic(vUv, uTime);
-          vec3 color = mix(vec3(0.05, 0.1, 0.2), vec3(0.3, 0.6, 0.9), c);
-          float alpha = c * 0.2 * uProgress;
-          gl_FragColor = vec4(color, alpha);
+          // Multiple caustic layers for chromatic dispersion (rainbow effect)
+          float cR = caustic(vUv, uTime, 0.0);
+          float cG = caustic(vUv, uTime * 1.1, 0.3);
+          float cB = caustic(vUv, uTime * 0.9, 0.6);
+
+          // Rainbow dispersion based on caustic pattern
+          float hue = (cR + cG + cB) / 3.0 + uTime * 0.05;
+          vec3 rainbow = hsv2rgb(vec3(hue, 0.7, 0.9));
+
+          // Combine individual channels with rainbow
+          vec3 causticColor = vec3(cR, cG, cB) * 0.4 + rainbow * 0.3;
+
+          // Add bright spots
+          float bright = pow(max(cR, max(cG, cB)), 2.0);
+          causticColor += bright * vec3(0.4, 0.5, 0.6);
+
+          float alpha = (cR + cG + cB) * 0.12 * uProgress;
+          gl_FragColor = vec4(causticColor, alpha);
         }
       `,
       transparent: true,
@@ -2067,10 +2200,14 @@ class CrystalScene extends SceneBase {
       this.keyLight.intensity = 1.4 + progress * 0.4 + impulse * 0.3;
     }
 
-    // Update caustic shader
+    // Update caustic shader with gyro for reactive light patterns
     if (this.causticMaterial) {
       this.causticMaterial.uniforms.uTime.value = t;
       this.causticMaterial.uniforms.uProgress.value = progress;
+      this.causticMaterial.uniforms.uGyro.value.set(
+        gyro.x * gyroInfluence,
+        gyro.y * gyroInfluence
+      );
     }
 
     // Camera with gyro parallax
@@ -2491,11 +2628,88 @@ class PointCloudScene extends SceneBase {
 
     const geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-    const mat = new THREE.PointsMaterial({
-      color: new THREE.Color(0x8bd8ff),
-      size: 0.016,
+
+    // Enhanced shader material for morphing point cloud
+    const mat = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uProgress: { value: 0 },
+        uEnergy: { value: 0 },
+        uGyro: { value: new THREE.Vector2(0, 0) },
+      },
+      vertexShader: `
+        uniform float uTime;
+        uniform float uProgress;
+        uniform float uEnergy;
+        uniform vec2 uGyro;
+        varying float vDepth;
+        varying float vMorph;
+        varying float vEnergy;
+
+        void main() {
+          vMorph = uProgress;
+          vEnergy = uEnergy;
+
+          // Gyro-influenced rotation
+          vec3 pos = position;
+          float gyroAngle = uGyro.x * 0.3;
+          float c = cos(gyroAngle);
+          float s = sin(gyroAngle);
+          pos.xz = mat2(c, -s, s, c) * pos.xz;
+
+          vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+          vDepth = -mvPosition.z;
+
+          // Multi-frequency pulsing size
+          float pulse1 = 1.0 + 0.2 * sin(uTime * 2.0 + length(position) * 3.0);
+          float pulse2 = 1.0 + 0.15 * sin(uTime * 3.5 + position.y * 4.0);
+          float pulse = pulse1 * pulse2;
+
+          // Size varies with morph progress and energy
+          float baseSize = 2.5 + uProgress * 2.0 + uEnergy * 1.5;
+
+          gl_PointSize = baseSize * pulse * (180.0 / vDepth);
+          gl_Position = projectionMatrix * mvPosition;
+        }
+      `,
+      fragmentShader: `
+        uniform float uTime;
+        uniform float uProgress;
+        varying float vDepth;
+        varying float vMorph;
+        varying float vEnergy;
+
+        // HSV to RGB
+        vec3 hsv2rgb(vec3 c) {
+          vec4 K = vec4(1.0, 2.0/3.0, 1.0/3.0, 3.0);
+          vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+          return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+        }
+
+        void main() {
+          vec2 center = gl_PointCoord - 0.5;
+          float dist = length(center);
+          float alpha = smoothstep(0.5, 0.15, dist);
+
+          // Color transitions through morph
+          float hue = 0.55 + vMorph * 0.2 + sin(uTime * 0.3 + vDepth * 0.1) * 0.05;
+          vec3 color = hsv2rgb(vec3(hue, 0.85, 0.9));
+
+          // Energy-based color shift
+          color = mix(color, vec3(1.0, 0.8, 0.6), vEnergy * 0.3);
+
+          // Bright core
+          float core = smoothstep(0.2, 0.0, dist);
+          color += vec3(0.4, 0.5, 0.6) * core;
+
+          // Ring effect during morph
+          float ring = smoothstep(0.4, 0.3, dist) * smoothstep(0.2, 0.3, dist);
+          color += ring * vEnergy * vec3(0.2, 0.3, 0.4);
+
+          gl_FragColor = vec4(color, alpha * (0.6 + vMorph * 0.4 + vEnergy * 0.2));
+        }
+      `,
       transparent: true,
-      opacity: 0.7,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
     });
@@ -2553,11 +2767,15 @@ class PointCloudScene extends SceneBase {
     }
     attr.needsUpdate = true;
 
-    const mat = this.points.material as THREE.PointsMaterial;
-    this.color.setHSL(0.55 + progress * 0.2, 0.85, 0.65);
-    mat.color.copy(this.color);
-    mat.size = 0.016 + progress * 0.018 + impulse * 0.01;
-    mat.opacity = 0.52 + progress * 0.35 + impulse * 0.18;
+    // Update shader uniforms
+    const mat = this.points.material as THREE.ShaderMaterial;
+    mat.uniforms.uTime.value = t;
+    mat.uniforms.uProgress.value = progress;
+    mat.uniforms.uEnergy.value = impulse;
+    mat.uniforms.uGyro.value.set(
+      gyro.x * gyroInfluence,
+      gyro.y * gyroInfluence
+    );
 
     // Heavy camera drift for depth with gyro parallax.
     const cam = this.camera as THREE.PerspectiveCamera;
