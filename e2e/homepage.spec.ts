@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Homepage', () => {
   test('should load successfully', async ({ page }) => {
     await page.goto('./');
-    await expect(page).toHaveTitle(/Immersive Portal/i);
+    await expect(page).toHaveTitle(/Landing/i);
   });
 
   test('should display hero section', async ({ page }) => {
@@ -18,9 +18,6 @@ test.describe('Homepage', () => {
     // The portal landing is intentionally isolated (no site header/nav).
     // Validate the primary controls that let a user enter the main site.
     await expect(page.getByRole('link', { name: /enter site/i })).toBeVisible();
-    await expect(
-      page.getByRole('link', { name: /immersive lab/i })
-    ).toBeVisible();
 
     // On mobile we keep the same behavior.
     if (isMobile) {

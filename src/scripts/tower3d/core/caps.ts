@@ -1,4 +1,4 @@
-export type ImmersiveCaps = {
+export type TowerCaps = {
   coarsePointer: boolean;
   reducedMotion: boolean;
   devicePixelRatio: number;
@@ -11,12 +11,11 @@ export type ImmersiveCaps = {
   hasVisualViewport: boolean;
 };
 
-const detectBrowser = (): ImmersiveCaps['browser'] => {
+const detectBrowser = (): TowerCaps['browser'] => {
   try {
     const ua = (navigator.userAgent || '').toLowerCase();
     if (ua.includes('firefox')) return 'firefox';
     if (ua.includes('edg')) return 'edge';
-    // iOS Chrome uses CriOS (WebKit), but we still treat it as chrome-ish for tuning.
     if (ua.includes('crios') || (ua.includes('chrome') && !ua.includes('edg')))
       return 'chrome';
     if (
@@ -31,7 +30,7 @@ const detectBrowser = (): ImmersiveCaps['browser'] => {
   }
 };
 
-const detectOs = (): ImmersiveCaps['os'] => {
+const detectOs = (): TowerCaps['os'] => {
   try {
     const ua = (navigator.userAgent || '').toLowerCase();
     if (ua.includes('android')) return 'android';
@@ -51,8 +50,7 @@ const getMaxPrecision = (): 'highp' | 'mediump' | 'lowp' => {
       canvas.getContext('webgl') ||
       canvas.getContext('experimental-webgl');
     if (!gl) return 'lowp';
-    // Best-effort: try to create a tiny shader with highp; if it fails, assume mediump.
-    // Many mobile GPUs report highp but behave poorly; we still use this as a hint.
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const anyGl = gl as any;
     const high = anyGl.getShaderPrecisionFormat?.(
@@ -75,7 +73,7 @@ const getMaxPrecision = (): 'highp' | 'mediump' | 'lowp' => {
   }
 };
 
-export const getImmersiveCaps = (): ImmersiveCaps => {
+export const getTowerCaps = (): TowerCaps => {
   const coarsePointer = Boolean(
     window.matchMedia?.('(pointer: coarse)').matches
   );
@@ -98,7 +96,6 @@ export const getImmersiveCaps = (): ImmersiveCaps => {
   }
 
   const maxPrecision = getMaxPrecision();
-
   const browser = detectBrowser();
   const os = detectOs();
   const hasVisualViewport =

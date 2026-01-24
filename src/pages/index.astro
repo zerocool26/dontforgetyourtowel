@@ -1,14 +1,11 @@
 ---
 import MarketingLayout from '../layouts/MarketingLayout.astro';
-import ModernButton from '../components/ui/ModernButton.astro';
 import HeroExplorerLazy from '../components/react/HeroExplorerLazy.tsx';
 import { withBasePath } from '../utils/helpers';
 
-const title = 'Immersive Portal';
-const description =
-  'A dedicated, fullscreen 3D landing experience. Enter the site when you are ready.';
+const title = 'Landing';
+const description = 'A dedicated, fullscreen 3D landing experience.';
 const enterHref = withBasePath('home/');
-const immersiveHref = withBasePath('immersive/');
 ---
 
 <MarketingLayout
@@ -22,68 +19,141 @@ const immersiveHref = withBasePath('immersive/');
   showMobileNav={false}
   showLiveChat={false}
 >
-  <div class="scene-shell" aria-label="Immersive portal landing">
+  <div class="landing-shell" aria-label="Landing">
     <HeroExplorerLazy client:load />
 
-    <div class="scene-ui" aria-label="Landing controls">
-      <div class="scene-ui-inner">
-        <div class="scene-ui-title">Immersive Portal</div>
-        <div class="scene-ui-actions">
-          <ModernButton href={enterHref} variant="primary" rounded="sm">
-            Enter site
-          </ModernButton>
-          <ModernButton href={immersiveHref} variant="secondary" rounded="sm">
-            Immersive lab
-          </ModernButton>
+    <section
+      class="tower3d"
+      data-tower3d-root
+      data-tower-scene="scene01"
+      aria-label="3D tower"
+    >
+      <div class="tower3d__sticky" aria-hidden="true">
+        <canvas class="tower3d__canvas" data-tower3d-canvas></canvas>
+      </div>
+
+      <div class="tower3d__chapters" aria-hidden="true">
+        <div class="tower3d__chapter" data-tower3d-chapter data-scene="scene01">
+        </div>
+        <div class="tower3d__chapter" data-tower3d-chapter data-scene="scene02">
+        </div>
+        <div class="tower3d__chapter" data-tower3d-chapter data-scene="scene03">
+        </div>
+        <div class="tower3d__chapter" data-tower3d-chapter data-scene="scene04">
+        </div>
+        <div class="tower3d__chapter" data-tower3d-chapter data-scene="scene05">
+        </div>
+        <div class="tower3d__chapter" data-tower3d-chapter data-scene="scene06">
+        </div>
+        <div class="tower3d__chapter" data-tower3d-chapter data-scene="scene07">
+        </div>
+        <div class="tower3d__chapter" data-tower3d-chapter data-scene="scene08">
+        </div>
+        <div class="tower3d__chapter" data-tower3d-chapter data-scene="scene09">
+        </div>
+        <div class="tower3d__chapter" data-tower3d-chapter data-scene="scene10">
         </div>
       </div>
-    </div>
+    </section>
+
+    <section class="landing-bottom" aria-label="Site entry">
+      <div class="landing-bottom__inner">
+        <h2 class="landing-bottom__title">Enter the site</h2>
+        <p class="landing-bottom__copy">
+          Explore the full experience beyond the landing showcase.
+        </p>
+        <a class="landing-bottom__cta" href={enterHref}>Enter site</a>
+      </div>
+    </section>
   </div>
 
   <style>
-    .scene-shell {
+    .landing-shell {
       position: relative;
       min-height: 100vh;
       background: #040712;
     }
 
-    .scene-ui {
-      position: fixed;
-      left: max(16px, env(safe-area-inset-left));
-      right: max(16px, env(safe-area-inset-right));
-      bottom: max(16px, env(safe-area-inset-bottom));
-      z-index: 50;
-      pointer-events: none;
+    .tower3d {
+      position: relative;
+      background: #040712;
     }
 
-    .scene-ui-inner {
-      pointer-events: auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+    .tower3d__sticky {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      background: #040712;
+    }
+
+    .tower3d__canvas {
+      display: block;
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    .tower3d__chapters {
+      position: relative;
+      z-index: 1;
+    }
+
+    .tower3d__chapter {
+      height: 100vh;
+      width: 100%;
+    }
+
+    .landing-bottom {
+      padding: 96px 20px 120px;
+      background: #040712;
+    }
+
+    .landing-bottom__inner {
+      max-width: 980px;
+      margin: 0 auto;
+      display: grid;
       gap: 14px;
-      padding: 12px 12px;
-      border-radius: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      background: rgba(4, 7, 18, 0.68);
-      backdrop-filter: blur(16px);
-      box-shadow: 0 18px 70px rgba(0, 0, 0, 0.55);
     }
 
-    .scene-ui-title {
-      font-size: 12px;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: rgba(226, 232, 240, 0.78);
-      white-space: nowrap;
+    .landing-bottom__title {
+      margin: 0;
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      letter-spacing: -0.02em;
+      color: #e2e8f0;
     }
 
-    .scene-ui-actions {
-      display: flex;
-      flex-wrap: wrap;
+    .landing-bottom__copy {
+      margin: 0;
+      max-width: 70ch;
+      color: rgba(226, 232, 240, 0.74);
+      line-height: 1.6;
+    }
+
+    .landing-bottom__cta {
+      justify-self: start;
+      display: inline-flex;
       align-items: center;
-      justify-content: flex-end;
       gap: 10px;
+      padding: 12px 16px;
+      border-radius: 14px;
+      background: linear-gradient(120deg, #22d3ee, #6366f1);
+      color: #0b1224;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 18px 60px rgba(99, 102, 241, 0.25);
+      transition:
+        transform 160ms ease,
+        box-shadow 160ms ease;
+    }
+
+    .landing-bottom__cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 22px 70px rgba(99, 102, 241, 0.35);
     }
   </style>
+
+  <script>
+    import '../scripts/tower3d';
+  </script>
 </MarketingLayout>

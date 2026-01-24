@@ -1271,7 +1271,7 @@ const DiscoveryRail = ({ onBurst }: { onBurst: () => void }) => {
   );
 };
 
-const HeroExplorer = () => {
+const HeroExplorer = ({ showPost = true }: { showPost?: boolean }) => {
   const quality = useQualityTier();
 
   const dpr = useMemo(() => {
@@ -1320,42 +1320,44 @@ const HeroExplorer = () => {
         </Canvas>
       </div>
 
-      <div className="hero-explorer__post" aria-label="Portal details">
-        <div className="hero-explorer__post-inner">
-          <div className="hero-explorer__post-head">
-            <p className="hero-explorer__post-kicker">Portal Index</p>
-            <h2 className="hero-explorer__post-title">
-              Scroll-driven 3D scene showcase
-            </h2>
-            <p className="hero-explorer__post-sub">
-              Full-screen canvas, no UI over the visuals while scrolling. Each
-              chapter is a distinct scene rig (camera choreography + lighting +
-              geometry + post FX). The index and interactive demos reveal only
-              after the scroll completes.
-            </p>
-          </div>
+      {showPost ? (
+        <div className="hero-explorer__post" aria-label="Portal details">
+          <div className="hero-explorer__post-inner">
+            <div className="hero-explorer__post-head">
+              <p className="hero-explorer__post-kicker">Portal Index</p>
+              <h2 className="hero-explorer__post-title">
+                Scroll-driven 3D scene showcase
+              </h2>
+              <p className="hero-explorer__post-sub">
+                Full-screen canvas, no UI over the visuals while scrolling. Each
+                chapter is a distinct scene rig (camera choreography + lighting
+                + geometry + post FX). The index and interactive demos reveal
+                only after the scroll completes.
+              </p>
+            </div>
 
-          <div className="hero-explorer__chapters" aria-label="Chapters">
-            {chapters.map((ch, idx) => (
-              <article key={ch.id} className="hero-explorer__chapter">
-                <div className="hero-explorer__chapter-num">
-                  {String(idx + 1).padStart(2, '0')}
-                </div>
-                <div className="hero-explorer__chapter-body">
-                  <h3>{ch.title}</h3>
-                  <p>{ch.copy}</p>
-                </div>
-              </article>
-            ))}
-          </div>
+            <div className="hero-explorer__chapters" aria-label="Chapters">
+              {chapters.map((ch, idx) => (
+                <article key={ch.id} className="hero-explorer__chapter">
+                  <div className="hero-explorer__chapter-num">
+                    {String(idx + 1).padStart(2, '0')}
+                  </div>
+                  <div className="hero-explorer__chapter-body">
+                    <h3>{ch.title}</h3>
+                    <p>{ch.copy}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
 
-          <DiscoveryRail
-            onBurst={() => {
-              window.dispatchEvent(new CustomEvent('hero:burst'));
-            }}
-          />
+            <DiscoveryRail
+              onBurst={() => {
+                window.dispatchEvent(new CustomEvent('hero:burst'));
+              }}
+            />
+          </div>
         </div>
-      </div>
+      ) : null}
     </section>
   );
 };

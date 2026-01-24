@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
-import type { ImmersiveCaps } from '../../core/caps';
+import type { TowerCaps } from '../../core/caps';
 
 export type SceneMeta = {
   id: string;
@@ -12,7 +12,7 @@ export type SceneMeta = {
 export type SceneRuntime = {
   renderer: THREE.WebGLRenderer;
   root: HTMLElement;
-  caps: ImmersiveCaps;
+  caps: TowerCaps;
   size: { width: number; height: number; dpr: number };
   time: number;
   dt: number;
@@ -25,7 +25,7 @@ export type SceneRuntime = {
   sceneIndex: number;
 };
 
-export interface ImmersiveScene {
+export interface TowerScene {
   id: string;
   meta: SceneMeta;
   scene: THREE.Scene;
@@ -115,7 +115,7 @@ const sceneMeta: SceneMeta[] = [
 const findMeta = (id: string) =>
   sceneMeta.find(meta => meta.id === id) ?? sceneMeta[0];
 
-abstract class SceneBase implements ImmersiveScene {
+abstract class SceneBase implements TowerScene {
   id: string;
   meta: SceneMeta;
   scene: THREE.Scene;
@@ -1078,7 +1078,7 @@ class FractalScene extends RaymarchScene {
   }
 }
 
-export const createScenes = (): ImmersiveScene[] => [
+export const createScenes = (): TowerScene[] => [
   new CoreScene(),
   new RaymarchScene('scene01', 0),
   new SwarmScene(),

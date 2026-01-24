@@ -1,14 +1,14 @@
 import * as THREE from 'three';
-import type { ImmersiveCaps } from '../core/caps';
-import { createScenes, getSceneMeta } from './scenes';
-import type { ImmersiveScene, SceneRuntime } from './scenes';
+import type { TowerCaps } from '../core/caps';
+import { createScenes } from './scenes';
+import type { SceneRuntime, TowerScene } from './scenes';
 
 type Cleanup = () => void;
 
 type TransitionState = {
   active: boolean;
-  from: ImmersiveScene;
-  to: ImmersiveScene;
+  from: TowerScene;
+  to: TowerScene;
   t: number;
   duration: number;
 };
@@ -22,11 +22,11 @@ const damp = (current: number, target: number, lambda: number, dt: number) =>
 export class SceneDirector {
   private root: HTMLElement;
   private canvas: HTMLCanvasElement;
-  private caps: ImmersiveCaps;
+  private caps: TowerCaps;
   private renderer: THREE.WebGLRenderer;
-  private scenes: ImmersiveScene[];
-  private sceneById: Map<string, ImmersiveScene>;
-  private activeScene: ImmersiveScene;
+  private scenes: TowerScene[];
+  private sceneById: Map<string, TowerScene>;
+  private activeScene: TowerScene;
   private transition: TransitionState | null = null;
 
   private transitionScene: THREE.Scene;
@@ -56,11 +56,7 @@ export class SceneDirector {
   private localProgress = 0;
   private scrollProgress = 0;
 
-  constructor(
-    root: HTMLElement,
-    canvas: HTMLCanvasElement,
-    caps: ImmersiveCaps
-  ) {
+  constructor(root: HTMLElement, canvas: HTMLCanvasElement, caps: TowerCaps) {
     this.root = root;
     this.canvas = canvas;
     this.caps = caps;
@@ -151,12 +147,12 @@ export class SceneDirector {
 
     this.scenes = createScenes();
     this.sceneById = new Map(this.scenes.map(scene => [scene.id, scene]));
-    const initialId = this.root.dataset.ihScene;
+    const initialId = this.root.dataset.towerScene || this.root.dataset.scene;
     this.activeScene =
       (initialId && this.sceneById.get(initialId)) || this.scenes[0];
 
     this.chapters = Array.from(
-      this.root.querySelectorAll<HTMLElement>('[data-ih-chapter]')
+      this.root.querySelectorAll<HTMLElement>('[data-tower3d-chapter]')
     );
 
     this.installInput();
@@ -167,9 +163,9 @@ export class SceneDirector {
       scene.init(runtime);
       scene.resize(runtime);
     });
-    this.root.dataset.ihScene = this.activeScene.id;
-    this.updateSceneMeta(this.activeScene.id);
-    this.root.dataset.ihRendered = '1';
+
+    this.root.dataset.towerScene = this.activeScene.id;
+    this.root.dataset.towerRendered = '1';
   }
 
   private buildRuntime(dt: number, time: number): SceneRuntime {
@@ -234,32 +230,6 @@ export class SceneDirector {
     this.rtB.setSize(w * this.size.dpr, h * this.size.dpr);
   }
 
-  private updateSceneMeta(sceneId: string): void {
-    const meta = getSceneMeta().find(item => item.id === sceneId);
-    if (!meta) return;
-
-    this.root.dataset.ihSceneTitle = meta.title;
-    this.root.dataset.ihSceneCaption = meta.caption;
-    this.root.dataset.ihSceneHint = meta.hint;
-
-    const indexEl = this.root.querySelector<HTMLElement>(
-      '[data-ih-floor-index]'
-    );
-    const titleEl = this.root.querySelector<HTMLElement>(
-      '[data-ih-floor-title]'
-    );
-    const captionEl = this.root.querySelector<HTMLElement>(
-      '[data-ih-floor-caption]'
-    );
-    const hintEl = this.root.querySelector<HTMLElement>('[data-ih-floor-hint]');
-
-    if (indexEl)
-      indexEl.textContent = String(this.sceneIndex + 1).padStart(2, '0');
-    if (titleEl) titleEl.textContent = meta.title;
-    if (captionEl) captionEl.textContent = meta.caption;
-    if (hintEl) hintEl.textContent = meta.hint;
-  }
-
   private computeScroll(): void {
     const rect = this.root.getBoundingClientRect();
     const total = rect.height - Math.max(1, this.size.height);
@@ -279,7 +249,7 @@ export class SceneDirector {
   }
 
   private resolveSceneId(): string {
-    const fromDataset = this.root.dataset.ihScene;
+    const fromDataset = this.root.dataset.towerScene || this.root.dataset.scene;
     if (fromDataset && this.sceneById.has(fromDataset)) return fromDataset;
     const fallbackScene = this.chapters[this.sceneIndex]?.dataset.scene;
     if (fallbackScene && this.sceneById.has(fallbackScene))
@@ -287,7 +257,7 @@ export class SceneDirector {
     return this.activeScene.id;
   }
 
-  private beginTransition(nextScene: ImmersiveScene, duration: number): void {
+  private beginTransition(nextScene: TowerScene, duration: number): void {
     if (nextScene.id === this.activeScene.id) return;
     this.transition = {
       active: true,
@@ -297,7 +267,6 @@ export class SceneDirector {
       duration,
     };
     this.activeScene = nextScene;
-    this.updateSceneMeta(nextScene.id);
   }
 
   public resize(): void {
@@ -318,8 +287,8 @@ export class SceneDirector {
 
     const targetSceneId = this.resolveSceneId();
     const targetScene = this.sceneById.get(targetSceneId) ?? this.activeScene;
-    if (this.root.dataset.ihScene !== targetSceneId) {
-      this.root.dataset.ihScene = targetSceneId;
+    if (this.root.dataset.towerScene !== targetSceneId) {
+      this.root.dataset.towerScene = targetSceneId;
     }
     if (targetScene.id !== this.activeScene.id && !this.transition?.active) {
       const duration = this.caps.reducedMotion ? 0.01 : 0.8;
@@ -334,16 +303,15 @@ export class SceneDirector {
     );
     this.lastPointer.copy(this.pointer);
 
-    this.root.style.setProperty('--ih-scroll', this.scrollProgress.toFixed(4));
-    this.root.style.setProperty('--ih-local', this.localProgress.toFixed(4));
-    this.root.style.setProperty('--ih-vel', this.scrollVelocity.toFixed(4));
-    this.root.style.setProperty('--ih-pointer-x', this.pointer.x.toFixed(4));
-    this.root.style.setProperty('--ih-pointer-y', this.pointer.y.toFixed(4));
     this.root.style.setProperty(
-      '--ih-progress',
+      '--tower-scroll',
       this.scrollProgress.toFixed(4)
     );
-    this.root.dataset.ihSceneIndex = String(this.sceneIndex);
+    this.root.style.setProperty('--tower-local', this.localProgress.toFixed(4));
+    this.root.style.setProperty('--tower-vel', this.scrollVelocity.toFixed(4));
+    this.root.style.setProperty('--tower-pointer-x', this.pointer.x.toFixed(4));
+    this.root.style.setProperty('--tower-pointer-y', this.pointer.y.toFixed(4));
+    this.root.dataset.towerSceneIndex = String(this.sceneIndex);
 
     const runtime = this.buildRuntime(dt, now);
 

@@ -15,7 +15,7 @@ export const createAstroMount = (
   rootSelector: string,
   mountFn: MountFn
 ): void => {
-  const storeKey = `__ih_mount_${rootSelector}` as const;
+  const storeKey = `__astro_mount_${rootSelector}` as const;
 
   const getStore = (): Stored => {
     const w = window as unknown as Record<string, Stored | undefined>;
@@ -27,7 +27,6 @@ export const createAstroMount = (
     const root = document.querySelector<HTMLElement>(rootSelector);
     const store = getStore();
 
-    // If Astro calls us twice for the same DOM node, do nothing.
     if (root && root === store.mountedRoot && store.cleanup) return;
 
     store.cleanup?.();

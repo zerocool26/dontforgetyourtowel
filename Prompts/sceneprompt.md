@@ -18,7 +18,7 @@ BENCHMARKS / RESEARCH (QUALITY BAR — DO NOT COPY, ONLY MEASURE AGAINST)
 
 - “WebGL” collections on Awwwards (overall bar for craft + originality)
 - Bruno Simon portfolio (interaction + polish bar)
-- Immersive Garden award-winning experiences (story-driven + procedural bar)
+- Garden award-winning experiences (story-driven + procedural bar)
 - “The Deep Dive” (vertical scrollytelling descent vibe)
 - Neal Agarwal “The Deep Sea” (scroll-as-depth metaphor done cleanly)
 - GSAP ScrollTrigger patterns (pin/scrub/snap)

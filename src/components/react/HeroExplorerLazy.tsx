@@ -18,7 +18,7 @@ const Loading = () => (
       letterSpacing: '0.08em',
     }}
   >
-    Booting immersive hero…
+    Booting 3D hero…
   </div>
 );
 
@@ -64,7 +64,7 @@ const hasWebGL = () => {
 const HeroExplorerLazy = () =>
   hasWebGL() ? (
     <Suspense fallback={<Loading />}>
-      <HeroExplorer />
+      <HeroExplorer showPost={false} />
     </Suspense>
   ) : (
     <NoWebGL />
