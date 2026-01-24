@@ -160,31 +160,27 @@ export const getTowerCaps = (): TowerCaps => {
     typeof (window as unknown as { visualViewport?: unknown })
       .visualViewport !== 'undefined';
 
-  // Determine performance tier based on multiple factors
+  // Determine performance tier based on GPU capabilities - DON'T downgrade mobile animations
+  // Modern mobile GPUs (2023+) can handle desktop-quality effects
   let performanceTier: 'high' | 'medium' | 'low' = gpuTier;
 
-  // Downgrade tier based on device constraints
+  // Only downgrade for reduced motion preference or truly low-end hardware
   if (reducedMotion) {
     performanceTier = 'low';
-  } else if (coarsePointer && os === 'ios') {
-    // iOS devices are fill-rate limited
-    performanceTier = gpuTier === 'high' ? 'medium' : 'low';
-  } else if (coarsePointer && os === 'android') {
-    // Most Android devices, keep their detected tier but cap at medium
-    performanceTier = gpuTier === 'high' ? 'medium' : gpuTier;
   } else if (maxPrecision === 'lowp') {
     performanceTier = 'low';
   }
+  // Keep mobile at their detected tier - modern phones are powerful!
 
-  // Set particle counts based on tier
+  // Higher particle counts for better visuals - modern GPUs handle this easily
   const maxParticles =
     performanceTier === 'high'
-      ? 15000
+      ? 25000
       : performanceTier === 'medium'
-        ? 8000
-        : 3000;
+        ? 15000
+        : 5000;
 
-  // Feature flags based on tier
+  // Enable post processing on all but truly low-end devices
   const enablePostProcessing = performanceTier !== 'low';
   const enableGyroscope = coarsePointer && !reducedMotion;
 

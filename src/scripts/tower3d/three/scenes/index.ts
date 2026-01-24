@@ -269,20 +269,24 @@ class CoreScene extends SceneBase {
     rim.position.set(4, -4, -8);
     this.scene.add(ambient, key, fill, rim);
 
-    // Inner plasma orb with volumetric noise shader
+    // Inner plasma orb with advanced volumetric noise shader
     this.plasmaMaterial = new THREE.ShaderMaterial({
       uniforms: {
         uTime: { value: 0 },
         uEnergy: { value: 0 },
         uColor1: { value: new THREE.Color(0x4488ff) },
         uColor2: { value: new THREE.Color(0xff44aa) },
+        uColor3: { value: new THREE.Color(0x44ffaa) },
+        uGyro: { value: new THREE.Vector2(0, 0) },
       },
       vertexShader: `
         varying vec3 vPosition;
         varying vec3 vNormal;
+        varying vec3 vWorldPos;
         void main() {
           vPosition = position;
-          vNormal = normal;
+          vNormal = normalize(normalMatrix * normal);
+          vWorldPos = (modelMatrix * vec4(position, 1.0)).xyz;
           gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
         }
       `,
@@ -291,34 +295,120 @@ class CoreScene extends SceneBase {
         uniform float uEnergy;
         uniform vec3 uColor1;
         uniform vec3 uColor2;
+        uniform vec3 uColor3;
+        uniform vec2 uGyro;
         varying vec3 vPosition;
         varying vec3 vNormal;
+        varying vec3 vWorldPos;
 
-        float noise3D(vec3 p) {
-          return fract(sin(dot(p, vec3(12.9898, 78.233, 45.5432))) * 43758.5453);
+        // Improved noise functions
+        vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+        vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+        vec4 permute(vec4 x) { return mod289(((x*34.0)+1.0)*x); }
+        vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
+
+        float snoise(vec3 v) {
+          const vec2 C = vec2(1.0/6.0, 1.0/3.0);
+          const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
+          vec3 i = floor(v + dot(v, C.yyy));
+          vec3 x0 = v - i + dot(i, C.xxx);
+          vec3 g = step(x0.yzx, x0.xyz);
+          vec3 l = 1.0 - g;
+          vec3 i1 = min(g.xyz, l.zxy);
+          vec3 i2 = max(g.xyz, l.zxy);
+          vec3 x1 = x0 - i1 + C.xxx;
+          vec3 x2 = x0 - i2 + C.yyy;
+          vec3 x3 = x0 - D.yyy;
+          i = mod289(i);
+          vec4 p = permute(permute(permute(
+            i.z + vec4(0.0, i1.z, i2.z, 1.0))
+            + i.y + vec4(0.0, i1.y, i2.y, 1.0))
+            + i.x + vec4(0.0, i1.x, i2.x, 1.0));
+          float n_ = 0.142857142857;
+          vec3 ns = n_ * D.wyz - D.xzx;
+          vec4 j = p - 49.0 * floor(p * ns.z * ns.z);
+          vec4 x_ = floor(j * ns.z);
+          vec4 y_ = floor(j - 7.0 * x_);
+          vec4 x = x_ *ns.x + ns.yyyy;
+          vec4 y = y_ *ns.x + ns.yyyy;
+          vec4 h = 1.0 - abs(x) - abs(y);
+          vec4 b0 = vec4(x.xy, y.xy);
+          vec4 b1 = vec4(x.zw, y.zw);
+          vec4 s0 = floor(b0)*2.0 + 1.0;
+          vec4 s1 = floor(b1)*2.0 + 1.0;
+          vec4 sh = -step(h, vec4(0.0));
+          vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy;
+          vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww;
+          vec3 p0 = vec3(a0.xy, h.x);
+          vec3 p1 = vec3(a0.zw, h.y);
+          vec3 p2 = vec3(a1.xy, h.z);
+          vec3 p3 = vec3(a1.zw, h.w);
+          vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2,p2), dot(p3,p3)));
+          p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
+          vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
+          m = m * m;
+          return 42.0 * dot(m*m, vec4(dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3)));
         }
 
         float fbm(vec3 p) {
           float v = 0.0;
           float a = 0.5;
-          for (int i = 0; i < 4; i++) {
-            v += a * noise3D(p);
-            p *= 2.0;
+          vec3 shift = vec3(100.0);
+          for (int i = 0; i < 5; i++) {
+            v += a * snoise(p);
+            p = p * 2.0 + shift;
             a *= 0.5;
           }
           return v;
         }
 
+        // Turbulence for energy swirls
+        float turbulence(vec3 p) {
+          float t = 0.0;
+          float scale = 1.0;
+          for (int i = 0; i < 4; i++) {
+            t += abs(snoise(p * scale)) / scale;
+            scale *= 2.0;
+          }
+          return t;
+        }
+
         void main() {
-          vec3 p = vPosition * 3.0 + uTime * 0.5;
-          float n = fbm(p) * 0.5 + 0.5;
-          n = pow(n, 1.5 - uEnergy * 0.5);
+          vec3 viewDir = normalize(cameraPosition - vWorldPos);
 
-          float fresnel = pow(1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0))), 2.0);
-          vec3 color = mix(uColor1, uColor2, n + fresnel * 0.3);
+          // Animated plasma field with gyro influence
+          vec3 p = vPosition * 3.0 + vec3(uGyro.x * 0.5, uGyro.y * 0.5, 0.0);
+          p += vec3(uTime * 0.3, uTime * 0.2, uTime * 0.25);
 
-          float glow = 0.6 + uEnergy * 0.4 + fresnel * 0.5;
-          gl_FragColor = vec4(color * glow, 0.95);
+          float n1 = fbm(p) * 0.5 + 0.5;
+          float n2 = fbm(p * 1.5 + 100.0) * 0.5 + 0.5;
+          float turb = turbulence(p * 0.5 + uTime * 0.15);
+
+          // Energy-responsive distortion
+          float energyWarp = uEnergy * 0.5;
+          n1 = pow(n1, 1.5 - energyWarp);
+          n2 = pow(n2, 1.3 - energyWarp * 0.5);
+
+          // Fresnel for rim glow
+          float fresnel = pow(1.0 - max(dot(vNormal, viewDir), 0.0), 3.0);
+
+          // Three-way color blend based on noise layers
+          vec3 color = mix(uColor1, uColor2, n1);
+          color = mix(color, uColor3, n2 * 0.4 + turb * 0.2);
+
+          // Add electric arcs effect
+          float arcs = pow(snoise(vPosition * 8.0 + uTime * 2.0), 4.0) * uEnergy;
+          color += vec3(0.8, 0.9, 1.0) * arcs * 2.0;
+
+          // Pulsing core brightness
+          float pulse = sin(uTime * 3.0) * 0.15 + 0.85;
+          float glow = (0.6 + uEnergy * 0.6 + fresnel * 0.8) * pulse;
+
+          // Inner core hotspot
+          float core = smoothstep(0.4, 0.0, length(vPosition));
+          color += vec3(1.0, 0.8, 0.6) * core * 0.5 * (1.0 + uEnergy);
+
+          gl_FragColor = vec4(color * glow, 0.92 + fresnel * 0.08);
         }
       `,
       transparent: true,
@@ -326,18 +416,18 @@ class CoreScene extends SceneBase {
       depthWrite: false,
     });
     this.innerPlasma = new THREE.Mesh(
-      new THREE.IcosahedronGeometry(0.6, 4),
+      new THREE.IcosahedronGeometry(0.65, 5),
       this.plasmaMaterial
     );
 
-    // Middle solid core
+    // Middle solid core with iridescence
     this.middleCore = new THREE.Mesh(
-      new THREE.IcosahedronGeometry(1.0, 2),
-      new THREE.MeshStandardMaterial({
+      new THREE.IcosahedronGeometry(1.0, 3),
+      new THREE.MeshPhysicalMaterial({
         color: new THREE.Color(0x1a2a4a),
         emissive: new THREE.Color(0x4466aa),
         emissiveIntensity: 0.6,
-        metalness: 0.7,
+        metalness: 0.8,
         roughness: 0.3,
       })
     );
@@ -541,19 +631,32 @@ class CoreScene extends SceneBase {
     this.group.rotation.x =
       -0.1 + pointer.y * -0.25 + gyro.y * gyroInfluence * 0.5;
 
-    // Inner plasma animation
-    this.innerPlasma.rotation.y += ctx.dt * (0.5 + this.energy * 0.3);
-    this.innerPlasma.rotation.x += ctx.dt * 0.3;
-    const plasmaWobble = Math.sin(t * 1.5) * 0.08 * (0.5 + this.energy);
-    this.innerPlasma.scale.setScalar(1 + plasmaWobble);
+    // Inner plasma animation with enhanced dynamics
+    this.innerPlasma.rotation.y += ctx.dt * (0.5 + this.energy * 0.4);
+    this.innerPlasma.rotation.x += ctx.dt * 0.35;
+    this.innerPlasma.rotation.z += ctx.dt * 0.15 * Math.sin(t * 0.3);
+    const plasmaWobble = Math.sin(t * 1.5) * 0.1 * (0.5 + this.energy);
+    const plasmaPulse = Math.sin(t * 2.5) * 0.03 * this.energy;
+    this.innerPlasma.scale.setScalar(1 + plasmaWobble + plasmaPulse);
+
+    // Update all plasma shader uniforms
     this.plasmaMaterial.uniforms.uTime.value = t;
     this.plasmaMaterial.uniforms.uEnergy.value = this.energy;
-    this.plasmaMaterial.uniforms.uColor1.value.setHSL(this.hue / 360, 0.8, 0.5);
+    this.plasmaMaterial.uniforms.uColor1.value.setHSL(
+      this.hue / 360,
+      0.85,
+      0.55
+    );
     this.plasmaMaterial.uniforms.uColor2.value.setHSL(
       this.hue2 / 360,
       0.9,
       0.6
     );
+    // Third color cycles through complementary hues for richer plasma
+    const hue3 = (this.hue + 120 + Math.sin(t * 0.25) * 30) % 360;
+    this.plasmaMaterial.uniforms.uColor3.value.setHSL(hue3 / 360, 0.95, 0.65);
+    // Pass gyro data to shader for tilt-reactive plasma
+    this.plasmaMaterial.uniforms.uGyro.value.set(gyro.x, gyro.y);
 
     // Middle core rotation
     this.middleCore.rotation.y += ctx.dt * (0.25 + local * 0.2);
@@ -952,6 +1055,7 @@ class RaymarchScene extends SceneBase {
   }
 
   resize(ctx: SceneRuntime): void {
+    super.resize(ctx);
     this.material.uniforms.uResolution.value.set(
       ctx.size.width,
       ctx.size.height
@@ -1030,51 +1134,115 @@ class SwarmScene extends SceneBase {
     geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
     geo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
 
-    // Custom shader material for variable sizes and colors
+    // Custom shader material for variable sizes and colors with enhanced effects
     const mat = new THREE.ShaderMaterial({
       uniforms: {
         uTime: { value: 0 },
         uProgress: { value: 0 },
         uScale: { value: 1 },
+        uGyro: { value: new THREE.Vector2(0, 0) },
+        uEnergy: { value: 0 },
       },
       vertexShader: `
         attribute float size;
         attribute vec3 color;
         varying vec3 vColor;
         varying float vAlpha;
+        varying float vEnergy;
+        varying float vDist;
         uniform float uTime;
         uniform float uProgress;
         uniform float uScale;
+        uniform float uEnergy;
+
+        // Simplex noise for organic movement
+        vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+        vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+        vec3 permute(vec3 x) { return mod289(((x*34.0)+1.0)*x); }
+        float snoise(vec2 v) {
+          const vec4 C = vec4(0.211324865405187, 0.366025403784439,
+                             -0.577350269189626, 0.024390243902439);
+          vec2 i  = floor(v + dot(v, C.yy));
+          vec2 x0 = v -   i + dot(i, C.xx);
+          vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+          vec4 x12 = x0.xyxy + C.xxzz;
+          x12.xy -= i1;
+          i = mod289(i);
+          vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0)) + i.x + vec3(0.0, i1.x, 1.0));
+          vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+          m = m*m; m = m*m;
+          vec3 x = 2.0 * fract(p * C.www) - 1.0;
+          vec3 h = abs(x) - 0.5;
+          vec3 ox = floor(x + 0.5);
+          vec3 a0 = x - ox;
+          m *= 1.79284291400159 - 0.85373472095314 * (a0*a0 + h*h);
+          vec3 g;
+          g.x  = a0.x  * x0.x  + h.x  * x0.y;
+          g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+          return 130.0 * dot(m, g);
+        }
 
         void main() {
           vColor = color;
-          vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+          vEnergy = uEnergy;
 
-          // Pulsing size based on distance from center
+          // Calculate distance from center for effects
           float dist = length(position);
-          float pulse = 1.0 + 0.3 * sin(uTime * 2.0 + dist * 2.0);
+          vDist = dist;
 
-          // Fade based on depth
-          vAlpha = smoothstep(15.0, 3.0, -mvPosition.z) * (0.5 + 0.5 * uProgress);
+          // Organic displacement using noise
+          float noise1 = snoise(position.xy * 0.5 + uTime * 0.3);
+          float noise2 = snoise(position.yz * 0.5 + uTime * 0.2);
+          vec3 displaced = position + vec3(noise1, noise2, noise1 * noise2) * 0.1 * uEnergy;
 
-          gl_PointSize = size * uScale * pulse * (200.0 / -mvPosition.z);
+          vec4 mvPosition = modelViewMatrix * vec4(displaced, 1.0);
+
+          // Multi-frequency pulsing
+          float pulse1 = 1.0 + 0.2 * sin(uTime * 2.0 + dist * 2.0);
+          float pulse2 = 1.0 + 0.15 * sin(uTime * 3.5 + dist * 1.5 + 1.5);
+          float pulse3 = 1.0 + 0.1 * sin(uTime * 5.0 + dist * 3.0);
+          float pulse = pulse1 * pulse2 * pulse3;
+
+          // Fade based on depth with energy influence
+          vAlpha = smoothstep(18.0, 3.0, -mvPosition.z) * (0.4 + 0.6 * uProgress) * (0.8 + uEnergy * 0.4);
+
+          gl_PointSize = size * uScale * pulse * (220.0 / -mvPosition.z);
           gl_Position = projectionMatrix * mvPosition;
         }
       `,
       fragmentShader: `
         varying vec3 vColor;
         varying float vAlpha;
+        varying float vEnergy;
+        varying float vDist;
+        uniform float uTime;
 
         void main() {
-          // Soft circular particle
           vec2 center = gl_PointCoord - 0.5;
           float dist = length(center);
-          float alpha = smoothstep(0.5, 0.2, dist) * vAlpha;
 
-          // Glow effect
-          vec3 glow = vColor * (1.0 + smoothstep(0.3, 0.0, dist) * 0.5);
+          // Soft circular particle with ring effect
+          float alpha = smoothstep(0.5, 0.15, dist) * vAlpha;
 
-          gl_FragColor = vec4(glow, alpha);
+          // Inner glow ring for high energy
+          float ring = smoothstep(0.35, 0.25, dist) * smoothstep(0.15, 0.25, dist);
+          ring *= vEnergy * 0.5;
+
+          // Core brightness
+          float core = smoothstep(0.2, 0.0, dist);
+
+          // Color with energy-driven brightness
+          vec3 glow = vColor * (1.0 + core * 0.8 + ring);
+
+          // Add subtle color shift based on distance from center
+          float hueShift = sin(vDist * 2.0 + uTime * 0.5) * 0.1;
+          glow.r += hueShift * vEnergy;
+          glow.b -= hueShift * vEnergy * 0.5;
+
+          // Final color with additive core
+          vec3 finalColor = glow + vec3(1.0, 0.9, 0.7) * core * vEnergy * 0.3;
+
+          gl_FragColor = vec4(finalColor, alpha);
         }
       `,
       transparent: true,
@@ -1234,11 +1402,13 @@ class SwarmScene extends SceneBase {
 
     attr.needsUpdate = true;
 
-    // Update shader uniforms
+    // Update shader uniforms with enhanced energy tracking
     const mat = this.points.material as THREE.ShaderMaterial;
     mat.uniforms.uTime.value = t;
     mat.uniforms.uProgress.value = ctx.localProgress;
     mat.uniforms.uScale.value = 1 + ctx.localProgress * 0.5 + impulse * 0.3;
+    mat.uniforms.uGyro.value.set(gyro.x, gyro.y);
+    mat.uniforms.uEnergy.value = clamp(impulse + ctx.localProgress * 0.5, 0, 1);
 
     // Camera with gyro parallax
     const cam = this.camera as THREE.PerspectiveCamera;
@@ -2144,6 +2314,7 @@ class InkScene extends SceneBase {
   }
 
   resize(ctx: SceneRuntime): void {
+    super.resize(ctx);
     this.material.uniforms.uResolution.value.set(
       ctx.size.width,
       ctx.size.height
@@ -2494,14 +2665,18 @@ class NeuralNetworkScene extends SceneBase {
       }
     }
 
-    // Create instanced nodes (neurons)
-    const nodeGeo = new THREE.SphereGeometry(0.12, 12, 8);
-    const nodeMat = new THREE.MeshStandardMaterial({
+    // Create instanced nodes (neurons) with enhanced materials
+    const nodeGeo = new THREE.SphereGeometry(0.14, 16, 12);
+    const nodeMat = new THREE.MeshPhysicalMaterial({
       color: 0x66aaff,
       emissive: 0x3366aa,
-      emissiveIntensity: 0.5,
-      metalness: 0.3,
-      roughness: 0.5,
+      emissiveIntensity: 0.6,
+      metalness: 0.4,
+      roughness: 0.3,
+      clearcoat: 0.8,
+      clearcoatRoughness: 0.2,
+      iridescence: 0.5,
+      iridescenceIOR: 1.3,
     });
     this.nodes = new THREE.InstancedMesh(nodeGeo, nodeMat, this.nodeCount);
     this.scene.add(this.nodes);
@@ -2597,11 +2772,57 @@ class NeuralNetworkScene extends SceneBase {
       'position',
       new THREE.BufferAttribute(this.pulsePositions, 3)
     );
-    const pulseMat = new THREE.PointsMaterial({
-      color: 0xffdd88,
-      size: 0.08,
+
+    // Enhanced pulse material with custom shader for energy glow
+    const pulseMat = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uEnergy: { value: 0 },
+        uColor1: { value: new THREE.Color(0xffdd88) },
+        uColor2: { value: new THREE.Color(0x88ffff) },
+      },
+      vertexShader: `
+        uniform float uTime;
+        uniform float uEnergy;
+        varying float vPulse;
+
+        void main() {
+          vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+
+          // Pulse effect based on position
+          float pulse = 1.0 + 0.3 * sin(uTime * 4.0 + position.x * 2.0 + position.z * 2.0);
+          vPulse = pulse * (0.8 + uEnergy * 0.4);
+
+          gl_PointSize = (10.0 + uEnergy * 6.0) * pulse * (250.0 / -mvPosition.z);
+          gl_Position = projectionMatrix * mvPosition;
+        }
+      `,
+      fragmentShader: `
+        uniform float uTime;
+        uniform vec3 uColor1;
+        uniform vec3 uColor2;
+        varying float vPulse;
+
+        void main() {
+          vec2 center = gl_PointCoord - 0.5;
+          float dist = length(center);
+
+          // Soft glow with core
+          float alpha = smoothstep(0.5, 0.1, dist);
+          float core = smoothstep(0.2, 0.0, dist);
+
+          // Blend colors based on pulse
+          vec3 color = mix(uColor1, uColor2, sin(uTime * 2.0 + vPulse) * 0.5 + 0.5);
+          color += vec3(1.0, 0.95, 0.9) * core * 0.8;
+
+          // Outer glow ring
+          float ring = smoothstep(0.45, 0.35, dist) * smoothstep(0.25, 0.35, dist);
+          color += uColor2 * ring * 0.5;
+
+          gl_FragColor = vec4(color * vPulse, alpha * 0.95);
+        }
+      `,
       transparent: true,
-      opacity: 0.9,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     });
@@ -2688,6 +2909,11 @@ class NeuralNetworkScene extends SceneBase {
       );
     }
     pulseAttr.needsUpdate = true;
+
+    // Update pulse shader uniforms
+    const pulseMat = this.pulses.material as THREE.ShaderMaterial;
+    pulseMat.uniforms.uTime.value = t;
+    pulseMat.uniforms.uEnergy.value = impulse + progress * 0.5;
 
     // Rotate the entire network
     this.nodes.rotation.y = t * 0.08 + ctx.pointer.x * 0.3;
@@ -2968,11 +3194,61 @@ class BioluminescentScene extends SceneBase {
       'position',
       new THREE.BufferAttribute(this.planktonPositions, 3)
     );
-    const planktonMat = new THREE.PointsMaterial({
-      color: 0x88ffcc,
-      size: 0.03,
+
+    // Enhanced plankton with bioluminescent shader
+    const planktonMat = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uProgress: { value: 0 },
+      },
+      vertexShader: `
+        uniform float uTime;
+        uniform float uProgress;
+        varying float vGlow;
+        varying float vDepth;
+
+        void main() {
+          vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+          vDepth = -mvPosition.z;
+
+          // Organic pulsing glow
+          float pulse = sin(uTime * 2.0 + position.x * 0.5 + position.y * 0.3) * 0.5 + 0.5;
+          float flicker = sin(uTime * 8.0 + position.z * 2.0) * 0.3 + 0.7;
+          vGlow = pulse * flicker * (0.6 + uProgress * 0.6);
+
+          // Size varies with glow
+          float size = 3.0 + vGlow * 4.0;
+
+          gl_PointSize = size * (180.0 / vDepth);
+          gl_Position = projectionMatrix * mvPosition;
+        }
+      `,
+      fragmentShader: `
+        uniform float uTime;
+        varying float vGlow;
+        varying float vDepth;
+
+        void main() {
+          vec2 center = gl_PointCoord - 0.5;
+          float dist = length(center);
+
+          // Soft circular glow
+          float alpha = smoothstep(0.5, 0.0, dist) * vGlow;
+
+          // Color varies between cyan and green with depth
+          float colorMix = sin(uTime * 0.5 + vDepth * 0.1) * 0.5 + 0.5;
+          vec3 cyan = vec3(0.4, 0.9, 1.0);
+          vec3 green = vec3(0.5, 1.0, 0.6);
+          vec3 color = mix(cyan, green, colorMix);
+
+          // Core brightness
+          float core = smoothstep(0.15, 0.0, dist);
+          color += vec3(0.3, 0.2, 0.1) * core;
+
+          gl_FragColor = vec4(color * (0.8 + vGlow * 0.4), alpha * 0.85);
+        }
+      `,
       transparent: true,
-      opacity: 0.6,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     });
@@ -3186,9 +3462,10 @@ class BioluminescentScene extends SceneBase {
     }
     planktonAttr.needsUpdate = true;
 
-    // Plankton material
-    const planktonMat = this.plankton.material as THREE.PointsMaterial;
-    planktonMat.opacity = 0.4 + progress * 0.4 + impulse * 0.2;
+    // Update plankton shader uniforms
+    const planktonMat = this.plankton.material as THREE.ShaderMaterial;
+    planktonMat.uniforms.uTime.value = t;
+    planktonMat.uniforms.uProgress.value = progress;
 
     // Caustic animation
     const causticMat = this.causticPlane.material as THREE.ShaderMaterial;
@@ -3301,11 +3578,55 @@ class HolographicCityScene extends SceneBase {
       'position',
       new THREE.BufferAttribute(this.streamPositions, 3)
     );
-    const streamMat = new THREE.PointsMaterial({
-      color: 0xff6600,
-      size: 0.06,
+
+    // Enhanced data stream shader with trails
+    const streamMat = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uProgress: { value: 0 },
+      },
+      vertexShader: `
+        uniform float uTime;
+        uniform float uProgress;
+        varying float vGlow;
+        varying float vColorPhase;
+
+        void main() {
+          vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+
+          // Pulse based on height
+          float heightPulse = sin(uTime * 3.0 + position.y * 2.0) * 0.5 + 0.5;
+          vGlow = heightPulse * (0.7 + uProgress * 0.5);
+          vColorPhase = position.y * 0.1 + uTime * 0.5;
+
+          float size = 5.0 + vGlow * 4.0;
+          gl_PointSize = size * (200.0 / -mvPosition.z);
+          gl_Position = projectionMatrix * mvPosition;
+        }
+      `,
+      fragmentShader: `
+        uniform float uTime;
+        varying float vGlow;
+        varying float vColorPhase;
+
+        void main() {
+          vec2 center = gl_PointCoord - 0.5;
+          float dist = length(center);
+          float alpha = smoothstep(0.5, 0.1, dist) * vGlow;
+
+          // Color cycles between orange and cyan
+          vec3 orange = vec3(1.0, 0.4, 0.0);
+          vec3 cyan = vec3(0.0, 0.8, 1.0);
+          vec3 color = mix(orange, cyan, sin(vColorPhase) * 0.5 + 0.5);
+
+          // Core brightness
+          float core = smoothstep(0.15, 0.0, dist);
+          color += vec3(1.0, 0.9, 0.8) * core * 0.5;
+
+          gl_FragColor = vec4(color, alpha * 0.9);
+        }
+      `,
       transparent: true,
-      opacity: 0.8,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     });
@@ -3327,11 +3648,50 @@ class HolographicCityScene extends SceneBase {
       'position',
       new THREE.BufferAttribute(this.codePositions, 3)
     );
-    const codeMat = new THREE.PointsMaterial({
-      color: 0x00ff88,
-      size: 0.04,
+
+    // Matrix-style code rain shader
+    const codeMat = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uProgress: { value: 0 },
+      },
+      vertexShader: `
+        uniform float uTime;
+        uniform float uProgress;
+        varying float vBrightness;
+        varying float vFade;
+
+        void main() {
+          vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+
+          // Brightness based on fall position (brighter at top of trail)
+          float yPhase = fract(position.y * 0.1 - uTime * 0.5);
+          vBrightness = pow(yPhase, 0.5) * (0.6 + uProgress * 0.6);
+          vFade = 1.0 - yPhase * 0.7;
+
+          float size = 3.0 + vBrightness * 3.0;
+          gl_PointSize = size * (180.0 / -mvPosition.z);
+          gl_Position = projectionMatrix * mvPosition;
+        }
+      `,
+      fragmentShader: `
+        varying float vBrightness;
+        varying float vFade;
+
+        void main() {
+          vec2 center = gl_PointCoord - 0.5;
+          float dist = length(center);
+          float alpha = smoothstep(0.5, 0.1, dist) * vBrightness * vFade;
+
+          // Green matrix color with white core
+          vec3 green = vec3(0.0, 1.0, 0.5);
+          float core = smoothstep(0.2, 0.0, dist);
+          vec3 color = green + vec3(0.3, 0.2, 0.3) * core;
+
+          gl_FragColor = vec4(color, alpha * 0.75);
+        }
+      `,
       transparent: true,
-      opacity: 0.6,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     });
@@ -3428,6 +3788,11 @@ class HolographicCityScene extends SceneBase {
     }
     streamAttr.needsUpdate = true;
 
+    // Update data stream shader uniforms
+    const streamMat = this.dataStreams.material as THREE.ShaderMaterial;
+    streamMat.uniforms.uTime.value = t;
+    streamMat.uniforms.uProgress.value = progress;
+
     // Animate code rain (falling)
     const codeAttr = this.codeRain.geometry.getAttribute(
       'position'
@@ -3441,6 +3806,11 @@ class HolographicCityScene extends SceneBase {
       }
     }
     codeAttr.needsUpdate = true;
+
+    // Update code rain shader uniforms
+    const codeMat = this.codeRain.material as THREE.ShaderMaterial;
+    codeMat.uniforms.uTime.value = t;
+    codeMat.uniforms.uProgress.value = progress;
 
     // Building wireframe pulse
     this.buildings.children.forEach((building, i) => {
@@ -3624,11 +3994,68 @@ class RealityCollapseScene extends SceneBase {
       'position',
       new THREE.BufferAttribute(ringPositions, 3)
     );
-    const ringMat = new THREE.PointsMaterial({
-      color: 0xffffff,
-      size: 0.03,
+
+    // Enhanced particle ring with energy shader
+    const ringMat = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uProgress: { value: 0 },
+        uEnergy: { value: 0 },
+      },
+      vertexShader: `
+        uniform float uTime;
+        uniform float uProgress;
+        uniform float uEnergy;
+        varying float vAngle;
+        varying float vEnergy;
+
+        void main() {
+          vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+
+          // Calculate angle for color variation
+          vAngle = atan(position.z, position.x);
+          vEnergy = uEnergy;
+
+          // Pulsing size with energy
+          float pulse = 1.0 + 0.3 * sin(uTime * 4.0 + vAngle * 3.0);
+          float size = 4.0 + uProgress * 3.0 + uEnergy * 4.0;
+
+          gl_PointSize = size * pulse * (200.0 / -mvPosition.z);
+          gl_Position = projectionMatrix * mvPosition;
+        }
+      `,
+      fragmentShader: `
+        uniform float uTime;
+        uniform float uProgress;
+        varying float vAngle;
+        varying float vEnergy;
+
+        void main() {
+          vec2 center = gl_PointCoord - 0.5;
+          float dist = length(center);
+          float alpha = smoothstep(0.5, 0.1, dist);
+
+          // Rainbow effect based on angle and time
+          float hue = fract(vAngle / 6.28318 + uTime * 0.1);
+          vec3 color;
+          if (hue < 0.166) color = mix(vec3(1,0,0), vec3(1,1,0), hue * 6.0);
+          else if (hue < 0.333) color = mix(vec3(1,1,0), vec3(0,1,0), (hue-0.166) * 6.0);
+          else if (hue < 0.5) color = mix(vec3(0,1,0), vec3(0,1,1), (hue-0.333) * 6.0);
+          else if (hue < 0.666) color = mix(vec3(0,1,1), vec3(0,0,1), (hue-0.5) * 6.0);
+          else if (hue < 0.833) color = mix(vec3(0,0,1), vec3(1,0,1), (hue-0.666) * 6.0);
+          else color = mix(vec3(1,0,1), vec3(1,0,0), (hue-0.833) * 6.0);
+
+          // White core
+          float core = smoothstep(0.15, 0.0, dist);
+          color = mix(color, vec3(1.0), core * 0.7);
+
+          // Intensity based on energy
+          float intensity = 0.7 + vEnergy * 0.5;
+
+          gl_FragColor = vec4(color * intensity, alpha * (0.6 + uProgress * 0.4));
+        }
+      `,
       transparent: true,
-      opacity: 0.6,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     });
@@ -3757,9 +4184,12 @@ class RealityCollapseScene extends SceneBase {
       damp(this.particleRing.scale.x, Math.max(0.01, ringScale), 3, ctx.dt)
     );
 
-    const ringMat = this.particleRing.material as THREE.PointsMaterial;
-    ringMat.opacity =
-      stage < 5 ? 0.4 + progress * 0.4 : 0.8 - stageProgress * 0.8;
+    // Update particle ring shader
+    const ringMat = this.particleRing.material as THREE.ShaderMaterial;
+    ringMat.uniforms.uTime.value = t;
+    ringMat.uniforms.uProgress.value = progress;
+    ringMat.uniforms.uEnergy.value =
+      impulse + (stage === 4 ? stageProgress : 0);
 
     // Camera
     const cam = this.camera as THREE.PerspectiveCamera;

@@ -184,6 +184,9 @@ const scenes = [
       position: fixed;
       inset: 0;
       background: #040712;
+      /* Support safe areas for notched phones */
+      padding: env(safe-area-inset-top) env(safe-area-inset-right)
+        env(safe-area-inset-bottom) env(safe-area-inset-left);
     }
 
     /* Main 3D Container */
@@ -310,7 +313,7 @@ const scenes = [
 
     @media (max-width: 768px) {
       .gallery3d__dots {
-        bottom: 20px;
+        bottom: calc(20px + env(safe-area-inset-bottom));
         gap: 6px;
         padding: 8px 12px;
         max-width: calc(100vw - 40px);
