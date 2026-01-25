@@ -4969,23 +4969,525 @@ class RealityCollapseScene extends SceneBase {
   }
 }
 
-export const createScenes = (): TowerScene[] => [
-  new CoreScene(),
-  new RaymarchScene('scene01', 0),
-  new SwarmScene(),
-  new KineticTypeScene(),
-  new AuroraNebulaScene(),
-  new EventHorizonScene(),
-  new BlueprintScene(),
-  new InkScene(),
-  new ClothScene(),
-  new PointCloudScene(),
-  new FractalScene(),
-  new NeuralNetworkScene(),
-  new LibraryScene(),
-  new BioluminescentScene(),
-  new HolographicCityScene(),
-  new RealityCollapseScene(),
-];
+// =============================================================================
+// REMIX SHOWCASE SCENES (Higher-detail, feature-combined chapters)
+// =============================================================================
+type RemixPalette = {
+  a: THREE.Color;
+  b: THREE.Color;
+  c: THREE.Color;
+};
+
+const mulberry32 = (seed: number) => {
+  let t = seed >>> 0;
+  return () => {
+    t += 0x6d2b79f5;
+    let x = Math.imul(t ^ (t >>> 15), 1 | t);
+    x ^= x + Math.imul(x ^ (x >>> 7), 61 | x);
+    return ((x ^ (x >>> 14)) >>> 0) / 4294967296;
+  };
+};
+
+const paletteForMode = (mode: number): RemixPalette => {
+  const palettes: Array<[number, number, number]> = [
+    [0x22d3ee, 0x6366f1, 0xff3d81],
+    [0xff3d81, 0xffa340, 0x22d3ee],
+    [0xa6ff3d, 0x22d3ee, 0x7c3aed],
+    [0xffa340, 0x00e5ff, 0xff1bb7],
+    [0x7affd6, 0x3dffff, 0x1d4ed8],
+    [0xff8844, 0x66ccff, 0xf472b6],
+    [0x8b5cf6, 0x22d3ee, 0xf59e0b],
+    [0x60a5fa, 0x34d399, 0xf472b6],
+  ];
+  const p = palettes[mode % palettes.length];
+  return {
+    a: new THREE.Color(p[0]),
+    b: new THREE.Color(p[1]),
+    c: new THREE.Color(p[2]),
+  };
+};
+
+class RemixShowcaseScene extends SceneBase {
+  protected baseCameraZ = 12;
+
+  private mode: number;
+  private seed: number;
+  private rnd: () => number;
+  private palette: RemixPalette;
+
+  private group = new THREE.Group();
+  private burst = 0;
+  private hyper = 0;
+
+  private backdrop: THREE.Mesh;
+  private backdropMat: THREE.ShaderMaterial;
+
+  private structures: THREE.InstancedMesh;
+  private structureCount: number;
+  private activeStructureCount: number;
+  private structureBase: Array<{
+    x: number;
+    z: number;
+    h: number;
+    w: number;
+    d: number;
+    r: number;
+  }> = [];
+  private dummy = new THREE.Object3D();
+
+  private particles: THREE.Points;
+  private particleCount: number;
+  private activeParticleCount: number;
+  private particlePos: Float32Array;
+  private particleVel: Float32Array;
+
+  private core: THREE.Mesh;
+  private coreMat: THREE.ShaderMaterial;
+  private halo: THREE.Mesh;
+
+  constructor(id: string, mode: number, seed: number) {
+    super(id);
+    this.mode = mode;
+    this.seed = seed;
+    this.rnd = mulberry32(seed);
+    this.palette = paletteForMode(mode);
+
+    // Camera framing varies a bit by mode
+    this.baseCameraZ = 11 + (mode % 4) * 1.2;
+    (this.camera as THREE.PerspectiveCamera).position.set(
+      0,
+      1.0,
+      this.baseCameraZ
+    );
+
+    this.scene.background = new THREE.Color(0x040712);
+    this.scene.fog = new THREE.FogExp2(0x050815, 0.04);
+    this.scene.add(this.group);
+
+    // Lighting (mix of studio + neon)
+    const ambient = new THREE.AmbientLight(0x0b1224, 0.55);
+    const key = new THREE.DirectionalLight(0xffffff, 1.25);
+    key.position.set(7, 10, 6);
+    const rim = new THREE.PointLight(this.palette.a, 1.4, 42, 2);
+    rim.position.set(-10, 2, -10);
+    const fill = new THREE.PointLight(this.palette.b, 1.2, 42, 2);
+    fill.position.set(10, 3, -14);
+    this.scene.add(ambient, key, rim, fill);
+
+    // Shader backdrop (procedural nebula + scan energy)
+    this.backdropMat = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uBurst: { value: 0 },
+        uHyper: { value: 0 },
+        uMode: { value: mode },
+        uSeed: { value: seed % 997 },
+        uA: { value: this.palette.a.clone() },
+        uB: { value: this.palette.b.clone() },
+        uC: { value: this.palette.c.clone() },
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        precision highp float;
+        varying vec2 vUv;
+        uniform float uTime;
+        uniform float uBurst;
+        uniform float uHyper;
+        uniform float uMode;
+        uniform float uSeed;
+        uniform vec3 uA;
+        uniform vec3 uB;
+        uniform vec3 uC;
+
+        float hash(vec2 p) {
+          return fract(sin(dot(p, vec2(127.1, 311.7)) + uSeed) * 43758.5453);
+        }
+
+        float noise(vec2 p) {
+          vec2 i = floor(p);
+          vec2 f = fract(p);
+          float a = hash(i);
+          float b = hash(i + vec2(1.0, 0.0));
+          float c = hash(i + vec2(0.0, 1.0));
+          float d = hash(i + vec2(1.0, 1.0));
+          vec2 u = f * f * (3.0 - 2.0 * f);
+          return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+        }
+
+        float fbm(vec2 p) {
+          float v = 0.0;
+          float a = 0.55;
+          mat2 m = mat2(1.6, 1.2, -1.2, 1.6);
+          for (int i = 0; i < 5; i++) {
+            v += a * noise(p);
+            p = m * p;
+            a *= 0.55;
+          }
+          return v;
+        }
+
+        void main() {
+          vec2 uv = vUv;
+          vec2 p = (uv - 0.5);
+          p.x *= 1.2;
+
+          float t = uTime * (0.08 + 0.12 * uHyper);
+          float n = fbm(p * 3.2 + vec2(t, -t));
+          float n2 = fbm(p * 6.8 + vec2(-t * 1.3, t * 0.9));
+
+          float vign = smoothstep(0.95, 0.25, length(p));
+          float scan = sin((uv.y + t * 0.6) * 120.0) * 0.5 + 0.5;
+
+          vec3 col = mix(uA, uB, n);
+          col = mix(col, uC, n2 * 0.7);
+
+          // Mode shifts the spectral balance
+          float m = fract(uMode * 0.173);
+          col = mix(col, col.bgr, 0.15 + 0.35 * m);
+
+          float burst = clamp(uBurst, 0.0, 1.0);
+          float energy = (0.12 + 0.38 * scan) * (0.35 + 0.65 * vign);
+          energy *= 0.9 + burst * 1.2;
+          energy *= 0.85 + uHyper * 0.55;
+
+          // Soft radial pulse on interaction
+          float pulse = exp(-abs(length(p) - (0.22 + fract(uTime * 0.18) * 0.65)) * 22.0);
+          col += uB * pulse * burst * 0.65;
+
+          gl_FragColor = vec4(col * energy, 0.85);
+        }
+      `,
+      transparent: true,
+      depthWrite: false,
+      depthTest: true,
+      blending: THREE.AdditiveBlending,
+    });
+
+    this.backdrop = new THREE.Mesh(
+      new THREE.PlaneGeometry(70, 40),
+      this.backdropMat
+    );
+    this.backdrop.renderOrder = -10;
+    this.backdrop.position.set(0, 5, -40);
+    this.group.add(this.backdrop);
+
+    // Structures (instanced monoliths / city shards / pillars)
+    this.structureCount = 140;
+    this.activeStructureCount = this.structureCount;
+    const structGeo = new THREE.BoxGeometry(1, 1, 1);
+    const structMat = new THREE.MeshStandardMaterial({
+      color: 0x071023,
+      roughness: 0.5,
+      metalness: 0.35,
+      emissive: new THREE.Color(0x061a2e),
+      emissiveIntensity: 0.45,
+    });
+    this.structures = new THREE.InstancedMesh(
+      structGeo,
+      structMat,
+      this.structureCount
+    );
+    this.structures.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    this.group.add(this.structures);
+
+    // Deterministic layout so each chapter feels intentional
+    const spread = 18;
+    for (let i = 0; i < this.structureCount; i++) {
+      const ang = this.rnd() * Math.PI * 2;
+      const rad = 3.5 + Math.pow(this.rnd(), 0.7) * spread;
+      const x = Math.cos(ang) * rad + (this.rnd() - 0.5) * 1.25;
+      const z = -10 + Math.sin(ang) * rad + (this.rnd() - 0.5) * 1.25;
+      const downtown = Math.max(
+        0,
+        1 - Math.hypot(x * 0.6, (z + 10) * 0.5) / 12
+      );
+      const h = 1.4 + this.rnd() * 7.5 + downtown * 9.5;
+      const w = 0.55 + this.rnd() * 1.6;
+      const d = 0.55 + this.rnd() * 1.6;
+      const r = (this.rnd() - 0.5) * 0.5;
+      this.structureBase.push({ x, z, h, w, d, r });
+    }
+
+    // Particles (glowing dust + data packets)
+    this.particleCount = 2200;
+    this.activeParticleCount = this.particleCount;
+    this.particlePos = new Float32Array(this.particleCount * 3);
+    this.particleVel = new Float32Array(this.particleCount * 3);
+    for (let i = 0; i < this.particleCount; i++) {
+      const idx = i * 3;
+      const rx = (this.rnd() - 0.5) * 28;
+      const ry = (this.rnd() - 0.2) * 18;
+      const rz = -10 + (this.rnd() - 0.5) * 28;
+      this.particlePos[idx] = rx;
+      this.particlePos[idx + 1] = ry;
+      this.particlePos[idx + 2] = rz;
+
+      const vx = (this.rnd() - 0.5) * 0.22;
+      const vy = 0.05 + this.rnd() * 0.25;
+      const vz = (this.rnd() - 0.5) * 0.22;
+      this.particleVel[idx] = vx;
+      this.particleVel[idx + 1] = vy;
+      this.particleVel[idx + 2] = vz;
+    }
+
+    const pGeo = new THREE.BufferGeometry();
+    pGeo.setAttribute(
+      'position',
+      new THREE.BufferAttribute(this.particlePos, 3)
+    );
+    pGeo.setDrawRange(0, this.particleCount);
+    const pMat = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uBurst: { value: 0 },
+        uHyper: { value: 0 },
+        uA: { value: this.palette.a.clone() },
+        uB: { value: this.palette.b.clone() },
+      },
+      vertexShader: `
+        uniform float uTime;
+        uniform float uBurst;
+        uniform float uHyper;
+        varying float vGlow;
+        void main() {
+          vec4 mv = modelViewMatrix * vec4(position, 1.0);
+          float z = max(0.0001, -mv.z);
+          float flick = sin(uTime * 2.4 + position.x * 0.7 + position.z * 0.6) * 0.5 + 0.5;
+          vGlow = (0.35 + flick * 0.65) * (1.0 + uBurst * 1.1 + uHyper * 0.6);
+          gl_PointSize = (1.6 + vGlow * 2.6) * (240.0 / z);
+          gl_Position = projectionMatrix * mv;
+        }
+      `,
+      fragmentShader: `
+        uniform vec3 uA;
+        uniform vec3 uB;
+        varying float vGlow;
+        void main() {
+          vec2 c = gl_PointCoord - 0.5;
+          float d = length(c);
+          float core = smoothstep(0.45, 0.0, d);
+          float halo = smoothstep(0.5, 0.12, d);
+          vec3 col = mix(uA, uB, core);
+          gl_FragColor = vec4(col, (core * 0.9 + halo * 0.25) * vGlow * 0.75);
+        }
+      `,
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    this.particles = new THREE.Points(pGeo, pMat);
+    this.group.add(this.particles);
+
+    // Core object (shader-lit energy artifact)
+    const coreGeo =
+      mode % 3 === 0
+        ? new THREE.TorusKnotGeometry(1.0, 0.32, 170, 16)
+        : mode % 3 === 1
+          ? new THREE.IcosahedronGeometry(1.1, 2)
+          : new THREE.OctahedronGeometry(1.15, 2);
+
+    this.coreMat = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uBurst: { value: 0 },
+        uHyper: { value: 0 },
+        uA: { value: this.palette.a.clone() },
+        uB: { value: this.palette.b.clone() },
+        uC: { value: this.palette.c.clone() },
+      },
+      vertexShader: `
+        uniform float uTime;
+        uniform float uBurst;
+        uniform float uHyper;
+        varying vec3 vN;
+        varying vec3 vP;
+        void main() {
+          vN = normalize(normalMatrix * normal);
+          vec3 p = position;
+          float wob = sin(uTime * 1.2 + p.y * 2.0) * 0.03;
+          p += vN * wob * (0.6 + uHyper * 0.8 + uBurst * 1.0);
+          vP = p;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
+        }
+      `,
+      fragmentShader: `
+        precision highp float;
+        uniform float uTime;
+        uniform float uBurst;
+        uniform float uHyper;
+        uniform vec3 uA;
+        uniform vec3 uB;
+        uniform vec3 uC;
+        varying vec3 vN;
+        varying vec3 vP;
+
+        float fresnel(vec3 n, vec3 v) {
+          return pow(1.0 - max(dot(n, v), 0.0), 3.0);
+        }
+
+        void main() {
+          vec3 n = normalize(vN);
+          vec3 v = normalize(vec3(0.0, 0.0, 1.0));
+          float f = fresnel(n, v);
+          float bands = sin((vP.y * 6.0 + uTime * (2.2 + uHyper * 1.2)) + vP.x * 2.0) * 0.5 + 0.5;
+          float burst = clamp(uBurst, 0.0, 1.0);
+          vec3 base = mix(uA, uB, bands);
+          base = mix(base, uC, f);
+          float glow = (0.25 + 0.85 * f) * (0.75 + 0.5 * bands);
+          glow *= 1.0 + burst * 1.2 + uHyper * 0.8;
+          gl_FragColor = vec4(base * glow, 1.0);
+        }
+      `,
+      transparent: false,
+    });
+
+    this.core = new THREE.Mesh(coreGeo, this.coreMat);
+    this.core.position.set(0, 1.2, -8);
+    this.group.add(this.core);
+
+    const haloGeo = new THREE.TorusGeometry(2.0, 0.06, 8, 96);
+    const haloMat = new THREE.MeshBasicMaterial({
+      color: this.palette.b,
+      transparent: true,
+      opacity: 0.7,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    this.halo = new THREE.Mesh(haloGeo, haloMat);
+    this.halo.position.copy(this.core.position);
+    this.halo.rotation.x = Math.PI / 2;
+    this.group.add(this.halo);
+  }
+
+  init(ctx: SceneRuntime): void {
+    // Mobile/perf caps: reduce draw counts while keeping the same look.
+    const low = ctx.caps.coarsePointer;
+    this.activeStructureCount = low ? 96 : this.structureCount;
+    this.activeParticleCount = low ? 1200 : this.particleCount;
+
+    this.structures.count = this.activeStructureCount;
+    this.particles.geometry.setDrawRange(0, this.activeParticleCount);
+  }
+
+  update(ctx: SceneRuntime): void {
+    const t = ctx.time;
+    this.burst = Math.max(ctx.tap, damp(this.burst, 0, 3.6, ctx.dt));
+    this.hyper = damp(this.hyper, ctx.press, 5, ctx.dt);
+
+    // Backdrop
+    this.backdropMat.uniforms.uTime.value = t;
+    this.backdropMat.uniforms.uBurst.value = this.burst;
+    this.backdropMat.uniforms.uHyper.value = this.hyper;
+
+    // Structures (pulse + slight lean into motion)
+    const impulse = clamp(
+      ctx.pointerVelocity.length() * 0.25 +
+        Math.abs(ctx.scrollVelocity) * 0.2 +
+        this.burst * 0.9,
+      0,
+      1
+    );
+
+    for (let i = 0; i < this.activeStructureCount; i++) {
+      const b = this.structureBase[i];
+      const wob = Math.sin(t * (0.9 + i * 0.003) + b.x * 0.2 + b.z * 0.18);
+      const lift = (0.15 + 0.85 * impulse) * wob;
+      const h = b.h * (0.92 + 0.16 * wob + this.hyper * 0.22);
+
+      this.dummy.position.set(
+        b.x + ctx.pointer.x * 1.2,
+        -2.6 + h * 0.5 + lift,
+        b.z
+      );
+      this.dummy.rotation.set(0, b.r + ctx.pointer.x * 0.08, 0);
+      this.dummy.scale.set(b.w, h, b.d);
+      this.dummy.updateMatrix();
+      this.structures.setMatrixAt(i, this.dummy.matrix);
+    }
+    this.structures.instanceMatrix.needsUpdate = true;
+
+    // Particles (rising + gentle curl)
+    const posAttr = this.particles.geometry.getAttribute(
+      'position'
+    ) as THREE.BufferAttribute;
+    for (let i = 0; i < this.activeParticleCount; i++) {
+      const idx = i * 3;
+      const x = this.particlePos[idx];
+      const y = this.particlePos[idx + 1];
+      const z = this.particlePos[idx + 2];
+
+      const curl = Math.sin(t * 0.6 + z * 0.08) * 0.12;
+      this.particlePos[idx] =
+        x + (this.particleVel[idx] + curl) * ctx.dt * (1 + this.hyper * 2.2);
+      this.particlePos[idx + 1] =
+        y +
+        this.particleVel[idx + 1] *
+          ctx.dt *
+          (1 + this.hyper * 1.6 + this.burst * 1.2);
+      this.particlePos[idx + 2] =
+        z +
+        (this.particleVel[idx + 2] - curl) * ctx.dt * (1 + this.hyper * 2.2);
+
+      // Wrap volume
+      if (this.particlePos[idx + 1] > 16) this.particlePos[idx + 1] = -6;
+      if (this.particlePos[idx] > 16) this.particlePos[idx] = -16;
+      if (this.particlePos[idx] < -16) this.particlePos[idx] = 16;
+      if (this.particlePos[idx + 2] > 6) this.particlePos[idx + 2] = -26;
+      if (this.particlePos[idx + 2] < -28) this.particlePos[idx + 2] = 8;
+    }
+    posAttr.needsUpdate = true;
+    const pMat = this.particles.material as THREE.ShaderMaterial;
+    pMat.uniforms.uTime.value = t;
+    pMat.uniforms.uBurst.value = this.burst;
+    pMat.uniforms.uHyper.value = this.hyper;
+
+    // Core + halo
+    this.core.rotation.x += ctx.dt * (0.25 + this.hyper * 0.65);
+    this.core.rotation.y += ctx.dt * (0.35 + this.hyper * 0.85);
+    this.coreMat.uniforms.uTime.value = t;
+    this.coreMat.uniforms.uBurst.value = this.burst;
+    this.coreMat.uniforms.uHyper.value = this.hyper;
+
+    this.halo.rotation.z = t * (0.25 + this.hyper * 0.5);
+    this.halo.scale.setScalar(1 + this.burst * 0.25 + this.hyper * 0.15);
+    (this.halo.material as THREE.MeshBasicMaterial).opacity =
+      0.55 + this.burst * 0.35;
+
+    // Camera: cinematic orbit around the core + responsive framing
+    const cam = this.camera as THREE.PerspectiveCamera;
+    const orbitX = ctx.pointer.x * (3.8 + this.hyper * 2.2);
+    const orbitY = 1.1 + ctx.pointer.y * (1.6 + this.hyper * 0.9);
+    const push =
+      (this.baseCameraZ - 2.2 * this.hyper - 0.9 * this.burst) *
+      this.aspectMult;
+    cam.position.x = damp(cam.position.x, orbitX, 2.8, ctx.dt);
+    cam.position.y = damp(cam.position.y, orbitY, 2.8, ctx.dt);
+    cam.position.z = damp(cam.position.z, push, 2.8, ctx.dt);
+    cam.lookAt(0, 1.2, -8);
+  }
+
+  resize(ctx: SceneRuntime): void {
+    super.resize(ctx);
+    // Keep the backdrop filling the view even on extreme aspect ratios.
+    const aspect = ctx.size.width / Math.max(1, ctx.size.height);
+    this.backdrop.scale.setScalar(1 + Math.max(0, 1.0 - aspect) * 0.35);
+  }
+}
+
+export const createScenes = (): TowerScene[] => {
+  // Replace the previous "basic" chapter set with higher-detail remix scenes.
+  // Each chapter gets a distinct seed + mode so it feels unique while reusing
+  // a shared high-performance feature stack.
+  return Array.from({ length: 16 }, (_, i) => {
+    const id = `scene${String(i).padStart(2, '0')}`;
+    return new RemixShowcaseScene(id, i, 1000 + i * 97);
+  });
+};
 
 export const getSceneMeta = () => sceneMeta;

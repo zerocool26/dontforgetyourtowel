@@ -101,6 +101,7 @@ export class SceneDirector {
         uCut: { value: 0 },
         uTransitionType: { value: 0 },
         uResolution: { value: new THREE.Vector2(1, 1) },
+        uInteract: { value: 0 },
         uVignette: { value: 0.26 },
         uGrain: { value: 0.06 },
         uChromatic: { value: 0.0026 },
@@ -124,6 +125,7 @@ export class SceneDirector {
         uniform float uCut;
         uniform float uTransitionType;
         uniform vec2 uResolution;
+        uniform float uInteract;
         uniform float uVignette;
         uniform float uGrain;
         uniform float uChromatic;
@@ -323,6 +325,11 @@ export class SceneDirector {
           float luma = dot(col, vec3(0.299, 0.587, 0.114));
           col = mix(vec3(luma), col, 1.08);
 
+          // Interaction punch (tap/press): subtle exposure + chroma kick
+          float inter = clamp(uInteract, 0.0, 1.0);
+          col *= 1.0 + inter * 0.07;
+          col += glow * inter * 0.25;
+
           gl_FragColor = vec4(col, 1.0);
         }
       `,
@@ -511,11 +518,20 @@ export class SceneDirector {
   }
 
   private syncSize(force: boolean): void {
-    // Use actual canvas container dimensions, not window size
-    // This properly handles safe-area padding and any CSS constraints
-    const rect = this.canvas.getBoundingClientRect();
-    const w = Math.max(1, Math.round(rect.width));
-    const h = Math.max(1, Math.round(rect.height));
+    // Prefer layout sizes (clientWidth/Height) so CSS transforms (e.g. pinch preview)
+    // don't corrupt the renderer sizing and cause off-center/clipped rendering.
+    const w = Math.max(
+      1,
+      Math.round(
+        this.canvas.clientWidth || this.canvas.getBoundingClientRect().width
+      )
+    );
+    const h = Math.max(
+      1,
+      Math.round(
+        this.canvas.clientHeight || this.canvas.getBoundingClientRect().height
+      )
+    );
     if (!force && w === this.size.width && h === this.size.height) return;
 
     const baseDpr = Math.max(1, this.caps.devicePixelRatio);
@@ -589,12 +605,9 @@ export class SceneDirector {
 
   private resetViewport(): void {
     this.renderer.setScissorTest(false);
-    this.renderer.setViewport(
-      0,
-      0,
-      Math.floor(this.size.width * this.size.dpr),
-      Math.floor(this.size.height * this.size.dpr)
-    );
+    // WebGLRenderer.setViewport expects logical pixels; it applies pixelRatio internally.
+    // Passing physical pixels here can over-scale and crop the output.
+    this.renderer.setViewport(0, 0, this.size.width, this.size.height);
   }
 
   private resolveSceneId(): string {
@@ -674,12 +687,21 @@ export class SceneDirector {
     const runtime = this.buildRuntime(dt, now);
     this.postMaterial.uniforms.uTime.value = now;
 
+    // Post FX interaction pulse
+    this.postMaterial.uniforms.uInteract.value = clamp(
+      this.tap + clamp(this.pressTime * 2.0, 0, 1) * 0.35,
+      0,
+      1
+    );
+
     // Pass gyro influence to post-processing shader for mobile parallax effects
     if (this.gyroActive) {
       this.postMaterial.uniforms.uGyroInfluence.value.set(
         this.gyro.x,
         this.gyro.y
       );
+    } else {
+      this.postMaterial.uniforms.uGyroInfluence.value.set(0, 0);
     }
 
     // Decay the cut mask quickly; keep it super short under reduced motion.

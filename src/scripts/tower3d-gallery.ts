@@ -549,25 +549,14 @@ function getPinchDistance(touches: TouchList): number {
 
 /** Handle pinch zoom preview */
 function handlePinchPreview(scale: number) {
-  const canvas = document.querySelector<HTMLCanvasElement>(
-    '[data-tower3d-canvas]'
-  );
-  if (!canvas) return;
-
-  // Limit scale range
-  const clampedScale = Math.max(0.8, Math.min(1.5, scale));
-  canvas.style.transform = `scale(${clampedScale})`;
-  canvas.style.transition = 'none';
+  // Intentionally disabled: scaling the actual canvas can cause the 3D output
+  // to appear clipped/off-center on some mobile browsers.
+  void scale;
 }
 
 /** Hide pinch preview */
 function hidePinchPreview() {
-  const canvas = document.querySelector<HTMLCanvasElement>(
-    '[data-tower3d-canvas]'
-  );
-  if (!canvas) return;
-  canvas.style.transition = 'transform 0.3s ease-out';
-  canvas.style.transform = 'scale(1)';
+  // Kept for API symmetry; no-op since pinch preview is disabled.
 }
 
 /** Show preview indicator for next/prev scene */
