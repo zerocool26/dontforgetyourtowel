@@ -157,6 +157,10 @@ abstract class SceneBase implements TowerScene {
   abstract init(ctx: SceneRuntime): void;
   abstract update(ctx: SceneRuntime): void;
 
+  render(ctx: SceneRuntime): void {
+    ctx.renderer.render(this.group, this.camera);
+  }
+
   resize(ctx: SceneRuntime): void {
     const aspect = ctx.size.width / ctx.size.height;
     this.camera.aspect = aspect;
@@ -220,6 +224,7 @@ class FeedbackForgeScene extends SceneBase {
 
   constructor() {
     super();
+    this.id = 'feedback-forge';
     this.contentRadius = 5.0; // Keeps the forge visible
 
     // 1. Core Energy Source (Volumetric Shader look via layers)
@@ -451,6 +456,7 @@ class StrangeAttractorScene extends SceneBase {
 
   constructor() {
     super();
+    this.id = 'strange-attractor';
     this.contentRadius = 6.0;
 
     // Aizawa Attractor parameters
@@ -607,6 +613,7 @@ class RibbonFieldScene extends SceneBase {
 
   constructor() {
     super();
+    this.id = 'ribbon-field';
     this.contentRadius = 6.0;
 
     // A single strip geometry
@@ -772,6 +779,7 @@ class GyroidCavernScene extends SceneBase {
 
   constructor() {
     super();
+    this.id = 'gyroid-cavern';
     this.contentRadius = 6;
 
     // A box that acts as the bounds for our raymarcher
@@ -928,6 +936,7 @@ class MagnetosphereScene extends SceneBase {
 
   constructor() {
     super();
+    this.id = 'magnetosphere';
     this.contentRadius = 5.0;
 
     // 1. Magnetic Field Lines (Dipole)
@@ -1073,6 +1082,7 @@ class EventHorizonScene extends SceneBase {
 
   constructor() {
     super();
+    this.id = 'event-horizon';
     this.contentRadius = 4.0;
 
     // Base Shader for Accretion Disk
@@ -1196,6 +1206,7 @@ class KaleidoGlassScene extends SceneBase {
 
   constructor() {
     super();
+    this.id = 'kaleido-glass';
     this.contentRadius = 4.0;
     this.crystal = new THREE.Group();
     this.shards = [];
@@ -1295,6 +1306,7 @@ class TypographicSculptureScene extends SceneBase {
 
   constructor() {
     super();
+    this.id = 'typo-sculpt';
     this.contentRadius = 6.0;
 
     // Generate texture with chars
@@ -1391,6 +1403,7 @@ class OrbitalMechanicsScene extends SceneBase {
 
   constructor() {
     super();
+    this.id = 'orbit-mech';
     this.contentRadius = 8.0;
 
     // Planet
@@ -1469,6 +1482,7 @@ class VoronoiShardsScene extends SceneBase {
 
   constructor() {
     super();
+    this.id = 'voronoi';
     this.contentRadius = 4.0;
 
     // Fake voronoi by scaling polyhedrons packed together
@@ -1549,6 +1563,7 @@ class MoireInterferenceScene extends SceneBase {
 
   constructor() {
     super();
+    this.id = 'moire';
     this.contentRadius = 4.0;
 
     // Wireframe spheres
@@ -1609,6 +1624,7 @@ class NeuralNetworkScene extends SceneBase {
 
   constructor() {
     super();
+    this.id = 'neural';
     this.contentRadius = 5.0;
 
     // Nodes
@@ -1714,6 +1730,7 @@ class LibraryScene extends SceneBase {
 
   constructor() {
     super();
+    this.id = 'library';
     this.contentRadius = 6.0;
 
     const geo = new THREE.BoxGeometry(0.2, 1.0, 0.7);
@@ -1765,6 +1782,7 @@ class BioluminescentScene extends SceneBase {
 
   constructor() {
     super();
+    this.id = 'biolum';
     this.contentRadius = 4.0;
 
     const geo = new THREE.BufferGeometry();
@@ -1848,6 +1866,7 @@ class HolographicCityScene extends SceneBase {
 
   constructor() {
     super();
+    this.id = 'hologram';
     this.contentRadius = 6.0;
     this.city = new THREE.Group();
 
@@ -1906,6 +1925,7 @@ class RealityCollapseScene extends SceneBase {
 
   constructor() {
     super();
+    this.id = 'collapse';
     this.contentRadius = 3.0;
 
     const geo = new THREE.IcosahedronGeometry(2, 4);
