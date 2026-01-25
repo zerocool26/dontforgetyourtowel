@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { SimplePhysics } from '../physics/simple-physics';
 import type { TowerCaps } from '../../core/caps';
 
 // --- Types & Interfaces ---
@@ -954,7 +955,7 @@ class MagnetosphereScene extends SceneBase {
             varying float vAlpha;
             varying vec3 vColor;
 
-            // Simple noise 
+            // Simple noise
             float hash(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
             float noise(vec2 p) {
                 vec2 i = floor(p);
@@ -968,11 +969,11 @@ class MagnetosphereScene extends SceneBase {
                 vec3 pos = position;
                 float px = aData.x;
                 float pz = aData.y;
-                
+
                 // Flow field motion
                 float t = uTime * 0.5;
                 float n = noise(vec2(px * 0.1 + t, pos.y * 0.1));
-                
+
                 pos.x = px + sin(pos.y * 0.5 + t) * 2.0;
                 pos.z = pz + cos(pos.y * 0.5 + t) * 1.0;
                 pos.y += sin(t + aData.w) * 0.5;
@@ -984,7 +985,7 @@ class MagnetosphereScene extends SceneBase {
                 pos.y += f * 3.0 * uPress;
 
                 gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
-                
+
                 // Scale based on depth
                 gl_PointSize = (4.0 + f * 10.0) * (30.0 / -gl_Position.z);
 
@@ -992,7 +993,7 @@ class MagnetosphereScene extends SceneBase {
                 vec3 c1 = vec3(0.0, 1.0, 0.8); // Cyan
                 vec3 c2 = vec3(0.5, 0.0, 1.0); // Purple
                 vec3 c3 = vec3(0.0, 1.0, 0.2); // Green
-                
+
                 float h = smoothstep(-4.0, 4.0, pos.y);
                 vColor = mix(c3, c2, h);
                 vColor = mix(vColor, c1, step(0.8, h));
@@ -1079,21 +1080,21 @@ class EventHorizonScene extends SceneBase {
 
         void main() {
             // Polar coordinates
-            vec2 centered = vUv * 2.0 - 1.0; 
-            
+            vec2 centered = vUv * 2.0 - 1.0;
+
             float angle = atan(centered.y, centered.x);
             float len = length(centered);
-            
+
             // Flow
-            float speed = 2.0; 
+            float speed = 2.0;
             float turb = noise(vec2(angle * 6.0 - uTime * speed, len * 10.0));
-            
+
             // Brightness gradient
             float core = smoothstep(0.0, 1.0, turb);
             vec3 col = mix(uColorA, uColorB, core * 2.0); // Super bright
-            
+
             float alpha = smoothstep(0.2, 0.4, len) * (1.0 - smoothstep(0.9, 1.0, len));
-            
+
             gl_FragColor = vec4(col * 4.0, 1.0); // Intensity 4.0
         }
       `,
@@ -1346,6 +1347,8 @@ class OrbitalMechanicsScene extends SceneBase {
   private planet: THREE.Mesh;
   private count = 1500;
   private dummy = new THREE.Object3D();
+  private physics: SimplePhysics;
+  private pointerPos = new THREE.Vector3();
 
   constructor() {
     super();
@@ -1363,7 +1366,7 @@ class OrbitalMechanicsScene extends SceneBase {
     this.group.add(this.planet);
 
     // Debris Ring
-    const dGeo = new THREE.DodecahedronGeometry(0.05);
+    const dGeo = new THREE.DodecahedronGeometry(0.08); // Slightly larger for visibility
     const dMat = new THREE.MeshStandardMaterial({
       color: 0xaaaaaa,
       roughness: 0.4,
@@ -1371,45 +1374,105 @@ class OrbitalMechanicsScene extends SceneBase {
     this.debris = new THREE.InstancedMesh(dGeo, dMat, this.count);
     this.group.add(this.debris);
 
+    // Init Physics
+    this.physics = new SimplePhysics(this.count);
+    this.physics.bounds.set(20, 20, 20); // Large bounds
+    this.physics.friction = 0.99; // Low friction for space
+
     // Init positions data
-    const data = new Float32Array(this.count * 3); // angle, dist, speed
     for (let i = 0; i < this.count; i++) {
-      data[i * 3] = Math.random() * Math.PI * 2; // angle
-      data[i * 3 + 1] = 3.0 + Math.random() * 5.0; // dist
-      data[i * 3 + 2] = 0.5 + Math.random() * 0.5; // speed base
+      const angle = Math.random() * Math.PI * 2;
+      const dist = 3.5 + Math.random() * 4.5;
+      const y = (Math.random() - 0.5) * 0.5; // Flat disk
+
+      const x = Math.cos(angle) * dist;
+      const z = Math.sin(angle) * dist;
+
+      this.physics.initParticle(i, new THREE.Vector3(x, y, z), 0.1);
+
+      // Give initial orbital velocity
+      // Tangent vector
+      const tx = -z;
+      const tz = x;
+      const len = Math.sqrt(tx * tx + tz * tz);
+      const speed = 0.05 + Math.random() * 0.02; // Arbitrary orbital speed
+
+      // Hack: Set 'previous' position slightly behind to create velocity
+      this.physics.oldPositions[i * 3] = x - (tx / len) * speed;
+      this.physics.oldPositions[i * 3 + 1] = y;
+      this.physics.oldPositions[i * 3 + 2] = z - (tz / len) * speed;
+
+      this.dummy.position.set(x, y, z);
+      this.dummy.updateMatrix();
+      this.debris.setMatrixAt(i, this.dummy.matrix);
     }
-    this.debris.userData.orbits = data;
   }
 
   init(_ctx: SceneRuntime) {}
 
   update(ctx: SceneRuntime) {
     const t = ctx.time;
-    const data = this.debris.userData.orbits;
+    const dt = Math.min(ctx.dt, 1 / 30);
 
+    // Pointer to world
+    this.pointerPos.set(ctx.pointer.x * 12.0, ctx.pointer.y * 12.0, 0);
+
+    // 1. Apply Central Gravity
+    // F = G * m1 * m2 / r^2
     for (let i = 0; i < this.count; i++) {
-      const angle0 = data[i * 3];
-      const dist = data[i * 3 + 1];
-      const speed = data[i * 3 + 2];
+      const idx = i * 3;
+      const x = this.physics.positions[idx];
+      const y = this.physics.positions[idx + 1];
+      const z = this.physics.positions[idx + 2];
 
-      // Kepler-ish: closer is faster
-      const currentAngle = angle0 + t * (speed * (10 / dist));
+      // Distance to center
+      const dx = -x;
+      const dy = -y;
+      const dz = -z;
+      const distSq = dx * dx + dy * dy + dz * dz + 0.1;
+      const dist = Math.sqrt(distSq);
 
-      const x = Math.cos(currentAngle) * dist;
-      const z = Math.sin(currentAngle) * dist;
-      // Inclination
-      const y = Math.sin(currentAngle * 2 + i) * 0.2 * (dist - 2);
+      // Gravity force strength (tuned for visual feel)
+      const g = 0.005 / distSq;
+
+      this.physics.positions[idx] += (dx / dist) * g;
+      this.physics.positions[idx + 1] += (dy / dist) * g;
+      this.physics.positions[idx + 2] += (dz / dist) * g;
+    }
+
+    // 2. Physics Step
+    this.physics.update(dt, this.pointerPos, 3.0);
+
+    // 3. Sync
+    for (let i = 0; i < this.count; i++) {
+      const idx = i * 3;
+      const x = this.physics.positions[idx];
+      const y = this.physics.positions[idx + 1];
+      const z = this.physics.positions[idx + 2];
 
       this.dummy.position.set(x, y, z);
-      this.dummy.rotation.set(x, y, z); // Tumble
+
+      // Align to velocity
+      const vx = x - this.physics.oldPositions[idx];
+      const vy = y - this.physics.oldPositions[idx + 1];
+      const vz = z - this.physics.oldPositions[idx + 2];
+
+      if (Math.abs(vx) + Math.abs(vz) > 0.0001) {
+        this.dummy.lookAt(x + vx, y + vy, z + vz);
+      }
+
+      this.dummy.scale.setScalar(1.0);
       this.dummy.updateMatrix();
       this.debris.setMatrixAt(i, this.dummy.matrix);
     }
     this.debris.instanceMatrix.needsUpdate = true;
 
     // Interactive tilt
-    this.group.rotation.x = 0.4 + ctx.pointer.y * 0.2 + ctx.gyro.x * 0.5;
+    this.group.rotation.x = 0.4 + ctx.pointer.y * 0.2;
     this.group.rotation.z = 0.2 + ctx.pointer.x * 0.2;
+
+    // Planet rotates
+    this.planet.rotation.y = t * 0.05;
 
     this.camera.position.z = damp(
       this.camera.position.z,
@@ -1424,82 +1487,105 @@ class OrbitalMechanicsScene extends SceneBase {
 // --- Scene 09: Crystal Fracture (Glitch) ---
 
 class VoronoiShardsScene extends SceneBase {
-  private particles: THREE.Points;
-  private count = 10000;
+  private shards: THREE.InstancedMesh;
+  private count = 1000;
+  private dummy = new THREE.Object3D();
+  private physics: SimplePhysics;
+  private pointerPos = new THREE.Vector3();
 
   constructor() {
     super();
     this.id = 'scene09';
     this.contentRadius = 6.0;
 
-    const geo = new THREE.BufferGeometry();
-    const pos = new Float32Array(this.count * 3);
-    const data = new Float32Array(this.count * 3);
-
-    for (let i = 0; i < this.count; i++) {
-      // Cube volume
-      const s = 4.0;
-      pos[i * 3] = (Math.random() - 0.5) * s;
-      pos[i * 3 + 1] = (Math.random() - 0.5) * s;
-      pos[i * 3 + 2] = (Math.random() - 0.5) * s;
-
-      data[i * 3] = Math.random(); // flicker
-      data[i * 3 + 1] = Math.random();
-      data[i * 3 + 2] = Math.random();
-    }
-    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-    geo.setAttribute('aData', new THREE.BufferAttribute(data, 3));
-
-    const mat = new THREE.ShaderMaterial({
-      uniforms: {
-        uTime: { value: 0 },
-        uPress: { value: 0 },
-      },
-      vertexShader: `
-              uniform float uTime;
-              uniform float uPress;
-              attribute vec3 aData;
-              varying float vGrey;
-  
-              void main() {
-                  vec3 p = position;
-                  
-                  // Glitch displacement
-                  float t = uTime;
-                  float glitch = sin(p.y * 10.0 + t * 5.0);
-                  if(glitch > 0.9) p.x += 0.5;
-                  
-                  // Explode on press
-                  p += normalize(p) * uPress * 5.0;
-  
-                  vec4 mv = modelViewMatrix * vec4(p, 1.0);
-                  gl_Position = projectionMatrix * mv;
-                  gl_PointSize = (2.0 + aData.x * 3.0) * (10.0/-mv.z);
-                  
-                  vGrey = 0.5 + 0.5 * sin(t * 10.0 * aData.y);
-              }
-          `,
-      fragmentShader: `
-              varying float vGrey;
-              void main() {
-                  gl_FragColor = vec4(vec3(vGrey), 1.0);
-              }
-          `,
-      blending: THREE.AdditiveBlending,
+    // 2026 Upgrade: Physical Glass Material + Instanced Geometry
+    // We import directly (relying on hoisted imports or dynamic if needed, but here we assume top-level import was added or we inline for safety if the tool failed nicely)
+    // Inline material for robustness during edit:
+    const mat = new THREE.MeshPhysicalMaterial({
+      color: 0xffffff,
+      transmission: 1.0,
+      thickness: 1.0,
+      roughness: 0,
+      metalness: 0,
+      ior: 1.5,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0,
+      envMapIntensity: 1.5,
     });
+    // @ts-expect-error Dispersion not yet in types
+    mat.dispersion = 0.05;
 
-    this.particles = new THREE.Points(geo, mat);
-    this.group.add(this.particles);
+    // Use crystal shards (Octahedrons)
+    const geo = new THREE.OctahedronGeometry(0.2, 0);
+
+    this.shards = new THREE.InstancedMesh(geo, mat, this.count);
+    this.shards.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    this.group.add(this.shards);
+
+    // Init Physics
+    this.physics = new SimplePhysics(this.count);
+    this.physics.bounds.set(8, 8, 8); // Wider loose bounds
+    this.physics.friction = 0.96; // Floatier
+
+    // Init data
+    const data = new Float32Array(this.count * 4);
+    for (let i = 0; i < this.count; i++) {
+      // Random volume
+      const x = (Math.random() - 0.5) * 8.0;
+      const y = (Math.random() - 0.5) * 12.0;
+      const z = (Math.random() - 0.5) * 8.0;
+
+      data[i * 4 + 3] = Math.random(); // phase
+
+      this.physics.initParticle(i, new THREE.Vector3(x, y, z), 0.25);
+
+      this.dummy.position.set(x, y, z);
+      this.dummy.updateMatrix();
+      this.shards.setMatrixAt(i, this.dummy.matrix);
+    }
+    this.shards.userData.origins = data;
   }
 
   init(_ctx: SceneRuntime) {}
 
   update(ctx: SceneRuntime) {
-    const mat = this.particles.material as THREE.ShaderMaterial;
-    mat.uniforms.uTime.value = ctx.time;
-    mat.uniforms.uPress.value = ctx.press;
+    const t = ctx.time;
+    const dt = Math.min(ctx.dt, 1 / 30); // Cap dt
 
-    this.group.rotation.y = ctx.time * 0.2;
+    // Map pointer to world (approximate plane at z=0)
+    // Assuming camera is at z=20 looking at 0, fov ~50
+    // Visible height at z=0 is approx 20 * tan(25deg)*2 ~= 18
+    this.pointerPos.set(ctx.pointer.x * 9.0, ctx.pointer.y * 9.0, 0);
+
+    // Run Physics
+    this.physics.update(dt, this.pointerPos, 2.5);
+
+    const data = this.shards.userData.origins;
+
+    for (let i = 0; i < this.count; i++) {
+      const p = data[i * 4 + 3];
+
+      // Read physics p
+      const px = this.physics.positions[i * 3];
+      const py = this.physics.positions[i * 3 + 1];
+      const pz = this.physics.positions[i * 3 + 2];
+
+      this.dummy.position.set(px, py, pz);
+
+      // Tumble
+      this.dummy.rotation.set(t * 0.5 + p, t * 0.3 + p, t * 0.1);
+
+      // Glitch scale
+      const glitchTrigger = Math.sin(t * 3.0 + p * 10.0);
+      const glitchOffset = glitchTrigger > 0.9 ? 0.3 : 0.0;
+      this.dummy.scale.setScalar((0.8 + p * 0.4) * (1.0 + glitchOffset));
+
+      this.dummy.updateMatrix();
+      this.shards.setMatrixAt(i, this.dummy.matrix);
+    }
+    this.shards.instanceMatrix.needsUpdate = true;
+
+    this.group.rotation.y = t * 0.05;
     this.camera.position.z = damp(
       this.camera.position.z,
       this.baseDistance,
@@ -2048,7 +2134,7 @@ class RealityCollapseScene extends SceneBase {
             uniform vec2 uPointer;
             attribute vec3 aData;
             varying float vGlow;
-            
+
             // Simplex noise
             vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
             float snoise(vec2 v){
@@ -2075,22 +2161,22 @@ class RealityCollapseScene extends SceneBase {
                 float r = aData.x;
                 float theta = aData.y;
                 float phi = aData.z;
-                
+
                 // Base position
                 vec3 p = position;
-                
+
                 // Chaos field
                 float noise = snoise(vec2(theta * 5.0 + uTime, phi * 5.0));
-                
+
                 // Explode outwards
                 float displacement = noise * 2.0 * (0.1 + uPress * 3.0);
-                
+
                 // Pointer interaction (Repel)
                 float d = distance(p.xy, uPointer * 10.0);
                 displacement += smoothstep(5.0, 0.0, d) * 3.0;
 
                 p += normalize(p) * displacement;
-                
+
                 // Add some rotation turbulence
                 float t = uTime * 0.5;
                 float x = p.x; float z = p.z;
@@ -2100,7 +2186,7 @@ class RealityCollapseScene extends SceneBase {
                 vec4 mv = modelViewMatrix * vec4(p, 1.0);
                 gl_Position = projectionMatrix * mv;
                 gl_PointSize = (3.0 + displacement * 5.0) * (20.0 / -mv.z);
-                
+
                 vGlow = 0.5 + noise * 0.5;
             }
         `,

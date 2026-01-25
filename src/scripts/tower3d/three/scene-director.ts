@@ -1,4 +1,10 @@
 import * as THREE from 'three';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
+import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js';
 import type { TowerCaps } from '../core/caps';
 import { createScenes } from './scenes';
 import type { SceneRuntime, TowerScene } from './scenes';
@@ -24,15 +30,20 @@ export class SceneDirector {
   private sceneById: Map<string, TowerScene>;
   private activeScene: TowerScene;
 
-  private postScene: THREE.Scene;
-  private postCamera: THREE.OrthographicCamera;
-  private postMaterial: THREE.ShaderMaterial;
-  private postMesh: THREE.Mesh;
-
-  private rtA: THREE.WebGLRenderTarget;
-
   // Short transition mask when the active chapter/scene changes.
   private cutFade = 0;
+  // Render pipeline
+  private composer: EffectComposer;
+  private renderPass: RenderPass;
+  private bloomPass: UnrealBloomPass;
+  private finalPass: ShaderPass;
+  private outputPass: OutputPass;
+  private fxaaPass: ShaderPass;
+
+  // Visibility & Observer
+  private resizeObserver: ResizeObserver;
+  private isVisible = true;
+
   private transitionType = 0; // 0: portal iris, 1: liquid wipe, 2: particle dissolve, 3: glitch cut
 
   private pointer = new THREE.Vector2();
@@ -83,7 +94,7 @@ export class SceneDirector {
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
       alpha: false,
-      antialias: !caps.coarsePointer,
+      antialias: false, // MSAA disabled for EffectComposer
       powerPreference: 'high-performance',
       preserveDrawingBuffer: false,
     });
@@ -92,24 +103,36 @@ export class SceneDirector {
     this.renderer.toneMappingExposure = 1.45;
     this.renderer.setClearColor(new THREE.Color(0x05070f));
 
-    this.postScene = new THREE.Scene();
-    this.postCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-    this.postMaterial = new THREE.ShaderMaterial({
+    // --- Post Processing Stack (EffectComposer) ---
+    this.composer = new EffectComposer(this.renderer);
+
+    // 1. Render Pass: Renders the active 3D scene
+    // Initialized with empty scene/camera; updated per-frame in tick()
+    this.renderPass = new RenderPass(new THREE.Scene(), new THREE.Camera());
+    this.composer.addPass(this.renderPass);
+
+    // 2. Unreal Bloom Pass: High-quality glow for neon cities
+    const vecRes = new THREE.Vector2(window.innerWidth, window.innerHeight);
+    this.bloomPass = new UnrealBloomPass(vecRes, 1.2, 0.4, 0.85);
+    this.bloomPass.threshold = 0.2;
+    this.bloomPass.strength = 1.2;
+    this.bloomPass.radius = 0.5;
+    this.composer.addPass(this.bloomPass);
+    // 3. Final Composite Pass: Transitions, Glitch, Grain, Vignette, CA
+    const finalParams = {
       uniforms: {
-        tScene: { value: null },
+        tDiffuse: { value: null },
         uTime: { value: 0 },
         uCut: { value: 0 },
         uTransitionType: { value: 0 },
         uResolution: { value: new THREE.Vector2(1, 1) },
         uInteract: { value: 0 },
-        uVignette: { value: 0.12 }, // REDUCED
+        uVignette: { value: 0.12 },
         uGrain: { value: 0.05 },
         uChromatic: { value: 0.003 },
-        uGlow: { value: 0.6 }, // INCREASED
-        uGlowThreshold: { value: 0.55 }, // REDUCED
         uGyroInfluence: { value: new THREE.Vector2(0, 0) },
         uMobile: { value: this.caps.coarsePointer ? 1.0 : 0.0 },
-        uPointerVel: { value: 0 }, // NEW: Inject pointer speed
+        uPointerVel: { value: 0 },
       },
       vertexShader: `
         varying vec2 vUv;
@@ -121,7 +144,7 @@ export class SceneDirector {
       fragmentShader: `
         precision highp float;
         varying vec2 vUv;
-        uniform sampler2D tScene;
+        uniform sampler2D tDiffuse;
         uniform float uTime;
         uniform float uCut;
         uniform float uTransitionType;
@@ -130,8 +153,6 @@ export class SceneDirector {
         uniform float uVignette;
         uniform float uGrain;
         uniform float uChromatic;
-        uniform float uGlow;
-        uniform float uGlowThreshold;
         uniform vec2 uGyroInfluence;
         uniform float uMobile;
         uniform float uPointerVel;
@@ -156,81 +177,55 @@ export class SceneDirector {
           float r = length(c);
           vec2 dir = normalize(c + 1e-6);
 
-          // DYNAMIC: Add pointer velocity to aberration
           float interactStr = strength * (1.0 + uPointerVel * 2.0);
-
           float amt = interactStr * smoothstep(0.12, 0.9, r);
           vec2 off = dir * amt;
           vec3 col;
-          col.r = texture2D(tScene, uv + off).r;
-          col.g = texture2D(tScene, uv).g;
-          col.b = texture2D(tScene, uv - off).b;
+          col.r = texture2D(tDiffuse, uv + off).r;
+          col.g = texture2D(tDiffuse, uv).g;
+          col.b = texture2D(tDiffuse, uv - off).b;
           return col;
         }
 
-        // Portal iris transition - circular wipe with energy ring
         float portalIris(vec2 uv, float progress) {
           vec2 center = uv - 0.5;
           float dist = length(center);
           float angle = atan(center.y, center.x);
-
-          // Radius shrinks to center as progress increases
           float radius = 0.9 * (1.0 - progress);
-
-          // Add energy ripples to the edge
           float ripple = sin(angle * 12.0 + uTime * 10.0 + dist * 20.0) * 0.04 * progress;
           float energyRing = smoothstep(radius + 0.1, radius, dist + ripple);
           float innerCore = smoothstep(radius, radius - 0.2, dist);
-
           return energyRing * (1.0 - innerCore * 0.5);
         }
 
-        // Liquid wipe transition - organic flowing edge
         float liquidWipe(vec2 uv, float progress) {
           float n1 = noise(uv * 5.0 + uTime * 0.8);
           float n2 = noise(uv * 10.0 - uTime * 0.5);
           float distortion = (n1 + n2 * 0.5) * 0.2;
-
-          // Wave from left to right with organic edge
           float edge = uv.x + distortion;
           float threshold = progress * 1.4 - 0.2;
-
           return smoothstep(threshold - 0.15, threshold + 0.15, edge);
         }
 
-        // Particle dissolve - pixelated dissolve effect
         float particleDissolve(vec2 uv, float progress) {
           float blockSize = 0.04;
           vec2 block = floor(uv / blockSize) * blockSize;
           float randomVal = hash(block + floor(uTime * 2.0));
-
-          // Add wave pattern to the dissolve
           float wave = sin(block.x * 10.0 + uTime * 5.0) * 0.15;
           float threshold = progress * 1.2 + wave - 0.1;
-
           return step(randomVal, threshold);
         }
 
-        // Glitch cut - digital glitch with color separation
         vec3 glitchCut(vec2 uv, float progress, vec3 originalColor) {
           float glitchStrength = smoothstep(0.0, 0.2, progress) * smoothstep(1.0, 0.8, progress) * 2.0;
-
-          // Horizontal slice displacement
           float sliceY = floor(uv.y * 40.0) / 40.0;
           float sliceRandom = hash(vec2(sliceY, uTime));
           float displacement = (sliceRandom - 0.5) * glitchStrength * 0.2;
-
           vec2 displacedUv = uv + vec2(displacement, 0.0);
-
-          // RGB split based on displacement
-          float r = texture2D(tScene, displacedUv + vec2(0.02 * glitchStrength, 0.0)).r;
-          float g = texture2D(tScene, displacedUv).g;
-          float b = texture2D(tScene, displacedUv - vec2(0.02 * glitchStrength, 0.0)).b;
-
-          // Mix based on random triggers
-          if (hash(vec2(uTime, uv.y)) > 0.8) {
-             return vec3(r, g, b);
-          }
+          float r = texture2D(tDiffuse, displacedUv + vec2(0.02 * glitchStrength, 0.0)).r;
+          float g = texture2D(tDiffuse, displacedUv).g;
+          float b = texture2D(tDiffuse, displacedUv - vec2(0.02 * glitchStrength, 0.0)).b;
+          if (hash(vec2(uTime, uv.y)) > 0.8) return vec3(r, g, b);
           return originalColor;
         }
 
@@ -239,119 +234,84 @@ export class SceneDirector {
           vec2 c = uv - 0.5;
           float r = length(c);
 
-          // Subtle breathing warp (keeps motion alive without UI)
           float wobble = 0.0025 * sin(uTime * 0.6 + r * 8.0);
           uv += normalize(c + 1e-6) * wobble;
 
           vec3 col = sampleChromatic(uv, uChromatic);
 
-          // Cheap highlight glow/halation (no multi-pass blur).
-          vec2 px = vec2(1.0) / max(uResolution, vec2(1.0));
-          vec3 glow = vec3(0.0);
-          float wsum = 0.0;
-
-          vec2 o1 = px * 1.25;
-          vec2 o2 = px * 2.5;
-
-          // 8 taps (cardinals + diagonals)
-          vec3 s;
-          float w;
-
-          w = 0.35; s = texture2D(tScene, uv + vec2(o1.x, 0.0)).rgb; glow += max(s - vec3(uGlowThreshold), 0.0) * w; wsum += w;
-          w = 0.35; s = texture2D(tScene, uv + vec2(-o1.x, 0.0)).rgb; glow += max(s - vec3(uGlowThreshold), 0.0) * w; wsum += w;
-          w = 0.35; s = texture2D(tScene, uv + vec2(0.0, o1.y)).rgb; glow += max(s - vec3(uGlowThreshold), 0.0) * w; wsum += w;
-          w = 0.35; s = texture2D(tScene, uv + vec2(0.0, -o1.y)).rgb; glow += max(s - vec3(uGlowThreshold), 0.0) * w; wsum += w;
-
-          w = 0.25; s = texture2D(tScene, uv + vec2(o2.x, o2.y)).rgb; glow += max(s - vec3(uGlowThreshold), 0.0) * w; wsum += w;
-          w = 0.25; s = texture2D(tScene, uv + vec2(-o2.x, o2.y)).rgb; glow += max(s - vec3(uGlowThreshold), 0.0) * w; wsum += w;
-          w = 0.25; s = texture2D(tScene, uv + vec2(o2.x, -o2.y)).rgb; glow += max(s - vec3(uGlowThreshold), 0.0) * w; wsum += w;
-          w = 0.25; s = texture2D(tScene, uv + vec2(-o2.x, -o2.y)).rgb; glow += max(s - vec3(uGlowThreshold), 0.0) * w; wsum += w;
-
-          glow /= max(wsum, 1e-6);
-          col += glow * uGlow;
-
-          // Advanced transition effects based on transition type
+          // Transitions
           float cut = clamp(uCut, 0.0, 1.0);
-
           if (cut > 0.01) {
             int transType = int(uTransitionType);
-
             if (transType == 0) {
-              // Portal iris transition
               float iris = portalIris(vUv, cut);
               col *= 1.0 - iris * 0.85;
-              // Add cyan energy glow at the edge
               vec2 center = vUv - 0.5;
               float dist = length(center);
               float radius = 0.8 * (1.0 - cut);
               float edgeGlow = smoothstep(radius + 0.15, radius, dist) * smoothstep(radius - 0.05, radius, dist);
               col += vec3(0.2, 0.6, 1.0) * edgeGlow * cut * 2.0;
             } else if (transType == 1) {
-              // Liquid wipe transition
               float liquid = liquidWipe(vUv, cut);
               col *= 1.0 - liquid * 0.9;
-              // Add highlight at the liquid edge
               float edge = fwidth(liquid) * 15.0;
               col += vec3(0.3, 0.5, 0.8) * edge * cut;
             } else if (transType == 2) {
-              // Particle dissolve transition
               float dissolve = particleDissolve(vUv, cut);
               col *= 1.0 - dissolve * 0.95;
-              // Slight glow on dissolving pixels
               col += vec3(0.1, 0.2, 0.4) * dissolve * (1.0 - cut);
             } else {
-              // Glitch cut transition
               col = glitchCut(vUv, cut, col);
               col *= 1.0 - cut * 0.6;
               col += vec3(0.01, 0.015, 0.03) * cut;
             }
           }
 
-          // Vignette with gyro influence for mobile parallax
+          // Vignette
           float vigOffset = length(uGyroInfluence) * 0.05 * uMobile;
           float vig = smoothstep(0.92 + vigOffset, 0.25, r);
           col *= mix(1.0 - uVignette, 1.0, vig);
 
-          // Dynamic vignette color on mobile
           vec3 vigColor = mix(vec3(0.0), vec3(0.02, 0.04, 0.08), uMobile * (1.0 - vig) * 0.5);
           col += vigColor;
 
-          // Film grain - reduced on mobile for better performance perception
+          // Grain
           float grainAmount = uGrain * (1.0 - uMobile * 0.3);
           float g = (hash(uv * vec2(1920.0, 1080.0) + uTime * 60.0) - 0.5);
           col += g * grainAmount;
 
-          // Subtle color grading for cinematic look
-          col = pow(col, vec3(0.98, 1.0, 1.02)); // Slight warm shadows, cool highlights
-
-          // Boost saturation slightly
+          // Color Grade
+          col = pow(col, vec3(0.98, 1.0, 1.02));
           float luma = dot(col, vec3(0.299, 0.587, 0.114));
           col = mix(vec3(luma), col, 1.08);
 
-          // Interaction punch (tap/press): subtle exposure + chroma kick
+          // Interaction punch
           float inter = clamp(uInteract, 0.0, 1.0);
           col *= 1.0 + inter * 0.07;
-          col += glow * inter * 0.25;
+          // col += glow * inter * 0.25; // Removed manual glow
 
           gl_FragColor = vec4(col, 1.0);
         }
       `,
-      depthTest: false,
-      depthWrite: false,
-    });
-    this.postMaterial.toneMapped = false;
-    this.postMesh = new THREE.Mesh(
-      new THREE.PlaneGeometry(2, 2),
-      this.postMaterial
-    );
-    this.postScene.add(this.postMesh);
+    };
 
-    this.rtA = new THREE.WebGLRenderTarget(1, 1, {
-      minFilter: THREE.LinearFilter,
-      magFilter: THREE.LinearFilter,
-      depthBuffer: true,
-      stencilBuffer: false,
-    });
+    this.finalPass = new ShaderPass(new THREE.ShaderMaterial(finalParams));
+    this.composer.addPass(this.finalPass);
+
+    // 4. Output Pass: Tone Mapping & Color Space Conversion
+    this.outputPass = new OutputPass();
+    this.composer.addPass(this.outputPass);
+
+    // 5. FXAA: Antialiasing since default MSAA is off for offscreen buffers
+    this.fxaaPass = new ShaderPass(FXAAShader);
+    this.composer.addPass(this.fxaaPass);
+
+    // Visibility Listener to pause rendering when tab is hidden
+    document.addEventListener('visibilitychange', this.handleVisibility);
+
+    // ResizeObserver for modern resizing
+    this.resizeObserver = new ResizeObserver(() => this.resize());
+    this.resizeObserver.observe(this.root);
 
     this.scenes = createScenes();
     this.sceneById = new Map(this.scenes.map(scene => [scene.id, scene]));
@@ -375,6 +335,13 @@ export class SceneDirector {
     this.root.dataset.towerScene = this.activeScene.id;
     this.root.dataset.towerRendered = '1';
   }
+
+  private handleVisibility = () => {
+    this.isVisible = document.visibilityState === 'visible';
+    if (this.isVisible) {
+      this.lastTime = performance.now() / 1000;
+    }
+  };
 
   private buildRuntime(dt: number, time: number): SceneRuntime {
     return {
@@ -546,12 +513,24 @@ export class SceneDirector {
     this.renderer.setPixelRatio(this.size.dpr);
     this.renderer.setSize(w, h, false);
 
-    this.rtA.setSize(w * this.size.dpr, h * this.size.dpr);
+    this.composer.setSize(w, h);
 
-    const res = this.postMaterial.uniforms.uResolution?.value as
+    const res = this.finalPass.uniforms.uResolution?.value as
       | THREE.Vector2
       | undefined;
     res?.set(w * this.size.dpr, h * this.size.dpr);
+
+    if (this.bloomPass) {
+      this.bloomPass.resolution.set(w * this.size.dpr, h * this.size.dpr);
+    }
+
+    if (this.fxaaPass) {
+      const pixelRatio = this.renderer.getPixelRatio();
+      // FXAA expects inverse resolution (1/width, 1/height)
+      const uRes = this.fxaaPass.uniforms['resolution'].value;
+      uRes.x = 1 / (w * pixelRatio);
+      uRes.y = 1 / (h * pixelRatio);
+    }
   }
 
   private computeScroll(dt: number): void {
@@ -638,12 +617,14 @@ export class SceneDirector {
 
   public tick(): void {
     if (this.destroyed) return;
+    if (!this.isVisible) return; // Pause rendering loop when hidden
 
     const now = performance.now() / 1000;
     const dt = Math.min(1 / 30, Math.max(1 / 240, now - this.lastTime));
     this.lastTime = now;
 
-    this.syncSize(false);
+    // Use ResizeObserver instead of polling clientWidth in syncSize
+    // this.syncSize(false);
     this.computeScroll(dt);
 
     const targetSceneId = this.resolveSceneId();
@@ -656,7 +637,7 @@ export class SceneDirector {
       this.cutFade = 1;
       // Cycle through different transition types for variety
       this.transitionType = (this.transitionType + 1) % 4;
-      this.postMaterial.uniforms.uTransitionType.value = this.transitionType;
+      this.finalPass.uniforms.uTransitionType.value = this.transitionType;
     }
 
     this.pointer.x = damp(this.pointer.x, this.pointerTarget.x, 6, dt);
@@ -689,10 +670,10 @@ export class SceneDirector {
     this.root.dataset.towerSceneIndex = String(this.sceneIndex);
 
     const runtime = this.buildRuntime(dt, now);
-    this.postMaterial.uniforms.uTime.value = now;
+    this.finalPass.uniforms.uTime.value = now;
 
     // Post FX interaction pulse
-    this.postMaterial.uniforms.uInteract.value = clamp(
+    this.finalPass.uniforms.uInteract.value = clamp(
       this.tap + clamp(this.pressTime * 2.0, 0, 1) * 0.35,
       0,
       1
@@ -700,43 +681,49 @@ export class SceneDirector {
 
     // Pass gyro influence to post-processing shader for mobile parallax effects
     if (this.gyroActive) {
-      this.postMaterial.uniforms.uGyroInfluence.value.set(
+      this.finalPass.uniforms.uGyroInfluence.value.set(
         this.gyro.x,
         this.gyro.y
       );
     } else {
-      this.postMaterial.uniforms.uGyroInfluence.value.set(0, 0);
+      this.finalPass.uniforms.uGyroInfluence.value.set(0, 0);
     }
 
     // NEW: Update pointer velocity uniform for dynamic chromatic aberration
     const pVel = this.pointerVelocity.length();
-    this.postMaterial.uniforms.uPointerVel.value = clamp(pVel, 0, 10.0);
+    this.finalPass.uniforms.uPointerVel.value = clamp(pVel, 0, 10.0);
 
     // Decay the cut mask quickly; keep it super short under reduced motion.
     const cutLambda = this.caps.reducedMotion ? 18 : 10;
     this.cutFade = damp(this.cutFade, 0, cutLambda, dt);
-    this.postMaterial.uniforms.uCut.value = this.cutFade;
+    this.finalPass.uniforms.uCut.value = this.cutFade;
 
     this.activeScene.update(runtime);
-    this.renderer.setRenderTarget(this.rtA);
-    this.renderer.clear(true, true, true);
-    this.activeScene.render?.(runtime);
 
-    this.renderer.setRenderTarget(null);
+    // Update RenderPass to current scene content
+    this.renderPass.scene = this.activeScene.group as unknown as THREE.Scene;
+    this.renderPass.camera = this.activeScene.camera;
+
+    if (this.activeScene.bg) {
+      this.renderer.setClearColor(this.activeScene.bg);
+    } else {
+      this.renderer.setClearColor(new THREE.Color(0x05070f));
+    }
+
     this.resetViewport();
-    this.postMaterial.uniforms.tScene.value = this.rtA.texture;
-    this.renderer.render(this.postScene, this.postCamera);
+    this.composer.render();
   }
 
   public destroy(): void {
     if (this.destroyed) return;
     this.destroyed = true;
+
+    document.removeEventListener('visibilitychange', this.handleVisibility);
+    this.resizeObserver.disconnect();
+
     this.cleanups.forEach(fn => fn());
     this.cleanups = [];
     this.scenes.forEach(scene => scene.dispose());
-    this.rtA.dispose();
-    this.postMaterial.dispose();
-    this.postMesh.geometry.dispose();
     this.renderer.dispose();
   }
 }
