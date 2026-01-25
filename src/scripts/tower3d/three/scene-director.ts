@@ -89,7 +89,7 @@ export class SceneDirector {
     });
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.15;
+    this.renderer.toneMappingExposure = 1.45;
     this.renderer.setClearColor(new THREE.Color(0x05070f));
 
     this.postScene = new THREE.Scene();
@@ -102,11 +102,11 @@ export class SceneDirector {
         uTransitionType: { value: 0 },
         uResolution: { value: new THREE.Vector2(1, 1) },
         uInteract: { value: 0 },
-        uVignette: { value: 0.26 },
-        uGrain: { value: 0.06 },
-        uChromatic: { value: 0.0026 },
-        uGlow: { value: this.caps.coarsePointer ? 0.26 : 0.34 },
-        uGlowThreshold: { value: 0.72 },
+        uVignette: { value: 0.18 },
+        uGrain: { value: 0.05 },
+        uChromatic: { value: 0.0028 },
+        uGlow: { value: this.caps.coarsePointer ? 0.3 : 0.42 },
+        uGlowThreshold: { value: 0.65 },
         uGyroInfluence: { value: new THREE.Vector2(0, 0) },
         uMobile: { value: this.caps.coarsePointer ? 1.0 : 0.0 },
       },
