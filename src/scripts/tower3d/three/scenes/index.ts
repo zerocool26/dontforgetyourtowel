@@ -2952,125 +2952,161 @@ class HolographicCityScene extends SceneBase {
 // --- Scene 15: Reality Collapse (Entropy) ---
 
 class RealityCollapseScene extends SceneBase {
-  private points: THREE.Points;
-  private count = 30000;
+  private mesh: THREE.InstancedMesh;
+  private count = 3000;
 
   constructor() {
     super();
     this.id = 'scene15';
     this.contentRadius = 6.0;
 
-    const geo = new THREE.BufferGeometry();
-    const pos = new Float32Array(this.count * 3);
-    const data = new Float32Array(this.count * 3); // initial_radius, theta, phi
+    // Use Cubes for "Voxel" aesthetic
+    const geometry = new THREE.BoxGeometry(0.12, 0.12, 0.12);
 
-    for (let i = 0; i < this.count; i++) {
-      const theta = Math.random() * Math.PI * 2;
-      const phi = Math.acos(2 * Math.random() - 1);
-      const r = 3.0; // Surface of sphere
-
-      pos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
-      pos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
-      pos[i * 3 + 2] = r * Math.cos(phi);
-
-      data[i * 3] = r;
-      data[i * 3 + 1] = theta;
-      data[i * 3 + 2] = phi;
-    }
-    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-    geo.setAttribute('aData', new THREE.BufferAttribute(data, 3));
-
-    const mat = new THREE.ShaderMaterial({
+    const material = new THREE.ShaderMaterial({
       uniforms: {
         uTime: { value: 0 },
         uPress: { value: 0 },
-        uPointer: { value: new THREE.Vector2() },
       },
       vertexShader: `
-            uniform float uTime;
-            uniform float uPress;
-            uniform vec2 uPointer;
-            attribute vec3 aData;
-            varying float vGlow;
+        attribute vec3 aPos;
+        attribute float aSpeed;
+        
+        varying vec3 vColor;
+        varying float vGlitch;
+        
+        uniform float uTime;
+        uniform float uPress;
+        
+        float hash(float n) { return fract(sin(n) * 43758.5453); }
+        float noise(in vec3 x) {
+            vec3 p = floor(x);
+            vec3 f = fract(x);
+            f = f*f*(3.0-2.0*f);
+            float n = p.x + p.y*57.0 + 113.0*p.z;
+            return mix(mix(mix( hash(n+  0.0), hash(n+  1.0),f.x),
+                           mix( hash(n+ 57.0), hash(n+ 58.0),f.x),f.y),
+                       mix(mix( hash(n+113.0), hash(n+114.0),f.x),
+                           mix( hash(n+170.0), hash(n+171.0),f.x),f.y),f.z);
+        }
 
-            // Simplex noise
-            vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
-            float snoise(vec2 v){
-                const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
-                vec2 i  = floor(v + dot(v, C.yy) );
-                vec2 x0 = v -   i + dot(i, C.xx);
-                vec2 i1; i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
-                vec4 x12 = x0.xyxy + C.xxzz;
-                x12.xy -= i1;
-                i = mod(i, 289.0);
-                vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 )) + i.x + vec3(0.0, i1.x, 1.0 ));
-                vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
-                m = m*m; m = m*m;
-                vec3 x = 2.0 * fract(p * C.www) - 1.0;
-                vec3 h = abs(x) - 0.5;
-                vec3 ox = floor(x + 0.5);
-                vec3 a0 = x - ox;
-                m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
-                vec3 g; g.x  = a0.x  * x0.x  + h.x  * x0.y; g.yz = a0.yz * x12.xz + h.yz * x12.yw;
-                return 130.0 * dot(m, g);
-            }
-
-            void main() {
-                float r = aData.x;
-                float theta = aData.y;
-                float phi = aData.z;
-
-                // Base position
-                vec3 p = position;
-
-                // Chaos field
-                float noise = snoise(vec2(theta * 5.0 + uTime, phi * 5.0));
-
-                // Explode outwards
-                float displacement = noise * 2.0 * (0.1 + uPress * 3.0);
-
-                // Pointer interaction (Repel)
-                float d = distance(p.xy, uPointer * 10.0);
-                displacement += smoothstep(5.0, 0.0, d) * 3.0;
-
-                p += normalize(p) * displacement;
-
-                // Add some rotation turbulence
-                float t = uTime * 0.5;
-                float x = p.x; float z = p.z;
-                p.x = x * cos(t) - z * sin(t);
-                p.z = x * sin(t) + z * cos(t);
-
-                vec4 mv = modelViewMatrix * vec4(p, 1.0);
-                gl_Position = projectionMatrix * mv;
-                gl_PointSize = (3.0 + displacement * 5.0) * (20.0 / -mv.z);
-
-                vGlow = 0.5 + noise * 0.5;
-            }
-        `,
+        void main() {
+             vec3 pos = position; // Local box coord
+             
+             // 1. Instance Orbit
+             // Rotate aPos around center
+             float t = uTime * aSpeed * 0.3;
+             
+             // Quaternion-like rotation around random axis
+             // Simplified: just rotate around Y + slight wobble
+             float c = cos(t);
+             float s = sin(t);
+             
+             vec3 pCenter = aPos;
+             
+             // Rotate 'pCenter'
+             float x = pCenter.x * c - pCenter.z * s;
+             float z = pCenter.x * s + pCenter.z * c;
+             pCenter.x = x;
+             pCenter.z = z;
+             
+             // Wobble
+             pCenter.y += sin(t * 2.0 + pCenter.x) * 0.5;
+             
+             // 2. Glitch Effect
+             // Noise field
+             float n = noise(pCenter * 0.5 + uTime);
+             float glitchTrigger = smoothstep(0.6, 0.8, n); // Threshold
+             
+             // Hard snap
+             if(glitchTrigger > 0.5) {
+                // Snap to grid
+                pCenter = floor(pCenter * 2.0) / 2.0;
+                // Offset randomly
+                pCenter.x += (hash(uTime) - 0.5) * 0.5;
+             }
+             
+             // 3. Explosion (Press)
+             vec3 dir = normalize(pCenter);
+             pCenter += dir * uPress * n * 5.0; // Expand outward
+             
+             // 4. Combine
+             // We manually construct world position to bypass instanceMatrix
+             // (assuming we didn't set meaningful instanceMatrices)
+             vec4 world = modelMatrix * vec4(pCenter + pos, 1.0);
+             gl_Position = projectionMatrix * viewMatrix * world;
+             
+             // 5. Color
+             // Normal color
+             vColor = mix(vec3(0.05, 0.05, 0.05), vec3(0.8, 0.8, 0.8), n);
+             // Glitch color
+             if(glitchTrigger > 0.5) {
+                 vColor = vec3(1.0, 0.2, 0.0); // Red
+                 vGlitch = 1.0;
+             } else {
+                 vGlitch = 0.0;
+             }
+        }
+      `,
       fragmentShader: `
-            varying float vGlow;
-            void main() {
-                if(length(gl_PointCoord - 0.5) > 0.5) discard;
-                gl_FragColor = vec4(1.0, 0.2, 0.1, vGlow); // Red-Orange-Void
+        varying vec3 vColor;
+        varying float vGlitch;
+        
+        void main() {
+            vec3 c = vColor;
+            // Scanline if glitch
+            if(vGlitch > 0.5) {
+                if(mod(gl_FragCoord.y, 4.0) < 2.0) discard;
             }
-        `,
-      transparent: true,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
+            gl_FragColor = vec4(c, 1.0);
+        }
+      `,
     });
 
-    this.points = new THREE.Points(geo, mat);
-    this.group.add(this.points);
+    this.mesh = new THREE.InstancedMesh(geometry, material, this.count);
+
+    // Fill Attributes
+    const aPos = new Float32Array(this.count * 3);
+    const aSpeed = new Float32Array(this.count);
+
+    for (let i = 0; i < this.count; i++) {
+      const r = 3.0 + Math.random() * 5.0;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+
+      const x = r * Math.sin(phi) * Math.cos(theta);
+      const y = r * Math.sin(phi) * Math.sin(theta);
+      const z = r * Math.cos(phi);
+
+      aPos[i * 3] = x;
+      aPos[i * 3 + 1] = y;
+      aPos[i * 3 + 2] = z;
+
+      aSpeed[i] = 0.5 + Math.random();
+
+      this.mesh.setMatrixAt(i, new THREE.Matrix4()); // Identity
+    }
+
+    this.mesh.geometry.setAttribute(
+      'aPos',
+      new THREE.InstancedBufferAttribute(aPos, 3)
+    );
+    this.mesh.geometry.setAttribute(
+      'aSpeed',
+      new THREE.InstancedBufferAttribute(aSpeed, 1)
+    );
+
+    this.group.add(this.mesh);
   }
 
   init(_ctx: SceneRuntime) {}
 
   update(ctx: SceneRuntime) {
-    const mat = this.points.material as THREE.ShaderMaterial;
-    mat.uniforms.uTime.value = ctx.time;
-    mat.uniforms.uPress.value = ctx.press;
-    mat.uniforms.uPointer.value.set(ctx.pointer.x, ctx.pointer.y);
+    const mat = this.mesh.material as THREE.ShaderMaterial;
+    if (mat.uniforms) {
+      mat.uniforms.uTime.value = ctx.time;
+      mat.uniforms.uPress.value = ctx.press;
+    }
 
     this.group.rotation.y = ctx.time * 0.1;
 
@@ -3095,27 +3131,27 @@ class ElectricStormScene extends SceneBase {
     this.contentRadius = 10.0;
     this.baseDistance = 15.0; // Inside the volume
 
-    // Huge box content
     const geo = new THREE.BoxGeometry(30, 30, 30);
-    // Invert normal so we see inside
-    geo.scale(-1, 1, 1);
+    geo.scale(-1, 1, 1); // Invert for inside view
 
     const mat = new THREE.ShaderMaterial({
       uniforms: {
         uTime: { value: 0 },
         uPress: { value: 0 },
+        uCameraPos: { value: new THREE.Vector3() },
         uResolution: {
           value: new THREE.Vector2(window.innerWidth, window.innerHeight),
         },
-        uCameraPos: { value: new THREE.Vector3() },
         uPointer: { value: new THREE.Vector3() },
       },
-      side: THREE.BackSide, // Render inside
+      side: THREE.BackSide,
       transparent: true,
-      depthWrite: false, // Don't block
+      depthWrite: false, // Important for inner volume
       vertexShader: `
         varying vec3 vWorldPos;
+        varying vec2 vUv;
         void main() {
+            vUv = uv;
             vec4 worldPosition = modelMatrix * vec4(position, 1.0);
             vWorldPos = worldPosition.xyz;
             gl_Position = projectionMatrix * viewMatrix * worldPosition;
@@ -3125,121 +3161,135 @@ class ElectricStormScene extends SceneBase {
         uniform float uTime;
         uniform float uPress;
         uniform vec3 uCameraPos;
-        uniform vec3 uPointer;
         uniform vec2 uResolution;
         varying vec3 vWorldPos;
 
-        // --- Fast Noise 3D ---
-        // A simple hash function
-        float hash(float n) { return fract(sin(n) * 43758.5453); }
+        // --------------------------------------------------------
+        // High Quality Noise
+        // --------------------------------------------------------
+        
+        float hash(float n) { return fract(sin(n) * 753.5453123); }
         float noise(vec3 x) {
             vec3 p = floor(x);
             vec3 f = fract(x);
             f = f * f * (3.0 - 2.0 * f);
-            float n = p.x + p.y * 57.0 + 113.0 * p.z;
+            float n = p.x + p.y * 157.0 + 113.0 * p.z;
             return mix(mix(mix(hash(n + 0.0), hash(n + 1.0), f.x),
-                           mix(hash(n + 57.0), hash(n + 58.0), f.x), f.y),
+                           mix(hash(n + 157.0), hash(n + 158.0), f.x), f.y),
                        mix(mix(hash(n + 113.0), hash(n + 114.0), f.x),
-                           mix(hash(n + 170.0), hash(n + 171.0), f.x), f.y), f.z);
+                           mix(hash(n + 270.0), hash(n + 271.0), f.x), f.y), f.z);
         }
 
-        // FBM
-        float map(vec3 p) {
+        // FBM with Domain Warping for "Fluid" look
+        float fbm(vec3 p) {
             float f = 0.0;
-            // Move noise with time
-            vec3 mv = vec3(uTime * 0.2, uTime * 0.1, uTime * 0.05);
-            // Distort with pointer
-            float d = length(p - uPointer);
-            float push = smoothstep(10.0, 0.0, d) * uPress * 5.0;
-
-            p += mv;
-
-            // 3 octaves
-            f += 0.500 * noise(p); p = p * 2.02;
-            f += 0.250 * noise(p); p = p * 2.03;
-            f += 0.125 * noise(p);
-
-            // Density Threshold
-            // Make center emptier for visibility
-            return smoothstep(0.3 + push * 0.1, 0.8, f);
+            float amp = 0.5;
+            // Rotation matrix to improve quality
+            mat3 m = mat3(0.00, 0.80, 0.60,
+                         -0.80, 0.36, -0.48,
+                         -0.60, -0.48, 0.64);
+            
+            for(int i=0; i<4; i++) {
+                f += amp * noise(p);
+                p = m * p * 2.02;
+                amp *= 0.5;
+            }
+            return f;
         }
 
-        // Lightning Function
-        float lightning(vec3 p) {
-            // Jittery lines
-            float t = uTime * 20.0;
-            float r = noise(p * 0.5 + vec3(0, t, 0));
-            // Thin threshold
-            float bolt = 1.0 - smoothstep(0.02, 0.03, abs(r - 0.5));
-            // Flicker
-            bolt *= step(0.8, fract(t * 0.2));
-            return bolt;
+        float map(vec3 p) {
+            // Animate space
+            vec3 q = p - vec3(0.0, 0.0, uTime * 0.5);
+            
+            // Domain warp
+            float f = fbm(q);
+            
+            // Dense nebula
+            float dens = fbm(q + f * 2.5); // Nested FBM (Warping)
+            
+            // Interaction: Press clears the fog
+            dens *= (1.0 - uPress * 0.9);
+            
+            // Shaping to prevent infinite wall
+            // Fade density if far from center
+            // float dist = length(p);
+            // dens *= smoothstep(20.0, 10.0, dist);
+
+            return smoothstep(0.35, 0.75, dens);
+        }
+
+        vec3 getLight(vec3 p, vec3 rd, float dens) {
+            // Internal lightning flashes
+            float t = uTime * 3.0;
+            vec3 pos = p * 0.5;
+            float storm = noise(pos + vec3(0, t, 0)) * noise(pos - vec3(t, 0, 0));
+            float flash = smoothstep(0.6, 1.0, storm) * step(0.9, sin(t * 10.0)); // Strobe
+            
+            // Colors
+            vec3 baseColor = vec3(0.05, 0.0, 0.1); // Deep Void Purple
+            vec3 cloudColor = vec3(0.1, 0.3, 0.7); // Nebula Blue
+            vec3 flashColor = vec3(0.8, 0.9, 1.0) * 8.0; // HDR White/Blue
+            
+            // Gradient based on density
+            vec3 col = mix(baseColor, cloudColor, dens);
+            col += flashColor * flash * dens;
+            
+            return col;
         }
 
         void main() {
-             vec3 rayDir = normalize(vWorldPos - uCameraPos);
-             vec3 rayPos = uCameraPos;
-
-             // Raymarch loop
+             vec3 rd = normalize(vWorldPos - uCameraPos);
+             vec3 ro = uCameraPos;
+             
+             // Raymarching
              vec3 col = vec3(0.0);
-             float alpha = 0.0;
-             float dist = 0.0;
-
-             float totDensity = 0.0;
-             vec3 totLight = vec3(0.0);
-
-             // Offset start to box entry?
-             // Ideally we intersect box first, but for now we just march from camera
-             // since camera is 'inside' the volume zone (baseDistance=15, box=30)
-
-             // Dynamic step size
-             float stepSize = 0.5;
-
-             for(int i=0; i<60; i++) {
-                 vec3 p = rayPos + rayDir * dist;
-
-                 // Density
-                 float dens = map(p * 0.15); // Scale noise space
-
-                 if(dens > 0.01) {
-                     // Accumulate density
-                     float a = dens * 0.4;
-                     totDensity += a * (1.0 - totDensity);
-
-                     // Lighting (internal)
-                     // Base ambient
-                     vec3 light = vec3(0.1, 0.2, 0.3) * dens;
-
-                     // Electric Flash
-                     float bolt = lightning(p * 1.5);
-                     vec3 elec = vec3(0.4, 0.8, 1.0) + vec3(0.2, 0.0, 1.0) * uPress;
-                     light += elec * bolt * 5.0 * dens;
-
-                     // Accumulate light
-                     totLight += light * (1.0 - alpha);
-                     alpha += a;
+             float T = 1.0; // Transmittance
+             float t = 0.5; // Start offset
+             
+             // Dithering to hide banding
+             t += hash(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 0.3;
+             
+             float maxDist = 30.0;
+             int steps = 50; 
+             
+             for(int i=0; i<steps; i++) {
+                 vec3 p = ro + rd * t;
+                 
+                 // Density at this point
+                 float density = map(p * 0.25); // Scale noise space
+                 
+                 if(density > 0.01) {
+                     // Light calculation (Beer's Law)
+                     float absorption = density * 0.3; // How thick
+                     
+                     // Light contribution
+                     vec3 light = getLight(p, rd, density);
+                     
+                     // Accumulate
+                     col += light * absorption * T;
+                     T *= (1.0 - absorption);
+                     
+                     if( T < 0.01 ) break;
                  }
-
-                 dist += stepSize;
-
-                 if(alpha >= 0.95 || dist > 50.0) break;
+                 
+                 t += 0.5; // Step size
+                 if(t > maxDist) break;
              }
-
-             // Foggy background blend
-             vec3 bg = vec3(0.02, 0.02, 0.05);
-             col = totLight + bg * (1.0 - alpha);
-
+             
+             // Background blend
+             vec3 bg = mix(vec3(0.0), vec3(0.01, 0.01, 0.05), rd.y * 0.5 + 0.5);
+             col += bg * T;
+             
              gl_FragColor = vec4(col, 1.0);
         }
       `,
     });
-
     this.cloud = new THREE.Mesh(geo, mat);
     this.group.add(this.cloud);
   }
 
   init(ctx: SceneRuntime) {
-    if (this.bg) this.bg = new THREE.Color(0x05070f);
+    if (this.bg) this.bg = new THREE.Color(0x010103);
   }
 
   resize(ctx: SceneRuntime) {
@@ -3254,20 +3304,14 @@ class ElectricStormScene extends SceneBase {
 
   update(ctx: SceneRuntime) {
     const mat = this.cloud.material as THREE.ShaderMaterial;
-    mat.uniforms.uTime.value = ctx.time;
-    mat.uniforms.uPress.value = ctx.press;
-
-    // Convert camera position to shader local space if needed,
-    // but here we just pass world pos relative to scene center (0,0,0)
-    mat.uniforms.uCameraPos.value.copy(this.camera.position);
-
-    // Pointer 3D projection approx
-    const px = (ctx.pointer.x - 0.5) * 20.0;
-    const py = (ctx.pointer.y - 0.5) * -20.0;
-    mat.uniforms.uPointer.value.set(px, py, 0.0);
+    if (mat.uniforms) {
+      mat.uniforms.uTime.value = ctx.time;
+      mat.uniforms.uPress.value = ctx.press;
+      mat.uniforms.uCameraPos.value.copy(this.camera.position);
+    }
 
     // Slow drift rotation
-    this.group.rotation.y = Math.sin(ctx.time * 0.1) * 0.1;
+    this.group.rotation.y = ctx.time * 0.05;
 
     // Camera movement
     this.camera.position.z = damp(
@@ -3280,6 +3324,12 @@ class ElectricStormScene extends SceneBase {
     this.camera.position.x = damp(
       this.camera.position.x,
       ctx.pointer.x * 5,
+      2,
+      ctx.dt
+    );
+    this.camera.position.y = damp(
+      this.camera.position.y,
+      ctx.pointer.y * 5,
       2,
       ctx.dt
     );
