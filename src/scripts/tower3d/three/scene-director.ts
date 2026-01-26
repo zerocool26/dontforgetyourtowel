@@ -830,8 +830,9 @@ export class SceneDirector {
       this.finalPass.uniforms.uTransitionType.value = this.transitionType;
     }
 
-    this.pointer.x = damp(this.pointer.x, this.pointerTarget.x, 6, realDt);
-    this.pointer.y = damp(this.pointer.y, this.pointerTarget.y, 6, realDt);
+    // Increased responsiveness for pointer (6 -> 12)
+    this.pointer.x = damp(this.pointer.x, this.pointerTarget.x, 12, realDt);
+    this.pointer.y = damp(this.pointer.y, this.pointerTarget.y, 12, realDt);
     this.pointerVelocity.set(
       (this.pointer.x - this.lastPointer.x) / Math.max(0.001, realDt),
       (this.pointer.y - this.lastPointer.y) / Math.max(0.001, realDt)
@@ -839,7 +840,8 @@ export class SceneDirector {
     this.lastPointer.copy(this.pointer);
 
     // Tap/press interaction signals (works for mouse + touch)
-    this.tap = damp(this.tap, 0, 18, realDt);
+    // Faster reaction on press (18 -> 24)
+    this.tap = damp(this.tap, 0, 24, realDt);
     this.pressTime = this.pointerDown
       ? Math.min(1, this.pressTime + realDt)
       : Math.max(0, this.pressTime - realDt * 4);

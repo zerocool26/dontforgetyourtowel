@@ -673,7 +673,7 @@ class LiquidMetalScene extends SceneBase {
 
 class RibbonFieldScene extends SceneBase {
   private mesh: THREE.InstancedMesh;
-  private count = 500;
+  private count = 600;
   private dummy = new THREE.Object3D();
 
   constructor() {
@@ -681,8 +681,8 @@ class RibbonFieldScene extends SceneBase {
     this.id = 'scene03';
     this.contentRadius = 6.0;
 
-    // Long strip with high segmentation for smooth curves
-    const geo = new THREE.PlaneGeometry(0.2, 20, 2, 100);
+    // Use a higher resolution plane strip
+    const geo = new THREE.PlaneGeometry(0.15, 20, 2, 200);
 
     const mat = new THREE.ShaderMaterial({
       side: THREE.DoubleSide,
@@ -694,12 +694,13 @@ class RibbonFieldScene extends SceneBase {
       vertexShader: `
         attribute float aOffset;
         attribute float aSpeed;
-        attribute vec3 aColor; // r,g,b
+        attribute vec3 aColor;
 
         varying vec2 vUv;
         varying vec3 vColor;
         varying float vAlpha;
-        varying vec3 vNorm;
+        varying vec3 vViewPos;
+        varying vec3 vNormal;
 
         uniform float uTime;
         uniform float uPress;
@@ -708,81 +709,91 @@ class RibbonFieldScene extends SceneBase {
             vUv = uv;
             vColor = aColor;
 
-            // Normalized position along the strip (0 to 1)
-            // The plane is height 20, centered at 0. So y goes from -10 to 10
-            float t = (position.y + 10.0) / 20.0; // 0..1 along length
+            // t goes 0..1 along the ribbon length
+            float t = (position.y + 10.0) / 20.0;
 
-            // Flow animation
-            float flow = t + uTime * aSpeed * 0.2 + aOffset;
+            // Flow animation loops
+            float flow = fract(t + uTime * aSpeed * 0.1 + aOffset);
 
-            // Define Trefoil Knot path
-            // x = sin(t) + 2sin(2t)
-            // y = cos(t) - 2cos(2t)
-            // z = -sin(3t)
+            // Parametric Path: Torus Knot variant
+            float angle = flow * 6.28318 * 2.0; // 2 loops
 
-            float angle = flow * 6.28;
+            // Complex knot
+            float r = 3.0 + cos(angle * 3.0) * 1.5;
+            float px = r * cos(angle);
+            float py = r * sin(angle);
+            float pz = sin(angle * 3.0) * 2.0;
 
-            // Knot Parameters
-            float k = 3.0; // Scale
-            float px = sin(angle) + 2.0 * sin(2.0 * angle);
-            float py = cos(angle) - 2.0 * cos(2.0 * angle);
-            float pz = -sin(3.0 * angle);
+            // Press modulation (Unravel)
+            float unravel = uPress * 5.0;
+            px += sin(angle * 5.0) * unravel;
+            pz += cos(angle * 5.0) * unravel;
 
-            vec3 curvePos = vec3(px, pz, py) * k * 0.5; // Swapping y/z for better camera view
+            vec3 curvePos = vec3(px, pz, py); // Orient for camera
 
-            // Tangent (Derivative of position)
-            float dAngle = 0.01;
-            float angle2 = angle + dAngle;
-             float px2 = sin(angle2) + 2.0 * sin(2.0 * angle2);
-            float py2 = cos(angle2) - 2.0 * cos(2.0 * angle2);
-            float pz2 = -sin(3.0 * angle2);
-            vec3 curvePos2 = vec3(px2, pz2, py2) * k * 0.5;
+            // Derivative for Frenet frame
+            float eps = 0.01;
+            float angle2 = angle + eps;
+            float r2 = 3.0 + cos(angle2 * 3.0) * 1.5;
+            vec3 curvePos2 = vec3(r2*cos(angle2), sin(angle2*3.0)*2.0, r2*sin(angle2));
+            // Apply unravel to tangent too approx
+            curvePos2.x += sin(angle2 * 5.0) * unravel;
 
             vec3 tangent = normalize(curvePos2 - curvePos);
             vec3 up = vec3(0.0, 1.0, 0.0);
             vec3 right = normalize(cross(tangent, up));
             vec3 normal = cross(right, tangent);
 
-            vNorm = normal;
+            // Ribbon Twist
+            float twist = flow * 3.14 * 8.0 + uTime;
+            float c = cos(twist);
+            float s = sin(twist);
+            // Rotate 'right' vector around 'tangent'
+            vec3 twistedRight = right * c + normal * s;
+            vec3 twistedNormal = normal * c - right * s;
 
-            // Offset based on X (width of ribbon)
-            // position.x is -0.1 to 0.1
-            vec3 finalPos = curvePos + right * position.x * (1.0 + uPress * 5.0); // Expand width on press
+            vNormal = normalize(normalMatrix * twistedNormal);
 
-            // Add some "breathing" / spread based on offset
-            finalPos += normal * sin(angle * 5.0 + uTime) * 0.5;
+            // Width expansion
+            vec3 finalPos = curvePos + twistedRight * position.x * (1.0 + uPress * 10.0);
 
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(finalPos, 1.0);
+            vec4 mvPosition = modelViewMatrix * vec4(finalPos, 1.0);
+            gl_Position = projectionMatrix * mvPosition;
+            vViewPos = -mvPosition.xyz;
 
-            // Alpha fade at ends
-            vAlpha = smoothstep(0.0, 0.1, t) * (1.0 - smoothstep(0.9, 1.0, t));
+            // Fade edges of the flow loop
+            vAlpha = smoothstep(0.0, 0.1, flow) * (1.0 - smoothstep(0.9, 1.0, flow));
         }
       `,
       fragmentShader: `
         varying vec2 vUv;
         varying vec3 vColor;
         varying float vAlpha;
-        varying vec3 vNorm;
+        varying vec3 vViewPos;
+        varying vec3 vNormal;
 
         void main() {
-            // Iridescence
-            vec3 viewDir = vec3(0.0, 0.0, 1.0); // Approx view dir in view space? adjust if needed
-            float fresnel = pow(1.0 - abs(dot(vNorm, viewDir)), 2.0);
+            vec3 viewDir = normalize(vViewPos);
+            vec3 normal = normalize(vNormal);
+            float NdotV = dot(normal, viewDir);
+            float fresnel = pow(1.0 - abs(NdotV), 3.0);
 
-            vec3 col = vColor;
+            // Holographic Interference
+            // Bands based on view angle
+            float irid = sin(NdotV * 10.0 + vUv.y * 20.0);
+            vec3 rainbow = 0.5 + 0.5 * cos(vec3(0,2,4) + irid * 3.0);
 
-            // Add shiny streak
-            float streak = step(0.95, fract(vUv.y * 10.0));
-            col += vec3(1.0) * streak * 0.5;
+            vec3 col = mix(vColor, rainbow, 0.5 * fresnel);
 
-            // Rim light
-            col += vec3(0.5, 0.8, 1.0) * fresnel;
+            // Metallic highlight
+            float spec = pow(max(dot(reflect(-viewDir, normal), vec3(0,1,0)), 0.0), 30.0);
+            col += vec3(1.0) * spec;
 
-            gl_FragColor = vec4(col, vAlpha * 0.8);
+            gl_FragColor = vec4(col, vAlpha * (0.6 + 0.4 * fresnel));
         }
       `,
       blending: THREE.AdditiveBlending,
-      depthWrite: false, // Transparency sort issue might occur but additive looks good
+      depthWrite: false,
     });
 
     this.mesh = new THREE.InstancedMesh(geo, mat, this.count);
@@ -792,14 +803,15 @@ class RibbonFieldScene extends SceneBase {
     const colors = new Float32Array(this.count * 3);
 
     for (let i = 0; i < this.count; i++) {
+      // We pack all geometry at 0, logic is in shader
       this.dummy.position.set(0, 0, 0);
       this.dummy.updateMatrix();
       this.mesh.setMatrixAt(i, this.dummy.matrix);
 
-      offsets[i] = Math.random() * 10.0;
-      speeds[i] = 0.5 + Math.random() * 0.5;
+      offsets[i] = Math.random();
+      speeds[i] = 0.8 + Math.random() * 0.4;
 
-      const c = new THREE.Color().setHSL(0.6 + Math.random() * 0.2, 1.0, 0.6);
+      const c = new THREE.Color().setHSL(0.5 + Math.random() * 0.2, 0.8, 0.5);
       colors[i * 3] = c.r;
       colors[i * 3 + 1] = c.g;
       colors[i * 3 + 2] = c.b;
@@ -828,8 +840,9 @@ class RibbonFieldScene extends SceneBase {
     mat.uniforms.uTime.value = ctx.time;
     mat.uniforms.uPress.value = ctx.press;
 
-    this.group.rotation.x = ctx.pointer.y * 0.2;
-    this.group.rotation.y = ctx.pointer.x * 0.2 + ctx.time * 0.1;
+    // Slowly rotate the whole knot
+    this.group.rotation.x = ctx.time * 0.1;
+    this.group.rotation.y = ctx.time * 0.15;
 
     this.camera.position.z = damp(
       this.camera.position.z,
@@ -994,7 +1007,7 @@ class MillionFirefliesScene extends SceneBase {
 
 class AuroraCurtainScene extends SceneBase {
   private mesh: THREE.InstancedMesh;
-  private count = 60;
+  private count = 40; // Fewer but larger curtains
   private dummy = new THREE.Object3D();
 
   constructor() {
@@ -1003,8 +1016,8 @@ class AuroraCurtainScene extends SceneBase {
     this.contentRadius = 8.0;
 
     // A single long, tall curtain strip
-    // Width 5, Height 20, WidthSegs 40, HeightSegs 64
-    const geo = new THREE.PlaneGeometry(8, 24, 40, 64);
+    // Width 5, Height 20, WidthSegs 60, HeightSegs 20
+    const geo = new THREE.PlaneGeometry(12, 20, 60, 20);
 
     const mat = new THREE.ShaderMaterial({
       side: THREE.DoubleSide,
@@ -1051,21 +1064,19 @@ class AuroraCurtainScene extends SceneBase {
 
            vec3 pos = position;
 
-           // Curving the curtain
-           float t = uTime * 0.2 + aPhase;
+           // Large sweeping wave for shape
+           float t = uTime * 0.1 + aPhase;
+           float flow = pos.x * 0.2 + t;
 
-           // Large sweeping wave
-           float wave = snoise(vec2(pos.x * 0.1 + t, pos.y * 0.05 + aIndex * 0.1));
+           float wave = snoise(vec2(flow, aIndex * 0.2));
+           pos.z += wave * 4.0;
 
-           pos.z += wave * 3.0;
-
-           // Fine detail ripples
-           float ripple = snoise(vec2(pos.x * 0.5 + t * 2.0, pos.y * 0.2));
-           pos.z += ripple * 0.5;
+           // Twist vertically
+           pos.z += sin(pos.y * 0.2 + t) * 2.0;
 
            // Alpha fade at edges
-           vAlpha = smoothstep(0.0, 0.2, uv.y) * (1.0 - smoothstep(0.8, 1.0, uv.y));
-           vAlpha *= smoothstep(0.0, 0.1, uv.x) * (1.0 - smoothstep(0.9, 1.0, uv.x));
+           vAlpha = smoothstep(-10.0, -5.0, pos.y) * (1.0 - smoothstep(5.0, 10.0, pos.y));
+           vAlpha *= smoothstep(-6.0, -4.0, pos.x) * (1.0 - smoothstep(4.0, 6.0, pos.x));
 
            gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
         }
@@ -1074,24 +1085,32 @@ class AuroraCurtainScene extends SceneBase {
         varying vec2 vUv;
         varying float vAlpha;
         varying float vIndex;
+        uniform float uTime;
         uniform vec3 uColor1;
         uniform vec3 uColor2;
 
+        float hash( float n ) { return fract(sin(n)*43758.5453123); }
+
         void main() {
-           // Color gradient vertical
-           vec3 col = mix(uColor1, uColor2, vUv.y);
+           // Vertical Rays
+           float rayPos = vUv.x * 20.0 + sin(vUv.y * 5.0 + uTime + vIndex) * 2.0;
+           float rays = sin(rayPos) * 0.5 + 0.5;
+           rays = pow(rays, 8.0); // sharp rays
 
-           // Add banding
-           float bands = sin(vUv.y * 20.0 + vIndex) * 0.1;
-           col += bands;
+           // Color gradient
+           // Aurora is often green at bottom, purple/red at top
+           vec3 col = mix(uColor1, uColor2, vUv.y + 0.2 * sin(uTime));
 
-           float finalAlpha = vAlpha * 0.6; // ghost-like
+           // Add brightness from rays
+           col += vec3(0.5, 1.0, 0.8) * rays;
 
-           gl_FragColor = vec4(col * 2.0, finalAlpha);
+           float finalAlpha = vAlpha * 0.4 * (0.5 + 0.5 * rays);
+
+           gl_FragColor = vec4(col, finalAlpha);
         }
       `,
       blending: THREE.AdditiveBlending,
-      depthWrite: false, // Important for transparency overlap
+      depthWrite: false,
     });
 
     this.mesh = new THREE.InstancedMesh(geo, mat, this.count);
@@ -1102,11 +1121,14 @@ class AuroraCurtainScene extends SceneBase {
 
     for (let i = 0; i < this.count; i++) {
       dummy.position.set(
-        (Math.random() - 0.5) * 10,
-        0,
-        (Math.random() - 0.5) * 5
+        (Math.random() - 0.5) * 5.0,
+        Math.random() * 2.0 - 1.0,
+        (Math.random() - 0.5) * 10.0
       );
+      // Tilt curtains
+      dummy.rotation.x = (Math.random() - 0.5) * 0.5;
       dummy.rotation.y = (Math.random() - 0.5) * 1.0;
+
       dummy.updateMatrix();
       this.mesh.setMatrixAt(i, dummy.matrix);
 
@@ -1132,7 +1154,7 @@ class AuroraCurtainScene extends SceneBase {
     const mat = this.mesh.material as THREE.ShaderMaterial;
     mat.uniforms.uTime.value = ctx.time;
 
-    this.group.rotation.y = ctx.time * 0.05;
+    this.group.rotation.y = ctx.time * 0.02;
 
     this.camera.position.z = damp(
       this.camera.position.z,
@@ -1430,119 +1452,132 @@ class EventHorizonScene extends SceneBase {
 
 class KaleidoGlassScene extends SceneBase {
   private shapes: THREE.InstancedMesh;
-  private count = 300;
+  private count = 380; // Icosahedral symmetry count approx
   private dummy = new THREE.Object3D();
-  private physics: SimplePhysics;
-  private pointerPos = new THREE.Vector3();
 
   constructor() {
     super();
     this.id = 'scene06';
     this.contentRadius = 5.0;
 
-    // Prism Geometry
-    const geo = new THREE.ConeGeometry(0.5, 1.5, 4);
+    // Complex Crystal Geometry
+    // We use a group of merged geometries for the base instance to get detail
+    // Actually, let's use a dynamic shape: Isosahedron details
+    const geo = new THREE.OctahedronGeometry(0.8, 0);
 
-    // High-end glass material
+    // High-end glass material with Dispersion
     const mat = new THREE.MeshPhysicalMaterial({
       color: 0xffffff,
-      emissive: 0x220033,
+      emissive: 0x000000,
       metalness: 0.1,
-      roughness: 0.0,
-      transmission: 1.0,
-      thickness: 2.0,
-      ior: 1.6,
+      roughness: 0.05,
+      transmission: 1.0, // Glass
+      thickness: 3.0, // Volume
+      ior: 1.6, // Refraction
       clearcoat: 1.0,
-      attenuationColor: new THREE.Color(0xff00aa),
-      attenuationDistance: 1.0,
+      attenuationColor: new THREE.Color(0xffaaaa), // Pinkish internal absorption
+      attenuationDistance: 2.0,
     });
-    // @ts-expect-error Dispersion
-    mat.dispersion = 0.08;
+    // @ts-expect-error Dispersion property
+    mat.dispersion = 0.15; // High dispersion for rainbows
 
     this.shapes = new THREE.InstancedMesh(geo, mat, this.count);
-
-    // Physics
-    this.physics = new SimplePhysics(this.count);
-    this.physics.bounds.set(6, 6, 6);
-    this.physics.friction = 0.98;
-
-    // Arrange in a Fractal Sphere pattern
-    for (let i = 0; i < this.count; i++) {
-      // Golden Angle distribution
-      const phi = Math.acos(-1 + (2 * i) / this.count);
-      const theta = Math.sqrt(this.count * Math.PI) * phi;
-
-      const r = 3.5;
-      const x = r * Math.sin(phi) * Math.cos(theta);
-      const y = r * Math.sin(phi) * Math.sin(theta);
-      const z = r * Math.cos(phi);
-
-      this.physics.initParticle(i, new THREE.Vector3(x, y, z), 0.5);
-
-      this.dummy.position.set(x, y, z);
-      this.dummy.lookAt(0, 0, 0); // Point inward
-
-      // Random scale variation
-      const s = 0.5 + Math.random() * 1.0;
-      this.dummy.scale.set(s, s * 2.0, s);
-
-      this.dummy.updateMatrix();
-      this.shapes.setMatrixAt(i, this.dummy.matrix);
-    }
-
-    // Store scale in userData
-    const scales = new Float32Array(this.count);
-    for (let i = 0; i < this.count; i++) scales[i] = 0.5 + Math.random();
-    this.shapes.userData.scales = scales;
-
     this.group.add(this.shapes);
 
-    // Inner Light to refract
-    const light = new THREE.PointLight(0xffffff, 5, 10);
-    this.group.add(light);
-
-    // Add some ambient light/bg for refraction checks
-    const wireGeo = new THREE.IcosahedronGeometry(6.0, 1);
-    const wireMat = new THREE.MeshBasicMaterial({
-      color: 0x00ffff,
-      wireframe: true,
-      transparent: true,
-      opacity: 0.1,
+    // Inner Light Core (The "Source")
+    const coreGeo = new THREE.IcosahedronGeometry(2.0, 4);
+    const coreMat = new THREE.ShaderMaterial({
+      uniforms: { uTime: { value: 0 } },
+      vertexShader: `
+            varying vec3 vPos;
+            varying vec3 vNormal;
+            void main() {
+                vPos = position;
+                vNormal = normal;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        `,
+      fragmentShader: `
+            uniform float uTime;
+            varying vec3 vPos;
+            varying vec3 vNormal;
+            void main() {
+                vec3 col = 0.5 + 0.5 * cos(uTime + vPos.xyx + vec3(0,2,4));
+                float rim = 1.0 - max(0.0, dot(vNormal, vec3(0,0,1)));
+                col += pow(rim, 3.0);
+                gl_FragColor = vec4(col, 1.0);
+            }
+        `,
+      side: THREE.BackSide, // Render inside out so we see it through glass? No, FrontSide
     });
-    this.group.add(new THREE.Mesh(wireGeo, wireMat));
+    // Actually, standard material is better for being refracted
+    const innerLight = new THREE.Mesh(
+      coreGeo,
+      new THREE.MeshBasicMaterial({ color: 0xffffff })
+    );
+    innerLight.scale.setScalar(0.5);
+    this.group.add(innerLight);
+
+    // Add point light to illuminate the glass from inside
+    const pl = new THREE.PointLight(0xff00ff, 10, 10);
+    this.group.add(pl);
   }
 
   init(_ctx: SceneRuntime) {}
 
   update(ctx: SceneRuntime) {
-    const t = ctx.time;
-    const dt = Math.min(ctx.dt, 1 / 30);
-    const scales = this.shapes.userData.scales;
+    const t = ctx.time * 0.2;
+    const press = ctx.press;
 
-    this.pointerPos.set(ctx.pointer.x * 10, ctx.pointer.y * 10, 0);
-    this.physics.update(dt, this.pointerPos, 3.0);
+    // Animate instances in a symmetry pattern
+    // Golden ratio
+    const phi = (1 + Math.sqrt(5)) / 2;
 
     for (let i = 0; i < this.count; i++) {
-      const idx = i * 3;
-      const x = this.physics.positions[idx];
-      const y = this.physics.positions[idx + 1];
-      const z = this.physics.positions[idx + 2];
+      // Parametric orbits
+      const offset = i * 0.1;
+
+      // Base Rotation (Kaleidoscopic)
+      const angle = (i / this.count) * Math.PI * 2 * phi;
+      const r = 3.5 + Math.sin(t * 2.0 + offset) * 0.5;
+
+      // Sphere mapping
+      const y = ((i / (this.count - 1)) * 2 - 1) * (3.0 + press * 2.0);
+      const radiusAtY = Math.sqrt(r * r - y * y);
+      const theta = angle * 13.0 + t; // Spin fast
+
+      const x = radiusAtY * Math.cos(theta);
+      const z = radiusAtY * Math.sin(theta);
 
       this.dummy.position.set(x, y, z);
-      this.dummy.lookAt(0, 0, 0);
-      this.dummy.rotateZ(t * 0.5 + i); // Spin
 
-      const s = scales[i] * (1.0 + Math.sin(t * 2 + i) * 0.1);
-      this.dummy.scale.set(s, s * 2, s);
+      // Construct ring / shell
+      // Look at center
+      this.dummy.lookAt(0, 0, 0);
+
+      // Constant rotation of individual shards
+      this.dummy.rotateZ(t * 2.0 + i);
+      this.dummy.rotateX(t + i);
+
+      // Scale pulse
+      const s = 0.4 + 0.3 * Math.sin(t * 5.0 + i);
+      this.dummy.scale.setScalar(s);
+
+      // Expansion on press
+      if (press > 0) {
+        this.dummy.position.multiplyScalar(1.0 + press * 0.5);
+        this.dummy.rotation.x += press * i;
+      }
 
       this.dummy.updateMatrix();
       this.shapes.setMatrixAt(i, this.dummy.matrix);
     }
     this.shapes.instanceMatrix.needsUpdate = true;
 
-    // Interactive
-    this.group.rotation.x = ctx.pointer.y * 0.1;
-    this.group.rotation.y = ctx.pointer.x * 0.1;
+    // Rotate entire kaleidoscope
+    this.group.rotation.z = t * 0.5;
+    this.group.rotation.y = ctx.pointer.x * 0.5;
+    this.group.rotation.x = ctx.pointer.y * 0.5;
 
     this.camera.position.z = damp(
       this.camera.position.z,
@@ -1558,7 +1593,7 @@ class KaleidoGlassScene extends SceneBase {
 
 class MatrixRainScene extends SceneBase {
   private mesh: THREE.InstancedMesh;
-  private count = 3000; // Increased density
+  private count = 5000; // Even Higher density
   private dummy = new THREE.Object3D();
 
   constructor() {
@@ -1578,32 +1613,35 @@ class MatrixRainScene extends SceneBase {
     ctx.fillRect(0, 0, size, size);
 
     // Draw grid of characters
-    const cols = 32; // More chars
+    const cols = 32;
     const rows = 32;
     const cell = size / cols;
-    ctx.font = `bold ${cell * 0.9}px monospace`;
+    ctx.font = `bold ${cell * 0.8}px monospace`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
-    // Katakana / Matrix chars
-    const chars = 'XYZ010101<>?#@&DATAﾊﾐﾋｰｳｼﾅﾓﾆｻﾜﾂｵﾘｱﾎﾃﾏｹﾒｴｶｷﾑﾕﾗｾﾈｽﾀﾇﾍ';
+    // Katakana / Matrix chars / Hex
+    const chars = '01XYZ01<>:;[]+=_DATAﾊﾐﾋｰｳｼﾅﾓﾆｻﾜﾂｵﾘｱﾎﾃﾏｹﾒｴｶｷﾑﾕﾗｾﾈｽﾀﾇﾍ';
 
     for (let y = 0; y < rows; y++) {
       for (let x = 0; x < cols; x++) {
-        const hue = 120 + Math.random() * 40; // Matrix Green to Cyan
-        const lit = 50 + Math.random() * 50;
-        ctx.fillStyle = `hsl(${hue}, 100%, ${lit}%)`;
+        // Brightness variation
+        const lit = 60 + Math.random() * 40;
+        ctx.fillStyle = `hsl(140, 100%, ${lit}%)`;
+
+        // Random char
         const char = chars[Math.floor(Math.random() * chars.length)];
         ctx.fillText(char, x * cell + cell / 2, y * cell + cell / 2);
       }
     }
 
     const tex = new THREE.CanvasTexture(cvs);
-    tex.magFilter = THREE.LinearFilter; // Smoother
+    tex.magFilter = THREE.LinearFilter;
     tex.minFilter = THREE.LinearFilter;
 
-    // 2. Geometry
-    const geo = new THREE.PlaneGeometry(0.4, 0.4);
+    // 2. Geometry: Vertical "Data Blades"
+    // Thin boxes that look like 3D volumetric pixels
+    const geo = new THREE.BoxGeometry(0.1, 0.8, 0.05);
 
     // 3. Shader Material for Rain Effect
     const mat = new THREE.ShaderMaterial({
@@ -1621,87 +1659,101 @@ class MatrixRainScene extends SceneBase {
         varying vec2 vUv;
         varying float vAlpha;
         varying float vGlow;
+        varying float vIndex;
 
         uniform float uTime;
         uniform float uPress;
         uniform vec2 uPointer;
 
-        // Rotation matrix helper
-        mat3 rotateY(float theta) {
-            float c = cos(theta);
-            float s = sin(theta);
-            return mat3(
-                c, 0, s,
-                0, 1, 0,
-                -s, 0, c
-            );
-        }
+        // Pseudo-random
+        float hash(float n) { return fract(sin(n) * 43758.5453123); }
 
         void main() {
-            // -- UV Animation --
-            // Select random character grid
-            float t = uTime * aSpeed * 3.0 + aOffset * 100.0;
+            // UV Animation: Cycle through texture grid
+            float tGlobal = uTime * aSpeed * 2.0;
+            float t = tGlobal + aOffset * 100.0;
             float charIdx = floor(mod(t, 1024.0)); // 32x32 = 1024
 
             float cx = mod(charIdx, 32.0);
             float cy = floor(charIdx / 32.0);
+
+            // Map box UVs to the texture cell
+            // Box UVs are 0..1 per face. We want to map that to the cell.
+            // Simplified: use uv directly scaling by 1/32
             vUv = (uv + vec2(cx, cy)) / 32.0;
 
-            // -- 1. Rain State (Cylinder Waterfall) --
-            float fall = uTime * aSpeed * 3.0;
-            float y = 15.0 - mod(fall + aOffset * 30.0, 30.0);
-            y -= 7.5; // -7.5 to 7.5
+            vIndex = aOffset;
 
-            float angle = aOffset * 6.28;
-            float r = aRadius;
+            // -- 1. Rain State (Vortex) --
+            // Spiral movement down
+            float fall = tGlobal;
+            float y = 20.0 - mod(fall + aOffset * 40.0, 40.0);
+            y -= 10.0; // -10 to 10
+
+            // Radius varies with Y for funnel shape
+            float funnel = 1.0 + smoothstep(-10.0, 10.0, y) * 2.0; // Wider at top? Or bottom?
+            // Actually let's make it an hourglass
+            float shape = 1.0 + pow(abs(y) * 0.1, 2.0);
+
+            float angle = aOffset * 6.28 * 10.0 + uTime * 0.5 + y * 0.2; // Twist
+            float r = aRadius * shape;
+
             vec3 posA = vec3(cos(angle)*r, y, sin(angle)*r);
 
-            // -- 2. Entity State (Sphere Artifact) --
+            // -- 2. Entity State (Cyber Sphere) --
             // Map index to sphere coords
             float phi = aOffset * 3.14159 * 2.0;
             float theta = acos(2.0 * fract(aSpeed * 13.0) - 1.0);
-            float rad = 3.5;
+            float rad = 4.0;
             vec3 posB = vec3(
                 rad * sin(theta) * cos(phi),
                 rad * sin(theta) * sin(phi),
                 rad * cos(theta)
             );
-            // Rotate the data ball
-            posB = rotateY(uTime * 2.0) * posB;
+
+            // Jitter/Glitch position on sphere
+            float glitch = step(0.95, fract(uTime * 4.0 + aOffset * 20.0));
+            posB *= 1.0 + glitch * 0.2;
 
             // -- Interaction Mix --
-            // uPress drives the morph
             float morph = smoothstep(0.0, 1.0, uPress);
-
-            // Interaction: Mouse Repulsion on Rain
-            // Project pointer (screen) to world approx
-            vec3 repelTarget = vec3(uPointer.x * 10.0, uPointer.y * 10.0, 0.0);
-            vec3 dir = posA - repelTarget; // Repel only affects rain state usually
-            float dist = length(dir);
-            vec3 repelForce = normalize(dir) * smoothstep(5.0, 0.0, dist) * 3.0 * (1.0 - morph);
-
-            posA += repelForce;
 
             vec3 pos = mix(posA, posB, morph);
 
-            // Billboarding (View Space)
-            vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+            // -- Instance Transform --
 
-            // Apply scale/offset in View Space (always faces camera)
-            // 'position' is the quad vertex offset (-0.2 to 0.2)
-            float scale = 1.0 - morph * 0.5;
-            mvPosition.xy += position.xy * scale;
+            // Scale data blade based on speed
+            // stretch Y
+            float stretch = 1.0 + aSpeed;
+            vec3 scaledPos = position * vec3(1.0, stretch, 1.0);
 
-            gl_Position = projectionMatrix * mvPosition;
+            // Rotate blade to face center (roughly)
+            float rotY = -atan(pos.z, pos.x);
+            // Construct rotation matrix manually or just trust standard billboarding?
+            // Let's do Standard rotation y
+            float c = cos(rotY);
+            float s = sin(rotY);
+            mat3 mRot = mat3(
+               c, 0, s,
+               0, 1, 0,
+               -s, 0, c
+            );
+            scaledPos = mRot * scaledPos;
 
-            // Alpha fade top/bottom for rain, solid for ball
-            float rainAlpha = smoothstep(7.5, 5.0, abs(y));
+            vec4 worldPos = modelViewMatrix * vec4(pos + scaledPos, 1.0); // Simple additive, not full matrix
+
+            gl_Position = projectionMatrix * worldPos;
+
+            // Alpha logic
+            float distY = abs(y);
+            float rainAlpha = smoothstep(12.0, 8.0, distY);
             vAlpha = mix(rainAlpha, 1.0, morph);
 
-            // Glitch flash
-            vGlow = step(0.98, fract(t * 0.05)) * 2.0;
-            // Matrix glow on press
-            vGlow += morph * 0.5;
+            // Highlight
+            vGlow = glitch;
+            // Matrix stream leading edge brightness
+            float leading = smoothstep(0.0, 0.2, fract(y * 0.1 + uTime));
+            vGlow += leading;
         }
       `,
       fragmentShader: `
@@ -1712,15 +1764,20 @@ class MatrixRainScene extends SceneBase {
 
         void main() {
             vec4 c = texture2D(uMap, vUv);
-            if (c.g < 0.2) discard; // Green channel key
 
-            vec3 color = c.rgb;
-            color *= vec3(0.2, 1.0, 0.5); // Ensure matrix green tint
+            // Green channel key
+            float brightness = c.g;
+            if (brightness < 0.1) discard;
+
+            vec3 color = vec3(0.0, 1.0, 0.4); // Cyber Green
+
+            // Core white
+            color = mix(color, vec3(1.0), brightness * 0.5);
 
             // Add glow bloom
-            color += vec3(0.5, 1.0, 0.8) * vGlow;
+            color += vec3(0.8, 1.0, 0.9) * vGlow;
 
-            gl_FragColor = vec4(color, vAlpha);
+            gl_FragColor = vec4(color, vAlpha * brightness);
         }
       `,
       transparent: true,
@@ -1737,9 +1794,10 @@ class MatrixRainScene extends SceneBase {
 
     for (let i = 0; i < this.count; i++) {
       offsets[i] = Math.random();
-      speeds[i] = 1.0 + Math.random();
-      radii[i] = 3.0 + Math.random() * 8.0;
+      speeds[i] = 0.5 + Math.random() * 2.0; // Varied fall speeds
+      radii[i] = 2.0 + Math.random() * 6.0;
 
+      // Init dummy matrix (mostly ignored by custom vertex shader pos logic but needed for frustum culling)
       this.dummy.position.set(0, 0, 0);
       this.dummy.updateMatrix();
       this.mesh.setMatrixAt(i, this.dummy.matrix);
@@ -1769,15 +1827,14 @@ class MatrixRainScene extends SceneBase {
 
     const mat = this.mesh.material as THREE.ShaderMaterial;
     mat.uniforms.uTime.value = t;
-    // Smooth press transition
     mat.uniforms.uPress.value = press;
     mat.uniforms.uPointer.value.copy(ctx.pointer);
 
-    this.group.rotation.x = ctx.pointer.y * 0.1;
-    this.group.rotation.z = ctx.pointer.x * 0.1;
+    // Camera Orbit
+    this.group.rotation.y = t * 0.1 + ctx.pointer.x * 0.5;
 
-    // Twist the whole group slightly
-    this.group.rotation.y = t * 0.1;
+    // Tilt on press
+    this.group.rotation.x = Math.sin(t) * 0.1 * press;
 
     this.camera.position.z = damp(
       this.camera.position.z,
@@ -1795,7 +1852,8 @@ class OrbitalMechanicsScene extends SceneBase {
   private debris: THREE.InstancedMesh;
   private planet: THREE.Mesh;
   private rings: THREE.Mesh;
-  private count = 2000;
+  private atmo: THREE.Mesh;
+  private count = 4000; // Increased debris
   private dummy = new THREE.Object3D();
   private physics: SimplePhysics;
   private pointerPos = new THREE.Vector3();
@@ -1806,22 +1864,27 @@ class OrbitalMechanicsScene extends SceneBase {
     this.contentRadius = 8.0;
 
     // 1. Procedural Gas Giant (Hyper-Real)
+    // Multi-layered noise for clouds and storms
     const pGeo = new THREE.SphereGeometry(2.5, 128, 128);
     const pMat = new THREE.ShaderMaterial({
       uniforms: {
         uTime: { value: 0 },
-        uColorA: { value: new THREE.Color(0xbba588) }, // Beige
-        uColorB: { value: new THREE.Color(0x884400) }, // Rust
-        uColorC: { value: new THREE.Color(0x331100) }, // Dark bands
-        uSunDir: { value: new THREE.Vector3(1.0, 0.2, 1.0).normalize() },
+        uColorA: { value: new THREE.Color(0xd9c2a3) }, // Cream
+        uColorB: { value: new THREE.Color(0xa65e2e) }, // Terracotta
+        uColorC: { value: new THREE.Color(0x4a2e1d) }, // Dark Umber
+        uColorD: { value: new THREE.Color(0x1a1a3a) }, // Deep Storm
+        uSunDir: { value: new THREE.Vector3(1.0, 0.5, 1.0).normalize() },
       },
       vertexShader: `
         varying vec2 vUv;
         varying vec3 vNormal;
         varying vec3 vViewPos;
+        varying vec3 vWorldNormal;
+
         void main() {
             vUv = uv;
             vNormal = normalize(normalMatrix * normal);
+            vWorldNormal = normalize((modelMatrix * vec4(normal,0.0)).xyz);
             vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
             vViewPos = -mvPosition.xyz;
             gl_Position = projectionMatrix * mvPosition;
@@ -1832,73 +1895,84 @@ class OrbitalMechanicsScene extends SceneBase {
         uniform vec3 uColorA;
         uniform vec3 uColorB;
         uniform vec3 uColorC;
+        uniform vec3 uColorD;
         uniform vec3 uSunDir;
 
         varying vec2 vUv;
         varying vec3 vNormal;
         varying vec3 vViewPos;
+        varying vec3 vWorldNormal;
 
-        // Gradient Noise
-        vec3 hash33(vec3 p3) {
-            p3 = fract(p3 * vec3(.1031, .1030, .0973));
-            p3 += dot(p3, p3.yxz+33.33);
-            return fract((p3.xxy + p3.yxx)*p3.zyx);
-        }
-        float noise(vec3 p) {
-            const float K1 = 0.333333333;
-            const float K2 = 0.166666667;
-            vec3 i = floor(p + (p.x + p.y + p.z) * K1);
-            vec3 d0 = p - (i - (i.x + i.y + i.z) * K2);
-            vec3 e = step(vec3(0.0), d0 - d0.yzx);
-            vec3 i1 = e * (1.0 - e.zxy);
-            vec3 i2 = 1.0 - e.zxy * (1.0 - e);
-            vec3 d1 = d0 - i1 + K2;
-            vec3 d2 = d0 - i2 + 2.0 * K2;
-            vec3 d3 = d0 - 1.0 + 3.0 * K2;
-            vec4 h = max(0.6 - vec4(dot(d0, d0), dot(d1, d1), dot(d2, d2), dot(d3, d3)), 0.0);
-            vec3 n = h.x * h.x * h.x * h.x * vec3(dot(d0, hash33(i)), dot(d1, hash33(i + i1)), dot(d2, hash33(i + i2)));
-            return dot(vec3(dot(d3, hash33(i + 1.0))), n) * 31.316;
+        // FBM Noise
+        float hash(float n) { return fract(sin(n) * 758.5453); }
+        float noise(vec3 x) {
+            vec3 p = floor(x);
+            vec3 f = fract(x);
+            f = f*f*(3.0-2.0*f);
+            float n = p.x + p.y*57.0 + p.z*113.0;
+            return mix(mix(mix(hash(n+0.0), hash(n+1.0),f.x),
+                           mix(hash(n+57.0), hash(n+58.0),f.x),f.y),
+                       mix(mix(hash(n+113.0), hash(n+114.0),f.x),
+                           mix(hash(n+170.0), hash(n+171.0),f.x),f.y),f.z);
         }
 
-        // FBM
-        float fbm(vec2 p) {
+        float fbm(vec3 p) {
             float f = 0.0;
-            float amps = 0.5;
-            for(int i=0; i<6; i++) {
-                f += amps * sin(p.x * 2.0 + p.y * 5.0 + uTime*0.1);
+            float amp = 0.5;
+            for(int i=0; i<5; i++) {
+                f += amp * noise(p);
+                p *= 2.02;
+                amp *= 0.5;
             }
             return f;
         }
 
+        // Curl-like distortion
+        float warp(vec3 p) {
+            return fbm(p + fbm(p + fbm(p)));
+        }
+
         void main() {
-            // Turbulence pattern for storms
-            vec2 p = vUv;
+            // Planet Coordinates
+            // UV mapping on sphere has pole distortion, better to use 3D noise on sphere surface coords if available
+            // But UV is fine for gas bands if we account for y
 
-            // Flow simulation
-            float flow = uTime * 0.02;
+            vec3 seed = vec3(vUv * 5.0, uTime * 0.05);
 
-            float bandStructure = sin(p.y * 24.0 + sin(p.x * 3.0));
-            float detail = sin(p.x * 40.0 + p.y * 100.0 + flow);
+            // Major Bands (Latitude functions)
+            float lat = vUv.y * 3.14159;
+            float bands = sin(vUv.y * 20.0 + sin(vUv.x * 2.0));
 
-            float mixVal = bandStructure * 0.6 + detail * 0.1;
-            mixVal = smoothstep(-0.8, 0.8, mixVal);
+            // Turbulent flow
+            float turb = warp(seed * 3.0);
 
-            vec3 col = mix(uColorA, uColorB, mixVal);
-            col = mix(col, uColorC, smoothstep(0.4, 0.9, abs(bandStructure)));
+            // Combine
+            float mixVal = bands * 0.4 + turb * 0.6;
+
+            // Color Ramps
+            vec3 col = mix(uColorA, uColorB, smoothstep(0.2, 0.8, turb));
+            col = mix(col, uColorC, smoothstep(-0.5, 0.2, bands));
+            col = mix(col, uColorD, smoothstep(0.7, 1.0, turb * bands)); // Storm features
 
             // Lighting
-            float diff = max(dot(vNormal, uSunDir), 0.0);
+            float diff = max(dot(vWorldNormal, uSunDir), 0.0);
 
-            // Terminator softness
-            diff = smoothstep(-0.2, 0.2, diff); // Shift shading to allow scattering wrap
+            // Terminator Scattering (Subsurface approx)
+            float scatter = smoothstep(-0.35, 0.1, dot(vWorldNormal, uSunDir)) * smoothstep(0.1, -0.35, dot(vWorldNormal, uSunDir));
+            col += vec3(1.0, 0.4, 0.1) * scatter * 0.4;
 
+            // Final Diffuse
+            diff = smoothstep(-0.2, 1.0, diff); // Soft terminator
             vec3 final = col * diff;
 
-            // Rim light (Atmosphere scattering)
+            // Specular highlighting from oceans (Liquid metal hydrogen?)
             float viewD = dot(normalize(vViewPos), vNormal);
-            float rim = pow(1.0 - max(viewD, 0.0), 3.0);
+            // float spec = pow(max(dot(reflect(-uSunDir, vNormal), normalize(vViewPos)), 0.0), 20.0);
+            // final += spec * 0.1;
 
-            final += vec3(0.4, 0.6, 1.0) * rim * 0.5 * (diff + 0.2);
+            // Rayleigh Rim (Atmosphere)
+            float rim = pow(1.0 - max(viewD, 0.0), 3.0);
+            final += vec3(0.2, 0.5, 1.0) * rim * 0.8 * diff; // Blue haze on sun side
 
             gl_FragColor = vec4(final, 1.0);
         }
@@ -1907,170 +1981,207 @@ class OrbitalMechanicsScene extends SceneBase {
     this.planet = new THREE.Mesh(pGeo, pMat);
     this.group.add(this.planet);
 
-    // 1b. Atmosphere Halo
-    const atmoGeo = new THREE.SphereGeometry(2.5 * 1.05, 64, 64);
+    // 1b. Atmosphere Halo (Volumetric Glow)
+    const atmoGeo = new THREE.SphereGeometry(2.5 * 1.15, 64, 64);
     const atmoMat = new THREE.ShaderMaterial({
       side: THREE.BackSide,
       transparent: true,
       uniforms: {
-        uSunDir: { value: new THREE.Vector3(1.0, 0.2, 1.0).normalize() },
+        uSunDir: { value: new THREE.Vector3(1.0, 0.5, 1.0).normalize() },
       },
       vertexShader: `
             varying vec3 vNormal;
+            varying vec3 vWorldNormal;
             void main() {
                 vNormal = normalize(normalMatrix * normal);
+                vWorldNormal = normalize((modelMatrix * vec4(normal,0.0)).xyz);
                 gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
             }
         `,
       fragmentShader: `
             varying vec3 vNormal;
+            varying vec3 vWorldNormal;
             uniform vec3 uSunDir;
+
             void main() {
                 float view = dot(normalize(vNormal), vec3(0.0, 0.0, 1.0));
-                float halo = pow(1.0 + view, 4.0);
+                float halo = pow(1.0 + view, 5.0);
 
-                vec3 col = vec3(0.3, 0.6, 1.0) * halo * 2.0;
-                gl_FragColor = vec4(col, halo * 0.6);
+                // Day/Night masking on atmosphere
+                float sun = dot(vWorldNormal, uSunDir);
+                float day = smoothstep(-0.5, 0.5, sun);
+
+                vec3 dayColor = vec3(0.4, 0.7, 1.0);
+                vec3 nightColor = vec3(0.6, 0.3, 0.1); // Sunset color wrap
+
+                vec3 col = mix(nightColor, dayColor, day);
+
+                gl_FragColor = vec4(col, halo * 0.8 * (0.5 + 0.5 * day));
             }
         `,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
     });
-    this.group.add(new THREE.Mesh(atmoGeo, atmoMat));
+    this.atmo = new THREE.Mesh(atmoGeo, atmoMat);
+    this.group.add(this.atmo);
 
-    // 2. Main Ring
-    const rGeo = new THREE.RingGeometry(3.5, 5.5, 128);
+    // 2. Main Ring (Procedural Texture)
+    const rGeo = new THREE.RingGeometry(3.2, 6.0, 128);
+    const rTex = this.createRingTexture();
     const rMat = new THREE.MeshStandardMaterial({
-      color: 0xaa8866,
+      map: rTex,
+      color: 0xffedd0,
       side: THREE.DoubleSide,
       transparent: true,
-      opacity: 0.8,
-      roughness: 0.8,
+      opacity: 0.9,
+      roughness: 0.4,
+      metalness: 0.1,
     });
-    // Add texture noise manually or keep simple
+
     this.rings = new THREE.Mesh(rGeo, rMat);
-    this.rings.rotation.x = Math.PI * 0.5;
+    this.rings.rotation.x = Math.PI * 0.55; // Tilt
+    this.rings.receiveShadow = true;
+    this.rings.castShadow = true;
     this.group.add(this.rings);
 
-    // 3. Debris Field (Instanced)
-    // Use low poly rocks
-    const dGeo = new THREE.DodecahedronGeometry(0.1, 0);
+    // 3. Debris Field (Instanced Rocks)
+    // Instanced Asteroids
+    const dGeo = new THREE.IcosahedronGeometry(0.08, 0);
     const dMat = new THREE.MeshStandardMaterial({
       color: 0x888888,
-      roughness: 0.9,
+      roughness: 0.8,
     });
     this.debris = new THREE.InstancedMesh(dGeo, dMat, this.count);
     this.group.add(this.debris);
 
     // Init Physics
     this.physics = new SimplePhysics(this.count);
-    this.physics.bounds.set(20, 20, 20); // Large bounds
-    this.physics.friction = 0.999; // Low friction for space
+    this.physics.bounds.set(40, 40, 40); // Large bounds
+    this.physics.friction = 1.0; // No air resistance in space
 
     // Init positions data
     for (let i = 0; i < this.count; i++) {
-      // Distribute in a thick belt
+      // Distribute in a ring belt
       const angle = Math.random() * Math.PI * 2;
-      const dist = 3.5 + Math.random() * 4.5;
-      const y = (Math.random() - 0.5) * 0.5 * (dist - 2.0); // Thicker at edges
+      // Gaussian distribution roughly around center of ring
+      // Ring is 3.2 to 6.0
+      const dist = 3.5 + Math.random() * 2.5;
+
+      // Height variation (thin disk)
+      const y = (Math.random() - 0.5) * 0.1;
 
       const x = Math.cos(angle) * dist;
       const z = Math.sin(angle) * dist;
 
-      this.physics.initParticle(i, new THREE.Vector3(x, y, z), 0.1);
+      // Tilt the debris to match the ring mesh (approx)
+      // Ring tilt is at x axis
+      const pos = new THREE.Vector3(x, y, z);
+      pos.applyAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI * 0.55);
+
+      this.physics.initParticle(i, pos, 0.1);
 
       // Orbital velocity calculation
       // v = sqrt(GM/r) direction tangent
-      const GM = 0.01; // Fake gravity constant strength
-      const speed = Math.sqrt(GM / dist) * 20.0; // Boosted for visual effect
+      // Tangent on the ring plane
+      // Simplified: Circular motion around Y relative to ring plane
+      // But we are in world space now.
 
-      const tx = -z;
-      const tz = x;
-      const len = Math.sqrt(tx * tx + tz * tz);
+      // Simple Rotation Speed around 0,0,0
+      // v = w * r
+      const speed = 2.0 / Math.sqrt(dist);
 
-      // Set previous pos to create velocity
-      // p_prev = p - v * dt
-      // assuming dt=1 approx for init
-      this.physics.oldPositions[i * 3] = x - (tx / len) * speed * 0.5;
-      this.physics.oldPositions[i * 3 + 1] = y;
-      this.physics.oldPositions[i * 3 + 2] = z - (tz / len) * speed * 0.5;
+      // Cross product with Up vector of ring
+      const up = new THREE.Vector3(0, 1, 0).applyAxisAngle(
+        new THREE.Vector3(1, 0, 0),
+        Math.PI * 0.55
+      );
+      const vel = new THREE.Vector3()
+        .crossVectors(up, pos)
+        .normalize()
+        .multiplyScalar(speed);
 
-      this.dummy.position.set(x, y, z);
+      // Set previous pos
+      this.physics.oldPositions[i * 3] = pos.x - vel.x * 0.016;
+      this.physics.oldPositions[i * 3 + 1] = pos.y - vel.y * 0.016;
+      this.physics.oldPositions[i * 3 + 2] = pos.z - vel.z * 0.016;
+
+      this.dummy.position.copy(pos);
+      this.dummy.rotation.set(
+        Math.random() * 3,
+        Math.random() * 3,
+        Math.random() * 3
+      );
+      const s = 0.5 + Math.random();
+      this.dummy.scale.set(s, s, s);
       this.dummy.updateMatrix();
       this.debris.setMatrixAt(i, this.dummy.matrix);
     }
 
     // Sunlight
-    const sun = new THREE.DirectionalLight(0xffffff, 2.0);
-    sun.position.set(10, 5, 10);
+    const sun = new THREE.DirectionalLight(0xffffff, 3.0);
+    sun.position.set(20, 10, 20); // Matches shader sunDir
+    sun.castShadow = true;
+    sun.shadow.bias = -0.001;
     this.group.add(sun);
 
-    const fill = new THREE.AmbientLight(0x222233, 0.5);
+    const fill = new THREE.AmbientLight(0x111122, 0.2);
     this.group.add(fill);
+  }
+
+  createRingTexture() {
+    const cvs = document.createElement('canvas');
+    cvs.width = 512;
+    cvs.height = 64;
+    const ctx = cvs.getContext('2d')!;
+
+    // Radial noise
+    // We only draw horizontal lines because it maps radially
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, 512, 64);
+
+    for (let i = 0; i < 100; i++) {
+      const x = Math.random() * 512;
+      const w = Math.random() * 10 + 2;
+      const alpha = Math.random() * 0.5;
+      ctx.fillStyle = `rgba(255, 240, 200, ${alpha})`;
+      ctx.fillRect(x, 0, w, 64);
+    }
+
+    // Major gaps
+    ctx.fillStyle = 'rgba(0,0,0,0.8)';
+    ctx.fillRect(100, 0, 5, 64);
+    ctx.fillRect(350, 0, 20, 64);
+
+    return new THREE.CanvasTexture(cvs);
   }
 
   init(_ctx: SceneRuntime) {}
 
   update(ctx: SceneRuntime) {
     const t = ctx.time;
-    const dt = Math.min(ctx.dt, 1 / 30);
+    // const dt = Math.min(ctx.dt, 1 / 30);
 
     // Planet Shader
     (this.planet.material as THREE.ShaderMaterial).uniforms.uTime.value = t;
 
-    // Pointer Gravity Well
+    // Simulate physics?
+    // Orbit is stable, so we can just rotate the group for performance
+    // Calculating N-body gravity for 4000 particles in JS is heavy.
+    // Let's just rotate the debris group to match the "orbital speed"
+    this.debris.rotation.x = this.rings.rotation.x;
+    // Rotate around local Y (perpendicular to ring plane)
+    // Actually InstancedMesh rotation is world.
+    // We need to rotate around the Ring Axis.
+
+    const axis = new THREE.Vector3(0, 1, 0).applyAxisAngle(
+      new THREE.Vector3(1, 0, 0),
+      this.rings.rotation.x
+    );
+    this.debris.rotateOnWorldAxis(axis, ctx.dt * 0.1);
+
     this.pointerPos.set(ctx.pointer.x * 12.0, ctx.pointer.y * 12.0, 0);
 
-    // 1. Apply Central Gravity
-    // F = G * m1 * m2 / r^2
-    for (let i = 0; i < this.count; i++) {
-      const idx = i * 3;
-      const x = this.physics.positions[idx];
-      const y = this.physics.positions[idx + 1];
-      const z = this.physics.positions[idx + 2];
-
-      // Distance to center
-      const distSq = x * x + y * y + z * z + 0.1;
-      const dist = Math.sqrt(distSq);
-
-      // Gravity force
-      const g = 0.005 / distSq;
-      // Direction -normalized position
-      const dx = -x / dist;
-      const dy = -y / dist;
-      const dz = -z / dist;
-
-      this.physics.positions[idx] += dx * g;
-      this.physics.positions[idx + 1] += dy * g;
-      this.physics.positions[idx + 2] += dz * g;
-    }
-
-    // 2. Physics Step
-    this.physics.update(dt, this.pointerPos, 5.0); // Repel radius 5.0
-
-    // 3. Sync
-    const sunDir = new THREE.Vector3(10, 5, 10).normalize();
-
-    for (let i = 0; i < this.count; i++) {
-      const idx = i * 3;
-      const x = this.physics.positions[idx];
-      const y = this.physics.positions[idx + 1];
-      const z = this.physics.positions[idx + 2];
-
-      this.dummy.position.set(x, y, z);
-
-      // Rotate rocks
-      this.dummy.rotation.set(i + t, i * 2 + t, i * 3);
-
-      this.dummy.scale.setScalar(0.8 + Math.sin(i) * 0.3);
-      this.dummy.updateMatrix();
-      this.debris.setMatrixAt(i, this.dummy.matrix);
-    }
-    this.debris.instanceMatrix.needsUpdate = true;
-
-    // Interactive tilt
-    this.group.rotation.x = 0.4 + ctx.pointer.y * 0.2;
-    this.group.rotation.z = 0.2 + ctx.pointer.x * 0.2;
-
-    // Planet rotates
+    // Tilt planet slightly
     this.planet.rotation.y = t * 0.05;
 
     this.camera.position.z = damp(
@@ -2083,98 +2194,125 @@ class OrbitalMechanicsScene extends SceneBase {
   }
 }
 
-// --- Scene 09: Crystalline Shards (Glitch/Refraction) ---
+// --- Scene 09: Quantum Crystalline (Shards) ---
 
 class VoronoiShardsScene extends SceneBase {
   private shards: THREE.InstancedMesh;
-  private count = 1500; // High density
+  private count = 2000;
   private dummy = new THREE.Object3D();
-  private data: Float32Array; // [speedInfo, axisInfo, offset]
 
   constructor() {
     super();
     this.id = 'scene09';
     this.contentRadius = 8.0;
 
-    // Sharp, jagged geometry
-    const geo = new THREE.TetrahedronGeometry(0.2, 0);
+    // Sharp crystalline shapes
+    const geo = new THREE.OctahedronGeometry(0.25, 0);
 
-    // Custom "Holographic Glass" Shader
-    // We fake dispersion and glitching in the shader
+    // Quantum Dispersion Shader
+    // Simulates "Diamond" refraction with chromatic aberration
     const mat = new THREE.ShaderMaterial({
       uniforms: {
         uTime: { value: 0 },
         uPress: { value: 0 },
-        uColorA: { value: new THREE.Color(0x00ffff) },
-        uColorB: { value: new THREE.Color(0xff00ff) },
-        uCube: { value: null }, // ideally we'd have an env map, but we'll simulate reflection
+        uColorA: { value: new THREE.Color(0xaaccff) }, // Blue-White
+        uColorB: { value: new THREE.Color(0xffaaee) }, // Pink-White
       },
       vertexShader: `
-        attribute vec3 aData; // x: speed, y: random, z: phase
+        attribute vec3 aRandom; // x: phase, y: speed, z: scale
         varying vec3 vNormal;
+        varying vec3 vWorldNormal;
         varying vec3 vViewPosition;
-        varying vec3 vColor;
-        varying float vGlitch;
+        varying float vBlink;
+        varying vec3 vRand;
 
         uniform float uTime;
         uniform float uPress;
 
         void main() {
-            vec3 pos = position;
+            vRand = aRandom;
+            vec3 pos = position; // local
 
-            // 1. Glitch Movement (Quantized Rotation)
-            float t = uTime * aData.x + aData.z;
-            // Quantize time for "stop motion" feel
-            float qt = floor(t * 8.0) / 8.0;
+            // Quantum Blink (Existence probability)
+            // A sine wave that makes scale go to 0 occasionally
+            float blinkPhase = uTime * aRandom.y + aRandom.x * 10.0;
+            float blink = smoothstep(-0.2, 0.2, sin(blinkPhase));
+            // Also glitch scale on press
+            float pressGlitch = sin(uTime * 30.0 + aRandom.z * 100.0) * uPress;
 
-            // Random glitch jumps on press
-            float glitch = smoothstep(0.8, 1.0, sin(uTime * 20.0 + aData.y * 10.0)) * uPress;
-            pos *= 1.0 + glitch * 2.0;
-            vGlitch = glitch;
+            float scale = (0.5 + aRandom.z) * blink * (1.0 + pressGlitch);
+            pos *= scale;
+            vBlink = blink;
 
-            // Instance Transform is handled automatically by three.js for position/rot/scale
-            // But we want to modify the resulting world position slightly
-
-            vec4 worldPos = instanceMatrix * vec4(pos, 1.0);
-
-            // Vertical drift
-            worldPos.y += sin(uTime * 0.5 + aData.z) * 0.5;
+            // Rotation in shader for extra chaos?
+            // InstancedMesh handles base rotation, we add jitter
 
             vNormal = normalize(normalMatrix * normal);
+            vWorldNormal = normalize((modelMatrix * vec4(normal, 0.0)).xyz);
+
+            vec4 worldPos = instanceMatrix * vec4(pos, 1.0);
             vec4 mvPosition = viewMatrix * worldPos;
             vViewPosition = -mvPosition.xyz;
-
-            // Color data based on position
-            vColor = vec3(0.5 + 0.5 * sin(aData.z), 0.5 + 0.5 * cos(aData.z), 1.0);
 
             gl_Position = projectionMatrix * mvPosition;
         }
       `,
       fragmentShader: `
         varying vec3 vNormal;
+        varying vec3 vWorldNormal;
         varying vec3 vViewPosition;
-        varying vec3 vColor;
-        varying float vGlitch;
+        varying float vBlink;
+        varying vec3 vRand;
 
         uniform vec3 uColorA;
         uniform vec3 uColorB;
+        uniform float uTime;
 
         void main() {
-            vec3 viewDir = normalize(vViewPosition);
-            vec3 normal = normalize(vNormal);
+            if (vBlink < 0.01) discard;
 
-            // fresnel
-            float f = 1.0 - abs(dot(viewDir, normal));
-            float fresnel = pow(f, 3.0);
+            vec3 N = normalize(vNormal);
+            vec3 V = normalize(vViewPosition);
 
-            // Iridescence
-            vec3 col = mix(uColorA, uColorB, f + vGlitch);
+            // Fresnel / Rim
+            float F = pow(1.0 - max(dot(N, V), 0.0), 3.0);
 
-            // Core hardness
-            col += vec3(1.0) * pow(f, 6.0); // sharp rim
+            // Internal Reflection Simulation
+            // We map normal to a "fake environment"
+            vec3 R = reflect(-V, N);
 
-            // Transparency / Additive
-            gl_FragColor = vec4(col, 0.6 + 0.4 * fresnel);
+            // Chromatic Aberration: Sample conceptual env map at slight offsets
+            // "Environment" is just a procedural gradient + noise
+
+            // Channel R
+            vec3 dirR = R;
+            float lightR = dot(dirR, vec3(0.0, 1.0, 0.0)) * 0.5 + 0.5;
+
+            // Channel G (shifted)
+            vec3 dirG = R + vec3(0.05);
+            float lightG = dot(dirG, vec3(0.0, 1.0, 0.0)) * 0.5 + 0.5;
+
+            // Channel B (shifted more)
+            vec3 dirB = R + vec3(0.1);
+            float lightB = dot(dirB, vec3(0.0, 1.0, 0.0)) * 0.5 + 0.5;
+
+            vec3 refractionCol = vec3(lightR, lightG, lightB);
+
+            // Mix Colors
+            vec3 baseCol = mix(uColorA, uColorB, vRand.z + sin(uTime + vRand.x)*0.2);
+
+            // Faceted Look: harden normals? N is already flat from geometry if we use FlatShading?
+            // Geometry is flat, so N is uniform per face.
+
+            // Sparkle
+            float sparkle = pow(max(dot(R, vec3(0.5, 0.8, 0.5)), 0.0), 20.0);
+
+            // Final accumulation
+            vec3 final = baseCol * 0.2 + refractionCol * 0.8;
+            final += sparkle * 2.0;
+            final += F * 0.5; // Add rim glow
+
+            gl_FragColor = vec4(final, 0.8);
         }
       `,
       transparent: true,
@@ -2186,31 +2324,34 @@ class VoronoiShardsScene extends SceneBase {
     this.shards = new THREE.InstancedMesh(geo, mat, this.count);
     this.group.add(this.shards);
 
-    // Init data
-    this.data = new Float32Array(this.count * 3);
-    const attr = new THREE.InstancedBufferAttribute(this.data, 3);
-    geo.setAttribute('aData', attr);
-
+    // Attributes
+    const randoms = new Float32Array(this.count * 3);
     for (let i = 0; i < this.count; i++) {
-      // Spiral formation
-      const phi = Math.acos(1 - (2 * (i + 0.5)) / this.count);
-      const theta = Math.PI * (1 + Math.sqrt(5)) * (i + 0.5);
-      const r = 4.0 + Math.random() * 2.0;
+      randoms[i * 3] = Math.random();
+      randoms[i * 3 + 1] = 0.5 + Math.random(); // speed
+      randoms[i * 3 + 2] = Math.random(); // scale
 
-      const x = r * Math.sin(phi) * Math.cos(theta);
-      const y = r * Math.sin(phi) * Math.sin(theta);
-      const z = r * Math.cos(phi);
+      // Helix Distribution
+      const t = i / this.count;
+      const theta = t * Math.PI * 20.0; // 10 turns
+      const h = (t - 0.5) * 16.0; // Height spread
+      const r = 3.0 + Math.random() * 2.0; // Radius spread
+
+      const x = Math.cos(theta) * r;
+      const y = h;
+      const z = Math.sin(theta) * r;
 
       this.dummy.position.set(x, y, z);
-      this.dummy.lookAt(0, 0, 0);
+      this.dummy.rotation.set(
+        Math.random() * Math.PI,
+        Math.random() * Math.PI,
+        Math.random() * Math.PI
+      );
       this.dummy.updateMatrix();
       this.shards.setMatrixAt(i, this.dummy.matrix);
-
-      // Attributes
-      this.data[i * 3] = 0.2 + Math.random() * 0.8; // speed
-      this.data[i * 3 + 1] = Math.random(); // rnd
-      this.data[i * 3 + 2] = Math.random() * Math.PI * 2; // phase
     }
+
+    geo.setAttribute('aRandom', new THREE.InstancedBufferAttribute(randoms, 3));
   }
 
   init(_ctx: SceneRuntime) {}
@@ -2220,9 +2361,11 @@ class VoronoiShardsScene extends SceneBase {
     mat.uniforms.uTime.value = ctx.time;
     mat.uniforms.uPress.value = ctx.press;
 
-    // Global rotation
-    this.group.rotation.y = ctx.time * 0.05;
-    this.group.rotation.z = Math.sin(ctx.time * 0.1) * 0.1;
+    // Helix Rotation
+    this.group.rotation.y = ctx.time * 0.2;
+
+    // Slight float
+    this.group.position.y = Math.sin(ctx.time * 0.5) * 0.5;
 
     this.camera.position.z = damp(
       this.camera.position.z,
@@ -2238,15 +2381,18 @@ class VoronoiShardsScene extends SceneBase {
 
 class MoireInterferenceScene extends SceneBase {
   private mesh: THREE.InstancedMesh;
-  private count = 24; // Number of ring layers
+  private count = 60; // Denser layers
+  private dummy = new THREE.Object3D();
 
   constructor() {
     super();
     this.id = 'scene10';
     this.contentRadius = 6.0;
 
-    // Multiple transparent planes stacked
-    const geo = new THREE.RingGeometry(0.1, 8.0, 64, 1);
+    // Use Spheres instead of Rings for 3D Moiré
+    const geo = new THREE.SphereGeometry(4.0, 64, 64);
+
+    // Custom Interference Shader
     const mat = new THREE.ShaderMaterial({
       uniforms: {
         uTime: { value: 0 },
@@ -2254,37 +2400,34 @@ class MoireInterferenceScene extends SceneBase {
         uColor: { value: new THREE.Color(0xffffff) },
       },
       vertexShader: `
-            attribute float aLayer;
+            attribute float aLayer; // -1 to 1
             varying float vLayer;
             varying vec2 vUv;
             varying vec3 vPos;
+            varying vec3 vNormal;
+
             uniform float uTime;
             uniform float uPress;
 
             void main() {
                 vLayer = aLayer;
                 vUv = uv;
+                vNormal = normalize(normalMatrix * normal);
 
                 vec3 pos = position;
 
-                // Kinetic Separation (Z-expand on press)
-                float zOff = aLayer * (0.05 + 0.5 * uPress);
+                // Scale spheres to create nested shells
+                // Base size variation
+                float s = 0.5 + 0.5 * (aLayer * 0.5 + 0.5); // 0.5 to 1.0 range approx
 
-                // Rotation per layer
-                float angle = uTime * (0.1 + aLayer * 0.05) + aLayer * 10.0;
-                float s = sin(angle);
-                float c = cos(angle);
+                // Expansion on press
+                float expansion = uPress * 4.0 * aLayer;
 
-                // 2D Rotation matrix on XY
-                mat2 rot = mat2(c, -s, s, c);
-                pos.xy = rot * pos.xy;
+                // Breathing
+                float breath = sin(uTime * 2.0 + aLayer * 3.14) * 0.1;
 
-                // Z placement
-                pos.z += zOff;
-
-                // Waviness
-                float wave = sin(pos.x * 2.0 + uTime + aLayer) * 0.2;
-                pos.z += wave * uPress;
+                float finalScale = s + ((expansion + breath) * 0.2);
+                pos *= finalScale;
 
                 vPos = pos;
                 gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
@@ -2294,48 +2437,82 @@ class MoireInterferenceScene extends SceneBase {
             varying float vLayer;
             varying vec2 vUv;
             varying vec3 vPos;
+            varying vec3 vNormal;
+
             uniform float uTime;
             uniform float uPress;
 
+            // Pattern function
+            float pattern(vec3 p, float t) {
+                // Tri-planar grid projection
+                float scale = 10.0;
+                vec3 g = fract(p * scale + t) - 0.5;
+                float d = length(g) - 0.2;
+                return smoothstep(0.05, 0.0, d);
+            }
+
             void main() {
-                // Generate pattern
-                float d = length(vPos.xy);
+                // View direction
+                vec3 view = normalize(vPos - cameraPosition); // Approx in local space if camera at 0,0,0?? No.
+                // We use vNormal for fresnel
+                float fresnel = pow(1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0))), 2.0);
 
-                // Interference pattern logic
-                // Concentric rings
-                float rings = sin(d * 20.0 + uTime * 5.0 - vLayer * 10.0);
-                float alpha = smoothstep(0.0, 0.1, rings);
+                // Pattern Generation
+                // Rotate pattern based on layer index to create interference
 
-                // Hexagon Grid interference
-                // Simple approx
-                vec2 gv = fract(vPos.xy * 2.0) - 0.5;
-                float grid = smoothstep(0.4, 0.45, length(gv));
+                // Create moiré by offsetting density
+                float density = 20.0 + vLayer * 10.0 + sin(uTime)*5.0;
 
-                // Combine
-                float pattern = mix(alpha, 1.0 - grid, 0.5 + 0.5 * sin(uTime));
+                // Hexagonal grid
+                vec2 uv = vUv * density;
+                vec2 gv = fract(uv) - 0.5;
+                float d0 = length(gv);
+                float circ = smoothstep(0.45, 0.35, d0);
 
-                // Color ramp
-                vec3 col = 0.5 + 0.5 * cos(uTime + vPos.xyx + vec3(0,2,4));
-                col += vec3(1.0) * uPress;
+                // Stripes
+                float stripes = sin(vPos.y * density + uTime * 5.0);
+                float stripeMask = smoothstep(0.0, 0.1, stripes);
 
-                gl_FragColor = vec4(col, pattern * (0.2 + 0.1 * vLayer));
+                // Mix patterns based on layer
+                float mask = mix(circ, stripeMask, 0.5 + 0.5 * sin(vLayer * 10.0));
+
+                // Color iridescence
+                vec3 col = 0.5 + 0.5 * cos(uTime * 0.5 + vLayer * 2.0 + vec3(0,2,4));
+                col += vec3(1.0) * uPress; // Flash white
+
+                // Opacity falls off at edges to hide sphere geometry, kept in center
+                // But we want to see through it.
+
+                float alpha = mask * 0.3; // Low opacity to stack
+
+                // Center fade?
+                // alpha *= fresnel;
+
+                if (alpha < 0.01) discard;
+
+                gl_FragColor = vec4(col, alpha);
             }
         `,
       transparent: true,
-      side: THREE.DoubleSide,
+      side: THREE.BackSide, // Draw inside of shells?
+      // Actually DoubleSide is better to see all intersections
+      // But BackSide prevents z-fighting if sorted correctly?
+      // InstancedMesh depth sorting is tricky.
+      // Let's use AdditiveBlending and DepthWrite false
       depthWrite: false,
       blending: THREE.AdditiveBlending,
     });
+    mat.side = THREE.DoubleSide;
 
-    // We need InstancedMesh for performance
     this.mesh = new THREE.InstancedMesh(geo, mat, this.count);
 
     const layers = new Float32Array(this.count);
     const dummy = new THREE.Object3D();
 
     for (let i = 0; i < this.count; i++) {
-      // Center them all initially
       dummy.position.set(0, 0, 0);
+      // Random rotation for interference
+      dummy.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, 0);
       dummy.updateMatrix();
       this.mesh.setMatrixAt(i, dummy.matrix);
 
@@ -2354,8 +2531,13 @@ class MoireInterferenceScene extends SceneBase {
     mat.uniforms.uTime.value = ctx.time;
     mat.uniforms.uPress.value = ctx.press;
 
-    this.mesh.rotation.x = ctx.gyro.y * 0.5;
-    this.mesh.rotation.y = ctx.gyro.x * 0.5;
+    this.mesh.rotation.y = ctx.time * 0.1;
+    this.mesh.rotation.z = ctx.time * 0.05;
+
+    // Gyro parallax
+    this.group.rotation.x = ctx.gyro.y * 0.5;
+    this.group.rotation.y += ctx.gyro.x * 0.5;
+
     this.camera.position.z = damp(
       this.camera.position.z,
       this.baseDistance,
