@@ -105,17 +105,23 @@ export class SceneDirector {
     this.caps = caps;
     this.galleryMode = options?.galleryMode ?? false;
 
-    this.renderer = new THREE.WebGLRenderer({
-      canvas: this.canvas,
-      alpha: false,
-      antialias: false, // MSAA disabled for EffectComposer
-      powerPreference: 'high-performance',
-      preserveDrawingBuffer: false,
-    });
-    this.renderer.outputColorSpace = THREE.SRGBColorSpace;
-    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 0.9; // Reduced from 1.45 to prevent blown-out whites
-    this.renderer.setClearColor(new THREE.Color(0x020205)); // Deep void
+    try {
+      this.renderer = new THREE.WebGLRenderer({
+        canvas: this.canvas,
+        alpha: false,
+        antialias: false, // MSAA disabled for EffectComposer
+        powerPreference: 'high-performance',
+        preserveDrawingBuffer: false,
+      });
+      this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+      this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      this.renderer.toneMappingExposure = 0.9; // Reduced from 1.45 to prevent blown-out whites
+      this.renderer.setClearColor(new THREE.Color(0x020205)); // Deep void
+    } catch (e) {
+      this.reportError('WebGL Renderer Init', e);
+      // Fallback or rethrow
+      throw e;
+    }
 
     // Init GPGPU System
     this.gpgpu = new GlobalParticleSystem(this.renderer);
@@ -382,8 +388,12 @@ export class SceneDirector {
 
     const runtime = this.buildRuntime(0, 0);
     this.scenes.forEach(scene => {
-      scene.init(runtime);
-      scene.resize(runtime);
+      try {
+        scene.init(runtime);
+        scene.resize(runtime);
+      } catch (e) {
+        this.reportError(`Scene Init (${scene.id})`, e);
+      }
     });
 
     this.root.dataset.towerScene = this.activeScene.id;
@@ -853,19 +863,31 @@ export class SceneDirector {
 
     // Update GPGPU
     // Transform pointer to world space approx for attractor
-    this.gpgpu.attractor.set(
-      (this.pointer.x - 0.5) * 20,
-      (this.pointer.y - 0.5) * -20,
-      0
-    );
-    this.gpgpu.update(this._simTime, dt);
+    try {
+      this.gpgpu.attractor.set(
+        (this.pointer.x - 0.5) * 20,
+        (this.pointer.y - 0.5) * -20,
+        0
+      );
+      this.gpgpu.update(this._simTime, dt);
+    } catch (e) {
+      if (!this.root.dataset.lastGPGPUError) {
+        this.reportError('GPGPU Update', e);
+        this.root.dataset.lastGPGPUError = '1';
+      }
+    }
 
     try {
       this.activeScene.update(runtime);
     } catch (e) {
-      console.warn(`Scene ${this.activeScene.key} update failed:`, e);
-      // Optional: switch to next scene automatically or show error visual?
-      // For now, just logging so the loop survives
+      // Report error but don't spam per frame
+      if (
+        !this.root.dataset.lastError ||
+        performance.now() - parseFloat(this.root.dataset.lastError) > 2000
+      ) {
+        this.reportError(`Scene Update (${this.activeScene.id})`, e);
+        this.root.dataset.lastError = performance.now().toString();
+      }
     }
 
     // Update RenderPass to current scene content
@@ -880,6 +902,43 @@ export class SceneDirector {
 
     this.resetViewport();
     this.composer.render();
+  }
+
+  private reportError(context: string, error: unknown) {
+    console.error(`[Tower3D] Error in ${context}:`, error);
+
+    // Create visible error overlay if it doesn't exist
+    let overlay = this.root.querySelector('.tower3d-error-overlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.className = 'tower3d-error-overlay';
+      Object.assign((overlay as HTMLElement).style, {
+        position: 'absolute',
+        top: '10px',
+        left: '10px',
+        zIndex: '9999',
+        background: 'rgba(20, 0, 0, 0.9)',
+        color: '#ff4444',
+        padding: '1rem',
+        border: '1px solid #ff4444',
+        fontFamily: 'monospace',
+        fontSize: '12px',
+        maxWidth: '400px',
+        pointerEvents: 'none',
+      });
+      this.root.appendChild(overlay);
+    }
+
+    // Append error
+    const msg = document.createElement('div');
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    msg.innerText = `[${new Date().toLocaleTimeString()}] ${context}: ${errorMessage}`;
+    overlay.appendChild(msg);
+
+    // Prevent overlay from growing infinitely
+    if (overlay.children.length > 5) {
+      overlay.removeChild(overlay.firstChild!);
+    }
   }
 
   public destroy(): void {
