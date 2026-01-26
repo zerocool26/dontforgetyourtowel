@@ -842,7 +842,7 @@ class RibbonFieldScene extends SceneBase {
 
 class MillionFirefliesScene extends SceneBase {
   private particles: THREE.Points;
-  private count = 100000; // Massive particle count
+  private count = 60000; // Optimized count
 
   constructor() {
     super();
@@ -854,8 +854,10 @@ class MillionFirefliesScene extends SceneBase {
     const data = new Float32Array(this.count * 4); // phase, speed, orbit_radius, y_offset
 
     for (let i = 0; i < this.count; i++) {
-      // Initial random distribution sphere
-      const r = 10.0 * Math.pow(Math.random(), 0.33);
+      // Sphere distribution
+      const r = 12.0 * Math.cbrt(Math.random());
+      // cbrt gives uniform volumetric distribution
+
       const theta = Math.random() * Math.PI * 2;
       const phi = Math.acos(2 * Math.random() - 1);
 
@@ -864,9 +866,9 @@ class MillionFirefliesScene extends SceneBase {
       pos[i * 3 + 2] = r * Math.cos(phi);
 
       data[i * 4] = Math.random() * 100.0; // Phase
-      data[i * 4 + 1] = 0.2 + Math.random() * 0.8; // Speed
-      data[i * 4 + 2] = 2.0 + Math.random() * 5.0; // Orbit Radius
-      data[i * 4 + 3] = (Math.random() - 0.5) * 4.0; // Y Offset
+      data[i * 4 + 1] = 0.2 + Math.random() * 0.5; // Speed
+      data[i * 4 + 2] = 2.0 + Math.random() * 8.0; // Orbit Radius
+      data[i * 4 + 3] = (Math.random() - 0.5) * 8.0; // Y Offset
     }
 
     geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
@@ -878,13 +880,15 @@ class MillionFirefliesScene extends SceneBase {
         uPress: { value: 0 },
         uColorA: { value: new THREE.Color(0xffaa00) }, // Gold
         uColorB: { value: new THREE.Color(0x00ffff) }, // Cyan
+        uPointer: { value: new THREE.Vector2() },
       },
       vertexShader: `
             uniform float uTime;
             uniform float uPress;
+            uniform vec2 uPointer;
             attribute vec4 aData;
+
             varying float vAlpha;
-            varying float vSize;
             varying vec3 vCol;
 
             // Pseudo-random
@@ -897,72 +901,57 @@ class MillionFirefliesScene extends SceneBase {
                 float t = uTime * aData.y * 0.5;
                 float phase = aData.x;
 
-                // Vector Field Simulation (Parametric Flow)
-                // Combine rotation + sine wave verticality
-
+                // Flow Field Math
+                float angle = t + phase;
                 float r = aData.z;
                 float yOff = aData.w;
 
-                // Spiral variable
-                float angle = t + phase;
+                // Lissajous spirals
+                float x = r * sin(angle) * cos(angle * 0.3);
+                float z = r * cos(angle) * cos(angle * 0.3);
+                float y = yOff + sin(angle * 2.0) * 1.5;
 
-                // Lissajous-like path
-                float x = r * sin(angle) * cos(angle * 0.5);
-                float z = r * cos(angle) * cos(angle * 0.5);
-                float y = yOff + sin(angle * 3.0) * 1.0;
-
-                // Targeted position
+                // Smooth morph from sphere (p) to flow (target)
                 vec3 target = vec3(x, y, z);
 
-                // Lerp from initial to target based on time to create "forming" effect?
-                // Or just use target as the position directly for smooth flow.
-                p = target;
+                // Interaction: Press gathers them
+                p = mix(target, p * 0.5, uPress);
 
-                // Interaction: Press to scatter
-                vec3 dir = normalize(p);
-                p += dir * uPress * 8.0 * (1.0 + sin(phase * 10.0));
-
-                // Waving distortion
-                p.y += sin(p.x * 0.5 + uTime) * 0.5;
+                // Pointer Repulsion
+                // Project pointer to world roughly
+                vec3 ptr = vec3(uPointer.x * 15.0, uPointer.y * 15.0, 0.0);
+                vec3 diff = p - ptr;
+                float dist = length(diff);
+                float repel = smoothstep(5.0, 0.0, dist);
+                p += normalize(diff) * repel * 3.0;
 
                 vec4 mv = modelViewMatrix * vec4(p, 1.0);
                 gl_Position = projectionMatrix * mv;
 
-                // Distance attenuation
-                float dist = length(mv.xyz);
-                gl_PointSize = (2.0 + sin(t*5.0 + phase)*1.0) * (30.0 / dist);
+                // Size attenuation
+                float dCam = length(mv.xyz);
+                gl_PointSize = (3.0 + uPress * 2.0) * (30.0 / dCam);
 
-                // Vary size by press
-                gl_PointSize *= (1.0 + uPress * 2.0);
+                vAlpha = 0.6 + 0.4 * sin(t * 3.0 + phase);
 
-                vAlpha = 0.6 + 0.4 * sin(t * 2.0 + phase);
-
-                // Color ramp based on height
-                // float h = normalize(p.y); // -1 to 1 approx
-                // vCol = mix(uColorA, uColorB, smoothstep(-3.0, 3.0, p.y));
+                // Pass color based on speed/radius
+                vCol = mix(vec3(1.0, 0.6, 0.0), vec3(0.0, 0.8, 1.0), smoothstep(2.0, 8.0, r));
             }
         `,
       fragmentShader: `
-            uniform vec3 uColorA;
-            uniform vec3 uColorB;
             varying float vAlpha;
+            varying vec3 vCol;
 
             void main() {
+                // Soft circular particle
                 vec2 uv = gl_PointCoord - 0.5;
-                float d = length(uv);
-                if (d > 0.5) discard;
+                float r = length(uv);
+                if (r > 0.5) discard;
 
-                // Soft glow
-                float glow = 1.0 - d * 2.0;
-                glow = pow(glow, 2.0);
+                float glow = 1.0 - (r * 2.0);
+                glow = pow(glow, 1.5);
 
-                // Sparkle core
-                float core = smoothstep(0.1, 0.0, d);
-
-                // Color variation by screen position slightly
-                vec3 col = mix(uColorA, uColorB, gl_FragCoord.y / 1000.0);
-
-                gl_FragColor = vec4(col + vec3(core), glow * vAlpha);
+                gl_FragColor = vec4(vCol, glow * vAlpha);
             }
         `,
       transparent: true,
@@ -980,6 +969,7 @@ class MillionFirefliesScene extends SceneBase {
     const mat = this.particles.material as THREE.ShaderMaterial;
     mat.uniforms.uTime.value = ctx.time;
     mat.uniforms.uPress.value = ctx.press;
+    mat.uniforms.uPointer.value.set(ctx.pointer.x, ctx.pointer.y);
 
     this.group.rotation.y = ctx.time * 0.05;
 
@@ -2542,7 +2532,7 @@ class HolographicCityScene extends SceneBase {
   private buildingsSolid: THREE.InstancedMesh;
   private buildingsWire: THREE.InstancedMesh;
   private dummy = new THREE.Object3D();
-  private trafficCount = 4000;
+  private trafficCount = 3000;
 
   constructor() {
     super();
@@ -2558,12 +2548,14 @@ class HolographicCityScene extends SceneBase {
     // Dark Glass Material
     const bMatSolid = new THREE.MeshPhysicalMaterial({
       color: 0x050510,
-      metalness: 0.9,
-      roughness: 0.1,
+      metalness: 0.8,
+      roughness: 0.2,
       clearcoat: 1.0,
-      transmission: 0.2, // Slight transparency
+      transmission: 0.1,
       transparent: true,
-      opacity: 0.9,
+      opacity: 0.95,
+      emissive: 0x050510,
+      emissiveIntensity: 0.5,
     });
 
     // Neon Edges Material
@@ -2571,7 +2563,7 @@ class HolographicCityScene extends SceneBase {
       color: 0x00aaff,
       wireframe: true,
       transparent: true,
-      opacity: 0.15,
+      opacity: 0.3,
       blending: THREE.AdditiveBlending,
     });
 
@@ -2582,7 +2574,7 @@ class HolographicCityScene extends SceneBase {
     for (let x = -15; x <= 15; x++) {
       for (let z = -15; z <= 15; z++) {
         if (Math.abs(x) < 2 && Math.abs(z) < 2) continue; // Clear center for camera
-        if (Math.random() > 0.35) continue; // Sparse
+        if (Math.random() > 0.4) continue; // Sparse
         if (idx >= 1200) break;
 
         const h = 2.0 + Math.pow(Math.random(), 3.0) * 18.0; // Exponential height dist
@@ -2602,7 +2594,7 @@ class HolographicCityScene extends SceneBase {
     this.city.add(this.buildingsWire);
 
     // 2. Traffic (Flying cars / Data packets)
-    const tGeo = new THREE.BoxGeometry(0.06, 0.06, 1.2);
+    const tGeo = new THREE.BoxGeometry(0.08, 0.08, 1.2);
     const tMat = new THREE.MeshBasicMaterial({
       color: 0xff0088,
       blending: THREE.AdditiveBlending,
@@ -2626,6 +2618,17 @@ class HolographicCityScene extends SceneBase {
       // Randomize color per car
       const col = new THREE.Color().setHSL(0.8 + Math.random() * 0.2, 1.0, 0.6);
       this.traffic.setColorAt(i, col);
+
+      // Initial Position
+      if (axis === 0) {
+        this.dummy.position.set(offset, height, lane);
+        this.dummy.rotation.set(0, Math.PI / 2, 0);
+      } else {
+        this.dummy.position.set(lane, height, offset);
+        this.dummy.rotation.set(0, 0, 0);
+      }
+      this.dummy.updateMatrix();
+      this.traffic.setMatrixAt(i, this.dummy.matrix);
     }
     this.traffic.geometry.setAttribute(
       'aDat',
@@ -2635,50 +2638,70 @@ class HolographicCityScene extends SceneBase {
 
     this.group.add(this.city);
 
-    // Fog
-    // Note: We can't easily add global fog to just one scene without affecting others if we used scene.fog
-    // But we can approximate it with a large semi-transparent plane or just rely on the background color.
+    // 3. Environment Lights (Crucial for Glass Material)
+    const ambient = new THREE.AmbientLight(0x001133, 2.5);
+    this.group.add(ambient);
+
+    // Moving city lights
+    const l1 = new THREE.PointLight(0x0088ff, 4, 30);
+    const l2 = new THREE.PointLight(0xff0088, 4, 30);
+    l1.position.set(10, 5, 10);
+    l2.position.set(-10, -5, -10);
+
+    this.group.add(l1, l2);
+    // Save to rotate later if needed
+    this.city.userData.lights = [l1, l2];
+
+    // Fog approximation
+    // We can't use scene.fog safely, but we can make background blue
+    if (!this.bg) this.bg = new THREE.Color(0x020410);
   }
 
-  init(_ctx: SceneRuntime) {}
+  init(_ctx: SceneRuntime) {
+    // Ensure BG is set
+    if (this.bg) this.bg = new THREE.Color(0x020410);
+  }
 
   update(ctx: SceneRuntime) {
     this.group.rotation.y = ctx.time * 0.05;
 
     // Traffic Flow
-    const tData = (
-      this.traffic.geometry.getAttribute(
-        'aDat'
-      ) as THREE.InstancedBufferAttribute
-    ).array;
+    // We must check if 'aDat' attribute exists and is loaded
+    const attr = this.traffic.geometry.getAttribute(
+      'aDat'
+    ) as THREE.InstancedBufferAttribute;
 
-    for (let i = 0; i < this.trafficCount; i++) {
-      const lane = tData[i * 4];
-      const h = tData[i * 4 + 1];
-      let pos = tData[i * 4 + 2];
-      const axis = tData[i * 4 + 3];
+    if (attr) {
+      const tData = attr.array as Float32Array;
 
-      // Move
-      const speed = 15.0 * ctx.dt * (1.0 + ctx.press * 4.0);
-      pos += speed * (i % 2 == 0 ? 1 : -1);
+      for (let i = 0; i < this.trafficCount; i++) {
+        const lane = tData[i * 4];
+        const h = tData[i * 4 + 1];
+        let pos = tData[i * 4 + 2];
+        const axis = tData[i * 4 + 3];
 
-      // Wrap
-      if (pos > 30) pos -= 60;
-      if (pos < -30) pos += 60;
+        // Move
+        const speed = 15.0 * ctx.dt * (1.0 + ctx.press * 4.0);
+        pos += speed * (i % 2 == 0 ? 1 : -1);
 
-      tData[i * 4 + 2] = pos;
+        // Wrap
+        if (pos > 30) pos -= 60;
+        if (pos < -30) pos += 60;
 
-      if (axis === 0) {
-        this.dummy.position.set(pos, h, lane);
-        this.dummy.rotation.set(0, Math.PI / 2, 0);
-      } else {
-        this.dummy.position.set(lane, h, pos);
-        this.dummy.rotation.set(0, 0, 0);
+        tData[i * 4 + 2] = pos;
+
+        if (axis === 0) {
+          this.dummy.position.set(pos, h, lane);
+          this.dummy.rotation.set(0, Math.PI / 2, 0);
+        } else {
+          this.dummy.position.set(lane, h, pos);
+          this.dummy.rotation.set(0, 0, 0);
+        }
+        this.dummy.updateMatrix();
+        this.traffic.setMatrixAt(i, this.dummy.matrix);
       }
-      this.dummy.updateMatrix();
-      this.traffic.setMatrixAt(i, this.dummy.matrix);
+      this.traffic.instanceMatrix.needsUpdate = true;
     }
-    this.traffic.instanceMatrix.needsUpdate = true;
 
     // Camera Flyover
     this.camera.position.z = damp(
@@ -2687,13 +2710,16 @@ class HolographicCityScene extends SceneBase {
       3,
       ctx.dt
     );
+    // Lift camera on press
     this.camera.position.y = damp(
       this.camera.position.y,
-      4 + ctx.press * 10,
+      6 + ctx.press * 20,
       2,
       ctx.dt
     );
-    this.camera.lookAt(0, -2, 0);
+
+    // Look down into city
+    this.camera.lookAt(0, -5, 0);
   }
 }
 
