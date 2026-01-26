@@ -721,7 +721,13 @@ export class SceneDirector {
     this.composer.setSize(this.size.width, this.size.height);
 
     const runtime = this.buildRuntime(0, this.lastTime);
-    this.scenes.forEach(scene => scene.resize(runtime));
+    this.scenes.forEach(scene => {
+      try {
+        scene.resize(runtime);
+      } catch (e) {
+        console.error(`Scene ${scene.id} resize failed`, e);
+      }
+    });
   }
 
   private _simTime = 0;
@@ -854,7 +860,13 @@ export class SceneDirector {
     );
     this.gpgpu.update(this._simTime, dt);
 
-    this.activeScene.update(runtime);
+    try {
+      this.activeScene.update(runtime);
+    } catch (e) {
+      console.warn(`Scene ${this.activeScene.key} update failed:`, e);
+      // Optional: switch to next scene automatically or show error visual?
+      // For now, just logging so the loop survives
+    }
 
     // Update RenderPass to current scene content
     this.renderPass.scene = this.activeScene.group as unknown as THREE.Scene;
