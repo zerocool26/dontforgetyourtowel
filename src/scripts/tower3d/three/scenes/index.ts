@@ -23,6 +23,7 @@ export interface SceneRuntime {
   tap: number; // transient 0->1 signal
   sceneId: string; // Added
   sceneIndex: number; // Added
+  audio: { level: number; low: number; mid: number; high: number };
 }
 
 export interface TowerScene {
@@ -151,6 +152,7 @@ abstract class SceneBase implements TowerScene {
   id: string = 'unknown'; // Added default
   group: THREE.Group;
   camera: THREE.PerspectiveCamera;
+  bg?: THREE.Color;
 
   // Design resolution reference
   protected baseFov = 45;
@@ -391,6 +393,9 @@ class FeedbackForgeScene extends SceneBase {
 
   // Helper for nice soft particles
   createSparkTexture() {
+    if (typeof document === 'undefined') {
+      return new THREE.DataTexture(new Uint8Array([255, 255, 255, 255]), 1, 1);
+    }
     const cvs = document.createElement('canvas');
     cvs.width = 32;
     cvs.height = 32;
@@ -399,7 +404,7 @@ class FeedbackForgeScene extends SceneBase {
     grad.addColorStop(0, 'rgba(255,255,255,1)');
     grad.addColorStop(0.2, 'rgba(255,220,150,0.8)');
     grad.addColorStop(0.5, 'rgba(255,100,50,0.4)');
-    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    grad.addColorStop(1, 'rgba(0,0,0,0)'); // Transparent boundary
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, 32, 32);
     const tex = new THREE.CanvasTexture(cvs);
@@ -414,8 +419,9 @@ class FeedbackForgeScene extends SceneBase {
     // Core Pulse
     const mat = this.core.material as THREE.ShaderMaterial;
     mat.uniforms.uTime.value = t;
-    // Expontential pulse for impact
-    mat.uniforms.uPulse.value = Math.pow(ctx.press, 2.0);
+    // Expontential pulse for impact + Audio
+    mat.uniforms.uPulse.value =
+      Math.pow(ctx.press, 2.0) + Math.pow(ctx.audio.low, 2.0) * 2.5;
 
     // Rings
     this.rings.forEach((r, i) => {
@@ -441,7 +447,10 @@ class FeedbackForgeScene extends SceneBase {
       // Emissive Pulse
       const ringMat = r.material as THREE.MeshStandardMaterial;
       ringMat.emissiveIntensity =
-        0.2 + Math.sin(t * 2.0 + i) * 0.1 + ctx.press * 3.0;
+        0.2 +
+        Math.sin(t * 2.0 + i) * 0.1 +
+        ctx.press * 3.0 +
+        ctx.audio.level * 4.0;
 
       // Color shift on press
       if (ctx.press > 0.5) {
@@ -452,9 +461,9 @@ class FeedbackForgeScene extends SceneBase {
     });
 
     // Particle orbit field
-    const pos = this.particles.geometry.attributes.position
+    /* const pos = this.particles.geometry.attributes.position
       .array as Float32Array;
-    const count = this.particles.geometry.attributes.position.count;
+    const count = this.particles.geometry.attributes.position.count; */
 
     // Rotate entire particle system slowly
     this.particles.rotation.y = t * 0.05;
@@ -1363,14 +1372,17 @@ class KaleidoGlassScene extends SceneBase {
       attenuationColor: new THREE.Color(0xffaaaa), // Pinkish internal absorption
       attenuationDistance: 2.0,
     });
-    // @ts-expect-error Dispersion property
-    mat.dispersion = 0.15; // High dispersion for rainbows
+    // mat.dispersion = 0.15; // High dispersion for rainbows
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (mat as any).dispersion = 0.15;
 
     this.shapes = new THREE.InstancedMesh(geo, mat, this.count);
     this.group.add(this.shapes);
 
     // Inner Light Core (The "Source")
     const coreGeo = new THREE.IcosahedronGeometry(2.0, 4);
+    // const coreMat = new THREE.ShaderMaterial({
+    /*
     const coreMat = new THREE.ShaderMaterial({
       uniforms: { uTime: { value: 0 } },
       vertexShader: `
@@ -1394,7 +1406,7 @@ class KaleidoGlassScene extends SceneBase {
             }
         `,
       side: THREE.BackSide, // Render inside out so we see it through glass? No, FrontSide
-    });
+    }); */
     // Actually, standard material is better for being refracted
     const innerLight = new THREE.Mesh(
       coreGeo,
@@ -1487,42 +1499,51 @@ class MatrixRainScene extends SceneBase {
     this.contentRadius = 8.0;
 
     // 1. Procedural Matrix Texture (Higher Res)
-    const size = 1024;
-    const cvs = document.createElement('canvas');
-    cvs.width = size;
-    cvs.height = size;
-    const ctx = cvs.getContext('2d')!;
+    // Safe for SSR
+    let tex: THREE.Texture;
 
-    // Transparent Black Bg
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(0, 0, size, size);
+    if (typeof document !== 'undefined') {
+      const size = 1024;
+      const cvs = document.createElement('canvas');
+      cvs.width = size;
+      cvs.height = size;
+      const ctx = cvs.getContext('2d')!;
 
-    // Draw grid of characters
-    const cols = 32;
-    const rows = 32;
-    const cell = size / cols;
-    ctx.font = `bold ${cell * 0.8}px monospace`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
+      // Transparent Black Bg
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(0, 0, size, size);
 
-    // Katakana / Matrix chars / Hex
-    const chars = '01XYZ01<>:;[]+=_DATAﾊﾐﾋｰｳｼﾅﾓﾆｻﾜﾂｵﾘｱﾎﾃﾏｹﾒｴｶｷﾑﾕﾗｾﾈｽﾀﾇﾍ';
+      // Draw grid of characters
+      const cols = 32;
+      const rows = 32;
+      const cell = size / cols;
+      ctx.font = `bold ${cell * 0.8}px monospace`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
 
-    for (let y = 0; y < rows; y++) {
-      for (let x = 0; x < cols; x++) {
-        // Brightness variation
-        const lit = 60 + Math.random() * 40;
-        ctx.fillStyle = `hsl(140, 100%, ${lit}%)`;
+      // Katakana / Matrix chars / Hex
+      const chars = '01XYZ01<>:;[]+=_DATAﾊﾐﾋｰｳｼﾅﾓﾆｻﾜﾂｵﾘｱﾎﾃﾏｹﾒｴｶｷﾑﾕﾗｾﾈｽﾀﾇﾍ';
 
-        // Random char
-        const char = chars[Math.floor(Math.random() * chars.length)];
-        ctx.fillText(char, x * cell + cell / 2, y * cell + cell / 2);
+      for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
+          // Brightness variation
+          const lit = 60 + Math.random() * 40;
+          ctx.fillStyle = `hsl(140, 100%, ${lit}%)`;
+
+          // Random char
+          const char = chars[Math.floor(Math.random() * chars.length)];
+          ctx.fillText(char, x * cell + cell / 2, y * cell + cell / 2);
+        }
       }
-    }
 
-    const tex = new THREE.CanvasTexture(cvs);
-    tex.magFilter = THREE.LinearFilter;
-    tex.minFilter = THREE.LinearFilter;
+      tex = new THREE.CanvasTexture(cvs);
+      tex.magFilter = THREE.LinearFilter;
+      tex.minFilter = THREE.LinearFilter;
+    } else {
+      // Fallback for Server
+      tex = new THREE.DataTexture(new Uint8Array([0, 255, 0, 255]), 1, 1);
+      tex.needsUpdate = true;
+    }
 
     // 2. Geometry: Vertical "Data Blades"
     // Thin boxes that look like 3D volumetric pixels
@@ -2014,6 +2035,9 @@ class OrbitalMechanicsScene extends SceneBase {
   }
 
   createRingTexture() {
+    if (typeof document === 'undefined') {
+      return new THREE.DataTexture(new Uint8Array([255, 200, 150, 255]), 1, 1);
+    }
     const cvs = document.createElement('canvas');
     cvs.width = 512;
     cvs.height = 64;
@@ -2622,7 +2646,7 @@ class NeuralNetworkScene extends SceneBase {
       connInstances.length
     );
 
-    const scales = new Float32Array(connInstances.length); // We won't use this if we scale matrix
+    // const scales = new Float32Array(connInstances.length); // We won't use this if we scale matrix
     const phases = new Float32Array(connInstances.length);
 
     for (let i = 0; i < connInstances.length; i++) {
@@ -2798,8 +2822,8 @@ class LibraryScene extends SceneBase {
     mat.uniforms.uTime.value = t;
 
     // Endless Flight
-    const speed = 4.0;
-    const loopLength = 40.0;
+    // const speed = 4.0;
+    // const loopLength = 40.0;
 
     // We move the camera relative to the tunnel?
     // Or move the tunnel?
@@ -3101,6 +3125,7 @@ class HolographicCityScene extends SceneBase {
         uBase: { value: new THREE.Color(0x050510) },
         uNeon: { value: new THREE.Color(0x00aaff) },
         uWin: { value: new THREE.Color(0xff00cc) },
+        uAudio: { value: 0 },
       },
       vertexShader: `
          varying vec3 vPos;
@@ -3122,6 +3147,7 @@ class HolographicCityScene extends SceneBase {
          uniform vec3 uBase;
          uniform vec3 uNeon;
          uniform vec3 uWin;
+         uniform float uAudio;
 
          float hash(float n) { return fract(sin(n)*43758.5453); }
 
@@ -3145,10 +3171,11 @@ class HolographicCityScene extends SceneBase {
             if(win > 0.5 && blink < 0.5) col = mix(col, uWin, 0.8);
 
             // Neon Edges
-            if(gx > 0.5 || gy > 0.5) col = uNeon;
+            float beat = 1.0 + uAudio * 3.0;
+            if(gx > 0.5 || gy > 0.5) col = uNeon * beat;
 
             // Top Glow
-            if(vPos.y > 0.98) col = uNeon * 2.0;
+            if(vPos.y > 0.98) col = uNeon * 2.0 * beat;
 
             // Fog from bottom
             float fog = smoothstep(-5.0, 20.0, vWorld.y);
@@ -3255,7 +3282,10 @@ class HolographicCityScene extends SceneBase {
   update(ctx: SceneRuntime) {
     const t = ctx.time;
     const bMat = this.buildings.material as THREE.ShaderMaterial;
-    if (bMat.uniforms) bMat.uniforms.uTime.value = t;
+    if (bMat.uniforms) {
+      bMat.uniforms.uTime.value = t;
+      if (bMat.uniforms.uAudio) bMat.uniforms.uAudio.value = ctx.audio.level;
+    }
 
     const gMat = this.grid.material as THREE.ShaderMaterial;
     if (gMat.uniforms) gMat.uniforms.uTime.value = t;
@@ -3472,24 +3502,22 @@ class ElectricStormScene extends SceneBase {
     super();
     this.id = 'scene16';
     this.contentRadius = 10.0;
-    this.baseDistance = 15.0; // Inside the volume
+    this.baseDistance = 10.0; // Adjusted to be safely inside the box
 
+    // Standard box, rendered on inside faces
     const geo = new THREE.BoxGeometry(30, 30, 30);
-    geo.scale(-1, 1, 1); // Invert for inside view
 
     const mat = new THREE.ShaderMaterial({
       uniforms: {
         uTime: { value: 0 },
         uPress: { value: 0 },
         uCameraPos: { value: new THREE.Vector3() },
-        uResolution: {
-          value: new THREE.Vector2(window.innerWidth, window.innerHeight),
-        },
+        uResolution: { value: new THREE.Vector2(1, 1) }, // Init safely, resize updates it
         uPointer: { value: new THREE.Vector3() },
       },
-      side: THREE.BackSide,
+      side: THREE.BackSide, // Render inside faces
       transparent: true,
-      depthWrite: false, // Important for inner volume
+      depthWrite: false,
       vertexShader: `
         varying vec3 vWorldPos;
         varying vec2 vUv;
@@ -3631,7 +3659,7 @@ class ElectricStormScene extends SceneBase {
     this.group.add(this.cloud);
   }
 
-  init(ctx: SceneRuntime) {
+  init(_ctx: SceneRuntime) {
     if (this.bg) this.bg = new THREE.Color(0x010103);
   }
 

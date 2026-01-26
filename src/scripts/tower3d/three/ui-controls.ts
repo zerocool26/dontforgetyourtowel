@@ -99,7 +99,8 @@ export class UIControls {
     // 4. Focus (Aperture)
     this.addSlider('Focus Blur', 0.0001, 0.05, 0.001, 0.0001, v => {
       // 0.05 is very blurry, 0.0001 is crisp
-      this.director.bokehPass.uniforms['aperture'].value = v;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (this.director.bokehPass.uniforms as any)['aperture'].value = v;
     });
 
     // 5. Exposure
@@ -132,7 +133,8 @@ export class UIControls {
 
       this.director.bloomPass.strength = bloom;
       this.director.timeScale = speed;
-      this.director.bokehPass.uniforms['aperture'].value = focus;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (this.director.bokehPass.uniforms as any)['aperture'].value = focus;
 
       // Update UI? (Simple way: force reload checks... not implemented, but user sees effect)
     };

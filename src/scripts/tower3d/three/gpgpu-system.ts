@@ -46,6 +46,11 @@ export class GlobalParticleSystem {
   public speed = 1.0;
   public color = new THREE.Color(0xffffff);
   public attractor = new THREE.Vector3();
+  public audioLevel = 0;
+
+  public setAudioLevel(v: number) {
+    this.audioLevel = v;
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private _dummy: any; // prevent lint generic errors
@@ -99,6 +104,8 @@ export class GlobalParticleSystem {
       value: new THREE.Vector3(),
     };
     this.velVariable.material.uniforms['uSeed'] = { value: Math.random() };
+    this.velVariable.material.uniforms['uAudioLevel'] = { value: 0.0 };
+    this.posVariable.material.uniforms['uAudioLevel'] = { value: 0.0 };
 
     const error = this.gpuCompute.init();
     if (error !== null) {
@@ -134,6 +141,7 @@ export class GlobalParticleSystem {
         uniform sampler2D texturePosition;
         uniform sampler2D textureVelocity;
         uniform float uSize;
+        uniform float uAudioLevel;
         varying float vSpeed;
 
         void main() {
@@ -146,6 +154,8 @@ export class GlobalParticleSystem {
 
             // Size attenuation
             gl_PointSize = uSize * ( 30.0 / -mvPosition.z );
+            // Audio Pulse
+            gl_PointSize *= (1.0 + uAudioLevel * 2.5);
             // Stretch based on speed (fake motion blur)
             gl_PointSize *= (1.0 + vSpeed * 0.5);
         }
@@ -216,6 +226,7 @@ export class GlobalParticleSystem {
       uniform float uSpeed;
       uniform vec3 uAttractor;
       uniform float uSeed;
+      uniform float uAudioLevel;
 
       // Curl Noise
       vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
@@ -296,8 +307,9 @@ export class GlobalParticleSystem {
 
         if (uMode < 0.5) {
            // 0: IDLE (Drift with Curl Noise)
-           vec3 noise = curlNoise(pos * 0.2 + uTime * 0.1);
-           acc += noise * 0.5;
+           float audioBoost = 1.0 + uAudioLevel * 4.0;
+           vec3 noise = curlNoise(pos * 0.2 + uTime * 0.1 * audioBoost);
+           acc += noise * 0.5 * audioBoost;
            vel *= 0.98; // Friction
         }
         else if (uMode < 1.5) {
@@ -381,6 +393,14 @@ export class GlobalParticleSystem {
     this.velVariable.material.uniforms['uSpeed'].value = this.speed;
     this.velVariable.material.uniforms['uAttractor'].value.copy(this.attractor);
 
+    // Add audio level if uniform exists (we will add it shortly)
+    if (this.velVariable.material.uniforms['uAudioLevel']) {
+      this.velVariable.material.uniforms['uAudioLevel'].value = this.audioLevel;
+    }
+    if (this.posVariable.material.uniforms['uAudioLevel']) {
+      this.posVariable.material.uniforms['uAudioLevel'].value = this.audioLevel;
+    }
+
     this.gpuCompute.compute();
 
     const meshMat = this.mesh.material as THREE.ShaderMaterial;
@@ -389,5 +409,9 @@ export class GlobalParticleSystem {
     meshMat.uniforms['textureVelocity'].value =
       this.gpuCompute.getCurrentRenderTarget(this.velVariable).texture;
     meshMat.uniforms['uColor'].value.copy(this.color);
+
+    if (meshMat.uniforms['uAudioLevel']) {
+      meshMat.uniforms['uAudioLevel'].value = this.audioLevel;
+    }
   }
 }

@@ -28,8 +28,8 @@ export function createDiamondMaterial(): THREE.MeshPhysicalMaterial {
   });
 
   // Inject dispersion property nicely in case TS complains
-  // @ts-expect-error Dispersion not yet in types
-  mat.dispersion = 0.05;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (mat as any).dispersion = 0.05;
 
   return mat;
 }

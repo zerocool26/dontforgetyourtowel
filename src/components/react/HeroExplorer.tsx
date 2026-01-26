@@ -1058,8 +1058,11 @@ const GlyphOrbit = ({ quality }: { quality: QualityTier }) => {
 
 const Scene = ({ quality }: { quality: QualityTier }) => {
   const burstRef = useRef(0);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const bloomRef = useRef<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const chromaRef = useRef<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const noiseRef = useRef<any>(null);
   const scroll = useScroll();
 
