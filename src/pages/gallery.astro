@@ -1,0 +1,1341 @@
+---
+import MarketingLayout from '../layouts/MarketingLayout.astro';
+import { withBasePath } from '../utils/helpers';
+
+const title = 'Landing';
+const description = 'A dedicated, fullscreen 3D landing experience.';
+const enterHref = withBasePath('services/');
+
+// Scene metadata for the navigation menu
+const scenes = [
+  { id: 'scene00', name: 'Origin Core', icon: '◉' },
+  { id: 'scene01', name: 'Liquid‑Metal Relic', icon: '◈' },
+  { id: 'scene02', name: 'Million Fireflies', icon: '✦' },
+  { id: 'scene03', name: 'Quantum Ribbons', icon: '⌬' },
+  { id: 'scene04', name: 'Aurora Field', icon: '❈' },
+  { id: 'scene05', name: 'Event Horizon', icon: '◍' },
+  { id: 'scene06', name: 'Kaleido Glass', icon: '⬡' },
+  { id: 'scene07', name: 'Data Sculpture', icon: '◐' },
+  { id: 'scene08', name: 'Orbital Mechanics', icon: '≋' },
+  { id: 'scene09', name: 'Crystal Fracture', icon: '⁘' },
+  { id: 'scene10', name: 'Moiré Patterns', icon: '❋' },
+  { id: 'scene11', name: 'Neural Constellation', icon: '⬢' },
+  { id: 'scene12', name: 'The Library', icon: '📚' },
+  { id: 'scene13', name: 'Deep Abyss', icon: '⬙' },
+  { id: 'scene14', name: 'Cyber City', icon: '🏙' },
+  { id: 'scene15', name: 'Reality Collapse', icon: '∞' },
+];
+---
+
+<MarketingLayout
+  title={title}
+  description={description}
+  bodyClass="bg-[#040712] overflow-hidden landing-3d"
+  mainClass="p-0"
+  showHeader={false}
+  showFooter={false}
+  showStickyCTA={false}
+  showMobileNav={false}
+  showLiveChat={false}
+>
+  <div class="gallery-shell" aria-label="3D Gallery">
+    <!-- Loading State -->
+    <div class="gallery3d__loader" data-gallery-loader>
+      <div class="loader__content">
+        <div class="loader__ring"></div>
+        <div class="loader__text">Loading 3D Experience</div>
+        <div class="loader__progress">
+          <div class="loader__progress-bar" data-loader-progress></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main 3D Canvas Container -->
+    <section
+      class="gallery3d"
+      data-tower3d-root
+      data-tower-scene="scene00"
+      data-gallery-mode="true"
+      aria-label="3D Gallery"
+    >
+      <canvas class="gallery3d__canvas" data-tower3d-canvas></canvas>
+
+      <!-- Scene indicator dots -->
+      <div class="gallery3d__dots" data-gallery-dots>
+        {
+          scenes.map((scene, i) => (
+            <button
+              class="gallery3d__dot"
+              data-scene-index={i}
+              data-scene-id={scene.id}
+              title={scene.name}
+              aria-label={`Go to ${scene.name}`}
+            >
+              <span class="gallery3d__dot-fill" />
+            </button>
+          ))
+        }
+      </div>
+
+      <!-- Navigation Arrows -->
+      <button
+        class="gallery3d__nav gallery3d__nav--prev"
+        data-gallery-prev
+        aria-label="Previous scene"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M15 18l-6-6 6-6"></path>
+        </svg>
+      </button>
+      <button
+        class="gallery3d__nav gallery3d__nav--next"
+        data-gallery-next
+        aria-label="Next scene"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M9 18l6-6-6-6"></path>
+        </svg>
+      </button>
+
+      <!-- Scene Title Overlay -->
+      <div class="gallery3d__title-overlay" data-gallery-title>
+        <span class="gallery3d__scene-number">01</span>
+        <span class="gallery3d__scene-name">Genesis Core</span>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="gallery3d__progress">
+        <div class="gallery3d__progress-fill" data-gallery-progress></div>
+      </div>
+
+      <!-- Mobile Swipe Indicator -->
+      <div class="gallery3d__swipe-indicator" aria-hidden="true">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M5 12h14M12 5l7 7-7 7"></path>
+        </svg>
+      </div>
+
+      <!-- Swipe Preview (shows upcoming scene name) -->
+      <div class="gallery3d__swipe-preview" aria-hidden="true"></div>
+
+      <!-- Scene Info Panel (mobile-optimized) -->
+      <div class="gallery3d__info-panel" data-gallery-info>
+        <div class="info-panel__content">
+          <h3 class="info-panel__title">Scene Info</h3>
+          <p class="info-panel__description"></p>
+        </div>
+      </div>
+
+      <!-- Control Bar -->
+      <div class="gallery3d__controls">
+        <button
+          class="gallery3d__control-btn"
+          data-gallery-info
+          aria-label="Show scene information"
+          aria-expanded="false"
+          title="Scene Info (I)"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M12 16v-4M12 8h.01"></path>
+          </svg>
+        </button>
+        <button
+          class="gallery3d__control-btn"
+          data-gallery-autoplay
+          aria-label="Toggle auto-play"
+          aria-pressed="false"
+          title="Auto-Play (P)"
+        >
+          <svg class="autoplay-progress" viewBox="0 0 44 44">
+            <circle
+              class="autoplay-progress__track"
+              cx="22"
+              cy="22"
+              r="20"
+              fill="none"
+              stroke="rgba(255,255,255,0.1)"
+              stroke-width="2"></circle>
+            <circle
+              class="autoplay-progress__bar"
+              cx="22"
+              cy="22"
+              r="20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-dasharray="125.6"
+              stroke-dashoffset="125.6"></circle>
+          </svg>
+          <svg
+            class="play-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polygon points="5,3 19,12 5,21"></polygon>
+          </svg>
+          <svg
+            class="pause-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <rect x="6" y="4" width="4" height="16"></rect>
+            <rect x="14" y="4" width="4" height="16"></rect>
+          </svg>
+        </button>
+        <button
+          class="gallery3d__control-btn"
+          data-gallery-fullscreen
+          aria-label="Toggle fullscreen"
+          title="Fullscreen (F)"
+        >
+          <svg
+            class="expand-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polyline points="15,3 21,3 21,9"></polyline>
+            <polyline points="9,21 3,21 3,15"></polyline>
+            <line x1="21" y1="3" x2="14" y2="10"></line>
+            <line x1="3" y1="21" x2="10" y2="14"></line>
+          </svg>
+          <svg
+            class="compress-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polyline points="4,14 10,14 10,20"></polyline>
+            <polyline points="20,10 14,10 14,4"></polyline>
+            <line x1="14" y1="10" x2="21" y2="3"></line>
+            <line x1="3" y1="21" x2="10" y2="14"></line>
+          </svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- Lightweight Scene Menu (Toggle) -->
+    <button
+      class="gallery-menu-toggle"
+      data-menu-toggle
+      aria-label="Toggle scene menu"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path d="M4 6h16M4 12h16M4 18h16"></path>
+      </svg>
+    </button>
+
+    <nav class="gallery-menu" data-gallery-menu aria-label="Scene navigation">
+      <div class="gallery-menu__header">
+        <h2>Scenes</h2>
+        <button
+          class="gallery-menu__close"
+          data-menu-close
+          aria-label="Close menu"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M18 6L6 18M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      <ul class="gallery-menu__list">
+        {
+          scenes.map((scene, i) => (
+            <li>
+              <button
+                class="gallery-menu__item"
+                data-menu-scene={i}
+                data-scene-id={scene.id}
+              >
+                <span class="gallery-menu__icon">{scene.icon}</span>
+                <span class="gallery-menu__name">{scene.name}</span>
+                <span class="gallery-menu__number">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+              </button>
+            </li>
+          ))
+        }
+      </ul>
+      <div class="gallery-menu__footer">
+        <a class="gallery-menu__enter" href={enterHref}> Enter Full Site → </a>
+      </div>
+    </nav>
+
+    <!-- Keyboard hints -->
+    <div class="gallery3d__hints" data-gallery-hints>
+      <span>← → Arrow keys or swipe</span>
+    </div>
+  </div>
+
+  <style>
+    :global(body.landing-3d) {
+      background-color: #040712;
+      background-image: none;
+      mask-image: none;
+      overflow: hidden;
+    }
+
+    .gallery-shell {
+      position: fixed;
+      inset: 0;
+      background: #040712;
+      /* Canvas fills entire viewport - safe areas handled by UI elements */
+    }
+
+    /* Main 3D Container - fills entire viewport */
+    .gallery3d {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      /* Canvas renders to full viewport, UI elements have their own safe area padding */
+    }
+
+    .gallery3d__canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100% !important;
+      height: 100% !important;
+      display: block;
+      /* Ensure canvas isn't offset by any parent transforms */
+      transform: none;
+    }
+
+    /* Loading Screen */
+    .gallery3d__loader {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: #040712;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition:
+        opacity 0.6s ease,
+        visibility 0.6s ease;
+    }
+
+    .gallery3d__loader.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .loader__content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .loader__ring {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: 3px solid rgba(255, 255, 255, 0.1);
+      border-top-color: #22d3ee;
+      animation: loader-spin 1s linear infinite;
+    }
+
+    @keyframes loader-spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .loader__text {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.7);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .loader__progress {
+      width: 200px;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .loader__progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #22d3ee, #6366f1);
+      border-radius: 3px;
+      transition: width 0.3s ease;
+    }
+
+    /* Main 3D Container */
+    .gallery3d {
+      position: absolute;
+      inset: 0;
+      /* Remove flex centering - canvas fills entire container */
+      overflow: hidden;
+    }
+
+    .gallery3d__canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100% !important;
+      height: 100% !important;
+      display: block;
+    }
+
+    /* Navigation Arrows */
+    .gallery3d__nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 20;
+      width: 56px;
+      height: 56px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
+      color: rgba(255, 255, 255, 0.9);
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .gallery3d__nav::before {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: 50%;
+      background: linear-gradient(
+        135deg,
+        rgba(34, 211, 238, 0),
+        rgba(99, 102, 241, 0)
+      );
+      transition: all 0.4s ease;
+      z-index: -1;
+    }
+
+    .gallery3d__nav:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-50%) scale(1.1);
+      border-color: rgba(34, 211, 238, 0.4);
+      box-shadow: 0 0 30px rgba(34, 211, 238, 0.3);
+    }
+
+    .gallery3d__nav:hover::before {
+      background: linear-gradient(
+        135deg,
+        rgba(34, 211, 238, 0.2),
+        rgba(99, 102, 241, 0.2)
+      );
+    }
+
+    .gallery3d__nav:active {
+      transform: translateY(-50%) scale(0.95);
+    }
+
+    .gallery3d__nav:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .gallery3d__nav svg {
+      width: 28px;
+      height: 28px;
+      transition: transform 0.3s ease;
+    }
+
+    .gallery3d__nav:hover svg {
+      transform: scale(1.1);
+    }
+
+    .gallery3d__nav--prev {
+      left: 24px;
+    }
+
+    .gallery3d__nav--prev:hover svg {
+      transform: translateX(-3px);
+    }
+
+    .gallery3d__nav--next {
+      right: 24px;
+    }
+
+    .gallery3d__nav--next:hover svg {
+      transform: translateX(3px);
+    }
+
+    @media (max-width: 768px) {
+      .gallery3d__nav {
+        width: 48px;
+        height: 48px;
+        /* Larger touch targets on mobile */
+        min-width: 48px;
+        min-height: 48px;
+      }
+      .gallery3d__nav svg {
+        width: 24px;
+        height: 24px;
+      }
+      .gallery3d__nav--prev {
+        left: 8px;
+      }
+      .gallery3d__nav--next {
+        right: 8px;
+      }
+      /* Hide nav arrows on very small screens - rely on swipe */
+      @media (max-width: 400px) {
+        .gallery3d__nav {
+          opacity: 0.5;
+          width: 40px;
+          height: 40px;
+        }
+      }
+    }
+
+    /* Touch-optimized active states */
+    @media (hover: none) and (pointer: coarse) {
+      .gallery3d__nav:active {
+        background: rgba(255, 255, 255, 0.25);
+        transform: translateY(-50%) scale(0.92);
+      }
+      .gallery3d__dot:active {
+        transform: scale(1.5);
+      }
+    }
+
+    /* Scene Indicator Dots */
+    .gallery3d__dots {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 20;
+      display: flex;
+      gap: 10px;
+      padding: 12px 20px;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(12px);
+      border-radius: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .gallery3d__dot {
+      width: 12px;
+      height: 12px;
+      padding: 0;
+      border: none;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: visible;
+    }
+
+    .gallery3d__dot::before {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      background: transparent;
+      transition: all 0.3s ease;
+    }
+
+    .gallery3d__dot:hover::before {
+      background: rgba(34, 211, 238, 0.15);
+    }
+
+    .gallery3d__dot-fill {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #22d3ee, #6366f1);
+      transform: scale(0);
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .gallery3d__dot.active .gallery3d__dot-fill,
+    .gallery3d__dot:hover .gallery3d__dot-fill {
+      transform: scale(1);
+    }
+
+    .gallery3d__dot.active {
+      transform: scale(1.4);
+      box-shadow: 0 0 20px rgba(34, 211, 238, 0.5);
+    }
+
+    .gallery3d__dot.active::after {
+      content: '';
+      position: absolute;
+      inset: -6px;
+      border-radius: 50%;
+      border: 2px solid rgba(34, 211, 238, 0.4);
+      animation: dot-pulse 2s ease-out infinite;
+    }
+
+    @keyframes dot-pulse {
+      0% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1.8);
+        opacity: 0;
+      }
+    }
+
+    @keyframes title-pulse {
+      0% {
+        transform: translateX(-50%) scale(1);
+        filter: brightness(1);
+      }
+      50% {
+        transform: translateX(-50%) scale(1.02);
+        filter: brightness(1.1);
+      }
+      100% {
+        transform: translateX(-50%) scale(1);
+        filter: brightness(1);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .gallery3d__dots {
+        bottom: calc(24px + env(safe-area-inset-bottom));
+        gap: 8px;
+        padding: 10px 16px;
+        max-width: calc(100vw - 32px);
+        overflow-x: auto;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
+      .gallery3d__dots::-webkit-scrollbar {
+        display: none;
+      }
+      .gallery3d__dot {
+        width: 10px;
+        height: 10px;
+        flex-shrink: 0;
+      }
+      .gallery3d__dot.active {
+        transform: scale(1.3);
+      }
+    }
+
+    /* Scene Title Overlay */
+    .gallery3d__title-overlay {
+      position: absolute;
+      top: calc(30px + env(safe-area-inset-top));
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 28px;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(16px);
+      border-radius: 40px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .gallery3d__title-overlay:hover {
+      background: rgba(0, 0, 0, 0.7);
+      border-color: rgba(34, 211, 238, 0.3);
+      box-shadow: 0 8px 40px rgba(34, 211, 238, 0.15);
+    }
+
+    .gallery3d__scene-number {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #22d3ee;
+      font-variant-numeric: tabular-nums;
+      text-shadow: 0 0 20px rgba(34, 211, 238, 0.5);
+      min-width: 24px;
+      text-align: center;
+    }
+
+    .gallery3d__scene-name {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.95);
+      letter-spacing: 0.03em;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 768px) {
+      .gallery3d__title-overlay {
+        top: calc(20px + env(safe-area-inset-top));
+        padding: 12px 22px;
+        gap: 10px;
+      }
+      .gallery3d__scene-number {
+        font-size: 0.8rem;
+      }
+      .gallery3d__scene-name {
+        font-size: 0.95rem;
+        max-width: 50vw;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+
+    /* Progress Bar */
+    .gallery3d__progress {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.1);
+      z-index: 20;
+    }
+
+    .gallery3d__progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #22d3ee, #6366f1, #f472b6);
+      transition: width 0.5s ease;
+    }
+
+    /* Mobile Swipe Indicator */
+    .gallery3d__swipe-indicator {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition:
+        opacity 0.2s ease,
+        transform 0.2s ease;
+      z-index: 25;
+    }
+
+    .gallery3d__swipe-indicator svg {
+      width: 28px;
+      height: 28px;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .gallery3d__swipe-indicator.active {
+      animation: swipe-pulse 0.6s ease infinite;
+    }
+
+    @keyframes swipe-pulse {
+      0%,
+      100% {
+        box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.4);
+      }
+      50% {
+        box-shadow: 0 0 0 15px rgba(34, 211, 238, 0);
+      }
+    }
+
+    /* Swipe Preview */
+    .gallery3d__swipe-preview {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      padding: 12px 20px;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(12px);
+      border-radius: 24px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.9);
+      opacity: 0;
+      pointer-events: none;
+      transition:
+        opacity 0.2s ease,
+        transform 0.2s ease;
+      z-index: 26;
+      white-space: nowrap;
+    }
+
+    .gallery3d__swipe-preview.visible {
+      opacity: 1;
+    }
+
+    .gallery3d__swipe-preview.left {
+      left: 20px;
+      transform: translateY(-50%) translateX(-10px);
+    }
+
+    .gallery3d__swipe-preview.right {
+      right: 20px;
+      transform: translateY(-50%) translateX(10px);
+    }
+
+    .gallery3d__swipe-preview.visible.left,
+    .gallery3d__swipe-preview.visible.right {
+      transform: translateY(-50%) translateX(0);
+    }
+
+    /* Info Panel Toggle */
+    .gallery3d__info-panel {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 22;
+      padding: 0 20px calc(100px + env(safe-area-inset-bottom));
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+      transform: translateY(100%);
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+    }
+
+    .gallery3d__info-panel.visible {
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .info-panel__content {
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(16px);
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .info-panel__title {
+      margin: 0 0 8px 0;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #22d3ee;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .info-panel__description {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    /* Control Bar */
+    .gallery3d__controls {
+      position: absolute;
+      bottom: calc(100px + env(safe-area-inset-bottom));
+      right: 20px;
+      z-index: 25;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .gallery3d__control-btn {
+      width: 44px;
+      height: 44px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      color: rgba(255, 255, 255, 0.7);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .gallery3d__control-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+      transform: scale(1.1);
+      border-color: rgba(34, 211, 238, 0.3);
+      box-shadow: 0 0 20px rgba(34, 211, 238, 0.2);
+    }
+
+    .gallery3d__control-btn:active {
+      transform: scale(0.95);
+    }
+
+    .gallery3d__control-btn.active {
+      background: linear-gradient(
+        135deg,
+        rgba(34, 211, 238, 0.3),
+        rgba(99, 102, 241, 0.3)
+      );
+      color: #fff;
+      border-color: rgba(34, 211, 238, 0.4);
+    }
+
+    .gallery3d__control-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Auto-play button icons */
+    .gallery3d__control-btn .pause-icon,
+    .gallery3d__control-btn.active .play-icon {
+      display: none;
+    }
+
+    .gallery3d__control-btn.active .pause-icon {
+      display: block;
+    }
+
+    /* Fullscreen button icons */
+    .gallery3d__control-btn .compress-icon,
+    .gallery3d__control-btn.active .expand-icon {
+      display: none;
+    }
+
+    .gallery3d__control-btn.active .compress-icon {
+      display: block;
+    }
+
+    /* Auto-play progress ring */
+    .autoplay-progress {
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      width: calc(100% + 4px);
+      height: calc(100% + 4px);
+      transform: rotate(-90deg);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
+
+    .gallery3d__control-btn.active .autoplay-progress {
+      opacity: 1;
+    }
+
+    .autoplay-progress__bar {
+      stroke: #22d3ee;
+      transition: stroke-dashoffset 0.1s linear;
+    }
+
+    [data-gallery-autoplay].active .autoplay-progress__bar {
+      animation: autoplay-progress 8s linear infinite;
+    }
+
+    @keyframes autoplay-progress {
+      0% {
+        stroke-dashoffset: 125.6;
+      }
+      100% {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    /* Auto-playing state styles */
+    .gallery3d.auto-playing .gallery3d__title-overlay {
+      border-color: rgba(34, 211, 238, 0.3);
+    }
+
+    .gallery3d.auto-playing .gallery3d__progress-fill {
+      box-shadow: 0 0 10px rgba(34, 211, 238, 0.5);
+    }
+
+    @media (max-width: 768px) {
+      .gallery3d__controls {
+        bottom: calc(90px + env(safe-area-inset-bottom));
+        right: 12px;
+        gap: 8px;
+      }
+      .gallery3d__control-btn {
+        width: 40px;
+        height: 40px;
+      }
+      .gallery3d__control-btn svg {
+        width: 18px;
+        height: 18px;
+      }
+      .gallery3d__info-panel {
+        padding: 0 16px calc(90px + env(safe-area-inset-bottom));
+      }
+      .info-panel__content {
+        padding: 16px;
+      }
+      .info-panel__description {
+        font-size: 0.9rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .gallery3d__swipe-preview {
+        font-size: 0.8rem;
+        padding: 10px 16px;
+      }
+    }
+
+    /* Mobile Landscape Mode Optimizations */
+    @media (max-height: 500px) and (orientation: landscape) {
+      .gallery3d__title-overlay {
+        top: 10px;
+        padding: 8px 16px;
+        gap: 8px;
+      }
+      .gallery3d__scene-number {
+        font-size: 0.75rem;
+      }
+      .gallery3d__scene-name {
+        font-size: 0.85rem;
+      }
+      .gallery3d__dots {
+        bottom: 10px;
+        padding: 8px 14px;
+        gap: 6px;
+      }
+      .gallery3d__dot {
+        width: 8px;
+        height: 8px;
+      }
+      .gallery3d__nav {
+        width: 40px;
+        height: 40px;
+      }
+      .gallery3d__nav svg {
+        width: 20px;
+        height: 20px;
+      }
+      .gallery3d__controls {
+        bottom: 10px;
+        right: 10px;
+        flex-direction: row;
+        gap: 6px;
+      }
+      .gallery3d__control-btn {
+        width: 36px;
+        height: 36px;
+      }
+      .gallery-menu-toggle {
+        top: 10px;
+        width: 40px;
+        height: 40px;
+      }
+      .gallery3d__info-panel {
+        padding: 0 10px 60px;
+      }
+      .info-panel__content {
+        padding: 12px;
+        max-width: 60%;
+      }
+      .info-panel__description {
+        font-size: 0.8rem;
+        line-height: 1.4;
+      }
+    }
+
+    /* Menu Toggle Button */
+    .gallery-menu-toggle {
+      position: fixed;
+      top: calc(20px + env(safe-area-inset-top));
+      right: 20px;
+      z-index: 30;
+      width: 52px;
+      height: 52px;
+      border: none;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      color: rgba(255, 255, 255, 0.9);
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .gallery-menu-toggle:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: scale(1.05);
+      border-color: rgba(34, 211, 238, 0.3);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .gallery-menu-toggle:active {
+      transform: scale(0.95);
+    }
+
+    .gallery-menu-toggle svg {
+      width: 26px;
+      height: 26px;
+      transition: transform 0.3s ease;
+    }
+
+    .gallery-menu-toggle:hover svg {
+      transform: scale(1.1);
+    }
+
+    @media (max-width: 768px) {
+      .gallery-menu-toggle {
+        width: 48px;
+        height: 48px;
+        right: 16px;
+      }
+      .gallery-menu-toggle svg {
+        width: 24px;
+        height: 24px;
+      }
+    }
+
+    /* Scene Navigation Menu */
+    .gallery-menu {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 320px;
+      max-width: 85vw;
+      z-index: 100;
+      background: rgba(10, 15, 30, 0.95);
+      backdrop-filter: blur(20px);
+      border-left: 1px solid rgba(255, 255, 255, 0.1);
+      transform: translateX(100%);
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .gallery-menu.open {
+      transform: translateX(0);
+    }
+
+    .gallery-menu__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .gallery-menu__header h2 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .gallery-menu__close {
+      width: 36px;
+      height: 36px;
+      border: none;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.8);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .gallery-menu__close:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .gallery-menu__close svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .gallery-menu__list {
+      list-style: none;
+      margin: 0;
+      padding: 12px;
+      flex: 1;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+    }
+
+    .gallery-menu__list::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .gallery-menu__list::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .gallery-menu__list::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 3px;
+    }
+
+    .gallery-menu__item {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      margin-bottom: 4px;
+      border: none;
+      border-radius: 12px;
+      background: transparent;
+      color: rgba(255, 255, 255, 0.7);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: left;
+    }
+
+    .gallery-menu__item:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+    }
+
+    .gallery-menu__item.active {
+      background: linear-gradient(
+        135deg,
+        rgba(34, 211, 238, 0.2),
+        rgba(99, 102, 241, 0.2)
+      );
+      color: #fff;
+    }
+
+    .gallery-menu__icon {
+      font-size: 1.25rem;
+      width: 32px;
+      text-align: center;
+    }
+
+    .gallery-menu__name {
+      flex: 1;
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    .gallery-menu__number {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.4);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .gallery-menu__footer {
+      padding: 16px 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .gallery-menu__enter {
+      display: block;
+      padding: 14px 20px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #22d3ee, #6366f1);
+      color: #0b1224;
+      font-weight: 600;
+      text-decoration: none;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .gallery-menu__enter:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(99, 102, 241, 0.4);
+    }
+
+    /* Keyboard Hints */
+    .gallery3d__hints {
+      position: absolute;
+      bottom: 90px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 15;
+      padding: 8px 16px;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(8px);
+      border-radius: 20px;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.5);
+      opacity: 1;
+      transition: opacity 0.5s ease;
+      pointer-events: none;
+    }
+
+    .gallery3d__hints.hidden {
+      opacity: 0;
+    }
+
+    @media (max-width: 768px) {
+      .gallery3d__hints {
+        bottom: 75px;
+        font-size: 0.75rem;
+      }
+    }
+
+    /* Menu overlay backdrop */
+    .gallery-menu::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+      z-index: -1;
+    }
+
+    .gallery-menu.open::before {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  </style>
+
+  <script>
+    import '../scripts/tower3d-gallery';
+  </script>
+</MarketingLayout>

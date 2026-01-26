@@ -95,6 +95,14 @@ export async function GET() {
       tags: ['demo', 'shop', 'ecommerce', 'cart', 'checkout'],
     },
     {
+      id: 'page-gallery',
+      title: '3D Gallery',
+      description: 'Advanced 3D WebGL showcase with 17 interactive scenes',
+      category: 'Page',
+      url: 'gallery/',
+      tags: ['demo', '3d', 'webgl', 'threejs', 'gallery'],
+    },
+    {
       id: 'page-privacy',
       title: 'Privacy Policy',
       description: 'How we handle data and privacy',
