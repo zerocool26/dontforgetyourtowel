@@ -267,11 +267,11 @@ class FeedbackForgeScene extends SceneBase {
 
           float displacement = (n1.x + n2.y * 0.5) * (0.2 + uPulse * 0.5); // More displacement on pulse
           vec3 pos = position + normal * displacement;
-          
+
           vec4 worldPos = modelMatrix * vec4(pos, 1.0);
           vP = worldPos.xyz;
           vDisp = displacement;
-          
+
           gl_Position = projectionMatrix * viewMatrix * worldPos;
         }
       `,
@@ -1220,36 +1220,36 @@ class EventHorizonScene extends SceneBase {
             // Twist space as we get closer to event horizon
             float twist = 8.0 / (r + 0.1);
             vec2 flow = vec2(ang * 3.0 + twist - uTime * 2.0, r - uTime * 0.5);
-            
+
             // Noise structure
             float n = fbm(flow);
-            
+
             // Texture banding
             float bands = sin(r * 10.0 - uTime * 2.0 + n * 3.0);
-            
+
             // Intensity Gradient
             float intensity = smoothstep(1.4, 3.0, r) * smoothstep(7.0, 4.0, r);
-            
+
             // Core Heat
             float heat = smoothstep(0.3, 0.8, n + bands * 0.2);
             vec3 col = mix(uColorA, uColorB, heat);
-            
+
             // Add relativistic beaming doppler hint (simplistic: brighter on one side)
             float doppler = 1.0 + sin(ang - 0.5) * 0.4;
             col *= doppler;
-            
+
             // Alpha falloff
             float alpha = intensity * (0.8 + n * 0.2);
-            
+
             // Add a glow ring at ISCO (Innermost Stable Circular Orbit)
             float isco = 1.0 - smoothstep(0.02, 0.0, abs(r - 2.0));
             col += vec3(0.5, 0.8, 1.0) * isco * 2.0;
 
             if (alpha < 0.05) discard;
-            
+
             // View Fade to suppress billboarding artifacts if viewed edge on?
             // Not needed since we use a plane.
-            
+
             gl_FragColor = vec4(col, alpha);
         }
       `,
@@ -1279,11 +1279,11 @@ class EventHorizonScene extends SceneBase {
          void main() {
            // Pure Void
            gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
-           
+
            // Thin Photon Ring
            float view = dot(vNormal, vec3(0.0, 0.0, 1.0));
            float ring = smoothstep(0.0, 0.1, 1.0 - abs(view));
-           
+
            // In classic BH rendering the photon ring is slightly outside the shadow
            // Here we just add a tiny rim to separate it if needed, but usually it's black.
            // Let's keep it pure black for contrast against the bright disk.
@@ -1340,22 +1340,22 @@ class EventHorizonScene extends SceneBase {
             // High speed flow
             float flow = vPosY * 0.5 - uTime * 3.0;
             float n = noise(vec2(vUv.x * 20.0, flow));
-            
+
             // Energy core
             float core = 1.0 - abs(vUv.x - 0.5) * 2.0;
             core = pow(core, 4.0);
-            
+
             // Pulse along length
             float pulse = noise(vec2(0.0, vPosY * 0.2 - uTime * 5.0));
-            
+
             float alpha = core * (0.5 + n * 0.5);
             alpha *= smoothstep(0.0, 3.0, vPosY) * (1.0 - smoothstep(8.0, 12.0, vPosY)); // Fade ends
-            
+
             // Shockwaves
             float shock = smoothstep(0.6, 0.8, noise(vec2(vUv.x * 5.0, vPosY - uTime * 8.0)));
-            
+
             vec3 col = uColor + vec3(0.5) * shock;
-            
+
             gl_FragColor = vec4(col, alpha * (0.5 + pulse * 0.5));
         }
       `,
@@ -1686,7 +1686,7 @@ class MatrixRainScene extends SceneBase {
 
             // Billboarding (View Space)
             vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
-            
+
             // Apply scale/offset in View Space (always faces camera)
             // 'position' is the quad vertex offset (-0.2 to 0.2)
             float scale = 1.0 - morph * 0.5;
@@ -1858,14 +1858,14 @@ class OrbitalMechanicsScene extends SceneBase {
             vec4 h = max(0.6 - vec4(dot(d0, d0), dot(d1, d1), dot(d2, d2), dot(d3, d3)), 0.0);
             vec3 n = h.x * h.x * h.x * h.x * vec3(dot(d0, hash33(i)), dot(d1, hash33(i + i1)), dot(d2, hash33(i + i2)));
             return dot(vec3(dot(d3, hash33(i + 1.0))), n) * 31.316;
-        } 
-        
-        // FBM 
+        }
+
+        // FBM
         float fbm(vec2 p) {
             float f = 0.0;
             float amps = 0.5;
             for(int i=0; i<6; i++) {
-                f += amps * sin(p.x * 2.0 + p.y * 5.0 + uTime*0.1); 
+                f += amps * sin(p.x * 2.0 + p.y * 5.0 + uTime*0.1);
             }
             return f;
         }
@@ -1873,31 +1873,31 @@ class OrbitalMechanicsScene extends SceneBase {
         void main() {
             // Turbulence pattern for storms
             vec2 p = vUv;
-            
+
             // Flow simulation
             float flow = uTime * 0.02;
-            
+
             float bandStructure = sin(p.y * 24.0 + sin(p.x * 3.0));
             float detail = sin(p.x * 40.0 + p.y * 100.0 + flow);
-            
+
             float mixVal = bandStructure * 0.6 + detail * 0.1;
             mixVal = smoothstep(-0.8, 0.8, mixVal);
-            
+
             vec3 col = mix(uColorA, uColorB, mixVal);
             col = mix(col, uColorC, smoothstep(0.4, 0.9, abs(bandStructure)));
 
             // Lighting
             float diff = max(dot(vNormal, uSunDir), 0.0);
-            
+
             // Terminator softness
             diff = smoothstep(-0.2, 0.2, diff); // Shift shading to allow scattering wrap
-            
+
             vec3 final = col * diff;
-            
+
             // Rim light (Atmosphere scattering)
             float viewD = dot(normalize(vViewPos), vNormal);
             float rim = pow(1.0 - max(viewD, 0.0), 3.0);
-            
+
             final += vec3(0.4, 0.6, 1.0) * rim * 0.5 * (diff + 0.2);
 
             gl_FragColor = vec4(final, 1.0);
@@ -1928,7 +1928,7 @@ class OrbitalMechanicsScene extends SceneBase {
             void main() {
                 float view = dot(normalize(vNormal), vec3(0.0, 0.0, 1.0));
                 float halo = pow(1.0 + view, 4.0);
-                
+
                 vec3 col = vec3(0.3, 0.6, 1.0) * halo * 2.0;
                 gl_FragColor = vec4(col, halo * 0.6);
             }
@@ -2705,16 +2705,16 @@ class HolographicCityScene extends SceneBase {
         varying vec3 vPos;
         varying vec3 vWorldPos;
         varying float vHeight;
-        
+
         void main() {
           vUv = uv;
           vPos = position;
-          
+
           // Instance Matrix handles placement
           vec4 worldPos = instanceMatrix * vec4(position, 1.0);
           vWorldPos = worldPos.xyz;
           vHeight = worldPos.y; // approximate height for gradients
-          
+
           gl_Position = projectionMatrix * viewMatrix * worldPos;
         }
       `,
@@ -2744,23 +2744,23 @@ class HolographicCityScene extends SceneBase {
             float gridX = step(1.0 - edgeThick, vUv.x) + step(vUv.x, edgeThick);
             float gridY = step(1.0 - edgeThick, vUv.y) + step(vUv.y, edgeThick);
             float isEdge = clamp(gridX + gridY, 0.0, 1.0);
-            
+
             color += uRimColor * isEdge * 0.5;
 
             // 3. Procedural Windows
             // Map world position to grid
             vec2 winGrid = floor(vWorldPos.xz * 1.5 + vWorldPos.y * 3.0);
             float winRand = random(winGrid + floor(uTime * 0.5)); // flicker slowly
-            
+
             // Only show windows on sides, not roof (vPos.y > 0.99 is roof)
             float isSide = step(vPos.y, 0.99);
-            
+
             if (isSide > 0.5 && winRand > 0.7) {
                 // Window shape
                 float wx = fract(vWorldPos.x * 2.0 + vWorldPos.z * 2.0);
                 float wy = fract(vWorldPos.y * 4.0);
                 float winShape = step(0.2, wx) * step(0.8, wx) * step(0.2, wy) * step(0.8, wy);
-                
+
                 color += uWindowColor * winShape * 2.0; // HDR Glow
             }
 
@@ -2820,28 +2820,28 @@ class HolographicCityScene extends SceneBase {
             attribute vec3 aOffset; // x=lane, y=height, z=startZ
             attribute float aSpeed;
             attribute vec3 aColor;
-            
+
             varying vec3 vColor;
-            
+
             uniform float uTime;
-            
+
             void main() {
                 vColor = aColor;
-                
+
                 vec3 pos = position;
-                
+
                 // Animate Z
                 // Loop domain: -60 to 60
                 float z = aOffset.z + uTime * aSpeed;
                 z = mod(z + 60.0, 120.0) - 60.0;
-                
+
                 // World Position transform
                 vec3 finalWorld = vec3(aOffset.x, aOffset.y, z);
-                
+
                 // Stretch car based on speed
                 float stretch = 1.0 + abs(aSpeed) * 0.2;
-                pos.z *= stretch; 
-                
+                pos.z *= stretch;
+
                 gl_Position = projectionMatrix * viewMatrix * vec4(finalWorld + pos, 1.0);
             }
         `,
@@ -3188,10 +3188,10 @@ class ElectricStormScene extends SceneBase {
              float totDensity = 0.0;
              vec3 totLight = vec3(0.0);
 
-             // Offset start to box entry? 
-             // Ideally we intersect box first, but for now we just march from camera 
+             // Offset start to box entry?
+             // Ideally we intersect box first, but for now we just march from camera
              // since camera is 'inside' the volume zone (baseDistance=15, box=30)
-             
+
              // Dynamic step size
              float stepSize = 0.5;
 
