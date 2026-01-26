@@ -2271,70 +2271,156 @@ class MoireInterferenceScene extends SceneBase {
 // --- Scene 11: Neural Network (Deep Learning) ---
 
 class NeuralNetworkScene extends SceneBase {
-  private nodes: THREE.InstancedMesh;
-  private connections: THREE.LineSegments;
-  private nodeCount = 200;
+  private particles: THREE.InstancedMesh;
+  private connections: THREE.LineSegments; // We'll keep lines but animate them better
+
+  // Simulation params
+  private nodeCount = 500; // Increased
+  private positions: Float32Array;
+  private velocities: Float32Array;
 
   constructor() {
     super();
     this.id = 'scene11';
     this.contentRadius = 6.0;
 
-    // 1. Nodes (Neurons)
-    const nodeGeo = new THREE.IcosahedronGeometry(0.15, 1);
-    const nodeMat = new THREE.MeshBasicMaterial({
-      color: 0xff0055,
-      transparent: true,
-      opacity: 0.8,
+    // 1. Synapse Nodes (Glowing Neurons)
+    const nodeGeo = new THREE.SphereGeometry(0.08, 16, 16);
+
+    // Custom Shader for Neuron Pulse
+    const nodeMat = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uColorA: { value: new THREE.Color(0x00aaff) }, // Cyan
+        uColorB: { value: new THREE.Color(0xff0088) }, // Magenta
+      },
+      vertexShader: `
+            attribute float aPhase;
+            attribute float aSize;
+            varying float vPhase;
+            varying vec3 vPos;
+            
+            uniform float uTime;
+            
+            void main() {
+                vPhase = aPhase;
+                
+                vec3 pos = position;
+                // Pulse size
+                float pulse = 1.0 + sin(uTime * 3.0 + aPhase) * 0.3;
+                pos *= pulse * aSize;
+                
+                // Instance transform
+                vec4 worldPos = instanceMatrix * vec4(pos, 1.0);
+                vPos = worldPos.xyz;
+                
+                gl_Position = projectionMatrix * viewMatrix * worldPos;
+            }
+        `,
+      fragmentShader: `
+            varying float vPhase;
+            varying vec3 vPos;
+            uniform vec3 uColorA;
+            uniform vec3 uColorB;
+            uniform float uTime;
+            
+            void main() {
+                // Signal Flash
+                float signal = mod(uTime * 2.0 + vPhase, 4.0);
+                float flash = smoothstep(0.0, 0.2, signal) * smoothstep(0.4, 0.2, signal);
+                
+                vec3 col = mix(uColorA, uColorB, flash);
+                
+                // Core glow
+                col += vec3(1.0) * flash * 0.8;
+                
+                gl_FragColor = vec4(col, 1.0);
+            }
+        `,
     });
+
     this.nodes = new THREE.InstancedMesh(nodeGeo, nodeMat, this.nodeCount);
 
-    // Position nodes in a 3D blob
-    const positions = new Float32Array(this.nodeCount * 3);
+    this.positions = new Float32Array(this.nodeCount * 3);
+    this.velocities = new Float32Array(this.nodeCount * 3);
+    const aPhase = new Float32Array(this.nodeCount);
+    const aSize = new Float32Array(this.nodeCount);
+
     const dummy = new THREE.Object3D();
 
     for (let i = 0; i < this.nodeCount; i++) {
-      // Random spherical cloud
-      const r = Math.pow(Math.random(), 0.33) * 5.0; // Uniform sphere
-      const theta = Math.random() * Math.PI * 2;
-      const phi = Math.acos(2 * Math.random() - 1);
+      // Biology-like distribution (Brain shape approximation - somewhat oval)
+      const u = Math.random();
+      const v = Math.random();
+      const theta = 2 * Math.PI * u;
+      const phi = Math.acos(2 * v - 1);
+      const r = 4.0 * Math.cbrt(Math.random());
 
-      const x = r * Math.sin(phi) * Math.cos(theta);
-      const y = r * Math.sin(phi) * Math.sin(theta);
-      const z = r * Math.cos(phi);
+      let x = r * Math.sin(phi) * Math.cos(theta);
+      let y = r * Math.sin(phi) * Math.sin(theta);
+      let z = r * Math.cos(phi);
 
-      positions[i * 3] = x;
-      positions[i * 3 + 1] = y;
-      positions[i * 3 + 2] = z;
+      // Squash to look brain-like? No, sphere is fine, maybe slightly flattened Y
+      y *= 0.8;
+
+      this.positions[i * 3] = x;
+      this.positions[i * 3 + 1] = y;
+      this.positions[i * 3 + 2] = z;
 
       dummy.position.set(x, y, z);
       dummy.updateMatrix();
       this.nodes.setMatrixAt(i, dummy.matrix);
+
+      aPhase[i] = Math.random() * 10.0;
+      aSize[i] = 0.5 + Math.random();
+
+      // Drift velocity
+      this.velocities[i * 3] = (Math.random() - 0.5) * 0.2;
+      this.velocities[i * 3 + 1] = (Math.random() - 0.5) * 0.2;
+      this.velocities[i * 3 + 2] = (Math.random() - 0.5) * 0.2;
     }
+
+    this.nodes.geometry.setAttribute(
+      'aPhase',
+      new THREE.InstancedBufferAttribute(aPhase, 1)
+    );
+    this.nodes.geometry.setAttribute(
+      'aSize',
+      new THREE.InstancedBufferAttribute(aSize, 1)
+    );
+
     this.group.add(this.nodes);
 
-    // 2. Connections (Synapses)
+    // 2. Dynamic Connections (Only nearest neighbors computed once? Or simpler visuals?)
+    // Realtime connection update is heavy in JS. Let's do a static web but animate the signals along it.
+
     const linePos = [];
-    // Limit connections to avoid messy hairball
+    const linePhase = []; // For signal propagation offset
+
     for (let i = 0; i < this.nodeCount; i++) {
       const p1 = new THREE.Vector3(
-        positions[i * 3],
-        positions[i * 3 + 1],
-        positions[i * 3 + 2]
+        this.positions[i * 3],
+        this.positions[i * 3 + 1],
+        this.positions[i * 3 + 2]
       );
       let connectionsFound = 0;
 
       for (let j = i + 1; j < this.nodeCount; j++) {
         const p2 = new THREE.Vector3(
-          positions[j * 3],
-          positions[j * 3 + 1],
-          positions[j * 3 + 2]
+          this.positions[j * 3],
+          this.positions[j * 3 + 1],
+          this.positions[j * 3 + 2]
         );
         const dist = p1.distanceTo(p2);
 
-        if (dist < 1.8 && connectionsFound < 4) {
+        if (dist < 1.5 && connectionsFound < 3) {
           linePos.push(p1.x, p1.y, p1.z);
           linePos.push(p2.x, p2.y, p2.z);
+
+          // Random phase for this line connection
+          const ph = Math.random() * 10.0;
+          linePhase.push(ph, ph); // Same phase for both vertices of the segment
+
           connectionsFound++;
         }
       }
@@ -2344,6 +2430,10 @@ class NeuralNetworkScene extends SceneBase {
     lineGeo.setAttribute(
       'position',
       new THREE.Float32BufferAttribute(linePos, 3)
+    );
+    lineGeo.setAttribute(
+      'aPhase',
+      new THREE.Float32BufferAttribute(linePhase, 1)
     );
 
     const lineMat = new THREE.ShaderMaterial({
@@ -2355,8 +2445,11 @@ class NeuralNetworkScene extends SceneBase {
       blending: THREE.AdditiveBlending,
       depthWrite: false,
       vertexShader: `
+            attribute float aPhase;
+            varying float vPhase;
             varying vec3 vPos;
             void main() {
+                vPhase = aPhase;
                 vPos = position;
                 gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
             }
@@ -2364,14 +2457,16 @@ class NeuralNetworkScene extends SceneBase {
       fragmentShader: `
             uniform float uTime;
             uniform vec3 uColor;
+            varying float vPhase;
             varying vec3 vPos;
 
             void main() {
-                // Signal pulses
-                float pulse = sin(vPos.x * 2.0 + vPos.y * 3.0 + uTime * 4.0);
-                pulse = smoothstep(0.8, 1.0, pulse);
+                // Signal pulses travelling along the web
+                // We don't have UVs on lines easily, so use time + phase
+                float signal = mod(uTime * 5.0 + vPhase, 10.0);
+                float pulse = smoothstep(0.0, 1.0, signal) * smoothstep(2.0, 1.0, signal); // Short burst
 
-                float alpha = 0.1 + pulse * 0.9;
+                float alpha = 0.05 + pulse * 0.8;
                 gl_FragColor = vec4(uColor, alpha);
             }
         `,
@@ -2384,119 +2479,160 @@ class NeuralNetworkScene extends SceneBase {
   init(_ctx: SceneRuntime) {}
 
   update(ctx: SceneRuntime) {
-    // Gentle rotation
-    this.group.rotation.y = ctx.time * 0.05;
+    // Rotation
+    this.group.rotation.y = ctx.time * 0.1;
+    this.group.rotation.z = Math.sin(ctx.time * 0.1) * 0.1;
+
+    // Shader Updates
+    const nMat = this.nodes.material as THREE.ShaderMaterial;
+    if (nMat.uniforms) nMat.uniforms.uTime.value = ctx.time;
 
     const lMat = this.connections.material as THREE.ShaderMaterial;
-    lMat.uniforms.uTime.value = ctx.time;
-
-    // Pulse nodes randomly
-    const t = ctx.time;
-    const dummy = new THREE.Object3D();
-    for (let i = 0; i < this.nodeCount; i++) {
-      this.nodes.getMatrixAt(i, dummy.matrix);
-      dummy.matrix.decompose(dummy.position, dummy.quaternion, dummy.scale);
-
-      // Breathing scale
-      const noise = Math.sin(t * 2.0 + i);
-      const s = 1.0 + noise * 0.2 + (noise > 0.8 ? 0.5 : 0.0);
-
-      dummy.scale.setScalar(s);
-      dummy.updateMatrix();
-      this.nodes.setMatrixAt(i, dummy.matrix);
-    }
-    this.nodes.instanceMatrix.needsUpdate = true;
+    if (lMat.uniforms) lMat.uniforms.uTime.value = ctx.time;
 
     this.camera.position.z = damp(
       this.camera.position.z,
       this.baseDistance,
       3,
+      ctx.dt
+    );
+    // Mouse Parallax
+    this.camera.position.x = damp(
+      this.camera.position.x,
+      ctx.pointer.x * 2.0,
+      2,
+      ctx.dt
+    );
+    this.camera.position.y = damp(
+      this.camera.position.y,
+      ctx.pointer.y * 2.0,
+      2,
       ctx.dt
     );
     this.camera.lookAt(0, 0, 0);
   }
 }
 
-// --- Scene 12: Library (Knowledge) ---
+// --- Scene 12: Library (Infinite Akasha) ---
 
 class LibraryScene extends SceneBase {
   private books: THREE.InstancedMesh;
-  private count = 400;
+  private count = 2000;
   private dummy = new THREE.Object3D();
-  private physics: SimplePhysics;
-  private pointerPos = new THREE.Vector3();
 
   constructor() {
     super();
     this.id = 'scene12';
     this.contentRadius = 6.0;
+    this.baseDistance = 15.0; // Tunnel view
 
-    const geo = new THREE.BoxGeometry(0.2, 1.0, 0.7);
-    const mat = new THREE.MeshStandardMaterial({
-      color: 0xeeeeee,
-      roughness: 0.6,
+    // Book geometry
+    const geo = new THREE.BoxGeometry(0.5, 3.0, 2.0); // Thick ancient tomes
+
+    // Shader Material for "Magical Text"
+    const mat = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uColor: { value: new THREE.Color(0xffd700) }, // Gold
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        varying vec3 vPos;
+        void main() {
+            vUv = uv;
+            vec4 worldPos = instanceMatrix * vec4(position, 1.0);
+            vPos = worldPos.xyz;
+            gl_Position = projectionMatrix * viewMatrix * worldPos;
+        }
+      `,
+      fragmentShader: `
+        uniform float uTime;
+        uniform vec3 uColor;
+        varying vec2 vUv;
+        varying vec3 vPos;
+
+        float hash(float n) { return fract(sin(n) * 43758.5453123); }
+
+        void main() {
+            // Book Cover Base
+            vec3 col = vec3(0.1, 0.05, 0.02); // Leather brown
+            
+            // Spine Text (Procedural Runes)
+            // Assuming spine is front face or similar. Let's just project XZ
+            
+            vec2 runeGrid = floor(vUv * vec2(4.0, 10.0));
+            float rune = hash(dot(runeGrid, vec2(12.9898, 78.233)) + floor(vPos.x));
+            
+            float isText = step(0.5, rune);
+            
+            // Trim/Border
+            float border = step(0.1, vUv.x) * step(vUv.x, 0.9) * step(0.1, vUv.y) * step(vUv.y, 0.9);
+            
+            // Glowing Symbols
+            float glow = abs(sin(uTime * 2.0 + vPos.y + vPos.x));
+            
+            if(isText > 0.5 && border > 0.5) {
+                col = mix(col, uColor, glow);
+            }
+            
+            gl_FragColor = vec4(col, 1.0);
+        }
+      `,
     });
+
     this.books = new THREE.InstancedMesh(geo, mat, this.count);
 
-    this.physics = new SimplePhysics(this.count);
-    this.physics.bounds.set(8, 6, 8);
-    this.physics.friction = 0.95; // Floaty
+    // Spiral Tunnel Layout
+    const radius = 6.0;
 
     for (let i = 0; i < this.count; i++) {
-      // Spiral
-      const angle = i * 0.1;
-      const r = 2 + i * 0.01;
-      const h = (i - this.count / 2) * 0.05;
+      const angle = i * 0.3;
+      const z = i * 0.5 - this.count * 0.25; // Long Z tunnel
 
-      const x = Math.cos(angle) * r;
-      const z = Math.sin(angle) * r;
+      const x = Math.cos(angle) * radius;
+      const y = Math.sin(angle) * radius;
 
-      this.physics.initParticle(i, new THREE.Vector3(x, h, z), 0.5);
+      this.dummy.position.set(x, y, z);
 
-      this.dummy.position.set(x, h, z);
-      this.dummy.lookAt(0, h, 0);
+      // Look at center line, then rotate 90 deg to face camera
+      this.dummy.lookAt(0, 0, z);
+      this.dummy.rotateY(Math.PI / 2); // Spine facing out? Or in?
+      // Random tilt
+      this.dummy.rotateZ((Math.random() - 0.5) * 0.2);
+
+      // Scale variation
+      const s = 1.0 + Math.random() * 0.5;
+      this.dummy.scale.set(1, s, 1);
+
       this.dummy.updateMatrix();
       this.books.setMatrixAt(i, this.dummy.matrix);
-
-      // Random color per book
-      this.books.setColorAt(
-        i,
-        new THREE.Color().setHSL(Math.random(), 0.6, 0.5)
-      );
     }
+
     this.group.add(this.books);
   }
 
   init(_ctx: SceneRuntime) {}
 
   update(ctx: SceneRuntime) {
-    const dt = Math.min(ctx.dt, 1 / 30);
-    this.pointerPos.set(ctx.pointer.x * 10, ctx.pointer.y * 10, 0);
-    this.physics.update(dt, this.pointerPos, 3.0);
+    const t = ctx.time;
 
-    for (let i = 0; i < this.count; i++) {
-      const idx = i * 3;
-      const x = this.physics.positions[idx];
-      const y = this.physics.positions[idx + 1];
-      const z = this.physics.positions[idx + 2];
+    const mat = this.books.material as THREE.ShaderMaterial;
+    mat.uniforms.uTime.value = t;
 
-      this.dummy.position.set(x, y, z);
-      // Slowly rotate
-      this.dummy.rotation.set(0, (x + z) * 0.2, 0);
+    // Infinite Fly-through effect
+    // We move the camera? Or the tunnel?
+    // Let's move the tunnel group and wrap it? Instanced mesh manipulation is faster on GPU shader usually
+    // But for 2000 instances, recalculating matrix on CPU is fine
 
-      this.dummy.updateMatrix();
-      this.books.setMatrixAt(i, this.dummy.matrix);
-    }
-    this.books.instanceMatrix.needsUpdate = true;
+    // Actually, just loop the camera Z position
+    // No, we need to wrap the books.
 
-    this.group.rotation.y = ctx.time * 0.05 + ctx.pointer.x; // Slow scroll
-    this.camera.position.z = damp(
-      this.camera.position.z,
-      this.baseDistance,
-      3,
-      ctx.dt
-    );
-    this.camera.lookAt(0, 0, 0);
+    // Simple: Move group Z.
+    this.group.position.z = (t * 5.0) % 50.0;
+    // Rotate tunnel
+    this.group.rotation.z = t * 0.1;
+
+    this.camera.lookAt(0, 0, -100); // Look down tunnel
   }
 }
 
