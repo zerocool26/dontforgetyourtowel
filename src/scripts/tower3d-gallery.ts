@@ -48,6 +48,8 @@ const SCENE_IDS = [
   'scene13',
   'scene14',
   'scene15',
+  'scene16',
+  'scene17',
 ] as const;
 
 const SCENE_NAMES = [
@@ -67,6 +69,8 @@ const SCENE_NAMES = [
   'Deep Abyss',
   'Cyber City',
   'Reality Collapse',
+  'Ethereal Storm',
+  'Cyber Porsche',
 ];
 
 // Scene descriptions for info tooltips

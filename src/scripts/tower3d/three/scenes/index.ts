@@ -17,6 +17,7 @@ import { BioluminescentScene } from './definitions/BioluminescentScene';
 import { HolographicCityScene } from './definitions/HolographicCityScene';
 import { RealityCollapseScene } from './definitions/RealityCollapseScene';
 import { ElectricStormScene } from './definitions/ElectricStormScene';
+import { PorscheScene } from './definitions/PorscheScene';
 
 // Re-export shared types/bases for consumer compatibility
 export * from './definitions/types';
@@ -55,6 +56,7 @@ export function createScenes(camera?: THREE.PerspectiveCamera): SceneBase[] {
     new HolographicCityScene(), // 14
     new RealityCollapseScene(), // 15
     new ElectricStormScene(), // 16
+    new PorscheScene(), // 17
   ];
 
   // Initialize all scenes with the shared camera
