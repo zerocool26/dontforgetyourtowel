@@ -38,6 +38,7 @@ export class SceneDirector {
   private ui: UIControls;
   public timeScale = 1.0;
   public autoRotate = false;
+  public manualPress = 0;
 
   // Universal Particle System
   private gpgpu: GlobalParticleSystem;
@@ -451,7 +452,7 @@ export class SceneDirector {
       pointer: this.pointer,
       pointerVelocity: this.pointerVelocity,
       tap: this.tap,
-      press: clamp(this.pressTime * 2.0, 0, 1),
+      press: clamp(Math.max(this.pressTime * 2.0, this.manualPress), 0, 1),
       scrollVelocity: this.scrollVelocity,
       sceneId: this.activeScene.id,
       sceneIndex: this.sceneIndex,

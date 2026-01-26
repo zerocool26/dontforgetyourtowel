@@ -12,11 +12,11 @@ export class UIControls {
     // Main Container (Bottom Right)
     this.container = document.createElement('div');
     this.container.style.cssText = `
-        position: absolute;
+        position: fixed;
         bottom: 24px;
         right: 24px;
         z-index: 1000;
-        font-family: 'JetBrains Mono', monospace;
+        font-family: 'JetBrains Mono', 'Menlo', monospace;
         display: flex;
         flex-direction: column;
         align-items: flex-end;
@@ -24,69 +24,119 @@ export class UIControls {
         gap: 8px;
     `;
 
-    // Toggle Button
+    // Toggle Button (Cyberpunk Style)
     const toggleBtn = document.createElement('button');
-    toggleBtn.textContent = '/// CONTROLS';
+    toggleBtn.textContent = '/// SYSTEM_CTRL';
     toggleBtn.style.cssText = `
         pointer-events: auto;
-        background: rgba(0,0,0,0.4);
-        border: 1px solid rgba(255,255,255,0.2);
-        color: rgba(255,255,255,0.8);
-        padding: 8px 12px;
-        font-size: 12px;
+        background: rgba(0,0,0,0.6);
+        border: 1px solid rgba(0, 255, 136, 0.4);
+        color: rgba(0, 255, 136, 0.9);
+        padding: 8px 16px;
+        font-size: 11px;
+        font-weight: 700;
         cursor: pointer;
-        backdrop-filter: blur(4px);
+        backdrop-filter: blur(8px);
         transition: all 0.2s;
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 2px;
+        clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
     `;
-    toggleBtn.onmouseover = () => (toggleBtn.style.borderColor = '#fff');
-    toggleBtn.onmouseout = () =>
-      (toggleBtn.style.borderColor = 'rgba(255,255,255,0.2)');
+    toggleBtn.onmouseover = () => {
+      toggleBtn.style.borderColor = '#00ff88';
+      toggleBtn.style.background = 'rgba(0, 255, 136, 0.1)';
+      toggleBtn.style.boxShadow = '0 0 15px rgba(0, 255, 136, 0.3)';
+    };
+    toggleBtn.onmouseout = () => {
+      toggleBtn.style.borderColor = 'rgba(0, 255, 136, 0.4)';
+      toggleBtn.style.background = 'rgba(0,0,0,0.6)';
+      toggleBtn.style.boxShadow = 'none';
+    };
     toggleBtn.onclick = () => this.toggle();
 
     // Panel
     this.panel = document.createElement('div');
     this.panel.style.cssText = `
         pointer-events: auto;
-        background: rgba(10,10,12,0.85);
+        background: rgba(5, 5, 8, 0.95);
         border: 1px solid rgba(255,255,255,0.1);
-        padding: 16px;
-        width: 240px;
+        border-right: 2px solid rgba(0, 255, 136, 0.5);
+        padding: 20px;
+        width: 260px;
         display: none; /* Hidden by default */
         flex-direction: column;
-        gap: 12px;
-        backdrop-filter: blur(12px);
-        box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        gap: 16px;
+        backdrop-filter: blur(16px);
+        box-shadow: -10px 10px 30px rgba(0,0,0,0.8);
+        border-radius: 4px;
+        margin-bottom: 8px;
     `;
 
-    // Add Controls
-    this.addSlider('Speed', 0, 2, 1, 0.1, v => {
-      // We'll need to expose a speed multiplier in Director
+    // Header
+    const title = document.createElement('div');
+    title.textContent = 'VISUAL DIRECTOR v2.0';
+    title.style.cssText =
+      'color: #fff; font-size: 12px; font-weight: bold; letter-spacing: 1px; border-bottom: 1px solid #333; padding-bottom: 8px; margin-bottom: 4px;';
+    this.panel.appendChild(title);
+
+    // --- CONTROLS ---
+
+    // 1. Simulation Speed
+    this.addSlider('Sim Speed', 0, 2.0, 1.0, 0.1, v => {
       this.director.timeScale = v;
     });
 
-    this.addSlider('Bloom', 0, 2, 0.6, 0.1, v => {
-      this.director.bloomPass.strength = v;
+    // 2. Interaction Intensity (Manual Press)
+    this.addSlider('Intensity (Press)', 0, 1.0, 0.0, 0.05, v => {
+      this.director.manualPress = v;
     });
 
-    this.addSlider('Aperture', 0.0001, 0.01, 0.0001, 0.0001, v => {
-      // Bokeh Aperture (Blur amount)
-      this.director.bokehPass.uniforms['aperture'].value = v;
-    });
-
-    this.addSlider('Trails', 0.0, 0.95, 0.0, 0.05, v => {
-      // Afterimage Damp (0 = off, 0.95 = heavy trails)
+    // 3. Glitch / Trails
+    this.addSlider('Glitch Damp', 0.0, 0.98, 0.0, 0.01, v => {
       this.director.afterimagePass.uniforms['damp'].value = v;
     });
 
-    this.addSlider('Exposure', 0.1, 2.0, 0.9, 0.1, v => {
+    // 4. Focus (Aperture)
+    this.addSlider('Focus Blur', 0.0001, 0.05, 0.001, 0.0001, v => {
+      // 0.05 is very blurry, 0.0001 is crisp
+      this.director.bokehPass.uniforms['aperture'].value = v;
+    });
+
+    // 5. Exposure
+    this.addSlider('Exposure', 0.1, 3.0, 0.9, 0.1, v => {
       this.director.renderer.toneMappingExposure = v;
     });
 
-    this.addToggle('Auto-Rotate', true, v => {
+    // 6. Bloom Strength
+    this.addSlider('Bloom', 0.0, 3.0, 0.6, 0.1, v => {
+      this.director.bloomPass.strength = v;
+    });
+
+    this.addToggle('Auto-Rotate', false, v => {
       this.director.autoRotate = v;
     });
+
+    // Randomize Button
+    const rndBtn = document.createElement('button');
+    rndBtn.textContent = 'RANDOMIZE PARAMS';
+    rndBtn.style.cssText = `
+        background: #333; color: #ccc; border: 1px solid #555;
+        padding: 6px; font-size: 10px; cursor: pointer;
+        margin-top: 8px; width: 100%;
+    `;
+    rndBtn.onclick = () => {
+      // Random visual params
+      const bloom = 0.2 + Math.random() * 2.0;
+      const speed = 0.5 + Math.random() * 1.5;
+      const focus = 0.0001 + Math.random() * 0.01;
+
+      this.director.bloomPass.strength = bloom;
+      this.director.timeScale = speed;
+      this.director.bokehPass.uniforms['aperture'].value = focus;
+
+      // Update UI? (Simple way: force reload checks... not implemented, but user sees effect)
+    };
+    this.panel.appendChild(rndBtn);
 
     const sceneSelect = this.createSceneSelect();
     this.panel.appendChild(sceneSelect);
@@ -119,8 +169,8 @@ export class UIControls {
     const nameSpan = document.createElement('span');
     nameSpan.textContent = label;
     const valSpan = document.createElement('span');
-    valSpan.textContent = initial.toFixed(1);
-    valSpan.style.color = '#fff';
+    valSpan.textContent = initial.toFixed(2);
+    valSpan.style.color = '#00ff88';
 
     header.appendChild(nameSpan);
     header.appendChild(valSpan);
@@ -131,11 +181,15 @@ export class UIControls {
     input.max = max.toString();
     input.step = step.toString();
     input.value = initial.toString();
-    input.style.cssText = 'width: 100%; cursor: pointer; accent-color: #fff;';
+    input.style.cssText = `
+        width: 100%; cursor: pointer; accent-color: #00ff88;
+        background: rgba(255,255,255,0.1); height: 4px; border-radius: 2px;
+        appearance: none;
+    `;
 
     input.oninput = e => {
       const val = parseFloat((e.target as HTMLInputElement).value);
-      valSpan.textContent = val.toFixed(1);
+      valSpan.textContent = val.toFixed(2);
       callback(val);
     };
 
@@ -156,6 +210,7 @@ export class UIControls {
     input.type = 'checkbox';
     input.checked = initial;
     input.style.cursor = 'pointer';
+    input.style.accentColor = '#00ff88';
 
     input.onchange = e => callback((e.target as HTMLInputElement).checked);
 
@@ -170,26 +225,30 @@ export class UIControls {
       'display: flex; flex-direction: column; gap: 4px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 8px; margin-top: 4px;';
 
     const label = document.createElement('div');
-    label.textContent = 'JUMP TO SCENE';
+    label.textContent = 'JUMP TO SECTOR';
     label.style.cssText =
       'color: #888; font-size: 10px; text-transform: uppercase;';
 
     const select = document.createElement('select');
     select.style.cssText =
-      'background: #222; color: #fff; border: 1px solid #444; padding: 4px; font-family: inherit; font-size: 11px;';
+      'background: #111; color: #fff; border: 1px solid #333; padding: 6px; font-family: inherit; font-size: 11px; width: 100%; border-radius: 2px;';
 
-    // We need to access scenes from director. Assuming sceneById or chapters index.
-    // We'll populate indices 0-15
-    for (let i = 0; i <= 15; i++) {
+    // We'll populate indices 0-16
+    for (let i = 0; i <= 16; i++) {
       const opt = document.createElement('option');
       opt.value = i.toString();
-      opt.textContent = `Scene ${i.toString().padStart(2, '0')}`;
+      // Describe them briefly if possible, but IDs are fine for now
+      let label = `SCENE ${i.toString().padStart(2, '0')}`;
+      if (i === 9) label += ' (SHARDS)';
+      if (i === 10) label += ' (MOIRE)';
+      if (i === 13) label += ' (ABYSS)';
+
+      opt.textContent = label;
       select.appendChild(opt);
     }
 
     select.onchange = e => {
       const idx = parseInt((e.target as HTMLSelectElement).value);
-      // Assuming director has goToScene or similar public method, or we hack it
       this.director.scrollProgressTarget = idx;
     };
 

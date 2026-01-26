@@ -2083,167 +2083,267 @@ class OrbitalMechanicsScene extends SceneBase {
   }
 }
 
-// --- Scene 09: Crystalline Shards (Ice/Glass) ---
+// --- Scene 09: Crystalline Shards (Glitch/Refraction) ---
 
 class VoronoiShardsScene extends SceneBase {
   private shards: THREE.InstancedMesh;
-  private count = 500;
+  private count = 1500; // High density
   private dummy = new THREE.Object3D();
+  private data: Float32Array; // [speedInfo, axisInfo, offset]
 
   constructor() {
     super();
     this.id = 'scene09';
-    this.contentRadius = 6.0;
+    this.contentRadius = 8.0;
 
-    // Diamond/Ice Shards
-    const geo = new THREE.TetrahedronGeometry(0.5, 0); // Smaller base size, shards
+    // Sharp, jagged geometry
+    const geo = new THREE.TetrahedronGeometry(0.2, 0);
 
-    // High-fi glass material
-    const mat = new THREE.MeshPhysicalMaterial({
-      color: 0xaaccff,
-      emissive: 0x001133,
-      transmission: 1.0,
-      opacity: 1.0,
-      metalness: 0.1,
-      roughness: 0.05,
-      ior: 1.6,
-      thickness: 1.5,
-      envMapIntensity: 2.0,
+    // Custom "Holographic Glass" Shader
+    // We fake dispersion and glitching in the shader
+    const mat = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uPress: { value: 0 },
+        uColorA: { value: new THREE.Color(0x00ffff) },
+        uColorB: { value: new THREE.Color(0xff00ff) },
+        uCube: { value: null }, // ideally we'd have an env map, but we'll simulate reflection
+      },
+      vertexShader: `
+        attribute vec3 aData; // x: speed, y: random, z: phase
+        varying vec3 vNormal;
+        varying vec3 vViewPosition;
+        varying vec3 vColor;
+        varying float vGlitch;
+
+        uniform float uTime;
+        uniform float uPress;
+
+        void main() {
+            vec3 pos = position;
+
+            // 1. Glitch Movement (Quantized Rotation)
+            float t = uTime * aData.x + aData.z;
+            // Quantize time for "stop motion" feel
+            float qt = floor(t * 8.0) / 8.0;
+
+            // Random glitch jumps on press
+            float glitch = smoothstep(0.8, 1.0, sin(uTime * 20.0 + aData.y * 10.0)) * uPress;
+            pos *= 1.0 + glitch * 2.0;
+            vGlitch = glitch;
+
+            // Instance Transform is handled automatically by three.js for position/rot/scale
+            // But we want to modify the resulting world position slightly
+
+            vec4 worldPos = instanceMatrix * vec4(pos, 1.0);
+
+            // Vertical drift
+            worldPos.y += sin(uTime * 0.5 + aData.z) * 0.5;
+
+            vNormal = normalize(normalMatrix * normal);
+            vec4 mvPosition = viewMatrix * worldPos;
+            vViewPosition = -mvPosition.xyz;
+
+            // Color data based on position
+            vColor = vec3(0.5 + 0.5 * sin(aData.z), 0.5 + 0.5 * cos(aData.z), 1.0);
+
+            gl_Position = projectionMatrix * mvPosition;
+        }
+      `,
+      fragmentShader: `
+        varying vec3 vNormal;
+        varying vec3 vViewPosition;
+        varying vec3 vColor;
+        varying float vGlitch;
+
+        uniform vec3 uColorA;
+        uniform vec3 uColorB;
+
+        void main() {
+            vec3 viewDir = normalize(vViewPosition);
+            vec3 normal = normalize(vNormal);
+
+            // fresnel
+            float f = 1.0 - abs(dot(viewDir, normal));
+            float fresnel = pow(f, 3.0);
+
+            // Iridescence
+            vec3 col = mix(uColorA, uColorB, f + vGlitch);
+
+            // Core hardness
+            col += vec3(1.0) * pow(f, 6.0); // sharp rim
+
+            // Transparency / Additive
+            gl_FragColor = vec4(col, 0.6 + 0.4 * fresnel);
+        }
+      `,
+      transparent: true,
       side: THREE.DoubleSide,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
     });
-    // @ts-expect-error - dispersion is new in r160+ but likely available in recent types
-    mat.dispersion = 0.05;
 
     this.shards = new THREE.InstancedMesh(geo, mat, this.count);
-    this.shards.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
     this.group.add(this.shards);
-  }
 
-  updateShard(i: number, t: number, press: number) {
-    const offset = i * 0.1352;
+    // Init data
+    this.data = new Float32Array(this.count * 3);
+    const attr = new THREE.InstancedBufferAttribute(this.data, 3);
+    geo.setAttribute('aData', attr);
 
-    // Fibonacci Spiral Sphere distribution
-    const phi = Math.acos(1 - (2 * (i + 0.5)) / this.count);
-    const theta = Math.PI * (1 + Math.sqrt(5)) * (i + 0.5);
+    for (let i = 0; i < this.count; i++) {
+      // Spiral formation
+      const phi = Math.acos(1 - (2 * (i + 0.5)) / this.count);
+      const theta = Math.PI * (1 + Math.sqrt(5)) * (i + 0.5);
+      const r = 4.0 + Math.random() * 2.0;
 
-    let r = 3.5;
+      const x = r * Math.sin(phi) * Math.cos(theta);
+      const y = r * Math.sin(phi) * Math.sin(theta);
+      const z = r * Math.cos(phi);
 
-    // "Breathing" radius
-    r += Math.sin(t * 0.5 + phi * 4.0) * 0.5;
+      this.dummy.position.set(x, y, z);
+      this.dummy.lookAt(0, 0, 0);
+      this.dummy.updateMatrix();
+      this.shards.setMatrixAt(i, this.dummy.matrix);
 
-    // Explosion on press
-    r += press * 5.0 * Math.random();
-
-    const x = r * Math.sin(phi) * Math.cos(theta);
-    const y = r * Math.sin(phi) * Math.sin(theta);
-    const z = r * Math.cos(phi);
-
-    this.dummy.position.set(x, y, z);
-
-    // Continuous tumbling
-    this.dummy.rotation.set(t * 0.5 + offset, t * 0.3 + offset, 0);
-
-    // Scale variation
-    const s = 0.5 + Math.sin(offset * 10.0) * 0.2;
-    this.dummy.scale.setScalar(s);
-    // Stretch along one axis for "shard" look
-    this.dummy.scale.y *= 2.0;
-
-    this.dummy.updateMatrix();
-    this.shards.setMatrixAt(i, this.dummy.matrix);
+      // Attributes
+      this.data[i * 3] = 0.2 + Math.random() * 0.8; // speed
+      this.data[i * 3 + 1] = Math.random(); // rnd
+      this.data[i * 3 + 2] = Math.random() * Math.PI * 2; // phase
+    }
   }
 
   init(_ctx: SceneRuntime) {}
 
   update(ctx: SceneRuntime) {
-    for (let i = 0; i < this.count; i++) {
-      this.updateShard(i, ctx.time, ctx.press);
-    }
-    this.shards.instanceMatrix.needsUpdate = true;
+    const mat = this.shards.material as THREE.ShaderMaterial;
+    mat.uniforms.uTime.value = ctx.time;
+    mat.uniforms.uPress.value = ctx.press;
 
-    this.group.rotation.y = ctx.time * 0.1;
+    // Global rotation
+    this.group.rotation.y = ctx.time * 0.05;
+    this.group.rotation.z = Math.sin(ctx.time * 0.1) * 0.1;
 
     this.camera.position.z = damp(
       this.camera.position.z,
       this.baseDistance,
-      3,
+      2,
       ctx.dt
     );
     this.camera.lookAt(0, 0, 0);
   }
 }
 
-// --- Scene 10: Optical Moiré (Interference) ---
+// --- Scene 10: Kinetic Moiré (Interference Patterns) ---
 
 class MoireInterferenceScene extends SceneBase {
-  private mesh: THREE.Mesh;
+  private mesh: THREE.InstancedMesh;
+  private count = 24; // Number of ring layers
 
   constructor() {
     super();
     this.id = 'scene10';
     this.contentRadius = 6.0;
 
-    const geo = new THREE.PlaneGeometry(12, 12);
+    // Multiple transparent planes stacked
+    const geo = new THREE.RingGeometry(0.1, 8.0, 64, 1);
     const mat = new THREE.ShaderMaterial({
       uniforms: {
         uTime: { value: 0 },
         uPress: { value: 0 },
+        uColor: { value: new THREE.Color(0xffffff) },
       },
+      vertexShader: `
+            attribute float aLayer;
+            varying float vLayer;
+            varying vec2 vUv;
+            varying vec3 vPos;
+            uniform float uTime;
+            uniform float uPress;
+
+            void main() {
+                vLayer = aLayer;
+                vUv = uv;
+
+                vec3 pos = position;
+
+                // Kinetic Separation (Z-expand on press)
+                float zOff = aLayer * (0.05 + 0.5 * uPress);
+
+                // Rotation per layer
+                float angle = uTime * (0.1 + aLayer * 0.05) + aLayer * 10.0;
+                float s = sin(angle);
+                float c = cos(angle);
+
+                // 2D Rotation matrix on XY
+                mat2 rot = mat2(c, -s, s, c);
+                pos.xy = rot * pos.xy;
+
+                // Z placement
+                pos.z += zOff;
+
+                // Waviness
+                float wave = sin(pos.x * 2.0 + uTime + aLayer) * 0.2;
+                pos.z += wave * uPress;
+
+                vPos = pos;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+            }
+        `,
+      fragmentShader: `
+            varying float vLayer;
+            varying vec2 vUv;
+            varying vec3 vPos;
+            uniform float uTime;
+            uniform float uPress;
+
+            void main() {
+                // Generate pattern
+                float d = length(vPos.xy);
+
+                // Interference pattern logic
+                // Concentric rings
+                float rings = sin(d * 20.0 + uTime * 5.0 - vLayer * 10.0);
+                float alpha = smoothstep(0.0, 0.1, rings);
+
+                // Hexagon Grid interference
+                // Simple approx
+                vec2 gv = fract(vPos.xy * 2.0) - 0.5;
+                float grid = smoothstep(0.4, 0.45, length(gv));
+
+                // Combine
+                float pattern = mix(alpha, 1.0 - grid, 0.5 + 0.5 * sin(uTime));
+
+                // Color ramp
+                vec3 col = 0.5 + 0.5 * cos(uTime + vPos.xyx + vec3(0,2,4));
+                col += vec3(1.0) * uPress;
+
+                gl_FragColor = vec4(col, pattern * (0.2 + 0.1 * vLayer));
+            }
+        `,
       transparent: true,
-      blending: THREE.AdditiveBlending,
       side: THREE.DoubleSide,
       depthWrite: false,
-      vertexShader: `
-        varying vec2 vUv;
-        void main() {
-            vUv = uv;
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        }
-      `,
-      fragmentShader: `
-        uniform float uTime;
-        uniform float uPress;
-        varying vec2 vUv;
-
-        float circle(vec2 uv, float scale, float offset) {
-            float d = length(uv - 0.5);
-            // Sharp rings
-            return step(0.5, sin(d * scale - offset));
-        }
-
-        void main() {
-            vec2 uv = vUv;
-
-            float scaleBase = 150.0;
-
-            // Layer 1
-            float c1 = circle(uv, scaleBase, uTime * 5.0);
-
-            // Layer 2 - Offset
-            vec2 off = vec2(sin(uTime * 0.7) * 0.02, cos(uTime * 0.5) * 0.02);
-            // Expansion on press
-            float scale2 = scaleBase * (1.0 + uPress * 0.2);
-            float c2 = circle(uv - off, scale2, uTime * 5.5);
-
-            // Interference
-            float i = abs(c1 - c2); // XOR pattern
-
-            // Colorize
-            vec3 col = vec3(0.0);
-            col += vec3(0.0, 1.0, 1.0) * c1 * 0.5;
-            col += vec3(1.0, 0.0, 1.0) * c2 * 0.5;
-            col += vec3(1.0, 1.0, 1.0) * i; // White interference ridges
-
-            // Vignette mask
-            float d = length(uv - 0.5);
-            float alpha = smoothstep(0.5, 0.3, d);
-
-            gl_FragColor = vec4(col, alpha);
-        }
-      `,
+      blending: THREE.AdditiveBlending,
     });
 
-    this.mesh = new THREE.Mesh(geo, mat);
+    // We need InstancedMesh for performance
+    this.mesh = new THREE.InstancedMesh(geo, mat, this.count);
+
+    const layers = new Float32Array(this.count);
+    const dummy = new THREE.Object3D();
+
+    for (let i = 0; i < this.count; i++) {
+      // Center them all initially
+      dummy.position.set(0, 0, 0);
+      dummy.updateMatrix();
+      this.mesh.setMatrixAt(i, dummy.matrix);
+
+      // Normalized layer index -1 to 1
+      layers[i] = (i / this.count) * 2.0 - 1.0;
+    }
+
+    geo.setAttribute('aLayer', new THREE.InstancedBufferAttribute(layers, 1));
     this.group.add(this.mesh);
   }
 
@@ -2254,10 +2354,8 @@ class MoireInterferenceScene extends SceneBase {
     mat.uniforms.uTime.value = ctx.time;
     mat.uniforms.uPress.value = ctx.press;
 
-    // Tilt slightly
-    this.group.rotation.x = Math.sin(ctx.time * 0.3) * 0.2;
-    this.group.rotation.y = Math.cos(ctx.time * 0.2) * 0.2;
-
+    this.mesh.rotation.x = ctx.gyro.y * 0.5;
+    this.mesh.rotation.y = ctx.gyro.x * 0.5;
     this.camera.position.z = damp(
       this.camera.position.z,
       this.baseDistance,
@@ -2299,21 +2397,21 @@ class NeuralNetworkScene extends SceneBase {
             attribute float aSize;
             varying float vPhase;
             varying vec3 vPos;
-            
+
             uniform float uTime;
-            
+
             void main() {
                 vPhase = aPhase;
-                
+
                 vec3 pos = position;
                 // Pulse size
                 float pulse = 1.0 + sin(uTime * 3.0 + aPhase) * 0.3;
                 pos *= pulse * aSize;
-                
+
                 // Instance transform
                 vec4 worldPos = instanceMatrix * vec4(pos, 1.0);
                 vPos = worldPos.xyz;
-                
+
                 gl_Position = projectionMatrix * viewMatrix * worldPos;
             }
         `,
@@ -2323,17 +2421,17 @@ class NeuralNetworkScene extends SceneBase {
             uniform vec3 uColorA;
             uniform vec3 uColorB;
             uniform float uTime;
-            
+
             void main() {
                 // Signal Flash
                 float signal = mod(uTime * 2.0 + vPhase, 4.0);
                 float flash = smoothstep(0.0, 0.2, signal) * smoothstep(0.4, 0.2, signal);
-                
+
                 vec3 col = mix(uColorA, uColorB, flash);
-                
+
                 // Core glow
                 col += vec3(1.0) * flash * 0.8;
-                
+
                 gl_FragColor = vec4(col, 1.0);
             }
         `,
@@ -2556,25 +2654,25 @@ class LibraryScene extends SceneBase {
         void main() {
             // Book Cover Base
             vec3 col = vec3(0.1, 0.05, 0.02); // Leather brown
-            
+
             // Spine Text (Procedural Runes)
             // Assuming spine is front face or similar. Let's just project XZ
-            
+
             vec2 runeGrid = floor(vUv * vec2(4.0, 10.0));
             float rune = hash(dot(runeGrid, vec2(12.9898, 78.233)) + floor(vPos.x));
-            
+
             float isText = step(0.5, rune);
-            
+
             // Trim/Border
             float border = step(0.1, vUv.x) * step(vUv.x, 0.9) * step(0.1, vUv.y) * step(vUv.y, 0.9);
-            
+
             // Glowing Symbols
             float glow = abs(sin(uTime * 2.0 + vPos.y + vPos.x));
-            
+
             if(isText > 0.5 && border > 0.5) {
                 col = mix(col, uColor, glow);
             }
-            
+
             gl_FragColor = vec4(col, 1.0);
         }
       `,
@@ -2640,7 +2738,9 @@ class LibraryScene extends SceneBase {
 
 class BioluminescentScene extends SceneBase {
   private strands: THREE.Mesh;
-  private count = 3000;
+  private spores: THREE.InstancedMesh;
+  private count = 4000;
+  private sporeCount = 2000;
 
   constructor() {
     super();
@@ -2648,11 +2748,11 @@ class BioluminescentScene extends SceneBase {
     this.contentRadius = 6.0;
     this.baseDistance = 15.0; // Further back
 
-    // "Anemone" Strands using GPU compute-style shader on a mesh
-    // We use a long thin box/plane for each strand
-    const segs = 20;
-    const strandGeo = new THREE.PlaneGeometry(0.1, 5.0, 1, segs);
-    strandGeo.translate(0, 2.5, 0); // Pivot at bottom
+    // 1. "Anemone" Strands
+    // We increase density and improve the shader
+    const segs = 32; // smoother
+    const strandGeo = new THREE.PlaneGeometry(0.08, 6.0, 1, segs);
+    strandGeo.translate(0, 3.0, 0); // Pivot at bottom
 
     const geo = new THREE.InstancedBufferGeometry();
     geo.index = strandGeo.index;
@@ -2664,7 +2764,7 @@ class BioluminescentScene extends SceneBase {
     const data = new Float32Array(this.count * 3); // phase, length, bend
 
     for (let i = 0; i < this.count; i++) {
-      // Base sphere
+      // Base sphere distribution with varied density (clusters)
       const r = 2.0;
       const theta = Math.random() * Math.PI * 2;
       const phi = Math.acos(2 * Math.random() - 1);
@@ -2677,9 +2777,9 @@ class BioluminescentScene extends SceneBase {
       offsets[i * 3 + 1] = y;
       offsets[i * 3 + 2] = z;
 
-      data[i * 3] = Math.random(); // Phase
-      data[i * 3 + 1] = 0.5 + Math.random(); // Length multiplier
-      data[i * 3 + 2] = Math.random(); // Bend flexibility
+      data[i * 3] = Math.random() * 100.0; // Phase
+      data[i * 3 + 1] = 0.5 + Math.random() * 0.8; // Length multiplier
+      data[i * 3 + 2] = 0.5 + Math.random(); // Bend flexibility
     }
 
     geo.setAttribute('aOffset', new THREE.InstancedBufferAttribute(offsets, 3));
@@ -2689,8 +2789,8 @@ class BioluminescentScene extends SceneBase {
       uniforms: {
         uTime: { value: 0 },
         uPress: { value: 0 },
-        uColor: { value: new THREE.Color(0x00ff88) },
-        uColorB: { value: new THREE.Color(0x0044ff) },
+        uColor: { value: new THREE.Color(0x00ffaa) },
+        uColorB: { value: new THREE.Color(0x8800ff) },
       },
       side: THREE.DoubleSide,
       transparent: true,
@@ -2703,34 +2803,10 @@ class BioluminescentScene extends SceneBase {
 
             varying float vProgress;
             varying float vAlpha;
+            varying vec3 vPos;
 
-            // Simplex-ish noise
-            vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
-            float snoise(vec2 v){
-              const vec4 C = vec4(0.211324865405187, 0.366025403784439,
-                       -0.577350269189626, 0.024390243902439);
-              vec2 i  = floor(v + dot(v, C.yy) );
-              vec2 x0 = v - i + dot(i, C.xx);
-              vec2 i1;
-              i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
-              vec4 x12 = x0.xyxy + C.xxzz;
-              x12.xy -= i1;
-              i = mod(i, 289.0);
-              vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 ))
-              + i.x + vec3(0.0, i1.x, 1.0 ));
-              vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
-              m = m*m ;
-              m = m*m ;
-              vec3 x = 2.0 * fract(p * C.www) - 1.0;
-              vec3 h = abs(x) - 0.5;
-              vec3 ox = floor(x + 0.5);
-              vec3 a0 = x - ox;
-              m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
-              vec3 g;
-              g.x  = a0.x  * x0.x  + h.x  * x0.y;
-              g.yz = a0.yz * x12.xz + h.yz * x12.yw;
-              return 130.0 * dot(m, g);
-            }
+            // Simple noise
+            float hash(float n) { return fract(sin(n) * 43758.5453123); }
 
             void main() {
                 vProgress = uv.y;
@@ -2744,28 +2820,32 @@ class BioluminescentScene extends SceneBase {
                 // Extend length
                 localPos.y *= aData.y;
 
-                // Apply curl noise movement to the tip
-                float t = uTime * 0.5 + aData.x;
+                // Bioluminescent Pulse (moves up the strand)
+                float pulseSpeed = 1.0;
+                float pulse = mod(uTime * pulseSpeed + aData.x, 10.0);
+                // Widen pulse on press
+                float w = 2.0 + uPress * 5.0;
 
-                // Bend amount increases with Y (tip moves more)
-                float bend = smoothstep(0.0, 5.0, localPos.y) * aData.z * 2.0;
+                // Swaying movement
+                float sway = sin(uTime * 1.0 + basePos.x + localPos.y * 0.5) * 0.2;
+                sway += sin(uTime * 2.5 + basePos.z) * 0.1 * localPos.y; // whip tip
 
-                // Add "Press" repulsion
-                bend += uPress * 2.0 * vProgress;
-
-                // Simplified rotation: just add normal * y + noise
+                // Apply bend
                 vec3 tip = basePos + normal * localPos.y;
+                tip += vec3(sway, sway * 0.5, sway * 0.8) * aData.z;
 
-                // Add noise offset to tip (curl)
-                tip += vec3(
-                    sin(t + basePos.y),
-                    cos(t + basePos.z),
-                    sin(t * 1.2 + basePos.x)
-                ) * bend;
+                // Explode out on press
+                tip += normal * uPress * 4.0 * vProgress;
 
                 gl_Position = projectionMatrix * modelViewMatrix * vec4(tip, 1.0);
+                vPos = tip;
 
-                vAlpha = smoothstep(0.0, 0.2, vProgress) * (1.0 - vProgress);
+                // Alpha fade at bottom and top
+                vAlpha = smoothstep(0.0, 0.1, vProgress) * (1.0 - vProgress);
+                // Pulse brightness
+                float pDist = abs(vProgress * 10.0 - pulse);
+                float pGlow = smoothstep(w, 0.0, pDist);
+                vAlpha += pGlow * 2.0;
             }
         `,
       fragmentShader: `
@@ -2773,16 +2853,89 @@ class BioluminescentScene extends SceneBase {
             uniform vec3 uColorB;
             varying float vProgress;
             varying float vAlpha;
+            varying vec3 vPos;
 
             void main() {
                 vec3 c = mix(uColor, uColorB, vProgress);
-                gl_FragColor = vec4(c, vAlpha);
+                // Add white core
+                c += vec3(1.0) * smoothstep(0.5, 1.0, vAlpha - 0.5);
+                gl_FragColor = vec4(c, min(1.0, vAlpha));
             }
         `,
     });
 
     this.strands = new THREE.Mesh(geo, mat);
     this.group.add(this.strands);
+
+    // 2. Floating Spores (Particles)
+    const sporeGeo = new THREE.IcosahedronGeometry(0.02, 1);
+    const sporeMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    // Actually use shader for twinkle
+    const sporeShader = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uColor: { value: new THREE.Color(0xccffaa) },
+      },
+      vertexShader: `
+            attribute float aPhase;
+            varying float vAlpha;
+            uniform float uTime;
+            void main() {
+                vec3 pos = position;
+                vec4 worldPos = instanceMatrix * vec4(pos, 1.0);
+
+                // Rise up
+                float rise = mod(uTime * 0.5 + aPhase, 10.0);
+                worldPos.y += rise;
+
+                gl_Position = projectionMatrix * viewMatrix * worldPos;
+
+                // Twinkle
+                float twinkle = sin(uTime * 5.0 + aPhase * 10.0);
+                vAlpha = smoothstep(-0.5, 1.0, twinkle);
+            }
+        `,
+      fragmentShader: `
+            uniform vec3 uColor;
+            varying float vAlpha;
+            void main() {
+                gl_FragColor = vec4(uColor, vAlpha);
+            }
+        `,
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+
+    this.spores = new THREE.InstancedMesh(
+      sporeGeo,
+      sporeShader,
+      this.sporeCount
+    );
+
+    // Distribute spores around the sphere
+    const dummy = new THREE.Object3D();
+    const phases = new Float32Array(this.sporeCount);
+
+    for (let i = 0; i < this.sporeCount; i++) {
+      const r = 2.0 + Math.random() * 4.0;
+      const theta = Math.random() * 6.28;
+      const phi = Math.random() * 3.14;
+
+      dummy.position.setFromSphericalCoords(r, phi, theta);
+      dummy.position.y -= 5.0; // Start lower
+      dummy.scale.setScalar(0.5 + Math.random());
+      dummy.updateMatrix();
+      this.spores.setMatrixAt(i, dummy.matrix);
+
+      phases[i] = Math.random() * 10.0;
+    }
+
+    sporeGeo.setAttribute(
+      'aPhase',
+      new THREE.InstancedBufferAttribute(phases, 1)
+    );
+    this.group.add(this.spores);
   }
 
   init(_ctx: SceneRuntime) {}
@@ -2791,6 +2944,9 @@ class BioluminescentScene extends SceneBase {
     const mat = this.strands.material as THREE.ShaderMaterial;
     mat.uniforms.uTime.value = ctx.time;
     mat.uniforms.uPress.value = ctx.press;
+
+    const sporeMat = this.spores.material as THREE.ShaderMaterial;
+    sporeMat.uniforms.uTime.value = ctx.time;
 
     this.group.rotation.y = ctx.time * 0.05;
 
@@ -3107,13 +3263,13 @@ class RealityCollapseScene extends SceneBase {
       vertexShader: `
         attribute vec3 aPos;
         attribute float aSpeed;
-        
+
         varying vec3 vColor;
         varying float vGlitch;
-        
+
         uniform float uTime;
         uniform float uPress;
-        
+
         float hash(float n) { return fract(sin(n) * 43758.5453); }
         float noise(in vec3 x) {
             vec3 p = floor(x);
@@ -3128,32 +3284,32 @@ class RealityCollapseScene extends SceneBase {
 
         void main() {
              vec3 pos = position; // Local box coord
-             
+
              // 1. Instance Orbit
              // Rotate aPos around center
              float t = uTime * aSpeed * 0.3;
-             
+
              // Quaternion-like rotation around random axis
              // Simplified: just rotate around Y + slight wobble
              float c = cos(t);
              float s = sin(t);
-             
+
              vec3 pCenter = aPos;
-             
+
              // Rotate 'pCenter'
              float x = pCenter.x * c - pCenter.z * s;
              float z = pCenter.x * s + pCenter.z * c;
              pCenter.x = x;
              pCenter.z = z;
-             
+
              // Wobble
              pCenter.y += sin(t * 2.0 + pCenter.x) * 0.5;
-             
+
              // 2. Glitch Effect
              // Noise field
              float n = noise(pCenter * 0.5 + uTime);
              float glitchTrigger = smoothstep(0.6, 0.8, n); // Threshold
-             
+
              // Hard snap
              if(glitchTrigger > 0.5) {
                 // Snap to grid
@@ -3161,17 +3317,17 @@ class RealityCollapseScene extends SceneBase {
                 // Offset randomly
                 pCenter.x += (hash(uTime) - 0.5) * 0.5;
              }
-             
+
              // 3. Explosion (Press)
              vec3 dir = normalize(pCenter);
              pCenter += dir * uPress * n * 5.0; // Expand outward
-             
+
              // 4. Combine
              // We manually construct world position to bypass instanceMatrix
              // (assuming we didn't set meaningful instanceMatrices)
              vec4 world = modelMatrix * vec4(pCenter + pos, 1.0);
              gl_Position = projectionMatrix * viewMatrix * world;
-             
+
              // 5. Color
              // Normal color
              vColor = mix(vec3(0.05, 0.05, 0.05), vec3(0.8, 0.8, 0.8), n);
@@ -3187,7 +3343,7 @@ class RealityCollapseScene extends SceneBase {
       fragmentShader: `
         varying vec3 vColor;
         varying float vGlitch;
-        
+
         void main() {
             vec3 c = vColor;
             // Scanline if glitch
@@ -3303,7 +3459,7 @@ class ElectricStormScene extends SceneBase {
         // --------------------------------------------------------
         // High Quality Noise
         // --------------------------------------------------------
-        
+
         float hash(float n) { return fract(sin(n) * 753.5453123); }
         float noise(vec3 x) {
             vec3 p = floor(x);
@@ -3324,7 +3480,7 @@ class ElectricStormScene extends SceneBase {
             mat3 m = mat3(0.00, 0.80, 0.60,
                          -0.80, 0.36, -0.48,
                          -0.60, -0.48, 0.64);
-            
+
             for(int i=0; i<4; i++) {
                 f += amp * noise(p);
                 p = m * p * 2.02;
@@ -3336,16 +3492,16 @@ class ElectricStormScene extends SceneBase {
         float map(vec3 p) {
             // Animate space
             vec3 q = p - vec3(0.0, 0.0, uTime * 0.5);
-            
+
             // Domain warp
             float f = fbm(q);
-            
+
             // Dense nebula
             float dens = fbm(q + f * 2.5); // Nested FBM (Warping)
-            
+
             // Interaction: Press clears the fog
             dens *= (1.0 - uPress * 0.9);
-            
+
             // Shaping to prevent infinite wall
             // Fade density if far from center
             // float dist = length(p);
@@ -3360,62 +3516,62 @@ class ElectricStormScene extends SceneBase {
             vec3 pos = p * 0.5;
             float storm = noise(pos + vec3(0, t, 0)) * noise(pos - vec3(t, 0, 0));
             float flash = smoothstep(0.6, 1.0, storm) * step(0.9, sin(t * 10.0)); // Strobe
-            
+
             // Colors
             vec3 baseColor = vec3(0.05, 0.0, 0.1); // Deep Void Purple
             vec3 cloudColor = vec3(0.1, 0.3, 0.7); // Nebula Blue
             vec3 flashColor = vec3(0.8, 0.9, 1.0) * 8.0; // HDR White/Blue
-            
+
             // Gradient based on density
             vec3 col = mix(baseColor, cloudColor, dens);
             col += flashColor * flash * dens;
-            
+
             return col;
         }
 
         void main() {
              vec3 rd = normalize(vWorldPos - uCameraPos);
              vec3 ro = uCameraPos;
-             
+
              // Raymarching
              vec3 col = vec3(0.0);
              float T = 1.0; // Transmittance
              float t = 0.5; // Start offset
-             
+
              // Dithering to hide banding
              t += hash(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 0.3;
-             
+
              float maxDist = 30.0;
-             int steps = 50; 
-             
+             int steps = 50;
+
              for(int i=0; i<steps; i++) {
                  vec3 p = ro + rd * t;
-                 
+
                  // Density at this point
                  float density = map(p * 0.25); // Scale noise space
-                 
+
                  if(density > 0.01) {
                      // Light calculation (Beer's Law)
                      float absorption = density * 0.3; // How thick
-                     
+
                      // Light contribution
                      vec3 light = getLight(p, rd, density);
-                     
+
                      // Accumulate
                      col += light * absorption * T;
                      T *= (1.0 - absorption);
-                     
+
                      if( T < 0.01 ) break;
                  }
-                 
+
                  t += 0.5; // Step size
                  if(t > maxDist) break;
              }
-             
+
              // Background blend
              vec3 bg = mix(vec3(0.0), vec3(0.01, 0.01, 0.05), rd.y * 0.5 + 0.5);
              col += bg * T;
-             
+
              gl_FragColor = vec4(col, 1.0);
         }
       `,
