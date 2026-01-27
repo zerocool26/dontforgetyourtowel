@@ -4,365 +4,441 @@ import type { SceneRuntime } from './types';
 import { damp } from './SceneUtils';
 
 /**
- * Scene 17: Cyber Porsche GT3 Concept
- * A procedurally modeled high-performance race car.
- * Uses shaped extrusions to match the iconic 911 silhouette.
+ * Scene 17: Cyber Porsche GT3 RS (High Fidelity)
+ * Procedurally modeled with organic curves and composite geometry
+ * to approximate the 992 Generation GT3 RS.
  */
 export class PorscheScene extends SceneBase {
   private carGroup: THREE.Group;
-  private wheels: THREE.Mesh[] = [];
+  private wheels: THREE.Group[] = [];
   private grid: THREE.GridHelper;
   private speed = 0;
+  private time = 0;
 
   constructor() {
     super();
     this.id = 'scene17';
     this.contentRadius = 8.0;
-    this.baseDistance = 10.0;
+    this.baseDistance = 9.0;
 
+    // --- Container ---
     this.carGroup = new THREE.Group();
+    this.carGroup.position.y = 0.33; // Ride height adjustment
     this.group.add(this.carGroup);
 
     // --- Materials ---
     const paintMat = new THREE.MeshPhysicalMaterial({
-      color: 0xcccccc, // GT Silver Metallic
-      metalness: 0.6,
+      color: 0xc0c0c0, // GT Silver
+      metalness: 0.7,
       roughness: 0.2,
       clearcoat: 1.0,
       clearcoatRoughness: 0.05,
-      side: THREE.DoubleSide,
+      sheen: 0.5,
+      sheenColor: 0xffffff,
     });
 
-    // Carbon Fiber (Approx)
     const carbonMat = new THREE.MeshStandardMaterial({
-      color: 0x111111,
-      roughness: 0.8,
-      metalness: 0.5,
+      color: 0x1a1a1a,
+      roughness: 0.6,
+      metalness: 0.3,
+      bumpScale: 0.02,
     });
 
     const glassMat = new THREE.MeshPhysicalMaterial({
-      color: 0x000000,
+      color: 0x111111,
       metalness: 0.9,
-      roughness: 0.0,
-      transmission: 0.5,
+      roughness: 0.05,
+      transmission: 0.2, // Tinted privacy glass
       transparent: true,
     });
 
-    // --- 1. The Silhouette (Side Profile Extrusion) ---
-    // Modeled around 4.5m length
-    const shape = new THREE.Shape();
-    // Start Bottom Front (Bumper)
-    shape.moveTo(2.2, 0.2);
-    // Nose
-    shape.lineTo(2.3, 0.4);
-    shape.lineTo(1.8, 0.75); // Hood start
-    // Hood to Windshield Base
-    shape.lineTo(0.8, 0.85);
-    // Windshield to Roof
-    shape.lineTo(0.2, 1.35); // Roof peak
-    // Roof to Rear Deck (The "Flyline")
-    shape.lineTo(-0.5, 1.32);
-    // Fastback Slope
-    shape.lineTo(-1.8, 0.8);
-    // Ducktail / Rear End
-    shape.lineTo(-2.2, 0.65);
-    shape.lineTo(-2.25, 0.3); // Bumpers
-    shape.lineTo(-2.1, 0.2); // Diffuser area
-    // Underbody
-    shape.lineTo(-0.9, 0.2); // Rear Wheel Well start
-    // Rear Wheel Arch (Cutout)
-    const rWheelR = 0.38;
-    shape.absarc(-1.3, 0.35, rWheelR, 0, Math.PI, true);
-
-    shape.lineTo(0.9, 0.2); // Side skirt
-    // Front Wheel Arch
-    const fWheelR = 0.36;
-    shape.absarc(1.3, 0.35, fWheelR, 0, Math.PI, true);
-
-    shape.lineTo(2.2, 0.2); // Close
-
-    // Extrude Settings
-    const extrudeSettings = {
-      steps: 1,
-      depth: 1.6, // Width (0.8 each side centered later)
-      bevelEnabled: true,
-      bevelThickness: 0.05,
-      bevelSize: 0.05,
-      bevelSegments: 4,
-    };
-
-    const bodyGeo = new THREE.ExtrudeGeometry(shape, extrudeSettings);
-    bodyGeo.center(); // Center at origin
-
-    const body = new THREE.Mesh(bodyGeo, paintMat);
-    this.carGroup.add(body);
-
-    // --- 2. Wide Hips (Rear Fenders) ---
-    // Porsche hips are wider than the cabin
-    // We add side pods to represent the wide rear track
-    const hipShape = new THREE.Shape();
-    hipShape.moveTo(-0.5, 0.2);
-    hipShape.lineTo(0.8, 0.2);
-    hipShape.lineTo(0.6, 0.7); // Top of fender line
-    hipShape.quadraticCurveTo(0.0, 0.9, -0.8, 0.75);
-    hipShape.lineTo(-0.8, 0.2);
-
-    const hipGeo = new THREE.ExtrudeGeometry(hipShape, {
-      depth: 0.4,
-      bevelEnabled: true,
-      bevelSize: 0.1,
-      bevelThickness: 0.1,
-    });
-    const leftHip = new THREE.Mesh(hipGeo, paintMat);
-    leftHip.rotation.y = Math.PI; // Flip for left
-    leftHip.position.set(-0.8, 0.35, -0.6); // Adjust to rear wheel pos
-    // this.carGroup.add(leftHip); // Shapes are hard to align perfectly without tools.
-
-    // Alternative Fenders: Scaled Capsules/Spheres
-    // Front Fenders
-    const fFenderGeo = new THREE.CapsuleGeometry(0.35, 0.8, 4, 16);
-    // Rotate to align along length
-    fFenderGeo.rotateZ(Math.PI * 0.5);
-
-    const flFender = new THREE.Mesh(fFenderGeo, paintMat);
-    flFender.position.set(1.3, 0.6, 0.75);
-    flFender.scale.set(1.0, 1.0, 0.6); // Flatten
-    this.carGroup.add(flFender);
-
-    const frFender = new THREE.Mesh(fFenderGeo, paintMat);
-    frFender.position.set(1.3, 0.6, -0.75);
-    frFender.scale.set(1.0, 1.0, 0.6);
-    this.carGroup.add(frFender);
-
-    // Rear Hips (Wider, Muscular)
-    const rFenderGeo = new THREE.CapsuleGeometry(0.42, 1.2, 4, 16);
-    rFenderGeo.rotateZ(Math.PI * 0.5);
-
-    const rlFender = new THREE.Mesh(rFenderGeo, paintMat);
-    rlFender.position.set(-1.3, 0.7, 0.85); // Wider stance
-    rlFender.rotation.y = -0.1; // Taper in
-    this.carGroup.add(rlFender);
-
-    const rrFender = new THREE.Mesh(rFenderGeo, paintMat);
-    rrFender.position.set(-1.3, 0.7, -0.85);
-    rrFender.rotation.y = 0.1;
-    this.carGroup.add(rrFender);
-
-    // --- 3. The Swan Neck Wing ---
-    // Uprights
-    const uprightGeo = new THREE.BoxGeometry(0.4, 0.6, 0.05);
-    uprightGeo.translate(-0.1, 0.3, 0);
-    // Skew them back
-    const skewMat = new THREE.Matrix4().makeShear(0, 0, 0.5, 0, 0, 0); // Shear X based on Y
-    uprightGeo.applyMatrix4(skewMat);
-
-    const lUpright = new THREE.Mesh(uprightGeo, carbonMat);
-    lUpright.position.set(-1.8, 0.75, 0.3);
-    this.carGroup.add(lUpright);
-
-    const rUpright = new THREE.Mesh(uprightGeo, carbonMat);
-    rUpright.position.set(-1.8, 0.75, -0.3);
-    this.carGroup.add(rUpright);
-
-    // Main Wing Foil (Airfoil shape approximation)
-    const foilShape = new THREE.Shape();
-    foilShape.moveTo(0, 0);
-    foilShape.quadraticCurveTo(0.2, 0.05, 0.4, 0); // Top camber
-    foilShape.lineTo(0.4, -0.02);
-    foilShape.quadraticCurveTo(0.2, -0.05, 0, -0.02); // Bottom camber
-
-    const foilGeo = new THREE.ExtrudeGeometry(foilShape, {
-      depth: 1.8,
-      bevelEnabled: false,
-    });
-    foilGeo.rotateY(Math.PI * 0.5); // Align across car
-    foilGeo.translate(0, 0, -0.9); // Center
-
-    const wing = new THREE.Mesh(foilGeo, carbonMat);
-    wing.position.set(-1.95, 1.35, 0);
-    wing.rotation.z = -0.1; // Angle of attack
-    this.carGroup.add(wing);
-
-    // Endplates
-    const endGeo = new THREE.BoxGeometry(0.5, 0.25, 0.02);
-    const lEnd = new THREE.Mesh(endGeo, carbonMat);
-    lEnd.position.set(-1.95, 1.35, 0.9);
-    this.carGroup.add(lEnd);
-
-    const rEnd = new THREE.Mesh(endGeo, carbonMat);
-    rEnd.position.set(-1.95, 1.35, -0.9);
-    this.carGroup.add(rEnd);
-
-    // --- 4. Lights & Details ---
-
-    // Iconic Circular Headlights (Glass Dome + Emissive Ring)
-    // Sunk into the front fenders
-    const hlGeo = new THREE.SphereGeometry(
-      0.18,
-      32,
-      16,
-      0,
-      Math.PI * 2,
-      0,
-      0.6
-    );
-    hlGeo.rotateX(-Math.PI * 0.5);
-    const hlMat = new THREE.MeshPhysicalMaterial({
-      color: 0xffffff,
-      transmission: 0.9,
-      roughness: 0,
-      thickness: 0.1,
-    });
-
-    const lHL = new THREE.Mesh(hlGeo, hlMat);
-    lHL.position.set(1.8, 0.65, 0.65);
-    lHL.rotation.x = -0.3; // Tilt back
-    this.carGroup.add(lHL);
-
-    const rHL = new THREE.Mesh(hlGeo, hlMat);
-    rHL.position.set(1.8, 0.65, -0.65);
-    rHL.rotation.x = -0.3;
-    this.carGroup.add(rHL);
-
-    // DRLs (Emissive X or Ring inside)
-    const drlGeo = new THREE.TorusGeometry(0.15, 0.02, 8, 32);
-    const drlMat = new THREE.MeshBasicMaterial({ color: 0xaaddff });
-
-    const lDRL = new THREE.Mesh(drlGeo, drlMat);
-    lDRL.position.copy(lHL.position);
-    lDRL.position.y -= 0.05; // Inside
-    lDRL.rotation.x = Math.PI * 0.5 - 0.3;
-    this.carGroup.add(lDRL);
-
-    const rDRL = new THREE.Mesh(drlGeo, drlMat);
-    rDRL.position.copy(rHL.position);
-    rDRL.position.y -= 0.05;
-    rDRL.rotation.x = Math.PI * 0.5 - 0.3;
-    this.carGroup.add(rDRL);
-
-    // Rear Light Bar (992 Style)
-    const barGeo = new THREE.BoxGeometry(0.1, 0.05, 1.7);
-    const barMat = new THREE.MeshStandardMaterial({
-      color: 0xff0000,
-      emissive: 0xff0011,
-      emissiveIntensity: 10.0,
-    });
-    const bar = new THREE.Mesh(barGeo, barMat);
-    bar.position.set(-2.22, 0.75, 0);
-    // Curve it?
-    // Bending geometry procedurally is expensive, let's keep it straight for "Cyber" look or use segments
-    this.carGroup.add(bar);
-
-    // --- 5. Wheels ---
-    // Large Center-lock wheels
-    const wheelGeo = new THREE.CylinderGeometry(0.38, 0.38, 0.35, 32);
-    wheelGeo.rotateZ(Math.PI * 0.5);
-    const tireMat = new THREE.MeshStandardMaterial({
-      color: 0x111111,
+    const rubberMat = new THREE.MeshStandardMaterial({
+      color: 0x080808,
       roughness: 0.9,
+      metalness: 0.1,
     });
 
-    // Rim
-    const rimGeo = new THREE.CylinderGeometry(0.25, 0.25, 0.36, 16);
-    rimGeo.rotateZ(Math.PI * 0.5);
     const rimMat = new THREE.MeshStandardMaterial({
-      color: 0x333333,
+      color: 0x882222, // Pyro Red (roughly)
       metalness: 0.8,
       roughness: 0.2,
     });
 
-    const wheelPos = [
-      { x: 1.3, z: 0.85, s: 1.0 }, // FL
-      { x: 1.3, z: -0.85, s: 1.0 }, // FR
-      { x: -1.3, z: 0.88, s: 1.1 }, // RL (Staggered wider)
-      { x: -1.3, z: -0.88, s: 1.1 }, // RR
-    ];
-
-    wheelPos.forEach(p => {
-      const g = new THREE.Group();
-      g.position.set(p.x, 0.36 * p.s, p.z);
-
-      const t = new THREE.Mesh(wheelGeo, tireMat);
-      t.scale.setScalar(p.s);
-
-      const r = new THREE.Mesh(rimGeo, rimMat);
-      r.scale.setScalar(p.s);
-
-      // Face detail (Emissive spokes?)
-      const spokeGeo = new THREE.BoxGeometry(0.4, 0.05, 0.05);
-      const spokeMat = new THREE.MeshBasicMaterial({ color: 0xff3300 }); // Red stripe rim
-      const s1 = new THREE.Mesh(spokeGeo, spokeMat);
-      s1.rotation.y = Math.PI * 0.5; // Flat on face
-      s1.position.x = 0.18 * p.s * (p.z > 0 ? 1 : -1);
-      // Actually rims face outward
-
-      g.add(t);
-      g.add(r);
-      this.carGroup.add(g);
-      this.wheels.push(t);
+    const glowMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+    const headlightMat = new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      emissive: 0xffffff,
+      emissiveIntensity: 0.5,
+      roughness: 0.2,
+      metalness: 0.8,
     });
 
-    // --- Environment : "The Grid" ---
-    this.grid = new THREE.GridHelper(60, 60, 0x555555, 0x111111);
+    // ==========================================
+    // 1. CHASSIS (CENTRAL FUSELAGE)
+    // ==========================================
+    // modeled side profile using Bezier curves for the "Flyline"
+    // Dimensions: Length ~4.6m, Height ~1.3m (from ground)
+
+    const bodyShape = new THREE.Shape();
+    // Start Front Bottom (Splitter area)
+    const noseX = 2.3;
+    const tailX = -2.3;
+    const groundY = 0.05; // Relative to carGroup
+
+    bodyShape.moveTo(noseX - 0.1, groundY);
+
+    // Nose / Bumper
+    bodyShape.lineTo(noseX, 0.4);
+    // Hood Line (Low and sleek)
+    bodyShape.bezierCurveTo(noseX - 0.5, 0.6, 1.0, 0.75, 0.8, 0.85); // Windshield Base
+
+    // Roof Line (The FLYLINE)
+    // Peak around x=-0.2 (driver position)
+    bodyShape.bezierCurveTo(0.2, 1.35, -1.0, 1.32, -1.8, 0.9); // Rear window slope
+
+    // Ducktail / Spoiler Base
+    bodyShape.lineTo(tailX + 0.3, 0.85);
+    bodyShape.lineTo(tailX, 0.7); // Rear vertical face top
+    bodyShape.lineTo(tailX + 0.1, 0.25); // Rear vertical face bottom
+
+    // Diffuser / Underbody
+    bodyShape.lineTo(tailX + 0.3, 0.1);
+    bodyShape.lineTo(noseX - 0.2, 0.1); // Under tray
+
+    const extrudeSettings = {
+      steps: 4,
+      depth: 1.4, // Central width
+      bevelEnabled: true,
+      bevelThickness: 0.05,
+      bevelSize: 0.05,
+      bevelSegments: 5, // Smooth edges
+    };
+
+    const chassisGeo = new THREE.ExtrudeGeometry(bodyShape, extrudeSettings);
+    chassisGeo.center(); // Center the geometry geometry-wise
+    chassisGeo.translate(0, 0.6, 0); // Lift back up
+
+    // We need to slim the roof compared to the body (Tumblehome)
+    // Since Extrude produces a prismatic shape, this is hard.
+    // Instead we rely on the Fenders to provide the width at the bottom,
+    // and this extrusion represents the cabin + main core.
+
+    const chassis = new THREE.Mesh(chassisGeo, paintMat);
+    // Narrower width for the cabin
+    chassis.scale.z = 0.85;
+    this.carGroup.add(chassis);
+
+    // ==========================================
+    // 2. WIDE FENDERS (The Muscle)
+    // ==========================================
+    // Use smoothed scaling capsules/spheres to create organic flared arches
+
+    const fenderGeo = new THREE.CapsuleGeometry(0.55, 1.2, 4, 16);
+    // Rotate to lay along the length of car
+    fenderGeo.rotateZ(Math.PI / 2);
+
+    const fFenderScale = new THREE.Vector3(1.0, 0.6, 0.6); // Flattened vertically and width-wise
+    const rFenderScale = new THREE.Vector3(1.2, 0.75, 0.8); // Rear is wider/beefier
+
+    // Front Left
+    const fl = new THREE.Mesh(fenderGeo, paintMat);
+    fl.scale.copy(fFenderScale);
+    fl.position.set(1.45, 0.55, 0.75);
+    // Twist slightly to follow body lines
+    fl.rotation.y = -0.1;
+    this.carGroup.add(fl);
+
+    // Front Right
+    const fr = new THREE.Mesh(fenderGeo, paintMat);
+    fr.scale.copy(fFenderScale);
+    fr.position.set(1.45, 0.55, -0.75);
+    fr.rotation.y = 0.1;
+    this.carGroup.add(fr);
+
+    // Rear Left (The Hips)
+    const rl = new THREE.Mesh(fenderGeo, paintMat);
+    rl.scale.copy(rFenderScale);
+    rl.position.set(-1.45, 0.7, 0.85);
+    rl.rotation.y = 0.05;
+    rl.rotation.z = -0.05; // Rake
+    this.carGroup.add(rl);
+
+    // Rear Right
+    const rr = new THREE.Mesh(fenderGeo, paintMat);
+    rr.scale.copy(rFenderScale);
+    rr.position.set(-1.45, 0.7, -0.85);
+    rr.rotation.y = -0.05;
+    rr.rotation.z = -0.05;
+    this.carGroup.add(rr);
+
+    // ==========================================
+    // 3. SWAN NECK WING
+    // ==========================================
+
+    // The Wing Blade
+    const wingShape = new THREE.Shape();
+    // Airfoil profile
+    wingShape.moveTo(0, 0);
+    wingShape.bezierCurveTo(0.1, 0.08, 0.4, 0.08, 0.5, 0.02); // Top surface
+    wingShape.lineTo(0.5, 0.0);
+    wingShape.bezierCurveTo(0.4, -0.02, 0.1, -0.02, 0, 0); // Bottom surface
+
+    const wingGeo = new THREE.ExtrudeGeometry(wingShape, {
+      depth: 2.0,
+      bevelEnabled: false,
+    });
+    wingGeo.rotateY(Math.PI / 2);
+    wingGeo.center();
+
+    const wing = new THREE.Mesh(wingGeo, carbonMat);
+    wing.position.set(-2.1, 1.55, 0);
+    wing.scale.set(1.5, 1.5, 1.0); // Make chord length bigger
+    wing.rotation.z = -0.15; // Aggressive Angle of Attack
+    this.carGroup.add(wing);
+
+    // Swan Neck Struts (Coming from rear deck up and OVER)
+    const strutCurve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(-1.6, 0.9, 0), // Base on engine cover
+      new THREE.Vector3(-1.8, 1.4, 0), // Going up/back
+      new THREE.Vector3(-2.0, 1.65, 0), // Over the top
+      new THREE.Vector3(-2.1, 1.55, 0), // Connecting to top of wing @ screw point
+    ]);
+
+    const strutGeo = new THREE.TubeGeometry(strutCurve, 20, 0.03, 8, false);
+
+    const strutL = new THREE.Mesh(strutGeo, carbonMat);
+    strutL.position.z = 0.4;
+    this.carGroup.add(strutL);
+
+    const strutR = new THREE.Mesh(strutGeo, carbonMat);
+    strutR.position.z = -0.4;
+    this.carGroup.add(strutR);
+
+    // Wing Endplates
+    const endplateGeo = new THREE.BoxGeometry(0.6, 0.4, 0.02);
+    const endplateL = new THREE.Mesh(endplateGeo, carbonMat);
+    endplateL.position.set(-2.1, 1.5, 1.0);
+    this.carGroup.add(endplateL);
+
+    const endplateR = new THREE.Mesh(endplateGeo, carbonMat);
+    endplateR.position.set(-2.1, 1.5, -1.0);
+    this.carGroup.add(endplateR);
+
+    // ==========================================
+    // 4. WHEELS
+    // ==========================================
+
+    // Wheelbase ~2.45m
+    const frontAxleZ = 1.45;
+    const rearAxleZ = -1.45;
+    const trackWidth = 0.9;
+
+    const createWheel = (isRear: boolean) => {
+      const radius = isRear ? 0.36 : 0.34;
+      const width = isRear ? 0.35 : 0.3;
+
+      const group = new THREE.Group();
+
+      // Tire
+      const tireGeo = new THREE.CylinderGeometry(radius, radius, width, 24);
+      tireGeo.rotateZ(Math.PI / 2);
+      const tire = new THREE.Mesh(tireGeo, rubberMat);
+      group.add(tire);
+
+      // Rim (Multi-spoke)
+      const rimGeo = new THREE.CylinderGeometry(
+        radius * 0.7,
+        radius * 0.7,
+        width * 0.6,
+        16
+      );
+      rimGeo.rotateZ(Math.PI / 2);
+      const rim = new THREE.Mesh(rimGeo, rimMat);
+
+      // Spokes (Texture simulated by geometry)
+      const spokeGeo = new THREE.BoxGeometry(radius * 1.2, width * 0.7, 0.05);
+      const s1 = new THREE.Mesh(spokeGeo, rimMat);
+      s1.rotation.y = 0; // vertical
+      const s2 = new THREE.Mesh(spokeGeo, rimMat);
+      s2.rotation.x = Math.PI / 2; // horizontal
+      rim.add(s1);
+      rim.add(s2);
+
+      group.add(rim);
+
+      return group;
+    };
+
+    const wheelsConfig = [
+      { x: frontAxleZ, z: trackWidth, rear: false },
+      { x: frontAxleZ, z: -trackWidth, rear: false },
+      { x: rearAxleZ, z: trackWidth + 0.05, rear: true }, // Wider rear track
+      { x: rearAxleZ, z: -(trackWidth + 0.05), rear: true },
+    ];
+
+    wheelsConfig.forEach(cfg => {
+      const w = createWheel(cfg.rear);
+      w.position.set(cfg.x, 0.34, cfg.z); // Radius height
+      this.carGroup.add(w);
+      this.wheels.push(w);
+    });
+
+    // ==========================================
+    // 5. LIGHTS & DETAILS
+    // ==========================================
+
+    // Headlights - Oval/Tilted
+    const hlGeo = new THREE.SphereGeometry(0.18, 16, 16);
+    // Flatten and tilt
+    const hlL = new THREE.Mesh(hlGeo, glassMat);
+    hlL.scale.set(1.0, 0.7, 1.2);
+    hlL.position.set(1.95, 0.65, 0.65);
+    hlL.rotation.x = -0.3;
+    hlL.rotation.y = -0.2;
+    this.carGroup.add(hlL);
+
+    const hlR = hlL.clone();
+    hlR.position.set(1.95, 0.65, -0.65);
+    hlR.rotation.y = 0.2;
+    this.carGroup.add(hlR);
+
+    // Light Interior (The Lens)
+    const lensGeo = new THREE.SphereGeometry(0.1, 16, 16);
+    const lensL = new THREE.Mesh(lensGeo, headlightMat);
+    lensL.position.copy(hlL.position);
+    lensL.position.x -= 0.05; // Inside glass
+    this.carGroup.add(lensL);
+
+    const lensR = new THREE.Mesh(lensGeo, headlightMat);
+    lensR.position.copy(hlR.position);
+    lensR.position.x -= 0.05;
+    this.carGroup.add(lensR);
+
+    // Rear Light Bar (Continuous Strip)
+    const barGeo = new THREE.CylinderGeometry(0.04, 0.04, 1.8, 12);
+    barGeo.rotateX(Math.PI / 2); // Lay flat
+    // barGeo now along Z
+
+    // Curve the bar? (Segments approach)
+    // Simple straight bar for now to reduce vertex cost, placed in cutout
+    const bar = new THREE.Mesh(barGeo, glowMat);
+    bar.position.set(-2.25, 0.8, 0);
+    this.carGroup.add(bar);
+
+    // Side Mirrors
+    const mirGeo = new THREE.BoxGeometry(0.15, 0.1, 0.25);
+    const mirL = new THREE.Mesh(mirGeo, carbonMat);
+    mirL.position.set(0.6, 0.95, 0.95);
+    this.carGroup.add(mirL);
+
+    const mirR = new THREE.Mesh(mirGeo, carbonMat);
+    mirR.position.set(0.6, 0.95, -0.95);
+    this.carGroup.add(mirR);
+
+    // ==========================================
+    // ENVIRONMENT
+    // ==========================================
+    this.grid = new THREE.GridHelper(100, 100, 0x333333, 0x111111);
     this.group.add(this.grid);
+
+    const ambient = new THREE.AmbientLight(0xffffff, 0.5);
+    this.group.add(ambient);
+
+    const spot = new THREE.SpotLight(0xffffff, 20.0);
+    spot.position.set(5, 10, 5);
+    spot.lookAt(0, 0, 0);
+    spot.angle = 1.0;
+    spot.penumbra = 0.5;
+    this.group.add(spot);
   }
 
   init(_ctx: SceneRuntime) {}
 
   update(ctx: SceneRuntime) {
-    const t = ctx.time;
+    this.time += ctx.dt;
 
-    // Interactive Drive
-    const accel = ctx.press; // 0..1
-    this.speed = 10.0 + accel * 50.0; // Cruise 10, Sprint 60
+    // Input Handling
+    const throttle = ctx.press; // 0..1
+    const steer = -ctx.pointer.x; // -1..1
 
-    // Grid Motion (Infinite road)
-    this.grid.position.z = (t * this.speed) % 1.0;
+    // Dynamics
+    const targetSpeed = 10.0 + throttle * 40.0; // 10 to 50 m/s
+    this.speed = damp(this.speed, targetSpeed, 2.0, ctx.dt);
 
-    // Wheel Spin
-    const spin = this.speed * ctx.dt * 2.0;
-    this.wheels.forEach(w => {
-      w.parent!.rotateX(spin);
-      // Pivot steering?
-      if (w.parent!.position.x > 0) {
-        // Front wheels
-        w.parent!.rotation.y = -ctx.pointer.x * 0.3; // Steer
+    // Move Grid (Infinite Scroll)
+    this.grid.position.z = (this.time * this.speed) % 1.0;
+
+    // Wheels Rotation
+    const wheelSpin = this.speed * ctx.dt * 2.0;
+    this.wheels.forEach((w, i) => {
+      w.children[0].rotateX(wheelSpin); // Tire
+      w.children[1].rotateX(wheelSpin); // Rim
+
+      // Front Wheel Steering (Indices 0 and 1)
+      if (i < 2) {
+        w.rotation.y = steer * 0.4;
       }
     });
 
-    // Chassis Physics (Suspension/G-Force)
-    const turn = -ctx.pointer.x;
+    // Body Physics
+    // Roll (Lean into corner, or out? Sport cars lean out slightly, or stay flat)
+    const rollAngle = steer * 0.15; // rad
+    // Pitch (Squat)
+    const pitchAngle = throttle * 0.05; // Lift nose/squat rear
 
-    // Roll (Body leans outside turn)
-    const roll = turn * 0.15; // rad
-    // Pitch (Squat on accel)
-    const pitch = accel * 0.05;
-
-    this.carGroup.rotation.z = damp(this.carGroup.rotation.z, roll, 4, ctx.dt);
+    this.carGroup.rotation.z = damp(
+      this.carGroup.rotation.z,
+      rollAngle,
+      4.0,
+      ctx.dt
+    );
     this.carGroup.rotation.x = damp(
       this.carGroup.rotation.x,
-      -pitch,
-      2,
+      -pitchAngle,
+      2.0,
       ctx.dt
     );
     this.carGroup.rotation.y = damp(
       this.carGroup.rotation.y,
-      turn * 0.2,
-      4,
+      steer * 0.1,
+      4.0,
       ctx.dt
     ); // Yaw slightly
 
+    // Position Drift
+    const driftX = steer * 2.5;
+    this.carGroup.position.x = damp(
+      this.carGroup.position.x,
+      driftX,
+      1.5,
+      ctx.dt
+    );
+
     // Camera Chase
-    // Base Pos: (0, 2, 6)
-    // Drift Pos: Opposite to turn
-    const camX = turn * 3.0;
-    const camY = 3.0 + accel * 0.5; // Lower when fast? No higher.
-    const camZ = 8.0 - accel * 2.0; // Closer when fast (motion blur effect)
+    // Camera should be behind and slightly above
+    const camTargetX = this.carGroup.position.x * 0.8; // Lag slightly
+    const camTargetZ = 6.0 + (this.speed / 50.0) * 2.0; // Pull back at speed
+    const camTargetY = 2.0 + (this.speed / 50.0) * 0.5;
 
-    this.camera.position.x = damp(this.camera.position.x, camX, 2, ctx.dt);
-    this.camera.position.y = damp(this.camera.position.y, camY, 2, ctx.dt);
-    this.camera.position.z = damp(this.camera.position.z, camZ, 1, ctx.dt);
+    this.camera.position.x = damp(
+      this.camera.position.x,
+      camTargetX,
+      3.0,
+      ctx.dt
+    );
+    this.camera.position.z = damp(
+      this.camera.position.z,
+      camTargetZ,
+      3.0,
+      ctx.dt
+    );
+    this.camera.position.y = damp(
+      this.camera.position.y,
+      camTargetY,
+      3.0,
+      ctx.dt
+    );
 
-    this.camera.lookAt(0, 0.8, 0); // Look at car
+    this.camera.lookAt(this.carGroup.position.x, 0.8, 0);
   }
 }
