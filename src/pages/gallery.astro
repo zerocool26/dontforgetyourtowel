@@ -1,10 +1,13 @@
 ---
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 import { withBasePath } from '../utils/helpers';
+import galleryBootScriptUrl from '../scripts/tower3d-gallery.ts?url';
 
 const title = 'Landing';
 const description = 'A dedicated, fullscreen 3D landing experience.';
 const enterHref = withBasePath('services/');
+
+const galleryBootScript = galleryBootScriptUrl;
 
 // Scene metadata for the navigation menu
 const scenes = [
@@ -52,6 +55,21 @@ const scenes = [
         </div>
       </div>
     </div>
+
+    <noscript>
+      <div
+        style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(2,4,10,0.92);color:#e5e7eb;z-index:10000;text-align:center;"
+      >
+        <div style="max-width:560px">
+          <div style="font-weight:700;font-size:18px;margin-bottom:8px">
+            JavaScript is required
+          </div>
+          <div style="opacity:0.85;font-size:14px;line-height:1.5">
+            Enable JavaScript to load the 3D Gallery.
+          </div>
+        </div>
+      </div>
+    </noscript>
 
     <!-- Main 3D Canvas Container -->
     <section
@@ -1338,7 +1356,5 @@ const scenes = [
     }
   </style>
 
-  <script type="module">
-    import '../scripts/tower3d-gallery';
-  </script>
+  <script type="module" src={galleryBootScript}></script>
 </MarketingLayout>

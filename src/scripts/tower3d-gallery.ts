@@ -239,6 +239,11 @@ createAstroMount(ROOT_SELECTOR, () => {
   const root = document.querySelector<HTMLElement>(ROOT_SELECTOR);
   if (!root) return null;
 
+  // Debug breadcrumb: if the loader is stuck and this is missing,
+  // the boot module likely failed to load under the current base path.
+  root.dataset.galleryBoot = '1';
+  document.documentElement.dataset.galleryBoot = '1';
+
   const canvas = root.querySelector<HTMLCanvasElement>(
     'canvas[data-tower3d-canvas]'
   );
@@ -336,6 +341,25 @@ createAstroMount(ROOT_SELECTOR, () => {
   }
   state.director = director;
 
+  // If we reached this point, WebGL + director initialization succeeded.
+  // Ensure the loader can't remain stuck even if later UI wiring throws.
+  let loaderWatchdog: ReturnType<typeof setTimeout> | null = null;
+  loaderWatchdog = setTimeout(() => {
+    try {
+      updateLoadProgress(100);
+      hideLoader();
+    } catch {
+      // best-effort
+    }
+  }, 1800);
+
+  addGalleryCleanup(() => {
+    if (loaderWatchdog) {
+      clearTimeout(loaderWatchdog);
+      loaderWatchdog = null;
+    }
+  });
+
   // Simulate loading progress (real progress would come from asset loading)
   let loadProgress = 0;
   const loadInterval = setInterval(() => {
@@ -432,6 +456,12 @@ createAstroMount(ROOT_SELECTOR, () => {
     }
 
     director.tick();
+
+    // Hide loader on first successful frame render.
+    if (loader && !loader.classList.contains('hidden')) {
+      updateLoadProgress(100);
+      hideLoader();
+    }
     raf = window.requestAnimationFrame(tick);
   };
 
