@@ -10,7 +10,8 @@ const { className = '', variant = 'auto' } = Astro.props;
 ---
 
 <div
-  class={`absolute inset-0 -z-10 overflow-hidden ${className}`}
+  class={`absolute inset-0 z-0 overflow-hidden ${className}`}
+  data-hero-root
   data-hero-variant={variant}
 >
   <canvas
@@ -21,39 +22,46 @@ const { className = '', variant = 'auto' } = Astro.props;
 <script>
   import { createHeroScene } from '../../scripts/createHeroScene';
 
-  const scriptEl = document.currentScript as HTMLScriptElement | null;
-  const root = scriptEl?.previousElementSibling as HTMLElement | null;
-  const canvas = root?.querySelector(
-    '[data-hero-canvas]'
-  ) as HTMLCanvasElement | null;
+  type Variant = 'auto' | 'neural' | 'city' | 'storm' | 'aurora';
+  type WithCleanup = { __heroCleanup?: () => void };
 
-  if (!canvas) {
-    // Nothing to mount.
+  const cleanupAll = () => {
+    document
+      .querySelectorAll<HTMLCanvasElement>('canvas[data-hero-canvas]')
+      .forEach(canvas => {
+        const existing = (canvas as unknown as WithCleanup).__heroCleanup;
+        if (existing) {
+          existing();
+          (canvas as unknown as WithCleanup).__heroCleanup = undefined;
+        }
+      });
+  };
+
+  const mountAll = () => {
+    document
+      .querySelectorAll<HTMLCanvasElement>('canvas[data-hero-canvas]')
+      .forEach(canvas => {
+        const root = canvas.closest<HTMLElement>('[data-hero-root]');
+        if (!root) return;
+
+        const existing = (canvas as unknown as WithCleanup).__heroCleanup;
+        if (existing) existing();
+
+        const variant = (root.dataset.heroVariant || 'auto') as Variant;
+        const cleanup = createHeroScene(canvas, { variant });
+        (canvas as unknown as WithCleanup).__heroCleanup = cleanup;
+      });
+  };
+
+  // Initial mount + re-mount on Astro view transitions.
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', mountAll, { once: true });
   } else {
-    // Prevent double-mounts (can happen with view transitions / replays)
-    const existing = (canvas as unknown as { __heroCleanup?: () => void })
-      .__heroCleanup;
-    if (existing) existing();
-
-    const variant = (root?.dataset.heroVariant || 'auto') as
-      | 'auto'
-      | 'neural'
-      | 'city'
-      | 'storm'
-      | 'aurora';
-
-    const cleanup = createHeroScene(canvas, { variant });
-    (canvas as unknown as { __heroCleanup?: () => void }).__heroCleanup =
-      cleanup;
-
-    const handleBeforeSwap = () => {
-      cleanup();
-      document.removeEventListener('astro:before-swap', handleBeforeSwap);
-    };
-
-    // Cleanup on page navigation (Astro View Transitions)
-    document.addEventListener('astro:before-swap', handleBeforeSwap);
+    mountAll();
   }
+
+  window.addEventListener('astro:page-load', mountAll);
+  document.addEventListener('astro:before-swap', cleanupAll);
 </script>
 
 <style>

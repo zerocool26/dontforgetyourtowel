@@ -244,19 +244,13 @@ createAstroMount(ROOT_SELECTOR, () => {
   );
   if (!canvas) return null;
 
-  const caps = getTowerCaps();
-  galleryCaps = caps;
-  if (!caps.webgl) return null;
-
-  // Create director with gallery mode enabled
-  const director = new SceneDirector(root, canvas, caps, { galleryMode: true });
-  state.director = director;
-
-  // Setup loading progress
+  // Setup loading progress early so failures don't get stuck on the loader.
   const loader = document.querySelector<HTMLElement>('[data-gallery-loader]');
   const progressBar = document.querySelector<HTMLElement>(
     '[data-loader-progress]'
   );
+  const loaderText =
+    loader?.querySelector<HTMLElement>('.loader__text') ?? null;
 
   const updateLoadProgress = (progress: number) => {
     if (progressBar) {
@@ -277,6 +271,70 @@ createAstroMount(ROOT_SELECTOR, () => {
       }, 600);
     }
   };
+
+  const showBootError = (message: string) => {
+    if (loaderText) loaderText.textContent = message;
+    updateLoadProgress(100);
+
+    // Create an overlay inside the root (matches director's overlay style enough).
+    let overlay = root.querySelector<HTMLElement>('.tower3d-error-overlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.className = 'tower3d-error-overlay';
+      overlay.style.cssText =
+        'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(2,4,10,0.92);color:#e5e7eb;z-index:9999;text-align:center;';
+      root.appendChild(overlay);
+    }
+
+    overlay.innerHTML = `
+      <div style="max-width:560px">
+        <div style="font-weight:700;font-size:18px;margin-bottom:8px">3D Gallery failed to start</div>
+        <div style="opacity:0.85;font-size:14px;line-height:1.5;margin-bottom:16px">${message}</div>
+        <button data-gallery-reload style="cursor:pointer;border:1px solid rgba(255,255,255,0.18);background:rgba(255,255,255,0.06);color:#fff;padding:10px 14px;border-radius:10px;backdrop-filter:blur(10px)">Reload</button>
+      </div>
+    `;
+
+    const reloadBtn = overlay.querySelector<HTMLButtonElement>(
+      '[data-gallery-reload]'
+    );
+    const onReload = () => window.location.reload();
+    reloadBtn?.addEventListener('click', onReload);
+    addGalleryCleanup(() => reloadBtn?.removeEventListener('click', onReload));
+
+    // Stop showing the loader after a short beat so the UI isn't stuck.
+    if (loaderHideTimeout) clearTimeout(loaderHideTimeout);
+    loaderHideTimeout = setTimeout(hideLoader, 250);
+  };
+
+  const caps = getTowerCaps();
+  galleryCaps = caps;
+  if (!caps.webgl) {
+    showBootError('WebGL is unavailable in this browser/device.');
+    return {
+      destroy: () => {
+        runGalleryCleanups();
+        if (loaderHideTimeout) clearTimeout(loaderHideTimeout);
+        if (loaderRemoveTimeout) clearTimeout(loaderRemoveTimeout);
+      },
+    };
+  }
+
+  // Create director with gallery mode enabled
+  let director: SceneDirector;
+  try {
+    director = new SceneDirector(root, canvas, caps, { galleryMode: true });
+  } catch (e) {
+    console.error('[Gallery] SceneDirector init failed', e);
+    showBootError('WebGL initialization failed. Try reloading the page.');
+    return {
+      destroy: () => {
+        runGalleryCleanups();
+        if (loaderHideTimeout) clearTimeout(loaderHideTimeout);
+        if (loaderRemoveTimeout) clearTimeout(loaderRemoveTimeout);
+      },
+    };
+  }
+  state.director = director;
 
   // Simulate loading progress (real progress would come from asset loading)
   let loadProgress = 0;
