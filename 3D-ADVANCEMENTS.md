@@ -34,5 +34,7 @@
 
 ## 🚀 Next Steps
 
-- **Performance Tuning**: Monitor FPS with the new physics loop on lower-end devices.
-- **Expansion**: Apply physical interactions to the "Orbital Rings" or other scenes if desired.
+- **Adaptive Quality (tiered)**: Explicitly tune per-tier budgets (DPR caps, RT resolution, particle/instance counts, post FX toggles).
+- **Tasteful Post Discipline**: Keep a default “clean” grade, then opt-in heavier looks per chapter (bloom/DOF/trails) rather than globally.
+- **Accessibility**: Reduce-motion should shorten transitions and disable trails/afterimage while keeping the chapter identity intact.
+- **Memory + Cleanup Audits**: Confirm disposal of geometries/materials/textures/render targets on switches and unmount.

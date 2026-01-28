@@ -58,7 +58,7 @@ test.describe('Interactivity Features', () => {
     test('services quiz should recommend a starting point', async ({
       page,
     }) => {
-      await page.goto('home/');
+      await page.goto('services/');
 
       const quizHeading = page.getByRole('heading', {
         name: /60-second services quiz/i,
@@ -125,15 +125,18 @@ test.describe('Interactivity Features', () => {
         .first();
 
       await calculator.scrollIntoViewIfNeeded();
-      await page.waitForTimeout(350);
+      await expect(calculator.locator('[data-hydrated="true"]')).toBeVisible({
+        timeout: 10000,
+      });
 
       const totalValue = calculator.locator('p.text-4xl').first();
-      const before = (await totalValue.textContent())?.trim() ?? '';
-      expect(before).not.toEqual('');
 
-      // Pick a tier that differs from the default so the value must change.
-      await calculator.getByRole('button', { name: 'PLATINUM' }).click();
-      await expect(totalValue).not.toHaveText(before, { timeout: 10000 });
+      // Default is SILVER at 25 users => 25 * 150 = $3,750
+      await expect(totalValue).toHaveText('$3,750');
+
+      // Switch tier and assert deterministic total.
+      await calculator.getByRole('button', { name: /^PLATINUM$/ }).click();
+      await expect(totalValue).toHaveText('$6,250', { timeout: 10000 });
     });
 
     test('ROI calculator should compute savings and payback', async ({
@@ -153,8 +156,9 @@ test.describe('Interactivity Features', () => {
 
       await roi.scrollIntoViewIfNeeded();
 
-      // Give the client:visible island time to hydrate after it becomes visible.
-      await page.waitForTimeout(350);
+      await expect(roi.locator('[data-hydrated="true"]')).toBeVisible({
+        timeout: 10000,
+      });
 
       await roi.getByLabel(/current it cost/i).fill('10000');
       await roi.getByLabel(/estimated savings/i).fill('25');

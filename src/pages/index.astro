@@ -7,6 +7,7 @@ import PlaybookSection from '../components/landing/PlaybookSection.astro';
 import EngagementSection from '../components/landing/EngagementSection.astro';
 import TestimonialsSection from '../components/landing/TestimonialsSection.astro';
 import DemoCtaSection from '../components/landing/DemoCtaSection.astro';
+import ContactForm from '../components/ContactForm.astro';
 import Footer from '../components/Footer.astro';
 ---
 
@@ -15,7 +16,10 @@ import Footer from '../components/Footer.astro';
   description="A comprehensive demo of Astro, Three.js, and modern web technologies."
 >
   <main class="overflow-x-hidden">
-    <HeroSection />
+    <HeroSection
+      headline="Neural Constellation, in your hero."
+      subheading="A real chapter from the 3D gallery (Scene 11) running behind the homepage: responsive framing, safe cleanup on navigation, and quality fallbacks for reduced motion / low-tier devices."
+    />
 
     <div class="space-y-24 py-24">
       <ControlStackSection />
@@ -24,6 +28,14 @@ import Footer from '../components/Footer.astro';
       <EngagementSection />
       <TestimonialsSection />
       <DemoCtaSection />
+
+      <div id="consultation" class="border-t border-white/5 pt-20">
+        <ContactForm
+          title="Free consultation"
+          subtitle="Tell us what you’re building and what constraints you’re under — we’ll reply with a practical next step."
+          showContactInfo={false}
+        />
+      </div>
     </div>
   </main>
   <Footer />

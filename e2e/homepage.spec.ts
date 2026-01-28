@@ -3,26 +3,58 @@ import { test, expect } from '@playwright/test';
 test.describe('Homepage', () => {
   test('should load successfully', async ({ page }) => {
     await page.goto('./');
-    await expect(page).toHaveTitle(/Landing/i);
+    await expect(page).toHaveTitle(/Astro Demo 2026/i);
   });
 
   test('should display hero section', async ({ page }) => {
     await page.goto('./');
-    await expect(page.locator('.hero-explorer')).toBeVisible();
-    await expect(page.locator('.hero-explorer canvas')).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible();
+    await expect(page.locator('[data-hero-canvas]')).toBeVisible();
   });
 
   test('should have working navigation', async ({ page, isMobile }) => {
     await page.goto('./');
 
-    // The portal landing is intentionally isolated (no site header/nav).
-    // Validate the primary controls that let a user enter the main site.
-    await expect(page.getByRole('link', { name: /enter site/i })).toBeVisible();
+    const headerNav = page.getByRole('navigation', {
+      name: /main navigation/i,
+    });
+    await expect(headerNav).toBeVisible();
 
-    // On mobile we keep the same behavior.
+    const openMobileMenuIfNeeded = async () => {
+      if (!isMobile) return null;
+      const menuButton = page.locator('#mobile-menu-button');
+      await expect(menuButton).toBeVisible();
+      await menuButton.click();
+
+      const mobileMenu = page.locator('#mobile-menu');
+      await expect(mobileMenu).toBeVisible();
+      return mobileMenu;
+    };
+
+    // Spot-check primary links exist on desktop and mobile.
     if (isMobile) {
+      const mobileMenu = await openMobileMenuIfNeeded();
       await expect(
-        page.getByRole('link', { name: /enter site/i })
+        mobileMenu!.getByRole('link', { name: /^services$/i })
+      ).toBeVisible();
+      await expect(
+        mobileMenu!.getByRole('link', { name: /^pricing$/i })
+      ).toBeVisible();
+      await expect(
+        mobileMenu!.getByRole('link', { name: /^about$/i })
+      ).toBeVisible();
+      await expect(
+        mobileMenu!.getByRole('link', { name: /^home$/i })
+      ).toBeVisible();
+    } else {
+      await expect(
+        headerNav.getByRole('link', { name: /^services$/i })
+      ).toBeVisible();
+      await expect(
+        headerNav.getByRole('link', { name: /^pricing$/i })
+      ).toBeVisible();
+      await expect(
+        headerNav.getByRole('link', { name: /^about$/i })
       ).toBeVisible();
     }
   });
@@ -33,12 +65,6 @@ test.describe('Homepage', () => {
     if (isMobile) {
       test.skip();
     }
-
-    // Enter the classic marketing site, then validate header navigation.
-    await Promise.all([
-      page.waitForURL(/.*\/services\/?$/, { timeout: 15000 }),
-      page.getByRole('link', { name: /enter site/i }).click(),
-    ]);
 
     const headerNav = page.getByRole('navigation', {
       name: /main navigation/i,

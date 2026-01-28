@@ -1,0 +1,12 @@
+---
+interface Props {
+  className?: string;
+}
+
+import HeroCanvas from './HeroCanvas.astro';
+
+const { className = '' } = Astro.props;
+---
+
+<!-- Legacy alias: keep this component, but route to the new safe HeroCanvas. -->
+<HeroCanvas className={className} />

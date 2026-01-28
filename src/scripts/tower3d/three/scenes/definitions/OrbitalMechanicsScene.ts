@@ -319,7 +319,6 @@ export class OrbitalMechanicsScene extends SceneBase {
 
     const aOffset = new Float32Array(this.count * 3);
     const aSpeed = new Float32Array(this.count);
-    const aRotation = new Float32Array(this.count * 3); // unused in simple shader but kept for structure
 
     // Init positions data
     for (let i = 0; i < this.count; i++) {

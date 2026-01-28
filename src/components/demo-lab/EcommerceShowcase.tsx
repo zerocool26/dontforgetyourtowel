@@ -2061,7 +2061,10 @@ export default function EcommerceShowcase() {
                         </div>
 
                         <div class="grid gap-2 rounded-xl border border-white/10 bg-black/40 p-3 text-sm text-zinc-200">
-                          <label class="flex items-center justify-between gap-3">
+                          <label
+                            class="flex items-center justify-between gap-3"
+                            htmlFor="demo-ecom-gift-wrap"
+                          >
                             <span>
                               Gift wrap
                               <span class="ml-2 text-xs text-zinc-500">
@@ -2069,6 +2072,7 @@ export default function EcommerceShowcase() {
                               </span>
                             </span>
                             <input
+                              id="demo-ecom-gift-wrap"
                               type="checkbox"
                               checked={giftWrap}
                               onChange={e =>
@@ -2076,11 +2080,13 @@ export default function EcommerceShowcase() {
                                   (e.currentTarget as HTMLInputElement).checked
                                 )
                               }
-                              aria-label="Add gift wrap"
                               class="h-5 w-5 accent-accent-400"
                             />
                           </label>
-                          <label class="flex items-center justify-between gap-3">
+                          <label
+                            class="flex items-center justify-between gap-3"
+                            htmlFor="demo-ecom-package-protection"
+                          >
                             <span>
                               Package protection
                               <span class="ml-2 text-xs text-zinc-500">
@@ -2088,6 +2094,7 @@ export default function EcommerceShowcase() {
                               </span>
                             </span>
                             <input
+                              id="demo-ecom-package-protection"
                               type="checkbox"
                               checked={shippingProtection}
                               onChange={e =>
@@ -2095,7 +2102,6 @@ export default function EcommerceShowcase() {
                                   (e.currentTarget as HTMLInputElement).checked
                                 )
                               }
-                              aria-label="Add package protection"
                               class="h-5 w-5 accent-accent-400"
                             />
                           </label>

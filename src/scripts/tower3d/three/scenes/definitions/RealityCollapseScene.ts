@@ -16,7 +16,6 @@ export class RealityCollapseScene extends SceneBase {
 
     // A giant sphere that is shattered
     // 1. Solid shards
-    const gGeom = new THREE.IcosahedronGeometry(4, 2);
     // Break into individual triangles?
     // InstancedMesh of triangles is efficient.
 

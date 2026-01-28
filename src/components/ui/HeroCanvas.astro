@@ -1,0 +1,69 @@
+---
+import type { HeroSceneVariant } from '../../scripts/createHeroScene';
+
+interface Props {
+  className?: string;
+  variant?: HeroSceneVariant;
+}
+
+const { className = '', variant = 'auto' } = Astro.props;
+---
+
+<div
+  class={`absolute inset-0 -z-10 overflow-hidden ${className}`}
+  data-hero-variant={variant}
+>
+  <canvas
+    data-hero-canvas
+    class="block h-full w-full touch-none select-none outline-none"></canvas>
+</div>
+
+<script>
+  import { createHeroScene } from '../../scripts/createHeroScene';
+
+  const scriptEl = document.currentScript as HTMLScriptElement | null;
+  const root = scriptEl?.previousElementSibling as HTMLElement | null;
+  const canvas = root?.querySelector(
+    '[data-hero-canvas]'
+  ) as HTMLCanvasElement | null;
+
+  if (!canvas) {
+    // Nothing to mount.
+  } else {
+    // Prevent double-mounts (can happen with view transitions / replays)
+    const existing = (canvas as unknown as { __heroCleanup?: () => void })
+      .__heroCleanup;
+    if (existing) existing();
+
+    const variant = (root?.dataset.heroVariant || 'auto') as
+      | 'auto'
+      | 'neural'
+      | 'city'
+      | 'storm'
+      | 'aurora';
+
+    const cleanup = createHeroScene(canvas, { variant });
+    (canvas as unknown as { __heroCleanup?: () => void }).__heroCleanup =
+      cleanup;
+
+    const handleBeforeSwap = () => {
+      cleanup();
+      document.removeEventListener('astro:before-swap', handleBeforeSwap);
+    };
+
+    // Cleanup on page navigation (Astro View Transitions)
+    document.addEventListener('astro:before-swap', handleBeforeSwap);
+  }
+</script>
+
+<style>
+  /* Optional overlay gradient to ensure text readability */
+  .hero-overlay {
+    background: radial-gradient(
+      circle at center,
+      transparent 0%,
+      rgba(0, 0, 0, 0.4) 100%
+    );
+    pointer-events: none;
+  }
+</style>

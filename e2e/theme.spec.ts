@@ -10,7 +10,7 @@ test.describe('Theme Toggle', () => {
     }
 
     // Theme toggle lives in the site header.
-    await page.goto('home/');
+    await page.goto('./');
 
     const themeToggle = page.locator('#theme-toggle').first();
     await expect(themeToggle).toBeVisible();
@@ -37,7 +37,7 @@ test.describe('Theme Toggle', () => {
     }
 
     // Theme toggle lives in the site header.
-    await page.goto('home/');
+    await page.goto('./');
 
     // Set theme
     const themeToggle = page.locator('#theme-toggle').first();

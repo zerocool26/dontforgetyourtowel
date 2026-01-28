@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'preact/hooks';
+import { useEffect, useMemo, useState } from 'preact/hooks';
 import { withBasePath } from '../../utils/helpers';
 
 type Tier = 'bronze' | 'silver' | 'gold' | 'platinum';
@@ -19,9 +19,14 @@ const ADD_ONS = [
 type AddOnId = (typeof ADD_ONS)[number]['id'];
 
 export default function PricingCalculator() {
+  const [hydrated, setHydrated] = useState(false);
   const [users, setUsers] = useState(25);
   const [tier, setTier] = useState<Tier>('silver');
   const [addons, setAddons] = useState<Set<AddOnId>>(new Set());
+
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
 
   const usersId = 'pricing-users';
 
@@ -35,7 +40,10 @@ export default function PricingCalculator() {
   const total = base + addOnTotal;
 
   return (
-    <section class="rounded-2xl border border-white/10 bg-white/5 p-6">
+    <section
+      class="rounded-2xl border border-white/10 bg-white/5 p-6"
+      data-hydrated={hydrated ? 'true' : 'false'}
+    >
       <h3 class="text-xl font-semibold text-white">Pricing calculator</h3>
       <p class="mt-2 text-sm text-zinc-300">
         Estimate monthly spend for managed services. Final quotes vary by device

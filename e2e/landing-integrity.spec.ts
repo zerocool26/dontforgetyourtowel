@@ -2,14 +2,15 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Landing Page Integrity', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('home/');
+    await page.goto('./');
   });
 
   test('should display the primary service chip', async ({ page }) => {
     await expect(
-      page
-        .locator('#main-content')
-        .getByText(/Managed Services • Security • Cloud • AI/i)
+      page.locator('#main-content').getByText(/Chapter 11/i)
+    ).toBeVisible();
+    await expect(
+      page.locator('#main-content').getByText(/High-trust static ops/i)
     ).toBeVisible();
   });
 
@@ -29,14 +30,16 @@ test.describe('Landing Page Integrity', () => {
 
     // Compare the hero heading to the first trust badge to ensure stacking.
     const heroHeading = page.getByRole('heading', { level: 1 }).first();
-    const trustBadge = page.getByText('SOC 2 aligned').first();
+    const firstSignal = page
+      .getByText(/Executive-ready readouts without live dashboards/i)
+      .first();
 
     const heroBox = await heroHeading.boundingBox();
-    const trustBox = await trustBadge.boundingBox();
+    const signalBox = await firstSignal.boundingBox();
 
-    if (heroBox && trustBox) {
+    if (heroBox && signalBox) {
       // In a stacked layout, the hero section should be above the signal grid
-      expect(heroBox.y + heroBox.height).toBeLessThanOrEqual(trustBox.y + 200); // Allow some margin/gap
+      expect(heroBox.y + heroBox.height).toBeLessThanOrEqual(signalBox.y + 200); // Allow some margin/gap
 
       // They should have similar widths (taking up full width)
       // expect(heroBox.width).toBeCloseTo(signalBox.width, -1);

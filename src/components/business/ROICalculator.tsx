@@ -1,10 +1,15 @@
-import { useMemo, useState } from 'preact/hooks';
+import { useEffect, useMemo, useState } from 'preact/hooks';
 import { withBasePath } from '../../utils/helpers';
 
 export default function ROICalculator() {
+  const [hydrated, setHydrated] = useState(false);
   const [currentMonthlyCost, setCurrentMonthlyCost] = useState(12000);
   const [estimatedSavingsPct, setEstimatedSavingsPct] = useState(20);
   const [oneTimeTransitionCost, setOneTimeTransitionCost] = useState(10000);
+
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
 
   const currentMonthlyCostId = 'roi-current-monthly-cost';
   const estimatedSavingsPctId = 'roi-estimated-savings-pct';
@@ -20,7 +25,10 @@ export default function ROICalculator() {
   }, [oneTimeTransitionCost, savingsMonthly]);
 
   return (
-    <section class="rounded-2xl border border-white/10 bg-white/5 p-6">
+    <section
+      class="rounded-2xl border border-white/10 bg-white/5 p-6"
+      data-hydrated={hydrated ? 'true' : 'false'}
+    >
       <h3 class="text-xl font-semibold text-white">ROI calculator</h3>
       <p class="mt-2 text-sm text-zinc-300">
         A simple planning tool. We’ll validate assumptions during discovery.

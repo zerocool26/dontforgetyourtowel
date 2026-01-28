@@ -1,33 +1,36 @@
-# High-Level 3D Advancements Roadmap
+# High-Level 3D Advancement Notes (2026)
 
-## 1. Post-Processing Stack (The "Wow" Factor)
+This file stays intentionally high level: it captures the best “next steps” without over-scoping.
 
-Currently, scenes are rendered raw. To push into "wow territory", we need a global post-processing pipeline.
+## What’s Already Here (Baseline)
 
-- **Unreal Bloom**: High quality glow for neon cities, fireflies, and data streams.
-- **Chromatic Aberration**: Adds cinematic lens imperfections, essential for "glitch" and "entropy" scenes.
-- **Depth of Field (Bokeh)**: Cinematic focus pulling (e.g., focus on the foreground firefly while the background blurs).
-- **Film Grain**: Subtle texture to remove the "clean CGI" look.
+- **Post pipeline**: Composer-based output with bloom/DOF/AA and a consistent tone-mapped look.
+- **PBR environment**: Shared environment lighting for coherent reflections.
+- **Interactive inputs**: Pointer/press/scroll velocity are part of the runtime model.
+- **Instancing-first scenes**: Most chapters are GPU-friendly by default.
 
-## 2. Advanced Material Systems
+## Next Best Ideas (High Value, Low Drama)
 
-- **Matcap/PBR Enhancements**: Use HDRI environment maps for realistic reflections in "Liquid Metal" and "Glass" scenes.
-- **Transmission Shaders**: Real-time refraction for crystals and glass shards (simulated via offscreen render targets for performance).
-- **Volumetrics**: Fake volumetric rays (God Rays) using radial blur or raymarching for the "Aurora" and "Abyss" scenes.
+### 1) Adaptive Quality Ladder
 
-## 3. Interactive Physics
+- Per-tier budgets for: DPR caps, RT resolution, max instance counts, and optional post passes.
+- Default to “clean” on mobile/coarse pointer; let high-tier devices earn the extra gloss.
 
-- **Rapier/Main Thread Physics**: Integrate a lightweight physics engine so when you scroll or touch, objects don't just move away, they _collide_ and tumble.
-- **Fluid Simulation**: For "Liquid Metal", replace vertex noise with a localized GPGPU fluid calculation.
+### 2) Chapter Identity Discipline
 
-## 4. Audio-Reactive Elements
+- Treat each chapter like a poster: one strong silhouette + one signature effect.
+- Avoid stacking bloom + DOF + trails everywhere; save them for moments.
 
-- **FFT Analysis**: Hook up a microphone or music track. Make the "Visualizer", "Cyber City", and "Pulse" scenes react to bass/treble.
+### 3) Transitions That Feel Designed
 
-## 5. Performance Optimization (GPU Instancing)
+- Prefer 1–2 art-directed masks (portal iris / liquid wipe) over many random variants.
+- Reduced-motion path: short crossfade or near-cut, keeping readability and comfort.
 
-- **GPGPU Particles**: Move particle position updates from CPU (current loop) to GPU (Compute Shaders or Texture Transform Feedback). This allows shifting from 40k particles to 1,000,000+ particles for the "Aurora" and "Fireflies".
+### 4) Performance Hygiene
 
-## 6. Transitions
+- Strict disposal of geometries/materials/textures/RTs on switches.
+- Hard guardrails for particle counts and dynamic buffers.
 
-- **Morph Targets**: Instead of fading out scene A and fading in scene B, _morph_ the particles of scene A into the shape of scene B.
+### 5) Optional Audio Reactivity (Subtle)
+
+- If enabled, map **low/mid/high** to small parameter nudges (intensity, emission, turbulence) rather than full-on “music visualizer” behavior.

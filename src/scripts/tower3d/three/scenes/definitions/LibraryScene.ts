@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import { SceneBase } from './SceneBase';
 import type { SceneRuntime } from './types';
-import { damp } from './SceneUtils';
 
 export class LibraryScene extends SceneBase {
   private books: THREE.InstancedMesh;
