@@ -155,7 +155,23 @@ self.addEventListener('fetch', event => {
     return;
   }
 
+  const url = new URL(request.url);
+  const pathname = url.pathname;
+
   const isNavigationRequest = request.mode === 'navigate';
+  const isAstroBundleAsset = pathname.includes('/_astro/');
+
+  // Avoid SW-caching navigations or hashed bundle assets.
+  // These are the most common sources of “stale HTML -> missing hashed JS” after deploy.
+  const shouldCache =
+    !isNavigationRequest &&
+    !isAstroBundleAsset &&
+    request.destination !== 'script' &&
+    request.destination !== 'style' &&
+    !pathname.endsWith('.js') &&
+    !pathname.endsWith('.css') &&
+    !pathname.endsWith('.map');
+
   // For navigations, bypass the HTTP cache to reduce “stale HTML -> missing hashed asset” issues.
   const networkRequest = isNavigationRequest
     ? new Request(request, { cache: 'reload' })
@@ -166,10 +182,12 @@ self.addEventListener('fetch', event => {
       .then(async response => {
         // Cache successful responses
         if (response && response.status === 200) {
-          const responseClone = response.clone();
-          caches.open(CACHE_NAME).then(cache => {
-            cache.put(request, responseClone);
-          });
+          if (shouldCache) {
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME).then(cache => {
+              cache.put(request, responseClone);
+            });
+          }
           return response;
         }
 

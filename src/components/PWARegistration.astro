@@ -7,7 +7,10 @@ import pkg from '../../package.json' assert { type: 'json' };
 import { withBasePath } from '../utils/helpers';
 import ModernButton from './ui/ModernButton.astro';
 
-const SW_VERSION = pkg.version || '0.0.0';
+// IMPORTANT: Tie the service worker URL to the build output so deployments
+// cannot get stuck on stale cached HTML/JS bundles.
+// (Astro executes this at build time for static output.)
+const SW_VERSION = `${pkg.version || '0.0.0'}-${Math.floor(Date.now() / 1000)}`;
 const swPath = withBasePath(`sw.js?v=${SW_VERSION}`);
 const swScope = withBasePath('');
 ---

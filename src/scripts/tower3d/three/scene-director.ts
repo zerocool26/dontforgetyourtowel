@@ -17,6 +17,19 @@ import type { SceneRuntime, TowerScene } from './scenes';
 
 type Cleanup = () => void;
 
+type AudioControllerLike = Pick<
+  AudioController,
+  'level' | 'bass' | 'high' | 'toggle' | 'update'
+>;
+type GpgpuLike = Pick<
+  GlobalParticleSystem,
+  'group' | 'attractor' | 'setAudioLevel' | 'update' | 'dispose'
+> & {
+  mode: ParticleMode;
+  color: THREE.Color;
+  speed: number;
+};
+
 export interface DirectorOptions {
   galleryMode?: boolean;
 }
@@ -53,14 +66,16 @@ export class SceneDirector {
   public manualPress = 0;
 
   // Audio
-  public audio: AudioController;
+  public audio: AudioControllerLike;
 
   // Universal Particle System
-  private gpgpu: GlobalParticleSystem;
+  private gpgpu: GpgpuLike;
 
-  private pmremGenerator: THREE.PMREMGenerator;
-  private environmentTexture: THREE.Texture;
+  private pmremGenerator: THREE.PMREMGenerator | null = null;
+  private environmentTexture: THREE.Texture | null = null;
   private renderTarget: THREE.WebGLRenderTarget;
+
+  private supportsDepthTexture = false;
 
   // Wrapper Scene for PBR Environment
   private mainScene: THREE.Scene;
@@ -256,13 +271,58 @@ export class SceneDirector {
       throw e;
     }
 
+    // Depth textures are not universally supported (notably in some WebGL1/headless contexts).
+    // Only request them when supported; otherwise, disable depth-based effects (bokeh).
+    try {
+      this.supportsDepthTexture =
+        this.renderer.capabilities.isWebGL2 ||
+        Boolean(this.renderer.extensions.get('WEBGL_depth_texture'));
+    } catch {
+      this.supportsDepthTexture = false;
+    }
+
     // Init Audio (Attach to dummy camera initially)
-    this.audio = new AudioController(new THREE.Camera());
+    try {
+      this.audio = new AudioController(new THREE.Camera());
+    } catch (e) {
+      this.reportError('Audio Init', e);
+      this.audio = {
+        level: 0,
+        bass: 0,
+        high: 0,
+        toggle: () => {
+          // noop
+        },
+        update: (_dt: number) => {
+          // noop
+        },
+      };
+    }
 
     // Init GPGPU System
-    this.gpgpu = new GlobalParticleSystem(this.renderer, {
-      maxParticles: this.caps.maxParticles,
-    });
+    try {
+      this.gpgpu = new GlobalParticleSystem(this.renderer, {
+        maxParticles: this.caps.maxParticles,
+      });
+    } catch (e) {
+      this.reportError('GPGPU Init', e);
+      this.gpgpu = {
+        group: new THREE.Group(),
+        attractor: new THREE.Vector3(),
+        mode: ParticleMode.IDLE,
+        color: new THREE.Color(0xffffff),
+        speed: 0,
+        setAudioLevel: (_level: number) => {
+          // noop
+        },
+        update: (_time: number, _dt: number) => {
+          // noop
+        },
+        dispose: () => {
+          // noop
+        },
+      };
+    }
     // Add to a dedicated "ForePass" scene or just overlay it.
     // Since we use a single RenderPass, we should probably add the GPGPU group to EACH scene or managing it centrally.
     // Cleaner approach: The GPGPU group exists outside scenes but is rendered by the same camera.
@@ -270,18 +330,26 @@ export class SceneDirector {
     // Trick: We will inject the GPGPU group into the *Active Scene* group when switching.
 
     // --- Post Processing Stack (EffectComposer) ---
-    // 2026 Upgrade: Depth texture required for Bokeh
-    this.renderTarget = new THREE.WebGLRenderTarget(
-      window.innerWidth * this.size.dpr,
-      window.innerHeight * this.size.dpr,
-      {
-        depthTexture: new THREE.DepthTexture(
-          window.innerWidth,
-          window.innerHeight
-        ),
-        depthBuffer: true,
-      }
-    );
+    // Depth texture is optional and can crash on unsupported contexts.
+    this.renderTarget = this.supportsDepthTexture
+      ? new THREE.WebGLRenderTarget(
+          window.innerWidth * this.size.dpr,
+          window.innerHeight * this.size.dpr,
+          {
+            depthTexture: new THREE.DepthTexture(
+              window.innerWidth,
+              window.innerHeight
+            ),
+            depthBuffer: true,
+          }
+        )
+      : new THREE.WebGLRenderTarget(
+          window.innerWidth * this.size.dpr,
+          window.innerHeight * this.size.dpr,
+          {
+            depthBuffer: true,
+          }
+        );
     this.composer = new EffectComposer(this.renderer, this.renderTarget);
 
     // 1. Render Pass: Renders the active 3D scene
@@ -289,14 +357,21 @@ export class SceneDirector {
     // Create a persistent Scene container to hold the Environment Map
     this.mainScene = new THREE.Scene();
 
-    // Generate High-Quality PBR Environment
-    this.pmremGenerator = new THREE.PMREMGenerator(this.renderer);
-    this.pmremGenerator.compileEquirectangularShader();
-    this.environmentTexture = this.pmremGenerator.fromScene(
-      new RoomEnvironment(),
-      0.04
-    ).texture;
-    this.mainScene.environment = this.environmentTexture;
+    // Generate High-Quality PBR Environment (optional; can fail on some headless/old GPUs)
+    try {
+      this.pmremGenerator = new THREE.PMREMGenerator(this.renderer);
+      this.pmremGenerator.compileEquirectangularShader();
+      this.environmentTexture = this.pmremGenerator.fromScene(
+        new RoomEnvironment(),
+        0.04
+      ).texture;
+      this.mainScene.environment = this.environmentTexture;
+    } catch (e) {
+      this.reportError('PMREM Environment Init', e);
+      this.pmremGenerator = null;
+      this.environmentTexture = null;
+      this.mainScene.environment = null;
+    }
 
     // Initialized with empty scene/camera; updated per-frame in tick()
     this.renderPass = new RenderPass(this.mainScene, new THREE.Camera());
@@ -519,6 +594,7 @@ export class SceneDirector {
     // Depth-of-field is expensive; reserve for high-tier, non-touch, non-reduced-motion.
     this.bokehPass.enabled =
       postEnabled &&
+      this.supportsDepthTexture &&
       highTier &&
       !this.caps.coarsePointer &&
       !this.caps.reducedMotion;
@@ -554,14 +630,15 @@ export class SceneDirector {
     this.resizeObserver = new ResizeObserver(() => this.resize());
     this.resizeObserver.observe(this.root);
 
-    // UI
-    this.ui = new UIControls(this, this.root);
-
+    // Initialize scenes BEFORE UI so getSceneCount() works in UIControls constructor
     this.scenes = createScenes();
     this.sceneById = new Map(this.scenes.map(scene => [scene.id, scene]));
     const initialId = this.root.dataset.towerScene || this.root.dataset.scene;
     this.activeScene =
       (initialId && this.sceneById.get(initialId)) || this.scenes[0];
+
+    // UI (must be initialized after scenes are created)
+    this.ui = new UIControls(this, this.root);
 
     // Inject GPGPU
     this.activeScene.group.add(this.gpgpu.group);

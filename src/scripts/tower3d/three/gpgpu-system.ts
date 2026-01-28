@@ -118,6 +118,7 @@ export class GlobalParticleSystem {
     this.posVariable.material.uniforms['uTime'] = { value: 0 };
     this.velVariable.material.uniforms['uTime'] = { value: 0 };
     this.velVariable.material.uniforms['uMode'] = { value: 0 };
+    this.posVariable.material.uniforms['uMode'] = { value: 0 };
     this.velVariable.material.uniforms['uSpeed'] = { value: 1.0 };
     this.velVariable.material.uniforms['uAttractor'] = {
       value: new THREE.Vector3(),
