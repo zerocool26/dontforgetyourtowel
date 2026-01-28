@@ -1402,12 +1402,39 @@ const scenes = [
               The gallery boot module didn’t execute. This is usually caused by a script load/MIME/base-path issue.
               Open DevTools → Console/Network to see the failing request.
             </div>
-            <button data-gallery-reload style="cursor:pointer;border:1px solid rgba(255,255,255,0.18);background:rgba(255,255,255,0.06);color:#fff;padding:10px 14px;border-radius:10px;backdrop-filter:blur(10px)">Reload</button>
+            <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+              <button data-gallery-reload style="cursor:pointer;border:1px solid rgba(255,255,255,0.18);background:rgba(255,255,255,0.06);color:#fff;padding:10px 14px;border-radius:10px;backdrop-filter:blur(10px)">Reload</button>
+              <button data-gallery-reset-cache style="cursor:pointer;border:1px solid rgba(255,255,255,0.18);background:rgba(255,255,255,0.02);color:#fff;padding:10px 14px;border-radius:10px;backdrop-filter:blur(10px)">Reset offline cache</button>
+            </div>
           </div>
         `;
 
         const btn = overlay.querySelector('[data-gallery-reload]');
         if (btn) btn.addEventListener('click', () => window.location.reload());
+
+        const resetBtn = overlay.querySelector('[data-gallery-reset-cache]');
+        if (resetBtn)
+          resetBtn.addEventListener('click', async () => {
+            try {
+              if ('serviceWorker' in navigator) {
+                const regs = await navigator.serviceWorker.getRegistrations();
+                await Promise.all(regs.map(r => r.unregister()));
+              }
+
+              if ('caches' in window) {
+                const keys = await caches.keys();
+                await Promise.all(
+                  keys
+                    .filter(k => k.startsWith('github-pages-project-'))
+                    .map(k => caches.delete(k))
+                );
+              }
+            } catch {
+              // ignore
+            } finally {
+              window.location.reload();
+            }
+          });
       }, 4500);
     })();
   </script>

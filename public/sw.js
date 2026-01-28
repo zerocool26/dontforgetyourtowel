@@ -155,16 +155,29 @@ self.addEventListener('fetch', event => {
     return;
   }
 
+  const isNavigationRequest = request.mode === 'navigate';
+  // For navigations, bypass the HTTP cache to reduce “stale HTML -> missing hashed asset” issues.
+  const networkRequest = isNavigationRequest
+    ? new Request(request, { cache: 'reload' })
+    : request;
+
   event.respondWith(
-    fetch(request)
-      .then(response => {
+    fetch(networkRequest)
+      .then(async response => {
         // Cache successful responses
         if (response && response.status === 200) {
           const responseClone = response.clone();
           caches.open(CACHE_NAME).then(cache => {
             cache.put(request, responseClone);
           });
+          return response;
         }
+
+        // If the network returned a non-200 (e.g., 404 for an old hashed asset),
+        // try the cache before giving up.
+        const cachedResponse = await caches.match(request);
+        if (cachedResponse) return cachedResponse;
+
         return response;
       })
       .catch(() => {

@@ -3,6 +3,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { SceneBase } from './SceneBase';
 import type { SceneRuntime } from './types';
 import { damp } from './SceneUtils';
+import { withBasePath } from '../../../../../utils/url';
 
 /**
  * Scene 17: Cyber Porsche GT3 RS (High Fidelity)
@@ -19,7 +20,7 @@ export class PorscheScene extends SceneBase {
   private usingExternalModel = false;
   private modelRequested = false;
   private modelLoadToken = 0;
-  private readonly modelUrl = '/models/porsche-911-gt3rs.glb';
+  private readonly modelUrl = withBasePath('/models/porsche-911-gt3rs.glb');
 
   private contactShadow: THREE.Mesh | null = null;
   private externalWheels: Array<{

@@ -3,6 +3,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { SceneBase } from './SceneBase';
 import type { SceneRuntime } from './types';
 import { damp } from './SceneUtils';
+import { withBasePath } from '../../../../../utils/url';
 
 type MaterialMode = 'wrap' | 'wireframe' | 'glass';
 
@@ -76,7 +77,7 @@ const createContactShadowTexture = (size = 256): THREE.CanvasTexture => {
  * - /public/models/wrap-showroom.glb
  */
 export class WrapShowroomScene extends SceneBase {
-  private readonly modelUrl = '/models/wrap-showroom.glb';
+  private readonly modelUrl = withBasePath('/models/wrap-showroom.glb');
 
   private stage = new THREE.Group();
   private modelGroup = new THREE.Group();
