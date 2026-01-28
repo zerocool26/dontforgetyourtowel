@@ -235,8 +235,9 @@ export class UIControls {
     select.style.cssText =
       'background: #111; color: #fff; border: 1px solid #333; padding: 6px; font-family: inherit; font-size: 11px; width: 100%; border-radius: 2px;';
 
-    // We'll populate indices 0-16
-    for (let i = 0; i <= 16; i++) {
+    // Populate indices based on actual scene count
+    const maxIndex = Math.max(0, this.director.getSceneCount() - 1);
+    for (let i = 0; i <= maxIndex; i++) {
       const opt = document.createElement('option');
       opt.value = i.toString();
       // Describe them briefly if possible, but IDs are fine for now
@@ -251,7 +252,9 @@ export class UIControls {
 
     select.onchange = e => {
       const idx = parseInt((e.target as HTMLSelectElement).value);
-      this.director.scrollProgressTarget = idx;
+      const count = Math.max(1, this.director.getSceneCount());
+      const t = count <= 1 ? 0 : idx / (count - 1);
+      this.director.setProgress(t);
     };
 
     container.appendChild(label);

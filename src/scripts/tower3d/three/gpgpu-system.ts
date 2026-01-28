@@ -25,11 +25,16 @@ export enum ParticleMode {
   SNOW = 5,
 }
 
-const WIDTH = 512; // 512^2 = ~262k particles. (Use 1024 for 1M on Desktop)
+const clampInt = (v: number, min: number, max: number) =>
+  Math.min(max, Math.max(min, Math.round(v)));
 
 export class GlobalParticleSystem {
   public group: THREE.Group;
   private renderer: THREE.WebGLRenderer;
+
+  private width: number;
+  private height: number;
+
   private gpuCompute!: GPUComputationRenderer;
   private posTexture!: THREE.DataTexture;
   private velTexture!: THREE.DataTexture;
@@ -55,17 +60,31 @@ export class GlobalParticleSystem {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private _dummy: any; // prevent lint generic errors
 
-  constructor(renderer: THREE.WebGLRenderer) {
+  constructor(
+    renderer: THREE.WebGLRenderer,
+    options?: { maxParticles?: number }
+  ) {
     this.renderer = renderer;
     this.group = new THREE.Group();
     this.group.name = 'GlobalParticles';
+
+    // Match particle budget instead of hardcoding a huge grid.
+    // GPUComputationRenderer is fine with non power-of-two sizes.
+    const maxParticles = Math.max(1024, options?.maxParticles ?? 15000);
+    const side = Math.ceil(Math.sqrt(maxParticles));
+    this.width = clampInt(side, 32, 256);
+    this.height = this.width;
 
     this.initCompute();
     this.initMesh();
   }
 
   private initCompute() {
-    this.gpuCompute = new GPUComputationRenderer(WIDTH, WIDTH, this.renderer);
+    this.gpuCompute = new GPUComputationRenderer(
+      this.width,
+      this.height,
+      this.renderer
+    );
 
     if (this.renderer.capabilities.isWebGL2 === false) {
       this.gpuCompute.setDataType(THREE.HalfFloatType);
@@ -115,14 +134,15 @@ export class GlobalParticleSystem {
 
   private initMesh() {
     const geometry = new THREE.BufferGeometry();
-    const positions = new Float32Array(WIDTH * WIDTH * 3);
-    const uvs = new Float32Array(WIDTH * WIDTH * 2);
+    const count = this.width * this.height;
+    const positions = new Float32Array(count * 3);
+    const uvs = new Float32Array(count * 2);
 
     let p = 0;
-    for (let j = 0; j < WIDTH; j++) {
-      for (let i = 0; i < WIDTH; i++) {
-        uvs[p++] = i / (WIDTH - 1);
-        uvs[p++] = j / (WIDTH - 1);
+    for (let j = 0; j < this.height; j++) {
+      for (let i = 0; i < this.width; i++) {
+        uvs[p++] = i / Math.max(1, this.width - 1);
+        uvs[p++] = j / Math.max(1, this.height - 1);
       }
     }
 
@@ -185,6 +205,26 @@ export class GlobalParticleSystem {
     this.mesh.matrixAutoUpdate = false;
     this.mesh.updateMatrix();
     this.group.add(this.mesh);
+  }
+
+  public dispose(): void {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const anyGpu = this.gpuCompute as any;
+      anyGpu?.dispose?.();
+    } catch {
+      // ignore
+    }
+
+    try {
+      const geom = this.mesh?.geometry as THREE.BufferGeometry | undefined;
+      geom?.dispose?.();
+
+      const mat = this.mesh?.material as THREE.Material | undefined;
+      mat?.dispose?.();
+    } catch {
+      // ignore
+    }
   }
 
   private fillTextures(

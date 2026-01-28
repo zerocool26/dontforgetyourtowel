@@ -54,9 +54,36 @@ export abstract class SceneBase implements TowerScene {
   }
 
   dispose(): void {
-    // Basic cleanup traversal
+    const disposeMaterial = (material: THREE.Material) => {
+      // Dispose any textures attached to common material slots.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const anyMat = material as any;
+      for (const key of Object.keys(anyMat)) {
+        const value = anyMat[key];
+        if (value instanceof THREE.Texture) {
+          value.dispose();
+        }
+      }
+      material.dispose();
+    };
+
     this.group.traverse(obj => {
-      if ((obj as THREE.Mesh).geometry) (obj as THREE.Mesh).geometry.dispose();
+      // Geometry
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const anyObj = obj as any;
+      const geometry = anyObj.geometry as THREE.BufferGeometry | undefined;
+      geometry?.dispose?.();
+
+      // Materials (Mesh / Points / Line)
+      const material = anyObj.material as
+        | THREE.Material
+        | THREE.Material[]
+        | undefined;
+      if (Array.isArray(material)) {
+        material.forEach(m => disposeMaterial(m));
+      } else if (material) {
+        disposeMaterial(material);
+      }
     });
   }
 }

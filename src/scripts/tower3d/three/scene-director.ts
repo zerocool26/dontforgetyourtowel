@@ -27,6 +27,16 @@ const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 const damp = (current: number, target: number, lambda: number, dt: number) =>
   lerp(current, target, 1 - Math.exp(-lambda * dt));
 
+const signedPow = (v: number, p: number) => {
+  const s = v < 0 ? -1 : 1;
+  return s * Math.pow(Math.abs(v), p);
+};
+
+const smoothstep01 = (x: number) => {
+  const t = clamp(x, 0, 1);
+  return t * t * (3 - 2 * t);
+};
+
 export class SceneDirector {
   private root: HTMLElement;
   private canvas: HTMLCanvasElement;
@@ -48,6 +58,10 @@ export class SceneDirector {
   // Universal Particle System
   private gpgpu: GlobalParticleSystem;
 
+  private pmremGenerator: THREE.PMREMGenerator;
+  private environmentTexture: THREE.Texture;
+  private renderTarget: THREE.WebGLRenderTarget;
+
   // Wrapper Scene for PBR Environment
   private mainScene: THREE.Scene;
 
@@ -68,6 +82,112 @@ export class SceneDirector {
   private isVisible = true;
 
   private transitionType = 0; // 0: portal iris, 1: liquid wipe, 2: particle dissolve, 3: glitch cut
+
+  private lastAppliedLookSceneId: string | null = null;
+
+  private sceneEnterTime = 0;
+
+  // Per-scene look targets (applied on switch, then gently ramped in).
+  private lookBloomEnabled = true;
+  private lookBloomStrength = 0.6;
+  private lookBloomThreshold = 0.85;
+  private lookBloomRadius = 0.4;
+
+  private lookBokehEnabled = false;
+  private lookBokehAperture = 0.0001;
+  private lookBokehMaxblur = 0.01;
+
+  private lookTrailsEnabled = false;
+  private lookTrailsDamp = 0.0;
+
+  private lookVignette = 0.12;
+  private lookGrain = 0.04;
+  private lookChromatic = 0.003;
+
+  // Shaped interaction signals handed to scenes (avoids per-scene feel drift).
+  private runtimePointer = new THREE.Vector2();
+  private runtimePointerVelocity = new THREE.Vector2();
+  private runtimeGyro = new THREE.Vector3();
+  private runtimePress = 0;
+  private runtimeTap = 0;
+
+  private getSceneSettleDuration(sceneId: string): number {
+    // Baseline is intentionally short; this only smooths initial pops.
+    const base = this.caps.coarsePointer ? 0.45 : 0.6;
+
+    // Heavier/cinematic chapters get a touch more settle time.
+    let mult = 1.0;
+    switch (sceneId) {
+      case 'scene08': // Orbital Mechanics
+        mult = 1.06;
+        break;
+      case 'scene05': // Event Horizon
+      case 'scene12': // The Library
+        mult = 1.12;
+        break;
+      case 'scene15': // Digital Decay
+      case 'scene16': // Ethereal Storm
+        mult = 1.08;
+        break;
+      case 'scene17': // Porsche
+        mult = 1.05;
+        break;
+      case 'scene18': // Wrap Showroom
+        mult = 1.06;
+        break;
+      default:
+        mult = 1.0;
+        break;
+    }
+
+    // Keep low-tier devices snappy.
+    if (this.caps.performanceTier === 'low') {
+      mult *= 0.92;
+    }
+
+    return clamp(base * mult, 0.35, 0.85);
+  }
+
+  private getSceneSettle(time: number): number {
+    if (this.caps.reducedMotion) return 1;
+
+    // Keep this subtle and fast; just enough to remove harsh pops.
+    const duration = this.getSceneSettleDuration(this.activeScene?.id ?? '');
+    const t = (time - this.sceneEnterTime) / Math.max(0.0001, duration);
+    return smoothstep01(t);
+  }
+
+  private applyLookToPasses(settle: number): void {
+    // Ramp is intentionally conservative.
+    const k = 0.88 + 0.12 * settle;
+
+    // Bloom
+    this.bloomPass.enabled = this.lookBloomEnabled;
+    this.bloomPass.strength = this.lookBloomStrength * k;
+    this.bloomPass.threshold = this.lookBloomThreshold;
+    this.bloomPass.radius = this.lookBloomRadius;
+
+    // Bokeh
+    this.bokehPass.enabled = this.lookBokehEnabled;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (this.bokehPass.uniforms as any)['aperture'].value =
+      this.lookBokehAperture * (0.9 + 0.1 * settle);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (this.bokehPass.uniforms as any)['maxblur'].value =
+      this.lookBokehMaxblur * (0.9 + 0.1 * settle);
+
+    // Trails
+    this.afterimagePass.enabled = this.lookTrailsEnabled;
+    this.afterimagePass.uniforms['damp'].value = this.lookTrailsDamp * settle;
+
+    // Final composite
+    this.finalPass.uniforms.uVignette.value =
+      this.lookVignette * (0.92 + 0.08 * settle);
+    this.finalPass.uniforms.uGrain.value =
+      this.lookGrain * (0.9 + 0.1 * settle);
+    this.finalPass.uniforms.uChromatic.value =
+      this.lookChromatic * (0.9 + 0.1 * settle);
+  }
 
   private pointer = new THREE.Vector2();
   private pointerTarget = new THREE.Vector2();
@@ -140,7 +260,9 @@ export class SceneDirector {
     this.audio = new AudioController(new THREE.Camera());
 
     // Init GPGPU System
-    this.gpgpu = new GlobalParticleSystem(this.renderer);
+    this.gpgpu = new GlobalParticleSystem(this.renderer, {
+      maxParticles: this.caps.maxParticles,
+    });
     // Add to a dedicated "ForePass" scene or just overlay it.
     // Since we use a single RenderPass, we should probably add the GPGPU group to EACH scene or managing it centrally.
     // Cleaner approach: The GPGPU group exists outside scenes but is rendered by the same camera.
@@ -149,7 +271,7 @@ export class SceneDirector {
 
     // --- Post Processing Stack (EffectComposer) ---
     // 2026 Upgrade: Depth texture required for Bokeh
-    const renderTarget = new THREE.WebGLRenderTarget(
+    this.renderTarget = new THREE.WebGLRenderTarget(
       window.innerWidth * this.size.dpr,
       window.innerHeight * this.size.dpr,
       {
@@ -160,7 +282,7 @@ export class SceneDirector {
         depthBuffer: true,
       }
     );
-    this.composer = new EffectComposer(this.renderer, renderTarget);
+    this.composer = new EffectComposer(this.renderer, this.renderTarget);
 
     // 1. Render Pass: Renders the active 3D scene
 
@@ -168,12 +290,13 @@ export class SceneDirector {
     this.mainScene = new THREE.Scene();
 
     // Generate High-Quality PBR Environment
-    const pmremGenerator = new THREE.PMREMGenerator(this.renderer);
-    pmremGenerator.compileEquirectangularShader();
-    this.mainScene.environment = pmremGenerator.fromScene(
+    this.pmremGenerator = new THREE.PMREMGenerator(this.renderer);
+    this.pmremGenerator.compileEquirectangularShader();
+    this.environmentTexture = this.pmremGenerator.fromScene(
       new RoomEnvironment(),
       0.04
     ).texture;
+    this.mainScene.environment = this.environmentTexture;
 
     // Initialized with empty scene/camera; updated per-frame in tick()
     this.renderPass = new RenderPass(this.mainScene, new THREE.Camera());
@@ -389,6 +512,41 @@ export class SceneDirector {
     this.fxaaPass = new ShaderPass(FXAAShader);
     this.composer.addPass(this.fxaaPass);
 
+    // Performance / preference-based post settings
+    const postEnabled = this.caps.enablePostProcessing;
+    const highTier = this.caps.performanceTier === 'high';
+
+    // Depth-of-field is expensive; reserve for high-tier, non-touch, non-reduced-motion.
+    this.bokehPass.enabled =
+      postEnabled &&
+      highTier &&
+      !this.caps.coarsePointer &&
+      !this.caps.reducedMotion;
+
+    // Bloom is the primary "wow" pass; keep it for medium/high, but soften on mobile.
+    this.bloomPass.enabled = postEnabled;
+    if (this.caps.coarsePointer) {
+      this.bloomPass.strength *= 0.85;
+      this.bloomPass.radius *= 0.9;
+    }
+
+    // Trails can read as motion/blur; disable for reduced motion and low tier.
+    this.afterimagePass.enabled =
+      postEnabled && !this.caps.reducedMotion && highTier;
+
+    // FXAA is useful but still a pass; disable on low tier.
+    this.fxaaPass.enabled = postEnabled;
+
+    // Subtle grade defaults per tier.
+    this.finalPass.uniforms.uGrain.value = this.caps.coarsePointer
+      ? 0.035
+      : highTier
+        ? 0.045
+        : 0.04;
+    this.finalPass.uniforms.uChromatic.value = this.caps.coarsePointer
+      ? 0.0025
+      : 0.003;
+
     // Visibility Listener to pause rendering when tab is hidden
     document.addEventListener('visibilitychange', this.handleVisibility);
 
@@ -424,6 +582,9 @@ export class SceneDirector {
         this.reportError(`Scene Init (${scene.id})`, e);
       }
     });
+
+    // Apply initial per-chapter look tuning once.
+    this.applySceneLook(this.activeScene.id);
 
     this.root.dataset.towerScene = this.activeScene.id;
     this.root.dataset.towerRendered = '1';
@@ -477,14 +638,14 @@ export class SceneDirector {
       dt,
       progress: this.scrollProgress,
       localProgress: this.localProgress,
-      pointer: this.pointer,
-      pointerVelocity: this.pointerVelocity,
-      tap: this.tap,
-      press: clamp(Math.max(this.pressTime * 2.0, this.manualPress), 0, 1),
+      pointer: this.runtimePointer,
+      pointerVelocity: this.runtimePointerVelocity,
+      tap: this.runtimeTap,
+      press: this.runtimePress,
       scrollVelocity: this.scrollVelocity,
       sceneId: this.activeScene.id,
       sceneIndex: this.sceneIndex,
-      gyro: this.gyro,
+      gyro: this.runtimeGyro,
       gyroActive: this.gyroActive,
       bgTheme: 'dark',
       audio: {
@@ -494,6 +655,127 @@ export class SceneDirector {
         high: this.audio.high,
       },
     };
+  }
+
+  private getInteractionProfile(sceneId: string): {
+    pointerGamma: number;
+    pointerGain: number;
+    pointerVelGain: number;
+    pressGain: number;
+    tapGain: number;
+    gyroGain: number;
+  } {
+    const tier = this.caps.performanceTier;
+    const isLow = tier === 'low';
+    const isHigh = tier === 'high';
+
+    // Baseline: slightly eased pointer, moderate press.
+    let pointerGamma = this.caps.coarsePointer ? 1.06 : 1.15;
+    let pointerGain = this.caps.coarsePointer ? 0.95 : 1.0;
+    let pointerVelGain = isLow ? 0.75 : 1.0;
+    let pressGain = this.caps.reducedMotion ? 0.8 : 1.0;
+    let tapGain = this.caps.reducedMotion ? 0.7 : 1.0;
+    let gyroGain = this.caps.enableGyroscope ? 1.0 : 0.0;
+
+    // Scene-specific subtle personality (kept small and safe).
+    switch (sceneId) {
+      case 'scene05': // Event Horizon: calmer + heavier
+      case 'scene12': // Library: slower, steadier
+        pointerGamma += 0.06;
+        pointerGain *= 0.9;
+        pressGain *= 0.85;
+        tapGain *= 0.85;
+        gyroGain *= 0.8;
+        break;
+      case 'scene11': // Neural: responsive
+      case 'scene16': // Storm: energetic
+        pointerGamma -= 0.04;
+        pointerGain *= 1.05;
+        pressGain *= 1.1;
+        tapGain *= 1.05;
+        gyroGain *= 1.05;
+        break;
+      case 'scene14': // Metropolis: a touch more motion
+      case 'scene07': // Matrix
+        pointerGamma -= 0.02;
+        pressGain *= 1.05;
+        break;
+      case 'scene17': // Porsche: keep camera/lighting readable
+        pointerGain *= 0.9;
+        pressGain *= 0.9;
+        tapGain *= 0.9;
+        gyroGain *= 0.85;
+        break;
+      case 'scene18': // Wrap Showroom: tap cycles modes; keep stable
+        pointerGain *= 0.92;
+        pressGain *= 0.92;
+        tapGain *= 1.05;
+        gyroGain *= 0.85;
+        break;
+      default:
+        break;
+    }
+
+    // Global tier constraints
+    if (!isHigh) {
+      // Slightly lower motion on medium/low
+      pointerVelGain *= 0.9;
+    }
+    if (isLow) {
+      pressGain *= 0.9;
+      tapGain *= 0.9;
+      gyroGain *= 0.75;
+    }
+
+    return {
+      pointerGamma,
+      pointerGain,
+      pointerVelGain,
+      pressGain,
+      tapGain,
+      gyroGain,
+    };
+  }
+
+  private updateRuntimeInteraction(): void {
+    const profile = this.getInteractionProfile(this.activeScene.id);
+
+    const px = clamp(
+      signedPow(this.pointer.x, profile.pointerGamma) * profile.pointerGain,
+      -1,
+      1
+    );
+    const py = clamp(
+      signedPow(this.pointer.y, profile.pointerGamma) * profile.pointerGain,
+      -1,
+      1
+    );
+    this.runtimePointer.set(px, py);
+
+    this.runtimePointerVelocity
+      .copy(this.pointerVelocity)
+      .multiplyScalar(profile.pointerVelGain);
+
+    const basePress = clamp(
+      Math.max(this.pressTime * 2.0, this.manualPress),
+      0,
+      1
+    );
+    this.runtimePress = clamp(
+      smoothstep01(basePress) * profile.pressGain,
+      0,
+      1
+    );
+    this.runtimeTap = clamp(this.tap * profile.tapGain, 0, 1);
+
+    this.runtimeGyro.copy(this.gyro).multiplyScalar(profile.gyroGain);
+
+    // Gentle settle-in on scene switches.
+    const settle = this.getSceneSettle(this._simTime);
+    this.runtimePress *= settle;
+    this.runtimeTap *= settle;
+    this.runtimeGyro.multiplyScalar(settle);
+    this.runtimePointerVelocity.multiplyScalar(0.85 + 0.15 * settle);
   }
 
   private installInput(): void {
@@ -674,7 +956,14 @@ export class SceneDirector {
       const pos = this.scrollProgress * (count - 1);
       const idx = clamp(Math.round(pos), 0, count - 1);
       this.sceneIndex = idx;
-      this.localProgress = Math.abs(pos - idx);
+
+      // Normalized local progress within the current scene window.
+      // We switch scenes at midpoints (round), so define a +/- 0.5 range around idx.
+      // Edge scenes have half-width windows.
+      const start = idx <= 0 ? 0 : idx - 0.5;
+      const end = idx >= count - 1 ? count - 1 : idx + 0.5;
+      const span = Math.max(0.0001, end - start);
+      this.localProgress = clamp((pos - start) / span, 0, 1);
       return;
     }
 
@@ -791,6 +1080,251 @@ export class SceneDirector {
     }
   }
 
+  private applySceneLook(sceneId: string): void {
+    if (this.lastAppliedLookSceneId === sceneId) return;
+    this.lastAppliedLookSceneId = sceneId;
+
+    const postEnabled = this.caps.enablePostProcessing;
+    const tier = this.caps.performanceTier;
+    const highTier = tier === 'high';
+    const mediumTier = tier === 'medium';
+
+    // Baselines (kept close to existing defaults)
+    const base = {
+      bloom: {
+        enabled: postEnabled,
+        strength: this.caps.coarsePointer ? 0.5 : 0.6,
+        threshold: 0.85,
+        radius: 0.4,
+      },
+      bokeh: {
+        enabled:
+          postEnabled &&
+          highTier &&
+          !this.caps.coarsePointer &&
+          !this.caps.reducedMotion,
+        aperture: 0.0001,
+        maxblur: 0.01,
+      },
+      trails: {
+        enabled: postEnabled && !this.caps.reducedMotion && highTier,
+        damp: 0.0,
+      },
+      final: {
+        vignette: 0.12,
+        grain: this.caps.coarsePointer ? 0.035 : highTier ? 0.045 : 0.04,
+        chromatic: this.caps.coarsePointer ? 0.0025 : 0.003,
+      },
+      clear: 0x05070f,
+    };
+
+    // Scene-by-scene subtle tuning (tasteful, not noisy)
+    // Values are deliberately small deltas from the baseline.
+    const looks: Record<
+      string,
+      Partial<{
+        bloom: Partial<typeof base.bloom>;
+        bokeh: Partial<typeof base.bokeh>;
+        trails: Partial<typeof base.trails>;
+        final: Partial<typeof base.final>;
+        clear: number;
+      }>
+    > = {
+      scene00: {
+        bloom: { strength: 0.65, threshold: 0.84 },
+        final: { vignette: 0.11 },
+        clear: 0x07060a,
+      },
+      scene01: {
+        bloom: { strength: 0.62, threshold: 0.83 },
+        bokeh: { aperture: 0.00012 },
+        clear: 0x05060b,
+      },
+      scene02: {
+        bloom: { strength: 0.58, threshold: 0.86 },
+        final: { grain: this.caps.coarsePointer ? 0.03 : 0.04 },
+        clear: 0x04060c,
+      },
+      scene03: {
+        bloom: { strength: 0.6, radius: 0.42 },
+        final: { chromatic: 0.0032 },
+        clear: 0x04050a,
+      },
+      scene04: {
+        bloom: { strength: 0.62, radius: 0.45 },
+        final: { vignette: 0.1, grain: this.caps.coarsePointer ? 0.03 : 0.04 },
+        clear: 0x02040a,
+      },
+      scene05: {
+        // Event Horizon: keep it dark/readable; subtle DOF on high-tier.
+        bloom: { strength: 0.54, threshold: 0.885, radius: 0.38 },
+        bokeh: { aperture: 0.000115, maxblur: 0.011 },
+        final: { vignette: 0.15, chromatic: 0.0025, grain: 0.038 },
+        clear: 0x010108,
+      },
+      scene06: {
+        bloom: { strength: 0.62, threshold: 0.84 },
+        bokeh: { aperture: 0.00014 },
+        final: { chromatic: 0.0034 },
+        clear: 0x05030a,
+      },
+      scene07: {
+        bloom: { strength: 0.6, threshold: 0.86 },
+        final: { grain: this.caps.coarsePointer ? 0.032 : 0.05 },
+        clear: 0x020305,
+      },
+      scene08: {
+        // Orbital Mechanics: preserve starfield detail; keep highlights crisp.
+        bloom: { strength: 0.5, threshold: 0.885, radius: 0.36 },
+        final: {
+          vignette: 0.115,
+          grain: this.caps.coarsePointer ? 0.028 : 0.038,
+          chromatic: 0.0024,
+        },
+        clear: 0x01010a,
+      },
+      scene09: {
+        bloom: { strength: 0.6, threshold: 0.84 },
+        final: { chromatic: 0.0033 },
+        clear: 0x03030b,
+      },
+      scene10: {
+        bloom: { strength: 0.55, threshold: 0.87 },
+        final: {
+          grain: this.caps.coarsePointer ? 0.028 : 0.038,
+          chromatic: 0.0025,
+        },
+        clear: 0x02040a,
+      },
+      scene11: {
+        bloom: { strength: 0.62, threshold: 0.85 },
+        trails: {
+          enabled:
+            postEnabled && !this.caps.reducedMotion && (highTier || mediumTier),
+          damp: 0.02,
+        },
+        final: { vignette: 0.11 },
+        clear: 0x02030b,
+      },
+      scene12: {
+        // The Library: slightly cleaner highlights; gentle DOF when allowed.
+        bloom: { strength: 0.52, threshold: 0.875 },
+        bokeh: { aperture: 0.000125, maxblur: 0.0105 },
+        final: {
+          vignette: 0.14,
+          grain: this.caps.coarsePointer ? 0.03 : 0.04,
+          chromatic: 0.0027,
+        },
+        clear: 0x04030b,
+      },
+      scene13: {
+        bloom: { strength: 0.63, threshold: 0.84 },
+        final: { vignette: 0.1, grain: this.caps.coarsePointer ? 0.03 : 0.04 },
+        clear: 0x01050a,
+      },
+      scene14: {
+        bloom: {
+          strength: this.caps.coarsePointer ? 0.55 : 0.7,
+          threshold: 0.83,
+          radius: 0.45,
+        },
+        final: { vignette: 0.11 },
+        clear: 0x03020a,
+      },
+      scene15: {
+        // Digital Decay: avoid shard blowout; lean into cleaner contrast.
+        bloom: { strength: 0.55, threshold: 0.865, radius: 0.38 },
+        final: {
+          grain: this.caps.coarsePointer ? 0.034 : 0.05,
+          vignette: 0.14,
+          chromatic: this.caps.coarsePointer ? 0.0024 : 0.0028,
+        },
+        clear: 0x03030b,
+      },
+      scene16: {
+        bloom: {
+          strength: this.caps.coarsePointer ? 0.55 : 0.66,
+          threshold: 0.855,
+          radius: 0.42,
+        },
+        trails: {
+          enabled:
+            postEnabled && !this.caps.reducedMotion && (highTier || mediumTier),
+          damp: 0.022,
+        },
+        final: {
+          vignette: 0.115,
+          grain: this.caps.coarsePointer ? 0.032 : 0.042,
+          chromatic: this.caps.coarsePointer ? 0.0024 : 0.0029,
+        },
+        clear: 0x01030a,
+      },
+      scene17: {
+        bloom: {
+          strength: this.caps.coarsePointer ? 0.45 : 0.54,
+          threshold: 0.865,
+          radius: 0.36,
+        },
+        // Porsche: keep the silhouette crisp; DOF is very subtle.
+        bokeh: { aperture: 0.000105, maxblur: 0.0095 },
+        final: {
+          chromatic: 0.0024,
+          grain: this.caps.coarsePointer ? 0.028 : 0.038,
+          vignette: 0.1,
+        },
+        clear: 0x02040a,
+      },
+      scene18: {
+        bloom: {
+          strength: this.caps.coarsePointer ? 0.42 : 0.5,
+          threshold: 0.87,
+          radius: 0.34,
+        },
+        // Showroom: slightly sharper than Porsche; subtle DOF.
+        bokeh: { aperture: 0.000095, maxblur: 0.009 },
+        final: {
+          chromatic: 0.0022,
+          grain: this.caps.coarsePointer ? 0.026 : 0.036,
+          vignette: 0.095,
+        },
+        clear: 0x02040a,
+      },
+    };
+
+    const look = looks[sceneId] ?? {};
+
+    // Compute targets
+    const bloom = { ...base.bloom, ...(look.bloom ?? {}) };
+    const bokeh = { ...base.bokeh, ...(look.bokeh ?? {}) };
+    const trails = { ...base.trails, ...(look.trails ?? {}) };
+    const final = { ...base.final, ...(look.final ?? {}) };
+
+    this.lookBloomEnabled = Boolean(bloom.enabled);
+    this.lookBloomStrength = bloom.strength;
+    this.lookBloomThreshold = bloom.threshold;
+    this.lookBloomRadius = bloom.radius;
+
+    this.lookBokehEnabled = Boolean(bokeh.enabled);
+    this.lookBokehAperture = bokeh.aperture;
+    this.lookBokehMaxblur = bokeh.maxblur;
+
+    this.lookTrailsEnabled = Boolean(trails.enabled);
+    this.lookTrailsDamp = trails.damp;
+
+    this.lookVignette = final.vignette;
+    this.lookGrain = final.grain;
+    this.lookChromatic = final.chromatic;
+
+    // Background default (only if scene didn't specify one)
+    if (!this.activeScene.bg) {
+      const clearHex = look.clear ?? base.clear;
+      this.activeScene.bg = new THREE.Color(clearHex);
+    }
+
+    // Start from low settle and ramp in during tick() for the first ~0.5s.
+    this.applyLookToPasses(0);
+  }
+
   public resize(): void {
     this.syncSize(true);
     // Resize composer including depth buffers
@@ -834,7 +1368,10 @@ export class SceneDirector {
     const realDt = Math.min(1 / 30, Math.max(1 / 240, now - this.lastTime));
     const dt = realDt * this.timeScale; // Apply time scaling
 
-    if (this._simTime === 0 && this.lastTime > 0) this._simTime = now;
+    if (this._simTime === 0 && this.lastTime > 0) {
+      this._simTime = now;
+      this.sceneEnterTime = this._simTime;
+    }
     this._simTime += dt;
 
     this.lastTime = now;
@@ -860,7 +1397,11 @@ export class SceneDirector {
       this.mainScene.remove(this.activeScene.group);
       this.activeScene = targetScene;
 
+      // Reset settle ramp for the new chapter.
+      this.sceneEnterTime = this._simTime;
+
       this.updateParticleConfig(this.activeScene.id);
+      this.applySceneLook(this.activeScene.id);
 
       this.cutFade = 1;
       // Cycle through different transition types for variety
@@ -900,6 +1441,15 @@ export class SceneDirector {
       ? Math.min(1, this.pressTime + realDt)
       : Math.max(0, this.pressTime - realDt * 4);
 
+    // Shape runtime interaction signals (consistent feel across chapters)
+    this.updateRuntimeInteraction();
+
+    // Only apply auto-ramped look while settling in, so UI overrides remain usable.
+    const settle = this.getSceneSettle(this._simTime);
+    if (settle < 0.999) {
+      this.applyLookToPasses(settle);
+    }
+
     // Smooth gyroscope values
     this.gyro.x = damp(this.gyro.x, this.gyroTarget.x, 5, realDt);
     this.gyro.y = damp(this.gyro.y, this.gyroTarget.y, 5, realDt);
@@ -920,7 +1470,7 @@ export class SceneDirector {
 
     // Post FX interaction pulse
     this.finalPass.uniforms.uInteract.value = clamp(
-      this.tap + clamp(this.pressTime * 2.0, 0, 1) * 0.35,
+      this.runtimeTap + this.runtimePress * 0.35,
       0,
       1
     );
@@ -928,8 +1478,8 @@ export class SceneDirector {
     // Pass gyro influence to post-processing shader for mobile parallax effects
     if (this.gyroActive) {
       this.finalPass.uniforms.uGyroInfluence.value.set(
-        this.gyro.x,
-        this.gyro.y
+        this.runtimeGyro.x,
+        this.runtimeGyro.y
       );
     } else {
       this.finalPass.uniforms.uGyroInfluence.value.set(0, 0);
@@ -942,7 +1492,7 @@ export class SceneDirector {
     // The gpgpu updates occur via update() method which we fixed in gpgpu-system.ts
 
     // NEW: Update pointer velocity uniform for dynamic chromatic aberration
-    const pVel = this.pointerVelocity.length();
+    const pVel = this.runtimePointerVelocity.length();
     this.finalPass.uniforms.uPointerVel.value = clamp(pVel, 0, 10.0);
 
     // Decay the cut mask quickly; keep it super short under reduced motion.
@@ -963,19 +1513,8 @@ export class SceneDirector {
         (this.pointer.y - 0.5) * -20,
         0
       );
-      // Inject audio level into GPGPU update
-      // We need to pass it to the GPGPU system which then passes it to the shader
-      // Since we haven't updated the GPGPU class definition signature for update() yet
-      // we need to sneak it in via a property or just cast.
-      // Actually, we edited gpgpu-system.ts but the update() signature there takes (time, dt).
-      // Let's modify GPGPU class to have public audioLevel property or update signature.
-
-      // For now, simpler:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      if ((this.gpgpu as any).setAudioLevel) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (this.gpgpu as any).setAudioLevel(this.audio.level);
-      }
+      // Inject audio level into GPGPU update.
+      this.gpgpu.setAudioLevel(this.audio.level);
 
       this.gpgpu.update(this._simTime, dt);
     } catch (e) {
@@ -1094,7 +1633,52 @@ export class SceneDirector {
 
     this.cleanups.forEach(fn => fn());
     this.cleanups = [];
+
+    try {
+      this.gpgpu.dispose();
+    } catch {
+      // ignore
+    }
+
     this.scenes.forEach(scene => scene.dispose());
+
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const anyPass = this.finalPass as any;
+      (anyPass?.material as THREE.Material | undefined)?.dispose?.();
+    } catch {
+      // ignore
+    }
+
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const anyPass = this.fxaaPass as any;
+      (anyPass?.material as THREE.Material | undefined)?.dispose?.();
+    } catch {
+      // ignore
+    }
+
+    try {
+      // EffectComposer in modern three has dispose()
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (this.composer as any)?.dispose?.();
+    } catch {
+      // ignore
+    }
+
+    try {
+      this.renderTarget?.dispose?.();
+    } catch {
+      // ignore
+    }
+
+    try {
+      this.environmentTexture?.dispose?.();
+      this.pmremGenerator?.dispose?.();
+    } catch {
+      // ignore
+    }
+
     this.renderer.dispose();
   }
 }

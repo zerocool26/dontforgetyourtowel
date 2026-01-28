@@ -147,4 +147,10 @@ export const sceneMeta: SceneMeta[] = [
     subtitle: 'GT3 RS Study',
     index: 17,
   },
+  {
+    id: 'scene18',
+    title: 'Wrap Showroom',
+    subtitle: 'Interactive Material Study',
+    index: 18,
+  },
 ];

@@ -13,6 +13,24 @@ type GalleryAutoPlayController = {
   toggle: () => void;
 };
 
+type Cleanup = () => void;
+
+let galleryCleanups: Cleanup[] = [];
+const addGalleryCleanup = (fn: Cleanup) => {
+  galleryCleanups.push(fn);
+};
+const runGalleryCleanups = () => {
+  const pending = galleryCleanups;
+  galleryCleanups = [];
+  for (const fn of pending) {
+    try {
+      fn();
+    } catch {
+      // Best-effort cleanup.
+    }
+  }
+};
+
 declare global {
   interface Window {
     __galleryAutoPlay?: GalleryAutoPlayController;
@@ -50,6 +68,7 @@ const SCENE_IDS = [
   'scene15',
   'scene16',
   'scene17',
+  'scene18',
 ] as const;
 
 const SCENE_NAMES = [
@@ -71,6 +90,7 @@ const SCENE_NAMES = [
   'Digital Decay',
   'Ethereal Storm',
   'Cyber Porsche',
+  'Wrap Showroom',
 ];
 
 // Scene descriptions for info tooltips
@@ -93,6 +113,30 @@ const SCENE_DESCRIPTIONS = [
   'A voxel world: controlled collapse, deliberate decay',
   'Volumetric storm cells and charged light sheets',
   'A high-fidelity hero asset chapter—speed and sheen',
+  'A studio car showcase—tap to cycle materials',
+];
+
+// Auto-play dwell time per scene (ms). Heavier/"slower" chapters linger longer.
+const SCENE_DWELL_MS = [
+  8500, // 00 Genesis Forge
+  8500, // 01 Liquid-Metal Relic
+  8000, // 02 Million Fireflies
+  8000, // 03 Quantum Ribbons
+  8500, // 04 Aurora Curtains
+  9500, // 05 Event Horizon
+  8500, // 06 Kaleido Glass
+  7000, // 07 Matrix Rain
+  9000, // 08 Orbital Mechanics
+  7500, // 09 Voronoi Shards
+  7500, // 10 Quantum Moiré
+  8500, // 11 Neural Constellation
+  9500, // 12 The Library
+  8500, // 13 Bioluminescent Abyss
+  8500, // 14 Neon Metropolis
+  9000, // 15 Digital Decay
+  8500, // 16 Ethereal Storm
+  10000, // 17 Cyber Porsche
+  11000, // 18 Wrap Showroom
 ];
 
 interface GalleryState {
@@ -116,6 +160,8 @@ const state: GalleryState = {
   idleTime: 0,
   showingInfo: false,
 };
+
+let galleryCaps: ReturnType<typeof getTowerCaps> | null = null;
 
 // Auto-play configuration
 const AUTO_PLAY_INTERVAL = 8000; // ms between scene changes
@@ -141,6 +187,18 @@ let isPinching = false;
 // Auto-hide hints timeout
 let hintsTimeout: ReturnType<typeof setTimeout> | null = null;
 
+// Info panel elements (event-driven updates; avoids polling intervals)
+let infoPanelDescEl: HTMLElement | null = null;
+
+const syncInfoPanelDescription = () => {
+  if (!state.showingInfo || !infoPanelDescEl) return;
+  const desc =
+    SCENE_DESCRIPTIONS[state.currentScene] ?? 'No description available.';
+  if (infoPanelDescEl.textContent !== desc) {
+    infoPanelDescEl.textContent = desc;
+  }
+};
+
 // Haptic feedback support
 const triggerHaptic = (style: 'light' | 'medium' | 'heavy' = 'light') => {
   if ('vibrate' in navigator) {
@@ -150,19 +208,34 @@ const triggerHaptic = (style: 'light' | 'medium' | 'heavy' = 'light') => {
 };
 
 // Debounce for performance
+type DebouncedFn<T extends (...args: unknown[]) => void> = ((
+  ...args: Parameters<T>
+) => void) & { cancel: () => void };
+
 const debounce = <T extends (...args: unknown[]) => void>(
   fn: T,
   ms: number
-) => {
-  let timeout: ReturnType<typeof setTimeout>;
-  return (...args: Parameters<T>) => {
-    clearTimeout(timeout);
+): DebouncedFn<T> => {
+  let timeout: ReturnType<typeof setTimeout> | null = null;
+
+  const debounced = ((...args: Parameters<T>) => {
+    if (timeout) clearTimeout(timeout);
     timeout = setTimeout(() => fn(...args), ms);
+  }) as DebouncedFn<T>;
+
+  debounced.cancel = () => {
+    if (timeout) clearTimeout(timeout);
+    timeout = null;
   };
+
+  return debounced;
 };
 
 // Mount the gallery using the Astro mount system
 createAstroMount(ROOT_SELECTOR, () => {
+  // If Astro navigates back/forward, avoid double-binding listeners/timers.
+  runGalleryCleanups();
+
   const root = document.querySelector<HTMLElement>(ROOT_SELECTOR);
   if (!root) return null;
 
@@ -172,6 +245,7 @@ createAstroMount(ROOT_SELECTOR, () => {
   if (!canvas) return null;
 
   const caps = getTowerCaps();
+  galleryCaps = caps;
   if (!caps.webgl) return null;
 
   // Create director with gallery mode enabled
@@ -190,11 +264,15 @@ createAstroMount(ROOT_SELECTOR, () => {
     }
   };
 
+  let loaderHideTimeout: ReturnType<typeof setTimeout> | null = null;
+  let loaderRemoveTimeout: ReturnType<typeof setTimeout> | null = null;
+
   const hideLoader = () => {
     if (loader) {
       loader.classList.add('hidden');
       // Remove from DOM after animation
-      setTimeout(() => {
+      if (loaderRemoveTimeout) clearTimeout(loaderRemoveTimeout);
+      loaderRemoveTimeout = setTimeout(() => {
         loader.remove();
       }, 600);
     }
@@ -209,11 +287,24 @@ createAstroMount(ROOT_SELECTOR, () => {
       clearInterval(loadInterval);
       updateLoadProgress(100);
       // Give a moment to show 100% then hide
-      setTimeout(hideLoader, 200);
+      if (loaderHideTimeout) clearTimeout(loaderHideTimeout);
+      loaderHideTimeout = setTimeout(hideLoader, 200);
     } else {
       updateLoadProgress(loadProgress);
     }
   }, 100);
+
+  addGalleryCleanup(() => {
+    clearInterval(loadInterval);
+    if (loaderHideTimeout) {
+      clearTimeout(loaderHideTimeout);
+      loaderHideTimeout = null;
+    }
+    if (loaderRemoveTimeout) {
+      clearTimeout(loaderRemoveTimeout);
+      loaderRemoveTimeout = null;
+    }
+  });
 
   // Setup all UI controls
   setupNavigation();
@@ -265,7 +356,12 @@ createAstroMount(ROOT_SELECTOR, () => {
     if (Math.abs(diff) > 0.0005) {
       // Smooth easing toward target with adaptive speed
       // Use exponential easing for more natural feel
-      const easeAmount = 1 - Math.pow(1 - targetEasing, fps / 60);
+      const steps = Math.abs(diff) * (SCENE_IDS.length - 1);
+      const localEasing = Math.min(
+        0.2,
+        targetEasing + Math.min(0.06, steps * 0.01)
+      );
+      const easeAmount = 1 - Math.pow(1 - localEasing, fps / 60);
       const newProgress = currentProgress + diff * easeAmount;
       director.setProgress?.(newProgress);
 
@@ -288,9 +384,11 @@ createAstroMount(ROOT_SELECTOR, () => {
   }, 100);
 
   // Also handle orientation change specifically for mobile
+  let orientationTimeout: ReturnType<typeof setTimeout> | null = null;
   const onOrientationChange = () => {
     // Slight delay to let browser settle
-    setTimeout(() => {
+    if (orientationTimeout) clearTimeout(orientationTimeout);
+    orientationTimeout = setTimeout(() => {
       director.resize();
       updateUI();
     }, 150);
@@ -301,13 +399,24 @@ createAstroMount(ROOT_SELECTOR, () => {
     passive: true,
   });
 
+  addGalleryCleanup(() => {
+    window.removeEventListener('resize', onResize);
+    window.removeEventListener('orientationchange', onOrientationChange);
+    onResize.cancel();
+    if (orientationTimeout) {
+      clearTimeout(orientationTimeout);
+      orientationTimeout = null;
+    }
+  });
+
   raf = window.requestAnimationFrame(tick);
 
   return {
     destroy: () => {
       window.cancelAnimationFrame(raf);
-      window.removeEventListener('resize', onResize);
-      window.removeEventListener('orientationchange', onOrientationChange);
+
+      runGalleryCleanups();
+
       director.destroy();
       state.director = null;
     },
@@ -323,8 +432,16 @@ function setupNavigation() {
     '[data-gallery-next]'
   );
 
-  prevBtn?.addEventListener('click', () => navigateScene(-1));
-  nextBtn?.addEventListener('click', () => navigateScene(1));
+  const onPrev = () => navigateScene(-1);
+  const onNext = () => navigateScene(1);
+
+  prevBtn?.addEventListener('click', onPrev);
+  nextBtn?.addEventListener('click', onNext);
+
+  addGalleryCleanup(() => {
+    prevBtn?.removeEventListener('click', onPrev);
+    nextBtn?.removeEventListener('click', onNext);
+  });
 }
 
 /** Setup scene indicator dots */
@@ -335,9 +452,15 @@ function setupDots() {
   const dots =
     dotsContainer.querySelectorAll<HTMLButtonElement>('[data-scene-index]');
   dots.forEach(dot => {
-    dot.addEventListener('click', () => {
+    const onDotClick = () => {
       const index = parseInt(dot.dataset.sceneIndex ?? '0', 10);
       goToScene(index);
+    };
+
+    dot.addEventListener('click', onDotClick);
+
+    addGalleryCleanup(() => {
+      dot.removeEventListener('click', onDotClick);
     });
   });
 }
@@ -356,26 +479,42 @@ function setupMenu() {
   menuToggle?.addEventListener('click', openMenu);
   menuClose?.addEventListener('click', closeMenu);
 
+  addGalleryCleanup(() => {
+    menuToggle?.removeEventListener('click', openMenu);
+    menuClose?.removeEventListener('click', closeMenu);
+  });
+
   // Close menu when clicking backdrop
-  menu?.addEventListener('click', e => {
+  const onMenuBackdropClick = (e: Event) => {
     if (e.target === menu) closeMenu();
+  };
+  menu?.addEventListener('click', onMenuBackdropClick);
+
+  addGalleryCleanup(() => {
+    menu?.removeEventListener('click', onMenuBackdropClick);
   });
 
   // Menu scene items
   const menuItems =
     document.querySelectorAll<HTMLButtonElement>('[data-menu-scene]');
   menuItems.forEach(item => {
-    item.addEventListener('click', () => {
+    const onItemClick = () => {
       const index = parseInt(item.dataset.menuScene ?? '0', 10);
       goToScene(index);
       closeMenu();
+    };
+
+    item.addEventListener('click', onItemClick);
+
+    addGalleryCleanup(() => {
+      item.removeEventListener('click', onItemClick);
     });
   });
 }
 
 /** Setup keyboard navigation */
 function setupKeyboard() {
-  document.addEventListener('keydown', e => {
+  const onKeyDown = (e: KeyboardEvent) => {
     // Don't interfere with form inputs
     if (
       e.target instanceof HTMLInputElement ||
@@ -434,6 +573,11 @@ function setupKeyboard() {
           ?.click();
         break;
     }
+  };
+
+  document.addEventListener('keydown', onKeyDown);
+  addGalleryCleanup(() => {
+    document.removeEventListener('keydown', onKeyDown);
   });
 }
 
@@ -445,104 +589,112 @@ function setupTouch() {
   // Track touch movement for visual feedback
   let swipePreviewActive = false;
 
-  gallery.addEventListener(
-    'touchstart',
-    e => {
-      if (e.touches.length === 2) {
-        // Pinch gesture start
-        isPinching = true;
-        initialPinchDistance = getPinchDistance(e.touches);
-        return;
+  const onTouchStart = (e: TouchEvent) => {
+    if (e.touches.length === 2) {
+      // Pinch gesture start
+      isPinching = true;
+      initialPinchDistance = getPinchDistance(e.touches);
+      return;
+    }
+
+    touchStartX = e.changedTouches[0].screenX;
+    touchStartY = e.changedTouches[0].screenY;
+    touchStartTime = performance.now();
+    isSwiping = false;
+    swipePreviewActive = false;
+  };
+
+  gallery.addEventListener('touchstart', onTouchStart, { passive: true });
+  addGalleryCleanup(() => {
+    gallery.removeEventListener('touchstart', onTouchStart);
+  });
+
+  const onTouchMove = (e: TouchEvent) => {
+    if (isPinching && e.touches.length === 2) {
+      // Handle pinch zoom preview
+      const currentDistance = getPinchDistance(e.touches);
+      const scale = currentDistance / initialPinchDistance;
+      handlePinchPreview(scale);
+      return;
+    }
+
+    if (e.touches.length !== 1) return;
+
+    const touch = e.changedTouches[0];
+    const diffX = touch.screenX - touchStartX;
+    const diffY = touch.screenY - touchStartY;
+
+    // Only start horizontal swipe if moving more horizontally than vertically
+    if (
+      !isSwiping &&
+      Math.abs(diffX) > 15 &&
+      Math.abs(diffX) > Math.abs(diffY)
+    ) {
+      isSwiping = true;
+      triggerHaptic('light');
+    }
+
+    if (isSwiping) {
+      const swipeProgress = Math.min(1, Math.abs(diffX) / 150);
+
+      // Visual preview of scene transition
+      if (!swipePreviewActive && Math.abs(diffX) > SWIPE_THRESHOLD) {
+        swipePreviewActive = true;
+        showSwipePreview(diffX > 0 ? 'prev' : 'next');
       }
 
-      touchStartX = e.changedTouches[0].screenX;
-      touchStartY = e.changedTouches[0].screenY;
-      touchStartTime = performance.now();
-      isSwiping = false;
-      swipePreviewActive = false;
-    },
-    { passive: true }
-  );
+      // Update swipe indicator
+      updateSwipeIndicator(swipeProgress, diffX > 0 ? 'left' : 'right');
+    }
+  };
 
-  gallery.addEventListener(
-    'touchmove',
-    e => {
-      if (isPinching && e.touches.length === 2) {
-        // Handle pinch zoom preview
-        const currentDistance = getPinchDistance(e.touches);
-        const scale = currentDistance / initialPinchDistance;
-        handlePinchPreview(scale);
-        return;
-      }
+  gallery.addEventListener('touchmove', onTouchMove, { passive: true });
+  addGalleryCleanup(() => {
+    gallery.removeEventListener('touchmove', onTouchMove);
+  });
 
-      if (e.touches.length !== 1) return;
+  const onTouchEnd = (e: TouchEvent) => {
+    if (isPinching) {
+      isPinching = false;
+      hidePinchPreview();
+      return;
+    }
 
-      const touch = e.changedTouches[0];
-      const diffX = touch.screenX - touchStartX;
-      const diffY = touch.screenY - touchStartY;
+    touchEndX = e.changedTouches[0].screenX;
+    touchEndY = e.changedTouches[0].screenY;
+    const touchEndTime = performance.now();
+    const touchDuration = touchEndTime - touchStartTime;
 
-      // Only start horizontal swipe if moving more horizontally than vertically
-      if (
-        !isSwiping &&
-        Math.abs(diffX) > 15 &&
-        Math.abs(diffX) > Math.abs(diffY)
-      ) {
-        isSwiping = true;
-        triggerHaptic('light');
-      }
+    // Calculate velocity for momentum-based swiping
+    touchVelocityX = (touchEndX - touchStartX) / touchDuration;
 
-      if (isSwiping) {
-        const swipeProgress = Math.min(1, Math.abs(diffX) / 150);
+    hideSwipePreview();
+    hideSwipeIndicator();
 
-        // Visual preview of scene transition
-        if (!swipePreviewActive && Math.abs(diffX) > SWIPE_THRESHOLD) {
-          swipePreviewActive = true;
-          showSwipePreview(diffX > 0 ? 'prev' : 'next');
-        }
+    if (isSwiping) {
+      handleSwipe(touchDuration);
+    }
 
-        // Update swipe indicator
-        updateSwipeIndicator(swipeProgress, diffX > 0 ? 'left' : 'right');
-      }
-    },
-    { passive: true }
-  );
+    isSwiping = false;
+  };
 
-  gallery.addEventListener(
-    'touchend',
-    e => {
-      if (isPinching) {
-        isPinching = false;
-        hidePinchPreview();
-        return;
-      }
-
-      touchEndX = e.changedTouches[0].screenX;
-      touchEndY = e.changedTouches[0].screenY;
-      const touchEndTime = performance.now();
-      const touchDuration = touchEndTime - touchStartTime;
-
-      // Calculate velocity for momentum-based swiping
-      touchVelocityX = (touchEndX - touchStartX) / touchDuration;
-
-      hideSwipePreview();
-      hideSwipeIndicator();
-
-      if (isSwiping) {
-        handleSwipe(touchDuration);
-      }
-
-      isSwiping = false;
-    },
-    { passive: true }
-  );
+  gallery.addEventListener('touchend', onTouchEnd, { passive: true });
+  addGalleryCleanup(() => {
+    gallery.removeEventListener('touchend', onTouchEnd);
+  });
 
   // Prevent accidental navigation during 3D interaction
-  gallery.addEventListener('touchcancel', () => {
+  const onTouchCancel = () => {
     isSwiping = false;
     isPinching = false;
     hideSwipePreview();
     hideSwipeIndicator();
     hidePinchPreview();
+  };
+
+  gallery.addEventListener('touchcancel', onTouchCancel);
+  addGalleryCleanup(() => {
+    gallery.removeEventListener('touchcancel', onTouchCancel);
   });
 }
 
@@ -658,13 +810,29 @@ function setupHintsAutoHide() {
   };
 
   // Hide after any interaction
-  document.addEventListener('keydown', hideHints, { once: true });
-  document.addEventListener('click', hideHints, { once: true });
-  document.addEventListener('touchstart', hideHints, { once: true });
+  const onHideHintsKeyDown = () => hideHints();
+  const onHideHintsClick = () => hideHints();
+  const onHideHintsTouchStart = () => hideHints();
+
+  document.addEventListener('keydown', onHideHintsKeyDown, { once: true });
+  document.addEventListener('click', onHideHintsClick, { once: true });
+  document.addEventListener('touchstart', onHideHintsTouchStart, {
+    once: true,
+  });
+
+  addGalleryCleanup(() => {
+    document.removeEventListener('keydown', onHideHintsKeyDown);
+    document.removeEventListener('click', onHideHintsClick);
+    document.removeEventListener('touchstart', onHideHintsTouchStart);
+    if (hintsTimeout) {
+      clearTimeout(hintsTimeout);
+      hintsTimeout = null;
+    }
+  });
 }
 
 /** Auto-play timer reference */
-let autoPlayInterval: ReturnType<typeof setInterval> | null = null;
+let autoPlayTimeout: ReturnType<typeof setTimeout> | null = null;
 
 /** Setup auto-play mode with idle detection */
 function setupAutoPlay() {
@@ -672,18 +840,55 @@ function setupAutoPlay() {
     '[data-gallery-autoplay]'
   );
 
+  // Respect reduced motion: disable auto-play entirely.
+  if (galleryCaps?.reducedMotion) {
+    toggleBtn?.setAttribute('disabled', '');
+    toggleBtn?.setAttribute('aria-disabled', 'true');
+    toggleBtn?.setAttribute('title', 'Auto-play disabled (reduced motion).');
+  }
+
   const startAutoPlay = () => {
-    if (state.isAutoPlaying || autoPlayInterval) return;
+    if (galleryCaps?.reducedMotion) return;
+    if (state.isAutoPlaying || autoPlayTimeout) return;
     state.isAutoPlaying = true;
 
-    autoPlayInterval = setInterval(() => {
-      // Loop back to start at end
-      if (state.currentScene >= SCENE_IDS.length - 1) {
-        goToScene(0);
-      } else {
-        navigateScene(1);
-      }
-    }, AUTO_PLAY_INTERVAL);
+    const getDelayMs = () => {
+      const base = SCENE_DWELL_MS[state.currentScene] ?? AUTO_PLAY_INTERVAL;
+      // Slow devices get a little more time to "settle" visually.
+      const tier = galleryCaps?.performanceTier;
+      const tierMult = tier === 'low' ? 1.25 : 1.0;
+      return Math.round(base * tierMult);
+    };
+
+    const scheduleNext = () => {
+      if (!state.isAutoPlaying) return;
+      const delayMs = getDelayMs();
+
+      autoPlayTimeout = setTimeout(() => {
+        if (!state.isAutoPlaying) return;
+
+        // Avoid advancing scenes while a transition is still resolving, or while
+        // the tab is hidden (prevents sudden jumps on return).
+        if (
+          state.isTransitioning ||
+          (typeof document !== 'undefined' &&
+            document.visibilityState !== 'visible')
+        ) {
+          scheduleNext();
+          return;
+        }
+
+        // Loop back to start at end
+        if (state.currentScene >= SCENE_IDS.length - 1) {
+          goToScene(0);
+        } else {
+          navigateScene(1);
+        }
+        scheduleNext();
+      }, delayMs);
+    };
+
+    scheduleNext();
 
     toggleBtn?.classList.add('active');
     toggleBtn?.setAttribute('aria-pressed', 'true');
@@ -696,9 +901,9 @@ function setupAutoPlay() {
     if (!state.isAutoPlaying) return;
     state.isAutoPlaying = false;
 
-    if (autoPlayInterval) {
-      clearInterval(autoPlayInterval);
-      autoPlayInterval = null;
+    if (autoPlayTimeout) {
+      clearTimeout(autoPlayTimeout);
+      autoPlayTimeout = null;
     }
 
     toggleBtn?.classList.remove('active');
@@ -720,6 +925,9 @@ function setupAutoPlay() {
 
   // Button click handler
   toggleBtn?.addEventListener('click', toggleAutoPlay);
+  addGalleryCleanup(() => {
+    toggleBtn?.removeEventListener('click', toggleAutoPlay);
+  });
 
   // Stop auto-play on user interaction
   const stopOnInteraction = () => {
@@ -729,12 +937,33 @@ function setupAutoPlay() {
     resetIdleTimer();
   };
 
-  document.addEventListener('keydown', stopOnInteraction);
-  document.addEventListener('touchstart', stopOnInteraction, { passive: true });
-  document.addEventListener('click', e => {
+  const onStopKeyDown = (e: KeyboardEvent) => {
+    // Don't immediately cancel when the user is toggling auto-play.
+    if (e.key === 'p' || e.key === 'P') return;
+    stopOnInteraction();
+  };
+
+  const onStopTouchStart = (e: TouchEvent) => {
+    // Don't stop/restart loops when tapping the auto-play button.
+    if ((e.target as Element | null)?.closest?.('[data-gallery-autoplay]'))
+      return;
+    stopOnInteraction();
+  };
+  const onStopClick = (e: MouseEvent) => {
     // Don't stop if clicking the autoplay button itself
     if ((e.target as Element)?.closest('[data-gallery-autoplay]')) return;
     stopOnInteraction();
+  };
+
+  document.addEventListener('keydown', onStopKeyDown);
+  document.addEventListener('touchstart', onStopTouchStart, { passive: true });
+  document.addEventListener('click', onStopClick);
+
+  addGalleryCleanup(() => {
+    document.removeEventListener('keydown', onStopKeyDown);
+    document.removeEventListener('touchstart', onStopTouchStart);
+    document.removeEventListener('click', onStopClick);
+    stopAutoPlay();
   });
 
   // Expose for external control
@@ -743,6 +972,11 @@ function setupAutoPlay() {
     stop: stopAutoPlay,
     toggle: toggleAutoPlay,
   };
+
+  addGalleryCleanup(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (window as any).__galleryAutoPlay = undefined;
+  });
 }
 
 /** Setup fullscreen mode support */
@@ -794,8 +1028,12 @@ function setupFullscreen() {
   };
 
   toggleBtn.addEventListener('click', toggleFullscreen);
+  addGalleryCleanup(() => {
+    toggleBtn.removeEventListener('click', toggleFullscreen);
+  });
 
   // Listen for fullscreen change events
+  let fullscreenSyncTimeout: ReturnType<typeof setTimeout> | null = null;
   const handleFullscreenChange = () => {
     const isFS = !!(
       document.fullscreenElement || document.webkitFullscreenElement
@@ -805,7 +1043,8 @@ function setupFullscreen() {
     root.classList.toggle('is-fullscreen', isFS);
 
     // Sync size after fullscreen change
-    setTimeout(() => {
+    if (fullscreenSyncTimeout) clearTimeout(fullscreenSyncTimeout);
+    fullscreenSyncTimeout = setTimeout(() => {
       state.director?.syncSize();
     }, 100);
   };
@@ -813,19 +1052,32 @@ function setupFullscreen() {
   document.addEventListener('fullscreenchange', handleFullscreenChange);
   document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
 
+  addGalleryCleanup(() => {
+    document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    document.removeEventListener(
+      'webkitfullscreenchange',
+      handleFullscreenChange
+    );
+    if (fullscreenSyncTimeout) {
+      clearTimeout(fullscreenSyncTimeout);
+      fullscreenSyncTimeout = null;
+    }
+  });
+
   // Double-tap to toggle fullscreen on mobile
   let lastTap = 0;
-  root.addEventListener(
-    'touchend',
-    e => {
-      const now = Date.now();
-      if (now - lastTap < 300 && e.touches.length === 0) {
-        toggleFullscreen();
-      }
-      lastTap = now;
-    },
-    { passive: true }
-  );
+  const onDoubleTapTouchEnd = (e: TouchEvent) => {
+    const now = Date.now();
+    if (now - lastTap < 300 && e.touches.length === 0) {
+      toggleFullscreen();
+    }
+    lastTap = now;
+  };
+
+  root.addEventListener('touchend', onDoubleTapTouchEnd, { passive: true });
+  addGalleryCleanup(() => {
+    root.removeEventListener('touchend', onDoubleTapTouchEnd);
+  });
 }
 
 /** Setup info panel for scene descriptions */
@@ -834,7 +1086,7 @@ function setupInfoPanel() {
     '[data-gallery-info]'
   );
   const panel = document.querySelector<HTMLElement>('.gallery3d__info-panel');
-  const descEl = panel?.querySelector('.info-panel__description');
+  const descEl = panel?.querySelector<HTMLElement>('.info-panel__description');
 
   if (!toggleBtn || !panel) return;
 
@@ -844,12 +1096,8 @@ function setupInfoPanel() {
     toggleBtn.classList.add('active');
     toggleBtn.setAttribute('aria-expanded', 'true');
 
-    // Update description content
-    if (descEl) {
-      const desc =
-        SCENE_DESCRIPTIONS[state.currentScene] ?? 'No description available.';
-      descEl.textContent = desc;
-    }
+    infoPanelDescEl = descEl ?? null;
+    syncInfoPanelDescription();
 
     triggerHaptic('light');
   };
@@ -859,6 +1107,7 @@ function setupInfoPanel() {
     panel.classList.remove('visible');
     toggleBtn.classList.remove('active');
     toggleBtn.setAttribute('aria-expanded', 'false');
+    infoPanelDescEl = null;
   };
 
   const toggleInfo = () => {
@@ -870,9 +1119,12 @@ function setupInfoPanel() {
   };
 
   toggleBtn.addEventListener('click', toggleInfo);
+  addGalleryCleanup(() => {
+    toggleBtn.removeEventListener('click', toggleInfo);
+  });
 
   // Close panel when clicking outside
-  document.addEventListener('click', e => {
+  const onOutsideClick = (e: MouseEvent) => {
     if (
       state.showingInfo &&
       !panel.contains(e.target as Node) &&
@@ -880,34 +1132,41 @@ function setupInfoPanel() {
     ) {
       hideInfo();
     }
+  };
+
+  document.addEventListener('click', onOutsideClick);
+  addGalleryCleanup(() => {
+    document.removeEventListener('click', onOutsideClick);
   });
 
-  // Update description when scene changes
-  const originalGoToScene = goToScene;
-  window.__goToSceneOriginal = originalGoToScene;
-
-  // Watch for scene changes and update info panel
-  setInterval(() => {
-    if (state.showingInfo && descEl) {
-      const desc =
-        SCENE_DESCRIPTIONS[state.currentScene] ?? 'No description available.';
-      if (descEl.textContent !== desc) {
-        descEl.textContent = desc;
-      }
-    }
-  }, 200);
+  // Debug access
+  window.__goToSceneOriginal = goToScene;
 
   // Close on Escape key
-  document.addEventListener('keydown', e => {
+  const onInfoEscape = (e: KeyboardEvent) => {
     if (e.key === 'Escape' && state.showingInfo) {
       hideInfo();
     }
+  };
+
+  document.addEventListener('keydown', onInfoEscape);
+  addGalleryCleanup(() => {
+    document.removeEventListener('keydown', onInfoEscape);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (window as any).__goToSceneOriginal = undefined;
+    infoPanelDescEl = null;
   });
 }
 
 /** Reset idle timer */
 function resetIdleTimer() {
   state.idleTime = 0;
+
+  if (galleryCaps?.reducedMotion) {
+    if (idleTimer) clearTimeout(idleTimer);
+    idleTimer = null;
+    return;
+  }
 
   if (idleTimer) {
     clearTimeout(idleTimer);
@@ -936,8 +1195,19 @@ function setupIdleDetection() {
     'scroll',
   ];
 
+  const onAnyActivity = () => resetIdleTimer();
   resetEvents.forEach(event => {
-    document.addEventListener(event, () => resetIdleTimer(), { passive: true });
+    document.addEventListener(event, onAnyActivity, { passive: true });
+  });
+
+  addGalleryCleanup(() => {
+    resetEvents.forEach(event => {
+      document.removeEventListener(event, onAnyActivity);
+    });
+    if (idleTimer) {
+      clearTimeout(idleTimer);
+      idleTimer = null;
+    }
   });
 
   // Start initial idle timer
@@ -966,10 +1236,13 @@ function goToScene(index: number) {
   state.targetProgress = targetIndex / (SCENE_IDS.length - 1);
 
   // Trigger haptic on scene change
-  triggerHaptic('medium');
+  triggerHaptic(state.isAutoPlaying ? 'light' : 'medium');
 
   // Update all UI elements
   updateUI();
+
+  // If the info panel is open, update content immediately.
+  syncInfoPanelDescription();
 }
 
 /** Update all UI elements to reflect current state */
