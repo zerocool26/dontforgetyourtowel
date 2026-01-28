@@ -1276,18 +1276,18 @@ export class SceneDirector {
       },
       scene18: {
         bloom: {
-          strength: this.caps.coarsePointer ? 0.42 : 0.5,
-          threshold: 0.87,
-          radius: 0.34,
+          strength: this.caps.coarsePointer ? 0.4 : 0.48,
+          threshold: 0.872,
+          radius: 0.32,
         },
         // Showroom: slightly sharper than Porsche; subtle DOF.
-        bokeh: { aperture: 0.000095, maxblur: 0.009 },
+        bokeh: { aperture: 0.000085, maxblur: 0.0085 },
         final: {
-          chromatic: 0.0022,
-          grain: this.caps.coarsePointer ? 0.026 : 0.036,
-          vignette: 0.095,
+          chromatic: this.caps.coarsePointer ? 0.0018 : 0.002,
+          grain: this.caps.coarsePointer ? 0.022 : 0.03,
+          vignette: 0.112,
         },
-        clear: 0x02040a,
+        clear: 0x010308,
       },
     };
 
