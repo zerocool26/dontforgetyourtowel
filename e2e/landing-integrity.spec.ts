@@ -10,7 +10,9 @@ test.describe('Landing Page Integrity', () => {
       page.locator('#main-content').getByText(/Chapter 11/i)
     ).toBeVisible();
     await expect(
-      page.locator('#main-content').getByText(/High-trust static ops/i)
+      page
+        .locator('#main-content')
+        .getByText(/MSP\s*•\s*Security\s*•\s*Cloud\s*•\s*AI/i)
     ).toBeVisible();
   });
 
@@ -28,21 +30,19 @@ test.describe('Landing Page Integrity', () => {
     // The grid is defined as: grid gap-14 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]
     // On mobile (default), it should be 1 column.
 
-    // Compare the hero heading to the first trust badge to ensure stacking.
+    // Compare the hero heading to the primary CTA to ensure stacking.
     const heroHeading = page.getByRole('heading', { level: 1 }).first();
-    const firstSignal = page
-      .getByText(/24\/7 monitoring with proactive patching/i)
-      .first();
+    const primaryCta = page.getByRole('link', { name: /Open 3D gallery/i });
 
     const heroBox = await heroHeading.boundingBox();
-    const signalBox = await firstSignal.boundingBox();
+    const ctaBox = await primaryCta.boundingBox();
 
-    if (heroBox && signalBox) {
-      // In a stacked layout, the hero section should be above the signal grid
-      expect(heroBox.y + heroBox.height).toBeLessThanOrEqual(signalBox.y + 200); // Allow some margin/gap
+    if (heroBox && ctaBox) {
+      // In a stacked layout, the hero section should be above the CTA row
+      expect(heroBox.y + heroBox.height).toBeLessThanOrEqual(ctaBox.y + 240);
 
       // They should have similar widths (taking up full width)
-      // expect(heroBox.width).toBeCloseTo(signalBox.width, -1);
+      // expect(heroBox.width).toBeCloseTo(ctaBox.width, -1);
     }
   });
 });
