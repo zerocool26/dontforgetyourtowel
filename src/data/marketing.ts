@@ -24,9 +24,9 @@ export type ControlStackItem = z.infer<typeof ControlStackItemSchema>;
 export type InsightReport = z.infer<typeof InsightReportSchema>;
 
 export const heroSignals: string[] = [
-  'Executive-ready readouts without live dashboards',
-  'Compliance-friendly archives for every release cycle',
-  'Zero-runtime components tuned for enterprise control',
+  '24/7 monitoring with proactive patching',
+  'Identity + endpoint hardening that scales',
+  'Cloud modernization without downtime drama',
 ];
 
 export const clientBadges: string[] = [
@@ -37,41 +37,41 @@ export const clientBadges: string[] = [
 ];
 
 export const keyMetrics: Metric[] = [
-  { value: '12 min', label: 'Average build to publish' },
-  { value: '0 deps', label: 'Client frameworks required' },
-  { value: '100%', label: 'Static uptime on GitHub Pages' },
+  { value: '15 min', label: 'Typical first response (demo)' },
+  { value: '24/7', label: 'Monitoring + alerting coverage' },
+  { value: '99.9%', label: 'Target availability mindset' },
 ];
 
 export const landingPillars: Pillar[] = [
   {
-    title: 'Operational clarity',
+    title: 'Proactive operations',
     description:
-      'Roll critical metrics, risk notes, and deployment outcomes into calm, version-controlled sections leadership can trust.',
+      'Monitoring, patching, and hygiene work that reduces incidents before they become interruptions.',
   },
   {
-    title: 'Enterprise composure',
+    title: 'Security-first baseline',
     description:
-      'Pre-built cards, badges, and scoreboards deliver a boardroom-ready look without adding runtime dependencies.',
+      'Identity, device, and access controls designed to shrink your attack surface without slowing teams down.',
   },
   {
-    title: 'Audit-ready history',
+    title: 'Cloud done right',
     description:
-      'Collections enforce schema rules so launch notes and incident retros stay structured, discoverable, and compliant.',
+      'Migrations, hardening, and cost visibility—with guardrails that keep reliability and security aligned.',
   },
   {
-    title: 'Executive storytelling',
+    title: 'Helpdesk that resolves',
     description:
-      'Narrative frameworks surface customer impact, revenue signals, and risk posture in language your stakeholders expect.',
+      'Fast triage, clear communication, and durable fixes—so the same issue doesn’t boomerang next week.',
   },
   {
-    title: 'Disciplined rollouts',
+    title: 'Continuity planning',
     description:
-      'Preview pipelines combine lint, type-checks, and error review into a single command before every production push.',
+      'Backups, recovery drills, and incident response practices that keep you in control when it matters most.',
   },
   {
-    title: 'Static integrations',
+    title: 'Strategy + roadmap',
     description:
-      'Embed charts, badges, and data snapshots as generated assets, keeping security teams happy and performance high.',
+      'Practical guidance on tooling, risk, and modernization—translating priorities into a plan your business can follow.',
   },
 ];
 
@@ -138,15 +138,15 @@ export const playbookSteps: PlaybookStep[] = [
 export const testimonials: Testimonial[] = [
   {
     quote:
-      'The weekly rollups keep leadership focused on trends instead of chasing down screenshots.',
+      'The proactive monitoring caught a patch issue before it became an outage. That’s the partnership we needed.',
     name: 'Danielle Ortiz',
-    role: 'VP Engineering, Northwind',
+    role: 'Operations Lead, Northwind',
   },
   {
     quote:
-      'We replaced three different dashboards with one Astro site and shipping finally feels predictable.',
+      'We stopped firefighting and started modernizing. Clear comms, fast fixes, and better security posture.',
     name: 'Marcus Chen',
-    role: 'Head of Product, Globex',
+    role: 'Founder, Globex',
   },
 ];
 

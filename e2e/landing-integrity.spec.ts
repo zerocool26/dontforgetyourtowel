@@ -31,7 +31,7 @@ test.describe('Landing Page Integrity', () => {
     // Compare the hero heading to the first trust badge to ensure stacking.
     const heroHeading = page.getByRole('heading', { level: 1 }).first();
     const firstSignal = page
-      .getByText(/Executive-ready readouts without live dashboards/i)
+      .getByText(/24\/7 monitoring with proactive patching/i)
       .first();
 
     const heroBox = await heroHeading.boundingBox();

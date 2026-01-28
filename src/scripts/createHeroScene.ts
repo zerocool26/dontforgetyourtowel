@@ -65,9 +65,14 @@ export function createHeroScene(
 
   const scene = pickScene();
 
+  // Raw pointer is immediate; smoothed pointer is fed to scenes
+  // to keep the hero feeling premium (less twitchy, more cinematic).
+  const rawPointer = new THREE.Vector2(0, 0);
   const pointer = new THREE.Vector2(0, 0);
   const prevPointer = new THREE.Vector2(0, 0);
   const pointerVelocity = new THREE.Vector2(0, 0);
+
+  let lastPointerChange = performance.now();
 
   let press = 0;
   let pressTarget = 0;
@@ -110,7 +115,8 @@ export function createHeroScene(
 
     const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
     const y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-    pointer.set(x, y);
+    rawPointer.set(x, y);
+    lastPointerChange = performance.now();
   };
 
   const handlePointerDown = () => {
@@ -206,6 +212,17 @@ export function createHeroScene(
 
     const dt = Math.min(clock.getDelta(), 0.05);
     const time = clock.getElapsedTime();
+
+    // Smooth pointer + subtle idle drift to keep the hero alive.
+    const idleMs = performance.now() - lastPointerChange;
+    const idle = Math.min(1, Math.max(0, (idleMs - 800) / 2400));
+    const driftX = Math.sin(time * 0.35) * 0.18 * idle;
+    const driftY = Math.cos(time * 0.27) * 0.12 * idle;
+
+    const targetX = THREE.MathUtils.clamp(rawPointer.x + driftX, -1, 1);
+    const targetY = THREE.MathUtils.clamp(rawPointer.y + driftY, -1, 1);
+    pointer.x = damp(pointer.x, targetX, 10, dt);
+    pointer.y = damp(pointer.y, targetY, 10, dt);
 
     pointerVelocity
       .copy(pointer)

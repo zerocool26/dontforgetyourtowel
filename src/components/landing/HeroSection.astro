@@ -26,6 +26,11 @@ const primaryCta = {
   label: 'Open 3D gallery',
   href: withBasePath('gallery/'),
 };
+
+const secondaryCta = {
+  label: 'Explore services',
+  href: withBasePath('services/'),
+};
 ---
 
 <section
@@ -51,39 +56,51 @@ const primaryCta = {
   </div>
 
   <div
-    class="relative z-10 mx-auto flex min-h-[92vh] max-w-6xl flex-col justify-end px-6 pb-16 pt-28 sm:px-10"
+    class="relative z-10 mx-auto grid min-h-[92vh] w-full max-w-6xl items-end gap-10 px-6 pb-16 pt-28 sm:px-10 lg:grid-cols-12 lg:items-center"
   >
-    <div class="max-w-2xl">
-      <p
-        class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/25 px-4 py-2 font-mono text-xs tracking-wide text-slate-100 backdrop-blur"
+    <div class="lg:col-span-6">
+      <div
+        class="pointer-events-auto rounded-2xl border border-white/10 bg-black/35 p-6 backdrop-blur-xl sm:p-8"
       >
-        <span
-          class="h-2 w-2 rounded-full bg-accent-400 shadow-[0_0_20px_rgba(34,211,238,0.7)]"
-          aria-hidden="true"></span>
-        {badge}
-        <span class="text-white/40" aria-hidden="true">·</span>
-        <span class="text-white/70">Chapter 11</span>
-      </p>
-
-      <h1
-        class="mt-6 text-balance text-4xl font-semibold tracking-tight text-white sm:text-6xl"
-      >
-        {headline}
-      </h1>
-      <p
-        class="mt-5 max-w-xl text-pretty text-base leading-relaxed text-slate-200 sm:text-lg"
-      >
-        {subheading}
-      </p>
-
-      <div class="mt-9 flex flex-col gap-3 sm:flex-row">
-        <a
-          class="inline-flex items-center justify-center rounded-md bg-accent-500 px-6 py-3 font-semibold text-white shadow-lg shadow-accent-500/20 transition hover:bg-accent-400 focus:outline-none focus:ring-2 focus:ring-accent-300"
-          href={primaryCta.href}
+        <p
+          class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 font-mono text-xs tracking-wide text-slate-100"
         >
-          {primaryCta.label}
-        </a>
+          <span
+            class="h-2 w-2 rounded-full bg-accent-400 shadow-[0_0_20px_rgba(34,211,238,0.7)]"
+            aria-hidden="true"></span>
+          {badge}
+          <span class="text-white/40" aria-hidden="true">·</span>
+          <span class="text-white/70">Chapter 11</span>
+        </p>
+
+        <h1
+          class="mt-6 text-balance text-4xl font-semibold tracking-tight text-white sm:text-6xl"
+        >
+          {headline}
+        </h1>
+        <p
+          class="mt-5 max-w-xl text-pretty text-base leading-relaxed text-slate-200 sm:text-lg"
+        >
+          {subheading}
+        </p>
+
+        <div class="mt-9 flex flex-col gap-3 sm:flex-row">
+          <a
+            class="inline-flex items-center justify-center rounded-md bg-accent-500 px-6 py-3 font-semibold text-white shadow-lg shadow-accent-500/20 transition hover:bg-accent-400 focus:outline-none focus:ring-2 focus:ring-accent-300"
+            href={primaryCta.href}
+          >
+            {primaryCta.label}
+          </a>
+          <a
+            class="inline-flex items-center justify-center rounded-md border border-white/15 bg-white/5 px-6 py-3 font-semibold text-white transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-accent-300"
+            href={secondaryCta.href}
+          >
+            {secondaryCta.label}
+          </a>
+        </div>
       </div>
     </div>
+
+    <div class="hidden lg:col-span-6 lg:block" aria-hidden="true"></div>
   </div>
 </section>
