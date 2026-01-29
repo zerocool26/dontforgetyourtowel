@@ -22,6 +22,12 @@ type UiState = {
   glassTint: number;
   background: ShowroomBackground;
   cameraPreset: CameraPreset;
+  cameraMode: 'preset' | 'manual';
+  camYawDeg: number;
+  camPitchDeg: number;
+  camDistance: number;
+  fov: number;
+  lookAt: THREE.Vector3 | null;
   autoRotate: boolean;
   spinSpeed: number;
   zoom: number;
@@ -50,6 +56,15 @@ const parseNumber01 = (value: string | null, fallback: number) => {
   if (!Number.isFinite(v)) return fallback;
   return clamp(v, 0, 1);
 };
+
+const parseNumber = (value: string | null | undefined, fallback: number) => {
+  if (!value) return fallback;
+  const v = Number.parseFloat(value);
+  return Number.isFinite(v) ? v : fallback;
+};
+
+const degToRad = (d: number) => (d * Math.PI) / 180;
+const radToDeg = (r: number) => (r * 180) / Math.PI;
 
 const resolveModelUrl = (raw: string): string => {
   const v = raw.trim();
@@ -157,6 +172,8 @@ export class CarShowroomScene {
   private lookAt = new THREE.Vector3(0, 0.85, 0);
   private lookAtTarget = new THREE.Vector3(0, 0.85, 0);
 
+  private fovTarget = 55;
+
   private lastCameraPreset: string | null = null;
 
   private time = 0;
@@ -164,7 +181,7 @@ export class CarShowroomScene {
   constructor(root: HTMLElement, renderer: THREE.WebGLRenderer) {
     this.root = root;
 
-    this.camera = new THREE.PerspectiveCamera(55, 1, 0.1, 200);
+    this.camera = new THREE.PerspectiveCamera(55, 1, 0.05, 200);
     this.camera.position.set(0, 2.0, 9.8);
 
     this.group.add(this.stage);
@@ -388,6 +405,32 @@ export class CarShowroomScene {
 
     const cameraPreset = (ds.carShowroomCameraPreset || 'hero') as CameraPreset;
 
+    const cameraMode = (ds.carShowroomCameraMode || 'preset') as
+      | 'preset'
+      | 'manual';
+
+    const camYawDeg = clamp(parseNumber(ds.carShowroomCamYaw, 17), -180, 180);
+    const camPitchDeg = clamp(parseNumber(ds.carShowroomCamPitch, 7), -5, 60);
+    const camDistance = clamp(
+      parseNumber(ds.carShowroomCamDistance, 9.8),
+      2.5,
+      14
+    );
+    const fov = clamp(parseNumber(ds.carShowroomFov, 55), 35, 85);
+
+    const lx = ds.carShowroomLookAtX;
+    const ly = ds.carShowroomLookAtY;
+    const lz = ds.carShowroomLookAtZ;
+    const hasLookAt =
+      lx != null && ly != null && lz != null && `${lx}${ly}${lz}`.trim() !== '';
+    const lookAt = hasLookAt
+      ? new THREE.Vector3(
+          parseNumber(lx, 0),
+          parseNumber(ly, 0.85),
+          parseNumber(lz, 0)
+        )
+      : null;
+
     const spinSpeed = clamp(
       Number.parseFloat(ds.carShowroomSpinSpeed || '0.65') || 0.65,
       0,
@@ -411,10 +454,52 @@ export class CarShowroomScene {
       glassTint,
       background,
       cameraPreset,
+      cameraMode,
+      camYawDeg,
+      camPitchDeg,
+      camDistance,
+      fov,
+      lookAt,
       autoRotate,
       spinSpeed,
       zoom,
     };
+  }
+
+  getFrameRecommendation(): {
+    yawDeg: number;
+    pitchDeg: number;
+    distance: number;
+    fov: number;
+    lookAt: THREE.Vector3;
+  } | null {
+    if (!this.loaded) return null;
+
+    const box = new THREE.Box3().setFromObject(this.loaded);
+    const size = new THREE.Vector3();
+    box.getSize(size);
+    const center = new THREE.Vector3();
+    box.getCenter(center);
+
+    const maxDim = Math.max(1e-3, size.x, size.y, size.z);
+    // Heuristic: give some margin so the car fits comfortably.
+    const distance = clamp(maxDim * 2.35, 3.25, 14);
+
+    const yawDeg = radToDeg(this.orbitYawTarget || this.orbitYaw || 0.3);
+    const pitchDeg = clamp(
+      radToDeg(this.orbitPitchTarget || this.orbitPitch),
+      0,
+      45
+    );
+    const fov = clamp(this.fovTarget || this.camera.fov || 55, 35, 85);
+
+    // Aim a bit above center so the car sits nicely in frame.
+    const lookAt = new THREE.Vector3(
+      center.x,
+      center.y + size.y * 0.08,
+      center.z
+    );
+    return { yawDeg, pitchDeg, distance, fov, lookAt };
   }
 
   private applyWheelPreset(finish: WheelFinish) {
@@ -770,19 +855,25 @@ export class CarShowroomScene {
 
       this.disposeLoaded();
 
-      // Center + normalize scale.
+      // Normalize scale + center + place on floor.
+      // Important: if we scale the object, we must recompute the box; otherwise
+      // translations won't match the scaled size and the car can end up sunk.
       const box = new THREE.Box3().setFromObject(gltf);
       const size = new THREE.Vector3();
       box.getSize(size);
-      const center = new THREE.Vector3();
-      box.getCenter(center);
-
-      gltf.position.sub(center);
 
       const maxDim = Math.max(1e-3, size.x, size.y, size.z);
       const scale = 4.0 / maxDim;
       gltf.scale.setScalar(scale);
-      gltf.position.y += size.y * scale * 0.5;
+
+      box.setFromObject(gltf);
+      const center = new THREE.Vector3();
+      box.getCenter(center);
+      gltf.position.sub(center);
+
+      box.setFromObject(gltf);
+      // Raise so the bottom touches y=0.
+      gltf.position.y -= box.min.y;
 
       this.loaded = gltf;
       this.modelGroup.add(gltf);
@@ -816,9 +907,11 @@ export class CarShowroomScene {
 
     const ui = this.getUiState();
 
-    if (this.lastCameraPreset !== ui.cameraPreset) {
-      this.applyCameraPreset(ui, false);
-      this.lastCameraPreset = ui.cameraPreset;
+    if (ui.cameraMode === 'preset') {
+      if (this.lastCameraPreset !== ui.cameraPreset) {
+        this.applyCameraPreset(ui, false);
+        this.lastCameraPreset = ui.cameraPreset;
+      }
     }
 
     // Background
@@ -849,7 +942,19 @@ export class CarShowroomScene {
 
     const ui = this.getUiState();
 
-    const zoom = clamp(Math.max(ui.zoom, zoomFromInput), 0, 1);
+    // Camera mode + manual overrides.
+    if (ui.cameraMode === 'manual') {
+      this.orbitYawTarget = degToRad(ui.camYawDeg);
+      this.orbitPitchTarget = degToRad(ui.camPitchDeg);
+      this.orbitPitchTarget = clamp(this.orbitPitchTarget, -0.05, 0.95);
+      this.orbitRadiusTarget = ui.camDistance;
+      if (ui.lookAt) this.lookAtTarget.copy(ui.lookAt);
+    }
+
+    this.fovTarget = ui.fov;
+
+    // Use the runtime-smoothed zoom value (only when not in manual distance mode).
+    const zoom = clamp(zoomFromInput, 0, 1);
 
     // Orbit targets.
     const pressBoost = 0.55 + 0.9 * press;
@@ -861,9 +966,12 @@ export class CarShowroomScene {
     const idleSpin = ui.autoRotate ? ui.spinSpeed : 0;
     this.orbitYawTarget += idleSpin * dt * 0.28;
 
-    // Zoom shaping: tighter in the middle.
-    const zoomCurve = zoom * zoom;
-    this.orbitRadiusTarget = lerp(10.8, 6.2, zoomCurve);
+    // Zoom shaping: allow a genuinely close dolly-in.
+    // In manual mode, distance comes from the slider, so don't override.
+    if (ui.cameraMode !== 'manual') {
+      const zoomCurve = zoom * zoom;
+      this.orbitRadiusTarget = lerp(11.6, 3.25, zoomCurve);
+    }
 
     // Damping
     this.orbitYaw = damp(this.orbitYaw, this.orbitYawTarget, 7.5, dt);
@@ -873,13 +981,23 @@ export class CarShowroomScene {
     this.lookAt.y = damp(this.lookAt.y, this.lookAtTarget.y, 7.5, dt);
     this.lookAt.z = damp(this.lookAt.z, this.lookAtTarget.z, 7.5, dt);
 
-    const x =
-      Math.sin(this.orbitYaw) * Math.cos(this.orbitPitch) * this.orbitRadius;
-    const z =
-      Math.cos(this.orbitYaw) * Math.cos(this.orbitPitch) * this.orbitRadius;
-    const y = Math.sin(this.orbitPitch) * this.orbitRadius + 1.25;
+    const fov = damp(this.camera.fov, this.fovTarget, 6.5, dt);
+    if (Math.abs(fov - this.camera.fov) > 1e-3) {
+      this.camera.fov = fov;
+      this.camera.updateProjectionMatrix();
+    }
 
-    this.camera.position.set(x, y, z);
+    const xRel =
+      Math.sin(this.orbitYaw) * Math.cos(this.orbitPitch) * this.orbitRadius;
+    const zRel =
+      Math.cos(this.orbitYaw) * Math.cos(this.orbitPitch) * this.orbitRadius;
+    const yRel = Math.sin(this.orbitPitch) * this.orbitRadius;
+
+    this.camera.position.set(
+      this.lookAt.x + xRel,
+      this.lookAt.y + yRel,
+      this.lookAt.z + zRel
+    );
     this.camera.lookAt(this.lookAt);
 
     // Contact shadow responds to camera distance

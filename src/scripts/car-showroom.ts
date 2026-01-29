@@ -131,6 +131,22 @@ createAstroMount(ROOT_SELECTOR, () => {
   );
   const modeSel = root.querySelector<HTMLSelectElement>('[data-csr-mode]');
   const cameraSel = root.querySelector<HTMLSelectElement>('[data-csr-camera]');
+  const cameraModeSel = root.querySelector<HTMLSelectElement>(
+    '[data-csr-camera-mode]'
+  );
+  const camYawRange =
+    root.querySelector<HTMLInputElement>('[data-csr-cam-yaw]');
+  const camPitchRange = root.querySelector<HTMLInputElement>(
+    '[data-csr-cam-pitch]'
+  );
+  const camDistanceRange = root.querySelector<HTMLInputElement>(
+    '[data-csr-cam-distance]'
+  );
+  const fovRange = root.querySelector<HTMLInputElement>('[data-csr-fov]');
+  const frameBtn = root.querySelector<HTMLButtonElement>('[data-csr-frame]');
+  const resetViewBtn = root.querySelector<HTMLButtonElement>(
+    '[data-csr-reset-view]'
+  );
   const colorInp = root.querySelector<HTMLInputElement>('[data-csr-color]');
   const finishSel = root.querySelector<HTMLSelectElement>('[data-csr-finish]');
   const wheelFinishSel = root.querySelector<HTMLSelectElement>(
@@ -150,6 +166,15 @@ createAstroMount(ROOT_SELECTOR, () => {
     '[data-csr-spinspeed]'
   );
   const zoomRange = root.querySelector<HTMLInputElement>('[data-csr-zoom]');
+  const zoomWideBtn = root.querySelector<HTMLButtonElement>(
+    '[data-csr-zoom-wide]'
+  );
+  const zoomMidBtn = root.querySelector<HTMLButtonElement>(
+    '[data-csr-zoom-mid]'
+  );
+  const zoomCloseBtn = root.querySelector<HTMLButtonElement>(
+    '[data-csr-zoom-close]'
+  );
   const resetBtn = root.querySelector<HTMLButtonElement>('[data-csr-reset]');
   const resetCameraBtn = root.querySelector<HTMLButtonElement>(
     '[data-csr-reset-camera]'
@@ -196,6 +221,14 @@ createAstroMount(ROOT_SELECTOR, () => {
     const spin = params.get('spin');
     const zoom = params.get('zoom');
     const ar = params.get('ar');
+    const cm = params.get('cm');
+    const yaw = params.get('yaw');
+    const pitch = params.get('pitch');
+    const dist = params.get('dist');
+    const fov = params.get('fov');
+    const lx = params.get('lx');
+    const ly = params.get('ly');
+    const lz = params.get('lz');
 
     if (model) root.dataset.carShowroomModel = model;
     if (mode) root.dataset.carShowroomMode = mode;
@@ -225,6 +258,29 @@ createAstroMount(ROOT_SELECTOR, () => {
       root.dataset.carShowroomAutoRotate = 'false';
     if (ar === '1' || ar === 'true')
       root.dataset.carShowroomAutoRotate = 'true';
+
+    if (cm === 'manual' || cm === 'preset')
+      root.dataset.carShowroomCameraMode = cm;
+
+    const yawN = parseNum(yaw);
+    if (yawN !== null)
+      root.dataset.carShowroomCamYaw = String(clamp(yawN, -180, 180));
+    const pitchN = parseNum(pitch);
+    if (pitchN !== null)
+      root.dataset.carShowroomCamPitch = String(clamp(pitchN, -5, 60));
+    const distN = parseNum(dist);
+    if (distN !== null)
+      root.dataset.carShowroomCamDistance = String(clamp(distN, 2.5, 14));
+    const fovN = parseNum(fov);
+    if (fovN !== null)
+      root.dataset.carShowroomFov = String(clamp(fovN, 35, 85));
+
+    const lxN = parseNum(lx);
+    const lyN = parseNum(ly);
+    const lzN = parseNum(lz);
+    if (lxN !== null) root.dataset.carShowroomLookAtX = String(lxN);
+    if (lyN !== null) root.dataset.carShowroomLookAtY = String(lyN);
+    if (lzN !== null) root.dataset.carShowroomLookAtZ = String(lzN);
   };
 
   // Apply deep-link state before defaults so query params win.
@@ -252,6 +308,14 @@ createAstroMount(ROOT_SELECTOR, () => {
     'carShowroomGlassTint',
     'carShowroomBackground',
     'carShowroomCameraPreset',
+    'carShowroomCameraMode',
+    'carShowroomCamYaw',
+    'carShowroomCamPitch',
+    'carShowroomCamDistance',
+    'carShowroomFov',
+    'carShowroomLookAtX',
+    'carShowroomLookAtY',
+    'carShowroomLookAtZ',
     'carShowroomSpinSpeed',
     'carShowroomZoom',
     'carShowroomAutoRotate',
@@ -388,6 +452,11 @@ createAstroMount(ROOT_SELECTOR, () => {
   root.dataset.carShowroomModel ||=
     modelSel?.value || '/models/porsche-911-gt3rs.glb';
   root.dataset.carShowroomCameraPreset ||= cameraSel?.value || 'hero';
+  root.dataset.carShowroomCameraMode ||= cameraModeSel?.value || 'preset';
+  root.dataset.carShowroomCamYaw ||= camYawRange?.value || '17';
+  root.dataset.carShowroomCamPitch ||= camPitchRange?.value || '7';
+  root.dataset.carShowroomCamDistance ||= camDistanceRange?.value || '9.8';
+  root.dataset.carShowroomFov ||= fovRange?.value || '55';
   root.dataset.carShowroomMode ||= modeSel?.value || 'paint';
   root.dataset.carShowroomColor ||= colorInp?.value || '#00d1b2';
   root.dataset.carShowroomFinish ||= finishSel?.value || 'gloss';
@@ -416,6 +485,16 @@ createAstroMount(ROOT_SELECTOR, () => {
     modeSel.value = root.dataset.carShowroomMode;
   if (cameraSel && root.dataset.carShowroomCameraPreset)
     cameraSel.value = root.dataset.carShowroomCameraPreset;
+  if (cameraModeSel && root.dataset.carShowroomCameraMode)
+    cameraModeSel.value = root.dataset.carShowroomCameraMode;
+  if (camYawRange && root.dataset.carShowroomCamYaw)
+    camYawRange.value = root.dataset.carShowroomCamYaw;
+  if (camPitchRange && root.dataset.carShowroomCamPitch)
+    camPitchRange.value = root.dataset.carShowroomCamPitch;
+  if (camDistanceRange && root.dataset.carShowroomCamDistance)
+    camDistanceRange.value = root.dataset.carShowroomCamDistance;
+  if (fovRange && root.dataset.carShowroomFov)
+    fovRange.value = root.dataset.carShowroomFov;
   if (colorInp && root.dataset.carShowroomColor)
     colorInp.value = root.dataset.carShowroomColor;
   if (finishSel && root.dataset.carShowroomFinish)
@@ -480,6 +559,12 @@ createAstroMount(ROOT_SELECTOR, () => {
   const syncFromInputs = () => {
     if (modelSel) root.dataset.carShowroomModel = modelSel.value;
     if (cameraSel) root.dataset.carShowroomCameraPreset = cameraSel.value;
+    if (cameraModeSel) root.dataset.carShowroomCameraMode = cameraModeSel.value;
+    if (camYawRange) root.dataset.carShowroomCamYaw = camYawRange.value;
+    if (camPitchRange) root.dataset.carShowroomCamPitch = camPitchRange.value;
+    if (camDistanceRange)
+      root.dataset.carShowroomCamDistance = camDistanceRange.value;
+    if (fovRange) root.dataset.carShowroomFov = fovRange.value;
     if (modeSel) root.dataset.carShowroomMode = modeSel.value;
     if (colorInp) root.dataset.carShowroomColor = colorInp.value;
     if (finishSel) root.dataset.carShowroomFinish = finishSel.value;
@@ -495,13 +580,23 @@ createAstroMount(ROOT_SELECTOR, () => {
         : 'false';
     if (spinSpeedRange)
       root.dataset.carShowroomSpinSpeed = spinSpeedRange.value;
-    if (zoomRange) root.dataset.carShowroomZoom = zoomRange.value;
+    if (zoomRange) {
+      root.dataset.carShowroomZoom = zoomRange.value;
+      // Keep internal smoothing in sync with the slider so zoom doesn't
+      // "bounce" back toward the previous wheel/pinch target.
+      zoomTarget = clamp(Number.parseFloat(zoomRange.value) || 0, 0, 1);
+    }
     bumpRevision();
   };
 
   [
     modelSel,
     cameraSel,
+    cameraModeSel,
+    camYawRange,
+    camPitchRange,
+    camDistanceRange,
+    fovRange,
     modeSel,
     colorInp,
     finishSel,
@@ -541,6 +636,23 @@ createAstroMount(ROOT_SELECTOR, () => {
     bumpRevision();
   });
 
+  resetViewBtn?.addEventListener('click', () => {
+    if (cameraModeSel) cameraModeSel.value = 'preset';
+    root.dataset.carShowroomCameraMode = 'preset';
+    if (cameraSel) cameraSel.value = 'hero';
+    root.dataset.carShowroomCameraPreset = 'hero';
+
+    if (camYawRange) camYawRange.value = '17';
+    if (camPitchRange) camPitchRange.value = '7';
+    if (camDistanceRange) camDistanceRange.value = '9.8';
+    if (fovRange) fovRange.value = '55';
+    root.dataset.carShowroomCamYaw = '17';
+    root.dataset.carShowroomCamPitch = '7';
+    root.dataset.carShowroomCamDistance = '9.8';
+    root.dataset.carShowroomFov = '55';
+    bumpRevision();
+  });
+
   const copyShareLink = async () => {
     const ds = root.dataset;
     const url = new URL(window.location.href);
@@ -565,6 +677,30 @@ createAstroMount(ROOT_SELECTOR, () => {
     params.set('spin', ds.carShowroomSpinSpeed || '0.65');
     params.set('zoom', ds.carShowroomZoom || '0');
     params.set('ar', ds.carShowroomAutoRotate === 'false' ? '0' : '1');
+
+    const cm = (ds.carShowroomCameraMode || '').trim();
+    if (cm === 'manual') {
+      params.set('cm', 'manual');
+      params.set('yaw', ds.carShowroomCamYaw || '17');
+      params.set('pitch', ds.carShowroomCamPitch || '7');
+      params.set('dist', ds.carShowroomCamDistance || '9.8');
+      params.set('fov', ds.carShowroomFov || '55');
+      const lx = (ds.carShowroomLookAtX || '').trim();
+      const ly = (ds.carShowroomLookAtY || '').trim();
+      const lz = (ds.carShowroomLookAtZ || '').trim();
+      if (lx) params.set('lx', lx);
+      if (ly) params.set('ly', ly);
+      if (lz) params.set('lz', lz);
+    } else {
+      params.delete('cm');
+      params.delete('yaw');
+      params.delete('pitch');
+      params.delete('dist');
+      params.delete('fov');
+      params.delete('lx');
+      params.delete('ly');
+      params.delete('lz');
+    }
 
     url.search = params.toString();
     const ok = await copyToClipboard(url.toString());
@@ -758,6 +894,36 @@ createAstroMount(ROOT_SELECTOR, () => {
   const output = new OutputPass();
   composer.addPass(output);
 
+  frameBtn?.addEventListener('click', () => {
+    const rec = showroom.getFrameRecommendation();
+    if (!rec) {
+      showToast('Model not ready yet.');
+      return;
+    }
+
+    if (cameraModeSel) cameraModeSel.value = 'manual';
+    root.dataset.carShowroomCameraMode = 'manual';
+
+    if (camYawRange) camYawRange.value = String(Math.round(rec.yawDeg));
+    if (camPitchRange) camPitchRange.value = String(Math.round(rec.pitchDeg));
+    if (camDistanceRange) camDistanceRange.value = rec.distance.toFixed(2);
+    if (fovRange) fovRange.value = String(Math.round(rec.fov));
+
+    root.dataset.carShowroomCamYaw = String(rec.yawDeg);
+    root.dataset.carShowroomCamPitch = String(rec.pitchDeg);
+    root.dataset.carShowroomCamDistance = String(rec.distance);
+    root.dataset.carShowroomFov = String(rec.fov);
+    root.dataset.carShowroomLookAtX = rec.lookAt.x.toFixed(3);
+    root.dataset.carShowroomLookAtY = rec.lookAt.y.toFixed(3);
+    root.dataset.carShowroomLookAtZ = rec.lookAt.z.toFixed(3);
+
+    // Bring zoom slider in sync with the new distance feel.
+    setZoom(0.65);
+
+    bumpRevision();
+    showToast('Framed model.');
+  });
+
   downloadScreenshot = () => {
     try {
       composer.render();
@@ -829,6 +995,19 @@ createAstroMount(ROOT_SELECTOR, () => {
   let pinchActive = false;
   let pinchStartDist = 0;
   let pinchStartZoom = 0;
+
+  const setZoom = (v: number) => {
+    zoomTarget = clamp(v, 0, 1);
+    if (zoomRange) {
+      zoomRange.value = zoomTarget.toFixed(2);
+      root.dataset.carShowroomZoom = zoomRange.value;
+      bumpRevision();
+    }
+  };
+
+  zoomWideBtn?.addEventListener('click', () => setZoom(0.0));
+  zoomMidBtn?.addEventListener('click', () => setZoom(0.5));
+  zoomCloseBtn?.addEventListener('click', () => setZoom(1.0));
 
   const onPointerMove = (e: PointerEvent) => {
     const rect = canvas.getBoundingClientRect();

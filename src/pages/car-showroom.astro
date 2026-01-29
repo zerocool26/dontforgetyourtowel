@@ -129,6 +129,76 @@ const description =
           </label>
 
           <label class="csr-field">
+            <span>Camera mode</span>
+            <select data-csr-camera-mode>
+              <option value="preset">Preset</option>
+              <option value="manual">Manual</option>
+            </select>
+          </label>
+
+          <label class="csr-field csr-field--wide">
+            <span>Yaw</span>
+            <input
+              type="range"
+              min="-180"
+              max="180"
+              step="1"
+              value="17"
+              data-csr-cam-yaw
+            />
+          </label>
+
+          <label class="csr-field csr-field--wide">
+            <span>Pitch</span>
+            <input
+              type="range"
+              min="-5"
+              max="60"
+              step="1"
+              value="7"
+              data-csr-cam-pitch
+            />
+          </label>
+
+          <label class="csr-field csr-field--wide">
+            <span>Distance</span>
+            <input
+              type="range"
+              min="2.5"
+              max="14"
+              step="0.05"
+              value="9.8"
+              data-csr-cam-distance
+            />
+          </label>
+
+          <label class="csr-field csr-field--wide">
+            <span>FOV</span>
+            <input
+              type="range"
+              min="35"
+              max="85"
+              step="1"
+              value="55"
+              data-csr-fov
+            />
+          </label>
+
+          <div class="csr-row">
+            <button type="button" class="csr-btn" data-csr-frame>
+              Frame model
+            </button>
+            <button
+              type="button"
+              class="csr-btn csr-btn--ghost"
+              data-csr-reset-view
+            >
+              Reset view
+            </button>
+            <p class="csr-hint">Manual lets you get close fast</p>
+          </div>
+
+          <label class="csr-field">
             <span>Body color</span>
             <input type="color" value="#00d1b2" data-csr-color />
           </label>
@@ -227,7 +297,7 @@ const description =
 
           <label class="csr-field">
             <span>Auto-rotate</span>
-            <input type="checkbox" checked data-csr-autorotate />
+            <input type="checkbox" data-csr-autorotate />
           </label>
 
           <label class="csr-field csr-field--wide">
@@ -253,6 +323,32 @@ const description =
               data-csr-zoom
             />
           </label>
+
+          <div class="csr-row">
+            <button
+              type="button"
+              class="csr-btn csr-btn--ghost"
+              data-csr-zoom-wide
+            >
+              Wide
+            </button>
+            <button
+              type="button"
+              class="csr-btn csr-btn--ghost"
+              data-csr-zoom-mid
+            >
+              Mid
+            </button>
+            <button
+              type="button"
+              class="csr-btn"
+              data-csr-zoom-close
+              title="Quick close-up"
+            >
+              Close
+            </button>
+            <p class="csr-hint">Quick zoom</p>
+          </div>
 
           <div class="csr-field csr-field--wide">
             <span>Presets</span>

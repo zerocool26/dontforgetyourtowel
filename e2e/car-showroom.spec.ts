@@ -40,6 +40,28 @@ test.describe('Car Showroom', () => {
     // Options button exists.
     await expect(page.locator('[data-csr-toggle-panel]')).toBeVisible();
 
+    // Ensure the default Porsche model actually loads.
+    // The runtime sets dataset flags on the root element.
+    await expect
+      .poll(
+        async () =>
+          page.evaluate(() => {
+            const root = document.querySelector<HTMLElement>(
+              '[data-car-showroom-root]'
+            );
+            if (!root) return false;
+            const ds = root.dataset;
+            const ready = ds.carShowroomReady ?? '0';
+            const loading = ds.carShowroomLoading ?? '0';
+            const error = (ds.carShowroomLoadError ?? '').trim();
+            const model = (ds.carShowroomModel ?? '').trim();
+            const okModel = model.includes('porsche-911-gt3rs.glb');
+            return ready === '1' && loading === '0' && error === '' && okModel;
+          }),
+        { timeout: 20_000 }
+      )
+      .toBe(true);
+
     // Should not show the error overlay. If it does, surface details.
     const overlay = page.locator('.tower3d-error-overlay');
     const overlayCount = await overlay.count();
