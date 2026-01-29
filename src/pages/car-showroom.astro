@@ -296,6 +296,82 @@ const description =
           </label>
 
           <label class="csr-field csr-field--wide">
+            <span>Environment reflections</span>
+            <input
+              type="range"
+              min="0"
+              max="3"
+              step="0.01"
+              value="1"
+              data-csr-env-intensity
+            />
+          </label>
+
+          <label class="csr-field csr-field--wide">
+            <span>Lighting intensity</span>
+            <input
+              type="range"
+              min="0.2"
+              max="2.5"
+              step="0.01"
+              value="1"
+              data-csr-light-intensity
+            />
+          </label>
+
+          <label class="csr-field csr-field--wide">
+            <span>Floor preset</span>
+            <select data-csr-floor-preset>
+              <option value="auto">Auto (match scene)</option>
+              <option value="asphalt">Asphalt</option>
+              <option value="matte">Matte studio</option>
+              <option value="polished">Polished studio</option>
+              <option value="glass">Glass (transparent)</option>
+            </select>
+          </label>
+
+          <label class="csr-field">
+            <span>Floor color</span>
+            <input type="color" value="#05070d" data-csr-floor-color />
+          </label>
+
+          <label class="csr-field csr-field--wide">
+            <span>Floor roughness</span>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              value="0.55"
+              data-csr-floor-roughness
+            />
+          </label>
+
+          <label class="csr-field csr-field--wide">
+            <span>Floor metalness</span>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              value="0.02"
+              data-csr-floor-metalness
+            />
+          </label>
+
+          <label class="csr-field csr-field--wide">
+            <span>Floor opacity</span>
+            <input
+              type="range"
+              min="0.05"
+              max="1"
+              step="0.01"
+              value="1"
+              data-csr-floor-opacity
+            />
+          </label>
+
+          <label class="csr-field csr-field--wide">
             <span>Exposure</span>
             <input
               type="range"

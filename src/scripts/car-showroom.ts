@@ -159,6 +159,27 @@ createAstroMount(ROOT_SELECTOR, () => {
     '[data-csr-glass-tint]'
   );
   const bgSel = root.querySelector<HTMLSelectElement>('[data-csr-background]');
+  const envIntensityRange = root.querySelector<HTMLInputElement>(
+    '[data-csr-env-intensity]'
+  );
+  const lightIntensityRange = root.querySelector<HTMLInputElement>(
+    '[data-csr-light-intensity]'
+  );
+  const floorPresetSel = root.querySelector<HTMLSelectElement>(
+    '[data-csr-floor-preset]'
+  );
+  const floorColorInp = root.querySelector<HTMLInputElement>(
+    '[data-csr-floor-color]'
+  );
+  const floorRoughnessRange = root.querySelector<HTMLInputElement>(
+    '[data-csr-floor-roughness]'
+  );
+  const floorMetalnessRange = root.querySelector<HTMLInputElement>(
+    '[data-csr-floor-metalness]'
+  );
+  const floorOpacityRange = root.querySelector<HTMLInputElement>(
+    '[data-csr-floor-opacity]'
+  );
   const exposureRange = root.querySelector<HTMLInputElement>(
     '[data-csr-exposure]'
   );
@@ -245,6 +266,14 @@ createAstroMount(ROOT_SELECTOR, () => {
     const bt = params.get('bt');
     const br = params.get('br');
 
+    const env = params.get('env');
+    const li = params.get('li');
+    const floor = params.get('floor');
+    const fcol = params.get('fcol');
+    const fr = params.get('fr');
+    const fm = params.get('fm');
+    const fo = params.get('fo');
+
     if (model) root.dataset.carShowroomModel = model;
     if (mode) root.dataset.carShowroomMode = mode;
     if (finish) root.dataset.carShowroomFinish = finish;
@@ -312,6 +341,41 @@ createAstroMount(ROOT_SELECTOR, () => {
     const brN = parseNum(br);
     if (brN !== null)
       root.dataset.carShowroomBloomRadius = String(clamp01(brN));
+
+    const envN = parseNum(env);
+    if (envN !== null)
+      root.dataset.carShowroomEnvIntensity = String(clamp(envN, 0, 3));
+
+    const liN = parseNum(li);
+    if (liN !== null)
+      root.dataset.carShowroomLightIntensity = String(clamp(liN, 0.2, 2.5));
+
+    if (
+      floor === 'auto' ||
+      floor === 'asphalt' ||
+      floor === 'matte' ||
+      floor === 'polished' ||
+      floor === 'glass'
+    ) {
+      root.dataset.carShowroomFloorPreset = floor;
+    }
+
+    if (fcol) {
+      const hex = normalizeHexColor(fcol);
+      if (hex) root.dataset.carShowroomFloorColor = hex;
+    }
+
+    const frN = parseNum(fr);
+    if (frN !== null)
+      root.dataset.carShowroomFloorRoughness = String(clamp01(frN));
+
+    const fmN = parseNum(fm);
+    if (fmN !== null)
+      root.dataset.carShowroomFloorMetalness = String(clamp01(fmN));
+
+    const foN = parseNum(fo);
+    if (foN !== null)
+      root.dataset.carShowroomFloorOpacity = String(clamp(foN, 0.05, 1));
   };
 
   // Apply deep-link state before defaults so query params win.
@@ -338,6 +402,13 @@ createAstroMount(ROOT_SELECTOR, () => {
     'carShowroomTrimFinish',
     'carShowroomGlassTint',
     'carShowroomBackground',
+    'carShowroomEnvIntensity',
+    'carShowroomLightIntensity',
+    'carShowroomFloorPreset',
+    'carShowroomFloorColor',
+    'carShowroomFloorRoughness',
+    'carShowroomFloorMetalness',
+    'carShowroomFloorOpacity',
     'carShowroomExposure',
     'carShowroomBloomStrength',
     'carShowroomBloomThreshold',
@@ -516,6 +587,15 @@ createAstroMount(ROOT_SELECTOR, () => {
   root.dataset.carShowroomTrimFinish ||= trimFinishSel?.value || 'black';
   root.dataset.carShowroomGlassTint ||= glassTintRange?.value || '0.15';
   root.dataset.carShowroomBackground ||= bgSel?.value || 'studio';
+  root.dataset.carShowroomEnvIntensity ||= envIntensityRange?.value || '1';
+  root.dataset.carShowroomLightIntensity ||= lightIntensityRange?.value || '1';
+  root.dataset.carShowroomFloorPreset ||= floorPresetSel?.value || 'auto';
+  root.dataset.carShowroomFloorColor ||= floorColorInp?.value || '#05070d';
+  root.dataset.carShowroomFloorRoughness ||=
+    floorRoughnessRange?.value || '0.55';
+  root.dataset.carShowroomFloorMetalness ||=
+    floorMetalnessRange?.value || '0.02';
+  root.dataset.carShowroomFloorOpacity ||= floorOpacityRange?.value || '1';
   root.dataset.carShowroomExposure ||= exposureRange?.value || '1';
   root.dataset.carShowroomBloomStrength ||= bloomStrengthRange?.value || '0.35';
   root.dataset.carShowroomBloomThreshold ||=
@@ -564,6 +644,20 @@ createAstroMount(ROOT_SELECTOR, () => {
     glassTintRange.value = root.dataset.carShowroomGlassTint;
   if (bgSel && root.dataset.carShowroomBackground)
     bgSel.value = root.dataset.carShowroomBackground;
+  if (envIntensityRange && root.dataset.carShowroomEnvIntensity)
+    envIntensityRange.value = root.dataset.carShowroomEnvIntensity;
+  if (lightIntensityRange && root.dataset.carShowroomLightIntensity)
+    lightIntensityRange.value = root.dataset.carShowroomLightIntensity;
+  if (floorPresetSel && root.dataset.carShowroomFloorPreset)
+    floorPresetSel.value = root.dataset.carShowroomFloorPreset;
+  if (floorColorInp && root.dataset.carShowroomFloorColor)
+    floorColorInp.value = root.dataset.carShowroomFloorColor;
+  if (floorRoughnessRange && root.dataset.carShowroomFloorRoughness)
+    floorRoughnessRange.value = root.dataset.carShowroomFloorRoughness;
+  if (floorMetalnessRange && root.dataset.carShowroomFloorMetalness)
+    floorMetalnessRange.value = root.dataset.carShowroomFloorMetalness;
+  if (floorOpacityRange && root.dataset.carShowroomFloorOpacity)
+    floorOpacityRange.value = root.dataset.carShowroomFloorOpacity;
   if (exposureRange && root.dataset.carShowroomExposure)
     exposureRange.value = root.dataset.carShowroomExposure;
   if (bloomStrengthRange && root.dataset.carShowroomBloomStrength)
@@ -612,6 +706,47 @@ createAstroMount(ROOT_SELECTOR, () => {
     bumpRevision();
   };
 
+  const applyFloorPreset = (preset: string) => {
+    if (preset === 'asphalt') {
+      if (floorColorInp) floorColorInp.value = '#0b0f1a';
+      if (floorRoughnessRange) floorRoughnessRange.value = '0.95';
+      if (floorMetalnessRange) floorMetalnessRange.value = '0.02';
+      if (floorOpacityRange) floorOpacityRange.value = '1';
+    } else if (preset === 'matte') {
+      if (floorColorInp) floorColorInp.value = '#05070d';
+      if (floorRoughnessRange) floorRoughnessRange.value = '0.78';
+      if (floorMetalnessRange) floorMetalnessRange.value = '0.02';
+      if (floorOpacityRange) floorOpacityRange.value = '1';
+    } else if (preset === 'polished') {
+      if (floorColorInp) floorColorInp.value = '#0b1220';
+      if (floorRoughnessRange) floorRoughnessRange.value = '0.16';
+      if (floorMetalnessRange) floorMetalnessRange.value = '0.35';
+      if (floorOpacityRange) floorOpacityRange.value = '1';
+    } else if (preset === 'glass') {
+      if (floorColorInp) floorColorInp.value = '#0b1220';
+      if (floorRoughnessRange) floorRoughnessRange.value = '0.05';
+      if (floorMetalnessRange) floorMetalnessRange.value = '0';
+      if (floorOpacityRange) floorOpacityRange.value = '0.25';
+    }
+
+    if (floorPresetSel) floorPresetSel.value = preset;
+    root.dataset.carShowroomFloorPreset = preset;
+
+    if (floorColorInp) root.dataset.carShowroomFloorColor = floorColorInp.value;
+    if (floorRoughnessRange)
+      root.dataset.carShowroomFloorRoughness = floorRoughnessRange.value;
+    if (floorMetalnessRange)
+      root.dataset.carShowroomFloorMetalness = floorMetalnessRange.value;
+    if (floorOpacityRange)
+      root.dataset.carShowroomFloorOpacity = floorOpacityRange.value;
+    bumpRevision();
+  };
+
+  floorPresetSel?.addEventListener('change', () => {
+    const preset = (floorPresetSel.value || 'auto').trim();
+    applyFloorPreset(preset);
+  });
+
   loadModelBtn?.addEventListener('click', () => {
     applyModelUrl();
   });
@@ -639,6 +774,19 @@ createAstroMount(ROOT_SELECTOR, () => {
     if (glassTintRange)
       root.dataset.carShowroomGlassTint = glassTintRange.value;
     if (bgSel) root.dataset.carShowroomBackground = bgSel.value;
+    if (envIntensityRange)
+      root.dataset.carShowroomEnvIntensity = envIntensityRange.value;
+    if (lightIntensityRange)
+      root.dataset.carShowroomLightIntensity = lightIntensityRange.value;
+    if (floorPresetSel)
+      root.dataset.carShowroomFloorPreset = floorPresetSel.value;
+    if (floorColorInp) root.dataset.carShowroomFloorColor = floorColorInp.value;
+    if (floorRoughnessRange)
+      root.dataset.carShowroomFloorRoughness = floorRoughnessRange.value;
+    if (floorMetalnessRange)
+      root.dataset.carShowroomFloorMetalness = floorMetalnessRange.value;
+    if (floorOpacityRange)
+      root.dataset.carShowroomFloorOpacity = floorOpacityRange.value;
     if (exposureRange) root.dataset.carShowroomExposure = exposureRange.value;
     if (bloomStrengthRange)
       root.dataset.carShowroomBloomStrength = bloomStrengthRange.value;
@@ -676,6 +824,13 @@ createAstroMount(ROOT_SELECTOR, () => {
     trimFinishSel,
     glassTintRange,
     bgSel,
+    envIntensityRange,
+    lightIntensityRange,
+    floorPresetSel,
+    floorColorInp,
+    floorRoughnessRange,
+    floorMetalnessRange,
+    floorOpacityRange,
     exposureRange,
     bloomStrengthRange,
     bloomThresholdRange,
@@ -700,6 +855,13 @@ createAstroMount(ROOT_SELECTOR, () => {
     if (trimFinishSel) trimFinishSel.value = 'black';
     if (glassTintRange) glassTintRange.value = '0.15';
     if (bgSel) bgSel.value = 'studio';
+    if (envIntensityRange) envIntensityRange.value = '1';
+    if (lightIntensityRange) lightIntensityRange.value = '1';
+    if (floorPresetSel) floorPresetSel.value = 'auto';
+    if (floorColorInp) floorColorInp.value = '#05070d';
+    if (floorRoughnessRange) floorRoughnessRange.value = '0.55';
+    if (floorMetalnessRange) floorMetalnessRange.value = '0.02';
+    if (floorOpacityRange) floorOpacityRange.value = '1';
     if (exposureRange) exposureRange.value = '1';
     if (bloomStrengthRange) bloomStrengthRange.value = '0.35';
     if (bloomThresholdRange) bloomThresholdRange.value = '0.88';
@@ -762,6 +924,14 @@ createAstroMount(ROOT_SELECTOR, () => {
     params.set('bloom', ds.carShowroomBloomStrength || '0.35');
     params.set('bt', ds.carShowroomBloomThreshold || '0.88');
     params.set('br', ds.carShowroomBloomRadius || '0.35');
+
+    params.set('env', ds.carShowroomEnvIntensity || '1');
+    params.set('li', ds.carShowroomLightIntensity || '1');
+    params.set('floor', ds.carShowroomFloorPreset || 'auto');
+    params.set('fcol', ds.carShowroomFloorColor || '#05070d');
+    params.set('fr', ds.carShowroomFloorRoughness || '0.55');
+    params.set('fm', ds.carShowroomFloorMetalness || '0.02');
+    params.set('fo', ds.carShowroomFloorOpacity || '1');
 
     const cm = (ds.carShowroomCameraMode || '').trim();
     if (cm === 'manual') {
