@@ -161,8 +161,23 @@ createAstroMount(ROOT_SELECTOR, () => {
   const wheelFinishSel = root.querySelector<HTMLSelectElement>(
     '[data-csr-wheel-finish]'
   );
+  const wheelColorInp = root.querySelector<HTMLInputElement>(
+    '[data-csr-wheel-color]'
+  );
   const trimFinishSel = root.querySelector<HTMLSelectElement>(
     '[data-csr-trim-finish]'
+  );
+  const trimColorInp = root.querySelector<HTMLInputElement>(
+    '[data-csr-trim-color]'
+  );
+  const caliperColorInp = root.querySelector<HTMLInputElement>(
+    '[data-csr-caliper-color]'
+  );
+  const lightColorInp = root.querySelector<HTMLInputElement>(
+    '[data-csr-light-color]'
+  );
+  const lightGlowRange = root.querySelector<HTMLInputElement>(
+    '[data-csr-light-glow]'
   );
   const glassTintRange = root.querySelector<HTMLInputElement>(
     '[data-csr-glass-tint]'
@@ -246,6 +261,12 @@ createAstroMount(ROOT_SELECTOR, () => {
   );
   const shotTransparentChk = root.querySelector<HTMLInputElement>(
     '[data-csr-shot-transparent]'
+  );
+  const clearSelectionBtn = root.querySelector<HTMLButtonElement>(
+    '[data-csr-clear-selection]'
+  );
+  const copyBuildBtn = root.querySelector<HTMLButtonElement>(
+    '[data-csr-copy-build]'
   );
 
   // --- Panel tabs (mobile-friendly)
@@ -348,6 +369,11 @@ createAstroMount(ROOT_SELECTOR, () => {
     const finish = params.get('finish');
     const wheel = params.get('wheel');
     const trim = params.get('trim');
+    const whc = params.get('whc');
+    const trc = params.get('trc');
+    const ccol = params.get('ccol');
+    const lcol = params.get('lcol');
+    const lglow = params.get('lglow');
     const tint = params.get('tint');
     const bg = params.get('bg');
     const cam = params.get('cam');
@@ -386,6 +412,27 @@ createAstroMount(ROOT_SELECTOR, () => {
     if (trim) root.dataset.carShowroomTrimFinish = trim;
     if (bg) root.dataset.carShowroomBackground = bg;
     if (cam) root.dataset.carShowroomCameraPreset = cam;
+
+    if (whc) {
+      const hex = normalizeHexColor(whc);
+      if (hex) root.dataset.carShowroomWheelColor = hex;
+    }
+    if (trc) {
+      const hex = normalizeHexColor(trc);
+      if (hex) root.dataset.carShowroomTrimColor = hex;
+    }
+    if (ccol) {
+      const hex = normalizeHexColor(ccol);
+      if (hex) root.dataset.carShowroomCaliperColor = hex;
+    }
+    if (lcol) {
+      const hex = normalizeHexColor(lcol);
+      if (hex) root.dataset.carShowroomLightColor = hex;
+    }
+
+    const lglowN = parseNum(lglow);
+    if (lglowN !== null)
+      root.dataset.carShowroomLightGlow = String(clamp(lglowN, 0, 4));
 
     if (color) {
       const hex = normalizeHexColor(color);
@@ -526,7 +573,12 @@ createAstroMount(ROOT_SELECTOR, () => {
     'carShowroomWrapScale',
     'carShowroomFinish',
     'carShowroomWheelFinish',
+    'carShowroomWheelColor',
     'carShowroomTrimFinish',
+    'carShowroomTrimColor',
+    'carShowroomCaliperColor',
+    'carShowroomLightColor',
+    'carShowroomLightGlow',
     'carShowroomGlassTint',
     'carShowroomBackground',
     'carShowroomEnvIntensity',
@@ -622,8 +674,18 @@ createAstroMount(ROOT_SELECTOR, () => {
       finishSel.value = ds.carShowroomFinish;
     if (wheelFinishSel && ds.carShowroomWheelFinish)
       wheelFinishSel.value = ds.carShowroomWheelFinish;
+    if (wheelColorInp && ds.carShowroomWheelColor)
+      wheelColorInp.value = ds.carShowroomWheelColor;
     if (trimFinishSel && ds.carShowroomTrimFinish)
       trimFinishSel.value = ds.carShowroomTrimFinish;
+    if (trimColorInp && ds.carShowroomTrimColor)
+      trimColorInp.value = ds.carShowroomTrimColor;
+    if (caliperColorInp && ds.carShowroomCaliperColor)
+      caliperColorInp.value = ds.carShowroomCaliperColor;
+    if (lightColorInp && ds.carShowroomLightColor)
+      lightColorInp.value = ds.carShowroomLightColor;
+    if (lightGlowRange && ds.carShowroomLightGlow)
+      lightGlowRange.value = ds.carShowroomLightGlow;
     if (glassTintRange && ds.carShowroomGlassTint)
       glassTintRange.value = ds.carShowroomGlassTint;
     if (bgSel && ds.carShowroomBackground)
@@ -745,6 +807,11 @@ createAstroMount(ROOT_SELECTOR, () => {
   root.dataset.carShowroomFinish ||= finishSel?.value || 'gloss';
   root.dataset.carShowroomWheelFinish ||= wheelFinishSel?.value || 'graphite';
   root.dataset.carShowroomTrimFinish ||= trimFinishSel?.value || 'black';
+  root.dataset.carShowroomWheelColor ||= wheelColorInp?.value || '#1f2937';
+  root.dataset.carShowroomTrimColor ||= trimColorInp?.value || '#0b0f1a';
+  root.dataset.carShowroomCaliperColor ||= caliperColorInp?.value || '#ef4444';
+  root.dataset.carShowroomLightColor ||= lightColorInp?.value || '#dbeafe';
+  root.dataset.carShowroomLightGlow ||= lightGlowRange?.value || '1.25';
   root.dataset.carShowroomGlassTint ||= glassTintRange?.value || '0.15';
   root.dataset.carShowroomBackground ||= bgSel?.value || 'studio';
   root.dataset.carShowroomEnvIntensity ||= envIntensityRange?.value || '1';
@@ -806,6 +873,16 @@ createAstroMount(ROOT_SELECTOR, () => {
     wheelFinishSel.value = root.dataset.carShowroomWheelFinish;
   if (trimFinishSel && root.dataset.carShowroomTrimFinish)
     trimFinishSel.value = root.dataset.carShowroomTrimFinish;
+  if (wheelColorInp && root.dataset.carShowroomWheelColor)
+    wheelColorInp.value = root.dataset.carShowroomWheelColor;
+  if (trimColorInp && root.dataset.carShowroomTrimColor)
+    trimColorInp.value = root.dataset.carShowroomTrimColor;
+  if (caliperColorInp && root.dataset.carShowroomCaliperColor)
+    caliperColorInp.value = root.dataset.carShowroomCaliperColor;
+  if (lightColorInp && root.dataset.carShowroomLightColor)
+    lightColorInp.value = root.dataset.carShowroomLightColor;
+  if (lightGlowRange && root.dataset.carShowroomLightGlow)
+    lightGlowRange.value = root.dataset.carShowroomLightGlow;
   if (glassTintRange && root.dataset.carShowroomGlassTint)
     glassTintRange.value = root.dataset.carShowroomGlassTint;
   if (bgSel && root.dataset.carShowroomBackground)
@@ -942,6 +1019,13 @@ createAstroMount(ROOT_SELECTOR, () => {
     if (wheelFinishSel)
       root.dataset.carShowroomWheelFinish = wheelFinishSel.value;
     if (trimFinishSel) root.dataset.carShowroomTrimFinish = trimFinishSel.value;
+    if (wheelColorInp) root.dataset.carShowroomWheelColor = wheelColorInp.value;
+    if (trimColorInp) root.dataset.carShowroomTrimColor = trimColorInp.value;
+    if (caliperColorInp)
+      root.dataset.carShowroomCaliperColor = caliperColorInp.value;
+    if (lightColorInp) root.dataset.carShowroomLightColor = lightColorInp.value;
+    if (lightGlowRange)
+      root.dataset.carShowroomLightGlow = lightGlowRange.value;
     if (glassTintRange)
       root.dataset.carShowroomGlassTint = glassTintRange.value;
     if (bgSel) root.dataset.carShowroomBackground = bgSel.value;
@@ -996,6 +1080,11 @@ createAstroMount(ROOT_SELECTOR, () => {
     finishSel,
     wheelFinishSel,
     trimFinishSel,
+    wheelColorInp,
+    trimColorInp,
+    caliperColorInp,
+    lightColorInp,
+    lightGlowRange,
     glassTintRange,
     bgSel,
     envIntensityRange,
@@ -1030,6 +1119,11 @@ createAstroMount(ROOT_SELECTOR, () => {
     if (finishSel) finishSel.value = 'gloss';
     if (wheelFinishSel) wheelFinishSel.value = 'graphite';
     if (trimFinishSel) trimFinishSel.value = 'black';
+    if (wheelColorInp) wheelColorInp.value = '#1f2937';
+    if (trimColorInp) trimColorInp.value = '#0b0f1a';
+    if (caliperColorInp) caliperColorInp.value = '#ef4444';
+    if (lightColorInp) lightColorInp.value = '#dbeafe';
+    if (lightGlowRange) lightGlowRange.value = '1.25';
     if (glassTintRange) glassTintRange.value = '0.15';
     if (bgSel) bgSel.value = 'studio';
     if (envIntensityRange) envIntensityRange.value = '1';
@@ -1093,6 +1187,11 @@ createAstroMount(ROOT_SELECTOR, () => {
     params.set('finish', ds.carShowroomFinish || 'gloss');
     params.set('wheel', ds.carShowroomWheelFinish || 'graphite');
     params.set('trim', ds.carShowroomTrimFinish || 'black');
+    params.set('whc', ds.carShowroomWheelColor || '#1f2937');
+    params.set('trc', ds.carShowroomTrimColor || '#0b0f1a');
+    params.set('ccol', ds.carShowroomCaliperColor || '#ef4444');
+    params.set('lcol', ds.carShowroomLightColor || '#dbeafe');
+    params.set('lglow', ds.carShowroomLightGlow || '1.25');
     params.set('tint', ds.carShowroomGlassTint || '0.15');
     params.set('bg', ds.carShowroomBackground || 'studio');
     params.set('cam', ds.carShowroomCameraPreset || 'hero');
@@ -1144,6 +1243,103 @@ createAstroMount(ROOT_SELECTOR, () => {
 
   copyLinkBtn?.addEventListener('click', () => {
     void copyShareLink();
+  });
+
+  const copyBuildSheet = async () => {
+    const ds = root.dataset;
+    const state: Record<string, string> = {};
+    for (const k of PRESET_DATASET_KEYS) {
+      const v = (ds[k] || '').trim();
+      if (v) state[String(k)] = v;
+    }
+
+    // Include a share URL for convenience.
+    const url = new URL(window.location.href);
+    // Re-use the share link logic so it matches the UI.
+    await (async () => {
+      const params = new URLSearchParams(url.search);
+
+      const model = (ds.carShowroomModel || '').trim();
+      if (model && !model.startsWith('blob:') && !model.startsWith('data:')) {
+        params.set('model', model);
+      } else {
+        params.delete('model');
+      }
+
+      params.set('mode', ds.carShowroomMode || 'paint');
+      params.set('color', ds.carShowroomColor || '#00d1b2');
+      params.set('wcolor', ds.carShowroomWrapColor || '#00d1b2');
+      params.set('wpat', ds.carShowroomWrapPattern || 'stripes');
+      params.set('wscale', ds.carShowroomWrapScale || '1.6');
+      params.set('finish', ds.carShowroomFinish || 'gloss');
+      params.set('wheel', ds.carShowroomWheelFinish || 'graphite');
+      params.set('trim', ds.carShowroomTrimFinish || 'black');
+      params.set('whc', ds.carShowroomWheelColor || '#1f2937');
+      params.set('trc', ds.carShowroomTrimColor || '#0b0f1a');
+      params.set('ccol', ds.carShowroomCaliperColor || '#ef4444');
+      params.set('lcol', ds.carShowroomLightColor || '#dbeafe');
+      params.set('lglow', ds.carShowroomLightGlow || '1.25');
+      params.set('tint', ds.carShowroomGlassTint || '0.15');
+      params.set('bg', ds.carShowroomBackground || 'studio');
+      params.set('cam', ds.carShowroomCameraPreset || 'hero');
+      params.set('spin', ds.carShowroomSpinSpeed || '0.65');
+      params.set('zoom', ds.carShowroomZoom || '0');
+      params.set('ar', ds.carShowroomAutoRotate === 'false' ? '0' : '1');
+
+      params.set('exp', ds.carShowroomExposure || '1');
+      params.set('bloom', ds.carShowroomBloomStrength || '0.35');
+      params.set('bt', ds.carShowroomBloomThreshold || '0.88');
+      params.set('br', ds.carShowroomBloomRadius || '0.35');
+
+      params.set('env', ds.carShowroomEnvIntensity || '1');
+      params.set('li', ds.carShowroomLightIntensity || '1');
+      params.set('floor', ds.carShowroomFloorPreset || 'auto');
+      params.set('fcol', ds.carShowroomFloorColor || '#05070d');
+      params.set('fr', ds.carShowroomFloorRoughness || '0.55');
+      params.set('fm', ds.carShowroomFloorMetalness || '0.02');
+      params.set('fo', ds.carShowroomFloorOpacity || '1');
+
+      const cm = (ds.carShowroomCameraMode || '').trim();
+      if (cm === 'manual') {
+        params.set('cm', 'manual');
+        params.set('yaw', ds.carShowroomCamYaw || '17');
+        params.set('pitch', ds.carShowroomCamPitch || '7');
+        params.set('dist', ds.carShowroomCamDistance || '9.8');
+        params.set('fov', ds.carShowroomFov || '55');
+        const lx = (ds.carShowroomLookAtX || '').trim();
+        const ly = (ds.carShowroomLookAtY || '').trim();
+        const lz = (ds.carShowroomLookAtZ || '').trim();
+        if (lx) params.set('lx', lx);
+        if (ly) params.set('ly', ly);
+        if (lz) params.set('lz', lz);
+      } else {
+        params.delete('cm');
+        params.delete('yaw');
+        params.delete('pitch');
+        params.delete('dist');
+        params.delete('fov');
+        params.delete('lx');
+        params.delete('ly');
+        params.delete('lz');
+      }
+
+      url.search = params.toString();
+    })();
+
+    const payload = {
+      version: 1,
+      createdAt: new Date().toISOString(),
+      selectedPart: (ds.carShowroomSelectedPart || '').trim() || null,
+      shareUrl: url.toString(),
+      state,
+    };
+
+    const ok = await copyToClipboard(JSON.stringify(payload, null, 2));
+    showToast(ok ? 'Build sheet copied.' : 'Could not copy build sheet.');
+  };
+
+  copyBuildBtn?.addEventListener('click', () => {
+    void copyBuildSheet();
   });
 
   presetSaveBtn?.addEventListener('click', () => {
@@ -1517,16 +1713,24 @@ createAstroMount(ROOT_SELECTOR, () => {
     const x = (clientX - rect.left) / Math.max(1, rect.width);
     const y = (clientY - rect.top) / Math.max(1, rect.height);
     pickNdc.set(x * 2 - 1, -(y * 2 - 1));
-    const part = showroom.pickPart(pickNdc, raycaster);
-    if (!part) return;
-    root.dataset.carShowroomSelectedPart = part;
-    if (selectedPartEl) selectedPartEl.textContent = `Selected: ${part}`;
+    const hit = showroom.pickMesh(pickNdc, raycaster);
+    if (!hit) return;
+    root.dataset.carShowroomSelectedPart = hit.part;
+    showroom.setSelectedMesh(hit.mesh);
+    if (selectedPartEl) selectedPartEl.textContent = `Selected: ${hit.part}`;
   };
 
   canvas.addEventListener('pointerup', e => {
     // Avoid picking while dragging/rotating.
     if (press > 0.55) return;
     pickPartAt(e.clientX, e.clientY);
+  });
+
+  clearSelectionBtn?.addEventListener('click', () => {
+    root.dataset.carShowroomSelectedPart = '';
+    showroom.clearSelection();
+    if (selectedPartEl)
+      selectedPartEl.textContent = 'Tap/click the car to select';
   });
 
   // Deterministic test breadcrumb.

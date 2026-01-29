@@ -20,6 +20,11 @@ type UiState = {
   mode: ShowroomMode;
   color: THREE.Color;
   wrapColor: THREE.Color;
+  wheelColor: THREE.Color;
+  trimColor: THREE.Color;
+  caliperColor: THREE.Color;
+  lightColor: THREE.Color;
+  lightGlow: number;
   wrapPattern: WrapPattern;
   wrapScale: number;
   finish: ShowroomFinish;
@@ -266,12 +271,17 @@ export class CarShowroomScene {
   private glassMat: THREE.MeshPhysicalMaterial;
   private trimMat: THREE.MeshPhysicalMaterial;
   private wheelMat: THREE.MeshPhysicalMaterial;
+  private caliperMat: THREE.MeshPhysicalMaterial;
   private tireMat: THREE.MeshStandardMaterial;
   private lightMat: THREE.MeshStandardMaterial;
   private wireframeMat: THREE.MeshStandardMaterial;
 
   private wrapTex: THREE.CanvasTexture | null = null;
   private wrapTexKey = '';
+
+  private selectedMesh: THREE.Mesh | null = null;
+  private selectionBox = new THREE.Box3();
+  private selectionHelper: THREE.Box3Helper;
 
   private orbitYaw = 0;
   private orbitPitch = 0.12;
@@ -328,6 +338,18 @@ export class CarShowroomScene {
     this.gridHelper = new THREE.GridHelper(40, 40, 0x22304a, 0x182235);
     this.gridHelper.visible = false;
     this.stage.add(this.gridHelper);
+
+    this.selectionHelper = new THREE.Box3Helper(
+      this.selectionBox,
+      new THREE.Color('#22d3ee')
+    );
+    this.selectionHelper.visible = false;
+    // Always readable on dark scenes.
+    const selMat = this.selectionHelper.material as THREE.LineBasicMaterial;
+    selMat.transparent = true;
+    selMat.opacity = 0.9;
+    selMat.depthTest = false;
+    this.stage.add(this.selectionHelper);
 
     this.keyLight = new THREE.DirectionalLight(0xffffff, 3.0);
     this.keyLight.position.set(7, 10, 6);
@@ -400,6 +422,14 @@ export class CarShowroomScene {
       clearcoatRoughness: 0.4,
     });
 
+    this.caliperMat = new THREE.MeshPhysicalMaterial({
+      color: 0xef4444,
+      roughness: 0.28,
+      metalness: 0.25,
+      clearcoat: 0.65,
+      clearcoatRoughness: 0.2,
+    });
+
     this.tireMat = new THREE.MeshStandardMaterial({
       color: 0x0b0f1a,
       roughness: 1.0,
@@ -453,17 +483,35 @@ export class CarShowroomScene {
     this.keyLight.shadow.bias = -0.00015;
   }
 
-  pickPart(
+  clearSelection() {
+    this.selectedMesh = null;
+    this.selectionHelper.visible = false;
+  }
+
+  setSelectedMesh(mesh: THREE.Mesh | null) {
+    this.selectedMesh = mesh;
+    if (!mesh) {
+      this.selectionHelper.visible = false;
+      return;
+    }
+    this.selectionBox.setFromObject(mesh);
+    this.selectionHelper.visible = true;
+  }
+
+  pickMesh(
     ndc: THREE.Vector2,
     raycaster: THREE.Raycaster
-  ): 'glass' | 'tire' | 'wheel' | 'trim' | 'light' | 'body' | 'other' | null {
+  ): {
+    mesh: THREE.Mesh;
+    part: ReturnType<CarShowroomScene['classifyMesh']>;
+  } | null {
     if (!this.loaded) return null;
     raycaster.setFromCamera(ndc, this.camera);
     const hits = raycaster.intersectObject(this.loaded, true);
     const hit = hits.find(h => (h.object as THREE.Mesh)?.isMesh);
     if (!hit) return null;
     const mesh = hit.object as THREE.Mesh;
-    return this.classifyMesh(mesh);
+    return { mesh, part: this.classifyMesh(mesh) };
   }
 
   dispose() {
@@ -473,6 +521,7 @@ export class CarShowroomScene {
     this.glassMat.dispose();
     this.trimMat.dispose();
     this.wheelMat.dispose();
+    this.caliperMat.dispose();
     this.tireMat.dispose();
     this.lightMat.dispose();
     this.wireframeMat.dispose();
@@ -508,6 +557,7 @@ export class CarShowroomScene {
         mat === this.glassMat ||
         mat === this.trimMat ||
         mat === this.wheelMat ||
+        mat === this.caliperMat ||
         mat === this.tireMat ||
         mat === this.lightMat ||
         mat === this.wireframeMat
@@ -623,6 +673,28 @@ export class CarShowroomScene {
       new THREE.Color(0x00d1b2)
     );
 
+    const wheelColor = parseColor(
+      ds.carShowroomWheelColor || '#1f2937',
+      new THREE.Color('#1f2937')
+    );
+
+    const trimColor = parseColor(
+      ds.carShowroomTrimColor || '#0b0f1a',
+      new THREE.Color('#0b0f1a')
+    );
+
+    const caliperColor = parseColor(
+      ds.carShowroomCaliperColor || '#ef4444',
+      new THREE.Color('#ef4444')
+    );
+
+    const lightColor = parseColor(
+      ds.carShowroomLightColor || '#dbeafe',
+      new THREE.Color('#dbeafe')
+    );
+
+    const lightGlow = clamp(parseNumber(ds.carShowroomLightGlow, 1.25), 0, 4);
+
     const rawWrapPattern = (
       ds.carShowroomWrapPattern || 'stripes'
     ).toLowerCase();
@@ -640,6 +712,11 @@ export class CarShowroomScene {
       mode,
       color,
       wrapColor,
+      wheelColor,
+      trimColor,
+      caliperColor,
+      lightColor,
+      lightGlow,
       wrapPattern,
       wrapScale,
       finish,
@@ -909,7 +986,15 @@ export class CarShowroomScene {
 
   private classifyMesh(
     mesh: THREE.Mesh
-  ): 'glass' | 'tire' | 'wheel' | 'trim' | 'light' | 'body' | 'other' {
+  ):
+    | 'glass'
+    | 'tire'
+    | 'wheel'
+    | 'trim'
+    | 'caliper'
+    | 'light'
+    | 'body'
+    | 'other' {
     const name = `${mesh.name || ''}`.toLowerCase();
     const matName = Array.isArray(mesh.material)
       ? (mesh.material[0]?.name || '').toLowerCase()
@@ -931,6 +1016,9 @@ export class CarShowroomScene {
       text.includes('lamp');
     if (isLight) return 'light';
 
+    const isCaliper = text.includes('caliper') || text.includes('brakecaliper');
+    if (isCaliper) return 'caliper';
+
     const isTire =
       text.includes('tire') || text.includes('tyre') || text.includes('rubber');
     if (isTire) return 'tire';
@@ -951,7 +1039,6 @@ export class CarShowroomScene {
       text.includes('grille') ||
       text.includes('exhaust') ||
       text.includes('mirror') ||
-      text.includes('caliper') ||
       text.includes('metal');
     if (isTrim) return 'trim';
 
@@ -1065,6 +1152,14 @@ export class CarShowroomScene {
     this.applyTrimPreset(ui.trimFinish);
     this.applyGlassTint(ui.glassTint);
 
+    // Per-part color overrides keep the physical tuning from presets.
+    this.wheelMat.color.copy(ui.wheelColor);
+    this.trimMat.color.copy(ui.trimColor);
+    this.caliperMat.color.copy(ui.caliperColor);
+    this.lightMat.color.copy(ui.lightColor);
+    this.lightMat.emissive.copy(ui.lightColor);
+    this.lightMat.emissiveIntensity = ui.lightGlow;
+
     const mode = ui.mode;
 
     loaded.traverse(obj => {
@@ -1088,6 +1183,11 @@ export class CarShowroomScene {
 
       if (part === 'light') {
         mesh.material = this.lightMat;
+        return;
+      }
+
+      if (part === 'caliper') {
+        mesh.material = this.caliperMat;
         return;
       }
 
@@ -1311,5 +1411,10 @@ export class CarShowroomScene {
     const drift = 0.18;
     this.keyLight.position.x = 7 + Math.sin(this.time * 0.35) * drift;
     this.keyLight.position.z = 6 + Math.cos(this.time * 0.31) * drift;
+
+    if (this.selectedMesh) {
+      this.selectionBox.setFromObject(this.selectedMesh);
+      this.selectionHelper.updateMatrixWorld(true);
+    }
   }
 }
