@@ -295,6 +295,54 @@ const description =
             </select>
           </label>
 
+          <label class="csr-field csr-field--wide">
+            <span>Exposure</span>
+            <input
+              type="range"
+              min="0.1"
+              max="3"
+              step="0.01"
+              value="1"
+              data-csr-exposure
+            />
+          </label>
+
+          <label class="csr-field csr-field--wide">
+            <span>Bloom</span>
+            <input
+              type="range"
+              min="0"
+              max="3"
+              step="0.01"
+              value="0.35"
+              data-csr-bloom
+            />
+          </label>
+
+          <label class="csr-field csr-field--wide">
+            <span>Bloom threshold</span>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              value="0.88"
+              data-csr-bloom-threshold
+            />
+          </label>
+
+          <label class="csr-field csr-field--wide">
+            <span>Bloom radius</span>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              value="0.35"
+              data-csr-bloom-radius
+            />
+          </label>
+
           <label class="csr-field">
             <span>Auto-rotate</span>
             <input type="checkbox" data-csr-autorotate />

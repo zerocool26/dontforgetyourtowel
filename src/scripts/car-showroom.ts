@@ -159,6 +159,17 @@ createAstroMount(ROOT_SELECTOR, () => {
     '[data-csr-glass-tint]'
   );
   const bgSel = root.querySelector<HTMLSelectElement>('[data-csr-background]');
+  const exposureRange = root.querySelector<HTMLInputElement>(
+    '[data-csr-exposure]'
+  );
+  const bloomStrengthRange =
+    root.querySelector<HTMLInputElement>('[data-csr-bloom]');
+  const bloomThresholdRange = root.querySelector<HTMLInputElement>(
+    '[data-csr-bloom-threshold]'
+  );
+  const bloomRadiusRange = root.querySelector<HTMLInputElement>(
+    '[data-csr-bloom-radius]'
+  );
   const autoRotateChk = root.querySelector<HTMLInputElement>(
     '[data-csr-autorotate]'
   );
@@ -229,6 +240,10 @@ createAstroMount(ROOT_SELECTOR, () => {
     const lx = params.get('lx');
     const ly = params.get('ly');
     const lz = params.get('lz');
+    const exp = params.get('exp');
+    const bloom = params.get('bloom');
+    const bt = params.get('bt');
+    const br = params.get('br');
 
     if (model) root.dataset.carShowroomModel = model;
     if (mode) root.dataset.carShowroomMode = mode;
@@ -281,6 +296,22 @@ createAstroMount(ROOT_SELECTOR, () => {
     if (lxN !== null) root.dataset.carShowroomLookAtX = String(lxN);
     if (lyN !== null) root.dataset.carShowroomLookAtY = String(lyN);
     if (lzN !== null) root.dataset.carShowroomLookAtZ = String(lzN);
+
+    const expN = parseNum(exp);
+    if (expN !== null)
+      root.dataset.carShowroomExposure = String(clamp(expN, 0.1, 3));
+
+    const bloomN = parseNum(bloom);
+    if (bloomN !== null)
+      root.dataset.carShowroomBloomStrength = String(clamp(bloomN, 0, 3));
+
+    const btN = parseNum(bt);
+    if (btN !== null)
+      root.dataset.carShowroomBloomThreshold = String(clamp01(btN));
+
+    const brN = parseNum(br);
+    if (brN !== null)
+      root.dataset.carShowroomBloomRadius = String(clamp01(brN));
   };
 
   // Apply deep-link state before defaults so query params win.
@@ -307,6 +338,10 @@ createAstroMount(ROOT_SELECTOR, () => {
     'carShowroomTrimFinish',
     'carShowroomGlassTint',
     'carShowroomBackground',
+    'carShowroomExposure',
+    'carShowroomBloomStrength',
+    'carShowroomBloomThreshold',
+    'carShowroomBloomRadius',
     'carShowroomCameraPreset',
     'carShowroomCameraMode',
     'carShowroomCamYaw',
@@ -359,6 +394,15 @@ createAstroMount(ROOT_SELECTOR, () => {
     if (modeSel && ds.carShowroomMode) modeSel.value = ds.carShowroomMode;
     if (cameraSel && ds.carShowroomCameraPreset)
       cameraSel.value = ds.carShowroomCameraPreset;
+    if (cameraModeSel && ds.carShowroomCameraMode)
+      cameraModeSel.value = ds.carShowroomCameraMode;
+    if (camYawRange && ds.carShowroomCamYaw)
+      camYawRange.value = ds.carShowroomCamYaw;
+    if (camPitchRange && ds.carShowroomCamPitch)
+      camPitchRange.value = ds.carShowroomCamPitch;
+    if (camDistanceRange && ds.carShowroomCamDistance)
+      camDistanceRange.value = ds.carShowroomCamDistance;
+    if (fovRange && ds.carShowroomFov) fovRange.value = ds.carShowroomFov;
     if (colorInp && ds.carShowroomColor) colorInp.value = ds.carShowroomColor;
     if (finishSel && ds.carShowroomFinish)
       finishSel.value = ds.carShowroomFinish;
@@ -370,6 +414,14 @@ createAstroMount(ROOT_SELECTOR, () => {
       glassTintRange.value = ds.carShowroomGlassTint;
     if (bgSel && ds.carShowroomBackground)
       bgSel.value = ds.carShowroomBackground;
+    if (exposureRange && ds.carShowroomExposure)
+      exposureRange.value = ds.carShowroomExposure;
+    if (bloomStrengthRange && ds.carShowroomBloomStrength)
+      bloomStrengthRange.value = ds.carShowroomBloomStrength;
+    if (bloomThresholdRange && ds.carShowroomBloomThreshold)
+      bloomThresholdRange.value = ds.carShowroomBloomThreshold;
+    if (bloomRadiusRange && ds.carShowroomBloomRadius)
+      bloomRadiusRange.value = ds.carShowroomBloomRadius;
     if (autoRotateChk)
       autoRotateChk.checked = ds.carShowroomAutoRotate !== 'false';
     if (spinSpeedRange && ds.carShowroomSpinSpeed)
@@ -464,6 +516,11 @@ createAstroMount(ROOT_SELECTOR, () => {
   root.dataset.carShowroomTrimFinish ||= trimFinishSel?.value || 'black';
   root.dataset.carShowroomGlassTint ||= glassTintRange?.value || '0.15';
   root.dataset.carShowroomBackground ||= bgSel?.value || 'studio';
+  root.dataset.carShowroomExposure ||= exposureRange?.value || '1';
+  root.dataset.carShowroomBloomStrength ||= bloomStrengthRange?.value || '0.35';
+  root.dataset.carShowroomBloomThreshold ||=
+    bloomThresholdRange?.value || '0.88';
+  root.dataset.carShowroomBloomRadius ||= bloomRadiusRange?.value || '0.35';
   root.dataset.carShowroomAutoRotate ||=
     autoRotateChk?.checked === false ? 'false' : 'true';
   root.dataset.carShowroomSpinSpeed ||= spinSpeedRange?.value || '0.65';
@@ -507,6 +564,14 @@ createAstroMount(ROOT_SELECTOR, () => {
     glassTintRange.value = root.dataset.carShowroomGlassTint;
   if (bgSel && root.dataset.carShowroomBackground)
     bgSel.value = root.dataset.carShowroomBackground;
+  if (exposureRange && root.dataset.carShowroomExposure)
+    exposureRange.value = root.dataset.carShowroomExposure;
+  if (bloomStrengthRange && root.dataset.carShowroomBloomStrength)
+    bloomStrengthRange.value = root.dataset.carShowroomBloomStrength;
+  if (bloomThresholdRange && root.dataset.carShowroomBloomThreshold)
+    bloomThresholdRange.value = root.dataset.carShowroomBloomThreshold;
+  if (bloomRadiusRange && root.dataset.carShowroomBloomRadius)
+    bloomRadiusRange.value = root.dataset.carShowroomBloomRadius;
   if (autoRotateChk && root.dataset.carShowroomAutoRotate)
     autoRotateChk.checked = root.dataset.carShowroomAutoRotate !== 'false';
   if (spinSpeedRange && root.dataset.carShowroomSpinSpeed)
@@ -574,6 +639,13 @@ createAstroMount(ROOT_SELECTOR, () => {
     if (glassTintRange)
       root.dataset.carShowroomGlassTint = glassTintRange.value;
     if (bgSel) root.dataset.carShowroomBackground = bgSel.value;
+    if (exposureRange) root.dataset.carShowroomExposure = exposureRange.value;
+    if (bloomStrengthRange)
+      root.dataset.carShowroomBloomStrength = bloomStrengthRange.value;
+    if (bloomThresholdRange)
+      root.dataset.carShowroomBloomThreshold = bloomThresholdRange.value;
+    if (bloomRadiusRange)
+      root.dataset.carShowroomBloomRadius = bloomRadiusRange.value;
     if (autoRotateChk)
       root.dataset.carShowroomAutoRotate = autoRotateChk.checked
         ? 'true'
@@ -604,6 +676,10 @@ createAstroMount(ROOT_SELECTOR, () => {
     trimFinishSel,
     glassTintRange,
     bgSel,
+    exposureRange,
+    bloomStrengthRange,
+    bloomThresholdRange,
+    bloomRadiusRange,
     autoRotateChk,
     spinSpeedRange,
     zoomRange,
@@ -624,6 +700,10 @@ createAstroMount(ROOT_SELECTOR, () => {
     if (trimFinishSel) trimFinishSel.value = 'black';
     if (glassTintRange) glassTintRange.value = '0.15';
     if (bgSel) bgSel.value = 'studio';
+    if (exposureRange) exposureRange.value = '1';
+    if (bloomStrengthRange) bloomStrengthRange.value = '0.35';
+    if (bloomThresholdRange) bloomThresholdRange.value = '0.88';
+    if (bloomRadiusRange) bloomRadiusRange.value = '0.35';
     if (autoRotateChk) autoRotateChk.checked = true;
     if (spinSpeedRange) spinSpeedRange.value = '0.65';
     if (zoomRange) zoomRange.value = '0';
@@ -677,6 +757,11 @@ createAstroMount(ROOT_SELECTOR, () => {
     params.set('spin', ds.carShowroomSpinSpeed || '0.65');
     params.set('zoom', ds.carShowroomZoom || '0');
     params.set('ar', ds.carShowroomAutoRotate === 'false' ? '0' : '1');
+
+    params.set('exp', ds.carShowroomExposure || '1');
+    params.set('bloom', ds.carShowroomBloomStrength || '0.35');
+    params.set('bt', ds.carShowroomBloomThreshold || '0.88');
+    params.set('br', ds.carShowroomBloomRadius || '0.35');
 
     const cm = (ds.carShowroomCameraMode || '').trim();
     if (cm === 'manual') {
@@ -894,6 +979,35 @@ createAstroMount(ROOT_SELECTOR, () => {
   const output = new OutputPass();
   composer.addPass(output);
 
+  let lastUiRevision = '';
+  const applyPostFxFromDataset = () => {
+    const ds = root.dataset;
+    const rev = ds.carShowroomUiRevision || '';
+    if (rev === lastUiRevision) return;
+    lastUiRevision = rev;
+
+    const exp = clamp(
+      Number.parseFloat(ds.carShowroomExposure || '1') || 1,
+      0.1,
+      3
+    );
+    renderer.toneMappingExposure = exp;
+
+    bloom.strength = clamp(
+      Number.parseFloat(ds.carShowroomBloomStrength || '0.35') || 0,
+      0,
+      3
+    );
+    bloom.threshold = clamp01(
+      Number.parseFloat(ds.carShowroomBloomThreshold || '0.88') || 0
+    );
+    bloom.radius = clamp01(
+      Number.parseFloat(ds.carShowroomBloomRadius || '0.35') || 0
+    );
+  };
+
+  applyPostFxFromDataset();
+
   frameBtn?.addEventListener('click', () => {
     const rec = showroom.getFrameRecommendation();
     if (!rec) {
@@ -1086,6 +1200,8 @@ createAstroMount(ROOT_SELECTOR, () => {
   const loop = () => {
     if (!running) return;
     raf = requestAnimationFrame(loop);
+
+    applyPostFxFromDataset();
 
     const dtRaw = Math.min(clock.getDelta(), 0.05);
 
