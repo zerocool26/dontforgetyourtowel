@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
+import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import { SceneBase } from './SceneBase';
 import type { SceneRuntime } from './types';
 import { damp } from './SceneUtils';
@@ -9,6 +11,15 @@ type MaterialMode = 'wrap' | 'wireframe' | 'glass';
 
 type SavedMaterialState = {
   material: THREE.Material | THREE.Material[];
+};
+
+type WrapMaterialState = {
+  material: THREE.Material;
+  baseColor: THREE.Color;
+};
+
+type WireframeMaterialState = {
+  material: THREE.Material;
 };
 
 const clamp = (v: number, lo: number, hi: number) =>
@@ -72,12 +83,14 @@ const createContactShadowTexture = (size = 256): THREE.CanvasTexture => {
  * This chapter is meant to showcase a realistic GLB car model with a clean
  * studio rig, contact shadow, and interactive material presentation modes.
  *
- * IMPORTANT: This repo does not download or ship third-party car models for you.
- * Place a model you have rights to use here:
- * - /public/models/wrap-showroom.glb
+ * By default, it reuses the Porsche GLB used in the previous chapter.
+ * You can override via query string:
+ * - ?wrapModel=/models/your-model.glb
  */
 export class WrapShowroomScene extends SceneBase {
-  private readonly modelUrl = withBasePath('/models/wrap-showroom.glb');
+  private readonly modelUrlDefault = withBasePath(
+    '/models/porsche-911-gt3rs.glb'
+  );
 
   private stage = new THREE.Group();
   private modelGroup = new THREE.Group();
@@ -97,10 +110,19 @@ export class WrapShowroomScene extends SceneBase {
 
   private savedMaterials = new Map<string, SavedMaterialState>();
   private glassMaterials = new Map<string, THREE.Material | THREE.Material[]>();
+  private wrapMaterials = new Map<
+    string,
+    WrapMaterialState | WrapMaterialState[]
+  >();
+  private wireframeMaterials = new Map<
+    string,
+    WireframeMaterialState | WireframeMaterialState[]
+  >();
 
   private loadedRoot: THREE.Object3D | null = null;
   private loadRequested = false;
   private loadError = false;
+  private loggedLoadError = false;
 
   private time = 0;
   private orbitYaw = 0;
@@ -215,6 +237,10 @@ export class WrapShowroomScene extends SceneBase {
     // Ensure shadows are enabled globally.
     ctx.renderer.shadowMap.enabled = true;
 
+    if (typeof document !== 'undefined') {
+      document.documentElement.dataset.wrapShowroomSceneInit = '1';
+    }
+
     // Kick model load.
     this.requestModel();
 
@@ -222,24 +248,108 @@ export class WrapShowroomScene extends SceneBase {
     this.resize(ctx);
   }
 
+  private resolveModelUrl(): string {
+    try {
+      if (typeof window === 'undefined') return this.modelUrlDefault;
+      const params = new URLSearchParams(window.location.search);
+      const override = (params.get('wrapModel') || '').trim();
+      if (!override) return this.modelUrlDefault;
+      // If it's already absolute to the current origin, keep it.
+      if (override.startsWith('http://') || override.startsWith('https://')) {
+        return override;
+      }
+      // Normalize app base path for leading-slash inputs.
+      if (override.startsWith('/')) return withBasePath(override);
+      // Relative input -> treat as a path under base.
+      return withBasePath(`/${override}`);
+    } catch {
+      return this.modelUrlDefault;
+    }
+  }
+
+  private async loadGltfViaFetch(url: string): Promise<THREE.Object3D | null> {
+    let res: Response | null = null;
+    try {
+      res = await fetch(url, { cache: 'no-store' });
+    } catch {
+      return null;
+    }
+
+    if (!res.ok) return null;
+
+    const buffer = await res.arrayBuffer();
+    const loader = new GLTFLoader();
+
+    // Support common compression extensions seen in real-world assets.
+    // Draco needs decoder files under /public/draco/gltf/.
+    const dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderPath(withBasePath('/draco/gltf/'));
+    loader.setDRACOLoader(dracoLoader);
+    loader.setMeshoptDecoder(MeshoptDecoder);
+
+    const base = THREE.LoaderUtils.extractUrlBase(url);
+
+    return await new Promise((resolve, reject) => {
+      loader.parse(
+        buffer,
+        base,
+        gltf => {
+          const root =
+            gltf.scene ??
+            (gltf as unknown as { scene: THREE.Object3D | undefined })?.scene;
+          resolve(root ?? null);
+        },
+        err => reject(err)
+      );
+    });
+  }
+
   private requestModel(): void {
     if (this.loadRequested) return;
     this.loadRequested = true;
 
-    const loader = new GLTFLoader();
-    loader
-      .loadAsync(this.modelUrl)
-      .then(gltf => {
-        const root =
-          gltf.scene ?? (gltf as unknown as { scene: THREE.Object3D })?.scene;
-        if (!root) throw new Error('GLTF missing scene');
+    const url = this.resolveModelUrl();
+    if (typeof document !== 'undefined') {
+      const ds = document.documentElement.dataset;
+      ds.wrapShowroomModelRequested = '1';
+      ds.wrapShowroomModelUrl = url;
+    }
+
+    void this.loadGltfViaFetch(url)
+      .then(root => {
+        if (!root) {
+          this.loadError = true;
+          if (typeof document !== 'undefined') {
+            document.documentElement.dataset.wrapShowroomModelMissing = '1';
+          }
+          return;
+        }
 
         this.loadError = false;
+        if (typeof document !== 'undefined') {
+          document.documentElement.dataset.wrapShowroomModelMissing = '0';
+        }
         this.setLoadedModel(root);
       })
-      .catch(() => {
-        // Missing asset is normal; keep fallback.
+      .catch(err => {
         this.loadError = true;
+        if (!this.loggedLoadError) {
+          this.loggedLoadError = true;
+          console.warn(
+            `[WrapShowroomScene] Failed to load/parse model: ${url}`,
+            err
+          );
+        }
+
+        if (typeof document !== 'undefined') {
+          document.documentElement.dataset.wrapShowroomModelError = '1';
+          document.documentElement.dataset.wrapShowroomModelErrorMessage =
+            err instanceof Error
+              ? err.message
+              : typeof err === 'string'
+                ? err
+                : 'unknown';
+        }
       });
   }
 
@@ -249,6 +359,12 @@ export class WrapShowroomScene extends SceneBase {
       this.modelGroup.remove(this.loadedRoot);
     }
     this.loadedRoot = root;
+
+    // Reset mode caches for a fresh model load.
+    this.savedMaterials.clear();
+    this.glassMaterials.clear();
+    this.wrapMaterials.clear();
+    this.wireframeMaterials.clear();
 
     // Normalize transform: center, ground, scale to a car-ish length.
     root.rotation.set(0, 0, 0);
@@ -379,6 +495,11 @@ export class WrapShowroomScene extends SceneBase {
     this.fallback.visible = false;
     this.contactShadow.visible = true;
 
+    if (typeof document !== 'undefined') {
+      document.documentElement.dataset.wrapShowroomModelLoaded = '1';
+      document.documentElement.dataset.wrapShowroomModelError = '0';
+    }
+
     // Start in wrap mode.
     this.setMode('wrap', true);
   }
@@ -436,6 +557,16 @@ export class WrapShowroomScene extends SceneBase {
 
     if (!this.loadedRoot) return;
 
+    const isWrapCandidate = (mesh: THREE.Mesh, material: THREE.Material) => {
+      // Heuristic: apply wrap to likely body paint meshes.
+      const name = `${mesh.name} ${material.name}`.toLowerCase();
+      return /body|paint|carpaint|exterior|shell|panel|hood|door|bumper/.test(
+        name
+      );
+    };
+
+    const wrapColor = new THREE.Color(0x00d1b2); // teal vinyl
+
     this.loadedRoot.traverse(obj => {
       if (!(obj instanceof THREE.Mesh)) return;
 
@@ -443,42 +574,107 @@ export class WrapShowroomScene extends SceneBase {
       if (!saved) return;
 
       if (mode === 'wrap') {
-        // Restore original materials.
-        obj.material = saved.material;
+        const cached = this.wrapMaterials.get(obj.uuid);
+        if (cached) {
+          obj.material = Array.isArray(cached)
+            ? cached.map(x => x.material)
+            : cached.material;
+          return;
+        }
 
-        const apply = (m: THREE.Material) => {
-          if (m instanceof THREE.MeshStandardMaterial) {
-            m.wireframe = false;
-            m.transparent = false;
-            m.opacity = 1;
-            if (m instanceof THREE.MeshPhysicalMaterial) {
-              m.transmission = 0;
-              m.thickness = 0;
-            }
-            m.needsUpdate = true;
+        const toWrap = (m: THREE.Material): WrapMaterialState => {
+          const baseColor =
+            m instanceof THREE.MeshStandardMaterial
+              ? m.color.clone()
+              : new THREE.Color(0xffffff);
+
+          if (!isWrapCandidate(obj, m)) {
+            // Not a body panel: keep original material.
+            return { material: m, baseColor };
           }
+
+          const physSrc =
+            m instanceof THREE.MeshPhysicalMaterial
+              ? m
+              : m instanceof THREE.MeshStandardMaterial
+                ? m
+                : null;
+
+          const phys = new THREE.MeshPhysicalMaterial({
+            color: wrapColor.clone(),
+            roughness: 0.28,
+            metalness: 0.12,
+            clearcoat: 1.0,
+            clearcoatRoughness: 0.09,
+            envMapIntensity:
+              physSrc && Number.isFinite(physSrc.envMapIntensity)
+                ? clamp(physSrc.envMapIntensity, 0.9, 2.4)
+                : 1.6,
+          });
+
+          if (physSrc) {
+            phys.map = physSrc.map;
+            phys.normalMap = physSrc.normalMap;
+            phys.normalScale =
+              physSrc.normalScale?.clone() ?? new THREE.Vector2(1, 1);
+            phys.roughnessMap = physSrc.roughnessMap;
+            phys.metalnessMap = physSrc.metalnessMap;
+            phys.aoMap = physSrc.aoMap;
+            phys.aoMapIntensity = physSrc.aoMapIntensity;
+            phys.emissiveMap = physSrc.emissiveMap;
+            phys.emissive =
+              physSrc.emissive?.clone() ?? new THREE.Color(0x000000);
+            phys.emissiveIntensity = physSrc.emissiveIntensity;
+            phys.side = physSrc.side;
+          }
+
+          phys.needsUpdate = true;
+          return { material: phys, baseColor };
         };
 
-        if (Array.isArray(obj.material)) obj.material.forEach(apply);
-        else apply(obj.material);
+        const mapped = Array.isArray(saved.material)
+          ? saved.material.map(toWrap)
+          : toWrap(saved.material);
+
+        this.wrapMaterials.set(obj.uuid, mapped);
+        obj.material = Array.isArray(mapped)
+          ? mapped.map(x => x.material)
+          : mapped.material;
         return;
       }
 
       if (mode === 'wireframe') {
-        obj.material = saved.material;
+        const cached = this.wireframeMaterials.get(obj.uuid);
+        if (cached) {
+          obj.material = Array.isArray(cached)
+            ? cached.map(x => x.material)
+            : cached.material;
+          return;
+        }
 
-        const apply = (m: THREE.Material) => {
-          if (m instanceof THREE.MeshStandardMaterial) {
-            m.wireframe = true;
-            m.transparent = false;
-            m.opacity = 1;
-            m.color.set(0xffffff);
-            m.needsUpdate = true;
-          }
+        const toWire = (m: THREE.Material): WireframeMaterialState => {
+          const side =
+            m instanceof THREE.Material
+              ? (m as THREE.Material).side
+              : undefined;
+          const wf = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+            wireframe: true,
+            transparent: false,
+            opacity: 1,
+            side,
+          });
+          wf.needsUpdate = true;
+          return { material: wf };
         };
 
-        if (Array.isArray(obj.material)) obj.material.forEach(apply);
-        else apply(obj.material);
+        const mapped = Array.isArray(saved.material)
+          ? saved.material.map(toWire)
+          : toWire(saved.material);
+        this.wireframeMaterials.set(obj.uuid, mapped);
+        obj.material = Array.isArray(mapped)
+          ? mapped.map(x => x.material)
+          : mapped.material;
         return;
       }
 

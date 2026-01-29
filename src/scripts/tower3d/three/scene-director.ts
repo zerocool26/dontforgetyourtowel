@@ -633,6 +633,18 @@ export class SceneDirector {
     // Initialize scenes BEFORE UI so getSceneCount() works in UIControls constructor
     this.scenes = createScenes();
     this.sceneById = new Map(this.scenes.map(scene => [scene.id, scene]));
+
+    // Debug/automation breadcrumbs (safe in prod; tiny footprint).
+    this.root.dataset.towerSceneCount = String(this.scenes.length);
+    this.root.dataset.towerSceneLastId = this.scenes.at(-1)?.id ?? '';
+    if (typeof document !== 'undefined') {
+      document.documentElement.dataset.towerSceneCount = String(
+        this.scenes.length
+      );
+      document.documentElement.dataset.towerSceneLastId =
+        this.scenes.at(-1)?.id ?? '';
+    }
+
     const initialId = this.root.dataset.towerScene || this.root.dataset.scene;
     this.activeScene =
       (initialId && this.sceneById.get(initialId)) || this.scenes[0];
