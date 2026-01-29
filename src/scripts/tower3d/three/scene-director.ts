@@ -1094,6 +1094,56 @@ export class SceneDirector {
     return this.sceneIndex;
   }
 
+  /**
+   * Deterministic scene jump primarily for automation/debug.
+   * Sets the gallery progress and immediately swaps the active scene.
+   */
+  public jumpToSceneIndex(index: number): void {
+    const count = Math.max(1, this.scenes.length);
+    const idx = clamp(Math.round(index), 0, count - 1);
+
+    const progress = count <= 1 ? 0 : idx / (count - 1);
+    this.galleryProgress = progress;
+    this.scrollProgress = progress;
+    this.scrollProgressTarget = progress;
+    this.sceneIndex = idx;
+    this.localProgress = 0;
+
+    const targetScene = this.scenes[idx];
+    if (!targetScene) return;
+
+    const targetSceneId = targetScene.id;
+    if (this.root.dataset.towerScene !== targetSceneId) {
+      this.root.dataset.towerScene = targetSceneId;
+    }
+
+    if (targetScene.id !== this.activeScene.id) {
+      try {
+        this.mainScene.remove(this.activeScene.group);
+      } catch {
+        // best-effort
+      }
+      this.activeScene = targetScene;
+
+      const now = performance.now() / 1000;
+      this.sceneEnterTime = now;
+
+      this.updateParticleConfig(this.activeScene.id);
+      this.applySceneLook(this.activeScene.id);
+
+      this.cutFade = 1;
+      this.transitionType = (this.transitionType + 1) % 4;
+      this.finalPass.uniforms.uTransitionType.value = this.transitionType;
+    }
+
+    if (this.activeScene.group.parent !== this.mainScene) {
+      this.mainScene.add(this.activeScene.group);
+    }
+    if (this.gpgpu.group.parent !== this.mainScene) {
+      this.mainScene.add(this.gpgpu.group);
+    }
+  }
+
   private resetViewport(): void {
     this.renderer.setScissorTest(false);
     // WebGLRenderer.setViewport expects logical pixels; it applies pixelRatio internally.

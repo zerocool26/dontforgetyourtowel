@@ -22,6 +22,28 @@ type WireframeMaterialState = {
   material: THREE.Material;
 };
 
+const parseFiniteNumber = (value: string | null): number | null => {
+  if (!value) return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+};
+
+const parseColor = (value: string | null): THREE.Color | null => {
+  if (!value) return null;
+  const raw = value.trim();
+  if (!raw) return null;
+
+  // Accept: #RRGGBB, 0xRRGGBB, RRGGBB
+  const hex = raw.startsWith('#')
+    ? raw.slice(1)
+    : raw.startsWith('0x') || raw.startsWith('0X')
+      ? raw.slice(2)
+      : raw;
+
+  if (!/^[0-9a-fA-F]{6}$/.test(hex)) return null;
+  return new THREE.Color(`#${hex}`);
+};
+
 const clamp = (v: number, lo: number, hi: number) =>
   Math.max(lo, Math.min(hi, v));
 
@@ -107,6 +129,13 @@ export class WrapShowroomScene extends SceneBase {
 
   private mode: MaterialMode = 'wrap';
   private lastModeSwitchTime = -1;
+
+  private wrapColor = new THREE.Color(0x00d1b2);
+  private wrapTint = 0.92;
+  private wrapRoughness = 0.28;
+  private wrapMetalness = 0.12;
+  private wrapClearcoat = 1.0;
+  private wrapClearcoatRoughness = 0.09;
 
   private savedMaterials = new Map<string, SavedMaterialState>();
   private glassMaterials = new Map<string, THREE.Material | THREE.Material[]>();
@@ -241,11 +270,62 @@ export class WrapShowroomScene extends SceneBase {
       document.documentElement.dataset.wrapShowroomSceneInit = '1';
     }
 
+    this.syncSettingsFromUrl();
+
     // Kick model load.
     this.requestModel();
 
     // Pre-layout.
     this.resize(ctx);
+  }
+
+  private syncSettingsFromUrl(): void {
+    try {
+      if (typeof window === 'undefined') return;
+      const params = new URLSearchParams(window.location.search);
+
+      const tint = parseFiniteNumber(params.get('wrapTint'));
+      if (tint !== null) this.wrapTint = clamp(tint, 0, 1);
+
+      const wrapColor =
+        parseColor(params.get('wrapColor')) ?? parseColor(params.get('wrap'));
+      if (wrapColor) this.wrapColor = wrapColor;
+
+      const finish = (params.get('wrapFinish') || '').trim().toLowerCase();
+      if (finish === 'matte') {
+        this.wrapRoughness = 0.62;
+        this.wrapClearcoat = 0.25;
+        this.wrapClearcoatRoughness = 0.55;
+        this.wrapMetalness = 0.06;
+      } else if (finish === 'satin') {
+        this.wrapRoughness = 0.38;
+        this.wrapClearcoat = 0.7;
+        this.wrapClearcoatRoughness = 0.18;
+        this.wrapMetalness = 0.1;
+      } else if (finish === 'gloss') {
+        this.wrapRoughness = 0.2;
+        this.wrapClearcoat = 1.0;
+        this.wrapClearcoatRoughness = 0.08;
+        this.wrapMetalness = 0.14;
+      }
+
+      const startMode = (params.get('wrapMode') || '').trim().toLowerCase();
+      if (startMode === 'wireframe' || startMode === 'glass') {
+        this.mode = startMode;
+      } else if (startMode === 'wrap') {
+        this.mode = 'wrap';
+      }
+
+      if (typeof document !== 'undefined') {
+        const ds = document.documentElement.dataset;
+        ds.wrapShowroomMode = this.mode;
+        ds.wrapShowroomWrapColor = `#${this.wrapColor.getHexString()}`;
+        ds.wrapShowroomWrapTint = String(this.wrapTint);
+        ds.wrapShowroomWrapFinish = finish || 'custom';
+      }
+    } catch {
+      // Ignore malformed URL data.
+    }
   }
 
   private resolveModelUrl(): string {
@@ -313,6 +393,10 @@ export class WrapShowroomScene extends SceneBase {
       const ds = document.documentElement.dataset;
       ds.wrapShowroomModelRequested = '1';
       ds.wrapShowroomModelUrl = url;
+      ds.wrapShowroomModelLoaded = '0';
+      ds.wrapShowroomModelMissing = '0';
+      ds.wrapShowroomModelError = '0';
+      ds.wrapShowroomModelErrorMessage = '';
     }
 
     void this.loadGltfViaFetch(url)
@@ -351,6 +435,58 @@ export class WrapShowroomScene extends SceneBase {
                 : 'unknown';
         }
       });
+  }
+
+  override dispose(): void {
+    // Ensure cached derived materials are not leaked between scene swaps.
+    // Restore original materials first so `super.dispose()` won't double-dispose.
+    this.group.traverse(obj => {
+      if (!(obj instanceof THREE.Mesh)) return;
+      const saved = this.savedMaterials.get(obj.uuid);
+      if (!saved) return;
+      obj.material = saved.material;
+    });
+
+    const disposed = new Set<string>();
+
+    const disposeMaterial = (material: THREE.Material) => {
+      if (disposed.has(material.uuid)) return;
+      disposed.add(material.uuid);
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const anyMat = material as any;
+      for (const key of Object.keys(anyMat)) {
+        const value = anyMat[key];
+        if (value instanceof THREE.Texture) {
+          value.dispose();
+        }
+      }
+      material.dispose();
+    };
+
+    const disposeMapped = (mapped: THREE.Material | THREE.Material[]) => {
+      if (Array.isArray(mapped)) mapped.forEach(m => disposeMaterial(m));
+      else disposeMaterial(mapped);
+    };
+
+    for (const mapped of this.glassMaterials.values()) disposeMapped(mapped);
+    for (const mapped of this.wrapMaterials.values()) {
+      if (Array.isArray(mapped))
+        mapped.forEach(x => disposeMaterial(x.material));
+      else disposeMaterial(mapped.material);
+    }
+    for (const mapped of this.wireframeMaterials.values()) {
+      if (Array.isArray(mapped))
+        mapped.forEach(x => disposeMaterial(x.material));
+      else disposeMaterial(mapped.material);
+    }
+
+    this.savedMaterials.clear();
+    this.glassMaterials.clear();
+    this.wrapMaterials.clear();
+    this.wireframeMaterials.clear();
+
+    super.dispose();
   }
 
   private setLoadedModel(root: THREE.Object3D): void {
@@ -500,8 +636,8 @@ export class WrapShowroomScene extends SceneBase {
       document.documentElement.dataset.wrapShowroomModelError = '0';
     }
 
-    // Start in wrap mode.
-    this.setMode('wrap', true);
+    // Start in the configured mode (defaults to wrap).
+    this.setMode(this.mode, true);
   }
 
   private buildFallback(): THREE.Group {
@@ -555,6 +691,10 @@ export class WrapShowroomScene extends SceneBase {
     this.mode = mode;
     this.lastModeSwitchTime = this.time;
 
+    if (typeof document !== 'undefined') {
+      document.documentElement.dataset.wrapShowroomMode = mode;
+    }
+
     if (!this.loadedRoot) return;
 
     const isWrapCandidate = (mesh: THREE.Mesh, material: THREE.Material) => {
@@ -565,7 +705,7 @@ export class WrapShowroomScene extends SceneBase {
       );
     };
 
-    const wrapColor = new THREE.Color(0x00d1b2); // teal vinyl
+    const wrapColor = this.wrapColor;
 
     this.loadedRoot.traverse(obj => {
       if (!(obj instanceof THREE.Mesh)) return;
@@ -601,11 +741,11 @@ export class WrapShowroomScene extends SceneBase {
                 : null;
 
           const phys = new THREE.MeshPhysicalMaterial({
-            color: wrapColor.clone(),
-            roughness: 0.28,
-            metalness: 0.12,
-            clearcoat: 1.0,
-            clearcoatRoughness: 0.09,
+            color: baseColor.clone().lerp(wrapColor, this.wrapTint),
+            roughness: this.wrapRoughness,
+            metalness: this.wrapMetalness,
+            clearcoat: this.wrapClearcoat,
+            clearcoatRoughness: this.wrapClearcoatRoughness,
             envMapIntensity:
               physSrc && Number.isFinite(physSrc.envMapIntensity)
                 ? clamp(physSrc.envMapIntensity, 0.9, 2.4)

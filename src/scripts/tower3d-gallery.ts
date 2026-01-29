@@ -35,6 +35,9 @@ declare global {
   interface Window {
     __galleryAutoPlay?: GalleryAutoPlayController;
     __goToSceneOriginal?: (index: number) => void;
+    __goToSceneImmediate?: (index: number) => void;
+    __galleryGetTargetProgress?: () => number;
+    __galleryGetCurrentScene?: () => number;
   }
 
   interface HTMLElement {
@@ -1304,6 +1307,12 @@ function setupInfoPanel() {
 
   // Debug access
   window.__goToSceneOriginal = goToScene;
+  window.__goToSceneImmediate = (index: number) => {
+    goToScene(index);
+    state.director?.setProgress?.(state.targetProgress);
+  };
+  window.__galleryGetTargetProgress = () => state.targetProgress;
+  window.__galleryGetCurrentScene = () => state.currentScene;
 
   // Close on Escape key
   const onInfoEscape = (e: KeyboardEvent) => {
@@ -1317,6 +1326,12 @@ function setupInfoPanel() {
     document.removeEventListener('keydown', onInfoEscape);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).__goToSceneOriginal = undefined;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (window as any).__goToSceneImmediate = undefined;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (window as any).__galleryGetTargetProgress = undefined;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (window as any).__galleryGetCurrentScene = undefined;
     infoPanelDescEl = null;
   });
 }
