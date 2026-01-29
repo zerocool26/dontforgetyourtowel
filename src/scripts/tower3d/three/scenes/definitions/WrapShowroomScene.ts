@@ -8,6 +8,7 @@ import { damp } from './SceneUtils';
 import { withBasePath } from '../../../../../utils/url';
 
 type MaterialMode = 'wrap' | 'wireframe' | 'glass';
+type WrapFinish = 'custom' | 'matte' | 'satin' | 'gloss';
 
 type SavedMaterialState = {
   material: THREE.Material | THREE.Material[];
@@ -177,6 +178,9 @@ export class WrapShowroomScene extends SceneBase {
   private softResetTime = -10;
   private tapDebounce = 0.25;
 
+  private lastUiRevision = '';
+  private wrapFinish: WrapFinish = 'custom';
+
   constructor() {
     super();
     // Repurposed as the single merged car chapter.
@@ -307,20 +311,17 @@ export class WrapShowroomScene extends SceneBase {
 
       const finish = (params.get('wrapFinish') || '').trim().toLowerCase();
       if (finish === 'matte') {
-        this.wrapRoughness = 0.62;
-        this.wrapClearcoat = 0.25;
-        this.wrapClearcoatRoughness = 0.55;
-        this.wrapMetalness = 0.06;
+        this.applyFinishPreset('matte');
       } else if (finish === 'satin') {
-        this.wrapRoughness = 0.38;
-        this.wrapClearcoat = 0.7;
-        this.wrapClearcoatRoughness = 0.18;
-        this.wrapMetalness = 0.1;
+        this.applyFinishPreset('satin');
       } else if (finish === 'gloss') {
-        this.wrapRoughness = 0.2;
-        this.wrapClearcoat = 1.0;
-        this.wrapClearcoatRoughness = 0.08;
-        this.wrapMetalness = 0.14;
+        this.applyFinishPreset('gloss');
+      }
+
+      if (finish === 'matte' || finish === 'satin' || finish === 'gloss') {
+        this.wrapFinish = finish;
+      } else {
+        this.wrapFinish = 'custom';
       }
 
       const startMode = (params.get('wrapMode') || '').trim().toLowerCase();
@@ -335,11 +336,100 @@ export class WrapShowroomScene extends SceneBase {
         ds.wrapShowroomMode = this.mode;
         ds.wrapShowroomWrapColor = `#${this.wrapColor.getHexString()}`;
         ds.wrapShowroomWrapTint = String(this.wrapTint);
-        ds.wrapShowroomWrapFinish = finish || 'custom';
+        ds.wrapShowroomWrapFinish = this.wrapFinish;
       }
     } catch {
       // Ignore malformed URL data.
     }
+  }
+
+  private applyFinishPreset(finish: Exclude<WrapFinish, 'custom'>): void {
+    if (finish === 'matte') {
+      this.wrapRoughness = 0.62;
+      this.wrapClearcoat = 0.25;
+      this.wrapClearcoatRoughness = 0.55;
+      this.wrapMetalness = 0.06;
+      return;
+    }
+    if (finish === 'satin') {
+      this.wrapRoughness = 0.38;
+      this.wrapClearcoat = 0.7;
+      this.wrapClearcoatRoughness = 0.18;
+      this.wrapMetalness = 0.1;
+      return;
+    }
+    // gloss
+    this.wrapRoughness = 0.2;
+    this.wrapClearcoat = 1.0;
+    this.wrapClearcoatRoughness = 0.08;
+    this.wrapMetalness = 0.14;
+  }
+
+  private refreshWrapMaterials(): void {
+    for (const mapped of this.wrapMaterials.values()) {
+      const items = Array.isArray(mapped) ? mapped : [mapped];
+      for (const item of items) {
+        const mat = item.material;
+        if (!(mat instanceof THREE.MeshPhysicalMaterial)) continue;
+        mat.color.copy(item.baseColor).lerp(this.wrapColor, this.wrapTint);
+        mat.roughness = this.wrapRoughness;
+        mat.metalness = this.wrapMetalness;
+        mat.clearcoat = this.wrapClearcoat;
+        mat.clearcoatRoughness = this.wrapClearcoatRoughness;
+        mat.needsUpdate = true;
+      }
+    }
+  }
+
+  private syncSettingsFromUiDataset(): void {
+    if (typeof document === 'undefined') return;
+    const ds = document.documentElement.dataset;
+    const rev = ds.wrapShowroomUiRevision ?? '';
+    if (rev === this.lastUiRevision) return;
+    this.lastUiRevision = rev;
+
+    const modeRaw = (ds.wrapShowroomMode || '').trim().toLowerCase();
+    const mode: MaterialMode =
+      modeRaw === 'wireframe' || modeRaw === 'glass' || modeRaw === 'wrap'
+        ? (modeRaw as MaterialMode)
+        : this.mode;
+
+    const color = parseColor(ds.wrapShowroomWrapColor ?? null);
+    const tint = parseFiniteNumber(ds.wrapShowroomWrapTint ?? null);
+
+    const finishRaw = (ds.wrapShowroomWrapFinish || '').trim().toLowerCase();
+    const finish: WrapFinish =
+      finishRaw === 'matte' ||
+      finishRaw === 'satin' ||
+      finishRaw === 'gloss' ||
+      finishRaw === 'custom'
+        ? (finishRaw as WrapFinish)
+        : this.wrapFinish;
+
+    if (color) this.wrapColor = color;
+    if (tint !== null) this.wrapTint = clamp(tint, 0, 1);
+
+    if (finish !== this.wrapFinish) {
+      this.wrapFinish = finish;
+      if (finish !== 'custom') {
+        this.applyFinishPreset(finish);
+      }
+    }
+
+    // Apply mode last so material caches exist.
+    if (mode !== this.mode) {
+      this.setMode(mode);
+    }
+
+    // Update cached wrap materials even if mode isn't wrap right now
+    // so switching back is instant.
+    this.refreshWrapMaterials();
+
+    // Keep breadcrumbs current.
+    ds.wrapShowroomMode = this.mode;
+    ds.wrapShowroomWrapColor = `#${this.wrapColor.getHexString()}`;
+    ds.wrapShowroomWrapTint = String(this.wrapTint);
+    ds.wrapShowroomWrapFinish = this.wrapFinish;
   }
 
   private resolveModelUrl(): string {
@@ -874,6 +964,9 @@ export class WrapShowroomScene extends SceneBase {
 
   update(ctx: SceneRuntime) {
     this.time = ctx.time;
+
+    // Apply any showroom panel overrides.
+    this.syncSettingsFromUiDataset();
 
     const coarse = ctx.caps.coarsePointer;
 

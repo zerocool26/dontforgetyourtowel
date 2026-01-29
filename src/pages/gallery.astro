@@ -158,8 +158,157 @@ const scenes = [
         </div>
       </div>
 
+      <!-- Showroom Panel (scene17 only; JS will enable/disable) -->
+      <div
+        class="gallery3d__showroom-panel"
+        data-gallery-showroom-panel
+        aria-hidden="true"
+      >
+        <div class="showroom-panel__content">
+          <div class="showroom-panel__header">
+            <h3 class="showroom-panel__title">Showroom</h3>
+            <p class="showroom-panel__subtitle">Color + materials</p>
+          </div>
+
+          <div class="showroom-panel__section">
+            <div class="showroom-panel__label">Mode</div>
+            <div class="showroom-panel__segmented" role="group">
+              <button
+                type="button"
+                class="showroom-panel__seg"
+                data-showroom-mode="wrap"
+              >
+                Wrap
+              </button>
+              <button
+                type="button"
+                class="showroom-panel__seg"
+                data-showroom-mode="wireframe"
+              >
+                Wire
+              </button>
+              <button
+                type="button"
+                class="showroom-panel__seg"
+                data-showroom-mode="glass"
+              >
+                Glass
+              </button>
+            </div>
+          </div>
+
+          <div class="showroom-panel__section">
+            <div class="showroom-panel__label">Wrap Color</div>
+            <div class="showroom-panel__swatches" role="list">
+              <button
+                type="button"
+                class="showroom-panel__swatch"
+                data-showroom-color="#00d1b2"
+                style="--swatch:#00d1b2"
+                aria-label="Teal"></button>
+              <button
+                type="button"
+                class="showroom-panel__swatch"
+                data-showroom-color="#60a5fa"
+                style="--swatch:#60a5fa"
+                aria-label="Blue"></button>
+              <button
+                type="button"
+                class="showroom-panel__swatch"
+                data-showroom-color="#f472b6"
+                style="--swatch:#f472b6"
+                aria-label="Pink"></button>
+              <button
+                type="button"
+                class="showroom-panel__swatch"
+                data-showroom-color="#fbbf24"
+                style="--swatch:#fbbf24"
+                aria-label="Gold"></button>
+              <button
+                type="button"
+                class="showroom-panel__swatch"
+                data-showroom-color="#f87171"
+                style="--swatch:#f87171"
+                aria-label="Red"></button>
+              <button
+                type="button"
+                class="showroom-panel__swatch"
+                data-showroom-color="#e5e7eb"
+                style="--swatch:#e5e7eb"
+                aria-label="Silver"></button>
+            </div>
+
+            <div class="showroom-panel__row">
+              <input
+                class="showroom-panel__color"
+                type="color"
+                value="#00d1b2"
+                data-showroom-color-input
+                aria-label="Pick wrap color"
+              />
+              <button
+                type="button"
+                class="showroom-panel__reset"
+                data-showroom-reset
+              >
+                Reset
+              </button>
+            </div>
+          </div>
+
+          <div class="showroom-panel__section showroom-panel__grid">
+            <div>
+              <div class="showroom-panel__label">Finish</div>
+              <select class="showroom-panel__select" data-showroom-finish>
+                <option value="custom">Custom</option>
+                <option value="matte">Matte</option>
+                <option value="satin">Satin</option>
+                <option value="gloss">Gloss</option>
+              </select>
+            </div>
+            <div>
+              <div class="showroom-panel__label">Tint</div>
+              <input
+                class="showroom-panel__range"
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value="0.92"
+                data-showroom-tint
+                aria-label="Wrap tint"
+              />
+            </div>
+          </div>
+
+          <div class="showroom-panel__hint">Tip: press “C” to toggle</div>
+        </div>
+      </div>
+
       <!-- Control Bar -->
       <div class="gallery3d__controls">
+        <button
+          class="gallery3d__control-btn"
+          data-gallery-showroom
+          aria-label="Show showroom controls"
+          aria-expanded="false"
+          title="Showroom (C)"
+          disabled
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M12 22a10 10 0 1 1 10-10" stroke-linecap="round"></path>
+            <path
+              d="M12 2a10 10 0 0 0 0 20"
+              stroke-linecap="round"
+              opacity="0.35"></path>
+            <circle cx="18" cy="12" r="2"></circle>
+          </svg>
+        </button>
         <button
           class="gallery3d__control-btn"
           data-gallery-info
@@ -887,6 +1036,175 @@ const scenes = [
       font-size: 1rem;
       line-height: 1.6;
       color: rgba(255, 255, 255, 0.85);
+    }
+
+    /* Showroom Panel (scene17) */
+    .gallery3d__showroom-panel {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 23;
+      padding: 0 20px calc(100px + env(safe-area-inset-bottom));
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.92), transparent);
+      transform: translateY(100%);
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+    }
+
+    .gallery3d__showroom-panel.visible {
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .showroom-panel__content {
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 18px;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(16px);
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .showroom-panel__header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .showroom-panel__title {
+      margin: 0;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #22d3ee;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .showroom-panel__subtitle {
+      margin: 0;
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.65);
+    }
+
+    .showroom-panel__section {
+      margin-top: 12px;
+    }
+
+    .showroom-panel__label {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .showroom-panel__segmented {
+      display: flex;
+      gap: 8px;
+    }
+
+    .showroom-panel__seg {
+      flex: 1;
+      border-radius: 12px;
+      padding: 10px 10px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(0, 0, 0, 0.35);
+      color: rgba(255, 255, 255, 0.85);
+      cursor: pointer;
+      transition:
+        transform 0.15s ease,
+        background 0.2s ease;
+    }
+
+    .showroom-panel__seg.active {
+      background: linear-gradient(
+        135deg,
+        rgba(34, 211, 238, 0.25),
+        rgba(99, 102, 241, 0.22)
+      );
+      border-color: rgba(34, 211, 238, 0.35);
+      color: #fff;
+    }
+
+    .showroom-panel__seg:active {
+      transform: scale(0.98);
+    }
+
+    .showroom-panel__swatches {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .showroom-panel__swatch {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: var(--swatch);
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .showroom-panel__swatch.active {
+      outline: 2px solid rgba(34, 211, 238, 0.7);
+      outline-offset: 2px;
+    }
+
+    .showroom-panel__row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .showroom-panel__color {
+      width: 44px;
+      height: 34px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(0, 0, 0, 0.2);
+      padding: 0;
+      cursor: pointer;
+    }
+
+    .showroom-panel__reset {
+      border-radius: 12px;
+      padding: 9px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(0, 0, 0, 0.35);
+      color: rgba(255, 255, 255, 0.85);
+      cursor: pointer;
+    }
+
+    .showroom-panel__grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .showroom-panel__select {
+      width: 100%;
+      border-radius: 12px;
+      padding: 10px 10px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(0, 0, 0, 0.35);
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .showroom-panel__range {
+      width: 100%;
+    }
+
+    .showroom-panel__hint {
+      margin-top: 10px;
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.6);
     }
 
     /* Control Bar */

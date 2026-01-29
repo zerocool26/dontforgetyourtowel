@@ -50,6 +50,9 @@ declare global {
   }
 }
 
+type ShowroomMode = 'wrap' | 'wireframe' | 'glass';
+type ShowroomFinish = 'custom' | 'matte' | 'satin' | 'gloss';
+
 const ROOT_SELECTOR = '[data-tower3d-root]';
 
 const SCENE_IDS = [
@@ -469,6 +472,7 @@ createAstroMount(ROOT_SELECTOR, () => {
   setupAutoPlay();
   setupFullscreen();
   setupInfoPanel();
+  setupShowroomPanel();
   setupIdleDetection();
   updateUI();
 
@@ -584,6 +588,44 @@ createAstroMount(ROOT_SELECTOR, () => {
     },
   };
 });
+
+function isShowroomActive(): boolean {
+  // Showroom is the merged last chapter (scene17).
+  return state.currentScene === SCENE_IDS.length - 1;
+}
+
+function bumpShowroomRevision(): void {
+  const ds = document.documentElement.dataset;
+  const n = Number.parseInt(ds.wrapShowroomUiRevision ?? '0', 10);
+  ds.wrapShowroomUiRevision = String(Number.isFinite(n) ? n + 1 : 1);
+}
+
+function normalizeHexColor(value: string): string | null {
+  const raw = value.trim();
+  if (!raw) return null;
+  const hex = raw.startsWith('#') ? raw : `#${raw}`;
+  if (!/^#[0-9a-fA-F]{6}$/.test(hex)) return null;
+  return hex.toLowerCase();
+}
+
+function setShowroomState(partial: {
+  mode?: ShowroomMode;
+  wrapColor?: string;
+  finish?: ShowroomFinish;
+  tint?: number;
+}): void {
+  const ds = document.documentElement.dataset;
+
+  if (partial.mode) ds.wrapShowroomMode = partial.mode;
+  if (typeof partial.wrapColor === 'string')
+    ds.wrapShowroomWrapColor = partial.wrapColor;
+  if (partial.finish) ds.wrapShowroomWrapFinish = partial.finish;
+  if (typeof partial.tint === 'number' && Number.isFinite(partial.tint)) {
+    ds.wrapShowroomWrapTint = String(Math.max(0, Math.min(1, partial.tint)));
+  }
+
+  bumpShowroomRevision();
+}
 
 /** Setup previous/next button navigation */
 function setupNavigation() {
@@ -1332,6 +1374,223 @@ function setupInfoPanel() {
   });
 }
 
+/** Setup showroom panel for scene17 customization */
+function setupShowroomPanel() {
+  const toggleBtn = document.querySelector<HTMLButtonElement>(
+    '[data-gallery-showroom]'
+  );
+  const panel = document.querySelector<HTMLElement>(
+    '[data-gallery-showroom-panel]'
+  );
+
+  if (!toggleBtn || !panel) return;
+
+  const modeButtons = Array.from(
+    panel.querySelectorAll<HTMLButtonElement>('[data-showroom-mode]')
+  );
+  const swatches = Array.from(
+    panel.querySelectorAll<HTMLButtonElement>('[data-showroom-color]')
+  );
+  const colorInput = panel.querySelector<HTMLInputElement>(
+    '[data-showroom-color-input]'
+  );
+  const finishSelect = panel.querySelector<HTMLSelectElement>(
+    '[data-showroom-finish]'
+  );
+  const tintRange = panel.querySelector<HTMLInputElement>(
+    '[data-showroom-tint]'
+  );
+  const resetBtn = panel.querySelector<HTMLButtonElement>(
+    '[data-showroom-reset]'
+  );
+
+  const syncUiFromDataset = () => {
+    const ds = document.documentElement.dataset;
+    const mode = (ds.wrapShowroomMode || 'wrap') as ShowroomMode;
+    const wrapColor =
+      normalizeHexColor(ds.wrapShowroomWrapColor || '#00d1b2') ?? '#00d1b2';
+    const finish = (ds.wrapShowroomWrapFinish || 'custom') as ShowroomFinish;
+    const tint = Number.parseFloat(ds.wrapShowroomWrapTint || '0.92');
+    const tint01 = Number.isFinite(tint)
+      ? Math.max(0, Math.min(1, tint))
+      : 0.92;
+
+    modeButtons.forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.showroomMode === mode);
+    });
+    swatches.forEach(btn => {
+      btn.classList.toggle(
+        'active',
+        (btn.dataset.showroomColor || '').toLowerCase() === wrapColor
+      );
+    });
+
+    if (colorInput) colorInput.value = wrapColor;
+    if (finishSelect) finishSelect.value = finish;
+    if (tintRange) tintRange.value = String(tint01);
+  };
+
+  const showPanel = () => {
+    if (!isShowroomActive()) return;
+    panel.classList.add('visible');
+    panel.setAttribute('aria-hidden', 'false');
+    toggleBtn.classList.add('active');
+    toggleBtn.setAttribute('aria-expanded', 'true');
+    syncUiFromDataset();
+    resetIdleTimer();
+  };
+
+  const hidePanel = () => {
+    panel.classList.remove('visible');
+    panel.setAttribute('aria-hidden', 'true');
+    toggleBtn.classList.remove('active');
+    toggleBtn.setAttribute('aria-expanded', 'false');
+  };
+
+  const togglePanel = () => {
+    if (panel.classList.contains('visible')) hidePanel();
+    else showPanel();
+  };
+
+  toggleBtn.addEventListener('click', togglePanel);
+  addGalleryCleanup(() => {
+    toggleBtn.removeEventListener('click', togglePanel);
+  });
+
+  // Close on outside click.
+  const onOutsideClick = (e: MouseEvent) => {
+    if (!panel.classList.contains('visible')) return;
+    if (
+      panel.contains(e.target as Node) ||
+      toggleBtn.contains(e.target as Node)
+    )
+      return;
+    hidePanel();
+  };
+  document.addEventListener('click', onOutsideClick);
+  addGalleryCleanup(() => {
+    document.removeEventListener('click', onOutsideClick);
+  });
+
+  // Keyboard shortcut: C
+  const onKeyDown = (e: KeyboardEvent) => {
+    if (e.key !== 'c' && e.key !== 'C') return;
+    if (!isShowroomActive()) return;
+    togglePanel();
+  };
+  document.addEventListener('keydown', onKeyDown);
+  addGalleryCleanup(() => {
+    document.removeEventListener('keydown', onKeyDown);
+  });
+
+  // Mode buttons
+  const onModeClick = (e: MouseEvent) => {
+    const btn = (e.target as Element | null)?.closest?.(
+      '[data-showroom-mode]'
+    ) as HTMLButtonElement | null;
+    if (!btn) return;
+    const mode = btn.dataset.showroomMode as ShowroomMode | undefined;
+    if (!mode) return;
+    setShowroomState({ mode });
+    syncUiFromDataset();
+  };
+  panel.addEventListener('click', onModeClick);
+  addGalleryCleanup(() => {
+    panel.removeEventListener('click', onModeClick);
+  });
+
+  // Swatches
+  const onSwatchClick = (e: MouseEvent) => {
+    const btn = (e.target as Element | null)?.closest?.(
+      '[data-showroom-color]'
+    ) as HTMLButtonElement | null;
+    if (!btn) return;
+    const color = normalizeHexColor(btn.dataset.showroomColor || '');
+    if (!color) return;
+    setShowroomState({ wrapColor: color });
+    syncUiFromDataset();
+  };
+  panel.addEventListener('click', onSwatchClick);
+  addGalleryCleanup(() => {
+    panel.removeEventListener('click', onSwatchClick);
+  });
+
+  // Color input
+  const onColorInput = () => {
+    if (!colorInput) return;
+    const color = normalizeHexColor(colorInput.value);
+    if (!color) return;
+    setShowroomState({ wrapColor: color });
+    syncUiFromDataset();
+  };
+  colorInput?.addEventListener('input', onColorInput);
+  addGalleryCleanup(() => {
+    colorInput?.removeEventListener('input', onColorInput);
+  });
+
+  // Finish select
+  const onFinishChange = () => {
+    if (!finishSelect) return;
+    const finish = (finishSelect.value || 'custom') as ShowroomFinish;
+    setShowroomState({ finish });
+    syncUiFromDataset();
+  };
+  finishSelect?.addEventListener('change', onFinishChange);
+  addGalleryCleanup(() => {
+    finishSelect?.removeEventListener('change', onFinishChange);
+  });
+
+  // Tint
+  const onTintInput = () => {
+    if (!tintRange) return;
+    const v = Number.parseFloat(tintRange.value);
+    if (!Number.isFinite(v)) return;
+    setShowroomState({ tint: v });
+  };
+  tintRange?.addEventListener('input', onTintInput);
+  addGalleryCleanup(() => {
+    tintRange?.removeEventListener('input', onTintInput);
+  });
+
+  // Reset
+  const onReset = () => {
+    setShowroomState({
+      mode: 'wrap',
+      wrapColor: '#00d1b2',
+      finish: 'custom',
+      tint: 0.92,
+    });
+    syncUiFromDataset();
+  };
+  resetBtn?.addEventListener('click', onReset);
+  addGalleryCleanup(() => {
+    resetBtn?.removeEventListener('click', onReset);
+  });
+
+  // Expose a small sync hook for updateUI.
+  const syncAvailability = () => {
+    const enabled = isShowroomActive();
+    toggleBtn.disabled = !enabled;
+    toggleBtn.setAttribute('aria-disabled', String(!enabled));
+    if (!enabled) hidePanel();
+    else syncUiFromDataset();
+  };
+
+  // Seed.
+  syncAvailability();
+
+  addGalleryCleanup(() => {
+    hidePanel();
+  });
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (window as any).__syncShowroomPanelAvailability = syncAvailability;
+  addGalleryCleanup(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (window as any).__syncShowroomPanelAvailability = undefined;
+  });
+}
+
 /** Reset idle timer */
 function resetIdleTimer() {
   state.idleTime = 0;
@@ -1527,6 +1786,10 @@ function updateUI() {
 
   // Update document title for better context
   document.title = `${sceneName} | 3D Gallery`;
+
+  // Keep the showroom panel enabled only for scene17.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (window as any).__syncShowroomPanelAvailability?.();
 }
 
 export { goToScene, navigateScene, state };
