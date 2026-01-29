@@ -67,7 +67,91 @@ type SavedPreset = {
   state: Record<string, string>;
 };
 
+type ManualPartKind =
+  | 'body'
+  | 'trim'
+  | 'wheel'
+  | 'tire'
+  | 'caliper'
+  | 'light'
+  | 'glass';
+
+type PartMap = Record<string, ManualPartKind>;
+
 const PRESETS_STORAGE_KEY = 'csr-presets-v1';
+
+const PARTMAP_STORAGE_PREFIX = 'csr-partmap-v1::';
+
+const isManualPartKind = (v: unknown): v is ManualPartKind =>
+  v === 'body' ||
+  v === 'trim' ||
+  v === 'wheel' ||
+  v === 'tire' ||
+  v === 'caliper' ||
+  v === 'light' ||
+  v === 'glass';
+
+const normalizePartMap = (raw: unknown): PartMap => {
+  if (!raw || typeof raw !== 'object') return {};
+  const obj = raw as Record<string, unknown>;
+  const out: PartMap = {};
+  for (const [k, v] of Object.entries(obj)) {
+    const key = String(k || '').trim();
+    if (!key) continue;
+    if (!isManualPartKind(v)) continue;
+    out[key] = v;
+  }
+  return out;
+};
+
+const getPartMapStorageKey = (modelUrl: string): string | null => {
+  const model = (modelUrl || '').trim();
+  if (!model) return null;
+  // Don't persist mappings for blob/data models.
+  if (model.startsWith('blob:') || model.startsWith('data:')) return null;
+  return `${PARTMAP_STORAGE_PREFIX}${model}`;
+};
+
+const loadPartMapForModel = (modelUrl: string): PartMap => {
+  const key = getPartMapStorageKey(modelUrl);
+  if (!key) return {};
+  try {
+    const raw = localStorage.getItem(key);
+    const parsed = safeParseJson<unknown>(raw);
+    return normalizePartMap(parsed);
+  } catch {
+    return {};
+  }
+};
+
+const savePartMapForModel = (modelUrl: string, map: PartMap) => {
+  const key = getPartMapStorageKey(modelUrl);
+  if (!key) return;
+  try {
+    const keys = Object.keys(map);
+    if (keys.length === 0) localStorage.removeItem(key);
+    else localStorage.setItem(key, JSON.stringify(map));
+  } catch {
+    // ignore
+  }
+};
+
+// URL-safe base64 helpers for sharing smallish maps.
+const toBase64Url = (text: string): string => {
+  const b64 = btoa(unescape(encodeURIComponent(text)));
+  return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+};
+
+const fromBase64Url = (text: string): string | null => {
+  try {
+    const padded = text.replace(/-/g, '+').replace(/_/g, '/');
+    const padLen = (4 - (padded.length % 4)) % 4;
+    const b64 = padded + '='.repeat(padLen);
+    return decodeURIComponent(escape(atob(b64)));
+  } catch {
+    return null;
+  }
+};
 
 const safeParseJson = <T>(raw: string | null): T | null => {
   if (!raw) return null;
@@ -263,6 +347,9 @@ createAstroMount(ROOT_SELECTOR, () => {
   const selectedMeshEl = root.querySelector<HTMLElement>(
     '[data-csr-selected-mesh]'
   );
+  const selectedPathEl = root.querySelector<HTMLElement>(
+    '[data-csr-selected-path]'
+  );
   const selectedMaterialEl = root.querySelector<HTMLElement>(
     '[data-csr-selected-material]'
   );
@@ -279,6 +366,25 @@ createAstroMount(ROOT_SELECTOR, () => {
   );
   const copyBuildBtn = root.querySelector<HTMLButtonElement>(
     '[data-csr-copy-build]'
+  );
+
+  const assignPartSel = root.querySelector<HTMLSelectElement>(
+    '[data-csr-assign-part]'
+  );
+  const assignApplyBtn = root.querySelector<HTMLButtonElement>(
+    '[data-csr-assign-apply]'
+  );
+  const assignClearAllBtn = root.querySelector<HTMLButtonElement>(
+    '[data-csr-assign-clear-all]'
+  );
+  const buildsheetPasteTa = root.querySelector<HTMLTextAreaElement>(
+    '[data-csr-buildsheet-paste]'
+  );
+  const buildsheetApplyBtn = root.querySelector<HTMLButtonElement>(
+    '[data-csr-buildsheet-apply]'
+  );
+  const buildsheetClearBtn = root.querySelector<HTMLButtonElement>(
+    '[data-csr-buildsheet-clear]'
   );
 
   // --- Panel tabs (mobile-friendly)
@@ -416,6 +522,8 @@ createAstroMount(ROOT_SELECTOR, () => {
     const wcolor = params.get('wcolor');
     const wpat = params.get('wpat');
     const wscale = params.get('wscale');
+
+    const pm = params.get('pm');
 
     if (model) root.dataset.carShowroomModel = model;
     if (mode) root.dataset.carShowroomMode = mode;
@@ -558,6 +666,14 @@ createAstroMount(ROOT_SELECTOR, () => {
     const wscaleN = parseNum(wscale);
     if (wscaleN !== null)
       root.dataset.carShowroomWrapScale = String(clamp(wscaleN, 0.2, 6));
+
+    if (pm) {
+      const decoded = fromBase64Url(pm);
+      const parsed = decoded ? safeParseJson<unknown>(decoded) : null;
+      const map = normalizePartMap(parsed);
+      const json = Object.keys(map).length ? JSON.stringify(map) : '';
+      if (json) root.dataset.carShowroomPartMap = json;
+    }
   };
 
   // Apply deep-link state before defaults so query params win.
@@ -616,6 +732,7 @@ createAstroMount(ROOT_SELECTOR, () => {
     'carShowroomSpinSpeed',
     'carShowroomZoom',
     'carShowroomAutoRotate',
+    'carShowroomPartMap',
   ];
 
   const loadSavedPresets = (): SavedPreset[] => {
@@ -657,6 +774,12 @@ createAstroMount(ROOT_SELECTOR, () => {
       const name = (ds.carShowroomSelectedMeshName || '').trim();
       selectedMeshEl.hidden = name.length === 0;
       selectedMeshEl.textContent = name ? `Mesh: ${name}` : '';
+    }
+
+    if (selectedPathEl) {
+      const path = (ds.carShowroomSelectedMeshPath || '').trim();
+      selectedPathEl.hidden = path.length === 0;
+      selectedPathEl.textContent = path ? `Path: ${path}` : '';
     }
 
     if (selectedMaterialEl) {
@@ -805,15 +928,64 @@ createAstroMount(ROOT_SELECTOR, () => {
     once: true,
   });
 
+  let isPanelOpen = false;
+  let savedScrollY = 0;
+  let prevHtmlOverflow = '';
+  let prevBodyPosition = '';
+  let prevBodyTop = '';
+  let prevBodyLeft = '';
+  let prevBodyRight = '';
+  let prevBodyWidth = '';
+
+  const lockScroll = () => {
+    savedScrollY = window.scrollY || 0;
+    prevHtmlOverflow = document.documentElement.style.overflow;
+    prevBodyPosition = document.body.style.position;
+    prevBodyTop = document.body.style.top;
+    prevBodyLeft = document.body.style.left;
+    prevBodyRight = document.body.style.right;
+    prevBodyWidth = document.body.style.width;
+
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${savedScrollY}px`;
+    document.body.style.left = '0';
+    document.body.style.right = '0';
+    document.body.style.width = '100%';
+  };
+
+  const unlockScroll = () => {
+    document.documentElement.style.overflow = prevHtmlOverflow;
+    document.body.style.position = prevBodyPosition;
+    document.body.style.top = prevBodyTop;
+    document.body.style.left = prevBodyLeft;
+    document.body.style.right = prevBodyRight;
+    document.body.style.width = prevBodyWidth;
+    window.scrollTo(0, savedScrollY);
+  };
+
   const setPanelOpen = (open: boolean) => {
     if (!panel) return;
-    panel.hidden = !open;
+    isPanelOpen = open;
 
+    panel.hidden = !open;
     if (panelBackdrop) panelBackdrop.hidden = !open;
 
+    if (togglePanelBtn)
+      togglePanelBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+
     // Avoid the page scrolling underneath the overlay on mobile.
-    if (open) document.documentElement.style.overflow = 'hidden';
-    else document.documentElement.style.overflow = '';
+    if (open) {
+      lockScroll();
+      // Focus the first tab button so the sheet feels “active” on mobile.
+      window.setTimeout(() => {
+        const firstTab =
+          root.querySelector<HTMLButtonElement>('[data-csr-tab-btn]');
+        firstTab?.focus?.();
+      }, 0);
+    } else {
+      unlockScroll();
+    }
   };
 
   togglePanelBtn?.addEventListener('click', () => {
@@ -826,6 +998,19 @@ createAstroMount(ROOT_SELECTOR, () => {
 
   panelBackdrop?.addEventListener('click', () => {
     setPanelOpen(false);
+  });
+
+  // If the viewport changes dramatically (rotation/address-bar changes), ensure we
+  // don't leave the page “locked” behind a hidden panel.
+  window.addEventListener('resize', () => {
+    if (!panel || !panelBackdrop) return;
+    const actuallyOpen = !panel.hidden;
+    if (!actuallyOpen && isPanelOpen) {
+      isPanelOpen = false;
+      unlockScroll();
+      if (togglePanelBtn) togglePanelBtn.setAttribute('aria-expanded', 'false');
+      panelBackdrop.hidden = true;
+    }
   });
 
   // Defaults
@@ -873,6 +1058,9 @@ createAstroMount(ROOT_SELECTOR, () => {
   root.dataset.carShowroomReady ||= '0';
   root.dataset.carShowroomLoading ||= '0';
   root.dataset.carShowroomLoadError ||= '';
+
+  // Default empty part map.
+  root.dataset.carShowroomPartMap ||= '';
 
   if (modelUrlInp) modelUrlInp.value = root.dataset.carShowroomModel;
 
@@ -956,6 +1144,21 @@ createAstroMount(ROOT_SELECTOR, () => {
 
   renderPresetOptions();
 
+  // Load per-model part map unless a deep-link already provided one.
+  if (!(root.dataset.carShowroomPartMap || '').trim()) {
+    const model = (root.dataset.carShowroomModel || '').trim();
+    const map = loadPartMapForModel(model);
+    root.dataset.carShowroomPartMap = Object.keys(map).length
+      ? JSON.stringify(map)
+      : '';
+  } else {
+    // Deep link wins; persist it for this model when possible.
+    const model = (root.dataset.carShowroomModel || '').trim();
+    const parsed = safeParseJson<unknown>(root.dataset.carShowroomPartMap);
+    const map = normalizePartMap(parsed);
+    savePartMapForModel(model, map);
+  }
+
   bumpRevision();
   syncStatus();
 
@@ -963,6 +1166,14 @@ createAstroMount(ROOT_SELECTOR, () => {
   modelSel?.addEventListener('change', () => {
     if (!modelUrlInp) return;
     modelUrlInp.value = modelSel.value;
+
+    // When the model changes via the dropdown, swap to its saved part map.
+    const model = (modelSel.value || '').trim();
+    const map = loadPartMapForModel(model);
+    root.dataset.carShowroomPartMap = Object.keys(map).length
+      ? JSON.stringify(map)
+      : '';
+    bumpRevision();
   });
 
   // Color swatches
@@ -984,8 +1195,107 @@ createAstroMount(ROOT_SELECTOR, () => {
     const raw = (modelUrlInp?.value || '').trim();
     if (!raw) return;
     root.dataset.carShowroomModel = raw;
+
+    // When switching models manually, load its saved part map.
+    const map = loadPartMapForModel(raw);
+    root.dataset.carShowroomPartMap = Object.keys(map).length
+      ? JSON.stringify(map)
+      : '';
     bumpRevision();
   };
+
+  const readPartMapFromDataset = (): PartMap => {
+    const raw = (root.dataset.carShowroomPartMap || '').trim();
+    if (!raw) return {};
+    const parsed = safeParseJson<unknown>(raw);
+    return normalizePartMap(parsed);
+  };
+
+  const writePartMapToDataset = (map: PartMap) => {
+    const json = Object.keys(map).length ? JSON.stringify(map) : '';
+    root.dataset.carShowroomPartMap = json;
+    const model = (root.dataset.carShowroomModel || '').trim();
+    savePartMapForModel(model, map);
+  };
+
+  assignApplyBtn?.addEventListener('click', () => {
+    const path = (root.dataset.carShowroomSelectedMeshPath || '').trim();
+    if (!path) {
+      showToast('Select a mesh first.');
+      return;
+    }
+    const raw = (assignPartSel?.value || '').trim();
+    const map = readPartMapFromDataset();
+
+    if (!raw) {
+      // Auto (remove mapping)
+      if (map[path]) delete map[path];
+      writePartMapToDataset(map);
+      showToast('Mapping cleared for selected mesh.');
+      bumpRevision();
+      return;
+    }
+
+    if (!isManualPartKind(raw)) {
+      showToast('Invalid part type.');
+      return;
+    }
+
+    map[path] = raw;
+    writePartMapToDataset(map);
+    showToast(`Assigned selected mesh as ${raw}.`);
+    bumpRevision();
+  });
+
+  assignClearAllBtn?.addEventListener('click', () => {
+    writePartMapToDataset({});
+    showToast('Part map cleared.');
+    bumpRevision();
+  });
+
+  buildsheetClearBtn?.addEventListener('click', () => {
+    if (buildsheetPasteTa) buildsheetPasteTa.value = '';
+  });
+
+  buildsheetApplyBtn?.addEventListener('click', () => {
+    const raw = (buildsheetPasteTa?.value || '').trim();
+    if (!raw) {
+      showToast('Paste a build sheet JSON first.');
+      return;
+    }
+
+    const parsed = safeParseJson<unknown>(raw);
+    if (!parsed || typeof parsed !== 'object') {
+      showToast('Invalid JSON.');
+      return;
+    }
+
+    const obj = parsed as Record<string, unknown>;
+    const stateCandidate =
+      obj.state && typeof obj.state === 'object'
+        ? (obj.state as Record<string, unknown>)
+        : (obj as Record<string, unknown>);
+
+    const state: Record<string, string> = {};
+    for (const k of PRESET_DATASET_KEYS) {
+      const v = stateCandidate[String(k)];
+      if (typeof v === 'string') state[String(k)] = v;
+    }
+
+    if (Object.keys(state).length === 0) {
+      showToast('No recognized state found in JSON.');
+      return;
+    }
+
+    applyPresetState(state);
+
+    // Ensure any imported part map gets persisted for this model.
+    const model = (root.dataset.carShowroomModel || '').trim();
+    const map = readPartMapFromDataset();
+    savePartMapForModel(model, map);
+
+    showToast('Build sheet applied.');
+  });
 
   const applyFloorPreset = (preset: string) => {
     if (preset === 'asphalt') {
@@ -1217,6 +1527,29 @@ createAstroMount(ROOT_SELECTOR, () => {
       params.delete('model');
     }
 
+    // Part mapping (only for shareable models)
+    const pmRaw = (ds.carShowroomPartMap || '').trim();
+    if (
+      pmRaw &&
+      model &&
+      !model.startsWith('blob:') &&
+      !model.startsWith('data:')
+    ) {
+      const parsed = safeParseJson<unknown>(pmRaw);
+      const map = normalizePartMap(parsed);
+      const json = Object.keys(map).length ? JSON.stringify(map) : '';
+      if (json) {
+        const encoded = toBase64Url(json);
+        // Keep links from becoming absurdly large.
+        if (encoded.length < 2000) params.set('pm', encoded);
+        else params.delete('pm');
+      } else {
+        params.delete('pm');
+      }
+    } else {
+      params.delete('pm');
+    }
+
     params.set('mode', ds.carShowroomMode || 'paint');
     params.set('color', ds.carShowroomColor || '#00d1b2');
     params.set('wcolor', ds.carShowroomWrapColor || '#00d1b2');
@@ -1302,6 +1635,27 @@ createAstroMount(ROOT_SELECTOR, () => {
         params.set('model', model);
       } else {
         params.delete('model');
+      }
+
+      const pmRaw = (ds.carShowroomPartMap || '').trim();
+      if (
+        pmRaw &&
+        model &&
+        !model.startsWith('blob:') &&
+        !model.startsWith('data:')
+      ) {
+        const parsed = safeParseJson<unknown>(pmRaw);
+        const map = normalizePartMap(parsed);
+        const json = Object.keys(map).length ? JSON.stringify(map) : '';
+        if (json) {
+          const encoded = toBase64Url(json);
+          if (encoded.length < 2000) params.set('pm', encoded);
+          else params.delete('pm');
+        } else {
+          params.delete('pm');
+        }
+      } else {
+        params.delete('pm');
       }
 
       params.set('mode', ds.carShowroomMode || 'paint');
@@ -1755,6 +2109,7 @@ createAstroMount(ROOT_SELECTOR, () => {
     if (!hit) return;
     root.dataset.carShowroomSelectedPart = hit.part;
     root.dataset.carShowroomSelectedMeshName = (hit.mesh?.name || '').trim();
+    root.dataset.carShowroomSelectedMeshPath = (hit.meshPath || '').trim();
     root.dataset.carShowroomSelectedMaterialName = (() => {
       const readName = (v: unknown): string => {
         if (!v) return '';
@@ -1773,6 +2128,11 @@ createAstroMount(ROOT_SELECTOR, () => {
       selectedMeshEl.hidden = name.length === 0;
       selectedMeshEl.textContent = name ? `Mesh: ${name}` : '';
     }
+    if (selectedPathEl) {
+      const path = (root.dataset.carShowroomSelectedMeshPath || '').trim();
+      selectedPathEl.hidden = path.length === 0;
+      selectedPathEl.textContent = path ? `Path: ${path}` : '';
+    }
     if (selectedMaterialEl) {
       const name = (root.dataset.carShowroomSelectedMaterialName || '').trim();
       selectedMaterialEl.hidden = name.length === 0;
@@ -1789,6 +2149,7 @@ createAstroMount(ROOT_SELECTOR, () => {
   clearSelectionBtn?.addEventListener('click', () => {
     root.dataset.carShowroomSelectedPart = '';
     root.dataset.carShowroomSelectedMeshName = '';
+    root.dataset.carShowroomSelectedMeshPath = '';
     root.dataset.carShowroomSelectedMaterialName = '';
     showroom.clearSelection();
     if (selectedPartEl)
@@ -1796,6 +2157,10 @@ createAstroMount(ROOT_SELECTOR, () => {
     if (selectedMeshEl) {
       selectedMeshEl.hidden = true;
       selectedMeshEl.textContent = '';
+    }
+    if (selectedPathEl) {
+      selectedPathEl.hidden = true;
+      selectedPathEl.textContent = '';
     }
     if (selectedMaterialEl) {
       selectedMaterialEl.hidden = true;

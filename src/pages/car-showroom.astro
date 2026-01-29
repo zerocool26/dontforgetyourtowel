@@ -44,7 +44,13 @@ const description =
         </div>
 
         <div class="car-showroom__actions">
-          <button type="button" class="csr-btn" data-csr-toggle-panel>
+          <button
+            type="button"
+            class="csr-btn"
+            data-csr-toggle-panel
+            aria-controls="csr-panel"
+            aria-expanded="false"
+          >
             Options
           </button>
           <button
@@ -84,7 +90,15 @@ const description =
         aria-label="Close options"
         hidden></button>
 
-      <div class="car-showroom__panel" data-csr-panel hidden>
+      <div
+        id="csr-panel"
+        class="car-showroom__panel"
+        data-csr-panel
+        role="dialog"
+        aria-modal="true"
+        aria-label="Configurator options"
+        hidden
+      >
         <div class="csr-panel-head">
           <div class="csr-panel-head__row">
             <strong class="csr-panel-head__title">Options</strong>
@@ -186,6 +200,9 @@ const description =
                 </div>
                 <div class="csr-readout" data-csr-selected-mesh hidden>
                   Mesh: —
+                </div>
+                <div class="csr-readout" data-csr-selected-path hidden>
+                  Path: —
                 </div>
                 <div class="csr-readout" data-csr-selected-material hidden>
                   Material: —
@@ -706,6 +723,59 @@ const description =
                 <p class="csr-hint">Share config as JSON</p>
               </div>
 
+              <div class="csr-field csr-field--wide">
+                <span>Selected part mapping</span>
+                <div class="csr-inline">
+                  <select data-csr-assign-part>
+                    <option value="">Auto (heuristics)</option>
+                    <option value="body">Body</option>
+                    <option value="trim">Trim</option>
+                    <option value="wheel">Wheel</option>
+                    <option value="tire">Tire</option>
+                    <option value="caliper">Caliper</option>
+                    <option value="light">Light</option>
+                    <option value="glass">Glass</option>
+                  </select>
+                  <button type="button" class="csr-btn" data-csr-assign-apply>
+                    Assign
+                  </button>
+                </div>
+              </div>
+
+              <div class="csr-row">
+                <button
+                  type="button"
+                  class="csr-btn csr-btn--ghost"
+                  data-csr-assign-clear-all
+                >
+                  Clear part map
+                </button>
+                <p class="csr-hint">Saves per model (shareable models only)</p>
+              </div>
+
+              <div class="csr-field csr-field--wide">
+                <span>Paste build sheet</span>
+                <textarea
+                  class="csr-text csr-textarea"
+                  spellcheck="false"
+                  placeholder="Paste the JSON from “Copy build sheet” here…"
+                  data-csr-buildsheet-paste></textarea>
+              </div>
+
+              <div class="csr-row">
+                <button type="button" class="csr-btn" data-csr-buildsheet-apply>
+                  Apply build sheet
+                </button>
+                <button
+                  type="button"
+                  class="csr-btn csr-btn--ghost"
+                  data-csr-buildsheet-clear
+                >
+                  Clear
+                </button>
+                <p class="csr-hint">Imports state + part map</p>
+              </div>
+
               <label class="csr-field">
                 <span>Model</span>
                 <select data-csr-model>
@@ -895,7 +965,7 @@ const description =
 
     .car-showroom__backdrop {
       pointer-events: auto;
-      position: absolute;
+      position: fixed;
       inset: 0;
       border: 0;
       padding: 0;
@@ -903,6 +973,7 @@ const description =
       background: rgba(0, 0, 0, 0.35);
       backdrop-filter: blur(6px);
       z-index: 15;
+      touch-action: none;
     }
 
     .csr-panel-head__row {
@@ -1050,6 +1121,12 @@ const description =
       font-size: 13px;
     }
 
+    .csr-textarea {
+      min-height: 120px;
+      resize: vertical;
+      line-height: 1.35;
+    }
+
     .csr-text::placeholder {
       color: rgba(255, 255, 255, 0.45);
     }
@@ -1159,11 +1236,17 @@ const description =
       }
 
       .car-showroom__panel {
-        right: 18px;
-        left: 18px;
+        position: fixed;
+        left: 12px;
+        right: 12px;
+        top: auto;
+        bottom: calc(12px + env(safe-area-inset-bottom, 0px));
         width: auto;
-        top: 74px;
-        max-height: calc(100svh - 140px);
+        max-height: calc(
+          100svh - 24px - env(safe-area-inset-top, 0px) -
+            env(safe-area-inset-bottom, 0px)
+        );
+        border-radius: 18px;
       }
 
       .csr-tabs {

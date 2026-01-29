@@ -504,6 +504,7 @@ export class CarShowroomScene {
   ): {
     mesh: THREE.Mesh;
     part: ReturnType<CarShowroomScene['classifyMesh']>;
+    meshPath: string;
   } | null {
     if (!this.loaded) return null;
     raycaster.setFromCamera(ndc, this.camera);
@@ -511,7 +512,36 @@ export class CarShowroomScene {
     const hit = hits.find(h => (h.object as THREE.Mesh)?.isMesh);
     if (!hit) return null;
     const mesh = hit.object as THREE.Mesh;
-    return { mesh, part: this.classifyMesh(mesh) };
+    return {
+      mesh,
+      part: this.classifyMesh(mesh),
+      meshPath: this.getMeshPath(mesh),
+    };
+  }
+
+  private sanitizePathToken(name: string): string {
+    const raw = (name || '').trim().toLowerCase();
+    if (!raw) return '~';
+    return raw.replace(/\s+/g, '_').replace(/[^a-z0-9_-]/g, '');
+  }
+
+  private getMeshPath(mesh: THREE.Object3D): string {
+    if (!this.loaded) return '';
+
+    // Build a stable-ish path based on parent chain + child indices.
+    // This survives material changes and is deterministic per GLB.
+    const parts: string[] = [];
+    let node: THREE.Object3D | null = mesh;
+    while (node && node !== this.loaded) {
+      const parentObj: THREE.Object3D | null = node.parent;
+      if (!parentObj) break;
+      const idx = parentObj.children.indexOf(node);
+      const token = this.sanitizePathToken(node.name);
+      parts.push(`${token}[${idx < 0 ? 0 : idx}]`);
+      node = parentObj;
+    }
+    parts.reverse();
+    return parts.join('/');
   }
 
   dispose() {
@@ -1183,6 +1213,33 @@ export class CarShowroomScene {
 
     const mode = ui.mode;
 
+    const manualMap = (() => {
+      const raw = (this.root.dataset.carShowroomPartMap || '').trim();
+      if (!raw) return {} as Record<string, string>;
+      try {
+        const parsed = JSON.parse(raw) as Record<string, unknown>;
+        const out: Record<string, string> = {};
+        for (const [k, v] of Object.entries(parsed || {})) {
+          const key = String(k || '').trim();
+          const val = typeof v === 'string' ? v : '';
+          if (!key || !val) continue;
+          out[key] = val;
+        }
+        return out;
+      } catch {
+        return {} as Record<string, string>;
+      }
+    })();
+
+    const isValidManualPart = (v: string) =>
+      v === 'glass' ||
+      v === 'tire' ||
+      v === 'wheel' ||
+      v === 'trim' ||
+      v === 'caliper' ||
+      v === 'light' ||
+      v === 'body';
+
     loaded.traverse(obj => {
       const mesh = obj as THREE.Mesh;
       if (!mesh.isMesh) return;
@@ -1190,7 +1247,12 @@ export class CarShowroomScene {
       mesh.castShadow = true;
       mesh.receiveShadow = true;
 
-      const part = this.classifyMesh(mesh);
+      const path = this.getMeshPath(mesh);
+      const mapped = path ? String(manualMap[path] || '').trim() : '';
+      const part =
+        mapped && isValidManualPart(mapped)
+          ? (mapped as ReturnType<CarShowroomScene['classifyMesh']>)
+          : this.classifyMesh(mesh);
 
       if (mode === 'wireframe') {
         mesh.material = this.wireframeMat;
