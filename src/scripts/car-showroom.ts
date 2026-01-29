@@ -18,6 +18,49 @@ const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 const damp = (current: number, target: number, lambda: number, dt: number) =>
   lerp(current, target, 1 - Math.exp(-lambda * dt));
 
+const normalizeHexColor = (value: string): string | null => {
+  const raw = value.trim();
+  if (!raw) return null;
+  const hex = raw.startsWith('#') ? raw : `#${raw}`;
+  if (!/^#[0-9a-fA-F]{6}$/.test(hex)) return null;
+  return hex.toLowerCase();
+};
+
+const clamp01 = (v: number) => clamp(v, 0, 1);
+
+const parseNum = (value: string | null): number | null => {
+  if (value == null) return null;
+  const n = Number.parseFloat(value);
+  return Number.isFinite(n) ? n : null;
+};
+
+const copyToClipboard = async (text: string): Promise<boolean> => {
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch {
+    // fall through
+  }
+
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    ta.style.top = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    const ok = document.execCommand('copy');
+    document.body.removeChild(ta);
+    return ok;
+  } catch {
+    return false;
+  }
+};
+
 createAstroMount(ROOT_SELECTOR, () => {
   const root = document.querySelector<HTMLElement>(ROOT_SELECTOR);
   if (!root) return null;
@@ -43,6 +86,11 @@ createAstroMount(ROOT_SELECTOR, () => {
   const togglePanelBtn = root.querySelector<HTMLButtonElement>(
     '[data-csr-toggle-panel]'
   );
+  const copyLinkBtn = root.querySelector<HTMLButtonElement>(
+    '[data-csr-copy-link]'
+  );
+  const importBtn = root.querySelector<HTMLButtonElement>('[data-csr-import]');
+  const fileInp = root.querySelector<HTMLInputElement>('[data-csr-file]');
   const modelSel = root.querySelector<HTMLSelectElement>('[data-csr-model]');
   const modelUrlInp = root.querySelector<HTMLInputElement>(
     '[data-csr-model-url]'
@@ -75,6 +123,70 @@ createAstroMount(ROOT_SELECTOR, () => {
   const resetCameraBtn = root.querySelector<HTMLButtonElement>(
     '[data-csr-reset-camera]'
   );
+
+  const swatches = Array.from(
+    root.querySelectorAll<HTMLButtonElement>('[data-csr-swatch]')
+  );
+
+  let currentObjectUrl: string | null = null;
+
+  const showToast = (message: string) => {
+    root.dataset.carShowroomLoadError = message;
+    syncStatus();
+    window.setTimeout(() => {
+      if ((root.dataset.carShowroomLoadError || '') === message) {
+        root.dataset.carShowroomLoadError = '';
+      }
+    }, 2200);
+  };
+
+  const applyQueryState = () => {
+    const params = new URLSearchParams(window.location.search);
+    const model = params.get('model');
+    const mode = params.get('mode');
+    const color = params.get('color');
+    const finish = params.get('finish');
+    const wheel = params.get('wheel');
+    const trim = params.get('trim');
+    const tint = params.get('tint');
+    const bg = params.get('bg');
+    const cam = params.get('cam');
+    const spin = params.get('spin');
+    const zoom = params.get('zoom');
+    const ar = params.get('ar');
+
+    if (model) root.dataset.carShowroomModel = model;
+    if (mode) root.dataset.carShowroomMode = mode;
+    if (finish) root.dataset.carShowroomFinish = finish;
+    if (wheel) root.dataset.carShowroomWheelFinish = wheel;
+    if (trim) root.dataset.carShowroomTrimFinish = trim;
+    if (bg) root.dataset.carShowroomBackground = bg;
+    if (cam) root.dataset.carShowroomCameraPreset = cam;
+
+    if (color) {
+      const hex = normalizeHexColor(color);
+      if (hex) root.dataset.carShowroomColor = hex;
+    }
+
+    const tintN = parseNum(tint);
+    if (tintN !== null)
+      root.dataset.carShowroomGlassTint = String(clamp01(tintN));
+
+    const spinN = parseNum(spin);
+    if (spinN !== null)
+      root.dataset.carShowroomSpinSpeed = String(clamp(spinN, 0, 2));
+
+    const zoomN = parseNum(zoom);
+    if (zoomN !== null) root.dataset.carShowroomZoom = String(clamp01(zoomN));
+
+    if (ar === '0' || ar === 'false')
+      root.dataset.carShowroomAutoRotate = 'false';
+    if (ar === '1' || ar === 'true')
+      root.dataset.carShowroomAutoRotate = 'true';
+  };
+
+  // Apply deep-link state before defaults so query params win.
+  applyQueryState();
 
   const syncStatus = () => {
     const ds = root.dataset;
@@ -124,6 +236,36 @@ createAstroMount(ROOT_SELECTOR, () => {
 
   if (modelUrlInp) modelUrlInp.value = root.dataset.carShowroomModel;
 
+  // Sync inputs to dataset (including deep-linking).
+  if (modelSel && root.dataset.carShowroomModel) {
+    const value = root.dataset.carShowroomModel;
+    if (value && Array.from(modelSel.options).some(o => o.value === value)) {
+      modelSel.value = value;
+    }
+  }
+  if (modeSel && root.dataset.carShowroomMode)
+    modeSel.value = root.dataset.carShowroomMode;
+  if (cameraSel && root.dataset.carShowroomCameraPreset)
+    cameraSel.value = root.dataset.carShowroomCameraPreset;
+  if (colorInp && root.dataset.carShowroomColor)
+    colorInp.value = root.dataset.carShowroomColor;
+  if (finishSel && root.dataset.carShowroomFinish)
+    finishSel.value = root.dataset.carShowroomFinish;
+  if (wheelFinishSel && root.dataset.carShowroomWheelFinish)
+    wheelFinishSel.value = root.dataset.carShowroomWheelFinish;
+  if (trimFinishSel && root.dataset.carShowroomTrimFinish)
+    trimFinishSel.value = root.dataset.carShowroomTrimFinish;
+  if (glassTintRange && root.dataset.carShowroomGlassTint)
+    glassTintRange.value = root.dataset.carShowroomGlassTint;
+  if (bgSel && root.dataset.carShowroomBackground)
+    bgSel.value = root.dataset.carShowroomBackground;
+  if (autoRotateChk && root.dataset.carShowroomAutoRotate)
+    autoRotateChk.checked = root.dataset.carShowroomAutoRotate !== 'false';
+  if (spinSpeedRange && root.dataset.carShowroomSpinSpeed)
+    spinSpeedRange.value = root.dataset.carShowroomSpinSpeed;
+  if (zoomRange && root.dataset.carShowroomZoom)
+    zoomRange.value = root.dataset.carShowroomZoom;
+
   bumpRevision();
   syncStatus();
 
@@ -131,6 +273,21 @@ createAstroMount(ROOT_SELECTOR, () => {
   modelSel?.addEventListener('change', () => {
     if (!modelUrlInp) return;
     modelUrlInp.value = modelSel.value;
+  });
+
+  // Color swatches
+  swatches.forEach(btn => {
+    btn.addEventListener(
+      'click',
+      () => {
+        const hex = normalizeHexColor(btn.dataset.csrSwatch || '');
+        if (!hex) return;
+        if (colorInp) colorInp.value = hex;
+        root.dataset.carShowroomColor = hex;
+        bumpRevision();
+      },
+      { passive: true }
+    );
   });
 
   const applyModelUrl = () => {
@@ -212,6 +369,104 @@ createAstroMount(ROOT_SELECTOR, () => {
     root.dataset.carShowroomCameraPreset = 'hero';
     bumpRevision();
   });
+
+  const copyShareLink = async () => {
+    const ds = root.dataset;
+    const url = new URL(window.location.href);
+    const params = new URLSearchParams(url.search);
+
+    const model = (ds.carShowroomModel || '').trim();
+    // Don't try to share blob/data URLs.
+    if (model && !model.startsWith('blob:') && !model.startsWith('data:')) {
+      params.set('model', model);
+    } else {
+      params.delete('model');
+    }
+
+    params.set('mode', ds.carShowroomMode || 'paint');
+    params.set('color', ds.carShowroomColor || '#00d1b2');
+    params.set('finish', ds.carShowroomFinish || 'gloss');
+    params.set('wheel', ds.carShowroomWheelFinish || 'graphite');
+    params.set('trim', ds.carShowroomTrimFinish || 'black');
+    params.set('tint', ds.carShowroomGlassTint || '0.15');
+    params.set('bg', ds.carShowroomBackground || 'studio');
+    params.set('cam', ds.carShowroomCameraPreset || 'hero');
+    params.set('spin', ds.carShowroomSpinSpeed || '0.65');
+    params.set('zoom', ds.carShowroomZoom || '0');
+    params.set('ar', ds.carShowroomAutoRotate === 'false' ? '0' : '1');
+
+    url.search = params.toString();
+    const ok = await copyToClipboard(url.toString());
+    showToast(ok ? 'Link copied.' : 'Could not copy link.');
+  };
+
+  copyLinkBtn?.addEventListener('click', () => {
+    void copyShareLink();
+  });
+
+  const handleFile = (file: File) => {
+    if (!file.name.toLowerCase().endsWith('.glb')) {
+      showToast('Please choose a .glb file.');
+      return;
+    }
+
+    if (currentObjectUrl) URL.revokeObjectURL(currentObjectUrl);
+    const url = URL.createObjectURL(file);
+    currentObjectUrl = url;
+    root.dataset.carShowroomModel = url;
+    if (modelUrlInp) modelUrlInp.value = url;
+    bumpRevision();
+    showToast(`Loaded local model: ${file.name}`);
+  };
+
+  importBtn?.addEventListener('click', () => {
+    fileInp?.click();
+  });
+
+  fileInp?.addEventListener('change', () => {
+    const file = fileInp.files?.[0];
+    if (!file) return;
+    handleFile(file);
+    // Allow re-selecting the same file.
+    fileInp.value = '';
+  });
+
+  // Drag & drop a GLB anywhere.
+  const onDragOver = (e: DragEvent) => {
+    e.preventDefault();
+  };
+  const onDrop = (e: DragEvent) => {
+    e.preventDefault();
+    const file = e.dataTransfer?.files?.[0];
+    if (!file) return;
+    handleFile(file);
+  };
+  window.addEventListener('dragover', onDragOver);
+  window.addEventListener('drop', onDrop);
+
+  // Keyboard shortcuts
+  const onKeyDown = (e: KeyboardEvent) => {
+    const key = e.key;
+    if (key === 'o' || key === 'O') {
+      setPanelOpen(Boolean(panel?.hidden));
+      e.preventDefault();
+      return;
+    }
+    if (key === 'r' || key === 'R') {
+      resetBtn?.click();
+      e.preventDefault();
+      return;
+    }
+    if (key === 'c' || key === 'C') {
+      void copyShareLink();
+      e.preventDefault();
+      return;
+    }
+    if (key === 'Escape') {
+      setPanelOpen(false);
+    }
+  };
+  window.addEventListener('keydown', onKeyDown);
 
   // --- Three.js runtime
   const renderer = new THREE.WebGLRenderer({
@@ -429,6 +684,10 @@ createAstroMount(ROOT_SELECTOR, () => {
         canvas.removeEventListener('touchend', onTouchEnd);
         canvas.removeEventListener('touchcancel', onTouchEnd);
       }
+      window.removeEventListener('dragover', onDragOver);
+      window.removeEventListener('drop', onDrop);
+      window.removeEventListener('keydown', onKeyDown);
+      if (currentObjectUrl) URL.revokeObjectURL(currentObjectUrl);
       showroom.dispose();
       composer.dispose();
       renderer.dispose();

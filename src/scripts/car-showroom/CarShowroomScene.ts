@@ -155,6 +155,7 @@ export class CarShowroomScene {
   private orbitRadius = 9.8;
   private orbitRadiusTarget = 9.8;
   private lookAt = new THREE.Vector3(0, 0.85, 0);
+  private lookAtTarget = new THREE.Vector3(0, 0.85, 0);
 
   private lastCameraPreset: string | null = null;
 
@@ -476,7 +477,7 @@ export class CarShowroomScene {
     this.glassMat.transmission = lerp(1.0, 0.65, tint);
   }
 
-  private applyCameraPreset(ui: UiState) {
+  private applyCameraPreset(ui: UiState, immediate: boolean) {
     const preset = ui.cameraPreset;
     const map: Record<
       CameraPreset,
@@ -526,13 +527,18 @@ export class CarShowroomScene {
     };
 
     const p = map[preset] ?? map.hero;
-    this.orbitYaw = p.yaw;
     this.orbitYawTarget = p.yaw;
-    this.orbitPitch = p.pitch;
     this.orbitPitchTarget = p.pitch;
-    this.orbitRadius = p.radius;
     this.orbitRadiusTarget = p.radius;
-    this.lookAt.copy(p.lookAt);
+
+    this.lookAtTarget.copy(p.lookAt);
+
+    if (immediate) {
+      this.orbitYaw = this.orbitYawTarget;
+      this.orbitPitch = this.orbitPitchTarget;
+      this.orbitRadius = this.orbitRadiusTarget;
+      this.lookAt.copy(this.lookAtTarget);
+    }
   }
 
   private classifyMesh(
@@ -782,7 +788,7 @@ export class CarShowroomScene {
       this.modelGroup.add(gltf);
 
       const ui = this.getUiState();
-      this.applyCameraPreset(ui);
+      this.applyCameraPreset(ui, true);
       this.lastCameraPreset = ui.cameraPreset;
       this.applyMaterials(gltf, ui);
 
@@ -811,7 +817,7 @@ export class CarShowroomScene {
     const ui = this.getUiState();
 
     if (this.lastCameraPreset !== ui.cameraPreset) {
-      this.applyCameraPreset(ui);
+      this.applyCameraPreset(ui, false);
       this.lastCameraPreset = ui.cameraPreset;
     }
 
@@ -863,6 +869,9 @@ export class CarShowroomScene {
     this.orbitYaw = damp(this.orbitYaw, this.orbitYawTarget, 7.5, dt);
     this.orbitPitch = damp(this.orbitPitch, this.orbitPitchTarget, 7.5, dt);
     this.orbitRadius = damp(this.orbitRadius, this.orbitRadiusTarget, 6.5, dt);
+    this.lookAt.x = damp(this.lookAt.x, this.lookAtTarget.x, 7.5, dt);
+    this.lookAt.y = damp(this.lookAt.y, this.lookAtTarget.y, 7.5, dt);
+    this.lookAt.z = damp(this.lookAt.z, this.lookAtTarget.z, 7.5, dt);
 
     const x =
       Math.sin(this.orbitYaw) * Math.cos(this.orbitPitch) * this.orbitRadius;

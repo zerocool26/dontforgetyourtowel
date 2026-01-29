@@ -20,6 +20,14 @@ const description =
   <section class="car-showroom" data-car-showroom-root>
     <canvas class="car-showroom__canvas" data-car-showroom-canvas></canvas>
 
+    <input
+      class="csr-file"
+      type="file"
+      accept=".glb,model/gltf-binary"
+      data-csr-file
+      hidden
+    />
+
     <div class="csr-status" data-csr-status aria-live="polite">
       <div class="csr-status__loading" data-csr-loading hidden>
         <span class="csr-status__dot"></span>
@@ -38,6 +46,22 @@ const description =
         <div class="car-showroom__actions">
           <button type="button" class="csr-btn" data-csr-toggle-panel>
             Options
+          </button>
+          <button
+            type="button"
+            class="csr-btn csr-btn--ghost"
+            data-csr-copy-link
+            title="Copy a shareable link"
+          >
+            Share
+          </button>
+          <button
+            type="button"
+            class="csr-btn csr-btn--ghost"
+            data-csr-import
+            title="Load a local .glb file"
+          >
+            Import GLB
           </button>
           <a class="csr-btn csr-btn--ghost" href={withBasePath('gallery/')}
             >3D Gallery</a
@@ -100,6 +124,48 @@ const description =
             <span>Body color</span>
             <input type="color" value="#00d1b2" data-csr-color />
           </label>
+
+          <div class="csr-field csr-field--wide">
+            <span>Color presets</span>
+            <div class="csr-swatches" role="list">
+              <button
+                type="button"
+                class="csr-swatch"
+                style="--swatch:#00d1b2"
+                data-csr-swatch="#00d1b2"
+                aria-label="Teal"></button>
+              <button
+                type="button"
+                class="csr-swatch"
+                style="--swatch:#60a5fa"
+                data-csr-swatch="#60a5fa"
+                aria-label="Blue"></button>
+              <button
+                type="button"
+                class="csr-swatch"
+                style="--swatch:#f472b6"
+                data-csr-swatch="#f472b6"
+                aria-label="Pink"></button>
+              <button
+                type="button"
+                class="csr-swatch"
+                style="--swatch:#fbbf24"
+                data-csr-swatch="#fbbf24"
+                aria-label="Gold"></button>
+              <button
+                type="button"
+                class="csr-swatch"
+                style="--swatch:#f87171"
+                data-csr-swatch="#f87171"
+                aria-label="Red"></button>
+              <button
+                type="button"
+                class="csr-swatch"
+                style="--swatch:#e5e7eb"
+                data-csr-swatch="#e5e7eb"
+                aria-label="Silver"></button>
+            </div>
+          </div>
 
           <label class="csr-field">
             <span>Body finish</span>
@@ -189,7 +255,7 @@ const description =
             >
               Reset camera
             </button>
-            <p class="csr-hint">Drag to orbit. Wheel/pinch to zoom.</p>
+            <p class="csr-hint">Drag orbit • Wheel/pinch zoom • O options</p>
           </div>
         </div>
       </div>
@@ -332,6 +398,28 @@ const description =
       width: 100%;
     }
 
+    .csr-swatches {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .csr-swatch {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: var(--swatch);
+      box-shadow:
+        0 0 0 2px rgba(0, 0, 0, 0.35) inset,
+        0 8px 22px rgba(0, 0, 0, 0.35);
+    }
+
+    .csr-swatch:active {
+      transform: scale(0.98);
+    }
+
     .csr-inline {
       display: grid;
       grid-template-columns: 1fr auto;
@@ -455,6 +543,19 @@ const description =
     @media (max-width: 520px) {
       .csr-grid {
         grid-template-columns: 1fr;
+      }
+
+      .car-showroom__panel {
+        right: 18px;
+        left: 18px;
+        width: auto;
+        top: 74px;
+      }
+
+      .car-showroom__actions {
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
       }
     }
   </style>
