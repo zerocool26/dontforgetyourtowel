@@ -24,6 +24,18 @@
   overflow: hidden;
 }
 
+.car-showroom.is-panel-collapsed {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    'header'
+    'viewer';
+}
+
+.car-showroom.is-panel-collapsed .car-showroom__panel {
+  display: none;
+}
+
 .car-showroom__hud {
   display: contents;
 }
@@ -220,6 +232,10 @@
   gap: 8px;
   align-items: center;
   margin-bottom: 6px;
+}
+
+.csr-sheet-handle {
+  display: none;
 }
 
 .csr-filter-input {
@@ -543,6 +559,45 @@
 
   .car-showroom__actions {
     justify-content: flex-start;
+  }
+
+  .car-showroom__panel {
+    height: var(--csr-panel-height, auto);
+    max-height: min(70svh, 560px);
+  }
+
+  .car-showroom__panel.is-collapsed {
+    height: 64px;
+    max-height: 64px;
+  }
+
+  .car-showroom__panel.is-collapsed .csr-panel-filter,
+  .car-showroom__panel.is-collapsed .csr-panel-inspector,
+  .car-showroom__panel.is-collapsed .csr-tabs,
+  .car-showroom__panel.is-collapsed .csr-tab-panels {
+    display: none;
+  }
+
+  .csr-sheet-handle {
+    display: block;
+    width: 100%;
+    height: 22px;
+    border: 0;
+    padding: 0;
+    margin: -4px 0 6px;
+    background: transparent;
+    cursor: ns-resize;
+    touch-action: none;
+  }
+
+  .csr-sheet-handle::before {
+    content: '';
+    display: block;
+    width: 46px;
+    height: 5px;
+    border-radius: 999px;
+    margin: 7px auto 0;
+    background: rgba(255, 255, 255, 0.22);
   }
 }
 

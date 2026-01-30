@@ -9,6 +9,7 @@ import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js';
 import { createAstroMount } from './tower3d/core/astro-mount';
 import { getTowerCaps } from './tower3d/core/caps';
 import { CarShowroomScene } from './car-showroom/CarShowroomScene';
+import { LIGHT_PRESETS, STYLE_PRESETS } from './car-showroom/presets';
 
 const ROOT_SELECTOR = '[data-car-showroom-root]';
 
@@ -195,6 +196,9 @@ createAstroMount(ROOT_SELECTOR, () => {
   };
 
   const panel = root.querySelector<HTMLElement>('[data-csr-panel]');
+  const sheetHandle = root.querySelector<HTMLButtonElement>(
+    '[data-csr-sheet-handle]'
+  );
   const filterInput = root.querySelector<HTMLInputElement>('[data-csr-filter]');
   const filterClearBtn = root.querySelector<HTMLButtonElement>(
     '[data-csr-filter-clear]'
@@ -1322,51 +1326,146 @@ createAstroMount(ROOT_SELECTOR, () => {
     once: true,
   });
 
-  let isPanelOpen = true;
+  let panelCollapsed = false;
 
-  const isDockedLayout = () => window.matchMedia('(min-width: 980px)').matches;
+  const PANEL_HEIGHT_STORAGE_KEY = 'csr-panel-height-v2';
+  const PANEL_COLLAPSE_STORAGE_KEY = 'csr-panel-collapsed-v2';
 
-  const setPanelOpen = (
-    open: boolean,
-    opts?: {
-      scroll?: boolean;
-    }
-  ) => {
-    if (!panel) return;
-    const docked = isDockedLayout();
-    const shouldShow = docked ? true : open;
-    isPanelOpen = shouldShow;
-    panel.hidden = !shouldShow;
+  const isMobilePanel = () => window.matchMedia('(max-width: 980px)').matches;
 
-    if (togglePanelBtn)
-      togglePanelBtn.setAttribute(
-        'aria-expanded',
-        shouldShow ? 'true' : 'false'
-      );
+  const getPanelHeightLimits = () => {
+    const vv =
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (window as any).visualViewport?.height || window.innerHeight;
+    return {
+      min: 180,
+      max: Math.max(280, Math.floor(vv * 0.75)),
+    };
+  };
 
-    if (shouldShow && opts?.scroll !== false && !docked) {
-      panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const applyPanelHeight = (px: number, persist: boolean) => {
+    if (!panel || !isMobilePanel()) return;
+    const { min, max } = getPanelHeightLimits();
+    const clamped = clamp(Math.floor(px), min, max);
+    panel.style.setProperty('--csr-panel-height', `${clamped}px`);
+    if (persist) {
+      try {
+        localStorage.setItem(PANEL_HEIGHT_STORAGE_KEY, String(clamped));
+      } catch {
+        // ignore
+      }
     }
   };
 
+  const setPanelCollapsed = (collapsed: boolean, persist: boolean) => {
+    if (!panel) return;
+    panelCollapsed = collapsed;
+    root.dataset.carShowroomPanelCollapsed = collapsed ? 'true' : 'false';
+    togglePanelBtn?.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+
+    if (isMobilePanel()) {
+      panel.hidden = false;
+      panel.classList.toggle('is-collapsed', collapsed);
+      root.classList.remove('is-panel-collapsed');
+    } else {
+      panel.classList.remove('is-collapsed');
+      panel.style.removeProperty('--csr-panel-height');
+      panel.hidden = collapsed;
+      root.classList.toggle('is-panel-collapsed', collapsed);
+    }
+
+    if (persist) {
+      try {
+        localStorage.setItem(PANEL_COLLAPSE_STORAGE_KEY, collapsed ? '1' : '0');
+      } catch {
+        // ignore
+      }
+    }
+  };
+
+  const initPanelState = () => {
+    if (!panel) return;
+    let savedHeight: number | null = null;
+    let savedCollapsed = false;
+    try {
+      const h = localStorage.getItem(PANEL_HEIGHT_STORAGE_KEY);
+      if (h) {
+        const n = Number.parseFloat(h);
+        if (Number.isFinite(n)) savedHeight = n;
+      }
+      const c = localStorage.getItem(PANEL_COLLAPSE_STORAGE_KEY);
+      if (c === '1') savedCollapsed = true;
+    } catch {
+      // ignore
+    }
+
+    if (isMobilePanel()) {
+      if (savedHeight != null) applyPanelHeight(savedHeight, false);
+    }
+    setPanelCollapsed(savedCollapsed, false);
+  };
+
+  const startPanelDrag = (startY: number) => {
+    if (!panel || !isMobilePanel()) return;
+    if (panelCollapsed) setPanelCollapsed(false, true);
+    const startHeight = panel.getBoundingClientRect().height;
+
+    const onMove = (e: PointerEvent) => {
+      const dy = e.clientY - startY;
+      applyPanelHeight(startHeight - dy, false);
+    };
+
+    const onUp = (e: PointerEvent) => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      const rectNow = panel.getBoundingClientRect();
+      applyPanelHeight(rectNow.height, true);
+      try {
+        sheetHandle?.releasePointerCapture?.(e.pointerId);
+      } catch {
+        // ignore
+      }
+    };
+
+    window.addEventListener('pointermove', onMove, { passive: true });
+    window.addEventListener('pointerup', onUp, { passive: true, once: true });
+  };
+
+  sheetHandle?.addEventListener('pointerdown', e => {
+    if (!isMobilePanel()) return;
+    try {
+      sheetHandle.setPointerCapture(e.pointerId);
+    } catch {
+      // ignore
+    }
+    startPanelDrag(e.clientY);
+  });
+
   togglePanelBtn?.addEventListener('click', () => {
-    if (isDockedLayout()) {
-      panel?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (isMobilePanel()) {
+      setPanelCollapsed(!panelCollapsed, true);
       return;
     }
-    const next = panel ? panel.hidden : true;
-    setPanelOpen(next);
+    if (panelCollapsed) {
+      setPanelCollapsed(false, true);
+    }
+    panel?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 
   closePanelBtn?.addEventListener('click', () => {
-    setPanelOpen(false);
+    if (isMobilePanel()) {
+      setPanelCollapsed(true, true);
+      return;
+    }
+    setPanelCollapsed(true, true);
+    canvas.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 
   window.addEventListener('resize', () => {
-    if (isDockedLayout()) setPanelOpen(true, { scroll: false });
+    initPanelState();
   });
 
-  setPanelOpen(true, { scroll: false });
+  initPanelState();
   // Defaults
   root.dataset.carShowroomModel ||=
     modelSel?.value || '/models/porsche-911-gt3rs.glb';
@@ -1784,87 +1883,6 @@ createAstroMount(ROOT_SELECTOR, () => {
     bumpRevision();
   };
 
-  const LIGHT_PRESETS: Record<
-    string,
-    {
-      background?: string;
-      envIntensity?: number;
-      lightIntensity?: number;
-      lightWarmth?: number;
-      rimBoost?: number;
-      exposure?: number;
-      bloomStrength?: number;
-      bloomThreshold?: number;
-      bloomRadius?: number;
-      rigYaw?: number;
-      underglow?: number;
-      underglowColor?: string;
-    }
-  > = {
-    studio: {
-      background: 'studio',
-      envIntensity: 1,
-      lightIntensity: 1,
-      lightWarmth: 0,
-      rimBoost: 1,
-      exposure: 1,
-      bloomStrength: 0.35,
-      bloomThreshold: 0.88,
-      bloomRadius: 0.35,
-      rigYaw: 0,
-    },
-    golden: {
-      background: 'sunset',
-      envIntensity: 1.15,
-      lightIntensity: 1.15,
-      lightWarmth: 0.85,
-      rimBoost: 1.15,
-      exposure: 1.05,
-      bloomStrength: 0.5,
-      bloomThreshold: 0.8,
-      bloomRadius: 0.55,
-      rigYaw: 25,
-    },
-    neon: {
-      background: 'night',
-      envIntensity: 1.35,
-      lightIntensity: 1.3,
-      lightWarmth: 0.2,
-      rimBoost: 1.6,
-      exposure: 0.95,
-      bloomStrength: 0.75,
-      bloomThreshold: 0.6,
-      bloomRadius: 0.75,
-      rigYaw: 140,
-      underglow: 2.2,
-      underglowColor: '#22d3ee',
-    },
-    ice: {
-      background: 'day',
-      envIntensity: 1.2,
-      lightIntensity: 1.05,
-      lightWarmth: 0.05,
-      rimBoost: 1.25,
-      exposure: 1.1,
-      bloomStrength: 0.45,
-      bloomThreshold: 0.85,
-      bloomRadius: 0.4,
-      rigYaw: 320,
-    },
-    noir: {
-      background: 'studio',
-      envIntensity: 0.65,
-      lightIntensity: 0.85,
-      lightWarmth: 0.1,
-      rimBoost: 1.8,
-      exposure: 0.9,
-      bloomStrength: 0.2,
-      bloomThreshold: 0.9,
-      bloomRadius: 0.2,
-      rigYaw: 210,
-    },
-  };
-
   const applyLightPreset = (presetId: string, announce = true) => {
     const preset = LIGHT_PRESETS[presetId];
     if (!preset) return;
@@ -1918,107 +1936,6 @@ createAstroMount(ROOT_SELECTOR, () => {
 
     bumpRevision();
     if (announce) showToast('Lighting preset applied.');
-  };
-
-  const STYLE_PRESETS: Record<
-    string,
-    {
-      mode?: string;
-      body?: string;
-      wrap?: string;
-      wrapPattern?: string;
-      wrapStyle?: string;
-      finish?: string;
-      clearcoat?: number;
-      flakeIntensity?: number;
-      flakeScale?: number;
-      wheelFinish?: string;
-      wheelColor?: string;
-      trimFinish?: string;
-      trimColor?: string;
-      caliper?: string;
-      glassTint?: number;
-      lightPreset?: string;
-    }
-  > = {
-    stealth: {
-      mode: 'paint',
-      body: '#0b0f1a',
-      finish: 'matte',
-      clearcoat: 0.6,
-      flakeIntensity: 0.1,
-      flakeScale: 2.2,
-      wheelFinish: 'black',
-      wheelColor: '#0b0f1a',
-      trimFinish: 'black',
-      trimColor: '#0b0f1a',
-      caliper: '#f87171',
-      glassTint: 0.32,
-      lightPreset: 'noir',
-    },
-    track: {
-      mode: 'paint',
-      body: '#f87171',
-      finish: 'gloss',
-      clearcoat: 1,
-      flakeIntensity: 0.35,
-      flakeScale: 3.2,
-      wheelFinish: 'black',
-      wheelColor: '#111827',
-      trimFinish: 'black',
-      trimColor: '#0b0f1a',
-      caliper: '#fbbf24',
-      glassTint: 0.18,
-      lightPreset: 'studio',
-    },
-    lux: {
-      mode: 'paint',
-      body: '#1e3a8a',
-      finish: 'satin',
-      clearcoat: 0.85,
-      flakeIntensity: 0.2,
-      flakeScale: 2.6,
-      wheelFinish: 'chrome',
-      wheelColor: '#e5e7eb',
-      trimFinish: 'chrome',
-      trimColor: '#e5e7eb',
-      caliper: '#ef4444',
-      glassTint: 0.12,
-      lightPreset: 'golden',
-    },
-    neo: {
-      mode: 'wrap',
-      body: '#7c3aed',
-      wrap: '#7c3aed',
-      wrapPattern: 'hex',
-      wrapStyle: 'procedural',
-      finish: 'gloss',
-      clearcoat: 0.95,
-      flakeIntensity: 0.4,
-      flakeScale: 4,
-      wheelFinish: 'graphite',
-      wheelColor: '#1f2937',
-      trimFinish: 'black',
-      trimColor: '#0b0f1a',
-      caliper: '#22d3ee',
-      glassTint: 0.22,
-      lightPreset: 'neon',
-    },
-    classic: {
-      mode: 'paint',
-      body: '#e5e7eb',
-      finish: 'gloss',
-      clearcoat: 0.9,
-      flakeIntensity: 0.18,
-      flakeScale: 2.2,
-      wheelFinish: 'chrome',
-      wheelColor: '#e5e7eb',
-      trimFinish: 'brushed',
-      trimColor: '#9ca3af',
-      caliper: '#ef4444',
-      glassTint: 0.1,
-      lightPreset: 'ice',
-    },
   };
 
   const applyStylePreset = (presetId: string) => {
@@ -2864,10 +2781,11 @@ createAstroMount(ROOT_SELECTOR, () => {
   const onKeyDown = (e: KeyboardEvent) => {
     const key = e.key;
     if (key === 'o' || key === 'O') {
-      if (isDockedLayout()) {
-        panel?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (isMobilePanel()) {
+        setPanelCollapsed(!panelCollapsed, true);
       } else {
-        setPanelOpen(Boolean(panel?.hidden));
+        if (panelCollapsed) setPanelCollapsed(false, true);
+        panel?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
       e.preventDefault();
       return;
@@ -2893,7 +2811,7 @@ createAstroMount(ROOT_SELECTOR, () => {
       return;
     }
     if (key === 'Escape') {
-      setPanelOpen(false);
+      if (isMobilePanel()) setPanelCollapsed(true, true);
     }
   };
   window.addEventListener('keydown', onKeyDown);
