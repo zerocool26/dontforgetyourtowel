@@ -1,6 +1,7 @@
 ---
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 import { withBasePath } from '../utils/helpers';
+import '../styles/car-showroom.css';
 
 const title = 'Car Showroom — 3D Studio';
 const description =
@@ -49,7 +50,7 @@ const description =
             class="csr-btn"
             data-csr-toggle-panel
             aria-controls="csr-panel"
-            aria-expanded="false"
+            aria-expanded="true"
           >
             Options
           </button>
@@ -83,21 +84,11 @@ const description =
         </div>
       </div>
 
-      <button
-        type="button"
-        class="car-showroom__backdrop"
-        data-csr-panel-backdrop
-        aria-label="Close options"
-        hidden></button>
-
       <div
         id="csr-panel"
         class="car-showroom__panel"
         data-csr-panel
-        role="dialog"
-        aria-modal="true"
         aria-label="Configurator options"
-        hidden
       >
         <div class="csr-panel-head">
           <div class="csr-panel-head__row">
@@ -156,6 +147,10 @@ const description =
                   <strong data-csr-model-tris>—</strong>
                   <small>Triangles</small>
                 </div>
+                <div>
+                  <strong data-csr-fps>—</strong>
+                  <small>FPS</small>
+                </div>
               </div>
             </div>
           </div>
@@ -177,13 +172,6 @@ const description =
               ✕
             </button>
           </div>
-
-          <button
-            type="button"
-            class="csr-sheet-handle"
-            data-csr-sheet-handle
-            aria-label="Resize options panel"
-            title="Drag to resize"></button>
 
           <div
             class="csr-tabs"
@@ -277,6 +265,18 @@ const description =
                   <option value="wrap">Wrap</option>
                   <option value="glass">Glass</option>
                   <option value="wireframe">Wireframe</option>
+                </select>
+              </label>
+
+              <label class="csr-field">
+                <span>Style preset</span>
+                <select data-csr-style-preset>
+                  <option value="">Choose…</option>
+                  <option value="stealth">Stealth</option>
+                  <option value="track">Track weapon</option>
+                  <option value="lux">Executive luxe</option>
+                  <option value="neo">Neo neon</option>
+                  <option value="classic">Classic sport</option>
                 </select>
               </label>
 
@@ -478,6 +478,30 @@ const description =
               </label>
 
               <label class="csr-field csr-field--wide">
+                <span>Paint flake intensity</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value="0.25"
+                  data-csr-flake-intensity
+                />
+              </label>
+
+              <label class="csr-field csr-field--wide">
+                <span>Paint flake scale</span>
+                <input
+                  type="range"
+                  min="0.5"
+                  max="8"
+                  step="0.1"
+                  value="2.5"
+                  data-csr-flake-scale
+                />
+              </label>
+
+              <label class="csr-field csr-field--wide">
                 <span>Pearl shift</span>
                 <input
                   type="range"
@@ -660,6 +684,18 @@ const description =
                   step="1"
                   value="0"
                   data-csr-rig-yaw
+                />
+              </label>
+
+              <label class="csr-field csr-field--wide">
+                <span>Rig height</span>
+                <input
+                  type="range"
+                  min="0.6"
+                  max="1.6"
+                  step="0.01"
+                  value="1"
+                  data-csr-rig-height
                 />
               </label>
 
@@ -1043,6 +1079,14 @@ const description =
               </label>
 
               <label class="csr-field csr-field--wide">
+                <span>Auto quality</span>
+                <label class="csr-check">
+                  <input type="checkbox" data-csr-auto-quality checked />
+                  <span>Adapt quality for steady FPS</span>
+                </label>
+              </label>
+
+              <label class="csr-field csr-field--wide">
                 <span>Original materials</span>
                 <label class="csr-check">
                   <input type="checkbox" data-csr-original-mats />
@@ -1255,722 +1299,4 @@ const description =
   <script>
     import '../scripts/car-showroom';
   </script>
-
-  <style>
-    .car-showroom {
-      position: relative;
-      height: calc(100svh - 64px);
-      background:
-        radial-gradient(
-          120% 90% at 50% 15%,
-          rgba(34, 211, 238, 0.1),
-          transparent 55%
-        ),
-        radial-gradient(
-          90% 70% at 70% 45%,
-          rgba(124, 58, 237, 0.1),
-          transparent 55%
-        ),
-        #02030a;
-      overflow: hidden;
-    }
-
-    .car-showroom__canvas {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      display: block;
-      touch-action: none;
-    }
-
-    .car-showroom__hud {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      padding: 18px;
-    }
-
-    .car-showroom__hud-top {
-      pointer-events: none;
-      display: flex;
-      justify-content: space-between;
-      gap: 14px;
-      align-items: flex-start;
-    }
-
-    .car-showroom__title {
-      pointer-events: none;
-      color: rgba(255, 255, 255, 0.92);
-      text-shadow: 0 10px 40px rgba(0, 0, 0, 0.45);
-    }
-
-    .car-showroom__kicker {
-      margin: 0;
-      font-family:
-        ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-        'Liberation Mono', 'Courier New', monospace;
-      font-size: 12px;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.62);
-    }
-
-    .car-showroom__headline {
-      margin: 6px 0 0;
-      font-size: 20px;
-      letter-spacing: -0.02em;
-    }
-
-    .car-showroom__actions {
-      pointer-events: auto;
-      display: flex;
-      gap: 10px;
-    }
-
-    .csr-btn {
-      pointer-events: auto;
-      border-radius: 10px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      background: rgba(0, 0, 0, 0.35);
-      color: rgba(255, 255, 255, 0.92);
-      padding: 10px 12px;
-      font-size: 13px;
-      font-weight: 650;
-      backdrop-filter: blur(14px);
-    }
-
-    .csr-btn--ghost {
-      text-decoration: none;
-      background: rgba(255, 255, 255, 0.06);
-    }
-
-    .car-showroom__panel {
-      pointer-events: auto;
-      position: absolute;
-      right: 18px;
-      top: 64px;
-      width: min(520px, calc(100vw - 36px));
-      max-height: min(78svh, calc(100svh - 120px));
-      border-radius: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      background: rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(18px);
-      padding: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      z-index: 20;
-      box-shadow:
-        0 18px 50px rgba(0, 0, 0, 0.45),
-        inset 0 1px 0 rgba(255, 255, 255, 0.08);
-    }
-
-    .car-showroom__panel::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: inherit;
-      pointer-events: none;
-      background: linear-gradient(
-        140deg,
-        rgba(255, 255, 255, 0.12),
-        rgba(255, 255, 255, 0) 38%
-      );
-      opacity: 0.5;
-    }
-
-    .car-showroom__panel::after {
-      content: '';
-      position: absolute;
-      inset: 8px 8px auto 8px;
-      height: 1px;
-      background: linear-gradient(
-        to right,
-        rgba(255, 255, 255, 0),
-        rgba(255, 255, 255, 0.18),
-        rgba(255, 255, 255, 0)
-      );
-      opacity: 0.6;
-      pointer-events: none;
-    }
-
-    .car-showroom__backdrop {
-      pointer-events: auto;
-      position: fixed;
-      inset: 0;
-      border: 0;
-      padding: 0;
-      margin: 0;
-      background: rgba(0, 0, 0, 0.35);
-      backdrop-filter: blur(6px);
-      z-index: 15;
-      touch-action: none;
-    }
-
-    .csr-panel-head__row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding-bottom: 10px;
-    }
-
-    .csr-panel-head__title {
-      font-size: 13px;
-      letter-spacing: 0.02em;
-      color: rgba(255, 255, 255, 0.9);
-    }
-
-    .csr-btn--icon {
-      padding: 8px 10px;
-      border-radius: 12px;
-      line-height: 1;
-    }
-
-    .csr-panel-head {
-      position: sticky;
-      top: 0;
-      z-index: 2;
-      background: linear-gradient(
-        to bottom,
-        rgba(0, 0, 0, 0.7),
-        rgba(0, 0, 0, 0)
-      );
-      padding-bottom: 6px;
-    }
-
-    .csr-panel-inspector {
-      display: grid;
-      gap: 10px;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      margin-bottom: 8px;
-    }
-
-    .csr-inspector-card {
-      border-radius: 14px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      background: rgba(255, 255, 255, 0.04);
-      padding: 10px;
-      display: grid;
-      gap: 8px;
-    }
-
-    .csr-inspector-title {
-      font-size: 10px;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.6);
-      font-family:
-        ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-        'Liberation Mono', 'Courier New', monospace;
-    }
-
-    .csr-readout--mini {
-      padding: 8px 10px;
-      font-size: 12px;
-      opacity: 0.78;
-    }
-
-    .csr-panel-filter {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 8px;
-      align-items: center;
-      margin-bottom: 6px;
-    }
-
-    .csr-filter-input {
-      min-height: 40px;
-    }
-
-    .csr-filter-empty {
-      border-radius: 12px;
-      border: 1px dashed rgba(255, 255, 255, 0.16);
-      color: rgba(255, 255, 255, 0.7);
-      padding: 10px 12px;
-      font-size: 12px;
-      margin-bottom: 8px;
-    }
-
-    .csr-sheet-handle {
-      display: none;
-    }
-
-    .csr-tabs {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .csr-check {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      background: rgba(255, 255, 255, 0.05);
-      color: rgba(255, 255, 255, 0.9);
-      line-height: 1.25;
-      user-select: none;
-    }
-
-    .csr-check input {
-      width: 18px;
-      height: 18px;
-      accent-color: rgb(34, 211, 238);
-    }
-
-    .csr-tab-btn {
-      pointer-events: auto;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      background: rgba(255, 255, 255, 0.06);
-      color: rgba(255, 255, 255, 0.88);
-      padding: 8px 10px;
-      font-size: 12px;
-      font-weight: 650;
-      letter-spacing: 0.02em;
-      white-space: nowrap;
-    }
-
-    .csr-tab-btn[aria-selected='true'] {
-      background: rgba(34, 211, 238, 0.16);
-      border-color: rgba(34, 211, 238, 0.35);
-      color: rgba(255, 255, 255, 0.95);
-    }
-
-    .csr-tab-panels {
-      overflow: auto;
-      padding-right: 6px;
-      overscroll-behavior: contain;
-      -webkit-overflow-scrolling: touch;
-      flex: 1 1 auto;
-      min-height: 0;
-      scroll-behavior: smooth;
-    }
-
-    .csr-tab-panels::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    .csr-tab-panels::-webkit-scrollbar-track {
-      background: rgba(255, 255, 255, 0.04);
-      border-radius: 999px;
-    }
-
-    .csr-tab-panels::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.18);
-      border-radius: 999px;
-    }
-
-    .csr-tab {
-      padding: 4px 2px 12px 2px;
-    }
-
-    .csr-grid {
-      display: grid;
-      gap: 12px;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .csr-field {
-      display: grid;
-      gap: 6px;
-      color: rgba(255, 255, 255, 0.88);
-      font-size: 12px;
-    }
-
-    .csr-field span {
-      color: rgba(255, 255, 255, 0.65);
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      font-family:
-        ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-        'Liberation Mono', 'Courier New', monospace;
-      font-size: 11px;
-    }
-
-    .csr-field select,
-    .csr-field input[type='range'],
-    .csr-field input[type='color'],
-    .csr-text {
-      width: 100%;
-    }
-
-    .csr-readout {
-      border-radius: 10px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      background: rgba(255, 255, 255, 0.05);
-      color: rgba(255, 255, 255, 0.9);
-      padding: 10px 12px;
-      font-size: 13px;
-    }
-
-    .csr-readout--stats {
-      display: grid;
-      gap: 10px;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      font-size: 12px;
-    }
-
-    .csr-readout--stats strong {
-      display: block;
-      font-size: 13px;
-      font-weight: 650;
-    }
-
-    .csr-readout--stats small {
-      display: block;
-      color: rgba(255, 255, 255, 0.6);
-      margin-top: 2px;
-    }
-
-    .csr-swatches {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .csr-swatch {
-      width: 28px;
-      height: 28px;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      background: var(--swatch);
-      box-shadow:
-        0 0 0 2px rgba(0, 0, 0, 0.35) inset,
-        0 8px 22px rgba(0, 0, 0, 0.35);
-    }
-
-    .csr-swatch:active {
-      transform: scale(0.98);
-    }
-
-    .csr-inline {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .csr-text {
-      border-radius: 10px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      background: rgba(255, 255, 255, 0.06);
-      color: rgba(255, 255, 255, 0.9);
-      padding: 10px 12px;
-      outline: none;
-      font-size: 13px;
-    }
-
-    .csr-textarea {
-      min-height: 120px;
-      resize: vertical;
-      line-height: 1.35;
-    }
-
-    .csr-text::placeholder {
-      color: rgba(255, 255, 255, 0.45);
-    }
-
-    .csr-field select {
-      border-radius: 10px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      background: rgba(255, 255, 255, 0.06);
-      color: rgba(255, 255, 255, 0.9);
-      padding: 9px 10px;
-      outline: none;
-    }
-
-    .csr-field input[type='range'] {
-      accent-color: rgb(34, 211, 238);
-    }
-
-    .csr-field input[type='color'] {
-      height: 40px;
-      border-radius: 10px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      background: rgba(255, 255, 255, 0.06);
-      padding: 6px;
-    }
-
-    .csr-status {
-      position: absolute;
-      left: 18px;
-      bottom: 18px;
-      pointer-events: none;
-      display: grid;
-      gap: 8px;
-      z-index: 10;
-      max-width: min(560px, calc(100vw - 36px));
-    }
-
-    .csr-status__loading {
-      pointer-events: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      background: rgba(0, 0, 0, 0.45);
-      padding: 10px 12px;
-      color: rgba(255, 255, 255, 0.88);
-      font-size: 12px;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      backdrop-filter: blur(14px);
-    }
-
-    .csr-status__dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 999px;
-      background: #22d3ee;
-      box-shadow: 0 0 20px rgba(34, 211, 238, 0.5);
-      animation: csr-pulse 1.1s ease-in-out infinite;
-    }
-
-    @keyframes csr-pulse {
-      0%,
-      100% {
-        transform: scale(0.85);
-        opacity: 0.7;
-      }
-      50% {
-        transform: scale(1);
-        opacity: 1;
-      }
-    }
-
-    .csr-status__error {
-      pointer-events: auto;
-      border-radius: 14px;
-      border: 1px solid rgba(248, 113, 113, 0.25);
-      background: rgba(0, 0, 0, 0.55);
-      color: rgba(254, 202, 202, 0.95);
-      padding: 10px 12px;
-      font-size: 13px;
-      line-height: 1.35;
-      backdrop-filter: blur(14px);
-    }
-
-    .csr-field--wide {
-      grid-column: 1 / -1;
-    }
-
-    .csr-row {
-      grid-column: 1 / -1;
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-    }
-
-    .csr-hint {
-      margin: 0;
-      font-size: 12px;
-      color: rgba(255, 255, 255, 0.65);
-    }
-
-    @media (max-width: 900px) {
-      .car-showroom__hud {
-        padding: 14px;
-      }
-
-      .car-showroom__actions {
-        gap: 8px;
-        flex-wrap: wrap;
-        justify-content: flex-end;
-      }
-
-      .csr-btn {
-        min-height: 40px;
-      }
-
-      .csr-status {
-        left: 12px;
-        right: 12px;
-        bottom: 12px;
-      }
-    }
-
-    @media (max-width: 520px) {
-      .csr-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .car-showroom__panel {
-        position: fixed;
-        left: 12px;
-        right: 12px;
-        top: auto;
-        bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-        width: auto;
-        max-height: calc(
-          100svh - 24px - env(safe-area-inset-top, 0px) -
-            env(safe-area-inset-bottom, 0px)
-        );
-        height: var(
-          --csr-sheet-height,
-          min(
-            62svh,
-            calc(
-              100svh - 24px - env(safe-area-inset-top, 0px) -
-                env(safe-area-inset-bottom, 0px)
-            )
-          )
-        );
-        min-height: 240px;
-        border-radius: 18px;
-        padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
-      }
-
-      .csr-sheet-handle {
-        display: block;
-        width: 100%;
-        height: 22px;
-        border: 0;
-        padding: 0;
-        margin: -4px 0 6px;
-        background: transparent;
-        cursor: ns-resize;
-        touch-action: none;
-      }
-
-      .csr-sheet-handle::before {
-        content: '';
-        display: block;
-        width: 46px;
-        height: 5px;
-        border-radius: 999px;
-        margin: 7px auto 0;
-        background: rgba(255, 255, 255, 0.22);
-      }
-
-      .csr-tabs {
-        flex-wrap: nowrap;
-        overflow: auto;
-        padding-bottom: 2px;
-        scroll-snap-type: x proximity;
-        -webkit-overflow-scrolling: touch;
-        touch-action: pan-x;
-        scrollbar-width: none;
-      }
-
-      .csr-tabs::-webkit-scrollbar {
-        display: none;
-      }
-
-      .csr-tab-btn {
-        flex: 0 0 auto;
-        scroll-snap-align: start;
-        padding: 10px 14px;
-        font-size: 13px;
-        min-height: 40px;
-      }
-
-      .csr-field {
-        font-size: 13px;
-      }
-
-      .csr-field select,
-      .csr-field input[type='range'],
-      .csr-field input[type='color'],
-      .csr-text {
-        min-height: 44px;
-      }
-
-      .csr-field input[type='range'] {
-        height: 34px;
-      }
-
-      .csr-field input[type='range']::-webkit-slider-thumb {
-        width: 22px;
-        height: 22px;
-      }
-
-      .csr-field input[type='range']::-moz-range-thumb {
-        width: 22px;
-        height: 22px;
-        border: none;
-      }
-
-      .csr-inline {
-        grid-template-columns: 1fr;
-      }
-
-      .csr-row {
-        flex-direction: column;
-        align-items: stretch;
-        justify-content: flex-start;
-      }
-
-      .csr-row .csr-btn {
-        width: 100%;
-      }
-
-      .csr-btn {
-        min-height: 44px;
-      }
-
-      .csr-hint {
-        width: 100%;
-      }
-
-      .car-showroom__actions {
-        gap: 8px;
-        flex-wrap: wrap;
-        justify-content: flex-start;
-      }
-
-      .car-showroom__actions .csr-btn {
-        flex: 1 1 calc(50% - 8px);
-      }
-
-      .csr-readout {
-        font-size: 12px;
-      }
-
-      .csr-readout--stats {
-        grid-template-columns: 1fr;
-      }
-
-      .csr-panel-inspector {
-        grid-template-columns: 1fr;
-      }
-
-      .csr-panel-filter {
-        grid-template-columns: 1fr;
-      }
-
-      .car-showroom__hud-top {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 12px;
-      }
-
-      .csr-panel-head {
-        padding-bottom: 8px;
-      }
-
-      .csr-panel-head__title {
-        font-size: 12px;
-      }
-    }
-  </style>
 </MarketingLayout>
-<label class="csr-field csr-field--wide">
-  <span>Rig height</span>
-  <input
-    type="range"
-    min="0.6"
-    max="1.6"
-    step="0.01"
-    value="1"
-    data-csr-rig-height
-  />
-</label>

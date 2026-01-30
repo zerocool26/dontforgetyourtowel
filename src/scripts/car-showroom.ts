@@ -195,12 +195,6 @@ createAstroMount(ROOT_SELECTOR, () => {
   };
 
   const panel = root.querySelector<HTMLElement>('[data-csr-panel]');
-  const panelBackdrop = root.querySelector<HTMLButtonElement>(
-    '[data-csr-panel-backdrop]'
-  );
-  const sheetHandle = root.querySelector<HTMLButtonElement>(
-    '[data-csr-sheet-handle]'
-  );
   const filterInput = root.querySelector<HTMLInputElement>('[data-csr-filter]');
   const filterClearBtn = root.querySelector<HTMLButtonElement>(
     '[data-csr-filter-clear]'
@@ -275,9 +269,18 @@ createAstroMount(ROOT_SELECTOR, () => {
     root.querySelector<HTMLInputElement>('[data-csr-wrap-ox]');
   const wrapOffsetYRange =
     root.querySelector<HTMLInputElement>('[data-csr-wrap-oy]');
+  const stylePresetSel = root.querySelector<HTMLSelectElement>(
+    '[data-csr-style-preset]'
+  );
   const finishSel = root.querySelector<HTMLSelectElement>('[data-csr-finish]');
   const clearcoatRange = root.querySelector<HTMLInputElement>(
     '[data-csr-clearcoat]'
+  );
+  const flakeIntensityRange = root.querySelector<HTMLInputElement>(
+    '[data-csr-flake-intensity]'
+  );
+  const flakeScaleRange = root.querySelector<HTMLInputElement>(
+    '[data-csr-flake-scale]'
   );
   const pearlRange = root.querySelector<HTMLInputElement>('[data-csr-pearl]');
   const pearlThicknessRange = root.querySelector<HTMLInputElement>(
@@ -434,8 +437,12 @@ createAstroMount(ROOT_SELECTOR, () => {
     '[data-csr-model-meshes]'
   );
   const modelTrisEl = root.querySelector<HTMLElement>('[data-csr-model-tris]');
+  const fpsEl = root.querySelector<HTMLElement>('[data-csr-fps]');
   const qualitySel =
     root.querySelector<HTMLSelectElement>('[data-csr-quality]');
+  const autoQualityChk = root.querySelector<HTMLInputElement>(
+    '[data-csr-auto-quality]'
+  );
   const shotScaleSel = root.querySelector<HTMLSelectElement>(
     '[data-csr-shot-scale]'
   );
@@ -635,6 +642,7 @@ createAstroMount(ROOT_SELECTOR, () => {
     const spin = params.get('spin');
     const zoom = params.get('zoom');
     const ar = params.get('ar');
+    const aq = params.get('aq');
     const ms = params.get('ms');
     const ma = params.get('ma');
     const cm = params.get('cm');
@@ -650,12 +658,15 @@ createAstroMount(ROOT_SELECTOR, () => {
     const bt = params.get('bt');
     const br = params.get('br');
     const cc = params.get('cc');
+    const fi = params.get('fi');
+    const fs = params.get('fs');
     const pr = params.get('pr');
     const pt = params.get('pt');
     const rh = params.get('rh');
     const my = params.get('my');
     const lw = params.get('lw');
     const rb = params.get('rb');
+    const lp = params.get('lp');
 
     const env = params.get('env');
     const li = params.get('li');
@@ -697,6 +708,12 @@ createAstroMount(ROOT_SELECTOR, () => {
       root.dataset.carShowroomMode = mode;
     }
     if (finish) root.dataset.carShowroomFinish = finish;
+    const fiN = parseNum(fi);
+    if (fiN !== null)
+      root.dataset.carShowroomFlakeIntensity = String(clamp01(fiN));
+    const fsN = parseNum(fs);
+    if (fsN !== null)
+      root.dataset.carShowroomFlakeScale = String(clamp(fsN, 0.5, 8));
     if (wheel) root.dataset.carShowroomWheelFinish = wheel;
     if (trim) root.dataset.carShowroomTrimFinish = trim;
     if (bg) root.dataset.carShowroomBackground = bg;
@@ -740,6 +757,8 @@ createAstroMount(ROOT_SELECTOR, () => {
     if (rbN !== null)
       root.dataset.carShowroomRimBoost = String(clamp(rbN, 0.5, 2));
 
+    if (lp) root.dataset.carShowroomLightPreset = lp;
+
     const ccN = parseNum(cc);
     if (ccN !== null) root.dataset.carShowroomClearcoat = String(clamp01(ccN));
 
@@ -769,6 +788,11 @@ createAstroMount(ROOT_SELECTOR, () => {
       root.dataset.carShowroomAutoRotate = 'false';
     if (ar === '1' || ar === 'true')
       root.dataset.carShowroomAutoRotate = 'true';
+
+    if (aq === '0' || aq === 'false')
+      root.dataset.carShowroomAutoQuality = 'false';
+    if (aq === '1' || aq === 'true')
+      root.dataset.carShowroomAutoQuality = 'true';
 
     if (ms === 'spin' || ms === 'orbit' || ms === 'pendulum') {
       root.dataset.carShowroomMotionStyle = ms;
@@ -966,6 +990,7 @@ createAstroMount(ROOT_SELECTOR, () => {
     const sizeZ = (ds.carShowroomModelSizeZ || '').trim();
     const meshes = (ds.carShowroomModelMeshes || '').trim();
     const tris = (ds.carShowroomModelTris || '').trim();
+    const fps = (ds.carShowroomFps || '').trim();
 
     if (modelSizeEl) {
       modelSizeEl.textContent =
@@ -973,6 +998,7 @@ createAstroMount(ROOT_SELECTOR, () => {
     }
     if (modelMeshesEl) modelMeshesEl.textContent = meshes || '—';
     if (modelTrisEl) modelTrisEl.textContent = tris || '—';
+    if (fpsEl) fpsEl.textContent = fps || '—';
   };
 
   const PRESET_DATASET_KEYS: Array<keyof DOMStringMap> = [
@@ -990,6 +1016,8 @@ createAstroMount(ROOT_SELECTOR, () => {
     'carShowroomWrapOffsetY',
     'carShowroomFinish',
     'carShowroomClearcoat',
+    'carShowroomFlakeIntensity',
+    'carShowroomFlakeScale',
     'carShowroomPearl',
     'carShowroomPearlThickness',
     'carShowroomRideHeight',
@@ -1040,6 +1068,7 @@ createAstroMount(ROOT_SELECTOR, () => {
     'carShowroomSpinSpeed',
     'carShowroomZoom',
     'carShowroomAutoRotate',
+    'carShowroomAutoQuality',
     'carShowroomPartMap',
   ];
 
@@ -1098,6 +1127,8 @@ createAstroMount(ROOT_SELECTOR, () => {
 
     if (qualitySel && ds.carShowroomQuality)
       qualitySel.value = ds.carShowroomQuality;
+    if (autoQualityChk && ds.carShowroomAutoQuality)
+      autoQualityChk.checked = ds.carShowroomAutoQuality !== 'false';
     const model = (ds.carShowroomModel || '').trim();
     if (modelUrlInp) modelUrlInp.value = model;
     if (modelSel && model) {
@@ -1139,6 +1170,10 @@ createAstroMount(ROOT_SELECTOR, () => {
       finishSel.value = ds.carShowroomFinish;
     if (clearcoatRange && ds.carShowroomClearcoat)
       clearcoatRange.value = ds.carShowroomClearcoat;
+    if (flakeIntensityRange && ds.carShowroomFlakeIntensity)
+      flakeIntensityRange.value = ds.carShowroomFlakeIntensity;
+    if (flakeScaleRange && ds.carShowroomFlakeScale)
+      flakeScaleRange.value = ds.carShowroomFlakeScale;
     if (pearlRange && ds.carShowroomPearl)
       pearlRange.value = ds.carShowroomPearl;
     if (pearlThicknessRange && ds.carShowroomPearlThickness)
@@ -1287,220 +1322,51 @@ createAstroMount(ROOT_SELECTOR, () => {
     once: true,
   });
 
-  let isPanelOpen = false;
-  let savedScrollY = 0;
-  let prevHtmlOverflow = '';
-  let prevBodyPosition = '';
-  let prevBodyTop = '';
-  let prevBodyLeft = '';
-  let prevBodyRight = '';
-  let prevBodyWidth = '';
+  let isPanelOpen = true;
 
-  const lockScroll = () => {
-    savedScrollY = window.scrollY || 0;
-    prevHtmlOverflow = document.documentElement.style.overflow;
-    prevBodyPosition = document.body.style.position;
-    prevBodyTop = document.body.style.top;
-    prevBodyLeft = document.body.style.left;
-    prevBodyRight = document.body.style.right;
-    prevBodyWidth = document.body.style.width;
+  const isDockedLayout = () => window.matchMedia('(min-width: 980px)').matches;
 
-    document.documentElement.style.overflow = 'hidden';
-    document.body.style.position = 'fixed';
-    document.body.style.top = `-${savedScrollY}px`;
-    document.body.style.left = '0';
-    document.body.style.right = '0';
-    document.body.style.width = '100%';
-  };
-
-  const unlockScroll = () => {
-    document.documentElement.style.overflow = prevHtmlOverflow;
-    document.body.style.position = prevBodyPosition;
-    document.body.style.top = prevBodyTop;
-    document.body.style.left = prevBodyLeft;
-    document.body.style.right = prevBodyRight;
-    document.body.style.width = prevBodyWidth;
-    window.scrollTo(0, savedScrollY);
-  };
-
-  const setPanelOpen = (open: boolean) => {
+  const setPanelOpen = (
+    open: boolean,
+    opts?: {
+      scroll?: boolean;
+    }
+  ) => {
     if (!panel) return;
-    isPanelOpen = open;
-
-    panel.hidden = !open;
-    if (panelBackdrop) panelBackdrop.hidden = !open;
+    const docked = isDockedLayout();
+    const shouldShow = docked ? true : open;
+    isPanelOpen = shouldShow;
+    panel.hidden = !shouldShow;
 
     if (togglePanelBtn)
-      togglePanelBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      togglePanelBtn.setAttribute(
+        'aria-expanded',
+        shouldShow ? 'true' : 'false'
+      );
 
-    // Avoid the page scrolling underneath the overlay on mobile.
-    if (open) {
-      lockScroll();
-      // Focus the first tab button so the sheet feels “active” on mobile.
-      window.setTimeout(() => {
-        const firstTab =
-          root.querySelector<HTMLButtonElement>('[data-csr-tab-btn]');
-        firstTab?.focus?.();
-      }, 0);
-    } else {
-      unlockScroll();
+    if (shouldShow && opts?.scroll !== false && !docked) {
+      panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
-
-  // --- Mobile bottom-sheet sizing (draggable)
-  const SHEET_HEIGHT_STORAGE_KEY = 'csr-sheet-height-v1';
-  const isMobileSheet = () => window.matchMedia('(max-width: 520px)').matches;
-
-  const getSheetMaxHeightPx = () => {
-    // Mirror CSS: 12px top + 12px bottom + safe areas.
-    const safeTop =
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (window as any).visualViewport?.offsetTop != null ? 0 : 0;
-    const safeAreaTop = 0;
-    const safeAreaBottom = 0;
-    const top = 24 + safeTop + safeAreaTop;
-    const bottom = 0 + safeAreaBottom;
-
-    // Prefer visualViewport height when keyboard is up.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const vv = (window as any).visualViewport as { height: number } | undefined;
-    const h =
-      vv?.height && Number.isFinite(vv.height) ? vv.height : window.innerHeight;
-    return Math.max(240, Math.floor(h - top - bottom));
-  };
-
-  const clampSheetHeightPx = (px: number) => {
-    const max = getSheetMaxHeightPx();
-    return clamp(Math.floor(px), 240, max);
-  };
-
-  const applySheetHeightPx = (px: number, persist: boolean) => {
-    if (!panel) return;
-    if (!isMobileSheet()) return;
-    const clamped = clampSheetHeightPx(px);
-    panel.style.setProperty('--csr-sheet-height', `${clamped}px`);
-    if (persist) {
-      try {
-        localStorage.setItem(SHEET_HEIGHT_STORAGE_KEY, String(clamped));
-      } catch {
-        // ignore
-      }
-    }
-  };
-
-  const initSheetHeight = () => {
-    if (!panel) return;
-    if (!isMobileSheet()) {
-      panel.style.removeProperty('--csr-sheet-height');
-      return;
-    }
-
-    const saved = (() => {
-      try {
-        const raw = (
-          localStorage.getItem(SHEET_HEIGHT_STORAGE_KEY) || ''
-        ).trim();
-        const n = Number.parseInt(raw, 10);
-        return Number.isFinite(n) ? n : null;
-      } catch {
-        return null;
-      }
-    })();
-
-    if (saved != null) {
-      applySheetHeightPx(saved, false);
-      return;
-    }
-
-    // Default: leave a good chunk of the car visible above.
-    const base = Math.floor(window.innerHeight * 0.56);
-    applySheetHeightPx(base, false);
-  };
-
-  initSheetHeight();
-
-  const startSheetDrag = (startClientY: number) => {
-    if (!panel) return;
-    const rect = panel.getBoundingClientRect();
-    const startHeight = rect.height;
-    const startY = startClientY;
-
-    const onMove = (e: PointerEvent) => {
-      const dy = e.clientY - startY;
-      // Dragging up should increase height.
-      applySheetHeightPx(startHeight - dy, false);
-    };
-
-    const onUp = (e: PointerEvent) => {
-      window.removeEventListener('pointermove', onMove);
-      window.removeEventListener('pointerup', onUp);
-      const rectNow = panel.getBoundingClientRect();
-      applySheetHeightPx(rectNow.height, true);
-      try {
-        sheetHandle?.releasePointerCapture?.(e.pointerId);
-      } catch {
-        // ignore
-      }
-    };
-
-    window.addEventListener('pointermove', onMove, { passive: true });
-    window.addEventListener('pointerup', onUp, { passive: true, once: true });
-  };
-
-  sheetHandle?.addEventListener('pointerdown', e => {
-    if (!isMobileSheet()) return;
-    // Only allow resizing when the panel is open.
-    if (!panel || panel.hidden) return;
-    try {
-      sheetHandle.setPointerCapture(e.pointerId);
-    } catch {
-      // ignore
-    }
-    startSheetDrag(e.clientY);
-  });
 
   togglePanelBtn?.addEventListener('click', () => {
-    setPanelOpen(Boolean(panel?.hidden));
+    if (isDockedLayout()) {
+      panel?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+    const next = panel ? panel.hidden : true;
+    setPanelOpen(next);
   });
 
   closePanelBtn?.addEventListener('click', () => {
     setPanelOpen(false);
   });
 
-  panelBackdrop?.addEventListener('click', () => {
-    setPanelOpen(false);
-  });
-
-  // If the viewport changes dramatically (rotation/address-bar changes), ensure we
-  // don't leave the page “locked” behind a hidden panel.
   window.addEventListener('resize', () => {
-    if (!panel || !panelBackdrop) return;
-    const actuallyOpen = !panel.hidden;
-    if (!actuallyOpen && isPanelOpen) {
-      isPanelOpen = false;
-      unlockScroll();
-      if (togglePanelBtn) togglePanelBtn.setAttribute('aria-expanded', 'false');
-      panelBackdrop.hidden = true;
-    }
-
-    // Keep bottom-sheet height within the new viewport.
-    if (panel && isMobileSheet()) {
-      const rect = panel.getBoundingClientRect();
-      applySheetHeightPx(rect.height, false);
-    }
+    if (isDockedLayout()) setPanelOpen(true, { scroll: false });
   });
 
-  // Keyboard open/close on mobile can resize visualViewport without firing a normal resize.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const vv = (window as any).visualViewport as
-    | { addEventListener: (t: string, cb: () => void) => void }
-    | undefined;
-  vv?.addEventListener?.('resize', () => {
-    if (!panel || !isMobileSheet()) return;
-    const rect = panel.getBoundingClientRect();
-    applySheetHeightPx(rect.height, false);
-  });
-
+  setPanelOpen(true, { scroll: false });
   // Defaults
   root.dataset.carShowroomModel ||=
     modelSel?.value || '/models/porsche-911-gt3rs.glb';
@@ -1522,6 +1388,9 @@ createAstroMount(ROOT_SELECTOR, () => {
   root.dataset.carShowroomWrapOffsetY ||= wrapOffsetYRange?.value || '0';
   root.dataset.carShowroomFinish ||= finishSel?.value || 'gloss';
   root.dataset.carShowroomClearcoat ||= clearcoatRange?.value || '1';
+  root.dataset.carShowroomFlakeIntensity ||=
+    flakeIntensityRange?.value || '0.25';
+  root.dataset.carShowroomFlakeScale ||= flakeScaleRange?.value || '2.5';
   root.dataset.carShowroomPearl ||= pearlRange?.value || '0';
   root.dataset.carShowroomPearlThickness ||=
     pearlThicknessRange?.value || '320';
@@ -1567,6 +1436,8 @@ createAstroMount(ROOT_SELECTOR, () => {
   root.dataset.carShowroomBloomRadius ||= bloomRadiusRange?.value || '0.35';
   root.dataset.carShowroomAutoRotate ||=
     autoRotateChk?.checked === false ? 'false' : 'true';
+  root.dataset.carShowroomAutoQuality ||=
+    autoQualityChk?.checked === false ? 'false' : 'true';
   root.dataset.carShowroomMotionStyle ||= motionStyleSel?.value || 'spin';
   root.dataset.carShowroomMotionRange ||= motionRange?.value || '18';
   root.dataset.carShowroomSpinSpeed ||= spinSpeedRange?.value || '0.65';
@@ -1574,6 +1445,7 @@ createAstroMount(ROOT_SELECTOR, () => {
   root.dataset.carShowroomReady ||= '0';
   root.dataset.carShowroomLoading ||= '0';
   root.dataset.carShowroomLoadError ||= '';
+  root.dataset.carShowroomFps ||= '';
 
   // Default empty part map.
   root.dataset.carShowroomPartMap ||= '';
@@ -1623,6 +1495,10 @@ createAstroMount(ROOT_SELECTOR, () => {
     finishSel.value = root.dataset.carShowroomFinish;
   if (clearcoatRange && root.dataset.carShowroomClearcoat)
     clearcoatRange.value = root.dataset.carShowroomClearcoat;
+  if (flakeIntensityRange && root.dataset.carShowroomFlakeIntensity)
+    flakeIntensityRange.value = root.dataset.carShowroomFlakeIntensity;
+  if (flakeScaleRange && root.dataset.carShowroomFlakeScale)
+    flakeScaleRange.value = root.dataset.carShowroomFlakeScale;
   if (pearlRange && root.dataset.carShowroomPearl)
     pearlRange.value = root.dataset.carShowroomPearl;
   if (pearlThicknessRange && root.dataset.carShowroomPearlThickness)
@@ -1697,6 +1573,8 @@ createAstroMount(ROOT_SELECTOR, () => {
     bloomRadiusRange.value = root.dataset.carShowroomBloomRadius;
   if (autoRotateChk && root.dataset.carShowroomAutoRotate)
     autoRotateChk.checked = root.dataset.carShowroomAutoRotate !== 'false';
+  if (autoQualityChk && root.dataset.carShowroomAutoQuality)
+    autoQualityChk.checked = root.dataset.carShowroomAutoQuality !== 'false';
   if (motionStyleSel && root.dataset.carShowroomMotionStyle)
     motionStyleSel.value = root.dataset.carShowroomMotionStyle;
   if (spinSpeedRange && root.dataset.carShowroomSpinSpeed)
@@ -2042,6 +1920,186 @@ createAstroMount(ROOT_SELECTOR, () => {
     if (announce) showToast('Lighting preset applied.');
   };
 
+  const STYLE_PRESETS: Record<
+    string,
+    {
+      mode?: string;
+      body?: string;
+      wrap?: string;
+      wrapPattern?: string;
+      wrapStyle?: string;
+      finish?: string;
+      clearcoat?: number;
+      flakeIntensity?: number;
+      flakeScale?: number;
+      wheelFinish?: string;
+      wheelColor?: string;
+      trimFinish?: string;
+      trimColor?: string;
+      caliper?: string;
+      glassTint?: number;
+      lightPreset?: string;
+    }
+  > = {
+    stealth: {
+      mode: 'paint',
+      body: '#0b0f1a',
+      finish: 'matte',
+      clearcoat: 0.6,
+      flakeIntensity: 0.1,
+      flakeScale: 2.2,
+      wheelFinish: 'black',
+      wheelColor: '#0b0f1a',
+      trimFinish: 'black',
+      trimColor: '#0b0f1a',
+      caliper: '#f87171',
+      glassTint: 0.32,
+      lightPreset: 'noir',
+    },
+    track: {
+      mode: 'paint',
+      body: '#f87171',
+      finish: 'gloss',
+      clearcoat: 1,
+      flakeIntensity: 0.35,
+      flakeScale: 3.2,
+      wheelFinish: 'black',
+      wheelColor: '#111827',
+      trimFinish: 'black',
+      trimColor: '#0b0f1a',
+      caliper: '#fbbf24',
+      glassTint: 0.18,
+      lightPreset: 'studio',
+    },
+    lux: {
+      mode: 'paint',
+      body: '#1e3a8a',
+      finish: 'satin',
+      clearcoat: 0.85,
+      flakeIntensity: 0.2,
+      flakeScale: 2.6,
+      wheelFinish: 'chrome',
+      wheelColor: '#e5e7eb',
+      trimFinish: 'chrome',
+      trimColor: '#e5e7eb',
+      caliper: '#ef4444',
+      glassTint: 0.12,
+      lightPreset: 'golden',
+    },
+    neo: {
+      mode: 'wrap',
+      body: '#7c3aed',
+      wrap: '#7c3aed',
+      wrapPattern: 'hex',
+      wrapStyle: 'procedural',
+      finish: 'gloss',
+      clearcoat: 0.95,
+      flakeIntensity: 0.4,
+      flakeScale: 4,
+      wheelFinish: 'graphite',
+      wheelColor: '#1f2937',
+      trimFinish: 'black',
+      trimColor: '#0b0f1a',
+      caliper: '#22d3ee',
+      glassTint: 0.22,
+      lightPreset: 'neon',
+    },
+    classic: {
+      mode: 'paint',
+      body: '#e5e7eb',
+      finish: 'gloss',
+      clearcoat: 0.9,
+      flakeIntensity: 0.18,
+      flakeScale: 2.2,
+      wheelFinish: 'chrome',
+      wheelColor: '#e5e7eb',
+      trimFinish: 'brushed',
+      trimColor: '#9ca3af',
+      caliper: '#ef4444',
+      glassTint: 0.1,
+      lightPreset: 'ice',
+    },
+  };
+
+  const applyStylePreset = (presetId: string) => {
+    const preset = STYLE_PRESETS[presetId];
+    if (!preset) return;
+
+    const setValue = (
+      el: HTMLInputElement | HTMLSelectElement | null,
+      value: string | number | undefined,
+      key: keyof DOMStringMap
+    ) => {
+      if (value == null) return;
+      const next = String(value);
+      if (el) el.value = next;
+      root.dataset[key] = next;
+    };
+
+    if (stylePresetSel) stylePresetSel.value = presetId;
+
+    if (preset.mode && modeSel) {
+      modeSel.value = preset.mode;
+      root.dataset.carShowroomMode = preset.mode;
+    }
+
+    if (preset.body) {
+      if (colorInp) colorInp.value = preset.body;
+      root.dataset.carShowroomColor = preset.body;
+    }
+
+    if (preset.wrap) {
+      if (wrapColorInp) wrapColorInp.value = preset.wrap;
+      root.dataset.carShowroomWrapColor = preset.wrap;
+    }
+
+    if (preset.wrapPattern && wrapPatternSel) {
+      wrapPatternSel.value = preset.wrapPattern;
+      root.dataset.carShowroomWrapPattern = preset.wrapPattern;
+    }
+
+    if (preset.wrapStyle && wrapStyleSel) {
+      wrapStyleSel.value = preset.wrapStyle;
+      root.dataset.carShowroomWrapStyle = preset.wrapStyle;
+    }
+
+    setValue(finishSel, preset.finish, 'carShowroomFinish');
+    setValue(clearcoatRange, preset.clearcoat, 'carShowroomClearcoat');
+    setValue(
+      flakeIntensityRange,
+      preset.flakeIntensity,
+      'carShowroomFlakeIntensity'
+    );
+    setValue(flakeScaleRange, preset.flakeScale, 'carShowroomFlakeScale');
+    setValue(wheelFinishSel, preset.wheelFinish, 'carShowroomWheelFinish');
+
+    if (preset.wheelColor) {
+      if (wheelColorInp) wheelColorInp.value = preset.wheelColor;
+      root.dataset.carShowroomWheelColor = preset.wheelColor;
+    }
+
+    setValue(trimFinishSel, preset.trimFinish, 'carShowroomTrimFinish');
+
+    if (preset.trimColor) {
+      if (trimColorInp) trimColorInp.value = preset.trimColor;
+      root.dataset.carShowroomTrimColor = preset.trimColor;
+    }
+
+    if (preset.caliper) {
+      if (caliperColorInp) caliperColorInp.value = preset.caliper;
+      root.dataset.carShowroomCaliperColor = preset.caliper;
+    }
+
+    setValue(glassTintRange, preset.glassTint, 'carShowroomGlassTint');
+
+    if (preset.lightPreset) {
+      applyLightPreset(preset.lightPreset, false);
+    }
+
+    bumpRevision();
+    showToast('Style preset applied.');
+  };
+
   floorPresetSel?.addEventListener('change', () => {
     const preset = (floorPresetSel.value || 'auto').trim();
     applyFloorPreset(preset);
@@ -2050,6 +2108,12 @@ createAstroMount(ROOT_SELECTOR, () => {
   lightPresetSel?.addEventListener('change', () => {
     const preset = (lightPresetSel.value || 'studio').trim();
     applyLightPreset(preset);
+  });
+
+  stylePresetSel?.addEventListener('change', () => {
+    const preset = (stylePresetSel.value || '').trim();
+    if (!preset) return;
+    applyStylePreset(preset);
   });
 
   loadModelBtn?.addEventListener('click', () => {
@@ -2088,6 +2152,10 @@ createAstroMount(ROOT_SELECTOR, () => {
     if (finishSel) root.dataset.carShowroomFinish = finishSel.value;
     if (clearcoatRange)
       root.dataset.carShowroomClearcoat = clearcoatRange.value;
+    if (flakeIntensityRange)
+      root.dataset.carShowroomFlakeIntensity = flakeIntensityRange.value;
+    if (flakeScaleRange)
+      root.dataset.carShowroomFlakeScale = flakeScaleRange.value;
     if (pearlRange) root.dataset.carShowroomPearl = pearlRange.value;
     if (pearlThicknessRange)
       root.dataset.carShowroomPearlThickness = pearlThicknessRange.value;
@@ -2153,6 +2221,10 @@ createAstroMount(ROOT_SELECTOR, () => {
       root.dataset.carShowroomAutoRotate = autoRotateChk.checked
         ? 'true'
         : 'false';
+    if (autoQualityChk)
+      root.dataset.carShowroomAutoQuality = autoQualityChk.checked
+        ? 'true'
+        : 'false';
     if (motionStyleSel)
       root.dataset.carShowroomMotionStyle = motionStyleSel.value;
     if (spinSpeedRange)
@@ -2187,6 +2259,8 @@ createAstroMount(ROOT_SELECTOR, () => {
     wrapOffsetYRange,
     finishSel,
     clearcoatRange,
+    flakeIntensityRange,
+    flakeScaleRange,
     pearlRange,
     pearlThicknessRange,
     wheelFinishSel,
@@ -2224,6 +2298,7 @@ createAstroMount(ROOT_SELECTOR, () => {
     bloomThresholdRange,
     bloomRadiusRange,
     autoRotateChk,
+    autoQualityChk,
     motionStyleSel,
     spinSpeedRange,
     motionRange,
@@ -2286,6 +2361,8 @@ createAstroMount(ROOT_SELECTOR, () => {
 
     if (finishSel) finishSel.value = pick(finishes);
     if (clearcoatRange) clearcoatRange.value = range(0.7, 1, 2);
+    if (flakeIntensityRange) flakeIntensityRange.value = range(0.05, 0.55, 2);
+    if (flakeScaleRange) flakeScaleRange.value = range(1, 5, 1);
     if (pearlRange) pearlRange.value = range(0, 0.6, 2);
     if (pearlThicknessRange) pearlThicknessRange.value = range(180, 620, 0);
 
@@ -2297,6 +2374,8 @@ createAstroMount(ROOT_SELECTOR, () => {
 
     if (wheelFinishSel) wheelFinishSel.value = pick(wheelFinishes);
     if (trimFinishSel) trimFinishSel.value = pick(trimFinishes);
+
+    if (stylePresetSel) stylePresetSel.value = '';
 
     syncFromInputs();
     showToast('New look generated.');
@@ -2318,8 +2397,11 @@ createAstroMount(ROOT_SELECTOR, () => {
     if (wrapRotRange) wrapRotRange.value = '0';
     if (wrapOffsetXRange) wrapOffsetXRange.value = '0';
     if (wrapOffsetYRange) wrapOffsetYRange.value = '0';
+    if (stylePresetSel) stylePresetSel.value = '';
     if (finishSel) finishSel.value = 'gloss';
     if (clearcoatRange) clearcoatRange.value = '1';
+    if (flakeIntensityRange) flakeIntensityRange.value = '0.25';
+    if (flakeScaleRange) flakeScaleRange.value = '2.5';
     if (pearlRange) pearlRange.value = '0';
     if (pearlThicknessRange) pearlThicknessRange.value = '320';
     if (rideHeightRange) rideHeightRange.value = '0';
@@ -2357,6 +2439,7 @@ createAstroMount(ROOT_SELECTOR, () => {
     if (bloomThresholdRange) bloomThresholdRange.value = '0.88';
     if (bloomRadiusRange) bloomRadiusRange.value = '0.35';
     if (autoRotateChk) autoRotateChk.checked = true;
+    if (autoQualityChk) autoQualityChk.checked = true;
     if (motionStyleSel) motionStyleSel.value = 'spin';
     if (spinSpeedRange) spinSpeedRange.value = '0.65';
     if (motionRange) motionRange.value = '18';
@@ -2435,6 +2518,8 @@ createAstroMount(ROOT_SELECTOR, () => {
     params.set('woy', ds.carShowroomWrapOffsetY || '0');
     params.set('finish', ds.carShowroomFinish || 'gloss');
     params.set('cc', ds.carShowroomClearcoat || '1');
+    params.set('fi', ds.carShowroomFlakeIntensity || '0.25');
+    params.set('fs', ds.carShowroomFlakeScale || '2.5');
     params.set('pr', ds.carShowroomPearl || '0');
     params.set('pt', ds.carShowroomPearlThickness || '320');
     params.set('rh', ds.carShowroomRideHeight || '0');
@@ -2452,6 +2537,7 @@ createAstroMount(ROOT_SELECTOR, () => {
     params.set('spin', ds.carShowroomSpinSpeed || '0.65');
     params.set('zoom', ds.carShowroomZoom || '0');
     params.set('ar', ds.carShowroomAutoRotate === 'false' ? '0' : '1');
+    params.set('aq', ds.carShowroomAutoQuality === 'false' ? '0' : '1');
     params.set('ms', ds.carShowroomMotionStyle || 'spin');
     params.set('ma', ds.carShowroomMotionRange || '18');
 
@@ -2464,6 +2550,7 @@ createAstroMount(ROOT_SELECTOR, () => {
     params.set('li', ds.carShowroomLightIntensity || '1');
     params.set('lw', ds.carShowroomLightWarmth || '0');
     params.set('rb', ds.carShowroomRimBoost || '1');
+    params.set('lp', ds.carShowroomLightPreset || 'studio');
     params.set('ry', ds.carShowroomRigYaw || '0');
     params.set('rgh', ds.carShowroomRigHeight || '1');
     params.set('grid', ds.carShowroomGrid === 'true' ? '1' : '0');
@@ -2566,6 +2653,8 @@ createAstroMount(ROOT_SELECTOR, () => {
       params.set('woy', ds.carShowroomWrapOffsetY || '0');
       params.set('finish', ds.carShowroomFinish || 'gloss');
       params.set('cc', ds.carShowroomClearcoat || '1');
+      params.set('fi', ds.carShowroomFlakeIntensity || '0.25');
+      params.set('fs', ds.carShowroomFlakeScale || '2.5');
       params.set('pr', ds.carShowroomPearl || '0');
       params.set('pt', ds.carShowroomPearlThickness || '320');
       params.set('rh', ds.carShowroomRideHeight || '0');
@@ -2583,6 +2672,7 @@ createAstroMount(ROOT_SELECTOR, () => {
       params.set('spin', ds.carShowroomSpinSpeed || '0.65');
       params.set('zoom', ds.carShowroomZoom || '0');
       params.set('ar', ds.carShowroomAutoRotate === 'false' ? '0' : '1');
+      params.set('aq', ds.carShowroomAutoQuality === 'false' ? '0' : '1');
       params.set('ms', ds.carShowroomMotionStyle || 'spin');
       params.set('ma', ds.carShowroomMotionRange || '18');
 
@@ -2595,6 +2685,7 @@ createAstroMount(ROOT_SELECTOR, () => {
       params.set('li', ds.carShowroomLightIntensity || '1');
       params.set('lw', ds.carShowroomLightWarmth || '0');
       params.set('rb', ds.carShowroomRimBoost || '1');
+      params.set('lp', ds.carShowroomLightPreset || 'studio');
       params.set('ry', ds.carShowroomRigYaw || '0');
       params.set('rgh', ds.carShowroomRigHeight || '1');
       params.set('grid', ds.carShowroomGrid === 'true' ? '1' : '0');
@@ -2773,7 +2864,11 @@ createAstroMount(ROOT_SELECTOR, () => {
   const onKeyDown = (e: KeyboardEvent) => {
     const key = e.key;
     if (key === 'o' || key === 'O') {
-      setPanelOpen(Boolean(panel?.hidden));
+      if (isDockedLayout()) {
+        panel?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        setPanelOpen(Boolean(panel?.hidden));
+      }
       e.preventDefault();
       return;
     }
@@ -3096,15 +3191,41 @@ createAstroMount(ROOT_SELECTOR, () => {
 
     resize();
 
-    qualitySel?.addEventListener('change', () => {
-      const v = (qualitySel.value || 'balanced').trim();
-      root.dataset.carShowroomQuality = v;
+    const updateQualityCap = (v: string) => {
       if (v === 'performance') qualityDprCap = 1;
       else if (v === 'ultra') qualityDprCap = caps.maxDpr;
       else qualityDprCap = Math.min(caps.maxDpr, 1.75);
+    };
+
+    updateQualityCap(root.dataset.carShowroomQuality || 'balanced');
+
+    let lastQualityShift = 0;
+    let lowFpsTime = 0;
+    let highFpsTime = 0;
+
+    const setQuality = (v: string, fromAuto = false) => {
+      const next =
+        v === 'performance' || v === 'balanced' || v === 'ultra'
+          ? v
+          : 'balanced';
+      const current = root.dataset.carShowroomQuality || 'balanced';
+      if (current === next) return;
+      root.dataset.carShowroomQuality = next;
+      if (qualitySel) qualitySel.value = next;
+      updateQualityCap(next);
       applyQuality();
       resize();
       bumpRevision();
+      lastQualityShift = performance.now();
+      if (!fromAuto) {
+        lowFpsTime = 0;
+        highFpsTime = 0;
+      }
+    };
+
+    qualitySel?.addEventListener('change', () => {
+      const v = (qualitySel.value || 'balanced').trim();
+      setQuality(v, false);
     });
 
     // Sensible defaults for export options
@@ -3262,6 +3383,8 @@ createAstroMount(ROOT_SELECTOR, () => {
     // Render loop
     const clock = new THREE.Clock();
     running = true;
+    let fpsSmoothed = 0;
+    let fpsTimer = 0;
 
     const loop = () => {
       if (!running) return;
@@ -3270,6 +3393,47 @@ createAstroMount(ROOT_SELECTOR, () => {
       applyPostFxFromDataset();
 
       const dtRaw = Math.min(clock.getDelta(), 0.05);
+
+      const fpsInstant = 1 / Math.max(dtRaw, 1e-4);
+      fpsSmoothed = fpsSmoothed
+        ? lerp(fpsSmoothed, fpsInstant, 0.1)
+        : fpsInstant;
+      fpsTimer += dtRaw;
+      if (fpsTimer > 0.5) {
+        root.dataset.carShowroomFps = Math.round(fpsSmoothed).toString();
+        fpsTimer = 0;
+      }
+
+      const autoQuality =
+        root.dataset.carShowroomAutoQuality !== 'false' &&
+        root.dataset.carShowroomAutoQuality !== '0';
+      if (autoQuality) {
+        const now = performance.now();
+        const currentQuality = root.dataset.carShowroomQuality || 'balanced';
+        const cooldown = now - lastQualityShift;
+
+        if (fpsSmoothed < 40) {
+          lowFpsTime += dtRaw;
+          highFpsTime = 0;
+        } else if (fpsSmoothed > 58) {
+          highFpsTime += dtRaw;
+          lowFpsTime = 0;
+        } else {
+          lowFpsTime = 0;
+          highFpsTime = 0;
+        }
+
+        if (lowFpsTime > 2.5 && cooldown > 2500) {
+          if (currentQuality === 'ultra') setQuality('balanced', true);
+          else if (currentQuality === 'balanced')
+            setQuality('performance', true);
+          lowFpsTime = 0;
+        } else if (highFpsTime > 4 && cooldown > 3500) {
+          if (currentQuality === 'performance') setQuality('balanced', true);
+          else if (currentQuality === 'balanced') setQuality('ultra', true);
+          highFpsTime = 0;
+        }
+      }
 
       // Smooth pointer.
       pointer.x = damp(pointer.x, rawPointer.x, 12, dtRaw);

@@ -44,6 +44,8 @@ type UiState = {
   wrapScale: number;
   finish: ShowroomFinish;
   clearcoat: number;
+  flakeIntensity: number;
+  flakeScale: number;
   pearl: number;
   pearlThickness: number;
   rideHeight: number;
@@ -368,6 +370,34 @@ const createWrapPatternTexture = (
   return texture;
 };
 
+const createFlakeNormalTexture = (size = 256): THREE.CanvasTexture => {
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  if (ctx) {
+    const img = ctx.createImageData(size, size);
+    const data = img.data;
+    const strength = 22;
+    for (let i = 0; i < data.length; i += 4) {
+      const nx = (Math.random() * 2 - 1) * strength;
+      const ny = (Math.random() * 2 - 1) * strength;
+      data[i] = 128 + nx;
+      data[i + 1] = 128 + ny;
+      data[i + 2] = 255;
+      data[i + 3] = 255;
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.colorSpace = THREE.NoColorSpace;
+  texture.needsUpdate = true;
+  return texture;
+};
+
 export class CarShowroomScene {
   public readonly group = new THREE.Group();
   public readonly camera: THREE.PerspectiveCamera;
@@ -436,6 +466,7 @@ export class CarShowroomScene {
 
   private wrapTex: THREE.CanvasTexture | null = null;
   private wrapTexKey = '';
+  private readonly flakeNormal: THREE.CanvasTexture;
 
   private selectedMesh: THREE.Mesh | null = null;
   private selectionBox = new THREE.Box3();
@@ -639,6 +670,8 @@ export class CarShowroomScene {
       metalness: 0,
       wireframe: true,
     });
+
+    this.flakeNormal = createFlakeNormalTexture(256);
 
     const draco = new DRACOLoader();
     draco.setDecoderPath(withBasePath('/draco/gltf/'));
@@ -948,6 +981,20 @@ export class CarShowroomScene {
 
     this.applyFinishPreset(mat, ui.finish);
     this.applyPaintTuning(mat, ui);
+
+    if (!stdSrc.normalMap) {
+      const flake = clamp(ui.flakeIntensity, 0, 1);
+      if (flake > 0.01) {
+        this.flakeNormal.repeat.set(ui.flakeScale, ui.flakeScale);
+        mat.normalMap = this.flakeNormal;
+        const scale = 0.35 * flake;
+        mat.normalScale.set(scale, scale);
+      } else {
+        mat.normalMap = null;
+        mat.normalScale.set(0, 0);
+      }
+      mat.needsUpdate = true;
+    }
     mat.needsUpdate = true;
     return { material: mat, baseColor };
   }
@@ -1031,6 +1078,16 @@ export class CarShowroomScene {
     );
     const finish = (ds.carShowroomFinish || 'gloss') as ShowroomFinish;
     const clearcoat = clamp(parseNumber(ds.carShowroomClearcoat, 1), 0, 1);
+    const flakeIntensity = clamp(
+      parseNumber(ds.carShowroomFlakeIntensity, 0.25),
+      0,
+      1
+    );
+    const flakeScale = clamp(
+      parseNumber(ds.carShowroomFlakeScale, 2.5),
+      0.5,
+      8
+    );
     const pearl = clamp(parseNumber(ds.carShowroomPearl, 0), 0, 1);
     const pearlThickness = clamp(
       parseNumber(ds.carShowroomPearlThickness, 320),
@@ -1224,6 +1281,8 @@ export class CarShowroomScene {
       wrapScale,
       finish,
       clearcoat,
+      flakeIntensity,
+      flakeScale,
       pearl,
       pearlThickness,
       rideHeight,
@@ -1806,6 +1865,23 @@ export class CarShowroomScene {
     this.applyFinishPreset(this.wrapMat, ui.finish);
     this.applyPaintTuning(this.bodyMat, ui);
     this.applyPaintTuning(this.wrapMat, ui);
+
+    const flake = clamp(ui.flakeIntensity, 0, 1);
+    if (flake > 0.01) {
+      this.flakeNormal.repeat.set(ui.flakeScale, ui.flakeScale);
+      this.bodyMat.normalMap = this.flakeNormal;
+      this.wrapMat.normalMap = this.flakeNormal;
+      const scale = 0.35 * flake;
+      this.bodyMat.normalScale.set(scale, scale);
+      this.wrapMat.normalScale.set(scale, scale);
+    } else {
+      this.bodyMat.normalMap = null;
+      this.wrapMat.normalMap = null;
+      this.bodyMat.normalScale.set(0, 0);
+      this.wrapMat.normalScale.set(0, 0);
+    }
+    this.bodyMat.needsUpdate = true;
+    this.wrapMat.needsUpdate = true;
 
     // Wrap material gets a subtle procedural pattern so it looks distinct from paint.
     if (ui.mode === 'wrap' && ui.wrapPattern !== 'solid') {
