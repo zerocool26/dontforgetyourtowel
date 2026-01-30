@@ -1301,6 +1301,38 @@ const description =
       flex-direction: column;
       gap: 12px;
       z-index: 20;
+      box-shadow:
+        0 18px 50px rgba(0, 0, 0, 0.45),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+
+    .car-showroom__panel::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+      background: linear-gradient(
+        140deg,
+        rgba(255, 255, 255, 0.12),
+        rgba(255, 255, 255, 0) 38%
+      );
+      opacity: 0.5;
+    }
+
+    .car-showroom__panel::after {
+      content: '';
+      position: absolute;
+      inset: 8px 8px auto 8px;
+      height: 1px;
+      background: linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0),
+        rgba(255, 255, 255, 0.18),
+        rgba(255, 255, 255, 0)
+      );
+      opacity: 0.6;
+      pointer-events: none;
     }
 
     .car-showroom__backdrop {
@@ -1345,6 +1377,7 @@ const description =
         rgba(0, 0, 0, 0.7),
         rgba(0, 0, 0, 0)
       );
+      padding-bottom: 6px;
     }
 
     .csr-sheet-handle {
@@ -1402,10 +1435,25 @@ const description =
       -webkit-overflow-scrolling: touch;
       flex: 1 1 auto;
       min-height: 0;
+      scroll-behavior: smooth;
+    }
+
+    .csr-tab-panels::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .csr-tab-panels::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 999px;
+    }
+
+    .csr-tab-panels::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.18);
+      border-radius: 999px;
     }
 
     .csr-tab {
-      padding-bottom: 6px;
+      padding: 4px 2px 12px 2px;
     }
 
     .csr-grid {
