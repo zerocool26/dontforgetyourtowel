@@ -550,6 +550,30 @@ const description =
               </label>
 
               <label class="csr-field csr-field--wide">
+                <span>Light warmth</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value="0"
+                  data-csr-light-warmth
+                />
+              </label>
+
+              <label class="csr-field csr-field--wide">
+                <span>Rim boost</span>
+                <input
+                  type="range"
+                  min="0.5"
+                  max="2"
+                  step="0.01"
+                  value="1"
+                  data-csr-rim-boost
+                />
+              </label>
+
+              <label class="csr-field csr-field--wide">
                 <span>Rig rotation</span>
                 <input
                   type="range"
@@ -639,6 +663,30 @@ const description =
                   step="0.01"
                   value="1"
                   data-csr-floor-opacity
+                />
+              </label>
+
+              <label class="csr-field csr-field--wide">
+                <span>Shadow strength</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value="0.85"
+                  data-csr-shadow
+                />
+              </label>
+
+              <label class="csr-field csr-field--wide">
+                <span>Shadow size</span>
+                <input
+                  type="range"
+                  min="3"
+                  max="10"
+                  step="0.1"
+                  value="6"
+                  data-csr-shadow-size
                 />
               </label>
             </div>
@@ -807,6 +855,15 @@ const description =
                 <input type="checkbox" data-csr-autorotate />
               </label>
 
+              <label class="csr-field">
+                <span>Motion style</span>
+                <select data-csr-motion-style>
+                  <option value="spin">Spin</option>
+                  <option value="orbit">Orbit</option>
+                  <option value="pendulum">Pendulum</option>
+                </select>
+              </label>
+
               <label class="csr-field csr-field--wide">
                 <span>Spin speed</span>
                 <input
@@ -816,6 +873,18 @@ const description =
                   step="0.01"
                   value="0.65"
                   data-csr-spinspeed
+                />
+              </label>
+
+              <label class="csr-field csr-field--wide">
+                <span>Orbit amplitude</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="45"
+                  step="1"
+                  value="18"
+                  data-csr-motion-range
                 />
               </label>
 

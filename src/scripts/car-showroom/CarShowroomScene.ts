@@ -21,6 +21,7 @@ type WrapPattern =
   | 'hex'
   | 'race';
 type QualityPreset = 'performance' | 'balanced' | 'ultra';
+type MotionStyle = 'spin' | 'orbit' | 'pendulum';
 
 type WrapStyle = 'oem' | 'procedural';
 
@@ -51,10 +52,14 @@ type UiState = {
   background: ShowroomBackground;
   envIntensity: number;
   lightIntensity: number;
+  lightWarmth: number;
+  rimBoost: number;
   rigYaw: number;
   underglow: number;
   underglowColor: THREE.Color;
   underglowSize: number;
+  shadowStrength: number;
+  shadowSize: number;
   floorPreset: FloorPreset;
   floorColor: THREE.Color;
   floorRoughness: number;
@@ -68,6 +73,8 @@ type UiState = {
   fov: number;
   lookAt: THREE.Vector3 | null;
   autoRotate: boolean;
+  motionStyle: MotionStyle;
+  motionRange: number;
   spinSpeed: number;
   zoom: number;
 };
@@ -383,6 +390,10 @@ export class CarShowroomScene {
   private baseFillIntensity = 1.25;
   private baseRimIntensity = 1.1;
   private baseTopIntensity = 0.9;
+
+  private baseKeyColor = new THREE.Color('#ffffff');
+  private baseFillColor = new THREE.Color('#8db8ff');
+  private baseRimColor = new THREE.Color('#ffffff');
 
   private envTex: THREE.Texture | null = null;
   private pmrem: THREE.PMREMGenerator | null = null;
@@ -987,6 +998,8 @@ export class CarShowroomScene {
       0.2,
       2.5
     );
+    const lightWarmth = clamp(parseNumber(ds.carShowroomLightWarmth, 0), 0, 1);
+    const rimBoost = clamp(parseNumber(ds.carShowroomRimBoost, 1), 0.5, 2);
     const rigYaw = clamp(parseNumber(ds.carShowroomRigYaw, 0), 0, 360);
     const underglow = clamp(parseNumber(ds.carShowroomUnderglow, 0), 0, 5);
     const underglowColor = parseColor(
@@ -998,6 +1011,12 @@ export class CarShowroomScene {
       2,
       8
     );
+    const shadowStrength = clamp(
+      parseNumber(ds.carShowroomShadowStrength, 0.85),
+      0,
+      1
+    );
+    const shadowSize = clamp(parseNumber(ds.carShowroomShadowSize, 6), 3, 10);
 
     const floorPreset = (ds.carShowroomFloorPreset || 'auto') as FloorPreset;
     const floorColor = parseColor(
@@ -1050,6 +1069,20 @@ export class CarShowroomScene {
       Number.parseFloat(ds.carShowroomSpinSpeed || '0.65') || 0.65,
       0,
       2
+    );
+    const motionStyleRaw = (ds.carShowroomMotionStyle || 'spin')
+      .trim()
+      .toLowerCase();
+    const motionStyle: MotionStyle =
+      motionStyleRaw === 'orbit' ||
+      motionStyleRaw === 'pendulum' ||
+      motionStyleRaw === 'spin'
+        ? (motionStyleRaw as MotionStyle)
+        : 'spin';
+    const motionRange = clamp(
+      parseNumber(ds.carShowroomMotionRange, 18),
+      0,
+      45
     );
     const zoom = clamp(Number.parseFloat(ds.carShowroomZoom || '0') || 0, 0, 1);
     const autoRotate = ds.carShowroomAutoRotate !== 'false';
@@ -1128,10 +1161,14 @@ export class CarShowroomScene {
       background,
       envIntensity,
       lightIntensity,
+      lightWarmth,
+      rimBoost,
       rigYaw,
       underglow,
       underglowColor,
       underglowSize,
+      shadowStrength,
+      shadowSize,
       floorPreset,
       floorColor,
       floorRoughness,
@@ -1145,6 +1182,8 @@ export class CarShowroomScene {
       fov,
       lookAt,
       autoRotate,
+      motionStyle,
+      motionRange,
       spinSpeed,
       zoom,
     };
@@ -1158,12 +1197,24 @@ export class CarShowroomScene {
     this.wrapTexKey = key;
   }
 
-  private applyLightMultiplier(mult: number) {
+  private applyLightMultiplier(mult: number, rimBoost: number) {
     const m = clamp(mult, 0.2, 2.5);
+    const rim = clamp(rimBoost, 0.5, 2);
     this.keyLight.intensity = this.baseKeyIntensity * m;
     this.fillLight.intensity = this.baseFillIntensity * m;
-    this.rimLight.intensity = this.baseRimIntensity * m;
+    this.rimLight.intensity = this.baseRimIntensity * m * rim;
     this.topLight.intensity = this.baseTopIntensity * m;
+  }
+
+  private applyLightWarmth(warmth: number) {
+    const t = clamp(warmth, 0, 1);
+    const cool = new THREE.Color('#9bb6ff');
+    const warm = new THREE.Color('#ffb088');
+    const tint = cool.lerp(warm, t);
+
+    this.keyLight.color.copy(this.baseKeyColor).lerp(tint, 0.55);
+    this.fillLight.color.copy(this.baseFillColor).lerp(tint, 0.35);
+    this.rimLight.color.copy(this.baseRimColor).lerp(tint, 0.45);
   }
 
   private applyRigPositions(driftX: number, driftZ: number) {
@@ -1580,7 +1631,8 @@ export class CarShowroomScene {
         scene.background = new THREE.Color('#071223');
         this.groundMat.color.set('#040812');
         this.baseKeyIntensity = 3.15;
-        this.fillLight.color.set('#bfe6ff');
+        this.baseFillColor.set('#bfe6ff');
+        this.fillLight.color.copy(this.baseFillColor);
         this.baseFillIntensity = 1.45;
         this.baseRimIntensity = 1.05;
         break;
@@ -1588,7 +1640,8 @@ export class CarShowroomScene {
         scene.background = new THREE.Color('#08040a');
         this.groundMat.color.set('#05070d');
         this.baseKeyIntensity = 3.0;
-        this.fillLight.color.set('#ffb088');
+        this.baseFillColor.set('#ffb088');
+        this.fillLight.color.copy(this.baseFillColor);
         this.baseFillIntensity = 1.25;
         this.baseRimIntensity = 1.25;
         break;
@@ -1596,7 +1649,8 @@ export class CarShowroomScene {
         scene.background = new THREE.Color('#02030a');
         this.groundMat.color.set('#040612');
         this.baseKeyIntensity = 2.6;
-        this.fillLight.color.set('#8db8ff');
+        this.baseFillColor.set('#8db8ff');
+        this.fillLight.color.copy(this.baseFillColor);
         this.baseFillIntensity = 1.15;
         this.baseRimIntensity = 1.35;
         break;
@@ -1604,7 +1658,8 @@ export class CarShowroomScene {
         scene.background = new THREE.Color('#030616');
         this.groundMat.color.set('#030616');
         this.baseKeyIntensity = 2.9;
-        this.fillLight.color.set('#8db8ff');
+        this.baseFillColor.set('#8db8ff');
+        this.fillLight.color.copy(this.baseFillColor);
         this.baseFillIntensity = 1.15;
         this.baseRimIntensity = 1.2;
         break;
@@ -1613,7 +1668,8 @@ export class CarShowroomScene {
         scene.background = new THREE.Color('#02030a');
         this.groundMat.color.set('#05070d');
         this.baseKeyIntensity = 3.0;
-        this.fillLight.color.set('#8db8ff');
+        this.baseFillColor.set('#8db8ff');
+        this.fillLight.color.copy(this.baseFillColor);
         this.baseFillIntensity = 1.25;
         this.baseRimIntensity = 1.1;
         break;
@@ -1621,6 +1677,8 @@ export class CarShowroomScene {
 
     // Top light stays stable across scenes.
     this.baseTopIntensity = 0.9;
+    this.baseKeyColor.set('#ffffff');
+    this.baseRimColor.set('#ffffff');
   }
 
   private applyMaterials(loaded: THREE.Object3D, ui: UiState) {
@@ -1868,7 +1926,8 @@ export class CarShowroomScene {
     this.setBackground(scene, ui.background);
 
     // Lights/env/floor
-    this.applyLightMultiplier(ui.lightIntensity);
+    this.applyLightMultiplier(ui.lightIntensity, ui.rimBoost);
+    this.applyLightWarmth(ui.lightWarmth);
     this.rigYawTarget = degToRad(ui.rigYaw);
     this.applyUnderglow(ui);
     this.applyFloor(ui);
@@ -1920,8 +1979,16 @@ export class CarShowroomScene {
     this.orbitPitchTarget = clamp(this.orbitPitchTarget, -0.05, 0.55);
 
     // Gentle idle motion
-    const idleSpin = ui.autoRotate ? ui.spinSpeed : 0;
-    this.orbitYawTarget += idleSpin * dt * 0.28;
+    let motionOffset = 0;
+    if (ui.autoRotate) {
+      if (ui.motionStyle === 'spin') {
+        this.orbitYawTarget += ui.spinSpeed * dt * 0.28;
+      } else {
+        const amp = degToRad(ui.motionRange);
+        const freq = ui.motionStyle === 'pendulum' ? 0.55 : 0.85;
+        motionOffset = Math.sin(this.time * ui.spinSpeed * freq) * amp;
+      }
+    }
 
     // Zoom shaping: allow a genuinely close dolly-in.
     // In manual mode, distance comes from the slider, so don't override.
@@ -1931,7 +1998,8 @@ export class CarShowroomScene {
     }
 
     // Damping
-    this.orbitYaw = damp(this.orbitYaw, this.orbitYawTarget, 7.5, dt);
+    const yawTarget = this.orbitYawTarget + motionOffset;
+    this.orbitYaw = damp(this.orbitYaw, yawTarget, 7.5, dt);
     this.orbitPitch = damp(this.orbitPitch, this.orbitPitchTarget, 7.5, dt);
     this.orbitRadius = damp(this.orbitRadius, this.orbitRadiusTarget, 6.5, dt);
     this.lookAt.x = damp(this.lookAt.x, this.lookAtTarget.x, 7.5, dt);
@@ -1961,7 +2029,9 @@ export class CarShowroomScene {
     // Contact shadow responds to camera distance
     const shadowOpacity = clamp(1.12 - (this.orbitRadius - 6) * 0.1, 0.25, 0.9);
     const mat = this.contactShadow.material as THREE.MeshBasicMaterial;
-    mat.opacity = shadowOpacity;
+    mat.opacity = shadowOpacity * clamp(ui.shadowStrength, 0, 1);
+    const shadowSize = clamp(ui.shadowSize, 3, 10);
+    this.contactShadow.scale.set(shadowSize, shadowSize * 0.5, 1);
 
     // Slight lighting drift for realism.
     const drift = 0.18;
