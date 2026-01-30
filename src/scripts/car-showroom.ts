@@ -1292,6 +1292,14 @@ createAstroMount(ROOT_SELECTOR, () => {
     if (motionRange && ds.carShowroomMotionRange)
       motionRange.value = ds.carShowroomMotionRange;
     if (zoomRange && ds.carShowroomZoom) zoomRange.value = ds.carShowroomZoom;
+    if (quickSpinChk)
+      quickSpinChk.checked = ds.carShowroomAutoRotate !== 'false';
+    if (quickZoomRange && ds.carShowroomZoom)
+      quickZoomRange.value = ds.carShowroomZoom;
+    if (quickLightSel && ds.carShowroomLightPreset)
+      quickLightSel.value = ds.carShowroomLightPreset;
+    if (quickStyleSel && stylePresetSel)
+      quickStyleSel.value = stylePresetSel.value || '';
   };
 
   let savedPresets: SavedPreset[] = loadSavedPresets();
@@ -1933,6 +1941,7 @@ createAstroMount(ROOT_SELECTOR, () => {
     if (!preset) return;
 
     if (lightPresetSel) lightPresetSel.value = presetId;
+    if (quickLightSel) quickLightSel.value = presetId;
     root.dataset.carShowroomLightPreset = presetId;
 
     const setRange = (
@@ -1999,6 +2008,7 @@ createAstroMount(ROOT_SELECTOR, () => {
     };
 
     if (stylePresetSel) stylePresetSel.value = presetId;
+    if (quickStyleSel) quickStyleSel.value = presetId;
 
     if (preset.mode && modeSel) {
       modeSel.value = preset.mode;
@@ -2198,8 +2208,52 @@ createAstroMount(ROOT_SELECTOR, () => {
       // "bounce" back toward the previous wheel/pinch target.
       zoomTarget = clamp(Number.parseFloat(zoomRange.value) || 0, 0, 1);
     }
+    if (quickZoomRange && zoomRange) quickZoomRange.value = zoomRange.value;
+    if (quickSpinChk && autoRotateChk)
+      quickSpinChk.checked = autoRotateChk.checked;
+    if (quickLightSel && lightPresetSel)
+      quickLightSel.value = lightPresetSel.value;
+    if (quickStyleSel && stylePresetSel)
+      quickStyleSel.value = stylePresetSel.value || '';
     bumpRevision();
   };
+
+  quickPanelBtn?.addEventListener('click', () => {
+    setPanelCollapsed(false, true);
+    panel?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  quickFrameBtn?.addEventListener('click', () => {
+    frameBtn?.click();
+  });
+
+  quickResetBtn?.addEventListener('click', () => {
+    resetViewBtn?.click();
+  });
+
+  quickSpinChk?.addEventListener('change', () => {
+    if (autoRotateChk) autoRotateChk.checked = quickSpinChk.checked;
+    syncFromInputs();
+  });
+
+  quickZoomRange?.addEventListener('input', () => {
+    if (zoomRange) zoomRange.value = quickZoomRange.value;
+    syncFromInputs();
+  });
+
+  quickStyleSel?.addEventListener('change', () => {
+    const preset = (quickStyleSel.value || '').trim();
+    if (!preset) return;
+    if (stylePresetSel) stylePresetSel.value = preset;
+    applyStylePreset(preset);
+  });
+
+  quickLightSel?.addEventListener('change', () => {
+    const preset = (quickLightSel.value || '').trim();
+    if (!preset) return;
+    if (lightPresetSel) lightPresetSel.value = preset;
+    applyLightPreset(preset);
+  });
 
   [
     modelSel,
