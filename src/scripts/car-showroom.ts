@@ -321,6 +321,9 @@ createAstroMount(ROOT_SELECTOR, () => {
   const underglowRange = root.querySelector<HTMLInputElement>(
     '[data-csr-underglow]'
   );
+  const underglowPulseRange = root.querySelector<HTMLInputElement>(
+    '[data-csr-underglow-pulse]'
+  );
   const underglowSizeRange = root.querySelector<HTMLInputElement>(
     '[data-csr-underglow-size]'
   );
@@ -421,6 +424,12 @@ createAstroMount(ROOT_SELECTOR, () => {
   );
   const shotTransparentChk = root.querySelector<HTMLInputElement>(
     '[data-csr-shot-transparent]'
+  );
+  const rideHeightRange = root.querySelector<HTMLInputElement>(
+    '[data-csr-ride-height]'
+  );
+  const modelYawRange = root.querySelector<HTMLInputElement>(
+    '[data-csr-model-yaw]'
   );
   const clearSelectionBtn = root.querySelector<HTMLButtonElement>(
     '[data-csr-clear-selection]'
@@ -576,6 +585,8 @@ createAstroMount(ROOT_SELECTOR, () => {
     const cc = params.get('cc');
     const pr = params.get('pr');
     const pt = params.get('pt');
+    const rh = params.get('rh');
+    const my = params.get('my');
     const lw = params.get('lw');
     const rb = params.get('rb');
 
@@ -585,6 +596,7 @@ createAstroMount(ROOT_SELECTOR, () => {
     const ug = params.get('ug');
     const ugc = params.get('ugc');
     const ugs = params.get('ugs');
+    const up = params.get('up');
     const ss = params.get('ss');
     const sz = params.get('sz');
     const floor = params.get('floor');
@@ -669,6 +681,14 @@ createAstroMount(ROOT_SELECTOR, () => {
     if (ptN !== null)
       root.dataset.carShowroomPearlThickness = String(clamp(ptN, 100, 800));
 
+    const rhN = parseNum(rh);
+    if (rhN !== null)
+      root.dataset.carShowroomRideHeight = String(clamp(rhN, -0.3, 0.3));
+
+    const myN = parseNum(my);
+    if (myN !== null)
+      root.dataset.carShowroomModelYaw = String(clamp(myN, 0, 360));
+
     const spinN = parseNum(spin);
     if (spinN !== null)
       root.dataset.carShowroomSpinSpeed = String(clamp(spinN, 0, 2));
@@ -752,6 +772,10 @@ createAstroMount(ROOT_SELECTOR, () => {
     const ugsN = parseNum(ugs);
     if (ugsN !== null)
       root.dataset.carShowroomUnderglowSize = String(clamp(ugsN, 2, 8));
+
+    const upN = parseNum(up);
+    if (upN !== null)
+      root.dataset.carShowroomUnderglowPulse = String(clamp01(upN));
 
     const ssN = parseNum(ss);
     if (ssN !== null)
@@ -886,6 +910,8 @@ createAstroMount(ROOT_SELECTOR, () => {
     'carShowroomClearcoat',
     'carShowroomPearl',
     'carShowroomPearlThickness',
+    'carShowroomRideHeight',
+    'carShowroomModelYaw',
     'carShowroomWheelFinish',
     'carShowroomWheelColor',
     'carShowroomTrimFinish',
@@ -903,6 +929,7 @@ createAstroMount(ROOT_SELECTOR, () => {
     'carShowroomUnderglow',
     'carShowroomUnderglowColor',
     'carShowroomUnderglowSize',
+    'carShowroomUnderglowPulse',
     'carShowroomShadowStrength',
     'carShowroomShadowSize',
     'carShowroomFloorPreset',
@@ -1031,6 +1058,10 @@ createAstroMount(ROOT_SELECTOR, () => {
       pearlRange.value = ds.carShowroomPearl;
     if (pearlThicknessRange && ds.carShowroomPearlThickness)
       pearlThicknessRange.value = ds.carShowroomPearlThickness;
+    if (rideHeightRange && ds.carShowroomRideHeight)
+      rideHeightRange.value = ds.carShowroomRideHeight;
+    if (modelYawRange && ds.carShowroomModelYaw)
+      modelYawRange.value = ds.carShowroomModelYaw;
     if (wheelFinishSel && ds.carShowroomWheelFinish)
       wheelFinishSel.value = ds.carShowroomWheelFinish;
     if (wheelColorInp && ds.carShowroomWheelColor)
@@ -1065,6 +1096,8 @@ createAstroMount(ROOT_SELECTOR, () => {
       underglowRange.value = ds.carShowroomUnderglow;
     if (underglowSizeRange && ds.carShowroomUnderglowSize)
       underglowSizeRange.value = ds.carShowroomUnderglowSize;
+    if (underglowPulseRange && ds.carShowroomUnderglowPulse)
+      underglowPulseRange.value = ds.carShowroomUnderglowPulse;
     if (shadowStrengthRange && ds.carShowroomShadowStrength)
       shadowStrengthRange.value = ds.carShowroomShadowStrength;
     if (shadowSizeRange && ds.carShowroomShadowSize)
@@ -1401,6 +1434,8 @@ createAstroMount(ROOT_SELECTOR, () => {
   root.dataset.carShowroomPearl ||= pearlRange?.value || '0';
   root.dataset.carShowroomPearlThickness ||=
     pearlThicknessRange?.value || '320';
+  root.dataset.carShowroomRideHeight ||= rideHeightRange?.value || '0';
+  root.dataset.carShowroomModelYaw ||= modelYawRange?.value || '0';
   root.dataset.carShowroomWheelFinish ||= wheelFinishSel?.value || 'graphite';
   root.dataset.carShowroomTrimFinish ||= trimFinishSel?.value || 'black';
   root.dataset.carShowroomWheelColor ||= wheelColorInp?.value || '#1f2937';
@@ -1419,6 +1454,7 @@ createAstroMount(ROOT_SELECTOR, () => {
   root.dataset.carShowroomUnderglowColor ||=
     underglowColorInp?.value || '#22d3ee';
   root.dataset.carShowroomUnderglowSize ||= underglowSizeRange?.value || '4.5';
+  root.dataset.carShowroomUnderglowPulse ||= underglowPulseRange?.value || '0';
   root.dataset.carShowroomShadowStrength ||=
     shadowStrengthRange?.value || '0.85';
   root.dataset.carShowroomShadowSize ||= shadowSizeRange?.value || '6';
@@ -1496,6 +1532,10 @@ createAstroMount(ROOT_SELECTOR, () => {
     pearlRange.value = root.dataset.carShowroomPearl;
   if (pearlThicknessRange && root.dataset.carShowroomPearlThickness)
     pearlThicknessRange.value = root.dataset.carShowroomPearlThickness;
+  if (rideHeightRange && root.dataset.carShowroomRideHeight)
+    rideHeightRange.value = root.dataset.carShowroomRideHeight;
+  if (modelYawRange && root.dataset.carShowroomModelYaw)
+    modelYawRange.value = root.dataset.carShowroomModelYaw;
   if (wheelFinishSel && root.dataset.carShowroomWheelFinish)
     wheelFinishSel.value = root.dataset.carShowroomWheelFinish;
   if (trimFinishSel && root.dataset.carShowroomTrimFinish)
@@ -1530,6 +1570,8 @@ createAstroMount(ROOT_SELECTOR, () => {
     underglowRange.value = root.dataset.carShowroomUnderglow;
   if (underglowSizeRange && root.dataset.carShowroomUnderglowSize)
     underglowSizeRange.value = root.dataset.carShowroomUnderglowSize;
+  if (underglowPulseRange && root.dataset.carShowroomUnderglowPulse)
+    underglowPulseRange.value = root.dataset.carShowroomUnderglowPulse;
   if (shadowStrengthRange && root.dataset.carShowroomShadowStrength)
     shadowStrengthRange.value = root.dataset.carShowroomShadowStrength;
   if (shadowSizeRange && root.dataset.carShowroomShadowSize)
@@ -1807,6 +1849,9 @@ createAstroMount(ROOT_SELECTOR, () => {
     if (pearlRange) root.dataset.carShowroomPearl = pearlRange.value;
     if (pearlThicknessRange)
       root.dataset.carShowroomPearlThickness = pearlThicknessRange.value;
+    if (rideHeightRange)
+      root.dataset.carShowroomRideHeight = rideHeightRange.value;
+    if (modelYawRange) root.dataset.carShowroomModelYaw = modelYawRange.value;
     if (wheelFinishSel)
       root.dataset.carShowroomWheelFinish = wheelFinishSel.value;
     if (trimFinishSel) root.dataset.carShowroomTrimFinish = trimFinishSel.value;
@@ -1834,6 +1879,8 @@ createAstroMount(ROOT_SELECTOR, () => {
       root.dataset.carShowroomUnderglow = underglowRange.value;
     if (underglowSizeRange)
       root.dataset.carShowroomUnderglowSize = underglowSizeRange.value;
+    if (underglowPulseRange)
+      root.dataset.carShowroomUnderglowPulse = underglowPulseRange.value;
     if (shadowStrengthRange)
       root.dataset.carShowroomShadowStrength = shadowStrengthRange.value;
     if (shadowSizeRange)
@@ -1910,9 +1957,12 @@ createAstroMount(ROOT_SELECTOR, () => {
     rigYawRange,
     underglowColorInp,
     underglowRange,
+    underglowPulseRange,
     underglowSizeRange,
     shadowStrengthRange,
     shadowSizeRange,
+    rideHeightRange,
+    modelYawRange,
     floorPresetSel,
     floorColorInp,
     floorRoughnessRange,
@@ -1951,6 +2001,8 @@ createAstroMount(ROOT_SELECTOR, () => {
     if (clearcoatRange) clearcoatRange.value = '1';
     if (pearlRange) pearlRange.value = '0';
     if (pearlThicknessRange) pearlThicknessRange.value = '320';
+    if (rideHeightRange) rideHeightRange.value = '0';
+    if (modelYawRange) modelYawRange.value = '0';
     if (wheelFinishSel) wheelFinishSel.value = 'graphite';
     if (trimFinishSel) trimFinishSel.value = 'black';
     if (wheelColorInp) wheelColorInp.value = '#1f2937';
@@ -1967,6 +2019,7 @@ createAstroMount(ROOT_SELECTOR, () => {
     if (rigYawRange) rigYawRange.value = '0';
     if (underglowColorInp) underglowColorInp.value = '#22d3ee';
     if (underglowRange) underglowRange.value = '0';
+    if (underglowPulseRange) underglowPulseRange.value = '0';
     if (underglowSizeRange) underglowSizeRange.value = '4.5';
     if (shadowStrengthRange) shadowStrengthRange.value = '0.85';
     if (shadowSizeRange) shadowSizeRange.value = '6';
@@ -2060,6 +2113,8 @@ createAstroMount(ROOT_SELECTOR, () => {
     params.set('cc', ds.carShowroomClearcoat || '1');
     params.set('pr', ds.carShowroomPearl || '0');
     params.set('pt', ds.carShowroomPearlThickness || '320');
+    params.set('rh', ds.carShowroomRideHeight || '0');
+    params.set('my', ds.carShowroomModelYaw || '0');
     params.set('wheel', ds.carShowroomWheelFinish || 'graphite');
     params.set('trim', ds.carShowroomTrimFinish || 'black');
     params.set('whc', ds.carShowroomWheelColor || '#1f2937');
@@ -2089,6 +2144,7 @@ createAstroMount(ROOT_SELECTOR, () => {
     params.set('ug', ds.carShowroomUnderglow || '0');
     params.set('ugc', ds.carShowroomUnderglowColor || '#22d3ee');
     params.set('ugs', ds.carShowroomUnderglowSize || '4.5');
+    params.set('up', ds.carShowroomUnderglowPulse || '0');
     params.set('ss', ds.carShowroomShadowStrength || '0.85');
     params.set('sz', ds.carShowroomShadowSize || '6');
     params.set('floor', ds.carShowroomFloorPreset || 'auto');
@@ -2186,6 +2242,8 @@ createAstroMount(ROOT_SELECTOR, () => {
       params.set('cc', ds.carShowroomClearcoat || '1');
       params.set('pr', ds.carShowroomPearl || '0');
       params.set('pt', ds.carShowroomPearlThickness || '320');
+      params.set('rh', ds.carShowroomRideHeight || '0');
+      params.set('my', ds.carShowroomModelYaw || '0');
       params.set('wheel', ds.carShowroomWheelFinish || 'graphite');
       params.set('trim', ds.carShowroomTrimFinish || 'black');
       params.set('whc', ds.carShowroomWheelColor || '#1f2937');
@@ -2215,6 +2273,7 @@ createAstroMount(ROOT_SELECTOR, () => {
       params.set('ug', ds.carShowroomUnderglow || '0');
       params.set('ugc', ds.carShowroomUnderglowColor || '#22d3ee');
       params.set('ugs', ds.carShowroomUnderglowSize || '4.5');
+      params.set('up', ds.carShowroomUnderglowPulse || '0');
       params.set('ss', ds.carShowroomShadowStrength || '0.85');
       params.set('sz', ds.carShowroomShadowSize || '6');
       params.set('floor', ds.carShowroomFloorPreset || 'auto');

@@ -603,6 +603,18 @@ const description =
               </label>
 
               <label class="csr-field csr-field--wide">
+                <span>Underglow pulse</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value="0"
+                  data-csr-underglow-pulse
+                />
+              </label>
+
+              <label class="csr-field csr-field--wide">
                 <span>Underglow radius</span>
                 <input
                   type="range"
@@ -960,6 +972,30 @@ const description =
                     >Use the model’s original materials (keeps decals/wrap)</span
                   >
                 </label>
+              </label>
+
+              <label class="csr-field csr-field--wide">
+                <span>Ride height</span>
+                <input
+                  type="range"
+                  min="-0.3"
+                  max="0.3"
+                  step="0.01"
+                  value="0"
+                  data-csr-ride-height
+                />
+              </label>
+
+              <label class="csr-field csr-field--wide">
+                <span>Model yaw</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="360"
+                  step="1"
+                  value="0"
+                  data-csr-model-yaw
+                />
               </label>
 
               <div class="csr-row">

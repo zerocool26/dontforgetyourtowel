@@ -46,6 +46,8 @@ type UiState = {
   clearcoat: number;
   pearl: number;
   pearlThickness: number;
+  rideHeight: number;
+  modelYaw: number;
   wheelFinish: WheelFinish;
   trimFinish: TrimFinish;
   glassTint: number;
@@ -58,6 +60,7 @@ type UiState = {
   underglow: number;
   underglowColor: THREE.Color;
   underglowSize: number;
+  underglowPulse: number;
   shadowStrength: number;
   shadowSize: number;
   floorPreset: FloorPreset;
@@ -426,6 +429,8 @@ export class CarShowroomScene {
   private readonly underglowLight: THREE.PointLight;
   private readonly underglowMesh: THREE.Mesh;
   private readonly underglowMat: THREE.MeshBasicMaterial;
+  private underglowBaseIntensity = 0;
+  private underglowPulse = 0;
 
   private wrapTex: THREE.CanvasTexture | null = null;
   private wrapTexKey = '';
@@ -451,6 +456,12 @@ export class CarShowroomScene {
   private rigYawTarget = 0;
   private readonly rigAxis = new THREE.Vector3(0, 1, 0);
   private readonly rigTmp = new THREE.Vector3();
+
+  private modelBaseY = 0;
+  private modelYaw = 0;
+  private modelYawTarget = 0;
+  private rideHeight = 0;
+  private rideHeightTarget = 0;
 
   private time = 0;
 
@@ -857,6 +868,20 @@ export class CarShowroomScene {
     ds.carShowroomModelTris = String(tris);
   }
 
+  private applyModelTransform(ui: UiState, immediate: boolean) {
+    if (!this.loaded) return;
+    this.modelYawTarget = degToRad(ui.modelYaw);
+    this.rideHeightTarget = clamp(ui.rideHeight, -0.3, 0.3);
+
+    if (immediate) {
+      this.modelYaw = this.modelYawTarget;
+      this.rideHeight = this.rideHeightTarget;
+    }
+
+    this.loaded.rotation.y = this.modelYaw;
+    this.loaded.position.y = this.modelBaseY + this.rideHeight;
+  }
+
   private getMeshBaseColor(material: THREE.Material): THREE.Color {
     const anyMat = material as unknown as { color?: THREE.Color };
     if (anyMat?.color instanceof THREE.Color) return anyMat.color.clone();
@@ -1010,6 +1035,12 @@ export class CarShowroomScene {
       100,
       800
     );
+    const rideHeight = clamp(
+      parseNumber(ds.carShowroomRideHeight, 0),
+      -0.3,
+      0.3
+    );
+    const modelYaw = clamp(parseNumber(ds.carShowroomModelYaw, 0), 0, 360);
     const wheelFinish = (ds.carShowroomWheelFinish ||
       'graphite') as WheelFinish;
     const trimFinish = (ds.carShowroomTrimFinish || 'black') as TrimFinish;
@@ -1039,6 +1070,11 @@ export class CarShowroomScene {
       parseNumber(ds.carShowroomUnderglowSize, 4.5),
       2,
       8
+    );
+    const underglowPulse = clamp(
+      parseNumber(ds.carShowroomUnderglowPulse, 0),
+      0,
+      1
     );
     const shadowStrength = clamp(
       parseNumber(ds.carShowroomShadowStrength, 0.85),
@@ -1184,6 +1220,8 @@ export class CarShowroomScene {
       clearcoat,
       pearl,
       pearlThickness,
+      rideHeight,
+      modelYaw,
       wheelFinish,
       trimFinish,
       glassTint,
@@ -1196,6 +1234,7 @@ export class CarShowroomScene {
       underglow,
       underglowColor,
       underglowSize,
+      underglowPulse,
       shadowStrength,
       shadowSize,
       floorPreset,
@@ -1270,6 +1309,8 @@ export class CarShowroomScene {
   private applyUnderglow(ui: UiState) {
     const intensity = clamp(ui.underglow, 0, 5);
     const size = clamp(ui.underglowSize, 2, 8);
+    this.underglowBaseIntensity = intensity;
+    this.underglowPulse = clamp(ui.underglowPulse, 0, 1);
     this.underglowLight.color.copy(ui.underglowColor);
     this.underglowLight.intensity = intensity;
     this.underglowLight.distance = size * 3.2;
@@ -1951,6 +1992,11 @@ export class CarShowroomScene {
 
       this.loaded = gltf;
       this.modelGroup.add(gltf);
+      this.modelBaseY = gltf.position.y;
+      this.modelYaw = gltf.rotation.y;
+      this.modelYawTarget = this.modelYaw;
+      this.rideHeight = 0;
+      this.rideHeightTarget = 0;
 
       this.captureOriginalMaterials(gltf);
       this.updateModelStats(gltf);
@@ -1959,6 +2005,7 @@ export class CarShowroomScene {
       this.applyCameraPreset(ui, true);
       this.lastCameraPreset = ui.cameraPreset;
       this.applyMaterials(gltf, ui);
+      this.applyModelTransform(ui, true);
 
       this.root.dataset.carShowroomReady = '1';
       this.root.dataset.carShowroomLoading = '0';
@@ -2009,6 +2056,7 @@ export class CarShowroomScene {
 
     if (this.loaded) {
       this.applyMaterials(this.loaded, ui);
+      this.applyModelTransform(ui, false);
     }
   }
 
@@ -2075,6 +2123,8 @@ export class CarShowroomScene {
     this.lookAt.y = damp(this.lookAt.y, this.lookAtTarget.y, 7.5, dt);
     this.lookAt.z = damp(this.lookAt.z, this.lookAtTarget.z, 7.5, dt);
     this.rigYaw = damp(this.rigYaw, this.rigYawTarget, 6.5, dt);
+    this.modelYaw = damp(this.modelYaw, this.modelYawTarget, 6.5, dt);
+    this.rideHeight = damp(this.rideHeight, this.rideHeightTarget, 6.5, dt);
 
     const fov = damp(this.camera.fov, this.fovTarget, 6.5, dt);
     if (Math.abs(fov - this.camera.fov) > 1e-3) {
@@ -2095,6 +2145,11 @@ export class CarShowroomScene {
     );
     this.camera.lookAt(this.lookAt);
 
+    if (this.loaded) {
+      this.loaded.rotation.y = this.modelYaw;
+      this.loaded.position.y = this.modelBaseY + this.rideHeight;
+    }
+
     // Contact shadow responds to camera distance
     const shadowOpacity = clamp(1.12 - (this.orbitRadius - 6) * 0.1, 0.25, 0.9);
     const mat = this.contactShadow.material as THREE.MeshBasicMaterial;
@@ -2107,6 +2162,16 @@ export class CarShowroomScene {
     const driftX = Math.sin(this.time * 0.35) * drift;
     const driftZ = Math.cos(this.time * 0.31) * drift;
     this.applyRigPositions(driftX, driftZ);
+
+    if (this.underglowBaseIntensity > 0) {
+      const pulse =
+        this.underglowPulse > 0
+          ? 1 + Math.sin(this.time * 2.4) * 0.5 * this.underglowPulse
+          : 1;
+      const baseOpacity = clamp(this.underglowBaseIntensity / 5, 0, 1) * 0.6;
+      this.underglowLight.intensity = this.underglowBaseIntensity * pulse;
+      this.underglowMat.opacity = baseOpacity * pulse;
+    }
 
     if (this.selectedMesh) {
       this.selectionBox.setFromObject(this.selectedMesh);
