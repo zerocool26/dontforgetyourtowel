@@ -267,6 +267,7 @@ const description =
                   <option value="camo">Camo</option>
                   <option value="checker">Checker</option>
                   <option value="hex">Hex</option>
+                  <option value="race">Race numbers</option>
                 </select>
               </label>
 
@@ -279,6 +280,42 @@ const description =
                   step="0.01"
                   value="1.6"
                   data-csr-wrap-scale
+                />
+              </label>
+
+              <label class="csr-field csr-field--wide">
+                <span>Wrap rotation</span>
+                <input
+                  type="range"
+                  min="-180"
+                  max="180"
+                  step="1"
+                  value="0"
+                  data-csr-wrap-rot
+                />
+              </label>
+
+              <label class="csr-field csr-field--wide">
+                <span>Wrap offset X</span>
+                <input
+                  type="range"
+                  min="-1"
+                  max="1"
+                  step="0.01"
+                  value="0"
+                  data-csr-wrap-ox
+                />
+              </label>
+
+              <label class="csr-field csr-field--wide">
+                <span>Wrap offset Y</span>
+                <input
+                  type="range"
+                  min="-1"
+                  max="1"
+                  step="0.01"
+                  value="0"
+                  data-csr-wrap-oy
                 />
               </label>
 
@@ -367,6 +404,42 @@ const description =
                   <option value="satin">Satin</option>
                   <option value="matte">Matte</option>
                 </select>
+              </label>
+
+              <label class="csr-field csr-field--wide">
+                <span>Clearcoat depth</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value="1"
+                  data-csr-clearcoat
+                />
+              </label>
+
+              <label class="csr-field csr-field--wide">
+                <span>Pearl shift</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value="0"
+                  data-csr-pearl
+                />
+              </label>
+
+              <label class="csr-field csr-field--wide">
+                <span>Pearl thickness</span>
+                <input
+                  type="range"
+                  min="100"
+                  max="800"
+                  step="10"
+                  value="320"
+                  data-csr-pearl-thickness
+                />
               </label>
 
               <label class="csr-field">
@@ -473,6 +546,47 @@ const description =
                   step="0.01"
                   value="1"
                   data-csr-light-intensity
+                />
+              </label>
+
+              <label class="csr-field csr-field--wide">
+                <span>Rig rotation</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="360"
+                  step="1"
+                  value="0"
+                  data-csr-rig-yaw
+                />
+              </label>
+
+              <label class="csr-field">
+                <span>Underglow color</span>
+                <input type="color" value="#22d3ee" data-csr-underglow-color />
+              </label>
+
+              <label class="csr-field csr-field--wide">
+                <span>Underglow intensity</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="5"
+                  step="0.01"
+                  value="0"
+                  data-csr-underglow
+                />
+              </label>
+
+              <label class="csr-field csr-field--wide">
+                <span>Underglow radius</span>
+                <input
+                  type="range"
+                  min="2"
+                  max="8"
+                  step="0.1"
+                  value="4.5"
+                  data-csr-underglow-size
                 />
               </label>
 
@@ -824,6 +938,7 @@ const description =
                   <select data-csr-assign-part>
                     <option value="">Auto (heuristics)</option>
                     <option value="body">Body</option>
+                    <option value="decal">Decal / livery</option>
                     <option value="trim">Trim</option>
                     <option value="wheel">Wheel</option>
                     <option value="tire">Tire</option>

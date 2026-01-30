@@ -42,12 +42,19 @@ type UiState = {
   wrapPattern: WrapPattern;
   wrapScale: number;
   finish: ShowroomFinish;
+  clearcoat: number;
+  pearl: number;
+  pearlThickness: number;
   wheelFinish: WheelFinish;
   trimFinish: TrimFinish;
   glassTint: number;
   background: ShowroomBackground;
   envIntensity: number;
   lightIntensity: number;
+  rigYaw: number;
+  underglow: number;
+  underglowColor: THREE.Color;
+  underglowSize: number;
   floorPreset: FloorPreset;
   floorColor: THREE.Color;
   floorRoughness: number;
@@ -368,6 +375,10 @@ export class CarShowroomScene {
   private readonly rimLight: THREE.DirectionalLight;
   private readonly topLight: THREE.DirectionalLight;
 
+  private readonly keyLightBase = new THREE.Vector3(7, 10, 6);
+  private readonly fillLightBase = new THREE.Vector3(-8, 7, 2);
+  private readonly rimLightBase = new THREE.Vector3(-6, 6, -8);
+
   private baseKeyIntensity = 3.0;
   private baseFillIntensity = 1.25;
   private baseRimIntensity = 1.1;
@@ -401,6 +412,10 @@ export class CarShowroomScene {
   private lightMat: THREE.MeshStandardMaterial;
   private wireframeMat: THREE.MeshStandardMaterial;
 
+  private readonly underglowLight: THREE.PointLight;
+  private readonly underglowMesh: THREE.Mesh;
+  private readonly underglowMat: THREE.MeshBasicMaterial;
+
   private wrapTex: THREE.CanvasTexture | null = null;
   private wrapTexKey = '';
 
@@ -420,6 +435,11 @@ export class CarShowroomScene {
   private fovTarget = 55;
 
   private lastCameraPreset: string | null = null;
+
+  private rigYaw = 0;
+  private rigYawTarget = 0;
+  private readonly rigAxis = new THREE.Vector3(0, 1, 0);
+  private readonly rigTmp = new THREE.Vector3();
 
   private time = 0;
 
@@ -477,7 +497,7 @@ export class CarShowroomScene {
     this.stage.add(this.selectionHelper);
 
     this.keyLight = new THREE.DirectionalLight(0xffffff, 3.0);
-    this.keyLight.position.set(7, 10, 6);
+    this.keyLight.position.copy(this.keyLightBase);
     this.keyLight.castShadow = true;
     this.keyLight.shadow.mapSize.set(2048, 2048);
     this.keyLight.shadow.bias = -0.00015;
@@ -492,17 +512,37 @@ export class CarShowroomScene {
     this.stage.add(this.keyLight.target);
 
     this.fillLight = new THREE.DirectionalLight(0x8db8ff, 1.25);
-    this.fillLight.position.set(-8, 7, 2);
+    this.fillLight.position.copy(this.fillLightBase);
     this.stage.add(this.fillLight);
     this.stage.add(this.fillLight.target);
 
     this.rimLight = new THREE.DirectionalLight(0xffffff, 1.1);
-    this.rimLight.position.set(-6, 6, -8);
+    this.rimLight.position.copy(this.rimLightBase);
     this.stage.add(this.rimLight);
 
     this.topLight = new THREE.DirectionalLight(0xffffff, 0.9);
     this.topLight.position.set(0, 14, 0);
     this.stage.add(this.topLight);
+
+    this.underglowLight = new THREE.PointLight(0x22d3ee, 0, 12, 2);
+    this.underglowLight.position.set(0, 0.35, 0);
+    this.stage.add(this.underglowLight);
+
+    this.underglowMat = new THREE.MeshBasicMaterial({
+      color: 0x22d3ee,
+      transparent: true,
+      opacity: 0,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    });
+    this.underglowMesh = new THREE.Mesh(
+      new THREE.CircleGeometry(1, 80),
+      this.underglowMat
+    );
+    this.underglowMesh.rotation.x = -Math.PI / 2;
+    this.underglowMesh.position.y = 0.01;
+    this.underglowMesh.visible = false;
+    this.stage.add(this.underglowMesh);
 
     this.bodyMat = new THREE.MeshPhysicalMaterial({
       color: 0x00d1b2,
@@ -682,6 +722,8 @@ export class CarShowroomScene {
     this.wireframeMat.dispose();
     (this.contactShadow.material as THREE.Material).dispose();
     (this.contactShadow.geometry as THREE.BufferGeometry).dispose();
+    this.underglowMat.dispose();
+    (this.underglowMesh.geometry as THREE.BufferGeometry).dispose();
     (this.groundMat as THREE.Material).dispose();
     (this.ground.geometry as THREE.BufferGeometry).dispose();
     this.envTex?.dispose();
@@ -785,7 +827,7 @@ export class CarShowroomScene {
     src: THREE.Material,
     wrapColor: THREE.Color,
     wrapTint: number,
-    finish: ShowroomFinish
+    ui: UiState
   ): { material: THREE.MeshPhysicalMaterial; baseColor: THREE.Color } {
     const baseColor = this.getMeshBaseColor(src);
 
@@ -837,16 +879,15 @@ export class CarShowroomScene {
     if (typeof anySrc.clearcoatRoughness === 'number')
       mat.clearcoatRoughness = anySrc.clearcoatRoughness;
 
-    this.applyFinishPreset(mat, finish);
+    this.applyFinishPreset(mat, ui.finish);
+    this.applyPaintTuning(mat, ui);
     mat.needsUpdate = true;
     return { material: mat, baseColor };
   }
 
   private getOrCreateOemWrapMaterial(
     mesh: THREE.Mesh,
-    wrapColor: THREE.Color,
-    wrapTint: number,
-    finish: ShowroomFinish
+    ui: UiState
   ): THREE.Material | THREE.Material[] | null {
     const saved = this.savedMaterials.get(mesh.uuid);
     if (!saved) return null;
@@ -860,8 +901,9 @@ export class CarShowroomScene {
           : [item.material];
         for (const mat of mats) {
           if (mat instanceof THREE.MeshPhysicalMaterial) {
-            mat.color.copy(item.baseColor).lerp(wrapColor, wrapTint);
-            this.applyFinishPreset(mat, finish);
+            mat.color.copy(item.baseColor).lerp(ui.wrapColor, ui.wrapTint);
+            this.applyFinishPreset(mat, ui.finish);
+            this.applyPaintTuning(mat, ui);
             mat.needsUpdate = true;
           }
         }
@@ -873,13 +915,18 @@ export class CarShowroomScene {
 
     if (Array.isArray(saved)) {
       const mapped = saved.map(m =>
-        this.cloneAsPhysicalWrap(m, wrapColor, wrapTint, finish)
+        this.cloneAsPhysicalWrap(m, ui.wrapColor, ui.wrapTint, ui)
       );
       this.oemWrapMaterials.set(mesh.uuid, mapped);
       return mapped.map(m => m.material);
     }
 
-    const mapped = this.cloneAsPhysicalWrap(saved, wrapColor, wrapTint, finish);
+    const mapped = this.cloneAsPhysicalWrap(
+      saved,
+      ui.wrapColor,
+      ui.wrapTint,
+      ui
+    );
     this.oemWrapMaterials.set(mesh.uuid, mapped);
     return mapped.material;
   }
@@ -908,7 +955,21 @@ export class CarShowroomScene {
         ? (wrapStyleRaw as WrapStyle)
         : 'oem';
     const wrapTint = clamp(parseNumber(ds.carShowroomWrapTint, 0.92), 0, 1);
+    const wrapOffsetX = clamp(parseNumber(ds.carShowroomWrapOffsetX, 0), -2, 2);
+    const wrapOffsetY = clamp(parseNumber(ds.carShowroomWrapOffsetY, 0), -2, 2);
+    const wrapRotationDeg = clamp(
+      parseNumber(ds.carShowroomWrapRotationDeg, 0),
+      -180,
+      180
+    );
     const finish = (ds.carShowroomFinish || 'gloss') as ShowroomFinish;
+    const clearcoat = clamp(parseNumber(ds.carShowroomClearcoat, 1), 0, 1);
+    const pearl = clamp(parseNumber(ds.carShowroomPearl, 0), 0, 1);
+    const pearlThickness = clamp(
+      parseNumber(ds.carShowroomPearlThickness, 320),
+      100,
+      800
+    );
     const wheelFinish = (ds.carShowroomWheelFinish ||
       'graphite') as WheelFinish;
     const trimFinish = (ds.carShowroomTrimFinish || 'black') as TrimFinish;
@@ -925,6 +986,17 @@ export class CarShowroomScene {
       parseNumber(ds.carShowroomLightIntensity, 1),
       0.2,
       2.5
+    );
+    const rigYaw = clamp(parseNumber(ds.carShowroomRigYaw, 0), 0, 360);
+    const underglow = clamp(parseNumber(ds.carShowroomUnderglow, 0), 0, 5);
+    const underglowColor = parseColor(
+      ds.carShowroomUnderglowColor || '#22d3ee',
+      new THREE.Color('#22d3ee')
+    );
+    const underglowSize = clamp(
+      parseNumber(ds.carShowroomUnderglowSize, 4.5),
+      2,
+      8
     );
 
     const floorPreset = (ds.carShowroomFloorPreset || 'auto') as FloorPreset;
@@ -1023,7 +1095,8 @@ export class CarShowroomScene {
       rawWrapPattern === 'carbon' ||
       rawWrapPattern === 'camo' ||
       rawWrapPattern === 'checker' ||
-      rawWrapPattern === 'hex'
+      rawWrapPattern === 'hex' ||
+      rawWrapPattern === 'race'
         ? (rawWrapPattern as WrapPattern)
         : 'stripes';
     const wrapScale = clamp(parseNumber(ds.carShowroomWrapScale, 1.6), 0.2, 6);
@@ -1033,6 +1106,9 @@ export class CarShowroomScene {
       mode,
       wrapStyle,
       wrapTint,
+      wrapOffsetX,
+      wrapOffsetY,
+      wrapRotationDeg,
       color,
       wrapColor,
       wheelColor,
@@ -1043,12 +1119,19 @@ export class CarShowroomScene {
       wrapPattern,
       wrapScale,
       finish,
+      clearcoat,
+      pearl,
+      pearlThickness,
       wheelFinish,
       trimFinish,
       glassTint,
       background,
       envIntensity,
       lightIntensity,
+      rigYaw,
+      underglow,
+      underglowColor,
+      underglowSize,
       floorPreset,
       floorColor,
       floorRoughness,
@@ -1081,6 +1164,40 @@ export class CarShowroomScene {
     this.fillLight.intensity = this.baseFillIntensity * m;
     this.rimLight.intensity = this.baseRimIntensity * m;
     this.topLight.intensity = this.baseTopIntensity * m;
+  }
+
+  private applyRigPositions(driftX: number, driftZ: number) {
+    this.rigTmp
+      .copy(this.keyLightBase)
+      .applyAxisAngle(this.rigAxis, this.rigYaw);
+    this.keyLight.position.set(
+      this.rigTmp.x + driftX,
+      this.rigTmp.y,
+      this.rigTmp.z + driftZ
+    );
+
+    this.rigTmp
+      .copy(this.fillLightBase)
+      .applyAxisAngle(this.rigAxis, this.rigYaw);
+    this.fillLight.position.copy(this.rigTmp);
+
+    this.rigTmp
+      .copy(this.rimLightBase)
+      .applyAxisAngle(this.rigAxis, this.rigYaw);
+    this.rimLight.position.copy(this.rigTmp);
+  }
+
+  private applyUnderglow(ui: UiState) {
+    const intensity = clamp(ui.underglow, 0, 5);
+    const size = clamp(ui.underglowSize, 2, 8);
+    this.underglowLight.color.copy(ui.underglowColor);
+    this.underglowLight.intensity = intensity;
+    this.underglowLight.distance = size * 3.2;
+
+    this.underglowMat.color.copy(ui.underglowColor);
+    this.underglowMat.opacity = clamp(intensity / 5, 0, 1) * 0.6;
+    this.underglowMesh.scale.set(size, size, 1);
+    this.underglowMesh.visible = intensity > 0.02;
   }
 
   private applyEnvironmentIntensity(loaded: THREE.Object3D | null, v: number) {
@@ -1316,6 +1433,7 @@ export class CarShowroomScene {
     | 'trim'
     | 'caliper'
     | 'light'
+    | 'decal'
     | 'body'
     | 'other' {
     const name = `${mesh.name || ''}`.toLowerCase();
@@ -1347,6 +1465,20 @@ export class CarShowroomScene {
       text.includes('emissive') ||
       text.includes('led');
     if (isLight) return 'light';
+
+    const isDecal =
+      text.includes('decal') ||
+      text.includes('livery') ||
+      text.includes('sticker') ||
+      text.includes('vinyl') ||
+      text.includes('sponsor') ||
+      text.includes('roundel') ||
+      text.includes('number') ||
+      text.includes('door_number') ||
+      text.includes('door-number') ||
+      text.includes('racing_number') ||
+      text.includes('racing-number');
+    if (isDecal) return 'decal';
 
     const isCaliper =
       text.includes('caliper') ||
@@ -1421,6 +1553,25 @@ export class CarShowroomScene {
     }
   }
 
+  private applyPaintTuning(mat: THREE.MeshPhysicalMaterial, ui: UiState) {
+    const depth = clamp(ui.clearcoat, 0, 1);
+    const baseClearcoat = mat.clearcoat;
+    const baseRoughness = mat.clearcoatRoughness;
+    const coatMul = lerp(0.45, 1.0, depth);
+    const roughMul = lerp(1.6, 0.7, depth);
+    mat.clearcoat = clamp(baseClearcoat * coatMul, 0, 1);
+    mat.clearcoatRoughness = clamp(baseRoughness * roughMul, 0.02, 1);
+
+    const pearl = clamp(ui.pearl, 0, 1);
+    mat.iridescence = pearl;
+    mat.iridescenceIOR = 1.3;
+    const thickness = clamp(ui.pearlThickness, 100, 800);
+    mat.iridescenceThicknessRange = [
+      Math.max(50, thickness - 120),
+      thickness + 120,
+    ];
+  }
+
   private setBackground(scene: THREE.Scene, bg: ShowroomBackground) {
     this.gridHelper.visible = bg === 'grid';
 
@@ -1478,12 +1629,17 @@ export class CarShowroomScene {
 
     this.applyFinishPreset(this.bodyMat, ui.finish);
     this.applyFinishPreset(this.wrapMat, ui.finish);
+    this.applyPaintTuning(this.bodyMat, ui);
+    this.applyPaintTuning(this.wrapMat, ui);
 
     // Wrap material gets a subtle procedural pattern so it looks distinct from paint.
     if (ui.mode === 'wrap' && ui.wrapPattern !== 'solid') {
       this.ensureWrapTexture(ui.wrapPattern);
       if (this.wrapTex) {
         this.wrapTex.repeat.set(ui.wrapScale, ui.wrapScale);
+        this.wrapTex.offset.set(ui.wrapOffsetX, ui.wrapOffsetY);
+        this.wrapTex.center.set(0.5, 0.5);
+        this.wrapTex.rotation = degToRad(ui.wrapRotationDeg);
         this.wrapTex.needsUpdate = true;
         this.wrapMat.map = this.wrapTex;
       }
@@ -1531,6 +1687,7 @@ export class CarShowroomScene {
       v === 'trim' ||
       v === 'caliper' ||
       v === 'light' ||
+      v === 'decal' ||
       v === 'body';
 
     loaded.traverse(obj => {
@@ -1567,6 +1724,11 @@ export class CarShowroomScene {
         return;
       }
 
+      if (part === 'decal') {
+        this.restoreOriginalMaterialForMesh(mesh);
+        return;
+      }
+
       if (part === 'caliper') {
         mesh.material = this.caliperMat;
         return;
@@ -1593,12 +1755,7 @@ export class CarShowroomScene {
       }
 
       if (mode === 'wrap' && ui.wrapStyle === 'oem') {
-        const wrapped = this.getOrCreateOemWrapMaterial(
-          mesh,
-          ui.wrapColor,
-          ui.wrapTint,
-          ui.finish
-        );
+        const wrapped = this.getOrCreateOemWrapMaterial(mesh, ui);
         if (wrapped) {
           mesh.material = wrapped;
           return;
@@ -1712,6 +1869,8 @@ export class CarShowroomScene {
 
     // Lights/env/floor
     this.applyLightMultiplier(ui.lightIntensity);
+    this.rigYawTarget = degToRad(ui.rigYaw);
+    this.applyUnderglow(ui);
     this.applyFloor(ui);
     this.applyEnvironmentIntensity(this.loaded, ui.envIntensity);
 
@@ -1778,6 +1937,7 @@ export class CarShowroomScene {
     this.lookAt.x = damp(this.lookAt.x, this.lookAtTarget.x, 7.5, dt);
     this.lookAt.y = damp(this.lookAt.y, this.lookAtTarget.y, 7.5, dt);
     this.lookAt.z = damp(this.lookAt.z, this.lookAtTarget.z, 7.5, dt);
+    this.rigYaw = damp(this.rigYaw, this.rigYawTarget, 6.5, dt);
 
     const fov = damp(this.camera.fov, this.fovTarget, 6.5, dt);
     if (Math.abs(fov - this.camera.fov) > 1e-3) {
@@ -1805,8 +1965,9 @@ export class CarShowroomScene {
 
     // Slight lighting drift for realism.
     const drift = 0.18;
-    this.keyLight.position.x = 7 + Math.sin(this.time * 0.35) * drift;
-    this.keyLight.position.z = 6 + Math.cos(this.time * 0.31) * drift;
+    const driftX = Math.sin(this.time * 0.35) * drift;
+    const driftZ = Math.cos(this.time * 0.31) * drift;
+    this.applyRigPositions(driftX, driftZ);
 
     if (this.selectedMesh) {
       this.selectionBox.setFromObject(this.selectedMesh);
