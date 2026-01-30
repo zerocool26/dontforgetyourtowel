@@ -2040,7 +2040,9 @@ export class CarShowroomScene {
   }
 
   private async loadModel(url: string) {
+    console.log('[CarShowroom] loadModel called with url:', url);
     const normalized = resolveModelUrl(url);
+    console.log('[CarShowroom] Normalized URL:', normalized);
     this.loadingUrl = normalized;
 
     this.root.dataset.carShowroomReady = '0';
@@ -2053,11 +2055,15 @@ export class CarShowroomScene {
     this.root.dataset.carShowroomModelTris = '';
 
     try {
+      console.log('[CarShowroom] Fetching model...');
       const res = await fetch(normalized);
+      console.log('[CarShowroom] Fetch response:', res.status, res.ok);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const buffer = await res.arrayBuffer();
+      console.log('[CarShowroom] Buffer received, size:', buffer.byteLength);
 
       const gltf = await new Promise<THREE.Object3D>((resolve, reject) => {
+        console.log('[CarShowroom] Parsing GLTF...');
         this.loader.parse(
           buffer,
           '',
@@ -2101,6 +2107,7 @@ export class CarShowroomScene {
       // Raise so the bottom touches y=0.
       gltf.position.y -= box.min.y;
 
+      console.log('[CarShowroom] GLTF parsed successfully, adding to scene');
       this.loaded = gltf;
       this.modelGroup.add(gltf);
       this.modelBaseY = gltf.position.y;
@@ -2120,8 +2127,16 @@ export class CarShowroomScene {
 
       this.root.dataset.carShowroomReady = '1';
       this.root.dataset.carShowroomLoading = '0';
+      console.log(
+        '[CarShowroom] Model loaded successfully! Ready:',
+        this.root.dataset.carShowroomReady
+      );
     } catch (e) {
       console.error('[CarShowroom] Failed to load model', normalized, e);
+      console.error(
+        '[CarShowroom] Error stack:',
+        e instanceof Error ? e.stack : String(e)
+      );
       this.root.dataset.carShowroomReady = '0';
       this.root.dataset.carShowroomLoading = '0';
       const message =
@@ -2137,10 +2152,22 @@ export class CarShowroomScene {
   private syncFromUi(scene: THREE.Scene) {
     const ds = this.root.dataset;
     const revision = ds.carShowroomUiRevision || '';
+    console.log(
+      '[CarShowroom] syncFromUi called, revision:',
+      revision,
+      'lastRevision:',
+      this.lastUiRevision
+    );
     if (revision === this.lastUiRevision) return;
     this.lastUiRevision = revision;
 
     const ui = this.getUiState();
+    console.log(
+      '[CarShowroom] UI state modelUrl:',
+      ui.modelUrl,
+      'loadingUrl:',
+      this.loadingUrl
+    );
 
     if (ui.cameraMode === 'preset') {
       if (this.lastCameraPreset !== ui.cameraPreset) {
@@ -2162,7 +2189,17 @@ export class CarShowroomScene {
     this.applyEnvironmentIntensity(this.loaded, ui.envIntensity);
 
     // Model
-    if (ui.modelUrl && resolveModelUrl(ui.modelUrl) !== this.loadingUrl) {
+    const resolvedUrl = resolveModelUrl(ui.modelUrl);
+    console.log(
+      '[CarShowroom] Model check - modelUrl:',
+      ui.modelUrl,
+      'resolved:',
+      resolvedUrl,
+      'loadingUrl:',
+      this.loadingUrl
+    );
+    if (ui.modelUrl && resolvedUrl !== this.loadingUrl) {
+      console.log('[CarShowroom] Triggering loadModel');
       void this.loadModel(ui.modelUrl);
     }
 

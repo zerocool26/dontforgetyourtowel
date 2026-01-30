@@ -190,6 +190,12 @@ createAstroMount(ROOT_SELECTOR, () => {
 
   const caps = getTowerCaps();
   const enable3d = caps.webgl;
+  console.log(
+    '[CarShowroom] Initialization - enable3d:',
+    enable3d,
+    'caps:',
+    caps
+  );
 
   // --- Floating Action Button (Mobile) ---
   const fabEl = root.querySelector<HTMLElement>('[data-csr-fab]');
@@ -3425,10 +3431,15 @@ createAstroMount(ROOT_SELECTOR, () => {
 
     const sceneInstance = new THREE.Scene();
 
+    console.log('[CarShowroom] Creating CarShowroomScene instance');
     const showroomInstance = new CarShowroomScene(root, rendererInstance);
     showroom = showroomInstance;
     showroomInstance.setEnvironment(sceneInstance);
     sceneInstance.add(showroomInstance.group);
+    console.log(
+      '[CarShowroom] Scene setup complete, model URL in dataset:',
+      root.dataset.carShowroomModel
+    );
 
     const applyQuality = () => {
       const q = (root.dataset.carShowroomQuality || 'balanced') as
@@ -3966,10 +3977,22 @@ createAstroMount(ROOT_SELECTOR, () => {
     running = true;
     let fpsSmoothed = 0;
     let fpsTimer = 0;
+    let frameCount = 0;
 
     const loop = () => {
       if (!running) return;
       raf = requestAnimationFrame(loop);
+      frameCount++;
+      if (frameCount <= 3) {
+        console.log(
+          '[CarShowroom] Animation loop frame',
+          frameCount,
+          'carShowroomModel:',
+          root.dataset.carShowroomModel,
+          'revision:',
+          root.dataset.carShowroomUiRevision
+        );
+      }
 
       applyPostFxFromDataset();
 
