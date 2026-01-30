@@ -828,6 +828,35 @@ export class CarShowroomScene {
     if (saved) mesh.material = saved;
   }
 
+  private updateModelStats(loaded: THREE.Object3D) {
+    const ds = this.root.dataset;
+    const box = new THREE.Box3().setFromObject(loaded);
+    const size = new THREE.Vector3();
+    box.getSize(size);
+
+    let meshes = 0;
+    let tris = 0;
+    loaded.traverse(obj => {
+      const mesh = obj as THREE.Mesh;
+      if (!mesh.isMesh) return;
+      meshes += 1;
+      const geom = mesh.geometry as THREE.BufferGeometry | undefined;
+      if (!geom) return;
+      const index = geom.index;
+      if (index) tris += Math.floor(index.count / 3);
+      else {
+        const pos = geom.getAttribute('position');
+        if (pos) tris += Math.floor(pos.count / 3);
+      }
+    });
+
+    ds.carShowroomModelSizeX = size.x.toFixed(2);
+    ds.carShowroomModelSizeY = size.y.toFixed(2);
+    ds.carShowroomModelSizeZ = size.z.toFixed(2);
+    ds.carShowroomModelMeshes = String(meshes);
+    ds.carShowroomModelTris = String(tris);
+  }
+
   private getMeshBaseColor(material: THREE.Material): THREE.Color {
     const anyMat = material as unknown as { color?: THREE.Color };
     if (anyMat?.color instanceof THREE.Color) return anyMat.color.clone();
@@ -1351,6 +1380,40 @@ export class CarShowroomScene {
     return { yawDeg, pitchDeg, distance, fov, lookAt };
   }
 
+  getSelectionFrameRecommendation(): {
+    yawDeg: number;
+    pitchDeg: number;
+    distance: number;
+    fov: number;
+    lookAt: THREE.Vector3;
+  } | null {
+    if (!this.selectedMesh) return null;
+
+    const box = new THREE.Box3().setFromObject(this.selectedMesh);
+    const size = new THREE.Vector3();
+    box.getSize(size);
+    const center = new THREE.Vector3();
+    box.getCenter(center);
+
+    const maxDim = Math.max(1e-3, size.x, size.y, size.z);
+    const distance = clamp(maxDim * 2.6, 2.5, 9);
+
+    const yawDeg = radToDeg(this.orbitYawTarget || this.orbitYaw || 0.3);
+    const pitchDeg = clamp(
+      radToDeg(this.orbitPitchTarget || this.orbitPitch),
+      0,
+      45
+    );
+    const fov = clamp(this.fovTarget || this.camera.fov || 55, 35, 85);
+
+    const lookAt = new THREE.Vector3(
+      center.x,
+      center.y + size.y * 0.05,
+      center.z
+    );
+    return { yawDeg, pitchDeg, distance, fov, lookAt };
+  }
+
   private applyWheelPreset(finish: WheelFinish) {
     if (finish === 'chrome') {
       this.wheelMat.color.set('#e5e7eb');
@@ -1831,6 +1894,11 @@ export class CarShowroomScene {
     this.root.dataset.carShowroomReady = '0';
     this.root.dataset.carShowroomLoading = '1';
     this.root.dataset.carShowroomLoadError = '';
+    this.root.dataset.carShowroomModelSizeX = '';
+    this.root.dataset.carShowroomModelSizeY = '';
+    this.root.dataset.carShowroomModelSizeZ = '';
+    this.root.dataset.carShowroomModelMeshes = '';
+    this.root.dataset.carShowroomModelTris = '';
 
     try {
       const res = await fetch(normalized);
@@ -1885,6 +1953,7 @@ export class CarShowroomScene {
       this.modelGroup.add(gltf);
 
       this.captureOriginalMaterials(gltf);
+      this.updateModelStats(gltf);
 
       const ui = this.getUiState();
       this.applyCameraPreset(ui, true);

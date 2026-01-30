@@ -239,6 +239,9 @@ createAstroMount(ROOT_SELECTOR, () => {
   );
   const fovRange = root.querySelector<HTMLInputElement>('[data-csr-fov]');
   const frameBtn = root.querySelector<HTMLButtonElement>('[data-csr-frame]');
+  const focusSelectionBtn = root.querySelector<HTMLButtonElement>(
+    '[data-csr-focus-selection]'
+  );
   const resetViewBtn = root.querySelector<HTMLButtonElement>(
     '[data-csr-reset-view]'
   );
@@ -406,6 +409,11 @@ createAstroMount(ROOT_SELECTOR, () => {
   const selectedMaterialEl = root.querySelector<HTMLElement>(
     '[data-csr-selected-material]'
   );
+  const modelSizeEl = root.querySelector<HTMLElement>('[data-csr-model-size]');
+  const modelMeshesEl = root.querySelector<HTMLElement>(
+    '[data-csr-model-meshes]'
+  );
+  const modelTrisEl = root.querySelector<HTMLElement>('[data-csr-model-tris]');
   const qualitySel =
     root.querySelector<HTMLSelectElement>('[data-csr-quality]');
   const shotScaleSel = root.querySelector<HTMLSelectElement>(
@@ -845,6 +853,22 @@ createAstroMount(ROOT_SELECTOR, () => {
     }
   };
 
+  const syncModelStats = () => {
+    const ds = root.dataset;
+    const sizeX = (ds.carShowroomModelSizeX || '').trim();
+    const sizeY = (ds.carShowroomModelSizeY || '').trim();
+    const sizeZ = (ds.carShowroomModelSizeZ || '').trim();
+    const meshes = (ds.carShowroomModelMeshes || '').trim();
+    const tris = (ds.carShowroomModelTris || '').trim();
+
+    if (modelSizeEl) {
+      modelSizeEl.textContent =
+        sizeX && sizeY && sizeZ ? `${sizeX} × ${sizeY} × ${sizeZ}` : '—';
+    }
+    if (modelMeshesEl) modelMeshesEl.textContent = meshes || '—';
+    if (modelTrisEl) modelTrisEl.textContent = tris || '—';
+  };
+
   const PRESET_DATASET_KEYS: Array<keyof DOMStringMap> = [
     'carShowroomQuality',
     'carShowroomModel',
@@ -1130,7 +1154,10 @@ createAstroMount(ROOT_SELECTOR, () => {
     bumpRevision();
   };
 
-  const statusObserver = new MutationObserver(() => syncStatus());
+  const statusObserver = new MutationObserver(() => {
+    syncStatus();
+    syncModelStats();
+  });
   statusObserver.observe(root, { attributes: true });
   addEventListener('beforeunload', () => statusObserver.disconnect(), {
     once: true,
@@ -1555,6 +1582,7 @@ createAstroMount(ROOT_SELECTOR, () => {
 
   bumpRevision();
   syncStatus();
+  syncModelStats();
 
   // Keep the URL input in sync with the select.
   modelSel?.addEventListener('change', () => {
@@ -2464,8 +2492,17 @@ createAstroMount(ROOT_SELECTOR, () => {
 
   applyPostFxFromDataset();
 
-  frameBtn?.addEventListener('click', () => {
-    const rec = showroom.getFrameRecommendation();
+  const applyCameraFrame = (
+    rec: {
+      yawDeg: number;
+      pitchDeg: number;
+      distance: number;
+      fov: number;
+      lookAt: { x: number; y: number; z: number };
+    } | null,
+    message: string,
+    zoomValue = 0.65
+  ) => {
     if (!rec) {
       showToast('Model not ready yet.');
       return;
@@ -2488,10 +2525,23 @@ createAstroMount(ROOT_SELECTOR, () => {
     root.dataset.carShowroomLookAtZ = rec.lookAt.z.toFixed(3);
 
     // Bring zoom slider in sync with the new distance feel.
-    setZoom(0.65);
+    setZoom(zoomValue);
 
     bumpRevision();
-    showToast('Framed model.');
+    showToast(message);
+  };
+
+  frameBtn?.addEventListener('click', () => {
+    applyCameraFrame(showroom.getFrameRecommendation(), 'Framed model.');
+  });
+
+  focusSelectionBtn?.addEventListener('click', () => {
+    const rec = showroom.getSelectionFrameRecommendation();
+    if (!rec) {
+      showToast('Select a mesh first.');
+      return;
+    }
+    applyCameraFrame(rec, 'Focused on selection.', 0.8);
   });
 
   downloadScreenshot = () => {

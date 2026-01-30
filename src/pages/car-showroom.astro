@@ -775,6 +775,13 @@ const description =
                 <button
                   type="button"
                   class="csr-btn csr-btn--ghost"
+                  data-csr-focus-selection
+                >
+                  Focus selection
+                </button>
+                <button
+                  type="button"
+                  class="csr-btn csr-btn--ghost"
                   data-csr-reset-view
                 >
                   Reset view
@@ -1083,6 +1090,24 @@ const description =
               </label>
 
               <div class="csr-field csr-field--wide">
+                <span>Model stats</span>
+                <div class="csr-readout csr-readout--stats">
+                  <div>
+                    <strong data-csr-model-size>—</strong>
+                    <small>Size (X×Y×Z)</small>
+                  </div>
+                  <div>
+                    <strong data-csr-model-meshes>—</strong>
+                    <small>Meshes</small>
+                  </div>
+                  <div>
+                    <strong data-csr-model-tris>—</strong>
+                    <small>Triangles</small>
+                  </div>
+                </div>
+              </div>
+
+              <div class="csr-field csr-field--wide">
                 <span>Presets</span>
                 <div class="csr-inline">
                   <select data-csr-preset>
@@ -1386,6 +1411,25 @@ const description =
       font-size: 13px;
     }
 
+    .csr-readout--stats {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      font-size: 12px;
+    }
+
+    .csr-readout--stats strong {
+      display: block;
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .csr-readout--stats small {
+      display: block;
+      color: rgba(255, 255, 255, 0.6);
+      margin-top: 2px;
+    }
+
     .csr-swatches {
       display: flex;
       flex-wrap: wrap;
@@ -1631,6 +1675,10 @@ const description =
 
       .csr-hint {
         width: 100%;
+      }
+
+      .csr-readout--stats {
+        grid-template-columns: 1fr;
       }
 
       .car-showroom__actions {
