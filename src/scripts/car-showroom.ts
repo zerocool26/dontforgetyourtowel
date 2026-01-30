@@ -12,6 +12,7 @@ import { CarShowroomScene } from './car-showroom/CarShowroomScene';
 import { LIGHT_PRESETS, STYLE_PRESETS } from './car-showroom/presets';
 import { MobileGestureHandler } from './car-showroom/MobileGestures';
 import { TabSwipeHandler } from './car-showroom/TabSwipeHandler';
+import { GyroscopeHandler } from './car-showroom/GyroscopeHandler';
 
 const ROOT_SELECTOR = '[data-car-showroom-root]';
 
@@ -208,6 +209,7 @@ createAstroMount(ROOT_SELECTOR, () => {
   const fabReset = root.querySelector<HTMLButtonElement>(
     '[data-csr-fab-reset]'
   );
+  const fabGyro = root.querySelector<HTMLButtonElement>('[data-csr-fab-gyro]');
 
   let fabOpen = false;
 
@@ -278,6 +280,97 @@ createAstroMount(ROOT_SELECTOR, () => {
     .matchMedia('(orientation: landscape)')
     .addEventListener('change', handleOrientationChange);
 
+  // --- Gyroscope Tilt Controls ---
+  let gyroscopeHandler: GyroscopeHandler | null = null;
+  let gyroActive = false;
+  let gyroBaseYaw = 0;
+  let gyroBasePitch = 0;
+
+  if (isMobileDevice()) {
+    gyroscopeHandler = new GyroscopeHandler({
+      onRotate: (yaw, pitch) => {
+        if (!gyroActive) return;
+
+        // Update camera orbit targets
+        const camYawRange =
+          root.querySelector<HTMLInputElement>('[data-csr-cam-yaw]');
+        const camPitchRange = root.querySelector<HTMLInputElement>(
+          '[data-csr-cam-pitch]'
+        );
+
+        if (camYawRange && camPitchRange) {
+          const newYaw = gyroBaseYaw + yaw * 100;
+          const newPitch = Math.max(
+            -10,
+            Math.min(50, gyroBasePitch + pitch * 100)
+          );
+
+          camYawRange.value = String(Math.round(newYaw));
+          camPitchRange.value = String(Math.round(newPitch));
+
+          root.dataset.carShowroomCamYaw = String(newYaw);
+          root.dataset.carShowroomCamPitch = String(newPitch);
+
+          // Switch to manual camera mode
+          const cameraModeSel = root.querySelector<HTMLSelectElement>(
+            '[data-csr-camera-mode]'
+          );
+          if (cameraModeSel && cameraModeSel.value !== 'manual') {
+            cameraModeSel.value = 'manual';
+            root.dataset.carShowroomCameraMode = 'manual';
+          }
+        }
+      },
+    });
+  }
+
+  const toggleGyroscope = async () => {
+    if (!gyroscopeHandler) {
+      showToast('Gyroscope not supported on this device');
+      return;
+    }
+
+    if (!gyroActive) {
+      // Try to start gyroscope
+      const started = await gyroscopeHandler.start();
+      if (started) {
+        gyroActive = true;
+
+        // Save current camera position as base
+        const camYawRange =
+          root.querySelector<HTMLInputElement>('[data-csr-cam-yaw]');
+        const camPitchRange = root.querySelector<HTMLInputElement>(
+          '[data-csr-cam-pitch]'
+        );
+        gyroBaseYaw = parseFloat(camYawRange?.value || '0');
+        gyroBasePitch = parseFloat(camPitchRange?.value || '0');
+
+        gyroscopeHandler.calibrate();
+
+        if (fabGyro) fabGyro.dataset.active = 'true';
+        showToast('Tilt controls enabled');
+
+        // Haptic feedback
+        if ('vibrate' in navigator) {
+          navigator.vibrate([10, 50, 10]);
+        }
+      } else {
+        showToast('Gyroscope permission denied');
+      }
+    } else {
+      // Stop gyroscope
+      gyroscopeHandler.stop();
+      gyroActive = false;
+      if (fabGyro) fabGyro.dataset.active = 'false';
+      showToast('Tilt controls disabled');
+    }
+  };
+
+  fabGyro?.addEventListener('click', () => {
+    closeFAB();
+    setTimeout(toggleGyroscope, 100);
+  });
+
   // --- Quality Badge ---
   const qualityBadge = root.querySelector<HTMLElement>(
     '[data-csr-quality-badge]'
@@ -288,7 +381,7 @@ createAstroMount(ROOT_SELECTOR, () => {
     qualityBadge.hidden = false;
   }
 
-  const updateQualityBadge = (fps: number, quality: string) => {
+  const updateQualityBadge = (fps: number, _quality: string) => {
     if (!qualityFps || !qualityBadge) return;
 
     qualityFps.textContent = Math.round(fps).toString();
@@ -3992,6 +4085,7 @@ createAstroMount(ROOT_SELECTOR, () => {
       if (currentObjectUrl) URL.revokeObjectURL(currentObjectUrl);
       mobileGestures?.destroy();
       tabSwipeHandler?.destroy();
+      gyroscopeHandler?.stop();
       showroom?.dispose();
       composer?.dispose();
       renderer?.dispose();

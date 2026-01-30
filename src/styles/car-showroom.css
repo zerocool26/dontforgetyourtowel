@@ -740,6 +740,17 @@
   opacity: 1;
 }
 
+/* Toggle state for gyroscope button */
+.csr-fab__action--toggle[data-active='true'] {
+  background: rgba(34, 211, 238, 0.2);
+  border-color: #22d3ee;
+  color: #22d3ee;
+}
+
+.csr-fab__action--toggle[data-active='true']::after {
+  opacity: 1;
+}
+
 /* Show FAB only on mobile */
 @media (max-width: 980px) {
   .csr-fab {
