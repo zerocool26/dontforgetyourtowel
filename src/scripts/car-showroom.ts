@@ -808,6 +808,11 @@ createAstroMount(ROOT_SELECTOR, () => {
   const isMobilePanel = () => window.matchMedia('(max-width: 980px)').matches;
   let panelSnap: PanelSnap = 'peek';
 
+  // Mobile bottom tab bar (queried early so setActiveTab can use it)
+  const mobileTabBtns = Array.from(
+    root.querySelectorAll<HTMLButtonElement>('[data-csr-mobile-tab]')
+  );
+
   const setActiveTab = (tabId: string) => {
     if (!tabId) return;
     let matched = false;
@@ -827,6 +832,13 @@ createAstroMount(ROOT_SELECTOR, () => {
 
     if (tabSelect && tabSelect.value !== tabId) {
       tabSelect.value = tabId;
+    }
+
+    // Update mobile bottom tab bar
+    for (const mobileBtn of mobileTabBtns) {
+      const mobileTabId = mobileBtn.getAttribute('data-csr-mobile-tab') || '';
+      const isActive = mobileTabId === tabId;
+      mobileBtn.setAttribute('aria-selected', isActive ? 'true' : 'false');
     }
 
     if (matched) {
@@ -899,6 +911,21 @@ createAstroMount(ROOT_SELECTOR, () => {
   let zoomTarget = 0;
 
   initTabs();
+
+  // Handle mobile bottom tab bar clicks
+  for (const btn of mobileTabBtns) {
+    btn.addEventListener('click', () => {
+      const tabId = btn.getAttribute('data-csr-mobile-tab') || '';
+      if (tabId) {
+        setActiveTab(tabId);
+
+        // Haptic feedback
+        if ('vibrate' in navigator) {
+          navigator.vibrate(10);
+        }
+      }
+    });
+  }
 
   // Tab swipe navigation for mobile
   let tabSwipeHandler: TabSwipeHandler | null = null;
