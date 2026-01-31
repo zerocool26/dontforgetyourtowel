@@ -448,6 +448,194 @@ createAstroMount(ROOT_SELECTOR, () => {
     });
   }
 
+  // --- Smart Mobile Quick Bar ---
+  const modePills = Array.from(
+    root.querySelectorAll<HTMLButtonElement>('.csr-mode-pill')
+  );
+  const quickStripColors = Array.from(
+    root.querySelectorAll<HTMLButtonElement>('[data-quick-color]')
+  );
+  const openColorsBtn = root.querySelector<HTMLButtonElement>(
+    '[data-csr-open-colors]'
+  );
+
+  // Handle mode pill selection
+  for (const pill of modePills) {
+    pill.addEventListener('click', () => {
+      const mode = pill.dataset.mode;
+      if (!mode) return;
+
+      // Update pill states
+      for (const p of modePills) {
+        const isActive = p.dataset.mode === mode;
+        p.dataset.active = isActive ? 'true' : 'false';
+        p.setAttribute('aria-checked', isActive ? 'true' : 'false');
+      }
+
+      // Update the main mode selector
+      const modeSel = root.querySelector<HTMLSelectElement>('[data-csr-mode]');
+      if (modeSel) {
+        modeSel.value = mode;
+        modeSel.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+
+      // Update root dataset for CSS context styling
+      root.dataset.carShowroomMode = mode;
+
+      // Haptic feedback
+      if ('vibrate' in navigator) {
+        navigator.vibrate(10);
+      }
+
+      bumpRevision();
+    });
+  }
+
+  // Handle quick strip color selection
+  for (const btn of quickStripColors) {
+    btn.addEventListener('click', () => {
+      const color = btn.dataset.quickColor;
+      if (!color) return;
+
+      // Update active state
+      for (const b of quickStripColors) {
+        b.dataset.active = b.dataset.quickColor === color ? 'true' : 'false';
+      }
+
+      // Update main color input
+      const colorInp = root.querySelector<HTMLInputElement>('[data-csr-color]');
+      if (colorInp) {
+        colorInp.value = color;
+        colorInp.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+
+      // Update preview swatch
+      const previewSwatch = root.querySelector<HTMLElement>(
+        '[data-csr-color-preview]'
+      );
+      if (previewSwatch) {
+        previewSwatch.style.background = color;
+      }
+
+      root.dataset.carShowroomColor = color;
+
+      // Haptic feedback
+      if ('vibrate' in navigator) {
+        navigator.vibrate(8);
+      }
+
+      bumpRevision();
+    });
+  }
+
+  // Open full color palette
+  openColorsBtn?.addEventListener('click', () => {
+    // Find and open the color accordion
+    const colorAccordion = root.querySelector<HTMLDetailsElement>(
+      '[data-csr-color-accordion]'
+    );
+    if (colorAccordion) {
+      colorAccordion.open = true;
+      colorAccordion.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // Switch to Look tab if not already there
+    const lookTabBtn = root.querySelector<HTMLButtonElement>(
+      '[data-csr-tab-btn="look"]'
+    );
+    lookTabBtn?.click();
+  });
+
+  // Sync mode pills when mode selector changes
+  const syncModePills = () => {
+    const currentMode = root.dataset.carShowroomMode || 'paint';
+    for (const pill of modePills) {
+      const isActive = pill.dataset.mode === currentMode;
+      pill.dataset.active = isActive ? 'true' : 'false';
+      pill.setAttribute('aria-checked', isActive ? 'true' : 'false');
+    }
+  };
+
+  // Sync quick strip colors with current color
+  const syncQuickStripColors = () => {
+    const currentColor = root.dataset.carShowroomColor || '#00d1b2';
+    for (const btn of quickStripColors) {
+      const isActive =
+        btn.dataset.quickColor?.toLowerCase() === currentColor.toLowerCase();
+      btn.dataset.active = isActive ? 'true' : 'false';
+    }
+  };
+
+  // --- Floating Action Bar ---
+  const floatingBar = root.querySelector<HTMLElement>(
+    '[data-csr-floating-bar]'
+  );
+  const floatingScreenshotBtn = root.querySelector<HTMLButtonElement>(
+    '[data-csr-floating-screenshot]'
+  );
+  const floatingShareBtn = root.querySelector<HTMLButtonElement>(
+    '[data-csr-floating-share]'
+  );
+  const floatingRandomizeBtn = root.querySelector<HTMLButtonElement>(
+    '[data-csr-floating-randomize]'
+  );
+
+  let floatingBarVisible = false;
+  let floatingBarTimeout: number | null = null;
+
+  const showFloatingBar = () => {
+    if (!floatingBar || !isMobileDevice()) return;
+    floatingBar.dataset.visible = 'true';
+    floatingBarVisible = true;
+
+    // Auto-hide after 5 seconds
+    if (floatingBarTimeout) {
+      window.clearTimeout(floatingBarTimeout);
+    }
+    floatingBarTimeout = window.setTimeout(() => {
+      hideFloatingBar();
+    }, 5000);
+  };
+
+  const hideFloatingBar = () => {
+    if (!floatingBar) return;
+    floatingBar.dataset.visible = 'false';
+    floatingBarVisible = false;
+  };
+
+  // Show floating bar on color/mode changes
+  const onConfigChange = () => {
+    syncModePills();
+    syncQuickStripColors();
+    if (isMobileDevice()) {
+      showFloatingBar();
+    }
+  };
+
+  // Wire floating bar buttons
+  floatingScreenshotBtn?.addEventListener('click', () => {
+    const screenshotBtn = root.querySelector<HTMLButtonElement>(
+      '[data-csr-screenshot]'
+    );
+    screenshotBtn?.click();
+    hideFloatingBar();
+  });
+
+  floatingShareBtn?.addEventListener('click', () => {
+    const copyLinkBtn = root.querySelector<HTMLButtonElement>(
+      '[data-csr-copy-link]'
+    );
+    copyLinkBtn?.click();
+    hideFloatingBar();
+  });
+
+  floatingRandomizeBtn?.addEventListener('click', () => {
+    const randomizeBtn = root.querySelector<HTMLButtonElement>(
+      '[data-csr-randomize-look]'
+    );
+    randomizeBtn?.click();
+  });
+
   // --- UI wiring (dataset-driven)
   const bumpRevision = () => {
     const ds = root.dataset;
