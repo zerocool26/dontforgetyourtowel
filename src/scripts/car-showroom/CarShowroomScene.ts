@@ -2040,9 +2040,7 @@ export class CarShowroomScene {
   }
 
   private async loadModel(url: string) {
-    console.log('[DEBUG loadModel] Starting load for url:', url);
     const normalized = resolveModelUrl(url);
-    console.log('[DEBUG loadModel] Normalized URL:', normalized);
     this.loadingUrl = normalized;
 
     this.root.dataset.carShowroomReady = '0';
@@ -2055,12 +2053,9 @@ export class CarShowroomScene {
     this.root.dataset.carShowroomModelTris = '';
 
     try {
-      console.log('[DEBUG loadModel] Fetching...');
       const res = await fetch(normalized);
-      console.log('[DEBUG loadModel] Fetch response:', res.status, res.ok);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const buffer = await res.arrayBuffer();
-      console.log('[DEBUG loadModel] Buffer size:', buffer.byteLength);
 
       const gltf = await new Promise<THREE.Object3D>((resolve, reject) => {
         this.loader.parse(
@@ -2125,7 +2120,6 @@ export class CarShowroomScene {
 
       this.root.dataset.carShowroomReady = '1';
       this.root.dataset.carShowroomLoading = '0';
-      console.log('[DEBUG loadModel] SUCCESS! Model loaded and added to scene');
     } catch (e) {
       console.error('[CarShowroom] Failed to load model', normalized, e);
       this.root.dataset.carShowroomReady = '0';
@@ -2143,24 +2137,10 @@ export class CarShowroomScene {
   private syncFromUi(scene: THREE.Scene) {
     const ds = this.root.dataset;
     const revision = ds.carShowroomUiRevision || '';
-    console.log(
-      '[DEBUG syncFromUi] revision:',
-      revision,
-      'lastUiRevision:',
-      this.lastUiRevision,
-      'loadingUrl:',
-      this.loadingUrl
-    );
     if (revision === this.lastUiRevision) return;
     this.lastUiRevision = revision;
 
     const ui = this.getUiState();
-    console.log(
-      '[DEBUG syncFromUi] modelUrl:',
-      ui.modelUrl,
-      'resolved:',
-      resolveModelUrl(ui.modelUrl)
-    );
 
     if (ui.cameraMode === 'preset') {
       if (this.lastCameraPreset !== ui.cameraPreset) {

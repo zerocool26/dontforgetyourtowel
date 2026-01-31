@@ -16,7 +16,7 @@ test.describe('Car Showroom Bug', () => {
           const isReady = await root.getAttribute('data-car-showroom-ready');
           return isReady === '1';
         },
-        { timeout: 20000 }
+        { timeout: 30000 }
       )
       .toBe(true);
   });

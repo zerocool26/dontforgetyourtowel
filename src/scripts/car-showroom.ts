@@ -803,6 +803,11 @@ createAstroMount(ROOT_SELECTOR, () => {
   const getPanelId = (el: Element) =>
     (el.getAttribute('data-csr-tab-panel') || '').trim();
 
+  // Panel snap state - must be defined before setActiveTab which uses them
+  type PanelSnap = 'collapsed' | 'peek' | 'half' | 'full';
+  const isMobilePanel = () => window.matchMedia('(max-width: 980px)').matches;
+  let panelSnap: PanelSnap = 'peek';
+
   const setActiveTab = (tabId: string) => {
     if (!tabId) return;
     let matched = false;
@@ -1713,13 +1718,9 @@ createAstroMount(ROOT_SELECTOR, () => {
     once: true,
   });
 
-  type PanelSnap = 'collapsed' | 'peek' | 'half' | 'full';
   const snapOrder: PanelSnap[] = ['collapsed', 'peek', 'half', 'full'];
-  let panelSnap: PanelSnap = 'peek';
 
   const PANEL_SNAP_STORAGE_KEY = 'csr-panel-snap-v1';
-
-  const isMobilePanel = () => window.matchMedia('(max-width: 980px)').matches;
 
   const getSnapHeights = () => {
     const vv =
@@ -2182,15 +2183,7 @@ createAstroMount(ROOT_SELECTOR, () => {
     savePartMapForModel(model, map);
   }
 
-  console.log(
-    '[DEBUG] Initial bumpRevision, carShowroomModel:',
-    root.dataset.carShowroomModel
-  );
   bumpRevision();
-  console.log(
-    '[DEBUG] After bumpRevision, revision:',
-    root.dataset.carShowroomUiRevision
-  );
   syncStatus();
   syncModelStats();
 
@@ -3433,17 +3426,10 @@ createAstroMount(ROOT_SELECTOR, () => {
 
     const sceneInstance = new THREE.Scene();
 
-    console.log(
-      '[DEBUG] Creating CarShowroomScene, carShowroomModel:',
-      root.dataset.carShowroomModel,
-      'revision:',
-      root.dataset.carShowroomUiRevision
-    );
     const showroomInstance = new CarShowroomScene(root, rendererInstance);
     showroom = showroomInstance;
     showroomInstance.setEnvironment(sceneInstance);
     sceneInstance.add(showroomInstance.group);
-    console.log('[DEBUG] Scene setup complete');
 
     const applyQuality = () => {
       const q = (root.dataset.carShowroomQuality || 'balanced') as
