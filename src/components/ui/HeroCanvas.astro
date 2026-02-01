@@ -21,11 +21,144 @@ const { className = '', variant = 'auto' } = Astro.props;
   <div class="hero-canvas-tint" aria-hidden="true"></div>
 </div>
 
+<!--
+  Watchdog: if the hero boot module fails to load/execute,
+  show a clear error instead of a silent blank hero.
+-->
+<script is:inline>
+  (() => {
+    const ROOT_SELECTOR = '[data-hero-root]';
+    const BOOT_FLAG = 'heroBoot';
+
+    const root = document.querySelector(ROOT_SELECTOR);
+    if (!root) return;
+
+    const show = message => {
+      let overlay = root.querySelector('.tower3d-error-overlay');
+      if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.className = 'tower3d-error-overlay';
+        overlay.style.cssText =
+          'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(2,4,10,0.82);color:#e5e7eb;z-index:30;text-align:center;pointer-events:auto;';
+        root.style.position = root.style.position || 'relative';
+        root.appendChild(overlay);
+      }
+
+      overlay.innerHTML = `
+        <div style="max-width:640px">
+          <div style="font-weight:800;font-size:16px;margin-bottom:8px">Hero 3D failed to start</div>
+          <div style="opacity:0.9;font-size:13px;line-height:1.45;margin-bottom:14px">${message}</div>
+          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+            <button data-hero-reload style="cursor:pointer;border:1px solid rgba(255,255,255,0.18);background:rgba(255,255,255,0.06);color:#fff;padding:10px 14px;border-radius:10px;backdrop-filter:blur(10px)">Reload</button>
+            <button data-hero-reset-cache style="cursor:pointer;border:1px solid rgba(255,255,255,0.18);background:rgba(255,255,255,0.02);color:#fff;padding:10px 14px;border-radius:10px;backdrop-filter:blur(10px)">Reset offline cache</button>
+          </div>
+        </div>
+      `;
+
+      overlay
+        .querySelector('[data-hero-reload]')
+        ?.addEventListener('click', () => window.location.reload());
+
+      overlay
+        .querySelector('[data-hero-reset-cache]')
+        ?.addEventListener('click', async () => {
+          try {
+            if ('serviceWorker' in navigator) {
+              const regs = await navigator.serviceWorker.getRegistrations();
+              await Promise.all(regs.map(r => r.unregister()));
+            }
+            if ('caches' in window) {
+              const keys = await caches.keys();
+              await Promise.all(
+                keys
+                  .filter(k => k.startsWith('github-pages-project-'))
+                  .map(k => caches.delete(k))
+              );
+            }
+          } catch {
+            // ignore
+          } finally {
+            window.location.reload();
+          }
+        });
+    };
+
+    window.setTimeout(() => {
+      const booted =
+        document.documentElement?.dataset?.[BOOT_FLAG] === '1' ||
+        root.dataset?.[BOOT_FLAG] === '1';
+      if (booted) return;
+
+      show(
+        'The hero boot module didn’t execute. This is usually a script-load/base-path issue or a stale service-worker cache. Open DevTools → Console/Network to find the failing request.'
+      );
+    }, 4500);
+  })();
+</script>
+
 <script>
   import { createHeroScene } from '../../scripts/createHeroScene';
 
   type Variant = 'auto' | 'neural' | 'city' | 'storm' | 'aurora';
   type WithCleanup = { __heroCleanup?: () => void };
+
+  const showHeroBootError = (
+    root: HTMLElement,
+    title: string,
+    details?: string
+  ) => {
+    let overlay = root.querySelector<HTMLElement>('.tower3d-error-overlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.className = 'tower3d-error-overlay';
+      overlay.style.cssText =
+        'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(2,4,10,0.82);color:#e5e7eb;z-index:30;text-align:center;pointer-events:auto;';
+      root.style.position = root.style.position || 'relative';
+      root.appendChild(overlay);
+    }
+
+    const debug = {
+      url: typeof location !== 'undefined' ? location.href : '',
+      ua: typeof navigator !== 'undefined' ? navigator.userAgent : '',
+      webdriver:
+        typeof navigator !== 'undefined' &&
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        Boolean((navigator as any).webdriver),
+      root: { w: root.clientWidth, h: root.clientHeight },
+    };
+
+    const debugText = JSON.stringify(debug, null, 2);
+
+    overlay.innerHTML = `
+      <div style="max-width:720px;text-align:left">
+        <div style="font-weight:800;font-size:16px;margin-bottom:8px">${title}</div>
+        <div style="opacity:0.9;font-size:13px;line-height:1.45;margin-bottom:12px">
+          ${details ? details : 'The hero 3D scene failed to initialize.'}
+        </div>
+        <button type="button" data-copy style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);color:#e5e7eb;padding:8px 10px;border-radius:10px;cursor:pointer">
+          Copy diagnostics
+        </button>
+        <pre style="margin-top:12px;max-height:220px;overflow:auto;padding:12px;border-radius:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10);font-size:12px;line-height:1.4;white-space:pre-wrap">${debugText}</pre>
+      </div>
+    `;
+
+    const btn = overlay.querySelector<HTMLButtonElement>('[data-copy]');
+    btn?.addEventListener(
+      'click',
+      async () => {
+        try {
+          await navigator.clipboard.writeText(debugText);
+          btn.textContent = 'Copied';
+          window.setTimeout(() => {
+            btn.textContent = 'Copy diagnostics';
+          }, 1200);
+        } catch {
+          // ignore
+        }
+      },
+      { once: true }
+    );
+  };
 
   const cleanupAll = () => {
     document
@@ -46,12 +179,27 @@ const { className = '', variant = 'auto' } = Astro.props;
         const root = canvas.closest<HTMLElement>('[data-hero-root]');
         if (!root) return;
 
+        // Boot breadcrumbs (used by the inline watchdog).
+        root.dataset.heroBoot = '1';
+        document.documentElement.dataset.heroBoot = '1';
+
         const existing = (canvas as unknown as WithCleanup).__heroCleanup;
         if (existing) existing();
 
         const variant = (root.dataset.heroVariant || 'auto') as Variant;
-        const cleanup = createHeroScene(canvas, { variant });
-        (canvas as unknown as WithCleanup).__heroCleanup = cleanup;
+        try {
+          const cleanup = createHeroScene(canvas, { variant });
+          (canvas as unknown as WithCleanup).__heroCleanup = cleanup;
+          // If we successfully mounted, ensure any previous overlay is removed.
+          root.querySelector<HTMLElement>('.tower3d-error-overlay')?.remove();
+        } catch (e) {
+          console.error('[HeroCanvas] createHeroScene failed:', e);
+          showHeroBootError(
+            root,
+            'Hero 3D failed to start',
+            'WebGL may be available, but initialization failed. This can be caused by driver/GPU issues or blocked scripts.'
+          );
+        }
       });
   };
 

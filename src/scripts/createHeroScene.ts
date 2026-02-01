@@ -26,10 +26,9 @@ export function createHeroScene(
   canvas: HTMLCanvasElement,
   options: { variant?: HeroSceneVariant } = {}
 ) {
-  const caps = getTowerCaps();
-  if (!caps.webgl) {
-    const parent =
-      (canvas.parentElement as HTMLElement | null) ?? document.body;
+  const parent = (canvas.parentElement as HTMLElement | null) ?? document.body;
+
+  const showOverlay = (title: string, details: string) => {
     // Avoid stacking multiple overlays if Astro re-mounts.
     let overlay = parent.querySelector<HTMLElement>('.tower3d-error-overlay');
     if (!overlay) {
@@ -37,17 +36,26 @@ export function createHeroScene(
       overlay.className = 'tower3d-error-overlay';
       overlay.style.cssText =
         'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(2,4,10,0.82);color:#e5e7eb;z-index:20;text-align:center;pointer-events:auto;';
-      overlay.innerHTML = `
-        <div style="max-width:620px">
-          <div style="font-weight:800;font-size:16px;margin-bottom:8px">WebGL is unavailable</div>
-          <div style="opacity:0.9;font-size:13px;line-height:1.45">
-            Enable hardware acceleration in your browser and reload.
-          </div>
-        </div>
-      `;
       parent.style.position = parent.style.position || 'relative';
       parent.appendChild(overlay);
     }
+
+    overlay.innerHTML = `
+      <div style="max-width:620px">
+        <div style="font-weight:800;font-size:16px;margin-bottom:8px">${title}</div>
+        <div style="opacity:0.9;font-size:13px;line-height:1.45">${details}</div>
+      </div>
+    `;
+
+    return overlay;
+  };
+
+  const caps = getTowerCaps();
+  if (!caps.webgl) {
+    const overlay = showOverlay(
+      'WebGL is unavailable',
+      'Enable hardware acceleration in your browser and reload.'
+    );
 
     return () => {
       overlay?.remove();
@@ -56,12 +64,24 @@ export function createHeroScene(
 
   const variant = options.variant ?? 'auto';
 
-  const renderer = new THREE.WebGLRenderer({
-    canvas,
-    alpha: true,
-    antialias: !caps.coarsePointer,
-    powerPreference: 'high-performance',
-  });
+  let renderer: THREE.WebGLRenderer;
+  try {
+    renderer = new THREE.WebGLRenderer({
+      canvas,
+      alpha: true,
+      antialias: !caps.coarsePointer,
+      powerPreference: 'high-performance',
+    });
+  } catch (e) {
+    console.error('[HeroScene] WebGLRenderer init failed:', e);
+    const overlay = showOverlay(
+      '3D failed to start',
+      'WebGL exists, but initialization failed. This is usually driver/GPU/feature related; try enabling hardware acceleration and reloading.'
+    );
+    return () => {
+      overlay?.remove();
+    };
+  }
 
   let root = canvas.parentElement as HTMLElement | null;
   if (!root) root = document.body;
