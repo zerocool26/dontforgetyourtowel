@@ -1,13 +1,7 @@
+// Keep this list to true static assets only.
+// Avoid precaching HTML routes, which can easily go stale across deploys and
+// cause “stale HTML -> missing hashed JS -> nothing boots (incl. 3D)”.
 const STATIC_ASSET_PATHS = [
-  '',
-  'about/',
-  'services/',
-  'pricing/',
-  'contact/',
-  'privacy/',
-  'terms/',
-  'demo-lab/',
-  'shop-demo/',
   'offline/',
   'manifest.webmanifest',
   'favicon.svg',
@@ -42,7 +36,10 @@ const resolveBasePath = () => {
 
 const BASE_PATH = resolveBasePath();
 const BASE_PREFIX = BASE_PATH === '/' ? '' : `/${trimSlashes(BASE_PATH)}`;
-const CACHE_VERSION = new URL(self.location.href).searchParams.get('v') || '1';
+// Bump this whenever the SW behavior changes, so old caches are reliably purged.
+// (GitHub Pages can keep old SW caches around otherwise.)
+const CACHE_VERSION =
+  new URL(self.location.href).searchParams.get('v') || '2026-02-01-1';
 const CACHE_NAME = `github-pages-project-${CACHE_VERSION}-${(trimSlashes(BASE_PATH) || 'root').replace(/[^a-z0-9-]/gi, '-')}`;
 
 const withBase = path => {
