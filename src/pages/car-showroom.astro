@@ -44,9 +44,14 @@ const description =
         <span class="csr-quality-badge__label">FPS</span>
       </div>
       <div class="csr-quality-badge__divider"></div>
+      <div class="csr-quality-badge__res" data-csr-quality-res>1.0x</div>
+      <div class="csr-quality-badge__divider"></div>
       <div class="csr-quality-badge__status">
         <span class="csr-quality-badge__dot"></span>
         <span class="csr-quality-badge__mode" data-csr-quality-mode>LIVE</span>
+        <span class="csr-quality-badge__eco" data-csr-quality-eco hidden
+          >ECO</span
+        >
       </div>
     </div>
 
@@ -2004,6 +2009,18 @@ const description =
                     <label class="csr-check">
                       <input type="checkbox" data-csr-haptics checked />
                       <span>Tactile vibration during interactions</span>
+                    </label>
+                  </label>
+
+                  <label class="csr-field csr-field--wide">
+                    <span>High quality shadows</span>
+                    <label class="csr-check">
+                      <input
+                        type="checkbox"
+                        data-csr-high-quality-shadows
+                        checked
+                      />
+                      <span>Enable soft PCF shadows (heavy on GPU)</span>
                     </label>
                   </label>
 

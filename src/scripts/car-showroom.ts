@@ -376,6 +376,8 @@ createAstroMount(ROOT_SELECTOR, () => {
     '[data-csr-quality-badge]'
   );
   const qualityFps = root.querySelector<HTMLElement>('[data-csr-quality-fps]');
+  const qualityRes = root.querySelector<HTMLElement>('[data-csr-quality-res]');
+  const qualityEco = root.querySelector<HTMLElement>('[data-csr-quality-eco]');
 
   if (qualityBadge && isMobileDevice()) {
     qualityBadge.hidden = false;
@@ -385,6 +387,10 @@ createAstroMount(ROOT_SELECTOR, () => {
     if (!qualityFps || !qualityBadge) return;
 
     qualityFps.textContent = Math.round(fps).toString();
+
+    if (qualityRes) {
+      qualityRes.textContent = `${size.dpr.toFixed(1)}x`;
+    }
 
     // Update FPS level for color coding
     if (fps >= 50) {
@@ -1042,6 +1048,9 @@ createAstroMount(ROOT_SELECTOR, () => {
     '[data-csr-low-power]'
   );
   const hapticsChk = root.querySelector<HTMLInputElement>('[data-csr-haptics]');
+  const shadowQualityChk = root.querySelector<HTMLInputElement>(
+    '[data-csr-high-quality-shadows]'
+  );
   const viewArBtn = root.querySelector<HTMLButtonElement>('[data-csr-view-ar]');
 
   // --- Panel tabs (mobile-friendly)
@@ -1146,6 +1155,7 @@ createAstroMount(ROOT_SELECTOR, () => {
 
     for (const btn of tabButtons) {
       btn.addEventListener('click', () => {
+        triggerHaptic(2);
         const id = getTabId(btn);
         setActiveTab(id);
       });
@@ -2626,6 +2636,7 @@ createAstroMount(ROOT_SELECTOR, () => {
     btn.addEventListener(
       'click',
       () => {
+        triggerHaptic(5);
         const hex = normalizeHexColor(btn.dataset.csrSwatch || '');
         if (!hex) return;
         const mode = (modeSel?.value || root.dataset.carShowroomMode || 'paint')
@@ -2709,23 +2720,6 @@ createAstroMount(ROOT_SELECTOR, () => {
 
   buildsheetClearBtn?.addEventListener('click', () => {
     if (buildsheetPasteTa) buildsheetPasteTa.value = '';
-  });
-
-  lowPowerChk?.addEventListener('change', () => {
-    root.dataset.carShowroomLowPower = lowPowerChk.checked ? 'true' : 'false';
-    bumpRevision();
-    applyPostFxFromDataset();
-  });
-
-  hapticsChk?.addEventListener('change', () => {
-    // Read directly in gesture handlers
-  });
-
-  viewArBtn?.addEventListener('click', () => {
-    const modelUrl = root.dataset.carShowroomModel;
-    if (modelUrl) {
-      window.open(modelUrl, '_blank');
-    }
   });
 
   buildsheetApplyBtn?.addEventListener('click', () => {
@@ -4026,6 +4020,7 @@ createAstroMount(ROOT_SELECTOR, () => {
       lastUiRevision = rev;
 
       const isLowPower = ds.carShowroomLowPower === 'true';
+      if (qualityEco) qualityEco.hidden = !isLowPower;
 
       const exp = clamp(
         Number.parseFloat(ds.carShowroomExposure || '1') || 1,
@@ -4051,13 +4046,6 @@ createAstroMount(ROOT_SELECTOR, () => {
       bloomInstance.radius = clamp01(
         Number.parseFloat(ds.carShowroomBloomRadius || '0') || 0
       );
-
-      // Reduce pixel ratio in low power mode if on mobile
-      if (isLowPower && isMobileDevice()) {
-        rendererInstance.setPixelRatio(1);
-      } else {
-        rendererInstance.setPixelRatio(window.devicePixelRatio || 1);
-      }
     };
 
     applyPostFxFromDataset();
@@ -4259,7 +4247,10 @@ createAstroMount(ROOT_SELECTOR, () => {
       const rect = canvas.getBoundingClientRect();
       size.width = Math.max(1, Math.floor(rect.width));
       size.height = Math.max(1, Math.floor(rect.height));
-      size.dpr = Math.min(caps.devicePixelRatio, qualityDprCap);
+
+      const isLowPower = root.dataset.carShowroomLowPower === 'true';
+      const effectiveCap = isLowPower ? 1 : qualityDprCap;
+      size.dpr = Math.min(caps.devicePixelRatio, effectiveCap);
 
       rendererInstance.setPixelRatio(size.dpr);
       rendererInstance.setSize(size.width, size.height, false);
@@ -4659,6 +4650,34 @@ createAstroMount(ROOT_SELECTOR, () => {
     };
 
     loop();
+
+    lowPowerChk?.addEventListener('change', () => {
+      root.dataset.carShowroomLowPower = lowPowerChk.checked ? 'true' : 'false';
+      bumpRevision();
+      applyPostFxFromDataset();
+      resize();
+    });
+
+    hapticsChk?.addEventListener('change', () => {
+      if (hapticsChk.checked) {
+        triggerHaptic(10);
+      }
+    });
+
+    shadowQualityChk?.addEventListener('change', () => {
+      rendererInstance.shadowMap.type = shadowQualityChk.checked
+        ? THREE.PCFSoftShadowMap
+        : THREE.BasicShadowMap;
+      rendererInstance.shadowMap.needsUpdate = true;
+      triggerHaptic(10);
+    });
+
+    viewArBtn?.addEventListener('click', () => {
+      const modelUrl = root.dataset.carShowroomModel;
+      if (modelUrl) {
+        window.open(modelUrl, '_blank');
+      }
+    });
 
     onResize = () => resize();
     window.addEventListener('resize', onResize, { passive: true });
