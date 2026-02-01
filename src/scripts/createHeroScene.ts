@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { getTowerCaps } from './tower3d/core/caps';
+import { createSafeWebGLRenderer } from './tower3d/three/renderer-factory';
 import { AuroraCurtainScene } from './tower3d/three/scenes/definitions/AuroraCurtainScene';
 import { ElectricStormScene } from './tower3d/three/scenes/definitions/ElectricStormScene';
 import { HolographicCityScene } from './tower3d/three/scenes/definitions/HolographicCityScene';
@@ -53,22 +54,11 @@ export function createHeroScene(
   };
 
   const caps = getTowerCaps();
-  if (!caps.webgl) {
-    const overlay = showOverlay(
-      'WebGL is unavailable',
-      'Enable hardware acceleration in your browser and reload.'
-    );
-
-    return () => {
-      overlay?.remove();
-    };
-  }
-
   const variant = options.variant ?? 'auto';
 
   let renderer: THREE.WebGLRenderer;
   try {
-    renderer = new THREE.WebGLRenderer({
+    renderer = createSafeWebGLRenderer({
       canvas,
       alpha: true,
       antialias: !caps.coarsePointer,
@@ -78,7 +68,7 @@ export function createHeroScene(
     console.error('[HeroScene] WebGLRenderer init failed:', e);
     const overlay = showOverlay(
       '3D failed to start',
-      'WebGL exists, but initialization failed. This is usually driver/GPU/feature related; try enabling hardware acceleration and reloading.'
+      'WebGL is unavailable or initialization failed. Try enabling hardware acceleration and reloading, or open in a full browser (not an in-app/embedded view).'
     );
     return () => {
       overlay?.remove();

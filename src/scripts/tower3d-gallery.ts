@@ -349,18 +349,8 @@ createAstroMount(ROOT_SELECTOR, () => {
 
   const caps = getTowerCaps();
   galleryCaps = caps;
-  if (!caps.webgl) {
-    showBootError(
-      'WebGL is unavailable. Try a full browser with hardware acceleration enabled, then reload.'
-    );
-    return {
-      destroy: () => {
-        runGalleryCleanups();
-        if (loaderHideTimeout) clearTimeout(loaderHideTimeout);
-        if (loaderRemoveTimeout) clearTimeout(loaderRemoveTimeout);
-      },
-    };
-  }
+  // Don't hard-gate on `caps.webgl`: some environments return false negatives.
+  // We'll attempt to boot the director and surface a clear error if the renderer can't initialize.
 
   // Apply deep-linking before the director boots so initial scene/progress is consistent.
   const initialIndex = getInitialSceneIndexFromQuery();
@@ -376,7 +366,9 @@ createAstroMount(ROOT_SELECTOR, () => {
     director = new SceneDirector(root, canvas, caps, { galleryMode: true });
   } catch (e) {
     console.error('[Gallery] SceneDirector init failed', e);
-    showBootError('WebGL initialization failed. Try reloading the page.');
+    showBootError(
+      'WebGL is unavailable or initialization failed. Try a full browser with hardware acceleration enabled, then reload.'
+    );
     return {
       destroy: () => {
         runGalleryCleanups();

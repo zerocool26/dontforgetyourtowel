@@ -14,34 +14,6 @@ createAstroMount(ROOT_SELECTOR, () => {
   if (!canvas) return null;
 
   const caps = getTowerCaps();
-  if (!caps.webgl) {
-    let overlay = root.querySelector<HTMLElement>('.tower3d-error-overlay');
-    if (!overlay) {
-      overlay = document.createElement('div');
-      overlay.className = 'tower3d-error-overlay';
-      overlay.style.cssText =
-        'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(2,4,10,0.92);color:#e5e7eb;z-index:9999;text-align:center;';
-      overlay.innerHTML = `
-        <div style="max-width:680px">
-          <div style="font-weight:800;font-size:18px;margin-bottom:10px">WebGL is unavailable</div>
-          <div style="opacity:0.9;font-size:14px;line-height:1.5">
-            This 3D experience requires WebGL. If you’re on desktop, enable <b>hardware acceleration</b>
-            in your browser (Chrome/Edge: Settings → System), update GPU drivers, and reload.
-            If you’re using an embedded/in-app browser or VS Code preview, try opening the site in
-            a full browser.
-          </div>
-        </div>
-      `;
-      root.appendChild(overlay);
-    }
-
-    return {
-      destroy: () => {
-        overlay?.remove();
-      },
-    };
-  }
-
   const showBootError = (title: string, details?: string) => {
     let overlay = root.querySelector<HTMLElement>('.tower3d-error-overlay');
     if (!overlay) {
@@ -102,7 +74,7 @@ createAstroMount(ROOT_SELECTOR, () => {
     console.error('[Tower3D] Boot failed:', e);
     showBootError(
       '3D failed to start',
-      'WebGL exists, but initialization failed. This is usually driver/GPU/feature related; the app will fall back where possible.'
+      'WebGL may be unavailable or initialization failed. Try a full browser with hardware acceleration enabled (Chrome/Edge: Settings → System).'
     );
     return {
       destroy: () => {

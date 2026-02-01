@@ -8,6 +8,7 @@ import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js';
 
 import { createAstroMount } from './tower3d/core/astro-mount';
 import { getTowerCaps } from './tower3d/core/caps';
+import { createSafeWebGLRenderer } from './tower3d/three/renderer-factory';
 import { CarShowroomScene } from './car-showroom/CarShowroomScene';
 import { LIGHT_PRESETS, STYLE_PRESETS } from './car-showroom/presets';
 import { MobileGestureHandler } from './car-showroom/MobileGestures';
@@ -189,7 +190,9 @@ createAstroMount(ROOT_SELECTOR, () => {
   if (!canvas) return null;
 
   const caps = getTowerCaps();
-  const enable3d = caps.webgl;
+  // Don't hard-gate on caps.webgl (it can be a false negative in some environments).
+  // We'll attempt to create the renderer and only disable 3D if that fails.
+  let enable3d = true;
 
   // --- Floating Action Button (Mobile) ---
   const fabEl = root.querySelector<HTMLElement>('[data-csr-fab]');
@@ -1745,10 +1748,7 @@ createAstroMount(ROOT_SELECTOR, () => {
   // Apply deep-link state before defaults so query params win.
   applyQueryState();
 
-  if (!enable3d) {
-    root.dataset.carShowroomLoadError =
-      'WebGL is unavailable. Try a full browser (Chrome/Edge/Safari) with hardware acceleration enabled, then reload. Controls are enabled, but 3D rendering is off.';
-  }
+  // If we later fail to create the renderer, we set this error and keep the UI alive.
 
   const syncStatus = () => {
     const ds = root.dataset;
@@ -3973,785 +3973,814 @@ createAstroMount(ROOT_SELECTOR, () => {
   let mobileGestures: MobileGestureHandler | null = null;
 
   if (enable3d) {
-    const rendererInstance = new THREE.WebGLRenderer({
-      canvas,
-      alpha: true,
-      antialias: !caps.coarsePointer,
-      powerPreference: 'high-performance',
-    });
-    renderer = rendererInstance;
-    console.log(
-      '[CarShowroom] Renderer initialized:',
-      rendererInstance.capabilities.isWebGL2 ? 'WebGL2' : 'WebGL1'
-    );
-
-    rendererInstance.shadowMap.enabled = true;
-    rendererInstance.shadowMap.type = THREE.PCFSoftShadowMap;
-    rendererInstance.toneMapping = THREE.ACESFilmicToneMapping;
-    rendererInstance.toneMappingExposure = 1.0;
-
-    // Handle older/newer three versions transition for color space
-    const r = rendererInstance as unknown as {
-      outputColorSpace?: string;
-      outputEncoding?: number;
-    };
-    if (r.outputColorSpace !== undefined) {
-      r.outputColorSpace = THREE.SRGBColorSpace;
-    } else if (r.outputEncoding !== undefined) {
-      r.outputEncoding = 3001; // sRGBEncoding
+    let rendererInstance: THREE.WebGLRenderer | null = null;
+    try {
+      rendererInstance = createSafeWebGLRenderer({
+        canvas,
+        alpha: true,
+        antialias: !caps.coarsePointer,
+        powerPreference: 'high-performance',
+      });
+    } catch (e) {
+      console.error('[CarShowroom] Renderer init failed:', e);
+      enable3d = false;
+      root.dataset.carShowroomLoadError =
+        'WebGL is unavailable or initialization failed. Try a full browser (Chrome/Edge/Safari) with hardware acceleration enabled, then reload. Controls are enabled, but 3D rendering is off.';
+      syncStatus();
     }
 
-    const sceneInstance = new THREE.Scene();
-
-    const showroomInstance = new CarShowroomScene(root, rendererInstance);
-    showroom = showroomInstance;
-    showroomInstance.setEnvironment(sceneInstance);
-    sceneInstance.add(showroomInstance.group);
-
-    const applyQuality = () => {
-      const q = (root.dataset.carShowroomQuality || 'balanced') as
-        | 'performance'
-        | 'balanced'
-        | 'ultra';
-      showroomInstance.setQuality(q);
-    };
-
-    // default
-    if (!root.dataset.carShowroomQuality) {
-      root.dataset.carShowroomQuality = 'balanced';
-    }
-    applyQuality();
-
-    const composerInstance = new EffectComposer(rendererInstance);
-    composer = composerInstance;
-    const renderPassInstance = new RenderPass(
-      sceneInstance,
-      showroomInstance.camera
-    );
-    composerInstance.addPass(renderPassInstance);
-
-    const bloomInstance = new UnrealBloomPass(
-      new THREE.Vector2(1, 1),
-      0.55,
-      0.35,
-      0.88
-    );
-    bloomInstance.enabled = false;
-    composerInstance.addPass(bloomInstance);
-
-    const fxaaInstance = new ShaderPass(FXAAShader);
-    composerInstance.addPass(fxaaInstance);
-
-    const outputInstance = new OutputPass();
-    composerInstance.addPass(outputInstance);
-
-    let lastUiRevision = '';
-    applyPostFxFromDataset = () => {
-      const ds = root.dataset;
-      const rev = ds.carShowroomUiRevision || '';
-      if (rev === lastUiRevision) return;
-      lastUiRevision = rev;
-
-      const isLowPower = ds.carShowroomLowPower === 'true';
-      if (qualityEco) qualityEco.hidden = !isLowPower;
-
-      const exp = clamp(
-        Number.parseFloat(ds.carShowroomExposure || '1') || 1,
-        0.1,
-        3
+    if (!enable3d || !rendererInstance) {
+      // Fall through: keep non-3D UI alive.
+    } else {
+      renderer = rendererInstance;
+      console.log(
+        '[CarShowroom] Renderer initialized:',
+        rendererInstance.capabilities.isWebGL2 ? 'WebGL2' : 'WebGL1'
       );
-      rendererInstance.toneMappingExposure = exp;
 
-      const bloomStrength = clamp(
-        Number.parseFloat(ds.carShowroomBloomStrength || '0') || 0,
+      rendererInstance.shadowMap.enabled = true;
+      rendererInstance.shadowMap.type = THREE.PCFSoftShadowMap;
+      rendererInstance.toneMapping = THREE.ACESFilmicToneMapping;
+      rendererInstance.toneMappingExposure = 1.0;
+
+      // Handle older/newer three versions transition for color space
+      const r = rendererInstance as unknown as {
+        outputColorSpace?: string;
+        outputEncoding?: number;
+      };
+      if (r.outputColorSpace !== undefined) {
+        r.outputColorSpace = THREE.SRGBColorSpace;
+      } else if (r.outputEncoding !== undefined) {
+        r.outputEncoding = 3001; // sRGBEncoding
+      }
+
+      const sceneInstance = new THREE.Scene();
+
+      const showroomInstance = new CarShowroomScene(root, rendererInstance);
+      showroom = showroomInstance;
+      showroomInstance.setEnvironment(sceneInstance);
+      sceneInstance.add(showroomInstance.group);
+
+      const applyQuality = () => {
+        const q = (root.dataset.carShowroomQuality || 'balanced') as
+          | 'performance'
+          | 'balanced'
+          | 'ultra';
+        showroomInstance.setQuality(q);
+      };
+
+      // default
+      if (!root.dataset.carShowroomQuality) {
+        root.dataset.carShowroomQuality = 'balanced';
+      }
+      applyQuality();
+
+      const composerInstance = new EffectComposer(rendererInstance);
+      composer = composerInstance;
+      const renderPassInstance = new RenderPass(
+        sceneInstance,
+        showroomInstance.camera
+      );
+      composerInstance.addPass(renderPassInstance);
+
+      const bloomInstance = new UnrealBloomPass(
+        new THREE.Vector2(1, 1),
+        0.55,
+        0.35,
+        0.88
+      );
+      bloomInstance.enabled = false;
+      composerInstance.addPass(bloomInstance);
+
+      const fxaaInstance = new ShaderPass(FXAAShader);
+      composerInstance.addPass(fxaaInstance);
+
+      const outputInstance = new OutputPass();
+      composerInstance.addPass(outputInstance);
+
+      let lastUiRevision = '';
+      applyPostFxFromDataset = () => {
+        const ds = root.dataset;
+        const rev = ds.carShowroomUiRevision || '';
+        if (rev === lastUiRevision) return;
+        lastUiRevision = rev;
+
+        const isLowPower = ds.carShowroomLowPower === 'true';
+        if (qualityEco) qualityEco.hidden = !isLowPower;
+
+        const exp = clamp(
+          Number.parseFloat(ds.carShowroomExposure || '1') || 1,
+          0.1,
+          3
+        );
+        rendererInstance.toneMappingExposure = exp;
+
+        const bloomStrength = clamp(
+          Number.parseFloat(ds.carShowroomBloomStrength || '0') || 0,
+          0,
+          3
+        );
+
+        // Force bloom off in low power mode
+        const finalBloomStrength = isLowPower ? 0 : bloomStrength;
+        bloomInstance.strength = finalBloomStrength;
+        bloomInstance.enabled = finalBloomStrength > 0.01;
+
+        bloomInstance.threshold = clamp01(
+          Number.parseFloat(ds.carShowroomBloomThreshold || '0.9') || 0
+        );
+        bloomInstance.radius = clamp01(
+          Number.parseFloat(ds.carShowroomBloomRadius || '0') || 0
+        );
+      };
+
+      applyPostFxFromDataset();
+
+      // Input shaping
+      const rawPointer = new THREE.Vector2(0, 0);
+      const pointer = new THREE.Vector2(0, 0);
+      const prevPointer = new THREE.Vector2(0, 0);
+      const pointerVelocity = new THREE.Vector2(0, 0);
+
+      let press = 0;
+      let pressTarget = 0;
+
+      zoomTarget = clamp(
+        Number.parseFloat(root.dataset.carShowroomZoom || '0') || 0,
         0,
-        3
+        1
       );
+      let zoom = zoomTarget;
 
-      // Force bloom off in low power mode
-      const finalBloomStrength = isLowPower ? 0 : bloomStrength;
-      bloomInstance.strength = finalBloomStrength;
-      bloomInstance.enabled = finalBloomStrength > 0.01;
+      let pinchActive = false;
+      let pinchStartDist = 0;
+      let pinchStartZoom = 0;
 
-      bloomInstance.threshold = clamp01(
-        Number.parseFloat(ds.carShowroomBloomThreshold || '0.9') || 0
-      );
-      bloomInstance.radius = clamp01(
-        Number.parseFloat(ds.carShowroomBloomRadius || '0') || 0
-      );
-    };
+      const setZoom = (v: number) => {
+        zoomTarget = clamp(v, 0, 1);
+        if (zoomRange) {
+          zoomRange.value = zoomTarget.toFixed(2);
+          root.dataset.carShowroomZoom = zoomRange.value;
+          bumpRevision();
+        }
+      };
 
-    applyPostFxFromDataset();
+      zoomWideBtn?.addEventListener('click', () => setZoom(0.0));
+      zoomMidBtn?.addEventListener('click', () => setZoom(0.5));
+      zoomCloseBtn?.addEventListener('click', () => setZoom(1.0));
 
-    // Input shaping
-    const rawPointer = new THREE.Vector2(0, 0);
-    const pointer = new THREE.Vector2(0, 0);
-    const prevPointer = new THREE.Vector2(0, 0);
-    const pointerVelocity = new THREE.Vector2(0, 0);
+      const applyCameraFrame = (
+        rec: {
+          yawDeg: number;
+          pitchDeg: number;
+          distance: number;
+          fov: number;
+          lookAt: { x: number; y: number; z: number };
+        } | null,
+        message: string,
+        zoomValue = 0.65
+      ) => {
+        if (!rec) {
+          showToast('Model not ready yet.');
+          return;
+        }
 
-    let press = 0;
-    let pressTarget = 0;
+        if (cameraModeSel) cameraModeSel.value = 'manual';
+        root.dataset.carShowroomCameraMode = 'manual';
 
-    zoomTarget = clamp(
-      Number.parseFloat(root.dataset.carShowroomZoom || '0') || 0,
-      0,
-      1
-    );
-    let zoom = zoomTarget;
+        if (camYawRange) camYawRange.value = String(Math.round(rec.yawDeg));
+        if (camPitchRange)
+          camPitchRange.value = String(Math.round(rec.pitchDeg));
+        if (camDistanceRange) camDistanceRange.value = rec.distance.toFixed(2);
+        if (fovRange) fovRange.value = String(Math.round(rec.fov));
 
-    let pinchActive = false;
-    let pinchStartDist = 0;
-    let pinchStartZoom = 0;
+        root.dataset.carShowroomCamYaw = String(rec.yawDeg);
+        root.dataset.carShowroomCamPitch = String(rec.pitchDeg);
+        root.dataset.carShowroomCamDistance = String(rec.distance);
+        root.dataset.carShowroomFov = String(rec.fov);
+        root.dataset.carShowroomLookAtX = rec.lookAt.x.toFixed(3);
+        root.dataset.carShowroomLookAtY = rec.lookAt.y.toFixed(3);
+        root.dataset.carShowroomLookAtZ = rec.lookAt.z.toFixed(3);
 
-    const setZoom = (v: number) => {
-      zoomTarget = clamp(v, 0, 1);
-      if (zoomRange) {
-        zoomRange.value = zoomTarget.toFixed(2);
-        root.dataset.carShowroomZoom = zoomRange.value;
+        // Bring zoom slider in sync with the new distance feel.
+        setZoom(zoomValue);
+
         bumpRevision();
-      }
-    };
+        showToast(message);
+      };
 
-    zoomWideBtn?.addEventListener('click', () => setZoom(0.0));
-    zoomMidBtn?.addEventListener('click', () => setZoom(0.5));
-    zoomCloseBtn?.addEventListener('click', () => setZoom(1.0));
+      frameBtn?.addEventListener('click', () => {
+        applyCameraFrame(
+          showroomInstance.getFrameRecommendation(),
+          'Framed model.'
+        );
+      });
 
-    const applyCameraFrame = (
-      rec: {
-        yawDeg: number;
-        pitchDeg: number;
-        distance: number;
-        fov: number;
-        lookAt: { x: number; y: number; z: number };
-      } | null,
-      message: string,
-      zoomValue = 0.65
-    ) => {
-      if (!rec) {
-        showToast('Model not ready yet.');
-        return;
-      }
+      focusSelectionBtn?.addEventListener('click', () => {
+        const rec = showroomInstance.getSelectionFrameRecommendation();
+        if (!rec) {
+          showToast('Select a mesh first.');
+          return;
+        }
+        applyCameraFrame(rec, 'Focused on selection.', 0.8);
+      });
 
-      if (cameraModeSel) cameraModeSel.value = 'manual';
-      root.dataset.carShowroomCameraMode = 'manual';
+      downloadScreenshot = () => {
+        try {
+          const scaleRaw = (shotScaleSel?.value || '1').trim();
+          const scale = clamp(Number.parseFloat(scaleRaw) || 1, 1, 4);
+          const transparent = Boolean(shotTransparentChk?.checked);
 
-      if (camYawRange) camYawRange.value = String(Math.round(rec.yawDeg));
-      if (camPitchRange) camPitchRange.value = String(Math.round(rec.pitchDeg));
-      if (camDistanceRange) camDistanceRange.value = rec.distance.toFixed(2);
-      if (fovRange) fovRange.value = String(Math.round(rec.fov));
+          // Temporarily render at higher res for export.
+          const prevBg = sceneInstance.background;
+          if (transparent) sceneInstance.background = null;
 
-      root.dataset.carShowroomCamYaw = String(rec.yawDeg);
-      root.dataset.carShowroomCamPitch = String(rec.pitchDeg);
-      root.dataset.carShowroomCamDistance = String(rec.distance);
-      root.dataset.carShowroomFov = String(rec.fov);
-      root.dataset.carShowroomLookAtX = rec.lookAt.x.toFixed(3);
-      root.dataset.carShowroomLookAtY = rec.lookAt.y.toFixed(3);
-      root.dataset.carShowroomLookAtZ = rec.lookAt.z.toFixed(3);
+          const exportW = Math.max(1, Math.floor(size.width * scale));
+          const exportH = Math.max(1, Math.floor(size.height * scale));
 
-      // Bring zoom slider in sync with the new distance feel.
-      setZoom(zoomValue);
+          const prevDpr = size.dpr;
+          rendererInstance.setPixelRatio(1);
+          rendererInstance.setSize(exportW, exportH, false);
+          composerInstance.setPixelRatio(1);
+          composerInstance.setSize(exportW, exportH);
+          showroomInstance.resize(exportW, exportH);
 
-      bumpRevision();
-      showToast(message);
-    };
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (fxaaInstance.material.uniforms as any)['resolution'].value.set(
+            1 / exportW,
+            1 / exportH
+          );
+          bloomInstance.setSize(exportW, exportH);
 
-    frameBtn?.addEventListener('click', () => {
-      applyCameraFrame(
-        showroomInstance.getFrameRecommendation(),
-        'Framed model.'
-      );
-    });
+          composerInstance.render();
 
-    focusSelectionBtn?.addEventListener('click', () => {
-      const rec = showroomInstance.getSelectionFrameRecommendation();
-      if (!rec) {
-        showToast('Select a mesh first.');
-        return;
-      }
-      applyCameraFrame(rec, 'Focused on selection.', 0.8);
-    });
+          canvas.toBlob(async blob => {
+            if (!blob) {
+              showToast('Screenshot failed (no image data).');
+              return;
+            }
 
-    downloadScreenshot = () => {
-      try {
-        const scaleRaw = (shotScaleSel?.value || '1').trim();
-        const scale = clamp(Number.parseFloat(scaleRaw) || 1, 1, 4);
-        const transparent = Boolean(shotTransparentChk?.checked);
+            // Try native share on mobile (with screenshot)
+            if (isMobileDevice() && navigator.share && navigator.canShare) {
+              try {
+                const file = new File([blob], 'car-showroom.png', {
+                  type: 'image/png',
+                });
 
-        // Temporarily render at higher res for export.
-        const prevBg = sceneInstance.background;
-        if (transparent) sceneInstance.background = null;
+                const shareData = {
+                  title: 'My 3D Car Configuration',
+                  text: 'Check out my custom car design!',
+                  files: [file],
+                };
 
-        const exportW = Math.max(1, Math.floor(size.width * scale));
-        const exportH = Math.max(1, Math.floor(size.height * scale));
+                if (navigator.canShare(shareData)) {
+                  await navigator.share(shareData);
+                  showToast('Shared successfully!');
 
-        const prevDpr = size.dpr;
-        rendererInstance.setPixelRatio(1);
-        rendererInstance.setSize(exportW, exportH, false);
-        composerInstance.setPixelRatio(1);
-        composerInstance.setSize(exportW, exportH);
-        showroomInstance.resize(exportW, exportH);
+                  // Restore view sizing
+                  sceneInstance.background = prevBg;
+                  rendererInstance.setPixelRatio(prevDpr);
+                  rendererInstance.setSize(size.width, size.height, false);
+                  composerInstance.setPixelRatio(prevDpr);
+                  composerInstance.setSize(size.width, size.height);
+                  showroomInstance.resize(size.width, size.height);
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  (fxaaInstance.material.uniforms as any)[
+                    'resolution'
+                  ].value.set(
+                    1 / (size.width * prevDpr),
+                    1 / (size.height * prevDpr)
+                  );
+                  bloomInstance.setSize(size.width, size.height);
+                  return;
+                }
+              } catch (err) {
+                // User cancelled or share failed, fall through to download
+                if ((err as Error).name !== 'AbortError') {
+                  console.warn('Share failed:', err);
+                }
+              }
+            }
+
+            // Fallback to download
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'car-showroom.png';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('Screenshot downloaded.');
+
+            // Restore view sizing
+            sceneInstance.background = prevBg;
+            rendererInstance.setPixelRatio(prevDpr);
+            rendererInstance.setSize(size.width, size.height, false);
+            composerInstance.setPixelRatio(prevDpr);
+            composerInstance.setSize(size.width, size.height);
+            showroomInstance.resize(size.width, size.height);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (fxaaInstance.material.uniforms as any)['resolution'].value.set(
+              1 / (size.width * prevDpr),
+              1 / (size.height * prevDpr)
+            );
+            bloomInstance.setSize(size.width, size.height);
+          }, 'image/png');
+        } catch {
+          showToast('Screenshot failed.');
+        }
+      };
+
+      const resize = () => {
+        const rect = canvas.getBoundingClientRect();
+        size.width = Math.max(1, Math.floor(rect.width));
+        size.height = Math.max(1, Math.floor(rect.height));
+
+        const isLowPower = root.dataset.carShowroomLowPower === 'true';
+        const effectiveCap = isLowPower ? 1 : qualityDprCap;
+        size.dpr = Math.min(caps.devicePixelRatio, effectiveCap);
+
+        rendererInstance.setPixelRatio(size.dpr);
+        rendererInstance.setSize(size.width, size.height, false);
+        composerInstance.setPixelRatio(size.dpr);
+        composerInstance.setSize(size.width, size.height);
+
+        showroomInstance.resize(size.width, size.height);
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (fxaaInstance.material.uniforms as any)['resolution'].value.set(
-          1 / exportW,
-          1 / exportH
+          1 / (size.width * size.dpr),
+          1 / (size.height * size.dpr)
         );
-        bloomInstance.setSize(exportW, exportH);
 
-        composerInstance.render();
+        bloomInstance.setSize(size.width, size.height);
+      };
 
-        canvas.toBlob(async blob => {
-          if (!blob) {
-            showToast('Screenshot failed (no image data).');
-            return;
+      resize();
+
+      const updateQualityCap = (v: string) => {
+        if (v === 'performance') qualityDprCap = 1;
+        else if (v === 'ultra') qualityDprCap = caps.maxDpr;
+        else qualityDprCap = Math.min(caps.maxDpr, 1.75);
+      };
+
+      updateQualityCap(root.dataset.carShowroomQuality || 'balanced');
+
+      let lastQualityShift = 0;
+      let lowFpsTime = 0;
+      let highFpsTime = 0;
+
+      const setQuality = (v: string, fromAuto = false) => {
+        const next =
+          v === 'performance' || v === 'balanced' || v === 'ultra'
+            ? v
+            : 'balanced';
+        const current = root.dataset.carShowroomQuality || 'balanced';
+        if (current === next) return;
+        root.dataset.carShowroomQuality = next;
+        if (qualitySel) qualitySel.value = next;
+        updateQualityCap(next);
+        applyQuality();
+        resize();
+        bumpRevision();
+        lastQualityShift = performance.now();
+        if (!fromAuto) {
+          lowFpsTime = 0;
+          highFpsTime = 0;
+        }
+      };
+
+      qualitySel?.addEventListener('change', () => {
+        const v = (qualitySel.value || 'balanced').trim();
+        setQuality(v, false);
+      });
+
+      // Sensible defaults for export options
+      if (shotScaleSel && !shotScaleSel.value) shotScaleSel.value = '2';
+      if (shotScaleSel && (shotScaleSel.value || '').trim() === '1') {
+        // leave as-is
+      }
+
+      // Tap/click part picking
+      const raycaster = new THREE.Raycaster();
+      const pickNdc = new THREE.Vector2();
+      const pickPartAt = (clientX: number, clientY: number) => {
+        const rect = canvas.getBoundingClientRect();
+        const x = (clientX - rect.left) / Math.max(1, rect.width);
+        const y = (clientY - rect.top) / Math.max(1, rect.height);
+        pickNdc.set(x * 2 - 1, -(y * 2 - 1));
+        const hit = showroomInstance.pickMesh(pickNdc, raycaster);
+        if (!hit) return;
+        root.dataset.carShowroomSelectedPart = hit.part;
+        root.dataset.carShowroomSelectedMeshName = (
+          hit.mesh?.name || ''
+        ).trim();
+        root.dataset.carShowroomSelectedMeshPath = (hit.meshPath || '').trim();
+        root.dataset.carShowroomSelectedMaterialName = (() => {
+          const readName = (v: unknown): string => {
+            if (!v) return '';
+            const obj = v as { name?: unknown };
+            return typeof obj.name === 'string' ? obj.name : '';
+          };
+
+          const mat = hit.mesh?.material as unknown;
+          if (Array.isArray(mat)) return readName(mat[0]).trim();
+          return readName(mat).trim();
+        })();
+        showroomInstance.setSelectedMesh(hit.mesh);
+        if (selectedPartEl)
+          selectedPartEl.textContent = `Selected: ${hit.part}`;
+        if (selectedMeshEl) {
+          const name = (root.dataset.carShowroomSelectedMeshName || '').trim();
+          selectedMeshEl.hidden = name.length === 0;
+          selectedMeshEl.textContent = name ? `Mesh: ${name}` : '';
+        }
+        if (selectedPathEl) {
+          const path = (root.dataset.carShowroomSelectedMeshPath || '').trim();
+          selectedPathEl.hidden = path.length === 0;
+          selectedPathEl.textContent = path ? `Path: ${path}` : '';
+        }
+        if (selectedMaterialEl) {
+          const name = (
+            root.dataset.carShowroomSelectedMaterialName || ''
+          ).trim();
+          selectedMaterialEl.hidden = name.length === 0;
+          selectedMaterialEl.textContent = name ? `Material: ${name}` : '';
+        }
+      };
+
+      onCanvasPointerUp = e => {
+        // Avoid picking while dragging/rotating.
+        if (press > 0.55) return;
+        pickPartAt(e.clientX, e.clientY);
+      };
+      canvas.addEventListener('pointerup', onCanvasPointerUp);
+
+      clearSelectionBtn?.addEventListener('click', () => {
+        root.dataset.carShowroomSelectedPart = '';
+        root.dataset.carShowroomSelectedMeshName = '';
+        root.dataset.carShowroomSelectedMeshPath = '';
+        root.dataset.carShowroomSelectedMaterialName = '';
+        showroomInstance.clearSelection();
+        if (selectedPartEl)
+          selectedPartEl.textContent = 'Tap/click the car to select';
+        if (selectedMeshEl) {
+          selectedMeshEl.hidden = true;
+          selectedMeshEl.textContent = '';
+        }
+        if (selectedPathEl) {
+          selectedPathEl.hidden = true;
+          selectedPathEl.textContent = '';
+        }
+        if (selectedMaterialEl) {
+          selectedMaterialEl.hidden = true;
+          selectedMaterialEl.textContent = '';
+        }
+      });
+
+      // Deterministic test breadcrumb.
+      document.documentElement.dataset.carShowroomBoot = '1';
+
+      onPointerMove = (e: PointerEvent) => {
+        const rect = canvas.getBoundingClientRect();
+        if (rect.width <= 0 || rect.height <= 0) return;
+
+        const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+        const y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+        rawPointer.set(x, y);
+      };
+
+      onPointerDown = () => {
+        pressTarget = 1;
+      };
+
+      onPointerUp = () => {
+        pressTarget = 0;
+      };
+
+      onWheel = (e: WheelEvent) => {
+        if (caps.reducedMotion) return;
+        // Trackpad can be huge; keep it gentle.
+        const delta = clamp(e.deltaY / 1200, -0.25, 0.25);
+        zoomTarget = clamp(zoomTarget + delta, 0, 1);
+        if (zoomRange) {
+          zoomRange.value = zoomTarget.toFixed(2);
+          root.dataset.carShowroomZoom = zoomRange.value;
+          bumpRevision();
+        }
+      };
+
+      // Enhanced mobile gesture handler
+
+      const isMobileDevice = () => {
+        return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      };
+
+      if (isMobileDevice()) {
+        mobileGestures = new MobileGestureHandler(canvas, {
+          onPinchZoom: (_scale, delta) => {
+            const sensitivity = 0.8;
+            zoomTarget = clamp(zoomTarget - delta * sensitivity, 0, 1);
+
+            if (zoomRange) {
+              zoomRange.value = zoomTarget.toFixed(2);
+              root.dataset.carShowroomZoom = zoomRange.value;
+              bumpRevision();
+            }
+          },
+
+          onRotate: (deltaX, deltaY, velocity) => {
+            const rect = canvas.getBoundingClientRect();
+            if (rect.width <= 0 || rect.height <= 0) return;
+
+            const normalizedX = (deltaX / rect.width) * 2;
+            const normalizedY = (deltaY / rect.height) * 2;
+
+            rawPointer.x += normalizedX;
+            rawPointer.y -= normalizedY;
+
+            // Apply velocity for momentum
+            if (!caps.reducedMotion) {
+              const momentumX = (velocity.x / rect.width) * 0.5;
+              const momentumY = (velocity.y / rect.height) * 0.5;
+              pointer.x += momentumX * 0.1;
+              pointer.y -= momentumY * 0.1;
+            }
+          },
+
+          onDoubleTap: () => {
+            // Double-tap to toggle immersive mode
+            toggleImmersive();
+
+            // If exiting immersive, also reframing the model is a nice touch
+            if (!isImmersive) {
+              const rec = showroomInstance.getFrameRecommendation();
+              if (rec) {
+                applyCameraFrame(rec, 'UI restored & reframed.');
+              }
+            }
+          },
+
+          onLongPress: (x, y) => {
+            // Long-press to pick part
+            pickPartAt(x, y);
+          },
+        });
+      }
+
+      // Legacy touch handlers for pinch (as fallback)
+      onTouchStart = (e: TouchEvent) => {
+        if (mobileGestures) return; // Use enhanced gestures instead
+        if (e.touches.length !== 2) return;
+        pinchActive = true;
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        pinchStartDist = Math.hypot(dx, dy);
+        pinchStartZoom = zoomTarget;
+      };
+
+      onTouchMove = (e: TouchEvent) => {
+        if (mobileGestures) return; // Use enhanced gestures instead
+        if (!pinchActive || e.touches.length !== 2) return;
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        const dist = Math.hypot(dx, dy);
+
+        const t = clamp((dist - pinchStartDist) / 260, -1, 1);
+        zoomTarget = clamp(pinchStartZoom - t, 0, 1);
+
+        if (zoomRange) {
+          zoomRange.value = zoomTarget.toFixed(2);
+          root.dataset.carShowroomZoom = zoomRange.value;
+          bumpRevision();
+        }
+      };
+
+      onTouchEnd = () => {
+        if (mobileGestures) return; // Use enhanced gestures instead
+        pinchActive = false;
+      };
+
+      if (!caps.reducedMotion) {
+        canvas.addEventListener('pointermove', onPointerMove, {
+          passive: true,
+        });
+        canvas.addEventListener('pointerdown', onPointerDown, {
+          passive: true,
+        });
+        window.addEventListener('pointerup', onPointerUp, { passive: true });
+        canvas.addEventListener('wheel', onWheel, { passive: true });
+        canvas.addEventListener('touchstart', onTouchStart, { passive: true });
+        canvas.addEventListener('touchmove', onTouchMove, { passive: true });
+        canvas.addEventListener('touchend', onTouchEnd, { passive: true });
+        canvas.addEventListener('touchcancel', onTouchEnd, { passive: true });
+      }
+
+      // Render loop
+      const clock = new THREE.Clock();
+      running = true;
+      let fpsSmoothed = 0;
+      let fpsTimer = 0;
+
+      const loop = () => {
+        if (!running) return;
+        raf = requestAnimationFrame(loop);
+
+        try {
+          applyPostFxFromDataset();
+
+          const dtRaw = Math.min(clock.getDelta(), 0.05);
+          if (dtRaw < 0) return; // Ignore negative or faulty clock reads
+
+          const fpsInstant = 1 / Math.max(dtRaw, 1e-4);
+          fpsSmoothed = fpsSmoothed
+            ? lerp(fpsSmoothed, fpsInstant, 0.1)
+            : fpsInstant;
+          fpsTimer += dtRaw;
+          if (fpsTimer > 0.5) {
+            root.dataset.carShowroomFps = Math.round(fpsSmoothed).toString();
+
+            // Update quality badge on mobile
+            const currentQuality =
+              root.dataset.carShowroomQuality || 'balanced';
+            updateQualityBadge(fpsSmoothed, currentQuality);
+
+            fpsTimer = 0;
           }
 
-          // Try native share on mobile (with screenshot)
-          if (isMobileDevice() && navigator.share && navigator.canShare) {
-            try {
-              const file = new File([blob], 'car-showroom.png', {
-                type: 'image/png',
-              });
+          const autoQuality =
+            root.dataset.carShowroomAutoQuality !== 'false' &&
+            root.dataset.carShowroomAutoQuality !== '0';
+          if (autoQuality) {
+            const now = performance.now();
+            const currentQuality =
+              root.dataset.carShowroomQuality || 'balanced';
+            const cooldown = now - lastQualityShift;
 
-              const shareData = {
-                title: 'My 3D Car Configuration',
-                text: 'Check out my custom car design!',
-                files: [file],
-              };
+            // More aggressive thresholds on mobile
+            const isMobile = isMobileDevice();
+            const lowFpsThreshold = isMobile ? 35 : 40;
+            const highFpsThreshold = isMobile ? 50 : 58;
+            const lowFpsDuration = isMobile ? 1.5 : 2.5;
+            const highFpsDuration = isMobile ? 3.0 : 4.0;
+            const cooldownTime = isMobile ? 2000 : 2500;
 
-              if (navigator.canShare(shareData)) {
-                await navigator.share(shareData);
-                showToast('Shared successfully!');
+            if (fpsSmoothed < lowFpsThreshold) {
+              lowFpsTime += dtRaw;
+              highFpsTime = 0;
+            } else if (fpsSmoothed > highFpsThreshold) {
+              highFpsTime += dtRaw;
+              lowFpsTime = 0;
+            } else {
+              lowFpsTime = 0;
+              highFpsTime = 0;
+            }
 
-                // Restore view sizing
-                sceneInstance.background = prevBg;
-                rendererInstance.setPixelRatio(prevDpr);
+            if (lowFpsTime > lowFpsDuration && cooldown > cooldownTime) {
+              if (currentQuality === 'ultra') setQuality('balanced', true);
+              else if (currentQuality === 'balanced')
+                setQuality('performance', true);
+              lowFpsTime = 0;
+            } else if (
+              highFpsTime > highFpsDuration &&
+              cooldown > cooldownTime + 1000
+            ) {
+              if (currentQuality === 'performance')
+                setQuality('balanced', true);
+              else if (currentQuality === 'balanced' && !isMobile)
+                setQuality('ultra', true);
+              highFpsTime = 0;
+            }
+
+            // Dynamic pixel ratio adjustment on mobile
+            if (isMobile) {
+              const targetDpr =
+                fpsSmoothed > 55 ? 1.5 : fpsSmoothed > 45 ? 1.25 : 1.0;
+              const currentDpr = size.dpr;
+              const maxAllowed = Math.min(caps.devicePixelRatio, qualityDprCap);
+              const adjustedDpr = Math.min(targetDpr, maxAllowed);
+
+              if (Math.abs(currentDpr - adjustedDpr) > 0.15) {
+                size.dpr = adjustedDpr;
+
+                rendererInstance.setPixelRatio(size.dpr);
                 rendererInstance.setSize(size.width, size.height, false);
-                composerInstance.setPixelRatio(prevDpr);
+
+                composerInstance.setPixelRatio(size.dpr);
                 composerInstance.setSize(size.width, size.height);
+
                 showroomInstance.resize(size.width, size.height);
+
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 (fxaaInstance.material.uniforms as any)['resolution'].value.set(
-                  1 / (size.width * prevDpr),
-                  1 / (size.height * prevDpr)
+                  1 / (size.width * size.dpr),
+                  1 / (size.height * size.dpr)
                 );
                 bloomInstance.setSize(size.width, size.height);
-                return;
-              }
-            } catch (err) {
-              // User cancelled or share failed, fall through to download
-              if ((err as Error).name !== 'AbortError') {
-                console.warn('Share failed:', err);
               }
             }
           }
 
-          // Fallback to download
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = 'car-showroom.png';
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
-          showToast('Screenshot downloaded.');
+          // Smooth pointer.
+          if (Number.isFinite(rawPointer.x) && Number.isFinite(rawPointer.y)) {
+            pointer.x = damp(pointer.x, rawPointer.x, 12, dtRaw);
+            pointer.y = damp(pointer.y, rawPointer.y, 12, dtRaw);
+          }
 
-          // Restore view sizing
-          sceneInstance.background = prevBg;
-          rendererInstance.setPixelRatio(prevDpr);
-          rendererInstance.setSize(size.width, size.height, false);
-          composerInstance.setPixelRatio(prevDpr);
-          composerInstance.setSize(size.width, size.height);
-          showroomInstance.resize(size.width, size.height);
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (fxaaInstance.material.uniforms as any)['resolution'].value.set(
-            1 / (size.width * prevDpr),
-            1 / (size.height * prevDpr)
-          );
-          bloomInstance.setSize(size.width, size.height);
-        }, 'image/png');
-      } catch {
-        showToast('Screenshot failed.');
-      }
-    };
+          pointerVelocity
+            .copy(pointer)
+            .sub(prevPointer)
+            .divideScalar(Math.max(dtRaw, 1e-4));
+          prevPointer.copy(pointer);
 
-    const resize = () => {
-      const rect = canvas.getBoundingClientRect();
-      size.width = Math.max(1, Math.floor(rect.width));
-      size.height = Math.max(1, Math.floor(rect.height));
+          if (Number.isFinite(pressTarget)) {
+            press = damp(press, pressTarget, 10, dtRaw);
+          }
 
-      const isLowPower = root.dataset.carShowroomLowPower === 'true';
-      const effectiveCap = isLowPower ? 1 : qualityDprCap;
-      size.dpr = Math.min(caps.devicePixelRatio, effectiveCap);
+          // Smooth zoom
+          if (Number.isFinite(zoomTarget)) {
+            zoom = damp(zoom, zoomTarget, 8, dtRaw);
+          }
 
-      rendererInstance.setPixelRatio(size.dpr);
-      rendererInstance.setSize(size.width, size.height, false);
-      composerInstance.setPixelRatio(size.dpr);
-      composerInstance.setSize(size.width, size.height);
+          // Advance the showroom.
+          if (showroomInstance && sceneInstance) {
+            showroomInstance.update(
+              sceneInstance,
+              dtRaw,
+              pointer,
+              pointerVelocity,
+              press,
+              zoom
+            );
+          }
 
-      showroomInstance.resize(size.width, size.height);
+          if (composerInstance) {
+            composerInstance.render();
+          }
+        } catch (err) {
+          console.error('[CarShowroom] Error in render loop:', err);
+          // Fallback simple render if composer fails
+          if (rendererInstance && sceneInstance && showroomInstance) {
+            rendererInstance.render(sceneInstance, showroomInstance.camera);
+          }
+        }
+      };
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (fxaaInstance.material.uniforms as any)['resolution'].value.set(
-        1 / (size.width * size.dpr),
-        1 / (size.height * size.dpr)
-      );
+      loop();
 
-      bloomInstance.setSize(size.width, size.height);
-    };
-
-    resize();
-
-    const updateQualityCap = (v: string) => {
-      if (v === 'performance') qualityDprCap = 1;
-      else if (v === 'ultra') qualityDprCap = caps.maxDpr;
-      else qualityDprCap = Math.min(caps.maxDpr, 1.75);
-    };
-
-    updateQualityCap(root.dataset.carShowroomQuality || 'balanced');
-
-    let lastQualityShift = 0;
-    let lowFpsTime = 0;
-    let highFpsTime = 0;
-
-    const setQuality = (v: string, fromAuto = false) => {
-      const next =
-        v === 'performance' || v === 'balanced' || v === 'ultra'
-          ? v
-          : 'balanced';
-      const current = root.dataset.carShowroomQuality || 'balanced';
-      if (current === next) return;
-      root.dataset.carShowroomQuality = next;
-      if (qualitySel) qualitySel.value = next;
-      updateQualityCap(next);
-      applyQuality();
-      resize();
-      bumpRevision();
-      lastQualityShift = performance.now();
-      if (!fromAuto) {
-        lowFpsTime = 0;
-        highFpsTime = 0;
-      }
-    };
-
-    qualitySel?.addEventListener('change', () => {
-      const v = (qualitySel.value || 'balanced').trim();
-      setQuality(v, false);
-    });
-
-    // Sensible defaults for export options
-    if (shotScaleSel && !shotScaleSel.value) shotScaleSel.value = '2';
-    if (shotScaleSel && (shotScaleSel.value || '').trim() === '1') {
-      // leave as-is
-    }
-
-    // Tap/click part picking
-    const raycaster = new THREE.Raycaster();
-    const pickNdc = new THREE.Vector2();
-    const pickPartAt = (clientX: number, clientY: number) => {
-      const rect = canvas.getBoundingClientRect();
-      const x = (clientX - rect.left) / Math.max(1, rect.width);
-      const y = (clientY - rect.top) / Math.max(1, rect.height);
-      pickNdc.set(x * 2 - 1, -(y * 2 - 1));
-      const hit = showroomInstance.pickMesh(pickNdc, raycaster);
-      if (!hit) return;
-      root.dataset.carShowroomSelectedPart = hit.part;
-      root.dataset.carShowroomSelectedMeshName = (hit.mesh?.name || '').trim();
-      root.dataset.carShowroomSelectedMeshPath = (hit.meshPath || '').trim();
-      root.dataset.carShowroomSelectedMaterialName = (() => {
-        const readName = (v: unknown): string => {
-          if (!v) return '';
-          const obj = v as { name?: unknown };
-          return typeof obj.name === 'string' ? obj.name : '';
-        };
-
-        const mat = hit.mesh?.material as unknown;
-        if (Array.isArray(mat)) return readName(mat[0]).trim();
-        return readName(mat).trim();
-      })();
-      showroomInstance.setSelectedMesh(hit.mesh);
-      if (selectedPartEl) selectedPartEl.textContent = `Selected: ${hit.part}`;
-      if (selectedMeshEl) {
-        const name = (root.dataset.carShowroomSelectedMeshName || '').trim();
-        selectedMeshEl.hidden = name.length === 0;
-        selectedMeshEl.textContent = name ? `Mesh: ${name}` : '';
-      }
-      if (selectedPathEl) {
-        const path = (root.dataset.carShowroomSelectedMeshPath || '').trim();
-        selectedPathEl.hidden = path.length === 0;
-        selectedPathEl.textContent = path ? `Path: ${path}` : '';
-      }
-      if (selectedMaterialEl) {
-        const name = (
-          root.dataset.carShowroomSelectedMaterialName || ''
-        ).trim();
-        selectedMaterialEl.hidden = name.length === 0;
-        selectedMaterialEl.textContent = name ? `Material: ${name}` : '';
-      }
-    };
-
-    onCanvasPointerUp = e => {
-      // Avoid picking while dragging/rotating.
-      if (press > 0.55) return;
-      pickPartAt(e.clientX, e.clientY);
-    };
-    canvas.addEventListener('pointerup', onCanvasPointerUp);
-
-    clearSelectionBtn?.addEventListener('click', () => {
-      root.dataset.carShowroomSelectedPart = '';
-      root.dataset.carShowroomSelectedMeshName = '';
-      root.dataset.carShowroomSelectedMeshPath = '';
-      root.dataset.carShowroomSelectedMaterialName = '';
-      showroomInstance.clearSelection();
-      if (selectedPartEl)
-        selectedPartEl.textContent = 'Tap/click the car to select';
-      if (selectedMeshEl) {
-        selectedMeshEl.hidden = true;
-        selectedMeshEl.textContent = '';
-      }
-      if (selectedPathEl) {
-        selectedPathEl.hidden = true;
-        selectedPathEl.textContent = '';
-      }
-      if (selectedMaterialEl) {
-        selectedMaterialEl.hidden = true;
-        selectedMaterialEl.textContent = '';
-      }
-    });
-
-    // Deterministic test breadcrumb.
-    document.documentElement.dataset.carShowroomBoot = '1';
-
-    onPointerMove = (e: PointerEvent) => {
-      const rect = canvas.getBoundingClientRect();
-      if (rect.width <= 0 || rect.height <= 0) return;
-
-      const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-      const y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-      rawPointer.set(x, y);
-    };
-
-    onPointerDown = () => {
-      pressTarget = 1;
-    };
-
-    onPointerUp = () => {
-      pressTarget = 0;
-    };
-
-    onWheel = (e: WheelEvent) => {
-      if (caps.reducedMotion) return;
-      // Trackpad can be huge; keep it gentle.
-      const delta = clamp(e.deltaY / 1200, -0.25, 0.25);
-      zoomTarget = clamp(zoomTarget + delta, 0, 1);
-      if (zoomRange) {
-        zoomRange.value = zoomTarget.toFixed(2);
-        root.dataset.carShowroomZoom = zoomRange.value;
+      lowPowerChk?.addEventListener('change', () => {
+        root.dataset.carShowroomLowPower = lowPowerChk.checked
+          ? 'true'
+          : 'false';
         bumpRevision();
-      }
-    };
-
-    // Enhanced mobile gesture handler
-
-    const isMobileDevice = () => {
-      return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    };
-
-    if (isMobileDevice()) {
-      mobileGestures = new MobileGestureHandler(canvas, {
-        onPinchZoom: (_scale, delta) => {
-          const sensitivity = 0.8;
-          zoomTarget = clamp(zoomTarget - delta * sensitivity, 0, 1);
-
-          if (zoomRange) {
-            zoomRange.value = zoomTarget.toFixed(2);
-            root.dataset.carShowroomZoom = zoomRange.value;
-            bumpRevision();
-          }
-        },
-
-        onRotate: (deltaX, deltaY, velocity) => {
-          const rect = canvas.getBoundingClientRect();
-          if (rect.width <= 0 || rect.height <= 0) return;
-
-          const normalizedX = (deltaX / rect.width) * 2;
-          const normalizedY = (deltaY / rect.height) * 2;
-
-          rawPointer.x += normalizedX;
-          rawPointer.y -= normalizedY;
-
-          // Apply velocity for momentum
-          if (!caps.reducedMotion) {
-            const momentumX = (velocity.x / rect.width) * 0.5;
-            const momentumY = (velocity.y / rect.height) * 0.5;
-            pointer.x += momentumX * 0.1;
-            pointer.y -= momentumY * 0.1;
-          }
-        },
-
-        onDoubleTap: () => {
-          // Double-tap to toggle immersive mode
-          toggleImmersive();
-
-          // If exiting immersive, also reframing the model is a nice touch
-          if (!isImmersive) {
-            const rec = showroomInstance.getFrameRecommendation();
-            if (rec) {
-              applyCameraFrame(rec, 'UI restored & reframed.');
-            }
-          }
-        },
-
-        onLongPress: (x, y) => {
-          // Long-press to pick part
-          pickPartAt(x, y);
-        },
-      });
-    }
-
-    // Legacy touch handlers for pinch (as fallback)
-    onTouchStart = (e: TouchEvent) => {
-      if (mobileGestures) return; // Use enhanced gestures instead
-      if (e.touches.length !== 2) return;
-      pinchActive = true;
-      const dx = e.touches[0].clientX - e.touches[1].clientX;
-      const dy = e.touches[0].clientY - e.touches[1].clientY;
-      pinchStartDist = Math.hypot(dx, dy);
-      pinchStartZoom = zoomTarget;
-    };
-
-    onTouchMove = (e: TouchEvent) => {
-      if (mobileGestures) return; // Use enhanced gestures instead
-      if (!pinchActive || e.touches.length !== 2) return;
-      const dx = e.touches[0].clientX - e.touches[1].clientX;
-      const dy = e.touches[0].clientY - e.touches[1].clientY;
-      const dist = Math.hypot(dx, dy);
-
-      const t = clamp((dist - pinchStartDist) / 260, -1, 1);
-      zoomTarget = clamp(pinchStartZoom - t, 0, 1);
-
-      if (zoomRange) {
-        zoomRange.value = zoomTarget.toFixed(2);
-        root.dataset.carShowroomZoom = zoomRange.value;
-        bumpRevision();
-      }
-    };
-
-    onTouchEnd = () => {
-      if (mobileGestures) return; // Use enhanced gestures instead
-      pinchActive = false;
-    };
-
-    if (!caps.reducedMotion) {
-      canvas.addEventListener('pointermove', onPointerMove, { passive: true });
-      canvas.addEventListener('pointerdown', onPointerDown, { passive: true });
-      window.addEventListener('pointerup', onPointerUp, { passive: true });
-      canvas.addEventListener('wheel', onWheel, { passive: true });
-      canvas.addEventListener('touchstart', onTouchStart, { passive: true });
-      canvas.addEventListener('touchmove', onTouchMove, { passive: true });
-      canvas.addEventListener('touchend', onTouchEnd, { passive: true });
-      canvas.addEventListener('touchcancel', onTouchEnd, { passive: true });
-    }
-
-    // Render loop
-    const clock = new THREE.Clock();
-    running = true;
-    let fpsSmoothed = 0;
-    let fpsTimer = 0;
-
-    const loop = () => {
-      if (!running) return;
-      raf = requestAnimationFrame(loop);
-
-      try {
         applyPostFxFromDataset();
+        resize();
+      });
 
-        const dtRaw = Math.min(clock.getDelta(), 0.05);
-        if (dtRaw < 0) return; // Ignore negative or faulty clock reads
-
-        const fpsInstant = 1 / Math.max(dtRaw, 1e-4);
-        fpsSmoothed = fpsSmoothed
-          ? lerp(fpsSmoothed, fpsInstant, 0.1)
-          : fpsInstant;
-        fpsTimer += dtRaw;
-        if (fpsTimer > 0.5) {
-          root.dataset.carShowroomFps = Math.round(fpsSmoothed).toString();
-
-          // Update quality badge on mobile
-          const currentQuality = root.dataset.carShowroomQuality || 'balanced';
-          updateQualityBadge(fpsSmoothed, currentQuality);
-
-          fpsTimer = 0;
+      hapticsChk?.addEventListener('change', () => {
+        if (hapticsChk.checked) {
+          triggerHaptic(10);
         }
+      });
 
-        const autoQuality =
-          root.dataset.carShowroomAutoQuality !== 'false' &&
-          root.dataset.carShowroomAutoQuality !== '0';
-        if (autoQuality) {
-          const now = performance.now();
-          const currentQuality = root.dataset.carShowroomQuality || 'balanced';
-          const cooldown = now - lastQualityShift;
+      shadowQualityChk?.addEventListener('change', () => {
+        rendererInstance.shadowMap.type = shadowQualityChk.checked
+          ? THREE.PCFSoftShadowMap
+          : THREE.BasicShadowMap;
+        rendererInstance.shadowMap.needsUpdate = true;
+        triggerHaptic(10);
+      });
 
-          // More aggressive thresholds on mobile
-          const isMobile = isMobileDevice();
-          const lowFpsThreshold = isMobile ? 35 : 40;
-          const highFpsThreshold = isMobile ? 50 : 58;
-          const lowFpsDuration = isMobile ? 1.5 : 2.5;
-          const highFpsDuration = isMobile ? 3.0 : 4.0;
-          const cooldownTime = isMobile ? 2000 : 2500;
+      viewArBtn?.addEventListener('click', () => {
+        const modelUrl = root.dataset.carShowroomModel;
+        if (modelUrl) {
+          window.open(modelUrl, '_blank');
+        }
+      });
 
-          if (fpsSmoothed < lowFpsThreshold) {
-            lowFpsTime += dtRaw;
-            highFpsTime = 0;
-          } else if (fpsSmoothed > highFpsThreshold) {
-            highFpsTime += dtRaw;
-            lowFpsTime = 0;
-          } else {
-            lowFpsTime = 0;
-            highFpsTime = 0;
-          }
+      onResize = () => resize();
+      window.addEventListener('resize', onResize, { passive: true });
 
-          if (lowFpsTime > lowFpsDuration && cooldown > cooldownTime) {
-            if (currentQuality === 'ultra') setQuality('balanced', true);
-            else if (currentQuality === 'balanced')
-              setQuality('performance', true);
-            lowFpsTime = 0;
-          } else if (
-            highFpsTime > highFpsDuration &&
-            cooldown > cooldownTime + 1000
-          ) {
-            if (currentQuality === 'performance') setQuality('balanced', true);
-            else if (currentQuality === 'balanced' && !isMobile)
-              setQuality('ultra', true);
-            highFpsTime = 0;
-          }
-
-          // Dynamic pixel ratio adjustment on mobile
-          if (isMobile) {
-            const targetDpr =
-              fpsSmoothed > 55 ? 1.5 : fpsSmoothed > 45 ? 1.25 : 1.0;
-            const currentDpr = size.dpr;
-            const maxAllowed = Math.min(caps.devicePixelRatio, qualityDprCap);
-            const adjustedDpr = Math.min(targetDpr, maxAllowed);
-
-            if (Math.abs(currentDpr - adjustedDpr) > 0.15) {
-              size.dpr = adjustedDpr;
-
-              rendererInstance.setPixelRatio(size.dpr);
-              rendererInstance.setSize(size.width, size.height, false);
-
-              composerInstance.setPixelRatio(size.dpr);
-              composerInstance.setSize(size.width, size.height);
-
-              showroomInstance.resize(size.width, size.height);
-
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              (fxaaInstance.material.uniforms as any)['resolution'].value.set(
-                1 / (size.width * size.dpr),
-                1 / (size.height * size.dpr)
-              );
-              bloomInstance.setSize(size.width, size.height);
+      // Keep it alive only when visible.
+      let firstIntersect = true;
+      io = new IntersectionObserver(
+        entries => {
+          const entry = entries[0];
+          if (!entry) return;
+          if (entry.isIntersecting) {
+            clock.getDelta();
+            if (firstIntersect) {
+              firstIntersect = false;
+              resize(); // Ensure correct size on first visibility
+              console.log('[CarShowroom] Ready and visible.');
             }
           }
-        }
-
-        // Smooth pointer.
-        if (Number.isFinite(rawPointer.x) && Number.isFinite(rawPointer.y)) {
-          pointer.x = damp(pointer.x, rawPointer.x, 12, dtRaw);
-          pointer.y = damp(pointer.y, rawPointer.y, 12, dtRaw);
-        }
-
-        pointerVelocity
-          .copy(pointer)
-          .sub(prevPointer)
-          .divideScalar(Math.max(dtRaw, 1e-4));
-        prevPointer.copy(pointer);
-
-        if (Number.isFinite(pressTarget)) {
-          press = damp(press, pressTarget, 10, dtRaw);
-        }
-
-        // Smooth zoom
-        if (Number.isFinite(zoomTarget)) {
-          zoom = damp(zoom, zoomTarget, 8, dtRaw);
-        }
-
-        // Advance the showroom.
-        if (showroomInstance && sceneInstance) {
-          showroomInstance.update(
-            sceneInstance,
-            dtRaw,
-            pointer,
-            pointerVelocity,
-            press,
-            zoom
-          );
-        }
-
-        if (composerInstance) {
-          composerInstance.render();
-        }
-      } catch (err) {
-        console.error('[CarShowroom] Error in render loop:', err);
-        // Fallback simple render if composer fails
-        if (rendererInstance && sceneInstance && showroomInstance) {
-          rendererInstance.render(sceneInstance, showroomInstance.camera);
-        }
-      }
-    };
-
-    loop();
-
-    lowPowerChk?.addEventListener('change', () => {
-      root.dataset.carShowroomLowPower = lowPowerChk.checked ? 'true' : 'false';
-      bumpRevision();
-      applyPostFxFromDataset();
-      resize();
-    });
-
-    hapticsChk?.addEventListener('change', () => {
-      if (hapticsChk.checked) {
-        triggerHaptic(10);
-      }
-    });
-
-    shadowQualityChk?.addEventListener('change', () => {
-      rendererInstance.shadowMap.type = shadowQualityChk.checked
-        ? THREE.PCFSoftShadowMap
-        : THREE.BasicShadowMap;
-      rendererInstance.shadowMap.needsUpdate = true;
-      triggerHaptic(10);
-    });
-
-    viewArBtn?.addEventListener('click', () => {
-      const modelUrl = root.dataset.carShowroomModel;
-      if (modelUrl) {
-        window.open(modelUrl, '_blank');
-      }
-    });
-
-    onResize = () => resize();
-    window.addEventListener('resize', onResize, { passive: true });
-
-    // Keep it alive only when visible.
-    let firstIntersect = true;
-    io = new IntersectionObserver(
-      entries => {
-        const entry = entries[0];
-        if (!entry) return;
-        if (entry.isIntersecting) {
-          clock.getDelta();
-          if (firstIntersect) {
-            firstIntersect = false;
-            resize(); // Ensure correct size on first visibility
-            console.log('[CarShowroom] Ready and visible.');
-          }
-        }
-      },
-      { root: null, threshold: 0.01 }
-    );
-    io.observe(root);
+        },
+        { root: null, threshold: 0.01 }
+      );
+      io.observe(root);
+    }
   }
 
   return {

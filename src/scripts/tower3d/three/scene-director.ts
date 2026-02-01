@@ -11,6 +11,7 @@ import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment
 import { UIControls } from './ui-controls';
 import { AudioController } from './audio-controller';
 import type { TowerCaps } from '../core/caps';
+import { createSafeWebGLRenderer } from './renderer-factory';
 import { createScenes } from './scenes';
 import { GlobalParticleSystem, ParticleMode } from './gpgpu-system';
 import type { SceneRuntime, TowerScene } from './scenes';
@@ -266,7 +267,7 @@ export class SceneDirector {
     this.galleryMode = options?.galleryMode ?? false;
 
     try {
-      this.renderer = new THREE.WebGLRenderer({
+      this.renderer = createSafeWebGLRenderer({
         canvas: this.canvas,
         alpha: false,
         antialias: false, // MSAA disabled for EffectComposer
