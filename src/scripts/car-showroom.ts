@@ -586,27 +586,9 @@ createAstroMount(ROOT_SELECTOR, () => {
     '[data-csr-floating-randomize]'
   );
 
-  let floatingBarVisible = false;
-  let floatingBarTimeout: number | null = null;
-
-  const showFloatingBar = () => {
-    if (!floatingBar || !isMobileDevice()) return;
-    floatingBar.dataset.visible = 'true';
-    floatingBarVisible = true;
-
-    // Auto-hide after 5 seconds
-    if (floatingBarTimeout) {
-      window.clearTimeout(floatingBarTimeout);
-    }
-    floatingBarTimeout = window.setTimeout(() => {
-      hideFloatingBar();
-    }, 5000);
-  };
-
   const hideFloatingBar = () => {
     if (!floatingBar) return;
     floatingBar.dataset.visible = 'false';
-    floatingBarVisible = false;
   };
 
   // Show floating bar on color/mode changes
@@ -2105,6 +2087,7 @@ createAstroMount(ROOT_SELECTOR, () => {
   const statusObserver = new MutationObserver(() => {
     syncStatus();
     syncModelStats();
+    onConfigChange();
   });
   statusObserver.observe(root, { attributes: true });
   addEventListener('beforeunload', () => statusObserver.disconnect(), {
@@ -3978,11 +3961,26 @@ createAstroMount(ROOT_SELECTOR, () => {
       powerPreference: 'high-performance',
     });
     renderer = rendererInstance;
+    console.log(
+      '[CarShowroom] Renderer initialized:',
+      rendererInstance.capabilities.isWebGL2 ? 'WebGL2' : 'WebGL1'
+    );
 
     rendererInstance.shadowMap.enabled = true;
     rendererInstance.shadowMap.type = THREE.PCFSoftShadowMap;
     rendererInstance.toneMapping = THREE.ACESFilmicToneMapping;
     rendererInstance.toneMappingExposure = 1.0;
+
+    // Handle older/newer three versions transition for color space
+    const r = rendererInstance as unknown as {
+      outputColorSpace?: string;
+      outputEncoding?: number;
+    };
+    if (r.outputColorSpace !== undefined) {
+      r.outputColorSpace = THREE.SRGBColorSpace;
+    } else if (r.outputEncoding !== undefined) {
+      r.outputEncoding = 3001; // sRGBEncoding
+    }
 
     const sceneInstance = new THREE.Scene();
 
@@ -4547,125 +4545,140 @@ createAstroMount(ROOT_SELECTOR, () => {
       if (!running) return;
       raf = requestAnimationFrame(loop);
 
-      applyPostFxFromDataset();
+      try {
+        applyPostFxFromDataset();
 
-      const dtRaw = Math.min(clock.getDelta(), 0.05);
+        const dtRaw = Math.min(clock.getDelta(), 0.05);
+        if (dtRaw < 0) return; // Ignore negative or faulty clock reads
 
-      const fpsInstant = 1 / Math.max(dtRaw, 1e-4);
-      fpsSmoothed = fpsSmoothed
-        ? lerp(fpsSmoothed, fpsInstant, 0.1)
-        : fpsInstant;
-      fpsTimer += dtRaw;
-      if (fpsTimer > 0.5) {
-        root.dataset.carShowroomFps = Math.round(fpsSmoothed).toString();
+        const fpsInstant = 1 / Math.max(dtRaw, 1e-4);
+        fpsSmoothed = fpsSmoothed
+          ? lerp(fpsSmoothed, fpsInstant, 0.1)
+          : fpsInstant;
+        fpsTimer += dtRaw;
+        if (fpsTimer > 0.5) {
+          root.dataset.carShowroomFps = Math.round(fpsSmoothed).toString();
 
-        // Update quality badge on mobile
-        const currentQuality = root.dataset.carShowroomQuality || 'balanced';
-        updateQualityBadge(fpsSmoothed, currentQuality);
+          // Update quality badge on mobile
+          const currentQuality = root.dataset.carShowroomQuality || 'balanced';
+          updateQualityBadge(fpsSmoothed, currentQuality);
 
-        fpsTimer = 0;
-      }
-
-      const autoQuality =
-        root.dataset.carShowroomAutoQuality !== 'false' &&
-        root.dataset.carShowroomAutoQuality !== '0';
-      if (autoQuality) {
-        const now = performance.now();
-        const currentQuality = root.dataset.carShowroomQuality || 'balanced';
-        const cooldown = now - lastQualityShift;
-
-        // More aggressive thresholds on mobile
-        const isMobile = isMobileDevice();
-        const lowFpsThreshold = isMobile ? 35 : 40;
-        const highFpsThreshold = isMobile ? 50 : 58;
-        const lowFpsDuration = isMobile ? 1.5 : 2.5;
-        const highFpsDuration = isMobile ? 3.0 : 4.0;
-        const cooldownTime = isMobile ? 2000 : 2500;
-
-        if (fpsSmoothed < lowFpsThreshold) {
-          lowFpsTime += dtRaw;
-          highFpsTime = 0;
-        } else if (fpsSmoothed > highFpsThreshold) {
-          highFpsTime += dtRaw;
-          lowFpsTime = 0;
-        } else {
-          lowFpsTime = 0;
-          highFpsTime = 0;
+          fpsTimer = 0;
         }
 
-        if (lowFpsTime > lowFpsDuration && cooldown > cooldownTime) {
-          if (currentQuality === 'ultra') setQuality('balanced', true);
-          else if (currentQuality === 'balanced')
-            setQuality('performance', true);
-          lowFpsTime = 0;
-        } else if (
-          highFpsTime > highFpsDuration &&
-          cooldown > cooldownTime + 1000
-        ) {
-          if (currentQuality === 'performance') setQuality('balanced', true);
-          else if (currentQuality === 'balanced' && !isMobile)
-            setQuality('ultra', true);
-          highFpsTime = 0;
-        }
+        const autoQuality =
+          root.dataset.carShowroomAutoQuality !== 'false' &&
+          root.dataset.carShowroomAutoQuality !== '0';
+        if (autoQuality) {
+          const now = performance.now();
+          const currentQuality = root.dataset.carShowroomQuality || 'balanced';
+          const cooldown = now - lastQualityShift;
 
-        // Dynamic pixel ratio adjustment on mobile
-        if (isMobile) {
-          const targetDpr =
-            fpsSmoothed > 55 ? 1.5 : fpsSmoothed > 45 ? 1.25 : 1.0;
-          const currentDpr = size.dpr;
-          const maxAllowed = Math.min(caps.devicePixelRatio, qualityDprCap);
-          const adjustedDpr = Math.min(targetDpr, maxAllowed);
+          // More aggressive thresholds on mobile
+          const isMobile = isMobileDevice();
+          const lowFpsThreshold = isMobile ? 35 : 40;
+          const highFpsThreshold = isMobile ? 50 : 58;
+          const lowFpsDuration = isMobile ? 1.5 : 2.5;
+          const highFpsDuration = isMobile ? 3.0 : 4.0;
+          const cooldownTime = isMobile ? 2000 : 2500;
 
-          if (Math.abs(currentDpr - adjustedDpr) > 0.15) {
-            size.dpr = adjustedDpr;
+          if (fpsSmoothed < lowFpsThreshold) {
+            lowFpsTime += dtRaw;
+            highFpsTime = 0;
+          } else if (fpsSmoothed > highFpsThreshold) {
+            highFpsTime += dtRaw;
+            lowFpsTime = 0;
+          } else {
+            lowFpsTime = 0;
+            highFpsTime = 0;
+          }
 
-            rendererInstance.setPixelRatio(size.dpr);
-            rendererInstance.setSize(size.width, size.height, false);
+          if (lowFpsTime > lowFpsDuration && cooldown > cooldownTime) {
+            if (currentQuality === 'ultra') setQuality('balanced', true);
+            else if (currentQuality === 'balanced')
+              setQuality('performance', true);
+            lowFpsTime = 0;
+          } else if (
+            highFpsTime > highFpsDuration &&
+            cooldown > cooldownTime + 1000
+          ) {
+            if (currentQuality === 'performance') setQuality('balanced', true);
+            else if (currentQuality === 'balanced' && !isMobile)
+              setQuality('ultra', true);
+            highFpsTime = 0;
+          }
 
-            composerInstance.setPixelRatio(size.dpr);
-            composerInstance.setSize(size.width, size.height);
+          // Dynamic pixel ratio adjustment on mobile
+          if (isMobile) {
+            const targetDpr =
+              fpsSmoothed > 55 ? 1.5 : fpsSmoothed > 45 ? 1.25 : 1.0;
+            const currentDpr = size.dpr;
+            const maxAllowed = Math.min(caps.devicePixelRatio, qualityDprCap);
+            const adjustedDpr = Math.min(targetDpr, maxAllowed);
 
-            showroomInstance.resize(size.width, size.height);
+            if (Math.abs(currentDpr - adjustedDpr) > 0.15) {
+              size.dpr = adjustedDpr;
 
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (fxaaInstance.material.uniforms as any)['resolution'].value.set(
-              1 / (size.width * size.dpr),
-              1 / (size.height * size.dpr)
-            );
-            bloomInstance.setSize(size.width, size.height);
+              rendererInstance.setPixelRatio(size.dpr);
+              rendererInstance.setSize(size.width, size.height, false);
+
+              composerInstance.setPixelRatio(size.dpr);
+              composerInstance.setSize(size.width, size.height);
+
+              showroomInstance.resize(size.width, size.height);
+
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (fxaaInstance.material.uniforms as any)['resolution'].value.set(
+                1 / (size.width * size.dpr),
+                1 / (size.height * size.dpr)
+              );
+              bloomInstance.setSize(size.width, size.height);
+            }
           }
         }
-      }
 
-      // Smooth pointer.
-      pointer.x = damp(pointer.x, rawPointer.x, 12, dtRaw);
-      pointer.y = damp(pointer.y, rawPointer.y, 12, dtRaw);
+        // Smooth pointer.
+        if (Number.isFinite(rawPointer.x) && Number.isFinite(rawPointer.y)) {
+          pointer.x = damp(pointer.x, rawPointer.x, 12, dtRaw);
+          pointer.y = damp(pointer.y, rawPointer.y, 12, dtRaw);
+        }
 
-      pointerVelocity
-        .copy(pointer)
-        .sub(prevPointer)
-        .divideScalar(Math.max(dtRaw, 1e-4));
-      prevPointer.copy(pointer);
+        pointerVelocity
+          .copy(pointer)
+          .sub(prevPointer)
+          .divideScalar(Math.max(dtRaw, 1e-4));
+        prevPointer.copy(pointer);
 
-      press = damp(press, pressTarget, 10, dtRaw);
+        if (Number.isFinite(pressTarget)) {
+          press = damp(press, pressTarget, 10, dtRaw);
+        }
 
-      // Smooth zoom
-      zoom = damp(zoom, zoomTarget, 8, dtRaw);
+        // Smooth zoom
+        if (Number.isFinite(zoomTarget)) {
+          zoom = damp(zoom, zoomTarget, 8, dtRaw);
+        }
 
-      // Advance the showroom.
-      if (showroomInstance && sceneInstance) {
-        showroomInstance.update(
-          sceneInstance,
-          dtRaw,
-          pointer,
-          pointerVelocity,
-          press,
-          zoom
-        );
-      }
+        // Advance the showroom.
+        if (showroomInstance && sceneInstance) {
+          showroomInstance.update(
+            sceneInstance,
+            dtRaw,
+            pointer,
+            pointerVelocity,
+            press,
+            zoom
+          );
+        }
 
-      if (composerInstance) {
-        composerInstance.render();
+        if (composerInstance) {
+          composerInstance.render();
+        }
+      } catch (err) {
+        console.error('[CarShowroom] Error in render loop:', err);
+        // Fallback simple render if composer fails
+        if (rendererInstance && sceneInstance && showroomInstance) {
+          rendererInstance.render(sceneInstance, showroomInstance.camera);
+        }
       }
     };
 
@@ -4703,11 +4716,19 @@ createAstroMount(ROOT_SELECTOR, () => {
     window.addEventListener('resize', onResize, { passive: true });
 
     // Keep it alive only when visible.
+    let firstIntersect = true;
     io = new IntersectionObserver(
       entries => {
         const entry = entries[0];
         if (!entry) return;
-        if (entry.isIntersecting) clock.getDelta();
+        if (entry.isIntersecting) {
+          clock.getDelta();
+          if (firstIntersect) {
+            firstIntersect = false;
+            resize(); // Ensure correct size on first visibility
+            console.log('[CarShowroom] Ready and visible.');
+          }
+        }
       },
       { root: null, threshold: 0.01 }
     );

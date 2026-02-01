@@ -593,7 +593,7 @@ export class CarShowroomScene {
     this.topLight.position.set(0, 14, 0);
     this.stage.add(this.topLight);
 
-    this.ambientLight = new THREE.AmbientLight(0xffffff, 0.08);
+    this.ambientLight = new THREE.AmbientLight(0xffffff, 0.15);
     this.stage.add(this.ambientLight);
 
     this.underglowLight = new THREE.PointLight(0x22d3ee, 0, 12, 2);
@@ -705,8 +705,18 @@ export class CarShowroomScene {
     this.loader.setMeshoptDecoder(MeshoptDecoder);
 
     this.pmrem = new THREE.PMREMGenerator(renderer);
-    const env = new RoomEnvironment();
-    this.envTex = this.pmrem.fromScene(env, 0.04).texture;
+    try {
+      const env = new RoomEnvironment();
+      this.envTex = this.pmrem.fromScene(env, 0.04).texture;
+    } catch (e) {
+      console.warn(
+        '[CarShowroom] RoomEnvironment failed, using neutral fallback:',
+        e
+      );
+      // Neutral fallback if RoomEnvironment fails
+      const rt = this.pmrem.fromScene(new THREE.Scene()).texture;
+      this.envTex = rt;
+    }
   }
 
   setQuality(preset: QualityPreset) {
@@ -1961,6 +1971,7 @@ export class CarShowroomScene {
     this.applyWheelPreset(ui.wheelFinish);
     this.applyTrimPreset(ui.trimFinish);
     this.applyGlassTint(ui.glassTint);
+    this.applyEnvironmentIntensity(loaded, ui.envIntensity);
 
     // Per-part color overrides keep the physical tuning from presets.
     this.wheelMat.color.copy(ui.wheelColor);
@@ -2136,8 +2147,27 @@ export class CarShowroomScene {
       const model = gltf.scene;
       if (!model) throw new Error('GLTF parse resulted in an empty scene');
 
+      // Double check model visibility and recursive opacity
+      model.visible = true;
+      model.traverse(obj => {
+        obj.visible = true;
+        if ((obj as THREE.Mesh).isMesh) {
+          const m = obj as THREE.Mesh;
+          m.castShadow = true;
+          m.receiveShadow = true;
+          // Ensure it's not transparently hidden by default
+          if (m.material) {
+            const mats = Array.isArray(m.material) ? m.material : [m.material];
+            mats.forEach(mat => {
+              if (mat.opacity === 0) mat.opacity = 1;
+            });
+          }
+        }
+      });
+
       // Normalize scale + center + place on floor.
-      const box = new THREE.Box3().setFromObject(model);
+      const box = new THREE.Box3();
+      box.setFromObject(model);
       const size = new THREE.Vector3();
       box.getSize(size);
 
@@ -2147,6 +2177,13 @@ export class CarShowroomScene {
           '[CarShowroom] Loaded model appears empty or zero-sized:',
           normalized
         );
+        // Add a debug placeholder if needed
+        const debugGeo = new THREE.BoxGeometry(1, 1, 1);
+        const debugMat = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+        const debugMesh = new THREE.Mesh(debugGeo, debugMat);
+        model.add(debugMesh);
+        box.setFromObject(model);
+        box.getSize(size);
       }
 
       const maxDim = Math.max(0.1, size.x, size.y, size.z);
@@ -2166,6 +2203,7 @@ export class CarShowroomScene {
       }
 
       this.loaded = model;
+      this.modelGroup.clear(); // Ensure it is empty before adding
       this.modelGroup.add(model);
       this.modelBaseY = model.position.y;
       this.modelYaw = model.rotation.y;
@@ -2321,15 +2359,26 @@ export class CarShowroomScene {
     this.orbitYaw = damp(this.orbitYaw, yawTarget, 7.5, dt);
     this.orbitPitch = damp(this.orbitPitch, this.orbitPitchTarget, 7.5, dt);
     this.orbitRadius = damp(this.orbitRadius, this.orbitRadiusTarget, 6.5, dt);
+
+    // Safety check for NaN which can happen if dt is 0 or other weird state
+    if (!Number.isFinite(this.orbitYaw)) this.orbitYaw = 0;
+    if (!Number.isFinite(this.orbitPitch)) this.orbitPitch = 0.12;
+    if (!Number.isFinite(this.orbitRadius)) this.orbitRadius = 9.8;
+
     this.lookAt.x = damp(this.lookAt.x, this.lookAtTarget.x, 7.5, dt);
     this.lookAt.y = damp(this.lookAt.y, this.lookAtTarget.y, 7.5, dt);
     this.lookAt.z = damp(this.lookAt.z, this.lookAtTarget.z, 7.5, dt);
+
+    if (!Number.isFinite(this.lookAt.x)) this.lookAt.x = 0;
+    if (!Number.isFinite(this.lookAt.y)) this.lookAt.y = 0.85;
+    if (!Number.isFinite(this.lookAt.z)) this.lookAt.z = 0;
+
     this.rigYaw = damp(this.rigYaw, this.rigYawTarget, 6.5, dt);
     this.modelYaw = damp(this.modelYaw, this.modelYawTarget, 6.5, dt);
     this.rideHeight = damp(this.rideHeight, this.rideHeightTarget, 6.5, dt);
 
     const fov = damp(this.camera.fov, this.fovTarget, 6.5, dt);
-    if (Math.abs(fov - this.camera.fov) > 1e-3) {
+    if (Number.isFinite(fov) && Math.abs(fov - this.camera.fov) > 1e-3) {
       this.camera.fov = fov;
       this.camera.updateProjectionMatrix();
     }
@@ -2340,12 +2389,18 @@ export class CarShowroomScene {
       Math.cos(this.orbitYaw) * Math.cos(this.orbitPitch) * this.orbitRadius;
     const yRel = Math.sin(this.orbitPitch) * this.orbitRadius;
 
-    this.camera.position.set(
-      this.lookAt.x + xRel,
-      this.lookAt.y + yRel,
-      this.lookAt.z + zRel
-    );
-    this.camera.lookAt(this.lookAt);
+    if (
+      Number.isFinite(xRel) &&
+      Number.isFinite(yRel) &&
+      Number.isFinite(zRel)
+    ) {
+      this.camera.position.set(
+        this.lookAt.x + xRel,
+        this.lookAt.y + yRel,
+        this.lookAt.z + zRel
+      );
+      this.camera.lookAt(this.lookAt);
+    }
 
     if (this.loaded) {
       this.loaded.rotation.y = this.modelYaw;
