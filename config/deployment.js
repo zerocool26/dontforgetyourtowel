@@ -49,8 +49,11 @@ const getRepoInfo = env => {
   const owner =
     getEnvValue(env, ['GITHUB_OWNER', 'GITHUB_ACTOR', 'REPOSITORY_OWNER']) ||
     '';
-  const fallbackRepo =
-    getEnvValue(env, ['REPO_NAME', 'PROJECT_NAME', 'npm_package_name']) || '';
+  // Intentionally do NOT fall back to `npm_package_name`.
+  // npm injects it for local scripts, which would incorrectly force a non-root
+  // base path for local dev/build/preview and can make all assets (including 3D)
+  // appear broken when hosted under a different path.
+  const fallbackRepo = getEnvValue(env, ['REPO_NAME', 'PROJECT_NAME']) || '';
 
   if (repoSlug.includes('/')) {
     const [slugOwner, slugRepo] = repoSlug.split('/');

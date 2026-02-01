@@ -591,6 +591,25 @@ createAstroMount(ROOT_SELECTOR, () => {
     floatingBar.dataset.visible = 'false';
   };
 
+  let floatingBarHideTimer: number | null = null;
+
+  const showFloatingBar = () => {
+    if (!floatingBar) return;
+    floatingBar.dataset.visible = 'true';
+
+    if (floatingBarHideTimer) {
+      window.clearTimeout(floatingBarHideTimer);
+      floatingBarHideTimer = null;
+    }
+
+    // Auto-hide after a short delay unless the UI is intentionally hidden.
+    floatingBarHideTimer = window.setTimeout(() => {
+      if (!root.classList.contains('is-immersive')) {
+        hideFloatingBar();
+      }
+    }, 2800);
+  };
+
   // Show floating bar on color/mode changes
   const onConfigChange = () => {
     syncModePills();

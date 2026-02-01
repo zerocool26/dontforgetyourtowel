@@ -33,7 +33,18 @@ export const createAstroMount = (
     store.cleanup = null;
     store.mountedRoot = root;
 
-    const mounted = mountFn();
+    let mounted: ReturnType<MountFn>;
+    try {
+      mounted = mountFn();
+    } catch (error) {
+      // Avoid a single mount failure taking down all subsequent mounts.
+      // (This shows up as "3D doesn't render anywhere" when an entry module throws.)
+      console.error(
+        `[createAstroMount] mount failed for ${rootSelector}`,
+        error
+      );
+      return;
+    }
     if (!mounted) return;
 
     if (typeof mounted === 'function') {
