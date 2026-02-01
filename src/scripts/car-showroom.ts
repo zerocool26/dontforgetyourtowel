@@ -867,6 +867,9 @@ createAstroMount(ROOT_SELECTOR, () => {
   const envIntensityRange = root.querySelector<HTMLInputElement>(
     '[data-csr-env-intensity]'
   );
+  const envRotationRange = root.querySelector<HTMLInputElement>(
+    '[data-csr-env-rotation]'
+  );
   const lightPresetSel = root.querySelector<HTMLSelectElement>(
     '[data-csr-light-preset]'
   );
@@ -1810,6 +1813,7 @@ createAstroMount(ROOT_SELECTOR, () => {
     'carShowroomRimBoost',
     'carShowroomBackground',
     'carShowroomEnvIntensity',
+    'carShowroomEnvRotation',
     'carShowroomLightIntensity',
     'carShowroomRigYaw',
     'carShowroomRigHeight',
@@ -1979,6 +1983,8 @@ createAstroMount(ROOT_SELECTOR, () => {
       bgSel.value = ds.carShowroomBackground;
     if (envIntensityRange && ds.carShowroomEnvIntensity)
       envIntensityRange.value = ds.carShowroomEnvIntensity;
+    if (envRotationRange && ds.carShowroomEnvRotation)
+      envRotationRange.value = ds.carShowroomEnvRotation;
     if (lightIntensityRange && ds.carShowroomLightIntensity)
       lightIntensityRange.value = ds.carShowroomLightIntensity;
     if (lightWarmthRange && ds.carShowroomLightWarmth)
@@ -2407,6 +2413,7 @@ createAstroMount(ROOT_SELECTOR, () => {
   root.dataset.carShowroomLightPreset ||= lightPresetSel?.value || 'studio';
   root.dataset.carShowroomBackground ||= bgSel?.value || 'void';
   root.dataset.carShowroomEnvIntensity ||= envIntensityRange?.value || '0.7';
+  root.dataset.carShowroomEnvRotation ||= envRotationRange?.value || '0';
   root.dataset.carShowroomLightIntensity ||= lightIntensityRange?.value || '1';
   root.dataset.carShowroomLightWarmth ||= lightWarmthRange?.value || '0';
   root.dataset.carShowroomRimBoost ||= rimBoostRange?.value || '1';
@@ -2455,6 +2462,12 @@ createAstroMount(ROOT_SELECTOR, () => {
   root.dataset.carShowroomPartMap ||= '';
 
   if (modelUrlInp) modelUrlInp.value = root.dataset.carShowroomModel;
+
+  // Final synchronization and first boot trigger
+  window.setTimeout(() => {
+    bumpRevision();
+    syncStatus();
+  }, 100);
 
   // Sync inputs to dataset (including deep-linking).
   if (modelSel && root.dataset.carShowroomModel) {
@@ -2620,10 +2633,11 @@ createAstroMount(ROOT_SELECTOR, () => {
   // Keep the URL input in sync with the select.
   modelSel?.addEventListener('change', () => {
     if (!modelUrlInp) return;
-    modelUrlInp.value = modelSel.value;
+    const model = (modelSel.value || '').trim();
+    modelUrlInp.value = model;
+    root.dataset.carShowroomModel = model;
 
     // When the model changes via the dropdown, swap to its saved part map.
-    const model = (modelSel.value || '').trim();
     const map = loadPartMapForModel(model);
     root.dataset.carShowroomPartMap = Object.keys(map).length
       ? JSON.stringify(map)
@@ -3016,6 +3030,8 @@ createAstroMount(ROOT_SELECTOR, () => {
     if (bgSel) root.dataset.carShowroomBackground = bgSel.value;
     if (envIntensityRange)
       root.dataset.carShowroomEnvIntensity = envIntensityRange.value;
+    if (envRotationRange)
+      root.dataset.carShowroomEnvRotation = envRotationRange.value;
     if (lightIntensityRange)
       root.dataset.carShowroomLightIntensity = lightIntensityRange.value;
     if (lightWarmthRange)

@@ -61,6 +61,7 @@ type UiState = {
   glassTint: number;
   background: ShowroomBackground;
   envIntensity: number;
+  envRotation: number;
   lightIntensity: number;
   lightWarmth: number;
   rimBoost: number;
@@ -126,8 +127,11 @@ const degToRad = (d: number) => (d * Math.PI) / 180;
 const radToDeg = (r: number) => (r * 180) / Math.PI;
 
 const resolveModelUrl = (raw: string): string => {
-  const v = raw.trim();
-  if (!v) return withBasePath('/models/porsche-911-gt3rs.glb');
+  const v = (raw || '').trim();
+  if (!v) {
+    const fallback = withBasePath('/models/porsche-911-gt3rs.glb');
+    return fallback;
+  }
   if (
     v.startsWith('http://') ||
     v.startsWith('https://') ||
@@ -137,7 +141,8 @@ const resolveModelUrl = (raw: string): string => {
     return v;
 
   const normalized = v.startsWith('/') ? v : `/${v}`;
-  return withBasePath(normalized);
+  const final = withBasePath(normalized);
+  return final;
 };
 
 const createContactShadowTexture = (size = 256): THREE.CanvasTexture => {
@@ -413,7 +418,7 @@ export class CarShowroomScene {
   private readonly modelGroup = new THREE.Group();
 
   private readonly ground: THREE.Mesh;
-  private readonly groundMat: THREE.MeshStandardMaterial;
+  private readonly groundMat: THREE.MeshPhysicalMaterial;
   private readonly contactShadow: THREE.Mesh;
 
   private readonly gridHelper: THREE.GridHelper;
@@ -422,6 +427,7 @@ export class CarShowroomScene {
   private readonly fillLight: THREE.DirectionalLight;
   private readonly rimLight: THREE.DirectionalLight;
   private readonly topLight: THREE.DirectionalLight;
+  private readonly ambientLight: THREE.AmbientLight;
 
   private readonly keyLightBase = new THREE.Vector3(7, 10, 6);
   private readonly fillLightBase = new THREE.Vector3(-8, 7, 2);
@@ -514,10 +520,12 @@ export class CarShowroomScene {
     this.stage.add(this.modelGroup);
 
     const groundGeo = new THREE.PlaneGeometry(60, 60);
-    this.groundMat = new THREE.MeshStandardMaterial({
+    this.groundMat = new THREE.MeshPhysicalMaterial({
       color: 0x05070d,
       roughness: 0.55,
       metalness: 0.02,
+      ior: 1.5,
+      thickness: 0.05,
     });
     this.ground = new THREE.Mesh(groundGeo, this.groundMat);
     this.ground.rotation.x = -Math.PI / 2;
@@ -585,6 +593,9 @@ export class CarShowroomScene {
     this.topLight.position.set(0, 14, 0);
     this.stage.add(this.topLight);
 
+    this.ambientLight = new THREE.AmbientLight(0xffffff, 0.08);
+    this.stage.add(this.ambientLight);
+
     this.underglowLight = new THREE.PointLight(0x22d3ee, 0, 12, 2);
     this.underglowLight.position.set(0, 0.35, 0);
     this.stage.add(this.underglowLight);
@@ -611,6 +622,8 @@ export class CarShowroomScene {
       metalness: 0.12,
       clearcoat: 1.0,
       clearcoatRoughness: 0.08,
+      sheen: 0.15,
+      sheenRoughness: 0.35,
     });
 
     this.wrapMat = new THREE.MeshPhysicalMaterial({
@@ -619,6 +632,8 @@ export class CarShowroomScene {
       metalness: 0.06,
       clearcoat: 0.8,
       clearcoatRoughness: 0.12,
+      sheen: 0.2,
+      sheenRoughness: 0.45,
     });
 
     this.glassMat = new THREE.MeshPhysicalMaterial({
@@ -630,6 +645,8 @@ export class CarShowroomScene {
       ior: 1.45,
       transparent: true,
       opacity: 1,
+      attenuationColor: new THREE.Color('#e2e8f0'),
+      attenuationDistance: 0.5,
     });
 
     this.trimMat = new THREE.MeshPhysicalMaterial({
@@ -638,6 +655,7 @@ export class CarShowroomScene {
       metalness: 1.0,
       clearcoat: 0.35,
       clearcoatRoughness: 0.35,
+      anisotropy: 0.15,
     });
 
     this.wheelMat = new THREE.MeshPhysicalMaterial({
@@ -646,6 +664,7 @@ export class CarShowroomScene {
       metalness: 1.0,
       clearcoat: 0.2,
       clearcoatRoughness: 0.4,
+      anisotropy: 0.6,
     });
 
     this.caliperMat = new THREE.MeshPhysicalMaterial({
@@ -657,8 +676,8 @@ export class CarShowroomScene {
     });
 
     this.tireMat = new THREE.MeshStandardMaterial({
-      color: 0x0b0f1a,
-      roughness: 1.0,
+      color: 0x07090f,
+      roughness: 0.82,
       metalness: 0.0,
     });
 
@@ -1124,6 +1143,11 @@ export class CarShowroomScene {
       0,
       3
     );
+    const envRotation = clamp(
+      parseNumber(ds.carShowroomEnvRotation, 0),
+      0,
+      360
+    );
     const lightIntensity = clamp(
       parseNumber(ds.carShowroomLightIntensity, 1),
       0.2,
@@ -1304,6 +1328,7 @@ export class CarShowroomScene {
       glassTint,
       background,
       envIntensity,
+      envRotation,
       lightIntensity,
       lightWarmth,
       rimBoost,
@@ -1453,16 +1478,28 @@ export class CarShowroomScene {
         this.groundMat.color.set('#0b1220');
         this.groundMat.roughness = 0.16;
         this.groundMat.metalness = 0.35;
+        this.groundMat.clearcoat = 0.85;
+        this.groundMat.clearcoatRoughness = 0.05;
       } else if (ui.floorPreset === 'glass') {
         this.groundMat.color.set('#0b1220');
         this.groundMat.roughness = 0.05;
         this.groundMat.metalness = 0.0;
+        this.groundMat.clearcoat = 1.0;
+        this.groundMat.clearcoatRoughness = 0.02;
+        this.groundMat.transmission = 0.15;
       }
     }
 
     this.groundMat.color.copy(ui.floorColor);
     this.groundMat.roughness = clamp(ui.floorRoughness, 0, 1);
     this.groundMat.metalness = clamp(ui.floorMetalness, 0, 1);
+
+    // Dynamic physical tuning
+    if (this.groundMat.roughness < 0.25) {
+      this.groundMat.clearcoat = lerp(1, 0, this.groundMat.roughness * 4);
+    } else {
+      this.groundMat.clearcoat = 0;
+    }
 
     const op = clamp(ui.floorOpacity, 0, 1);
     this.groundMat.opacity = op;
@@ -2041,7 +2078,10 @@ export class CarShowroomScene {
 
   private async loadModel(url: string) {
     const normalized = resolveModelUrl(url);
+    if (this.loadingUrl === normalized) return;
+
     this.loadingUrl = normalized;
+    console.log('[CarShowroom] Loading model:', normalized);
 
     this.root.dataset.carShowroomReady = '0';
     this.root.dataset.carShowroomLoading = '1';
@@ -2054,21 +2094,31 @@ export class CarShowroomScene {
 
     try {
       const res = await fetch(normalized);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+      }
       const buffer = await res.arrayBuffer();
 
-      const gltf = await new Promise<THREE.Object3D>((resolve, reject) => {
-        this.loader.parse(
-          buffer,
-          '',
-          data => resolve(data.scene),
-          err => reject(err)
+      // Check if we were cancelled during fetch
+      if (this.loadingUrl !== normalized) {
+        console.warn(
+          '[CarShowroom] Model load cancelled (newer request):',
+          normalized
         );
-      });
+        return;
+      }
+
+      console.time(`[CarShowroom] Parse ${normalized}`);
+      const gltf = await this.loader.parseAsync(buffer, normalized);
+      console.timeEnd(`[CarShowroom] Parse ${normalized}`);
 
       if (this.loadingUrl !== normalized) {
         // A newer request won; drop this load.
-        gltf.traverse(obj => {
+        console.warn(
+          '[CarShowroom] Model parse finished but request was superseded:',
+          normalized
+        );
+        gltf.scene.traverse(obj => {
           const mesh = obj as THREE.Mesh;
           if (!mesh.isMesh) return;
           mesh.geometry?.dispose?.();
@@ -2081,47 +2131,50 @@ export class CarShowroomScene {
 
       this.disposeLoaded();
 
+      const model = gltf.scene;
+
       // Normalize scale + center + place on floor.
       // Important: if we scale the object, we must recompute the box; otherwise
       // translations won't match the scaled size and the car can end up sunk.
-      const box = new THREE.Box3().setFromObject(gltf);
+      const box = new THREE.Box3().setFromObject(model);
       const size = new THREE.Vector3();
       box.getSize(size);
 
       const maxDim = Math.max(1e-3, size.x, size.y, size.z);
       const scale = 4.0 / maxDim;
-      gltf.scale.setScalar(scale);
+      model.scale.setScalar(scale);
 
-      box.setFromObject(gltf);
+      box.setFromObject(model);
       const center = new THREE.Vector3();
       box.getCenter(center);
-      gltf.position.sub(center);
+      model.position.sub(center);
 
-      box.setFromObject(gltf);
+      box.setFromObject(model);
       // Raise so the bottom touches y=0.
-      gltf.position.y -= box.min.y;
+      model.position.y -= box.min.y;
 
-      this.loaded = gltf;
-      this.modelGroup.add(gltf);
-      this.modelBaseY = gltf.position.y;
-      this.modelYaw = gltf.rotation.y;
+      this.loaded = model;
+      this.modelGroup.add(model);
+      this.modelBaseY = model.position.y;
+      this.modelYaw = model.rotation.y;
       this.modelYawTarget = this.modelYaw;
       this.rideHeight = 0;
       this.rideHeightTarget = 0;
 
-      this.captureOriginalMaterials(gltf);
-      this.updateModelStats(gltf);
+      this.captureOriginalMaterials(model);
+      this.updateModelStats(model);
 
       const ui = this.getUiState();
       this.applyCameraPreset(ui, true);
       this.lastCameraPreset = ui.cameraPreset;
-      this.applyMaterials(gltf, ui);
+      this.applyMaterials(model, ui);
       this.applyModelTransform(ui, true);
 
       this.root.dataset.carShowroomReady = '1';
       this.root.dataset.carShowroomLoading = '0';
+      console.log('[CarShowroom] Model load successful:', normalized);
     } catch (e) {
-      console.error('[CarShowroom] Failed to load model', normalized, e);
+      console.error('[CarShowroom] Failed to load model:', normalized, e);
       this.root.dataset.carShowroomReady = '0';
       this.root.dataset.carShowroomLoading = '0';
       const message =
@@ -2130,7 +2183,7 @@ export class CarShowroomScene {
           : typeof e === 'string'
             ? e
             : 'Unknown error';
-      this.root.dataset.carShowroomLoadError = `Failed to load model: ${message}`;
+      this.root.dataset.carShowroomLoadError = `Failed to load model from ${normalized}: ${message}`;
     }
   }
 
@@ -2160,6 +2213,18 @@ export class CarShowroomScene {
     this.applyUnderglow(ui);
     this.applyFloor(ui);
     this.applyEnvironmentIntensity(this.loaded, ui.envIntensity);
+
+    // Dynamic Ambient Light based on environment
+    this.ambientLight.intensity = 0.04 + ui.envIntensity * 0.08;
+
+    // Environment Rotation
+    const envRotRad = degToRad(ui.envRotation);
+    if (scene.environmentRotation) {
+      scene.environmentRotation.set(0, envRotRad, 0);
+    }
+    if (scene.backgroundRotation) {
+      scene.backgroundRotation.set(0, envRotRad, 0);
+    }
 
     // Model
     if (ui.modelUrl && resolveModelUrl(ui.modelUrl) !== this.loadingUrl) {
@@ -2262,11 +2327,14 @@ export class CarShowroomScene {
       this.loaded.position.y = this.modelBaseY + this.rideHeight;
     }
 
-    // Contact shadow responds to camera distance
+    // Contact shadow responds to camera distance and ride height
     const shadowOpacity = clamp(1.12 - (this.orbitRadius - 6) * 0.1, 0.25, 0.9);
+    const heightFactor = clamp(1.0 - this.rideHeight * 2.5, 0.1, 1.0);
     const mat = this.contactShadow.material as THREE.MeshBasicMaterial;
-    mat.opacity = shadowOpacity * clamp(ui.shadowStrength, 0, 1);
-    const shadowSize = clamp(ui.shadowSize, 3, 10);
+    mat.opacity = shadowOpacity * clamp(ui.shadowStrength, 0, 1) * heightFactor;
+
+    const shadowSize =
+      clamp(ui.shadowSize, 3, 10) * (1.0 + this.rideHeight * 0.4);
     this.contactShadow.scale.set(shadowSize, shadowSize * 0.5, 1);
 
     // Slight lighting drift for realism.
@@ -2274,6 +2342,16 @@ export class CarShowroomScene {
     const driftX = Math.sin(this.time * 0.35) * drift;
     const driftZ = Math.cos(this.time * 0.31) * drift;
     this.applyRigPositions(driftX, driftZ, ui.rigHeight);
+
+    // Dynamic Rim Light positioning for better silhouette
+    // Move rim light behind the car relative to camera
+    const camDir = new THREE.Vector3();
+    this.camera.getWorldDirection(camDir);
+    this.rimLight.position.set(
+      -camDir.x * 12 + driftX,
+      6 * ui.rigHeight,
+      -camDir.z * 12 + driftZ
+    );
 
     if (this.underglowBaseIntensity > 0) {
       const pulse =
