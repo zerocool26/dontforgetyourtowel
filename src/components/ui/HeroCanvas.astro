@@ -36,6 +36,11 @@ const { className = '', variant = 'auto' } = Astro.props;
     const host = root.closest('[data-hero-canvas-shell]') || root;
 
     const show = message => {
+      const diagnosticsUrl = new URL(
+        'debug-webgl/',
+        document.baseURI
+      ).toString();
+
       let overlay = host.querySelector('.tower3d-error-overlay');
       if (!overlay) {
         overlay = document.createElement('div');
@@ -53,6 +58,7 @@ const { className = '', variant = 'auto' } = Astro.props;
           <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
             <button data-hero-reload style="cursor:pointer;border:1px solid rgba(255,255,255,0.18);background:rgba(255,255,255,0.06);color:#fff;padding:10px 14px;border-radius:10px;backdrop-filter:blur(10px)">Reload</button>
             <button data-hero-reset-cache style="cursor:pointer;border:1px solid rgba(255,255,255,0.18);background:rgba(255,255,255,0.02);color:#fff;padding:10px 14px;border-radius:10px;backdrop-filter:blur(10px)">Reset offline cache</button>
+            <button data-hero-diagnostics style="cursor:pointer;border:1px solid rgba(255,255,255,0.18);background:rgba(255,255,255,0.02);color:#fff;padding:10px 14px;border-radius:10px;backdrop-filter:blur(10px)">Open diagnostics</button>
           </div>
         </div>
       `;
@@ -83,6 +89,13 @@ const { className = '', variant = 'auto' } = Astro.props;
           } finally {
             window.location.reload();
           }
+        });
+      }
+
+      var diagBtn = overlay.querySelector('[data-hero-diagnostics]');
+      if (diagBtn) {
+        diagBtn.addEventListener('click', () => {
+          window.open(diagnosticsUrl, '_blank', 'noopener');
         });
       }
     };
@@ -134,9 +147,7 @@ const { className = '', variant = 'auto' } = Astro.props;
       url: typeof location !== 'undefined' ? location.href : '',
       ua: typeof navigator !== 'undefined' ? navigator.userAgent : '',
       webdriver:
-        typeof navigator !== 'undefined' &&
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        Boolean((navigator as any).webdriver),
+        typeof navigator !== 'undefined' ? Boolean(navigator.webdriver) : false,
       root: { w: root.clientWidth, h: root.clientHeight },
     };
 
@@ -148,9 +159,14 @@ const { className = '', variant = 'auto' } = Astro.props;
         <div style="opacity:0.9;font-size:13px;line-height:1.45;margin-bottom:12px">
           ${details ? details : 'The hero 3D scene failed to initialize.'}
         </div>
-        <button type="button" data-copy style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);color:#e5e7eb;padding:8px 10px;border-radius:10px;cursor:pointer">
-          Copy diagnostics
-        </button>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button type="button" data-copy style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);color:#e5e7eb;padding:8px 10px;border-radius:10px;cursor:pointer">
+            Copy diagnostics
+          </button>
+          <button type="button" data-open-diag style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#e5e7eb;padding:8px 10px;border-radius:10px;cursor:pointer">
+            Open diagnostics
+          </button>
+        </div>
         <pre style="margin-top:12px;max-height:220px;overflow:auto;padding:12px;border-radius:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10);font-size:12px;line-height:1.4;white-space:pre-wrap">${debugText}</pre>
       </div>
     `;
@@ -168,6 +184,17 @@ const { className = '', variant = 'auto' } = Astro.props;
         } catch {
           // ignore
         }
+      },
+      { once: true }
+    );
+
+    const diagBtn =
+      overlay.querySelector<HTMLButtonElement>('[data-open-diag]');
+    diagBtn?.addEventListener(
+      'click',
+      () => {
+        const url = new URL('debug-webgl/', document.baseURI).toString();
+        window.open(url, '_blank', 'noopener');
       },
       { once: true }
     );

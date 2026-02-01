@@ -331,7 +331,10 @@ createAstroMount(ROOT_SELECTOR, () => {
       <div style="max-width:560px">
         <div style="font-weight:700;font-size:18px;margin-bottom:8px">3D Gallery failed to start</div>
         <div style="opacity:0.85;font-size:14px;line-height:1.5;margin-bottom:16px">${message}</div>
-        <button data-gallery-reload style="cursor:pointer;border:1px solid rgba(255,255,255,0.18);background:rgba(255,255,255,0.06);color:#fff;padding:10px 14px;border-radius:10px;backdrop-filter:blur(10px)">Reload</button>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <button data-gallery-reload style="cursor:pointer;border:1px solid rgba(255,255,255,0.18);background:rgba(255,255,255,0.06);color:#fff;padding:10px 14px;border-radius:10px;backdrop-filter:blur(10px)">Reload</button>
+          <button data-gallery-diagnostics style="cursor:pointer;border:1px solid rgba(255,255,255,0.18);background:rgba(255,255,255,0.02);color:#fff;padding:10px 14px;border-radius:10px;backdrop-filter:blur(10px)">Open diagnostics</button>
+        </div>
       </div>
     `;
 
@@ -341,6 +344,16 @@ createAstroMount(ROOT_SELECTOR, () => {
     const onReload = () => window.location.reload();
     reloadBtn?.addEventListener('click', onReload);
     addGalleryCleanup(() => reloadBtn?.removeEventListener('click', onReload));
+
+    const diagBtn = overlay.querySelector<HTMLButtonElement>(
+      '[data-gallery-diagnostics]'
+    );
+    const onDiag = () => {
+      const url = new URL('debug-webgl/', document.baseURI).toString();
+      window.open(url, '_blank', 'noopener');
+    };
+    diagBtn?.addEventListener('click', onDiag);
+    addGalleryCleanup(() => diagBtn?.removeEventListener('click', onDiag));
 
     // Stop showing the loader after a short beat so the UI isn't stuck.
     if (loaderHideTimeout) clearTimeout(loaderHideTimeout);

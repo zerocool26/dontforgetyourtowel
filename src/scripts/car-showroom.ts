@@ -1749,6 +1749,10 @@ createAstroMount(ROOT_SELECTOR, () => {
   applyQueryState();
 
   // If we later fail to create the renderer, we set this error and keep the UI alive.
+  const diagnosticsUrl = new URL(
+    'debug-webgl/',
+    import.meta.env.BASE_URL
+  ).toString();
 
   const syncStatus = () => {
     const ds = root.dataset;
@@ -1758,7 +1762,9 @@ createAstroMount(ROOT_SELECTOR, () => {
     if (loadingEl) loadingEl.hidden = !isLoading;
     if (errorEl) {
       errorEl.hidden = error.length === 0;
-      errorEl.textContent = error;
+      errorEl.textContent = error
+        ? `${error}\n\nOpen diagnostics: ${diagnosticsUrl}`
+        : '';
     }
   };
 

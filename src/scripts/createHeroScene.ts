@@ -32,6 +32,11 @@ export function createHeroScene(
     shell ?? (canvas.parentElement as HTMLElement | null) ?? document.body;
 
   const showOverlay = (title: string, details: string) => {
+    const diagnosticsUrl = new URL(
+      'debug-webgl/',
+      import.meta.env.BASE_URL
+    ).toString();
+
     // Avoid stacking multiple overlays if Astro re-mounts.
     let overlay = host.querySelector<HTMLElement>('.tower3d-error-overlay');
     if (!overlay) {
@@ -46,9 +51,32 @@ export function createHeroScene(
     overlay.innerHTML = `
       <div style="max-width:620px">
         <div style="font-weight:800;font-size:16px;margin-bottom:8px">${title}</div>
-        <div style="opacity:0.9;font-size:13px;line-height:1.45">${details}</div>
+        <div style="opacity:0.9;font-size:13px;line-height:1.45;margin-bottom:14px">${details}</div>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <button type="button" data-open-diag style="cursor:pointer;border:1px solid rgba(255,255,255,0.18);background:rgba(255,255,255,0.02);color:#fff;padding:10px 14px;border-radius:10px;backdrop-filter:blur(10px)">Open diagnostics</button>
+          <button type="button" data-reload style="cursor:pointer;border:1px solid rgba(255,255,255,0.18);background:rgba(255,255,255,0.06);color:#fff;padding:10px 14px;border-radius:10px;backdrop-filter:blur(10px)">Reload</button>
+        </div>
       </div>
     `;
+
+    const diagBtn =
+      overlay.querySelector<HTMLButtonElement>('[data-open-diag]');
+    diagBtn?.addEventListener(
+      'click',
+      () => {
+        window.open(diagnosticsUrl, '_blank', 'noopener');
+      },
+      { once: true }
+    );
+
+    const reloadBtn = overlay.querySelector<HTMLButtonElement>('[data-reload]');
+    reloadBtn?.addEventListener(
+      'click',
+      () => {
+        window.location.reload();
+      },
+      { once: true }
+    );
 
     return overlay;
   };

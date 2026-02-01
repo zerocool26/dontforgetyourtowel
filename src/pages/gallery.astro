@@ -1572,6 +1572,7 @@ const scenes = [
             <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
               <button data-gallery-reload style="cursor:pointer;border:1px solid rgba(255,255,255,0.18);background:rgba(255,255,255,0.06);color:#fff;padding:10px 14px;border-radius:10px;backdrop-filter:blur(10px)">Reload</button>
               <button data-gallery-reset-cache style="cursor:pointer;border:1px solid rgba(255,255,255,0.18);background:rgba(255,255,255,0.02);color:#fff;padding:10px 14px;border-radius:10px;backdrop-filter:blur(10px)">Reset offline cache</button>
+              <button data-gallery-diagnostics style="cursor:pointer;border:1px solid rgba(255,255,255,0.18);background:rgba(255,255,255,0.02);color:#fff;padding:10px 14px;border-radius:10px;backdrop-filter:blur(10px)">Open diagnostics</button>
             </div>
           </div>
         `;
@@ -1601,6 +1602,13 @@ const scenes = [
             } finally {
               window.location.reload();
             }
+          });
+
+        const diagBtn = overlay.querySelector('[data-gallery-diagnostics]');
+        if (diagBtn)
+          diagBtn.addEventListener('click', () => {
+            const url = new URL('debug-webgl/', document.baseURI).toString();
+            window.open(url, '_blank', 'noopener');
           });
       }, 4500);
     })();

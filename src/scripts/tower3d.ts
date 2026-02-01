@@ -14,6 +14,10 @@ createAstroMount(ROOT_SELECTOR, () => {
   if (!canvas) return null;
 
   const caps = getTowerCaps();
+  const diagnosticsUrl = new URL(
+    'debug-webgl/',
+    import.meta.env.BASE_URL
+  ).toString();
   const showBootError = (title: string, details?: string) => {
     let overlay = root.querySelector<HTMLElement>('.tower3d-error-overlay');
     if (!overlay) {
@@ -28,9 +32,7 @@ createAstroMount(ROOT_SELECTOR, () => {
       url: typeof location !== 'undefined' ? location.href : '',
       ua: typeof navigator !== 'undefined' ? navigator.userAgent : '',
       webdriver:
-        typeof navigator !== 'undefined' &&
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        Boolean((navigator as any).webdriver),
+        typeof navigator !== 'undefined' ? Boolean(navigator.webdriver) : false,
       caps,
     };
 
@@ -42,9 +44,14 @@ createAstroMount(ROOT_SELECTOR, () => {
         <div style="opacity:0.9;font-size:14px;line-height:1.5;margin-bottom:12px">
           ${details ? details : 'The 3D experience failed to start on this device.'}
         </div>
-        <button type="button" data-copy style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);color:#e5e7eb;padding:8px 10px;border-radius:10px;cursor:pointer">
-          Copy diagnostics
-        </button>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button type="button" data-copy style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);color:#e5e7eb;padding:8px 10px;border-radius:10px;cursor:pointer">
+            Copy diagnostics
+          </button>
+          <button type="button" data-open-diag style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#e5e7eb;padding:8px 10px;border-radius:10px;cursor:pointer">
+            Open diagnostics
+          </button>
+        </div>
         <pre style="margin-top:12px;max-height:220px;overflow:auto;padding:12px;border-radius:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10);font-size:12px;line-height:1.4;white-space:pre-wrap">${debugText}</pre>
       </div>
     `;
@@ -62,6 +69,16 @@ createAstroMount(ROOT_SELECTOR, () => {
         } catch {
           // ignore
         }
+      },
+      { once: true }
+    );
+
+    const diagBtn =
+      overlay.querySelector<HTMLButtonElement>('[data-open-diag]');
+    diagBtn?.addEventListener(
+      'click',
+      () => {
+        window.open(diagnosticsUrl, '_blank', 'noopener');
       },
       { once: true }
     );
