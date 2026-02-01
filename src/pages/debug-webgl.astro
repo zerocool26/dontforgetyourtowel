@@ -1,0 +1,57 @@
+---
+import MarketingLayout from '../layouts/MarketingLayout.astro';
+import ModernButton from '../components/ui/ModernButton.astro';
+import { withBasePath } from '../utils/helpers';
+
+const title = 'WebGL Diagnostics';
+const description =
+  'Device + browser diagnostics to determine why 3D rendering fails (WebGL, service worker cache, asset paths).';
+
+const homeHref = withBasePath('/');
+const galleryHref = withBasePath('gallery/');
+const showroomHref = withBasePath('car-showroom/');
+---
+
+<MarketingLayout
+  title={title}
+  description={description}
+  mainClass="pb-24 pt-12"
+  bodyClass="bg-zinc-950"
+>
+  <section class="mx-auto w-full max-w-5xl px-6">
+    <div class="space-y-3">
+      <h1 class="text-3xl font-semibold text-white">WebGL Diagnostics</h1>
+      <p class="text-sm text-zinc-300">
+        This page runs a safe set of probes to determine whether your browser
+        can create a WebGL context, whether the Service Worker is interfering,
+        and whether your deployed JS assets are returning 200s.
+      </p>
+    </div>
+
+    <div class="mt-6 flex flex-wrap gap-3">
+      <ModernButton variant="secondary" href={homeHref}>Home</ModernButton>
+      <ModernButton variant="secondary" href={galleryHref}
+        >3D Gallery</ModernButton
+      >
+      <ModernButton variant="secondary" href={showroomHref}
+        >Car Showroom</ModernButton
+      >
+    </div>
+
+    <div
+      id="debug-webgl-root"
+      class="mt-8 rounded-2xl border border-white/10 bg-black/30 p-5 backdrop-blur"
+    >
+      <div class="text-sm text-zinc-300">Running probes…</div>
+    </div>
+
+    <div class="mt-6 text-xs text-zinc-500">
+      Tip: if you’re on a phone, avoid in-app browsers (Instagram/TikTok/etc).
+      Open this in Chrome/Edge/Safari directly.
+    </div>
+  </section>
+
+  <script>
+    import '../scripts/debug-webgl';
+  </script>
+</MarketingLayout>
