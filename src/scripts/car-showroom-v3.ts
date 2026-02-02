@@ -640,6 +640,10 @@ const init = () => {
   );
 
   const paintInp = root.querySelector<HTMLInputElement>('[data-sr-paint]');
+  const finishSel = root.querySelector<HTMLSelectElement>('[data-sr-finish]');
+  const clearcoatInp = root.querySelector<HTMLInputElement>(
+    '[data-sr-clearcoat]'
+  );
   const originalMatsChk = root.querySelector<HTMLInputElement>(
     '[data-sr-original-mats]'
   );
@@ -1358,6 +1362,8 @@ const init = () => {
     modelLift: Number.parseFloat(modelLift?.value || '0') || 0,
 
     // Look (wrap/glass/parts)
+    finish: (finishSel?.value || 'gloss').trim().toLowerCase(),
+    clearcoat: Number.parseFloat(clearcoatInp?.value || '0.8') || 0.8,
     wrapEnabled: Boolean(wrapEnabledChk?.checked ?? false),
     wrapPattern: (wrapPatternSel?.value || 'solid').trim().toLowerCase(),
     wrapColorHex: parseHexColor(wrapColorInp?.value || '') || '#ffffff',
@@ -1379,6 +1385,13 @@ const init = () => {
   let wrapTexture: THREE.Texture | null = null;
 
   const syncRuntimeLookFromUi = () => {
+    runtime.finish = (finishSel?.value || runtime.finish || 'gloss')
+      .trim()
+      .toLowerCase();
+    runtime.clearcoat =
+      Number.parseFloat(clearcoatInp?.value || `${runtime.clearcoat}`) ||
+      runtime.clearcoat;
+
     runtime.wrapEnabled = Boolean(
       wrapEnabledChk?.checked ?? runtime.wrapEnabled
     );
@@ -1462,7 +1475,7 @@ const init = () => {
   const getRepresentativePartColor = (
     obj: THREE.Object3D,
     predicate: (flags: ReturnType<typeof classifyMeshByName>) => boolean
-  ) => {
+  ): number | null => {
     let found: number | null = null;
     obj.traverse(child => {
       if (found !== null) return;
@@ -1533,8 +1546,50 @@ const init = () => {
     restoreOriginalMaterials(obj);
     if (runtime.originalMats) return;
 
+    const finish = (runtime.finish || 'gloss').trim().toLowerCase();
+    const clearcoat = clamp01(runtime.clearcoat);
+    const finishRoughness =
+      finish === 'matte' ? 0.92 : finish === 'satin' ? 0.48 : 0.18;
+    const finishMetalness = finish === 'matte' ? 0.08 : 0.14;
+
     // Paint stays as the base look when not preserving originals.
     applyPaintHeuristic(obj, runtime.paintHex);
+
+    // Apply finish to body-like surfaces (keeps glass/lights/wheels/calipers intact).
+    obj.traverse(child => {
+      const mesh = child as THREE.Mesh;
+      if (!mesh.isMesh) return;
+      const mats = Array.isArray(mesh.material)
+        ? mesh.material
+        : [mesh.material];
+      for (const mat of mats) {
+        if (!mat) continue;
+        const material = mat as THREE.Material;
+        if (
+          !(material instanceof THREE.MeshStandardMaterial) &&
+          !(material instanceof THREE.MeshPhysicalMaterial)
+        ) {
+          continue;
+        }
+
+        const flags = classifyMeshByName(mesh.name || '', material.name || '');
+        if (flags.isWheel || flags.isCaliper || flags.isGlass || flags.isLight)
+          continue;
+
+        // Roughness/metalness are a big realism lever.
+        material.roughness = clamp01(finishRoughness);
+        material.metalness = clamp01(finishMetalness);
+        material.envMapIntensity = clamp(runtime.envIntensity, 0, 3);
+
+        // Use physical clearcoat where possible.
+        if (material instanceof THREE.MeshPhysicalMaterial) {
+          material.clearcoat = clearcoat;
+          material.clearcoatRoughness = clamp01(0.08 + finishRoughness * 0.22);
+        }
+
+        material.needsUpdate = true;
+      }
+    });
 
     // Wrap
     if (runtime.wrapEnabled) {
@@ -1583,9 +1638,16 @@ const init = () => {
             material.map.offset.set(ox, oy);
           }
           material.color.copy(wrapColor);
-          material.roughness = clamp01(material.roughness ?? 0.45);
-          material.metalness = clamp01(material.metalness ?? 0.15);
+          material.roughness = clamp01(finishRoughness);
+          material.metalness = clamp01(finishMetalness);
           material.envMapIntensity = clamp(runtime.envIntensity, 0, 3);
+
+          if (material instanceof THREE.MeshPhysicalMaterial) {
+            material.clearcoat = clearcoat;
+            material.clearcoatRoughness = clamp01(
+              0.08 + finishRoughness * 0.22
+            );
+          }
           material.needsUpdate = true;
         }
       });
@@ -2159,6 +2221,9 @@ const init = () => {
   });
 
   // Look controls
+  finishSel?.addEventListener('change', () => applyLook());
+  clearcoatInp?.addEventListener('input', () => applyLook());
+
   wrapEnabledChk?.addEventListener('change', () => applyLook());
   wrapPatternSel?.addEventListener('change', () => applyLook());
   wrapColorInp?.addEventListener('input', () => applyLook());
@@ -2424,6 +2489,13 @@ const init = () => {
     if (paint) url.searchParams.set('paint', paint.replace('#', ''));
     url.searchParams.set('om', runtime.originalMats ? '1' : '0');
 
+    // Finish
+    const fin = (finishSel?.value || 'gloss').trim().toLowerCase();
+    const coat = Number.parseFloat(clearcoatInp?.value || '0.8') || 0.8;
+    if (fin && fin !== 'gloss') url.searchParams.set('fin', fin);
+    if (Math.abs(coat - 0.8) > 0.0001)
+      url.searchParams.set('coat', coat.toFixed(3));
+
     // Look
     const we = Boolean(wrapEnabledChk?.checked);
     const wp = (wrapPatternSel?.value || 'solid').trim().toLowerCase();
@@ -2665,6 +2737,9 @@ const init = () => {
     const bt = url.searchParams.get('bt');
     const br = url.searchParams.get('br');
 
+    const fin = url.searchParams.get('fin');
+    const coat = url.searchParams.get('coat');
+
     // Look (wrap/glass/parts)
     const we = url.searchParams.get('we');
     const wp = url.searchParams.get('wp');
@@ -2713,6 +2788,9 @@ const init = () => {
     if (bl && bloom) bloom.value = bl;
     if (bt && bloomThreshold) bloomThreshold.value = bt;
     if (br && bloomRadius) bloomRadius.value = br;
+
+    if (fin && finishSel) finishSel.value = fin;
+    if (coat && clearcoatInp) clearcoatInp.value = coat;
 
     if (we && wrapEnabledChk) wrapEnabledChk.checked = we === '1';
     if (wp && wrapPatternSel) wrapPatternSel.value = wp;
@@ -3244,6 +3322,30 @@ const init = () => {
         label: `Wrap mode: ${onOff(Boolean(wrapEnabledChk?.checked))}`,
         keywords: 'wrap vinyl paint pattern',
         run: () => toggleCheckbox(wrapEnabledChk),
+      },
+      {
+        id: 'look.finish.cycle',
+        group: 'Look',
+        label: `Finish: ${(finishSel?.value || 'gloss').trim()}`,
+        keywords: 'gloss satin matte clearcoat',
+        run: () => {
+          const order = ['gloss', 'satin', 'matte'];
+          const cur = (finishSel?.value || 'gloss').trim().toLowerCase();
+          const idx = Math.max(0, order.indexOf(cur));
+          const next = order[(idx + 1) % order.length];
+          setSelect(finishSel, next);
+        },
+      },
+      {
+        id: 'look.clearcoat.toggle',
+        group: 'Look',
+        label: `Clearcoat: ${Number.parseFloat(clearcoatInp?.value || '0.8').toFixed(2)}`,
+        keywords: 'clear coat',
+        run: () => {
+          const cur = Number.parseFloat(clearcoatInp?.value || '0.8') || 0.8;
+          const next = cur > 0.1 ? 0 : 0.8;
+          setRange(clearcoatInp, next, 'input');
+        },
       },
       {
         id: 'look.wrap.pattern',
@@ -4127,6 +4229,9 @@ const init = () => {
       paint: (paintInp?.value || '').trim(),
       originalMats: Boolean(originalMatsChk?.checked ?? false),
 
+      finish: (finishSel?.value || '').trim(),
+      clearcoat: clearcoatInp?.value,
+
       wrapEnabled: Boolean(wrapEnabledChk?.checked ?? false),
       wrapPattern: (wrapPatternSel?.value || '').trim(),
       wrapColor: (wrapColorInp?.value || '').trim(),
@@ -4221,6 +4326,9 @@ const init = () => {
     setVal(bgSel, state.bg);
     setVal(paintInp, state.paint);
     setChk(originalMatsChk, state.originalMats);
+
+    setVal(finishSel, state.finish);
+    setVal(clearcoatInp, state.clearcoat);
 
     setChk(wrapEnabledChk, state.wrapEnabled);
     setVal(wrapPatternSel, state.wrapPattern);

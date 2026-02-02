@@ -429,6 +429,27 @@ const galleryHref = `${base}gallery/`;
               </label>
 
               <label class="sr-field">
+                <span>Finish</span>
+                <select data-sr-finish>
+                  <option value="gloss">Gloss</option>
+                  <option value="satin">Satin</option>
+                  <option value="matte">Matte</option>
+                </select>
+              </label>
+
+              <label class="sr-field">
+                <span>Clearcoat</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value="0.8"
+                  data-sr-clearcoat
+                />
+              </label>
+
+              <label class="sr-field">
                 <span>Wrap mode</span>
                 <input type="checkbox" data-sr-wrap-enabled />
               </label>
