@@ -359,6 +359,54 @@ const galleryHref = `${base}gallery/`;
               <p class="sr-hint">
                 Tip: use a repo-relative path (models/…) for GitHub Pages.
               </p>
+
+              <div class="sr-grid">
+                <label class="sr-field">
+                  <span>Scale</span>
+                  <input
+                    type="range"
+                    min="0.25"
+                    max="2"
+                    step="0.01"
+                    value="1"
+                    data-sr-model-scale
+                  />
+                </label>
+
+                <label class="sr-field">
+                  <span>Yaw</span>
+                  <input
+                    type="range"
+                    min="-180"
+                    max="180"
+                    step="1"
+                    value="0"
+                    data-sr-model-yaw
+                  />
+                </label>
+
+                <label class="sr-field">
+                  <span>Lift</span>
+                  <input
+                    type="range"
+                    min="-1.5"
+                    max="1.5"
+                    step="0.01"
+                    value="0"
+                    data-sr-model-lift
+                  />
+                </label>
+              </div>
+
+              <div class="sr-row">
+                <button
+                  type="button"
+                  class="sr-btn"
+                  data-sr-model-transform-reset
+                >
+                  Reset transform
+                </button>
+              </div>
             </div>
           </section>
 
@@ -431,7 +479,7 @@ const galleryHref = `${base}gallery/`;
                   min="0.2"
                   max="2.5"
                   step="0.01"
-                  value="1"
+                  value="1.1"
                   data-sr-light-intensity
                 />
               </label>
@@ -662,7 +710,7 @@ const galleryHref = `${base}gallery/`;
             <div class="sr-grid">
               <label class="sr-field">
                 <span>Floor color</span>
-                <input type="color" value="#0f172a" data-sr-floor-color />
+                <input type="color" value="#111827" data-sr-floor-color />
               </label>
               <label class="sr-field">
                 <span>Floor opacity</span>
@@ -817,6 +865,46 @@ const galleryHref = `${base}gallery/`;
                   >Reset</button
                 >
               </div>
+
+              <label class="sr-field">
+                <span>Saved views</span>
+                <select data-sr-camera-view-select></select>
+              </label>
+
+              <div class="sr-row">
+                <button
+                  type="button"
+                  class="sr-btn sr-btn--primary"
+                  data-sr-camera-view-save
+                >
+                  Save view
+                </button>
+                <button type="button" class="sr-btn" data-sr-camera-view-load>
+                  Apply
+                </button>
+                <button type="button" class="sr-btn" data-sr-camera-view-delete>
+                  Delete
+                </button>
+              </div>
+
+              <label class="sr-field">
+                <span>Export / Import JSON</span>
+                <textarea
+                  rows="4"
+                  placeholder="Paste camera views JSON here…"
+                  data-sr-camera-view-io></textarea>
+              </label>
+
+              <div class="sr-row">
+                <button type="button" class="sr-btn" data-sr-camera-view-export>
+                  Export
+                </button>
+                <button type="button" class="sr-btn" data-sr-camera-view-import>
+                  Import
+                </button>
+              </div>
+
+              <p class="sr-hint">Saved views are stored in this browser.</p>
             </div>
           </section>
 
@@ -939,9 +1027,20 @@ const galleryHref = `${base}gallery/`;
                   min="0.5"
                   max="2"
                   step="0.01"
-                  value="1"
+                  value="1.25"
                   data-sr-exposure
                 />
+              </label>
+
+              <label class="sr-field">
+                <span>Tone mapping</span>
+                <select data-sr-tonemap>
+                  <option value="aces" selected>ACES Filmic</option>
+                  <option value="reinhard">Reinhard</option>
+                  <option value="cineon">Cineon</option>
+                  <option value="linear">Linear</option>
+                  <option value="none">None</option>
+                </select>
               </label>
               <label class="sr-field">
                 <span>Bloom</span>
@@ -976,6 +1075,12 @@ const galleryHref = `${base}gallery/`;
                   data-sr-bloom-radius
                 />
               </label>
+
+              <div class="sr-row">
+                <button type="button" class="sr-btn" data-sr-exposure-reset>
+                  Reset exposure
+                </button>
+              </div>
             </div>
           </section>
         </div>

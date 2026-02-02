@@ -7,6 +7,7 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 
 import { withBasePath } from '../utils/helpers';
+import { createSafeWebGLRenderer } from './tower3d/three/renderer-factory';
 
 type LoadState = {
   requestId: number;
@@ -405,6 +406,17 @@ const init = () => {
   );
   const fileInp = root.querySelector<HTMLInputElement>('[data-sr-model-file]');
 
+  const modelScale = root.querySelector<HTMLInputElement>(
+    '[data-sr-model-scale]'
+  );
+  const modelYaw = root.querySelector<HTMLInputElement>('[data-sr-model-yaw]');
+  const modelLift = root.querySelector<HTMLInputElement>(
+    '[data-sr-model-lift]'
+  );
+  const modelTransformResetBtn = root.querySelector<HTMLButtonElement>(
+    '[data-sr-model-transform-reset]'
+  );
+
   const paintInp = root.querySelector<HTMLInputElement>('[data-sr-paint]');
   const originalMatsChk = root.querySelector<HTMLInputElement>(
     '[data-sr-original-mats]'
@@ -477,6 +489,29 @@ const init = () => {
     '[data-sr-camera-reset]'
   );
 
+  // Camera views (bookmarks)
+  const camViewSelect = root.querySelector<HTMLSelectElement>(
+    '[data-sr-camera-view-select]'
+  );
+  const camViewSaveBtn = root.querySelector<HTMLButtonElement>(
+    '[data-sr-camera-view-save]'
+  );
+  const camViewLoadBtn = root.querySelector<HTMLButtonElement>(
+    '[data-sr-camera-view-load]'
+  );
+  const camViewDeleteBtn = root.querySelector<HTMLButtonElement>(
+    '[data-sr-camera-view-delete]'
+  );
+  const camViewIo = root.querySelector<HTMLTextAreaElement>(
+    '[data-sr-camera-view-io]'
+  );
+  const camViewExportBtn = root.querySelector<HTMLButtonElement>(
+    '[data-sr-camera-view-export]'
+  );
+  const camViewImportBtn = root.querySelector<HTMLButtonElement>(
+    '[data-sr-camera-view-import]'
+  );
+
   const autorotate = root.querySelector<HTMLInputElement>(
     '[data-sr-autorotate]'
   );
@@ -497,12 +532,16 @@ const init = () => {
   );
 
   const exposure = root.querySelector<HTMLInputElement>('[data-sr-exposure]');
+  const tonemapSel = root.querySelector<HTMLSelectElement>('[data-sr-tonemap]');
   const bloom = root.querySelector<HTMLInputElement>('[data-sr-bloom]');
   const bloomThreshold = root.querySelector<HTMLInputElement>(
     '[data-sr-bloom-threshold]'
   );
   const bloomRadius = root.querySelector<HTMLInputElement>(
     '[data-sr-bloom-radius]'
+  );
+  const exposureResetBtn = root.querySelector<HTMLButtonElement>(
+    '[data-sr-exposure-reset]'
   );
 
   const screenshotBtns = Array.from(
@@ -611,13 +650,22 @@ const init = () => {
     }
   };
 
+  const getToneMappingFromUi = () => {
+    const v = (tonemapSel?.value || 'aces').trim().toLowerCase();
+    if (v === 'none') return THREE.NoToneMapping;
+    if (v === 'reinhard') return THREE.ReinhardToneMapping;
+    if (v === 'cineon') return THREE.CineonToneMapping;
+    if (v === 'linear') return THREE.LinearToneMapping;
+    return THREE.ACESFilmicToneMapping;
+  };
+
   // Panel system (new)
   const panelApi = initPanel(root);
 
   // Renderer
   let renderer: THREE.WebGLRenderer;
   try {
-    renderer = new THREE.WebGLRenderer({
+    renderer = createSafeWebGLRenderer({
       canvas,
       alpha: true,
       antialias: false,
@@ -635,8 +683,9 @@ const init = () => {
   html.dataset.carShowroomWebgl = '1';
 
   renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = Number.parseFloat(exposure?.value || '1') || 1;
+  renderer.toneMapping = getToneMappingFromUi();
+  renderer.toneMappingExposure =
+    Number.parseFloat(exposure?.value || '1.25') || 1.25;
 
   const deviceDpr = window.devicePixelRatio || 1;
   const basePixelRatio = Math.min(deviceDpr, isMobile() ? 1.5 : 2);
@@ -644,6 +693,11 @@ const init = () => {
   renderer.setPixelRatio(currentPixelRatio);
 
   const scene = new THREE.Scene();
+
+  // Background colors: keep a base (selected) color, optionally brightened during loading.
+  const baseBgColor = new THREE.Color('#111827');
+  const loadingBgColor = new THREE.Color('#1f2937');
+  const tmpBgColor = new THREE.Color();
 
   const camera = new THREE.PerspectiveCamera(45, 1, 0.01, 600);
   camera.position.set(4.2, 1.4, 4.2);
@@ -673,6 +727,10 @@ const init = () => {
 
   const rimBase = rim.position.clone();
 
+  // Extra ambient brightness during model loading (fades out smoothly).
+  const loadingBoostLight = new THREE.AmbientLight(0xffffff, 0);
+  scene.add(loadingBoostLight);
+
   // Scene helpers
   const grid = new THREE.GridHelper(10, 20, 0x334155, 0x1f2937);
   grid.visible = Boolean(gridChk?.checked);
@@ -685,7 +743,7 @@ const init = () => {
 
   // Floor + shadow catcher
   const floorMat = new THREE.MeshStandardMaterial({
-    color: 0x0f172a,
+    color: 0x111827,
     roughness: 1,
     metalness: 0,
     transparent: true,
@@ -722,6 +780,8 @@ const init = () => {
 
   // Model base transform (grounded placement after normalization)
   let modelBaseY = 0;
+  let modelBaseScale = new THREE.Vector3(1, 1, 1);
+  let modelBaseQuat = new THREE.Quaternion();
 
   // Animation runtime
   let mixer: THREE.AnimationMixer | null = null;
@@ -982,7 +1042,7 @@ const init = () => {
     grid: Boolean(gridChk?.checked ?? false),
     axes: Boolean(axesChk?.checked ?? false),
     haptics: Boolean(hapticsChk?.checked ?? true),
-    floorHex: parseHexColor(floorColor?.value || '') || '#0f172a',
+    floorHex: parseHexColor(floorColor?.value || '') || '#111827',
     floorOpacity: Number.parseFloat(floorOpacity?.value || '1') || 1,
     floorRoughness: Number.parseFloat(floorRoughness?.value || '1') || 1,
     floorMetalness: Number.parseFloat(floorMetalness?.value || '0') || 0,
@@ -1003,7 +1063,38 @@ const init = () => {
     bloomStrength: Number.parseFloat(bloom?.value || '0') || 0,
     bloomThreshold: Number.parseFloat(bloomThreshold?.value || '0.9') || 0.9,
     bloomRadius: Number.parseFloat(bloomRadius?.value || '0') || 0,
+    baseExposure: Number.parseFloat(exposure?.value || '1.25') || 1.25,
+    loadingBoostT: 0,
     dynamicScale: 1,
+
+    modelScaleMul: Number.parseFloat(modelScale?.value || '1') || 1,
+    modelYawDeg: Number.parseFloat(modelYaw?.value || '0') || 0,
+    modelLift: Number.parseFloat(modelLift?.value || '0') || 0,
+  };
+
+  const applyModelTransform = () => {
+    const obj = loadState.gltf;
+    if (!obj) return;
+
+    const s = clamp(Number(runtime.modelScaleMul) || 1, 0.1, 6);
+    obj.scale.copy(modelBaseScale).multiplyScalar(s);
+
+    const yawDeg = clamp(Number(runtime.modelYawDeg) || 0, -180, 180);
+    const yawRad = (yawDeg * Math.PI) / 180;
+    const yawQ = new THREE.Quaternion().setFromAxisAngle(
+      new THREE.Vector3(0, 1, 0),
+      yawRad
+    );
+    obj.quaternion.copy(modelBaseQuat).multiply(yawQ);
+
+    // Re-ground after transform. Keep x/z placement stable.
+    const prevX = obj.position.x;
+    const prevZ = obj.position.z;
+    obj.position.set(prevX, 0, prevZ);
+    obj.updateWorldMatrix(true, true);
+    const box = new THREE.Box3().setFromObject(obj);
+    obj.position.y -= box.min.y;
+    modelBaseY = obj.position.y;
   };
 
   const setBackground = (mode: string) => {
@@ -1019,13 +1110,14 @@ const init = () => {
 
     renderer.setClearAlpha(1);
     const map: Record<string, string> = {
-      studio: '#0b0f14',
-      day: '#0b1220',
-      sunset: '#160b12',
-      night: '#05070c',
-      grid: '#070a12',
+      studio: '#111827',
+      day: '#0f172a',
+      sunset: '#1b1220',
+      night: '#070a12',
+      grid: '#0b1020',
     };
-    scene.background = new THREE.Color(map[m] || map.studio);
+    baseBgColor.set(map[m] || map.studio);
+    scene.background = baseBgColor;
     root.dataset.srBackground = m;
   };
 
@@ -1101,8 +1193,8 @@ const init = () => {
   };
 
   const applyPost = () => {
-    renderer.toneMappingExposure =
-      Number.parseFloat(exposure?.value || '1') || 1;
+    renderer.toneMapping = getToneMappingFromUi();
+    runtime.baseExposure = Number.parseFloat(exposure?.value || '1.25') || 1.25;
 
     runtime.bloomStrength = Number.parseFloat(bloom?.value || '0') || 0;
     runtime.bloomThreshold =
@@ -1291,8 +1383,10 @@ const init = () => {
       scene.add(obj);
       loadState.gltf = obj;
 
-      // IMPORTANT: preserve grounded base Y; the animation loop must not force y=0.
-      modelBaseY = obj.position.y;
+      // Capture normalized base transform, then apply user transform on top.
+      modelBaseQuat.copy(obj.quaternion);
+      modelBaseScale.copy(obj.scale);
+      applyModelTransform();
 
       // Build inspector inventory
       inspectorMeshes = [];
@@ -1388,6 +1482,34 @@ const init = () => {
   // Bind UI
   bgSel?.addEventListener('change', () => setBackground(bgSel.value));
   setBackground(runtime.background);
+
+  const syncRuntimeModelTransformFromUi = () => {
+    runtime.modelScaleMul = Number.parseFloat(modelScale?.value || '1') || 1;
+    runtime.modelYawDeg = Number.parseFloat(modelYaw?.value || '0') || 0;
+    runtime.modelLift = Number.parseFloat(modelLift?.value || '0') || 0;
+  };
+
+  modelScale?.addEventListener('input', () => {
+    syncRuntimeModelTransformFromUi();
+    applyModelTransform();
+  });
+  modelYaw?.addEventListener('input', () => {
+    syncRuntimeModelTransformFromUi();
+    applyModelTransform();
+  });
+  modelLift?.addEventListener('input', () => {
+    syncRuntimeModelTransformFromUi();
+  });
+
+  modelTransformResetBtn?.addEventListener('click', () => {
+    if (modelScale) modelScale.value = '1';
+    if (modelYaw) modelYaw.value = '0';
+    if (modelLift) modelLift.value = '0';
+    syncRuntimeModelTransformFromUi();
+    applyModelTransform();
+    setStatus(false, 'Model transform reset.');
+    window.setTimeout(() => setStatus(false, ''), 1200);
+  });
 
   const syncPaint = () => {
     const parsed = parseHexColor(paintInp?.value || '') || runtime.paintHex;
@@ -1490,9 +1612,15 @@ const init = () => {
     applyPost();
   };
   exposure?.addEventListener('input', syncPostUi);
+  tonemapSel?.addEventListener('change', syncPostUi);
   bloom?.addEventListener('input', syncPostUi);
   bloomThreshold?.addEventListener('input', syncPostUi);
   bloomRadius?.addEventListener('input', syncPostUi);
+
+  exposureResetBtn?.addEventListener('click', () => {
+    if (exposure) exposure.value = '1.25';
+    syncPostUi();
+  });
   syncPostUi();
 
   camPreset?.addEventListener('change', applyCameraFromUi);
@@ -1651,6 +1779,25 @@ const init = () => {
     url.searchParams.set('grid', runtime.grid ? '1' : '0');
     url.searchParams.set('axes', runtime.axes ? '1' : '0');
     url.searchParams.set('wf', wireframeChk?.checked ? '1' : '0');
+
+    // Post
+    const ex = Number.parseFloat(exposure?.value || '1.25') || 1.25;
+    const tm = (tonemapSel?.value || 'aces').trim().toLowerCase();
+    const bl = Number.parseFloat(bloom?.value || '0') || 0;
+    const bt = Number.parseFloat(bloomThreshold?.value || '0.9') || 0.9;
+    const br = Number.parseFloat(bloomRadius?.value || '0') || 0;
+    if (Math.abs(ex - 1.25) > 0.0001) url.searchParams.set('ex', ex.toFixed(3));
+    if (tm && tm !== 'aces') url.searchParams.set('tm', tm);
+    if (Math.abs(bl - 0.35) > 0.0001) url.searchParams.set('bl', bl.toFixed(3));
+    if (Math.abs(bt - 0.9) > 0.0001) url.searchParams.set('bt', bt.toFixed(3));
+    if (Math.abs(br) > 0.0001) url.searchParams.set('br', br.toFixed(3));
+
+    const ms = Number(runtime.modelScaleMul) || 1;
+    const my = Number(runtime.modelYawDeg) || 0;
+    const ml = Number(runtime.modelLift) || 0;
+    if (Math.abs(ms - 1) > 0.0001) url.searchParams.set('ms', ms.toFixed(3));
+    if (Math.abs(my) > 0.0001) url.searchParams.set('my', my.toFixed(1));
+    if (Math.abs(ml) > 0.0001) url.searchParams.set('ml', ml.toFixed(3));
     try {
       await navigator.clipboard.writeText(url.toString());
       setStatus(false, 'Link copied.');
@@ -1670,7 +1817,9 @@ const init = () => {
     hapticTap(15);
     try {
       normalizeModelPlacement(loadState.gltf);
-      modelBaseY = loadState.gltf.position.y;
+      modelBaseQuat.copy(loadState.gltf.quaternion);
+      modelBaseScale.copy(loadState.gltf.scale);
+      applyModelTransform();
       fitCameraToObject(loadState.gltf);
       setStatus(false, 'Re-grounded.');
       window.setTimeout(() => setStatus(false, ''), 1200);
@@ -1703,10 +1852,11 @@ const init = () => {
       const amp = clamp(runtime.lastRadius * 0.01, 0.01, 0.08);
       const bob =
         (Math.sin(t * (0.65 + runtime.motionSpeed * 0.7)) * 0.5 + 0.5) * amp;
-      loadState.gltf.position.y = modelBaseY + bob;
+      loadState.gltf.position.y =
+        modelBaseY + (Number(runtime.modelLift) || 0) + bob;
     } else if (loadState.gltf) {
       // Keep grounded (do NOT force y=0; preserve normalization offset)
-      loadState.gltf.position.y = modelBaseY;
+      loadState.gltf.position.y = modelBaseY + (Number(runtime.modelLift) || 0);
     }
 
     if (selectionBox) selectionBox.update();
@@ -1757,6 +1907,31 @@ const init = () => {
     }
 
     controls.update();
+
+    // Loading-time brightness boost
+    {
+      const loading = root.dataset.carShowroomLoading === '1';
+      const target = loading ? 1 : 0;
+      const k = 1 - Math.exp(-deltaS * 6);
+      runtime.loadingBoostT =
+        runtime.loadingBoostT + (target - runtime.loadingBoostT) * k;
+
+      const t = clamp01(runtime.loadingBoostT);
+
+      // Extra ambient during loading so even "toneMapping=none" looks brighter.
+      loadingBoostLight.intensity = 1.25 * t;
+
+      // Exposure lift during loading (clamped to avoid blowout).
+      const base = clamp(Number(runtime.baseExposure) || 1.25, 0.1, 4);
+      renderer.toneMappingExposure = clamp(base * (1 + 0.55 * t), 0.1, 3);
+
+      // Slightly brighten background during loading, but keep the selected theme.
+      if (scene.background instanceof THREE.Color) {
+        tmpBgColor.copy(baseBgColor).lerp(loadingBgColor, 0.65 * t);
+        scene.background = t > 0.001 ? tmpBgColor : baseBgColor;
+      }
+    }
+
     if (composer && runtime.bloomStrength > 0.001) composer.render();
     else renderer.render(scene, camera);
 
@@ -1783,6 +1958,14 @@ const init = () => {
     const gridParam = url.searchParams.get('grid');
     const axesParam = url.searchParams.get('axes');
     const wf = url.searchParams.get('wf');
+    const ms = url.searchParams.get('ms');
+    const my = url.searchParams.get('my');
+    const ml = url.searchParams.get('ml');
+    const ex = url.searchParams.get('ex');
+    const tm = url.searchParams.get('tm');
+    const bl = url.searchParams.get('bl');
+    const bt = url.searchParams.get('bt');
+    const br = url.searchParams.get('br');
 
     if (m) {
       if (modelUrl) modelUrl.value = m;
@@ -1805,6 +1988,16 @@ const init = () => {
     if (gridParam && gridChk) gridChk.checked = gridParam === '1';
     if (axesParam && axesChk) axesChk.checked = axesParam === '1';
     if (wf && wireframeChk) wireframeChk.checked = wf === '1';
+
+    if (ms && modelScale) modelScale.value = ms;
+    if (my && modelYaw) modelYaw.value = my;
+    if (ml && modelLift) modelLift.value = ml;
+
+    if (ex && exposure) exposure.value = ex;
+    if (tm && tonemapSel) tonemapSel.value = tm;
+    if (bl && bloom) bloom.value = bl;
+    if (bt && bloomThreshold) bloomThreshold.value = bt;
+    if (br && bloomRadius) bloomRadius.value = br;
   } catch {
     // ignore
   }
@@ -1840,12 +2033,16 @@ const init = () => {
   runtime.grid = Boolean(gridChk?.checked ?? runtime.grid);
   runtime.axes = Boolean(axesChk?.checked ?? runtime.axes);
   runtime.haptics = Boolean(hapticsChk?.checked ?? runtime.haptics);
+  runtime.modelScaleMul = Number.parseFloat(modelScale?.value || '1') || 1;
+  runtime.modelYawDeg = Number.parseFloat(modelYaw?.value || '0') || 0;
+  runtime.modelLift = Number.parseFloat(modelLift?.value || '0') || 0;
 
   grid.visible = runtime.grid;
   axes.visible = runtime.axes;
   applyLighting();
   syncPaint();
   applyQuality();
+  applyPost();
 
   const initial = (
     modelUrl?.value ||
@@ -2106,6 +2303,13 @@ const init = () => {
     const onOff = (v: boolean) => (v ? 'On' : 'Off');
     const bg = (bgSel?.value || runtime.background || 'studio').trim();
     const q = (qualitySel?.value || runtime.quality || 'balanced').trim();
+    const tmText = (
+      tonemapSel?.selectedOptions?.[0]?.textContent ||
+      tonemapSel?.value ||
+      'ACES Filmic'
+    )
+      .toString()
+      .trim();
 
     const togglePanel = () => {
       const s = panelApi.getSnap();
@@ -2177,6 +2381,28 @@ const init = () => {
           }))
           .filter(p => p.id)
           .slice(0, 20);
+      } catch {
+        return [] as Array<{ id: string; name: string }>;
+      }
+    };
+
+    const readCameraViewsForCmdk = () => {
+      try {
+        const raw = (localStorage.getItem('sr3-camera-views-v1') || '').trim();
+        if (!raw) return [] as Array<{ id: string; name: string }>;
+        const parsed = JSON.parse(raw) as unknown;
+        if (!Array.isArray(parsed))
+          return [] as Array<{ id: string; name: string }>;
+        return parsed
+          .filter(Boolean)
+          .map(v => v as { v?: number; id?: string; name?: string })
+          .filter(v => v && v.v === 1 && typeof v.id === 'string')
+          .map(v => ({
+            id: String(v.id || '').trim(),
+            name: String(v.name || 'View').trim(),
+          }))
+          .filter(v => v.id)
+          .slice(0, 30);
       } catch {
         return [] as Array<{ id: string; name: string }>;
       }
@@ -2309,6 +2535,27 @@ const init = () => {
         run: () => camReset?.click(),
       },
       {
+        id: 'camera.view.save',
+        group: 'Camera',
+        label: 'Camera view: Save bookmark',
+        keywords: 'bookmark snapshot',
+        run: () => camViewSaveBtn?.click(),
+      },
+      {
+        id: 'camera.view.export',
+        group: 'Camera',
+        label: 'Camera views: Export JSON',
+        keywords: 'share export',
+        run: () => camViewExportBtn?.click(),
+      },
+      {
+        id: 'camera.view.import',
+        group: 'Camera',
+        label: 'Camera views: Import JSON',
+        keywords: 'paste import',
+        run: () => camViewImportBtn?.click(),
+      },
+      {
         id: 'tool.reground',
         group: 'Tools',
         label: 'Tool: Re-ground',
@@ -2337,6 +2584,20 @@ const init = () => {
         label: `Auto-quality: ${onOff(Boolean(autoQuality?.checked))}`,
         keywords: 'dynamic resolution fps',
         run: () => toggleInput(autoQuality),
+      },
+      {
+        id: 'post.tonemap.cycle',
+        group: 'Post',
+        label: `Tone mapping: ${tmText}`,
+        keywords: 'aces reinhard cineon linear none',
+        run: () => bumpSelect(tonemapSel, +1),
+      },
+      {
+        id: 'post.exposure.reset',
+        group: 'Post',
+        label: 'Exposure: Reset',
+        keywords: 'tonemap brightness',
+        run: () => exposureResetBtn?.click(),
       },
       {
         id: 'perf.targetFps30',
@@ -2485,6 +2746,21 @@ const init = () => {
       }
     }
 
+    if (tonemapSel) {
+      for (const opt of Array.from(tonemapSel.options)) {
+        const v = String(opt.value || '').trim();
+        const t = String(opt.textContent || v).trim();
+        if (!v) continue;
+        cmdkItems.push({
+          id: `post.tonemap.${v}`,
+          group: 'Post',
+          label: `Tone mapping: ${t}`,
+          keywords: `${v} ${t}`,
+          run: () => setSelect(tonemapSel, v),
+        });
+      }
+    }
+
     const presets = readPresetsForCmdk();
     for (const p of presets) {
       cmdkItems.push({
@@ -2495,6 +2771,20 @@ const init = () => {
         run: () => {
           if (presetSelect) presetSelect.value = p.id;
           presetLoadBtn?.click();
+        },
+      });
+    }
+
+    const views = readCameraViewsForCmdk();
+    for (const v of views) {
+      cmdkItems.push({
+        id: `camera.view.apply.${v.id}`,
+        group: 'Camera',
+        label: `Camera view: ${v.name}`,
+        keywords: `bookmark view apply ${v.name}`,
+        run: () => {
+          if (camViewSelect) camViewSelect.value = v.id;
+          camViewLoadBtn?.click();
         },
       });
     }
@@ -2804,6 +3094,214 @@ const init = () => {
 
   initSectionCollapse();
 
+  // Camera views (save/load/shareable JSON)
+  type CameraViewV1 = {
+    v: 1;
+    id: string;
+    name: string;
+    savedAt: number;
+    pos: [number, number, number];
+    target: [number, number, number];
+    fov: number;
+  };
+
+  const CAMERA_VIEWS_KEY = 'sr3-camera-views-v1';
+
+  const readCameraViews = (): CameraViewV1[] => {
+    try {
+      const raw = (localStorage.getItem(CAMERA_VIEWS_KEY) || '').trim();
+      if (!raw) return [];
+      const parsed = JSON.parse(raw) as unknown;
+      if (!Array.isArray(parsed)) return [];
+      return parsed
+        .filter(Boolean)
+        .map(v => v as Partial<CameraViewV1>)
+        .filter(v => v.v === 1 && typeof v.id === 'string')
+        .map(v => {
+          const pos = Array.isArray(v.pos) ? v.pos : [0, 0, 0];
+          const target = Array.isArray(v.target) ? v.target : [0, 0, 0];
+          const safePos: [number, number, number] = [
+            Number(pos[0]) || 0,
+            Number(pos[1]) || 0,
+            Number(pos[2]) || 0,
+          ];
+          const safeTarget: [number, number, number] = [
+            Number(target[0]) || 0,
+            Number(target[1]) || 0,
+            Number(target[2]) || 0,
+          ];
+          const view: CameraViewV1 = {
+            v: 1,
+            id: String(v.id || '').trim(),
+            name: String(v.name || 'View').trim() || 'View',
+            savedAt: Number(v.savedAt) || 0,
+            pos: safePos,
+            target: safeTarget,
+            fov: Number(v.fov) || 45,
+          };
+          return view;
+        })
+        .filter(v => v.id)
+        .slice(0, 30);
+    } catch {
+      return [];
+    }
+  };
+
+  const writeCameraViews = (list: CameraViewV1[]) => {
+    try {
+      localStorage.setItem(CAMERA_VIEWS_KEY, JSON.stringify(list.slice(0, 30)));
+    } catch {
+      // ignore
+    }
+  };
+
+  const refreshCameraViewSelect = (selectedId?: string) => {
+    if (!camViewSelect) return;
+    const list = readCameraViews();
+    camViewSelect.innerHTML = '';
+
+    const empty = document.createElement('option');
+    empty.value = '';
+    empty.textContent = list.length ? 'Select a view…' : 'No saved views';
+    camViewSelect.appendChild(empty);
+
+    for (const v of list) {
+      const opt = document.createElement('option');
+      opt.value = v.id;
+      opt.textContent = v.name;
+      camViewSelect.appendChild(opt);
+    }
+
+    if (selectedId) camViewSelect.value = selectedId;
+  };
+
+  const syncCameraUiFromPose = () => {
+    const v = camera.position.clone().sub(controls.target);
+    const dist = Math.max(0.0001, v.length());
+    const yawDeg = (Math.atan2(v.z, v.x) * 180) / Math.PI;
+    const pitchDeg = (Math.asin(clamp(v.y / dist, -1, 1)) * 180) / Math.PI;
+
+    if (camMode) camMode.value = 'manual';
+    if (camYaw) camYaw.value = String(Math.round(yawDeg));
+    if (camPitch) camPitch.value = String(Math.round(pitchDeg));
+    if (camDist) camDist.value = String(Number(dist.toFixed(2)));
+    if (camFov) camFov.value = String(Math.round(camera.fov));
+  };
+
+  const applyCameraView = (view: CameraViewV1) => {
+    controls.target.set(view.target[0], view.target[1], view.target[2]);
+    camera.position.set(view.pos[0], view.pos[1], view.pos[2]);
+    camera.fov = clamp(Number(view.fov) || 45, 35, 85);
+    camera.updateProjectionMatrix();
+    controls.update();
+    syncCameraUiFromPose();
+  };
+
+  const makeCameraView = (name: string): CameraViewV1 => {
+    return {
+      v: 1,
+      id: `cv_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`,
+      name: name.trim() || 'View',
+      savedAt: Date.now(),
+      pos: [camera.position.x, camera.position.y, camera.position.z],
+      target: [controls.target.x, controls.target.y, controls.target.z],
+      fov: camera.fov,
+    };
+  };
+
+  refreshCameraViewSelect();
+
+  camViewSaveBtn?.addEventListener('click', () => {
+    hapticTap(10);
+    const name = (window.prompt('View name', 'View') || '').trim();
+    if (!name) return;
+    const list = readCameraViews();
+    const view = makeCameraView(name);
+    writeCameraViews([view, ...list].slice(0, 30));
+    refreshCameraViewSelect(view.id);
+    setStatus(false, `Saved view: ${view.name}`);
+    window.setTimeout(() => setStatus(false, ''), 1200);
+  });
+
+  camViewLoadBtn?.addEventListener('click', () => {
+    const id = String(camViewSelect?.value || '').trim();
+    if (!id) return;
+    const view = readCameraViews().find(v => v.id === id);
+    if (!view) return;
+    hapticTap(10);
+    applyCameraView(view);
+    setStatus(false, `Applied view: ${view.name}`);
+    window.setTimeout(() => setStatus(false, ''), 1200);
+  });
+
+  camViewDeleteBtn?.addEventListener('click', () => {
+    const id = String(camViewSelect?.value || '').trim();
+    if (!id) return;
+    const list = readCameraViews();
+    const victim = list.find(v => v.id === id);
+    const next = list.filter(v => v.id !== id);
+    writeCameraViews(next);
+    refreshCameraViewSelect();
+    hapticTap(10);
+    setStatus(false, victim ? `Deleted view: ${victim.name}` : 'View deleted.');
+    window.setTimeout(() => setStatus(false, ''), 1200);
+  });
+
+  camViewExportBtn?.addEventListener('click', () => {
+    const list = readCameraViews();
+    if (camViewIo) camViewIo.value = JSON.stringify(list, null, 2);
+    hapticTap(10);
+    setStatus(false, 'Camera views exported.');
+    window.setTimeout(() => setStatus(false, ''), 1200);
+  });
+
+  camViewImportBtn?.addEventListener('click', () => {
+    const raw = (camViewIo?.value || '').trim();
+    if (!raw) return;
+    try {
+      const parsed = JSON.parse(raw) as unknown;
+      if (!Array.isArray(parsed)) throw new Error('Expected an array');
+      const list = parsed
+        .filter(Boolean)
+        .map(v => v as Partial<CameraViewV1>)
+        .filter(v => v.v === 1 && typeof v.id === 'string')
+        .map(v => {
+          const pos = Array.isArray(v.pos) ? v.pos : [0, 0, 0];
+          const target = Array.isArray(v.target) ? v.target : [0, 0, 0];
+          const view: CameraViewV1 = {
+            v: 1,
+            id: String(v.id || '').trim(),
+            name: String(v.name || 'View').trim() || 'View',
+            savedAt: Number(v.savedAt) || 0,
+            pos: [
+              Number(pos[0]) || 0,
+              Number(pos[1]) || 0,
+              Number(pos[2]) || 0,
+            ],
+            target: [
+              Number(target[0]) || 0,
+              Number(target[1]) || 0,
+              Number(target[2]) || 0,
+            ],
+            fov: Number(v.fov) || 45,
+          };
+          return view;
+        })
+        .filter(v => v.id)
+        .slice(0, 30);
+
+      writeCameraViews(list);
+      refreshCameraViewSelect(list[0]?.id);
+      hapticTap(10);
+      setStatus(false, 'Camera views imported.');
+      window.setTimeout(() => setStatus(false, ''), 1200);
+    } catch {
+      setStatus(false, 'Camera views import failed.');
+      window.setTimeout(() => setStatus(false, ''), 1200);
+    }
+  });
+
   // Presets (save/load/shareable JSON)
   type PresetV1 = {
     v: 1;
@@ -2861,6 +3359,9 @@ const init = () => {
   const capturePresetState = (): Record<string, unknown> => {
     return {
       model: (modelUrl?.value || modelSel?.value || '').trim(),
+      modelScale: modelScale?.value,
+      modelYaw: modelYaw?.value,
+      modelLift: modelLift?.value,
       bg: (bgSel?.value || '').trim(),
       paint: (paintInp?.value || '').trim(),
       originalMats: Boolean(originalMatsChk?.checked ?? false),
@@ -2894,6 +3395,7 @@ const init = () => {
       quality: (qualitySel?.value || '').trim(),
       autoQuality: Boolean(autoQuality?.checked ?? true),
       targetFps: targetFps?.value,
+      tonemap: tonemapSel?.value,
       exposure: exposure?.value,
       bloom: bloom?.value,
       bloomThreshold: bloomThreshold?.value,
@@ -2929,6 +3431,14 @@ const init = () => {
       if (modelSel) modelSel.value = nextModel;
       await loadModel(nextModel);
     }
+
+    if (modelScale) modelScale.value = String(state.modelScale ?? '1');
+    if (modelYaw) modelYaw.value = String(state.modelYaw ?? '0');
+    if (modelLift) modelLift.value = String(state.modelLift ?? '0');
+    runtime.modelScaleMul = Number.parseFloat(modelScale?.value || '1') || 1;
+    runtime.modelYawDeg = Number.parseFloat(modelYaw?.value || '0') || 0;
+    runtime.modelLift = Number.parseFloat(modelLift?.value || '0') || 0;
+    applyModelTransform();
 
     setVal(bgSel, state.bg);
     setVal(paintInp, state.paint);
@@ -2971,6 +3481,7 @@ const init = () => {
     setChk(autoQuality, state.autoQuality);
     setVal(targetFps, state.targetFps);
 
+    setVal(tonemapSel, state.tonemap);
     setVal(exposure, state.exposure);
     setVal(bloom, state.bloom);
     setVal(bloomThreshold, state.bloomThreshold);
