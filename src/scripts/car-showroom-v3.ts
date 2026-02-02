@@ -206,6 +206,7 @@ const initPanel = (root: HTMLElement) => {
   );
   const close = root.querySelector<HTMLButtonElement>('[data-sr-panel-close]');
   const handle = root.querySelector<HTMLElement>('[data-sr-panel-handle]');
+  const fab = root.querySelector<HTMLButtonElement>('[data-sr-panel-fab]');
 
   if (!panel)
     return {
@@ -213,7 +214,8 @@ const initPanel = (root: HTMLElement) => {
       getSnap: () => 'peek' as PanelSnap,
     };
 
-  const key = 'sr3-panel-snap-v1';
+  // Version bump: resets old persisted snap states so new controls are visible.
+  const key = 'sr3-panel-snap-v2';
   const order: PanelSnap[] = ['collapsed', 'peek', 'half', 'full'];
   let snap: PanelSnap = 'peek';
 
@@ -267,13 +269,22 @@ const initPanel = (root: HTMLElement) => {
     } catch {
       // ignore
     }
-    setSnap(saved ?? 'peek', false);
+
+    const defaultSnap: PanelSnap = isMobile() ? 'half' : 'peek';
+    setSnap(saved ?? defaultSnap, false);
   };
 
   toggle?.addEventListener('click', () => {
-    setSnap(snap === 'collapsed' ? 'peek' : 'collapsed', true);
+    setSnap(
+      snap === 'collapsed' ? (isMobile() ? 'half' : 'peek') : 'collapsed',
+      true
+    );
   });
   close?.addEventListener('click', () => setSnap('collapsed', true));
+
+  fab?.addEventListener('click', () => {
+    setSnap(isMobile() ? 'half' : 'peek', true);
+  });
 
   // Drag to resize on mobile.
   let drag = false;
