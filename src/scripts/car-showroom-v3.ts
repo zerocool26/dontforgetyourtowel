@@ -12,6 +12,7 @@ type LoadState = {
   requestId: number;
   objectUrlToRevoke: string | null;
   gltf: THREE.Object3D | null;
+  animations: THREE.AnimationClip[];
 };
 
 type PanelSnap = 'collapsed' | 'peek' | 'half' | 'full';
@@ -21,6 +22,33 @@ const ROOT = '[data-sr-root]';
 const clamp = (v: number, min: number, max: number) =>
   Math.min(max, Math.max(min, v));
 const clamp01 = (v: number) => clamp(v, 0, 1);
+
+const formatInt = (n: number) =>
+  Math.round(Math.max(0, n)).toLocaleString(undefined, {
+    maximumFractionDigits: 0,
+  });
+
+const getMeshTriangleCount = (mesh: THREE.Mesh) => {
+  const geom = mesh.geometry as THREE.BufferGeometry | undefined;
+  if (!geom) return 0;
+  const idx = geom.getIndex();
+  if (idx) return Math.floor(idx.count / 3);
+  const pos = geom.getAttribute('position');
+  if (!pos) return 0;
+  return Math.floor(pos.count / 3);
+};
+
+const collectMaterialTextures = (material: THREE.Material) => {
+  const textures: THREE.Texture[] = [];
+  const anyMat = material as unknown as Record<string, unknown>;
+  for (const k of Object.keys(anyMat)) {
+    const v = anyMat[k];
+    if (!v || typeof v !== 'object') continue;
+    const tex = v as unknown as THREE.Texture;
+    if ('isTexture' in tex) textures.push(tex);
+  }
+  return textures;
+};
 
 const isExternalUrl = (value: string) =>
   /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i.test(value);
@@ -384,6 +412,17 @@ const init = () => {
   );
   const lightRim = root.querySelector<HTMLInputElement>('[data-sr-light-rim]');
 
+  const envIntensity = root.querySelector<HTMLInputElement>(
+    '[data-sr-env-intensity]'
+  );
+  const envRotation = root.querySelector<HTMLInputElement>(
+    '[data-sr-env-rotation]'
+  );
+
+  const gridChk = root.querySelector<HTMLInputElement>('[data-sr-grid]');
+  const axesChk = root.querySelector<HTMLInputElement>('[data-sr-axes]');
+  const hapticsChk = root.querySelector<HTMLInputElement>('[data-sr-haptics]');
+
   const floorColor = root.querySelector<HTMLInputElement>(
     '[data-sr-floor-color]'
   );
@@ -442,6 +481,9 @@ const init = () => {
   const autoQuality = root.querySelector<HTMLInputElement>(
     '[data-sr-auto-quality]'
   );
+  const targetFps = root.querySelector<HTMLInputElement>(
+    '[data-sr-target-fps]'
+  );
 
   const exposure = root.querySelector<HTMLInputElement>('[data-sr-exposure]');
   const bloom = root.querySelector<HTMLInputElement>('[data-sr-bloom]');
@@ -456,6 +498,54 @@ const init = () => {
     '[data-sr-screenshot]'
   );
   const shareBtn = root.querySelector<HTMLButtonElement>('[data-sr-share]');
+
+  // Inspector
+  const statMeshes = root.querySelector<HTMLElement>('[data-sr-stat-meshes]');
+  const statMats = root.querySelector<HTMLElement>('[data-sr-stat-mats]');
+  const statTris = root.querySelector<HTMLElement>('[data-sr-stat-tris]');
+  const statTex = root.querySelector<HTMLElement>('[data-sr-stat-tex]');
+
+  const inspectorFilter = root.querySelector<HTMLInputElement>(
+    '[data-sr-inspector-filter]'
+  );
+  const inspectorMeshSel = root.querySelector<HTMLSelectElement>(
+    '[data-sr-inspector-mesh]'
+  );
+  const inspectorPick = root.querySelector<HTMLInputElement>(
+    '[data-sr-inspector-pick]'
+  );
+  const inspectorIsolate = root.querySelector<HTMLInputElement>(
+    '[data-sr-inspector-isolate]'
+  );
+  const inspectorHighlight = root.querySelector<HTMLInputElement>(
+    '[data-sr-inspector-highlight]'
+  );
+  const inspectorClearBtn = root.querySelector<HTMLButtonElement>(
+    '[data-sr-inspector-clear]'
+  );
+  const inspectorResetBtn = root.querySelector<HTMLButtonElement>(
+    '[data-sr-inspector-reset]'
+  );
+  const wireframeChk = root.querySelector<HTMLInputElement>(
+    '[data-sr-wireframe]'
+  );
+  const inspectorSelected = root.querySelector<HTMLElement>(
+    '[data-sr-inspector-selected]'
+  );
+
+  // Animation
+  const animClipSel = root.querySelector<HTMLSelectElement>(
+    '[data-sr-anim-clip]'
+  );
+  const animPlayChk = root.querySelector<HTMLInputElement>(
+    '[data-sr-anim-play]'
+  );
+  const animSpeed = root.querySelector<HTMLInputElement>(
+    '[data-sr-anim-speed]'
+  );
+  const animRestartBtn = root.querySelector<HTMLButtonElement>(
+    '[data-sr-anim-restart]'
+  );
 
   const setStatus = (loading: boolean, error: string) => {
     if (statusLoading) statusLoading.hidden = !loading;
@@ -519,9 +609,23 @@ const init = () => {
   key.position.set(6, 8, 4);
   scene.add(key);
 
+  const keyBase = key.position.clone();
+
   const rim = new THREE.DirectionalLight(0x9bdcff, 0.9);
   rim.position.set(-6, 3.5, -6);
   scene.add(rim);
+
+  const rimBase = rim.position.clone();
+
+  // Scene helpers
+  const grid = new THREE.GridHelper(10, 20, 0x334155, 0x1f2937);
+  grid.visible = Boolean(gridChk?.checked);
+  grid.position.y = 0.001;
+  scene.add(grid);
+
+  const axes = new THREE.AxesHelper(2.2);
+  axes.visible = Boolean(axesChk?.checked);
+  scene.add(axes);
 
   // Floor + shadow catcher
   const floorMat = new THREE.MeshStandardMaterial({
@@ -557,6 +661,242 @@ const init = () => {
     requestId: 0,
     objectUrlToRevoke: null,
     gltf: null,
+    animations: [],
+  };
+
+  // Animation runtime
+  let mixer: THREE.AnimationMixer | null = null;
+  let activeAction: THREE.AnimationAction | null = null;
+  let animationEnabled = false;
+
+  const setAnimationEnabled = (enabled: boolean) => {
+    animationEnabled = enabled;
+    if (animClipSel) animClipSel.disabled = !enabled;
+    if (animPlayChk) animPlayChk.disabled = !enabled;
+    if (animSpeed) animSpeed.disabled = !enabled;
+    if (animRestartBtn) animRestartBtn.disabled = !enabled;
+  };
+
+  const stopAnimations = () => {
+    if (activeAction) {
+      try {
+        activeAction.stop();
+      } catch {
+        // ignore
+      }
+    }
+    activeAction = null;
+    mixer = null;
+    setAnimationEnabled(false);
+    if (animClipSel) animClipSel.innerHTML = '';
+  };
+
+  const playClipByName = (name: string) => {
+    if (!mixer) return;
+    const clips = loadState.animations;
+    if (!clips.length) return;
+    const clip = clips.find(c => c.name === name) || clips[0];
+    if (!clip) return;
+
+    if (activeAction) activeAction.stop();
+    activeAction = mixer.clipAction(clip);
+    activeAction.reset();
+    activeAction.play();
+  };
+
+  // Inspector runtime
+  const materialWireframeOriginal = new WeakMap<THREE.Material, boolean>();
+  const selectionAccent = new THREE.Color('#22d3ee');
+  let inspectorMeshes: THREE.Mesh[] = [];
+  let selectedMesh: THREE.Mesh | null = null;
+  let selectionBox: THREE.BoxHelper | null = null;
+  let selectionPrev = null as {
+    materials: Array<{
+      material: THREE.Material;
+      emissiveHex?: number;
+      emissiveIntensity?: number;
+    }>;
+  } | null;
+  let isolateRestore: Array<{ mesh: THREE.Mesh; visible: boolean }> = [];
+
+  const hapticTap = (ms = 10) => {
+    if (!runtime.haptics) return;
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const vib = (navigator as any).vibrate as
+        | undefined
+        | ((p: number) => void);
+      vib?.(ms);
+    } catch {
+      // ignore
+    }
+  };
+
+  const setSelectedMesh = (mesh: THREE.Mesh | null) => {
+    if (selectedMesh === mesh) return;
+
+    // Restore previous highlight
+    if (selectionPrev) {
+      for (const entry of selectionPrev.materials) {
+        const material = entry.material as unknown as {
+          emissive?: THREE.Color;
+          emissiveIntensity?: number;
+          needsUpdate?: boolean;
+        };
+        if (material.emissive && entry.emissiveHex !== undefined) {
+          material.emissive.setHex(entry.emissiveHex);
+        }
+        if (entry.emissiveIntensity !== undefined)
+          material.emissiveIntensity = entry.emissiveIntensity;
+        material.needsUpdate = true;
+      }
+    }
+    selectionPrev = null;
+
+    // Clear box
+    if (selectionBox) {
+      scene.remove(selectionBox);
+      selectionBox = null;
+    }
+
+    selectedMesh = mesh;
+
+    if (!mesh) {
+      if (inspectorSelected) inspectorSelected.textContent = 'No selection.';
+      return;
+    }
+
+    if (inspectorSelected) {
+      const name = (mesh.name || '(unnamed)').trim();
+      const tris = getMeshTriangleCount(mesh);
+      inspectorSelected.textContent = `${name} • ${formatInt(tris)} tris`;
+    }
+
+    if (inspectorHighlight?.checked) {
+      const mats = Array.isArray(mesh.material)
+        ? mesh.material
+        : [mesh.material];
+      const saved: Array<{
+        material: THREE.Material;
+        emissiveHex?: number;
+        emissiveIntensity?: number;
+      }> = [];
+      for (const mat of mats) {
+        if (!mat) continue;
+        const any = mat as unknown as {
+          emissive?: THREE.Color;
+          emissiveIntensity?: number;
+          needsUpdate?: boolean;
+        };
+        if (any.emissive) {
+          saved.push({
+            material: mat as THREE.Material,
+            emissiveHex: any.emissive.getHex(),
+            emissiveIntensity: any.emissiveIntensity,
+          });
+          any.emissive.copy(selectionAccent);
+          any.emissiveIntensity = 0.6;
+          any.needsUpdate = true;
+        }
+      }
+      selectionPrev = { materials: saved };
+    }
+
+    selectionBox = new THREE.BoxHelper(mesh, selectionAccent);
+    scene.add(selectionBox);
+  };
+
+  const applyIsolate = () => {
+    if (!inspectorIsolate?.checked || !selectedMesh || !loadState.gltf) {
+      // Restore
+      for (const r of isolateRestore) r.mesh.visible = r.visible;
+      isolateRestore = [];
+      return;
+    }
+
+    isolateRestore = [];
+    loadState.gltf.traverse(obj => {
+      const mesh = obj as THREE.Mesh;
+      if (!mesh.isMesh) return;
+      isolateRestore.push({ mesh, visible: mesh.visible });
+      mesh.visible = mesh === selectedMesh;
+    });
+  };
+
+  const applyWireframe = () => {
+    if (!loadState.gltf) return;
+    const enabled = Boolean(wireframeChk?.checked);
+    loadState.gltf.traverse(obj => {
+      const mesh = obj as THREE.Mesh;
+      if (!mesh.isMesh) return;
+      const mats = Array.isArray(mesh.material)
+        ? mesh.material
+        : [mesh.material];
+      for (const mat of mats) {
+        if (!mat) continue;
+        const any = mat as unknown as {
+          wireframe?: boolean;
+          needsUpdate?: boolean;
+        };
+        if (any.wireframe === undefined) continue;
+        if (!materialWireframeOriginal.has(mat as THREE.Material)) {
+          materialWireframeOriginal.set(
+            mat as THREE.Material,
+            Boolean(any.wireframe)
+          );
+        }
+        any.wireframe = enabled;
+        any.needsUpdate = true;
+      }
+    });
+  };
+
+  const populateMeshSelect = () => {
+    if (!inspectorMeshSel) return;
+    inspectorMeshSel.innerHTML = '';
+
+    const filter = (inspectorFilter?.value || '').trim().toLowerCase();
+    const frag = document.createDocumentFragment();
+
+    const filtered = filter
+      ? inspectorMeshes.filter(m => {
+          const name = String(m.name || '').toLowerCase();
+          const mats = Array.isArray(m.material) ? m.material : [m.material];
+          const matName = mats
+            .map(mm =>
+              String((mm as THREE.Material | null)?.name || '').toLowerCase()
+            )
+            .join(' ');
+          return name.includes(filter) || matName.includes(filter);
+        })
+      : inspectorMeshes;
+
+    const cap = 800;
+    const list = filtered.slice(0, cap);
+
+    const empty = document.createElement('option');
+    empty.value = '';
+    empty.textContent = `Select a mesh (${formatInt(filtered.length)})`;
+    frag.appendChild(empty);
+
+    for (const mesh of list) {
+      const opt = document.createElement('option');
+      opt.value = mesh.uuid;
+      const nm = (mesh.name || '(unnamed)').trim();
+      opt.textContent = nm;
+      frag.appendChild(opt);
+    }
+
+    if (filtered.length > cap) {
+      const more = document.createElement('option');
+      more.value = '';
+      more.disabled = true;
+      more.textContent = `…and ${formatInt(filtered.length - cap)} more`;
+      frag.appendChild(more);
+    }
+
+    inspectorMeshSel.appendChild(frag);
+    inspectorMeshSel.value = selectedMesh?.uuid || '';
   };
 
   // Post
@@ -578,6 +918,11 @@ const init = () => {
     lightIntensity: Number.parseFloat(lightIntensity?.value || '1') || 1,
     lightWarmth: Number.parseFloat(lightWarmth?.value || '0') || 0,
     rimBoost: Number.parseFloat(lightRim?.value || '1') || 1,
+    envIntensity: Number.parseFloat(envIntensity?.value || '0.9') || 0.9,
+    envRotationDeg: Number.parseFloat(envRotation?.value || '0') || 0,
+    grid: Boolean(gridChk?.checked ?? false),
+    axes: Boolean(axesChk?.checked ?? false),
+    haptics: Boolean(hapticsChk?.checked ?? true),
     floorHex: parseHexColor(floorColor?.value || '') || '#0f172a',
     floorOpacity: Number.parseFloat(floorOpacity?.value || '1') || 1,
     floorRoughness: Number.parseFloat(floorRoughness?.value || '1') || 1,
@@ -587,18 +932,19 @@ const init = () => {
     shadowSize: Number.parseFloat(shadowSize?.value || '6') || 6,
     shadowHQ: Boolean(shadowHQ?.checked ?? false),
     autorotate: Boolean(autorotate?.checked ?? false),
-    motionStyle: (motionStyle?.value || 'spin').trim().toLowerCase(),
+    motionStyle: (motionStyle?.value || 'turntable').trim().toLowerCase(),
     motionSpeed: Number.parseFloat(motionSpeed?.value || '0.75') || 0.75,
     zoomT: Number.parseFloat(zoom?.value || '0.8') || 0.8,
     quality: (qualitySel?.value || (isMobile() ? 'balanced' : 'ultra'))
       .trim()
       .toLowerCase(),
     autoQuality: Boolean(autoQuality?.checked ?? true),
+    targetFps: Number.parseFloat(targetFps?.value || '55') || 55,
     lastRadius: 3,
     bloomStrength: Number.parseFloat(bloom?.value || '0') || 0,
     bloomThreshold: Number.parseFloat(bloomThreshold?.value || '0.9') || 0.9,
     bloomRadius: Number.parseFloat(bloomRadius?.value || '0') || 0,
-    eco: false,
+    dynamicScale: 1,
   };
 
   const setBackground = (mode: string) => {
@@ -628,6 +974,9 @@ const init = () => {
     const intensity = clamp(runtime.lightIntensity, 0.2, 2.5);
     const warmth = clamp(runtime.lightWarmth, 0, 1);
     const rimBoost = clamp(runtime.rimBoost, 0.5, 2);
+    const env = clamp(runtime.envIntensity, 0, 3);
+    const rad = (runtime.envRotationDeg * Math.PI) / 180;
+    const rot = new THREE.Matrix4().makeRotationY(rad);
 
     const cool = new THREE.Color('#dbeafe');
     const warm = new THREE.Color('#ffd7a1');
@@ -651,9 +1000,12 @@ const init = () => {
       rim.color.set('#9bdcff');
     }
 
-    hemi.intensity = 0.65;
+    hemi.intensity = 0.55 + env * 0.25;
     key.intensity = 1.8 * intensity;
     rim.intensity = 0.55 * intensity * rimBoost;
+
+    key.position.copy(keyBase).applyMatrix4(rot);
+    rim.position.copy(rimBase).applyMatrix4(rot);
   };
 
   const applyFloor = () => {
@@ -719,22 +1071,27 @@ const init = () => {
   };
 
   const applyQuality = () => {
-    let target = basePixelRatio;
-    if (runtime.quality === 'performance')
-      target = Math.min(basePixelRatio, 1.0);
+    let baseline = basePixelRatio;
+    if (runtime.quality === 'eco') baseline = Math.min(basePixelRatio, 1.0);
     else if (runtime.quality === 'balanced')
-      target = Math.min(basePixelRatio, isMobile() ? 1.25 : 1.5);
+      baseline = Math.min(basePixelRatio, isMobile() ? 1.25 : 1.5);
 
-    if (runtime.eco) target = Math.min(target, 1.0);
+    const minRatio = isMobile() ? 0.85 : 1.0;
+    const scaled = clamp(
+      baseline * clamp01(runtime.dynamicScale),
+      minRatio,
+      baseline
+    );
 
-    currentPixelRatio = target;
+    currentPixelRatio = scaled;
     renderer.setPixelRatio(currentPixelRatio);
     composer?.setPixelRatio?.(currentPixelRatio as never);
     setSize();
 
     if (resEl) resEl.textContent = `${currentPixelRatio.toFixed(2)}x`;
-    if (modeEl) modeEl.textContent = runtime.eco ? 'ECO' : 'LIVE';
-    if (ecoEl) ecoEl.hidden = !runtime.eco;
+    const eco = currentPixelRatio < baseline - 0.001;
+    if (modeEl) modeEl.textContent = eco ? 'ECO' : 'LIVE';
+    if (ecoEl) ecoEl.hidden = !eco;
   };
 
   const fitCameraToObject = (obj: THREE.Object3D) => {
@@ -801,8 +1158,8 @@ const init = () => {
   };
 
   const applyMotion = () => {
-    controls.autoRotate =
-      runtime.autorotate && runtime.motionStyle !== 'pendulum';
+    const style = (runtime.motionStyle || 'turntable').trim().toLowerCase();
+    controls.autoRotate = runtime.autorotate && style === 'turntable';
     controls.autoRotateSpeed = runtime.motionSpeed;
   };
 
@@ -830,6 +1187,10 @@ const init = () => {
       loadState.gltf = null;
     }
 
+    stopAnimations();
+    setSelectedMesh(null);
+    applyIsolate();
+
     if (loadState.objectUrlToRevoke) {
       URL.revokeObjectURL(loadState.objectUrlToRevoke);
       loadState.objectUrlToRevoke = null;
@@ -856,6 +1217,8 @@ const init = () => {
       const obj = gltf.scene || gltf.scenes?.[0];
       if (!obj) throw new Error('GLTF contained no scene');
 
+      loadState.animations = gltf.animations || [];
+
       obj.traverse(child => {
         const mesh = child as THREE.Mesh;
         if (!mesh.isMesh) return;
@@ -867,10 +1230,74 @@ const init = () => {
       scene.add(obj);
       loadState.gltf = obj;
 
+      // Build inspector inventory
+      inspectorMeshes = [];
+      const uniqueMats = new Set<THREE.Material>();
+      const uniqueTex = new Set<THREE.Texture>();
+      let triCount = 0;
+      obj.traverse(child => {
+        const mesh = child as THREE.Mesh;
+        if (!mesh.isMesh) return;
+        inspectorMeshes.push(mesh);
+        triCount += getMeshTriangleCount(mesh);
+        const mats = Array.isArray(mesh.material)
+          ? mesh.material
+          : [mesh.material];
+        for (const mat of mats) {
+          if (!mat) continue;
+          uniqueMats.add(mat as THREE.Material);
+          for (const tex of collectMaterialTextures(mat as THREE.Material)) {
+            uniqueTex.add(tex);
+          }
+        }
+      });
+
+      inspectorMeshes.sort((a, b) => {
+        const an = String(a.name || '');
+        const bn = String(b.name || '');
+        if (an === bn) return a.uuid.localeCompare(b.uuid);
+        return an.localeCompare(bn);
+      });
+
+      if (statMeshes)
+        statMeshes.textContent = formatInt(inspectorMeshes.length);
+      if (statMats) statMats.textContent = formatInt(uniqueMats.size);
+      if (statTris) statTris.textContent = formatInt(triCount);
+      if (statTex) statTex.textContent = formatInt(uniqueTex.size);
+      populateMeshSelect();
+
+      // Enable animation controls if clips exist
+      if (loadState.animations.length && obj) {
+        mixer = new THREE.AnimationMixer(obj);
+        if (animClipSel) {
+          animClipSel.innerHTML = '';
+          const frag = document.createDocumentFragment();
+          for (const clip of loadState.animations) {
+            const opt = document.createElement('option');
+            opt.value = clip.name;
+            opt.textContent = clip.name || '(unnamed clip)';
+            frag.appendChild(opt);
+          }
+          animClipSel.appendChild(frag);
+          animClipSel.value = loadState.animations[0]?.name || '';
+        }
+        setAnimationEnabled(true);
+        playClipByName(
+          animClipSel?.value || loadState.animations[0]?.name || ''
+        );
+      } else {
+        setAnimationEnabled(false);
+      }
+
       fitCameraToObject(obj);
       applyCameraFromUi();
 
       if (!runtime.originalMats) applyPaintHeuristic(obj, runtime.paintHex);
+
+      // Apply debug/inspector transforms after load
+      grid.visible = Boolean(gridChk?.checked ?? runtime.grid);
+      axes.visible = Boolean(axesChk?.checked ?? runtime.axes);
+      applyWireframe();
 
       setRootState(root, {
         carShowroomReady: '1',
@@ -928,7 +1355,29 @@ const init = () => {
     runtime.rimBoost = Number.parseFloat(lightRim.value) || 1;
     applyLighting();
   });
+
+  envIntensity?.addEventListener('input', () => {
+    runtime.envIntensity = Number.parseFloat(envIntensity.value) || 0;
+    applyLighting();
+  });
+
+  envRotation?.addEventListener('input', () => {
+    runtime.envRotationDeg = Number.parseFloat(envRotation.value) || 0;
+    applyLighting();
+  });
   applyLighting();
+
+  gridChk?.addEventListener('change', () => {
+    runtime.grid = Boolean(gridChk.checked);
+    grid.visible = runtime.grid;
+  });
+  axesChk?.addEventListener('change', () => {
+    runtime.axes = Boolean(axesChk.checked);
+    axes.visible = runtime.axes;
+  });
+  hapticsChk?.addEventListener('change', () => {
+    runtime.haptics = Boolean(hapticsChk.checked);
+  });
 
   floorColor?.addEventListener('input', () => {
     runtime.floorHex = parseHexColor(floorColor.value) || runtime.floorHex;
@@ -1022,15 +1471,19 @@ const init = () => {
     runtime.quality = (qualitySel.value || runtime.quality)
       .trim()
       .toLowerCase();
-    runtime.eco = false;
+    runtime.dynamicScale = 1;
     applyQuality();
   });
   autoQuality?.addEventListener('change', () => {
     runtime.autoQuality = Boolean(autoQuality.checked);
     if (!runtime.autoQuality) {
-      runtime.eco = false;
+      runtime.dynamicScale = 1;
       applyQuality();
     }
+  });
+
+  targetFps?.addEventListener('input', () => {
+    runtime.targetFps = Number.parseFloat(targetFps.value) || runtime.targetFps;
   });
   applyQuality();
 
@@ -1061,6 +1514,7 @@ const init = () => {
   });
 
   screenshotBtn?.addEventListener('click', () => {
+    hapticTap(15);
     try {
       const a = document.createElement('a');
       a.download = 'car-showroom.png';
@@ -1072,11 +1526,27 @@ const init = () => {
   });
 
   shareBtn?.addEventListener('click', async () => {
+    hapticTap(15);
     const url = new URL(window.location.href);
     const v = (modelUrl?.value || modelSel?.value || '').trim();
     if (v) url.searchParams.set('model', v);
     url.searchParams.set('bg', runtime.background);
     url.searchParams.set('q', runtime.quality);
+    url.searchParams.set('aq', runtime.autoQuality ? '1' : '0');
+    url.searchParams.set('fps', String(Math.round(runtime.targetFps)));
+
+    const paint = (paintInp?.value || '').trim();
+    if (paint) url.searchParams.set('paint', paint.replace('#', ''));
+    url.searchParams.set('om', runtime.originalMats ? '1' : '0');
+    url.searchParams.set('lp', runtime.lightPreset);
+    url.searchParams.set('li', String(runtime.lightIntensity));
+    url.searchParams.set('lw', String(runtime.lightWarmth));
+    url.searchParams.set('lr', String(runtime.rimBoost));
+    url.searchParams.set('ei', String(runtime.envIntensity));
+    url.searchParams.set('er', String(runtime.envRotationDeg));
+    url.searchParams.set('grid', runtime.grid ? '1' : '0');
+    url.searchParams.set('axes', runtime.axes ? '1' : '0');
+    url.searchParams.set('wf', wireframeChk?.checked ? '1' : '0');
     try {
       await navigator.clipboard.writeText(url.toString());
       setStatus(false, 'Link copied.');
@@ -1092,21 +1562,57 @@ const init = () => {
   ro.observe(canvas);
   setSize();
 
-  // FPS + adaptive quality
+  // FPS + adaptive quality + animation
   let lastSample = performance.now();
+  let lastTick = lastSample;
   let frames = 0;
   const tick = () => {
     frames += 1;
     const now = performance.now();
+
+    const deltaS = Math.max(0, now - lastTick) / 1000;
+    lastTick = now;
+
+    // Motion (float / pendulum)
+    const style = (runtime.motionStyle || 'turntable').trim().toLowerCase();
+    if (loadState.gltf && runtime.autorotate && style === 'float') {
+      const t = now * 0.001;
+      const amp = clamp(runtime.lastRadius * 0.01, 0.01, 0.08);
+      const bob =
+        (Math.sin(t * (0.65 + runtime.motionSpeed * 0.7)) * 0.5 + 0.5) * amp;
+      loadState.gltf.position.y = bob;
+      loadState.gltf.rotation.y =
+        Math.sin(t * (0.4 + runtime.motionSpeed * 0.6)) * 0.08;
+    } else if (loadState.gltf && style !== 'float') {
+      // Keep grounded
+      loadState.gltf.position.y = 0;
+    }
+
+    if (selectionBox) selectionBox.update();
+
+    // Animation mixer
+    if (mixer && animationEnabled) {
+      const playing = Boolean(animPlayChk?.checked ?? true);
+      const sp = Number.parseFloat(animSpeed?.value || '1') || 1;
+      mixer.timeScale = sp;
+      if (playing) mixer.update(deltaS);
+    }
     const dt = now - lastSample;
     if (dt >= 1000) {
       const fps = Math.round((frames * 1000) / dt);
       if (fpsEl) fpsEl.textContent = String(fps).padStart(2, '0');
 
-      if (runtime.autoQuality && isMobile() && runtime.quality !== 'ultra') {
-        const shouldEco = fps > 0 && fps < 45;
-        if (shouldEco !== runtime.eco) {
-          runtime.eco = shouldEco;
+      if (runtime.autoQuality) {
+        const target = clamp(runtime.targetFps, 30, 90);
+        const low = target - 5;
+        const high = target + 7;
+
+        // Adjust dynamicScale in small steps; 1 = baseline.
+        if (fps > 0 && fps < low) {
+          runtime.dynamicScale = clamp(runtime.dynamicScale - 0.08, 0.5, 1);
+          applyQuality();
+        } else if (fps > high) {
+          runtime.dynamicScale = clamp(runtime.dynamicScale + 0.06, 0.5, 1);
           applyQuality();
         }
       }
@@ -1116,7 +1622,10 @@ const init = () => {
     }
 
     // Pendulum motion (optional)
-    if (runtime.autorotate && runtime.motionStyle === 'pendulum') {
+    if (
+      runtime.autorotate &&
+      (runtime.motionStyle || '').trim().toLowerCase() === 'pendulum'
+    ) {
       const amp = (18 * Math.PI) / 180;
       const t = now * 0.001;
       const yaw = Math.sin(t * (0.55 + runtime.motionSpeed * 0.9)) * amp;
@@ -1140,18 +1649,81 @@ const init = () => {
     const m = url.searchParams.get('model');
     const bg = url.searchParams.get('bg');
     const q = url.searchParams.get('q');
+    const aq = url.searchParams.get('aq');
+    const fps = url.searchParams.get('fps');
+    const paint = url.searchParams.get('paint');
+    const om = url.searchParams.get('om');
+    const lp = url.searchParams.get('lp');
+    const li = url.searchParams.get('li');
+    const lw = url.searchParams.get('lw');
+    const lr = url.searchParams.get('lr');
+    const ei = url.searchParams.get('ei');
+    const er = url.searchParams.get('er');
+    const gridParam = url.searchParams.get('grid');
+    const axesParam = url.searchParams.get('axes');
+    const wf = url.searchParams.get('wf');
+
     if (m) {
       if (modelUrl) modelUrl.value = m;
       if (modelSel) modelSel.value = m;
     }
     if (bg && bgSel) bgSel.value = bg;
     if (q && qualitySel) qualitySel.value = q;
+
+    if (aq && autoQuality) autoQuality.checked = aq === '1';
+    if (fps && targetFps) targetFps.value = fps;
+    if (paint && paintInp)
+      paintInp.value = paint.startsWith('#') ? paint : `#${paint}`;
+    if (om && originalMatsChk) originalMatsChk.checked = om === '1';
+    if (lp && lightPreset) lightPreset.value = lp;
+    if (li && lightIntensity) lightIntensity.value = li;
+    if (lw && lightWarmth) lightWarmth.value = lw;
+    if (lr && lightRim) lightRim.value = lr;
+    if (ei && envIntensity) envIntensity.value = ei;
+    if (er && envRotation) envRotation.value = er;
+    if (gridParam && gridChk) gridChk.checked = gridParam === '1';
+    if (axesParam && axesChk) axesChk.checked = axesParam === '1';
+    if (wf && wireframeChk) wireframeChk.checked = wf === '1';
   } catch {
     // ignore
   }
 
   setBackground(bgSel?.value || runtime.background);
   runtime.quality = (qualitySel?.value || runtime.quality).trim().toLowerCase();
+  runtime.autoQuality = Boolean(autoQuality?.checked ?? runtime.autoQuality);
+  runtime.targetFps =
+    Number.parseFloat(targetFps?.value || `${runtime.targetFps}`) ||
+    runtime.targetFps;
+  runtime.originalMats = Boolean(
+    originalMatsChk?.checked ?? runtime.originalMats
+  );
+  runtime.paintHex = parseHexColor(paintInp?.value || '') || runtime.paintHex;
+  runtime.lightPreset = (lightPreset?.value || runtime.lightPreset)
+    .trim()
+    .toLowerCase();
+  runtime.lightIntensity =
+    Number.parseFloat(lightIntensity?.value || `${runtime.lightIntensity}`) ||
+    runtime.lightIntensity;
+  runtime.lightWarmth =
+    Number.parseFloat(lightWarmth?.value || `${runtime.lightWarmth}`) ||
+    runtime.lightWarmth;
+  runtime.rimBoost =
+    Number.parseFloat(lightRim?.value || `${runtime.rimBoost}`) ||
+    runtime.rimBoost;
+  runtime.envIntensity =
+    Number.parseFloat(envIntensity?.value || `${runtime.envIntensity}`) ||
+    runtime.envIntensity;
+  runtime.envRotationDeg =
+    Number.parseFloat(envRotation?.value || `${runtime.envRotationDeg}`) ||
+    runtime.envRotationDeg;
+  runtime.grid = Boolean(gridChk?.checked ?? runtime.grid);
+  runtime.axes = Boolean(axesChk?.checked ?? runtime.axes);
+  runtime.haptics = Boolean(hapticsChk?.checked ?? runtime.haptics);
+
+  grid.visible = runtime.grid;
+  axes.visible = runtime.axes;
+  applyLighting();
+  syncPaint();
   applyQuality();
 
   const initial = (
@@ -1161,6 +1733,110 @@ const init = () => {
   ).trim();
   if (modelUrl && !modelUrl.value) modelUrl.value = initial;
   void loadModel(initial);
+
+  // Inspector bindings
+  inspectorFilter?.addEventListener('input', () => populateMeshSelect());
+  inspectorMeshSel?.addEventListener('change', () => {
+    const id = (inspectorMeshSel.value || '').trim();
+    const mesh = inspectorMeshes.find(m => m.uuid === id) || null;
+    if (mesh) hapticTap(8);
+    setSelectedMesh(mesh);
+    applyIsolate();
+  });
+  inspectorHighlight?.addEventListener('change', () => {
+    // Re-apply highlight state
+    setSelectedMesh(selectedMesh);
+  });
+  inspectorIsolate?.addEventListener('change', () => {
+    applyIsolate();
+  });
+  wireframeChk?.addEventListener('change', () => {
+    applyWireframe();
+  });
+  inspectorClearBtn?.addEventListener('click', () => {
+    hapticTap(8);
+    setSelectedMesh(null);
+    applyIsolate();
+    if (inspectorMeshSel) inspectorMeshSel.value = '';
+  });
+  inspectorResetBtn?.addEventListener('click', () => {
+    hapticTap(8);
+    if (inspectorFilter) inspectorFilter.value = '';
+    if (wireframeChk) wireframeChk.checked = false;
+    if (inspectorIsolate) inspectorIsolate.checked = false;
+    applyWireframe();
+    applyIsolate();
+    populateMeshSelect();
+  });
+
+  // Pick on click
+  const raycaster = new THREE.Raycaster();
+  const pointer = new THREE.Vector2();
+  let downX = 0;
+  let downY = 0;
+  let downT = 0;
+
+  canvas.addEventListener(
+    'pointerdown',
+    e => {
+      downX = e.clientX;
+      downY = e.clientY;
+      downT = performance.now();
+    },
+    { passive: true }
+  );
+
+  canvas.addEventListener(
+    'pointerup',
+    e => {
+      const pickEnabled = Boolean(inspectorPick?.checked ?? true);
+      if (!pickEnabled || !loadState.gltf) return;
+
+      const dx = e.clientX - downX;
+      const dy = e.clientY - downY;
+      const moved = Math.hypot(dx, dy);
+      if (moved > 7) return;
+
+      const age = performance.now() - downT;
+      if (age > 700) return;
+
+      const rect = canvas.getBoundingClientRect();
+      pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      pointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+      raycaster.setFromCamera(pointer, camera);
+
+      const hits = raycaster.intersectObject(loadState.gltf, true);
+      const first = hits[0]?.object;
+      const mesh =
+        first && (first as THREE.Mesh).isMesh ? (first as THREE.Mesh) : null;
+      if (!mesh) return;
+
+      hapticTap(8);
+      setSelectedMesh(mesh);
+      if (inspectorMeshSel) inspectorMeshSel.value = mesh.uuid;
+      applyIsolate();
+    },
+    { passive: true }
+  );
+
+  // Animation bindings
+  animClipSel?.addEventListener('change', () => {
+    hapticTap(8);
+    playClipByName(animClipSel.value);
+  });
+  animRestartBtn?.addEventListener('click', () => {
+    hapticTap(8);
+    if (activeAction) {
+      activeAction.reset();
+      activeAction.play();
+    }
+  });
+  animPlayChk?.addEventListener('change', () => {
+    hapticTap(6);
+  });
+  animSpeed?.addEventListener('input', () => {
+    // timeScale read in tick
+  });
 
   html.dataset.carShowroomBoot = '1';
 };

@@ -223,6 +223,155 @@ const galleryHref = `${base}gallery/`;
                   data-sr-light-rim
                 />
               </label>
+
+              <label class="sr-field">
+                <span>Env intensity</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="3"
+                  step="0.01"
+                  value="0.9"
+                  data-sr-env-intensity
+                />
+              </label>
+              <label class="sr-field">
+                <span>Env rotation</span>
+                <input
+                  type="range"
+                  min="-180"
+                  max="180"
+                  step="1"
+                  value="0"
+                  data-sr-env-rotation
+                />
+              </label>
+            </div>
+          </section>
+
+          <section class="sr-section">
+            <h2>Scene</h2>
+            <div class="sr-grid">
+              <label class="sr-field">
+                <span>Grid</span>
+                <input type="checkbox" data-sr-grid />
+              </label>
+              <label class="sr-field">
+                <span>Axes</span>
+                <input type="checkbox" data-sr-axes />
+              </label>
+              <label class="sr-field">
+                <span>Haptics</span>
+                <input type="checkbox" checked data-sr-haptics />
+              </label>
+            </div>
+          </section>
+
+          <section class="sr-section">
+            <h2>Inspector</h2>
+
+            <div class="sr-readout sr-readout--stats" aria-live="polite">
+              <div>
+                <strong data-sr-stat-meshes>--</strong>
+                <small>Meshes</small>
+              </div>
+              <div>
+                <strong data-sr-stat-mats>--</strong>
+                <small>Materials</small>
+              </div>
+              <div>
+                <strong data-sr-stat-tris>--</strong>
+                <small>Triangles</small>
+              </div>
+              <div>
+                <strong data-sr-stat-tex>--</strong>
+                <small>Textures</small>
+              </div>
+            </div>
+
+            <div class="sr-grid">
+              <label class="sr-field">
+                <span>Filter</span>
+                <input
+                  type="text"
+                  placeholder="wheel / glass / body…"
+                  data-sr-inspector-filter
+                />
+              </label>
+              <label class="sr-field">
+                <span>Mesh</span>
+                <select data-sr-inspector-mesh></select>
+              </label>
+
+              <label class="sr-field">
+                <span>Pick on click</span>
+                <input type="checkbox" checked data-sr-inspector-pick />
+              </label>
+              <label class="sr-field">
+                <span>Isolate selection</span>
+                <input type="checkbox" data-sr-inspector-isolate />
+              </label>
+
+              <label class="sr-field">
+                <span>Highlight selection</span>
+                <input type="checkbox" checked data-sr-inspector-highlight />
+              </label>
+              <label class="sr-field">
+                <span>Wireframe</span>
+                <input type="checkbox" data-sr-wireframe />
+              </label>
+
+              <div class="sr-row">
+                <button type="button" class="sr-btn" data-sr-inspector-clear>
+                  Clear
+                </button>
+                <button type="button" class="sr-btn" data-sr-inspector-reset>
+                  Reset
+                </button>
+              </div>
+
+              <div
+                class="sr-readout sr-readout--mini"
+                data-sr-inspector-selected
+              >
+                No selection.
+              </div>
+            </div>
+          </section>
+
+          <section class="sr-section">
+            <h2>Animation</h2>
+            <div class="sr-grid">
+              <label class="sr-field">
+                <span>Clip</span>
+                <select data-sr-anim-clip disabled></select>
+              </label>
+              <label class="sr-field">
+                <span>Play</span>
+                <input type="checkbox" checked data-sr-anim-play disabled />
+              </label>
+              <label class="sr-field">
+                <span>Speed</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="2"
+                  step="0.01"
+                  value="1"
+                  data-sr-anim-speed
+                  disabled
+                />
+              </label>
+              <div class="sr-row">
+                <button
+                  type="button"
+                  class="sr-btn"
+                  data-sr-anim-restart
+                  disabled
+                >
+                  Restart
+                </button>
+              </div>
             </div>
           </section>
 
@@ -386,6 +535,7 @@ const galleryHref = `${base}gallery/`;
                 <select data-sr-motion-style>
                   <option value="turntable">Turntable</option>
                   <option value="float">Float</option>
+                  <option value="pendulum">Pendulum</option>
                   <option value="none">None</option>
                 </select>
               </label>
@@ -428,6 +578,18 @@ const galleryHref = `${base}gallery/`;
               <label class="sr-field">
                 <span>Auto quality (FPS)</span>
                 <input type="checkbox" checked data-sr-auto-quality />
+              </label>
+
+              <label class="sr-field">
+                <span>Target FPS</span>
+                <input
+                  type="range"
+                  min="30"
+                  max="90"
+                  step="1"
+                  value="55"
+                  data-sr-target-fps
+                />
               </label>
             </div>
           </section>
