@@ -6,6 +6,7 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
+import { DecalGeometry } from 'three/examples/jsm/geometries/DecalGeometry.js';
 
 import { withBasePath } from '../utils/helpers';
 import { createSafeWebGLRenderer } from './tower3d/three/renderer-factory';
@@ -770,6 +771,15 @@ const init = () => {
     '[data-sr-camera-reset]'
   );
 
+  // Interior + hotspots
+  const interiorChk =
+    root.querySelector<HTMLInputElement>('[data-sr-interior]');
+  const hotspotsChk =
+    root.querySelector<HTMLInputElement>('[data-sr-hotspots]');
+  const jumpInteriorBtn = root.querySelector<HTMLButtonElement>(
+    '[data-sr-jump-interior]'
+  );
+
   // Camera views (bookmarks)
   const camViewSelect = root.querySelector<HTMLSelectElement>(
     '[data-sr-camera-view-select]'
@@ -857,6 +867,29 @@ const init = () => {
     '[data-sr-plate-reset]'
   );
 
+  // Decals / stickers
+  const decalModeChk = root.querySelector<HTMLInputElement>(
+    '[data-sr-decal-mode]'
+  );
+  const decalTextInp = root.querySelector<HTMLInputElement>(
+    '[data-sr-decal-text]'
+  );
+  const decalColorInp = root.querySelector<HTMLInputElement>(
+    '[data-sr-decal-color]'
+  );
+  const decalSizeInp = root.querySelector<HTMLInputElement>(
+    '[data-sr-decal-size]'
+  );
+  const decalRotInp = root.querySelector<HTMLInputElement>(
+    '[data-sr-decal-rot]'
+  );
+  const decalOpacityInp = root.querySelector<HTMLInputElement>(
+    '[data-sr-decal-opacity]'
+  );
+  const decalClearBtn = root.querySelector<HTMLButtonElement>(
+    '[data-sr-decal-clear]'
+  );
+
   const panelBody = root.querySelector<HTMLElement>('[data-sr-panel-body]');
   const jumpBtns = Array.from(
     root.querySelectorAll<HTMLButtonElement>('[data-sr-jump]')
@@ -940,6 +973,10 @@ const init = () => {
   );
   const animRestartBtn = root.querySelector<HTMLButtonElement>(
     '[data-sr-anim-restart]'
+  );
+
+  const animActionBtns = Array.from(
+    root.querySelectorAll<HTMLButtonElement>('[data-sr-anim-action]')
   );
 
   const setStatus = (loading: boolean, error: string) => {
@@ -1104,6 +1141,7 @@ const init = () => {
     if (animPlayChk) animPlayChk.disabled = !enabled;
     if (animSpeed) animSpeed.disabled = !enabled;
     if (animRestartBtn) animRestartBtn.disabled = !enabled;
+    for (const btn of animActionBtns) btn.disabled = !enabled;
   };
 
   const stopAnimations = () => {
@@ -1130,6 +1168,71 @@ const init = () => {
     if (activeAction) activeAction.stop();
     activeAction = mixer.clipAction(clip);
     activeAction.reset();
+    activeAction.play();
+  };
+
+  const findClipNameByKeywords = (keywords: string[]) => {
+    const clips = loadState.animations;
+    if (!clips.length) return null;
+
+    const ks = keywords
+      .map(k => normalizeName(k))
+      .filter(Boolean)
+      .slice(0, 10);
+
+    const scored = clips
+      .map(c => {
+        const nm = normalizeName(c.name || '');
+        let score = 0;
+        for (const k of ks) {
+          if (!k) continue;
+          if (nm === k) score += 6;
+          else if (nm.includes(k)) score += 3;
+        }
+        if (/(open|close|deploy|fold|unfold)/.test(nm)) score += 1;
+        return { name: c.name, score };
+      })
+      .sort((a, b) => b.score - a.score);
+
+    const best = scored[0];
+    if (!best || best.score <= 0) return null;
+    return best.name;
+  };
+
+  const clipToggleState = new Map<string, boolean>();
+
+  const playClipToggle = (clipName: string) => {
+    if (!mixer) return;
+    const clips = loadState.animations;
+    if (!clips.length) return;
+    const clip = clips.find(c => c.name === clipName);
+    if (!clip) return;
+
+    const open = clipToggleState.get(clipName) ?? false;
+    const nextOpen = !open;
+    clipToggleState.set(clipName, nextOpen);
+
+    if (activeAction) {
+      try {
+        activeAction.stop();
+      } catch {
+        // ignore
+      }
+    }
+
+    activeAction = mixer.clipAction(clip);
+    activeAction.enabled = true;
+    activeAction.clampWhenFinished = true;
+    activeAction.setLoop(THREE.LoopOnce, 1);
+
+    if (nextOpen) {
+      activeAction.timeScale = 1;
+      activeAction.time = 0;
+    } else {
+      activeAction.timeScale = -1;
+      activeAction.time = Math.max(0.0001, clip.duration);
+    }
+
     activeAction.play();
   };
 
@@ -1393,6 +1496,23 @@ const init = () => {
     },
 
     plateText: safeTrimText(plateTextInp?.value || '', 10),
+
+    interior: Boolean(interiorChk?.checked ?? false),
+    interiorPrev: null as null | {
+      cameraNear: number;
+      minDistance: number;
+      maxDistance: number;
+      enablePan: boolean;
+    },
+    hotspots: Boolean(hotspotsChk?.checked ?? true),
+
+    decalMode: Boolean(decalModeChk?.checked ?? false),
+    decalText: safeTrimText(decalTextInp?.value || '', 18),
+    decalColorHex: parseHexColor(decalColorInp?.value || '') || '#ffffff',
+    decalSize: Number.parseFloat(decalSizeInp?.value || '0.35') || 0.35,
+    decalRotDeg: Number.parseFloat(decalRotInp?.value || '0') || 0,
+    decalOpacity: Number.parseFloat(decalOpacityInp?.value || '0.92') || 0.92,
+
     loadingBoostT: 0,
     dynamicScale: 1,
 
@@ -1429,6 +1549,108 @@ const init = () => {
     THREE.MeshStandardMaterial | THREE.MeshPhysicalMaterial
   > = [];
   const plateBaseline = new WeakMap<THREE.Material, MaterialSnapshot>();
+
+  // Decals / stickers: projected meshes that are fully disposable.
+  type DecalEntry = {
+    mesh: THREE.Mesh;
+    geometry: THREE.BufferGeometry;
+    material: THREE.Material;
+  };
+
+  let decalTexture: THREE.CanvasTexture | null = null;
+  const decals: DecalEntry[] = [];
+
+  const disposeDecalTexture = () => {
+    if (decalTexture) {
+      decalTexture.dispose?.();
+      decalTexture = null;
+    }
+  };
+
+  const clearDecals = () => {
+    for (const d of decals) {
+      try {
+        d.mesh.parent?.remove(d.mesh);
+      } catch {
+        // ignore
+      }
+      try {
+        d.geometry.dispose?.();
+      } catch {
+        // ignore
+      }
+      try {
+        d.material.dispose?.();
+      } catch {
+        // ignore
+      }
+    }
+    decals.length = 0;
+  };
+
+  const buildDecalTexture = (rawText: string, rawColor: string) => {
+    const text = safeTrimText(rawText || '', 18);
+    const color = parseHexColor(rawColor) || '#ffffff';
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 1024;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Soft translucent backing
+    ctx.fillStyle = 'rgba(0,0,0,0.22)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Border
+    ctx.strokeStyle = 'rgba(255,255,255,0.65)';
+    ctx.lineWidth = 14;
+    ctx.strokeRect(40, 40, canvas.width - 80, canvas.height - 80);
+
+    // Main text
+    ctx.fillStyle = color;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font =
+      '900 190px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial';
+    ctx.fillText(text || 'RACE', canvas.width / 2, canvas.height / 2);
+
+    // Microtext
+    ctx.fillStyle = 'rgba(255,255,255,0.55)';
+    ctx.font =
+      '700 36px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText('DFYTWL', 64, canvas.height - 78);
+    ctx.textAlign = 'right';
+    ctx.fillText('STICKER', canvas.width - 64, canvas.height - 78);
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.wrapS = THREE.ClampToEdgeWrapping;
+    tex.wrapT = THREE.ClampToEdgeWrapping;
+    tex.anisotropy = 4;
+    tex.needsUpdate = true;
+    return tex;
+  };
+
+  const syncDecalTextureFromRuntime = () => {
+    disposeDecalTexture();
+    decalTexture = buildDecalTexture(runtime.decalText, runtime.decalColorHex);
+    for (const d of decals) {
+      const mat = d.material as unknown as {
+        map?: THREE.Texture | null;
+        opacity?: number;
+        transparent?: boolean;
+        needsUpdate?: boolean;
+      };
+      if (decalTexture) mat.map = decalTexture;
+      mat.transparent = true;
+      mat.opacity = clamp(runtime.decalOpacity, 0.05, 1);
+      mat.needsUpdate = true;
+    }
+  };
 
   const findPlateMaterials = (obj: THREE.Object3D) => {
     const found: Array<
@@ -2287,6 +2509,77 @@ const init = () => {
     controls.update();
   };
 
+  const applyInteriorConstraints = () => {
+    if (!runtime.interior) return;
+    const r = clamp(Number(runtime.lastRadius) || 2.5, 0.25, 50);
+
+    // Enable close-up navigation without near-plane clipping.
+    camera.near = 0.01;
+    camera.updateProjectionMatrix();
+
+    controls.enablePan = false;
+    controls.minDistance = clamp(r * 0.08, 0.08, 2.0);
+    controls.maxDistance = clamp(r * 1.6, 1.25, 35);
+  };
+
+  const setInterior = (on: boolean) => {
+    const next = Boolean(on);
+    if (next === runtime.interior) {
+      applyInteriorConstraints();
+      return;
+    }
+
+    runtime.interior = next;
+    if (interiorChk) interiorChk.checked = next;
+
+    if (runtime.interior) {
+      if (!runtime.interiorPrev) {
+        runtime.interiorPrev = {
+          cameraNear: camera.near,
+          minDistance: controls.minDistance,
+          maxDistance: controls.maxDistance,
+          enablePan: controls.enablePan,
+        };
+      }
+      applyInteriorConstraints();
+      return;
+    }
+
+    const prev = runtime.interiorPrev;
+    runtime.interiorPrev = null;
+    if (prev) {
+      camera.near = prev.cameraNear;
+      camera.updateProjectionMatrix();
+      controls.minDistance = prev.minDistance;
+      controls.maxDistance = prev.maxDistance;
+      controls.enablePan = prev.enablePan;
+      controls.update();
+    }
+  };
+
+  const jumpToInterior = () => {
+    if (!loadState.gltf) return;
+    const box = new THREE.Box3().setFromObject(loadState.gltf);
+    const center = box.getCenter(new THREE.Vector3());
+    const size = box.getSize(new THREE.Vector3());
+    const r = clamp(Math.max(size.x, size.y, size.z) * 0.5, 0.25, 50);
+
+    // Aim slightly above the center so we feel "inside".
+    const target = center.clone();
+    target.y += size.y * 0.18;
+
+    const dir = camera.position.clone().sub(controls.target);
+    if (dir.lengthSq() < 1e-6) dir.set(1, 0.15, 1);
+    dir.normalize();
+
+    controls.target.copy(target);
+    camera.position
+      .copy(target)
+      .add(dir.multiplyScalar(clamp(r * 0.24, 0.22, 3.5)));
+    camera.updateProjectionMatrix();
+    controls.update();
+  };
+
   const applyMotion = () => {
     const style = (runtime.motionStyle || 'turntable').trim().toLowerCase();
     controls.autoRotate = runtime.autorotate && style === 'turntable';
@@ -2305,11 +2598,23 @@ const init = () => {
     controls.update();
   };
 
+  // Assigned later (after inspector bindings are created).
+  let clearHotspotGlow: () => void = () => {
+    // noop
+  };
+
   const loadModel = async (
     raw: string,
     opts?: { objectUrlToRevoke?: string | null }
   ) => {
     const requestId = ++loadState.requestId;
+
+    // Model swap: drop temporary hotspot glow tweaks.
+    clearHotspotGlow();
+
+    // Model swap: decals are projected per-model.
+    clearDecals();
+    disposeDecalTexture();
 
     // Model swap: drop plate overrides (texture/material targets are per-model).
     resetPlate();
@@ -2433,6 +2738,11 @@ const init = () => {
       fitCameraToObject(obj);
       applyCameraFromUi();
 
+      // Re-apply interior constraints for the newly loaded model.
+      if (runtime.interior) {
+        applyInteriorConstraints();
+      }
+
       maybeAutofillPartColorsFromModel(obj);
       applyLook();
 
@@ -2474,6 +2784,21 @@ const init = () => {
     runtime.plateText = safeTrimText(plateTextInp?.value || '', 10);
   };
 
+  hotspotsChk?.addEventListener('change', () => {
+    runtime.hotspots = Boolean(hotspotsChk.checked);
+    if (!runtime.hotspots) clearHotspotGlow();
+  });
+
+  interiorChk?.addEventListener('change', () => {
+    setInterior(Boolean(interiorChk.checked));
+  });
+
+  jumpInteriorBtn?.addEventListener('click', () => {
+    hapticTap(8);
+    setInterior(true);
+    jumpToInterior();
+  });
+
   cinematicChk?.addEventListener('change', () => {
     setCinematic(Boolean(cinematicChk.checked));
   });
@@ -2502,6 +2827,54 @@ const init = () => {
   });
 
   plateTextInp?.addEventListener('input', () => syncPlateTextFromUi());
+
+  const syncDecalStateFromUi = () => {
+    runtime.decalMode = Boolean(decalModeChk?.checked ?? runtime.decalMode);
+    runtime.decalText = safeTrimText(decalTextInp?.value || '', 18);
+    runtime.decalColorHex =
+      parseHexColor(decalColorInp?.value || '') || runtime.decalColorHex;
+    runtime.decalSize =
+      Number.parseFloat(decalSizeInp?.value || `${runtime.decalSize}`) ||
+      runtime.decalSize;
+    runtime.decalRotDeg =
+      Number.parseFloat(decalRotInp?.value || `${runtime.decalRotDeg}`) ||
+      runtime.decalRotDeg;
+    runtime.decalOpacity =
+      Number.parseFloat(decalOpacityInp?.value || `${runtime.decalOpacity}`) ||
+      runtime.decalOpacity;
+  };
+
+  const syncDecalTextureFromUi = () => {
+    syncDecalStateFromUi();
+    syncDecalTextureFromRuntime();
+  };
+
+  decalModeChk?.addEventListener('change', () => {
+    runtime.decalMode = Boolean(decalModeChk.checked);
+    if (runtime.decalMode) syncDecalTextureFromUi();
+  });
+  decalTextInp?.addEventListener('input', () => {
+    if (!runtime.decalMode) return;
+    syncDecalTextureFromUi();
+  });
+  decalColorInp?.addEventListener('input', () => {
+    if (!runtime.decalMode) return;
+    syncDecalTextureFromUi();
+  });
+  decalOpacityInp?.addEventListener('input', () => {
+    if (!runtime.decalMode) return;
+    syncDecalTextureFromUi();
+  });
+  decalSizeInp?.addEventListener('input', () => {
+    syncDecalStateFromUi();
+  });
+  decalRotInp?.addEventListener('input', () => {
+    syncDecalStateFromUi();
+  });
+  decalClearBtn?.addEventListener('click', () => {
+    hapticTap(10);
+    clearDecals();
+  });
 
   const syncRuntimeModelTransformFromUi = () => {
     runtime.modelScaleMul = Number.parseFloat(modelScale?.value || '1') || 1;
@@ -2890,6 +3263,26 @@ const init = () => {
     const plt = safeTrimText(plateTextInp?.value || '', 10);
     if (plt) url.searchParams.set('plt', plt);
 
+    // Interior + hotspots
+    url.searchParams.set('int', runtime.interior ? '1' : '0');
+    url.searchParams.set('hs', runtime.hotspots ? '1' : '0');
+
+    // Decal settings (placements are not included)
+    url.searchParams.set('dm', runtime.decalMode ? '1' : '0');
+    const dt = safeTrimText(decalTextInp?.value || '', 18);
+    if (dt) url.searchParams.set('dt', dt);
+    const dc = (decalColorInp?.value || '').trim();
+    if (dc) url.searchParams.set('dc', dc.replace('#', ''));
+    const ds =
+      Number.parseFloat(decalSizeInp?.value || '') || runtime.decalSize;
+    url.searchParams.set('ds', String(ds));
+    const dr =
+      Number.parseFloat(decalRotInp?.value || '') || runtime.decalRotDeg;
+    url.searchParams.set('dr', String(Math.round(dr)));
+    const dop =
+      Number.parseFloat(decalOpacityInp?.value || '') || runtime.decalOpacity;
+    url.searchParams.set('do', String(dop));
+
     const ms = Number(runtime.modelScaleMul) || 1;
     const my = Number(runtime.modelYawDeg) || 0;
     const ml = Number(runtime.modelLift) || 0;
@@ -2979,8 +3372,16 @@ const init = () => {
 
         // Adjust dynamicScale in small steps; 1 = baseline.
         if (fps > 0 && fps < low) {
-          runtime.dynamicScale = clamp(runtime.dynamicScale - 0.08, 0.5, 1);
-          applyQuality();
+          // Prefer disabling expensive features before dropping resolution.
+          const hq = Boolean(shadowHQ?.checked ?? runtime.shadowHQ);
+          if (hq) {
+            if (shadowHQ) shadowHQ.checked = false;
+            runtime.shadowHQ = false;
+            syncShadowUi();
+          } else {
+            runtime.dynamicScale = clamp(runtime.dynamicScale - 0.08, 0.5, 1);
+            applyQuality();
+          }
         } else if (fps > high) {
           runtime.dynamicScale = clamp(runtime.dynamicScale + 0.06, 0.5, 1);
           applyQuality();
@@ -3104,6 +3505,15 @@ const init = () => {
 
     const cine = url.searchParams.get('cine');
     const plt = url.searchParams.get('plt');
+    const intParam = url.searchParams.get('int');
+    const hsParam = url.searchParams.get('hs');
+
+    const dm = url.searchParams.get('dm');
+    const dt = url.searchParams.get('dt');
+    const dc = url.searchParams.get('dc');
+    const ds = url.searchParams.get('ds');
+    const dr = url.searchParams.get('dr');
+    const dop = url.searchParams.get('do');
 
     const fin = url.searchParams.get('fin');
     const coat = url.searchParams.get('coat');
@@ -3159,6 +3569,17 @@ const init = () => {
 
     if (cine && cinematicChk) cinematicChk.checked = cine === '1';
     if (plt && plateTextInp) plateTextInp.value = plt;
+
+    if (intParam && interiorChk) interiorChk.checked = intParam === '1';
+    if (hsParam && hotspotsChk) hotspotsChk.checked = hsParam === '1';
+
+    if (dm && decalModeChk) decalModeChk.checked = dm === '1';
+    if (dt && decalTextInp) decalTextInp.value = dt;
+    if (dc && decalColorInp)
+      decalColorInp.value = dc.startsWith('#') ? dc : `#${dc}`;
+    if (ds && decalSizeInp) decalSizeInp.value = ds;
+    if (dr && decalRotInp) decalRotInp.value = dr;
+    if (dop && decalOpacityInp) decalOpacityInp.value = dop;
 
     if (fin && finishSel) finishSel.value = fin;
     if (coat && clearcoatInp) clearcoatInp.value = coat;
@@ -3228,6 +3649,17 @@ const init = () => {
     plateTextInp?.value || runtime.plateText,
     10
   );
+  runtime.interior = Boolean(interiorChk?.checked ?? runtime.interior);
+  runtime.hotspots = Boolean(hotspotsChk?.checked ?? runtime.hotspots);
+
+  runtime.decalMode = Boolean(decalModeChk?.checked ?? runtime.decalMode);
+  runtime.decalText = safeTrimText(decalTextInp?.value || '', 18);
+  runtime.decalColorHex =
+    parseHexColor(decalColorInp?.value || '') || runtime.decalColorHex;
+  runtime.decalSize = Number.parseFloat(decalSizeInp?.value || '0.35') || 0.35;
+  runtime.decalRotDeg = Number.parseFloat(decalRotInp?.value || '0') || 0;
+  runtime.decalOpacity =
+    Number.parseFloat(decalOpacityInp?.value || '0.92') || 0.92;
 
   syncRuntimeLookFromUi();
 
@@ -3240,6 +3672,12 @@ const init = () => {
 
   // Initialize cinematic after URL hydration so the preset captures the prior values.
   setCinematic(runtime.cinematic);
+
+  // Initialize interior after URL hydration.
+  setInterior(runtime.interior);
+
+  // Initialize decal texture after URL hydration.
+  if (runtime.decalMode) syncDecalTextureFromRuntime();
 
   const initial = (
     modelUrl?.value ||
@@ -4989,6 +5427,224 @@ const init = () => {
     populateMeshSelect();
   });
 
+  // Hotspots: click-to-focus helpers
+  type HotspotKind = 'wheels' | 'lights' | 'glass' | 'body' | 'other';
+
+  const hotspotMatsBaseline = new WeakMap<
+    THREE.Material,
+    { emissive: THREE.Color; emissiveIntensity: number }
+  >();
+  let hotspotBoostedMats: Array<
+    THREE.MeshStandardMaterial | THREE.MeshPhysicalMaterial
+  > = [];
+
+  clearHotspotGlow = () => {
+    for (const mat of hotspotBoostedMats) {
+      const snap = hotspotMatsBaseline.get(mat);
+      if (!snap) continue;
+      mat.emissive.copy(snap.emissive);
+      mat.emissiveIntensity = snap.emissiveIntensity;
+      mat.needsUpdate = true;
+    }
+    hotspotBoostedMats = [];
+  };
+
+  const getHotspotKind = (mesh: THREE.Mesh): HotspotKind => {
+    const parts: string[] = [];
+    let n: THREE.Object3D | null = mesh;
+    for (let i = 0; i < 4 && n; i += 1) {
+      parts.push(normalizeName(String(n.name || '')));
+      n = n.parent;
+    }
+    const name = parts.join(' ');
+    if (/(wheel|rim|tire|tyre|caliper|brake)/.test(name)) return 'wheels';
+    if (/(light|lamp|headlamp|taillight|tail_light|brakelight)/.test(name))
+      return 'lights';
+    if (/(glass|window|windshield|windscreen)/.test(name)) return 'glass';
+    if (/(body|paint|shell|hood|bonnet|door|bumper|fender)/.test(name))
+      return 'body';
+    return 'other';
+  };
+
+  const focusOnPoint = (target: THREE.Vector3, dist: number) => {
+    const dir = camera.position.clone().sub(controls.target);
+    if (dir.lengthSq() < 1e-6) dir.set(1, 0.2, 1);
+    dir.normalize();
+    controls.target.copy(target);
+    camera.position.copy(target).add(dir.multiplyScalar(dist));
+    controls.update();
+  };
+
+  const focusOnMesh = (mesh: THREE.Mesh) => {
+    const kind = getHotspotKind(mesh);
+    const box = new THREE.Box3().setFromObject(mesh);
+    const center = box.getCenter(new THREE.Vector3());
+    const size = box.getSize(new THREE.Vector3());
+    const localRadius = Math.max(0.01, Math.max(size.x, size.y, size.z) * 0.5);
+    const baseR = clamp(Number(runtime.lastRadius) || 2.5, 0.25, 50);
+
+    const distMul =
+      kind === 'wheels'
+        ? 0.55
+        : kind === 'lights'
+          ? 0.45
+          : kind === 'glass'
+            ? 0.65
+            : kind === 'body'
+              ? 0.8
+              : 0.75;
+
+    const dist = clamp(Math.max(baseR * distMul, localRadius * 2.2), 0.25, 30);
+
+    clearHotspotGlow();
+
+    if (kind === 'lights') {
+      const mats = Array.isArray(mesh.material)
+        ? mesh.material
+        : [mesh.material];
+      for (const mat of mats) {
+        if (!mat) continue;
+        if (
+          !(mat instanceof THREE.MeshStandardMaterial) &&
+          !(mat instanceof THREE.MeshPhysicalMaterial)
+        ) {
+          continue;
+        }
+
+        if (!hotspotMatsBaseline.has(mat)) {
+          hotspotMatsBaseline.set(mat, {
+            emissive: mat.emissive.clone(),
+            emissiveIntensity: mat.emissiveIntensity,
+          });
+        }
+
+        mat.emissive.set(0xffffff);
+        mat.emissiveIntensity = clamp(
+          Math.max(
+            mat.emissiveIntensity,
+            (Number(runtime.lightGlow) || 1.25) * 2.1
+          ),
+          0,
+          8
+        );
+        mat.needsUpdate = true;
+        hotspotBoostedMats.push(mat);
+      }
+    }
+
+    focusOnPoint(center, dist);
+  };
+
+  // Decals: place a projected sticker on click when decal mode is enabled.
+  const decalTmpObj = new THREE.Object3D();
+  const decalTmpV = new THREE.Vector3();
+  const decalTmpN = new THREE.Vector3();
+  const decalTmpInv = new THREE.Matrix4();
+  const decalTmpMeshM = new THREE.Matrix4();
+  const decalTmpSize = new THREE.Vector3();
+
+  const isDecalObject = (obj: THREE.Object3D | null | undefined) => {
+    if (!obj) return false;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return Boolean((obj as any).userData?.srDecal);
+  };
+
+  const placeDecalOnHit = (hit: THREE.Intersection) => {
+    if (!loadState.gltf) return;
+    const base = hit.object as THREE.Mesh;
+    if (!base || !(base as THREE.Mesh).isMesh) return;
+
+    syncDecalStateFromUi();
+    if (!decalTexture) syncDecalTextureFromRuntime();
+    if (!decalTexture) return;
+
+    // Keep matrices current.
+    loadState.gltf.updateMatrixWorld(true);
+    base.updateMatrixWorld(true);
+
+    decalTmpInv.copy(loadState.gltf.matrixWorld).invert();
+
+    // Hit point in gltf-local space.
+    const pLocal = hit.point.clone().applyMatrix4(decalTmpInv);
+
+    // Face normal (world -> gltf-local).
+    if (hit.face?.normal) {
+      decalTmpN.copy(hit.face.normal).transformDirection(base.matrixWorld);
+    } else {
+      decalTmpN.set(0, 1, 0);
+    }
+    decalTmpN.transformDirection(decalTmpInv).normalize();
+
+    // Projector orientation in gltf-local space.
+    decalTmpObj.position.copy(pLocal);
+    decalTmpObj.lookAt(decalTmpV.copy(pLocal).add(decalTmpN));
+    decalTmpObj.rotateZ(
+      (clamp(runtime.decalRotDeg, -180, 180) * Math.PI) / 180
+    );
+
+    const r = clamp(Number(runtime.lastRadius) || 2.5, 0.25, 50);
+    const s = clamp(clamp(runtime.decalSize, 0.02, 2.0) * r, 0.05, 4);
+    decalTmpSize.set(s, s, s);
+
+    // DecalGeometry expects a mesh whose matrixWorld maps local -> decal space.
+    // We want decal vertices in gltf-local space (so decals follow model transforms).
+    decalTmpMeshM.multiplyMatrices(decalTmpInv, base.matrixWorld);
+    const projectorMesh = new THREE.Mesh(
+      base.geometry as THREE.BufferGeometry
+    ) as unknown as THREE.Mesh;
+    projectorMesh.matrixWorld.copy(decalTmpMeshM);
+
+    const geo = new DecalGeometry(
+      projectorMesh as unknown as THREE.Mesh,
+      pLocal,
+      decalTmpObj.rotation,
+      decalTmpSize
+    );
+
+    const mat = new THREE.MeshBasicMaterial({
+      map: decalTexture,
+      transparent: true,
+      opacity: clamp(runtime.decalOpacity, 0.05, 1),
+      depthTest: true,
+      depthWrite: false,
+      polygonOffset: true,
+      polygonOffsetFactor: -4,
+    });
+
+    const decalMesh = new THREE.Mesh(geo, mat);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (decalMesh as any).userData = {
+      ...(decalMesh as any).userData,
+      srDecal: true,
+    };
+    decalMesh.renderOrder = 5;
+    loadState.gltf.add(decalMesh);
+    decals.push({ mesh: decalMesh, geometry: geo, material: mat });
+
+    // Cap to avoid runaway memory.
+    const cap = 40;
+    if (decals.length > cap) {
+      const drop = decals.splice(0, decals.length - cap);
+      for (const d of drop) {
+        try {
+          d.mesh.parent?.remove(d.mesh);
+        } catch {
+          // ignore
+        }
+        try {
+          d.geometry.dispose?.();
+        } catch {
+          // ignore
+        }
+        try {
+          d.material.dispose?.();
+        } catch {
+          // ignore
+        }
+      }
+    }
+  };
+
   // Pick on click
   const raycaster = new THREE.Raycaster();
   const pointer = new THREE.Vector2();
@@ -5009,8 +5665,10 @@ const init = () => {
   canvas.addEventListener(
     'pointerup',
     e => {
+      if (!loadState.gltf) return;
+
       const pickEnabled = Boolean(inspectorPick?.checked ?? true);
-      if (!pickEnabled || !loadState.gltf) return;
+      const hotspotsEnabled = Boolean(hotspotsChk?.checked ?? runtime.hotspots);
 
       const dx = e.clientX - downX;
       const dy = e.clientY - downY;
@@ -5026,15 +5684,33 @@ const init = () => {
       raycaster.setFromCamera(pointer, camera);
 
       const hits = raycaster.intersectObject(loadState.gltf, true);
-      const first = hits[0]?.object;
+      const hit = hits.find(h => !isDecalObject(h.object)) || null;
+      const first = hit?.object;
       const mesh =
         first && (first as THREE.Mesh).isMesh ? (first as THREE.Mesh) : null;
       if (!mesh) return;
 
-      hapticTap(8);
-      setSelectedMesh(mesh);
-      if (inspectorMeshSel) inspectorMeshSel.value = mesh.uuid;
-      applyIsolate();
+      const decalModeEnabled = Boolean(
+        decalModeChk?.checked ?? runtime.decalMode
+      );
+      if (decalModeEnabled && hit) {
+        hapticTap(8);
+        placeDecalOnHit(hit);
+        return;
+      }
+
+      if (pickEnabled && !e.shiftKey) {
+        hapticTap(8);
+        setSelectedMesh(mesh);
+        if (inspectorMeshSel) inspectorMeshSel.value = mesh.uuid;
+        applyIsolate();
+        return;
+      }
+
+      if (hotspotsEnabled) {
+        hapticTap(8);
+        focusOnMesh(mesh);
+      }
     },
     { passive: true }
   );
@@ -5057,6 +5733,32 @@ const init = () => {
   animSpeed?.addEventListener('input', () => {
     // timeScale read in tick
   });
+
+  for (const btn of animActionBtns) {
+    btn.addEventListener('click', () => {
+      const kind = (btn.getAttribute('data-sr-anim-action') || '').trim();
+      if (!kind || !mixer) return;
+
+      if (animPlayChk) animPlayChk.checked = true;
+
+      const map: Record<string, string[]> = {
+        doors: ['door', 'doors'],
+        hood: ['hood', 'bonnet'],
+        trunk: ['trunk', 'boot'],
+        spoiler: ['spoiler', 'wing'],
+      };
+
+      const clip = findClipNameByKeywords(map[kind] || [kind]);
+      if (!clip) {
+        setStatus(false, 'No matching animation clip found.');
+        window.setTimeout(() => setStatus(false, ''), 1200);
+        return;
+      }
+
+      hapticTap(10);
+      playClipToggle(clip);
+    });
+  }
 
   html.dataset.carShowroomBoot = '1';
 };

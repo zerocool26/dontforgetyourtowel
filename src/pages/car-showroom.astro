@@ -323,6 +323,70 @@ const galleryHref = `${base}gallery/`;
                   Reset plate
                 </button>
               </div>
+
+              <label class="sr-field">
+                <span>Decal / sticker mode</span>
+                <input type="checkbox" data-sr-decal-mode />
+              </label>
+
+              <label class="sr-field">
+                <span>Decal text</span>
+                <input
+                  type="text"
+                  inputmode="text"
+                  maxlength="18"
+                  placeholder="RACE"
+                  autocomplete="off"
+                  data-sr-decal-text
+                />
+              </label>
+
+              <label class="sr-field">
+                <span>Decal color</span>
+                <input type="color" value="#ffffff" data-sr-decal-color />
+              </label>
+
+              <label class="sr-field">
+                <span>Decal size</span>
+                <input
+                  type="range"
+                  min="0.05"
+                  max="1.2"
+                  step="0.01"
+                  value="0.35"
+                  data-sr-decal-size
+                />
+              </label>
+
+              <label class="sr-field">
+                <span>Decal rotation</span>
+                <input
+                  type="range"
+                  min="-180"
+                  max="180"
+                  step="1"
+                  value="0"
+                  data-sr-decal-rot
+                />
+              </label>
+
+              <label class="sr-field">
+                <span>Decal opacity</span>
+                <input
+                  type="range"
+                  min="0.1"
+                  max="1"
+                  step="0.01"
+                  value="0.92"
+                  data-sr-decal-opacity
+                />
+              </label>
+
+              <div class="sr-row">
+                <button type="button" class="sr-btn" data-sr-decal-clear>
+                  Clear decals
+                </button>
+              </div>
             </div>
 
             <p class="sr-hint">
@@ -331,6 +395,10 @@ const galleryHref = `${base}gallery/`;
             </p>
 
             <p class="sr-hint">Tip: press <kbd>C</kbd> to toggle cinematic.</p>
+
+            <p class="sr-hint">
+              Tip: enable decal mode, then click the car to place stickers.
+            </p>
           </section>
 
           <section class="sr-section" id="sr-sec-model" data-sr-section="model">
@@ -876,6 +944,44 @@ const galleryHref = `${base}gallery/`;
                   Restart
                 </button>
               </div>
+
+              <div class="sr-row">
+                <button
+                  type="button"
+                  class="sr-btn"
+                  data-sr-anim-action="doors"
+                  disabled
+                >
+                  Toggle doors
+                </button>
+                <button
+                  type="button"
+                  class="sr-btn"
+                  data-sr-anim-action="hood"
+                  disabled
+                >
+                  Toggle hood
+                </button>
+              </div>
+
+              <div class="sr-row">
+                <button
+                  type="button"
+                  class="sr-btn"
+                  data-sr-anim-action="trunk"
+                  disabled
+                >
+                  Toggle trunk
+                </button>
+                <button
+                  type="button"
+                  class="sr-btn"
+                  data-sr-anim-action="spoiler"
+                  disabled
+                >
+                  Toggle spoiler
+                </button>
+              </div>
             </div>
           </section>
 
@@ -979,6 +1085,22 @@ const galleryHref = `${base}gallery/`;
               </button>
             </div>
             <div class="sr-grid">
+              <label class="sr-field">
+                <span>Interior mode</span>
+                <input type="checkbox" data-sr-interior />
+              </label>
+
+              <label class="sr-field">
+                <span>Hotspots (click to focus)</span>
+                <input type="checkbox" checked data-sr-hotspots />
+              </label>
+
+              <div class="sr-row">
+                <button type="button" class="sr-btn" data-sr-jump-interior>
+                  Jump to interior
+                </button>
+              </div>
+
               <label class="sr-field">
                 <span>Preset</span>
                 <select data-sr-camera-preset>
