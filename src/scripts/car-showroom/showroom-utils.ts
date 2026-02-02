@@ -89,3 +89,5 @@ export const createPresetId = (): string => {
   }
   return String(Date.now());
 };
+export const isMobilePanel = () =>
+  window.matchMedia('(max-width: 980px)').matches;

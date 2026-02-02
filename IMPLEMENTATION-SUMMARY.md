@@ -645,3 +645,30 @@ init(ctx: SceneRuntime): void {
 ---
 
 _Built with ❤️ for exceptional mobile experiences_
+
+## 🔧 Modular Refactoring of Car Showroom
+
+**Objective:** Clean up the monolithic `car-showroom.ts` file (~4500 lines) by extracting distinct functional domains into separate modules.
+
+### ✅ Completed Modules
+
+1. **Diagnostics Module** (`src/scripts/car-showroom/showroom-diagnostics.ts`)
+   - Auto-detects automation/headless environments.
+   - Handles "Showroom Debug" mode.
+   - Manages error action rows.
+   - Replaces disparate diagnostic functions in the main script.
+
+2. **Utils & State Module** (`src/scripts/car-showroom/showroom-utils.ts`)
+   - Centralizes utility functions: `clamp`, `lerp`, `isMobilePanel`.
+   - Manages shared state patterns.
+
+3. **Panel UI Module** (`src/scripts/car-showroom/showroom-panel.ts`)
+   - Manages the bottom sheet (mobile) and side panel (desktop) UI.
+   - Handles complex drag gestures, snapping physics, and state persistence.
+   - Replaces ~260 lines of complex logic (drag handlers, snap calculations) from the main script.
+
+### Impact
+
+- **Maintainability:** Reduced main file complexity, encapsulated UI logic.
+- **Reusability:** Drag mechanics and snap logic are now isolated and testable.
+- **Performance:** Clean event listener management (added resizing support to panel module).
