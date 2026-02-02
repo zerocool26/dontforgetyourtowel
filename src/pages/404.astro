@@ -25,14 +25,9 @@ const quickLinks = [
     description: 'View our services',
   },
   {
-    label: 'Pricing',
-    href: withBasePath('pricing/'),
-    description: 'Check pricing plans',
-  },
-  {
-    label: 'Consultation',
-    href: withBasePath('/#consultation'),
-    description: 'Schedule a free consultation',
+    label: 'Contact',
+    href: `${withBasePath('services/')}#contact`,
+    description: 'How to reach us',
   },
 ];
 ---
@@ -141,7 +136,7 @@ const quickLinks = [
             Return Home
           </ModernButton>
           <ModernButton
-            href={withBasePath('/#consultation')}
+            href={`${withBasePath('services/')}#contact`}
             variant="secondary"
             className="font-mono uppercase tracking-wider"
           >
@@ -159,7 +154,7 @@ const quickLinks = [
                 d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
               ></path>
             </svg>
-            Schedule Consultation
+            Contact
           </ModernButton>
         </div>
 

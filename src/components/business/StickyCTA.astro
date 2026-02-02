@@ -1,8 +1,10 @@
 ---
 import ModernButton from '../ui/ModernButton.astro';
-import { withBasePath } from '../../utils/helpers';
+import { CONTACT_EMAIL } from '../../consts';
 
-const href = withBasePath('/#consultation');
+const href = `mailto:${encodeURIComponent(
+  CONTACT_EMAIL
+)}?subject=${encodeURIComponent('Free consultation request')}`;
 ---
 
 <div
@@ -32,14 +34,8 @@ const href = withBasePath('/#consultation');
     if (!el) return;
 
     let shouldShow = false;
-    let suppressed = false;
 
     function applyVisibility() {
-      if (suppressed) {
-        el.classList.add('hidden');
-        return;
-      }
-
       if (shouldShow) {
         el.classList.remove('hidden');
       } else {
@@ -51,27 +47,6 @@ const href = withBasePath('/#consultation');
       // show after scrolling past ~1 viewport height
       shouldShow = window.scrollY > window.innerHeight * 0.8;
       applyVisibility();
-    }
-
-    // Prevent the sticky CTA from blocking interactions with important sections
-    // (especially on mobile where fixed overlays can intercept taps).
-    const suppressTargets = [
-      document.getElementById('consultation'),
-      document.getElementById('services-quiz'),
-    ].filter(Boolean);
-
-    if ('IntersectionObserver' in window && suppressTargets.length > 0) {
-      const observer = new IntersectionObserver(
-        entries => {
-          suppressed = entries.some(entry => entry.isIntersecting);
-          applyVisibility();
-        },
-        {
-          threshold: 0.01,
-        }
-      );
-
-      for (const target of suppressTargets) observer.observe(target);
     }
 
     document.addEventListener('scroll', onScroll, { passive: true });

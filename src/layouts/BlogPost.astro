@@ -2,7 +2,6 @@
 import { Image } from 'astro:assets';
 import { getEntry } from 'astro:content';
 import BaseHead from '../components/BaseHead.astro';
-import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import Header from '../components/Header.astro';
 import { getMarkdownReadingTime } from '../utils/reading-time';
@@ -246,7 +245,6 @@ if (!displayReadingTime && Astro.slots.has('default')) {
       </article>
     </main>
     <PWARegistration />
-    <Footer />
     <CommandPalette client:only="preact" />
     <ToastContainer client:only="preact" />
     <WebVitals />

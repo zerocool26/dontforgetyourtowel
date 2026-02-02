@@ -19,8 +19,8 @@ const navSections = [
     title: 'Get started',
     items: [
       {
-        label: 'Schedule consultation',
-        href: withBasePath('/#consultation'),
+        label: 'Contact',
+        href: `${withBasePath('services/')}#contact`,
       },
       { label: 'Request a quote', href: withBasePath('pricing/') },
       { label: 'Explore services', href: withBasePath('services/') },
@@ -70,9 +70,9 @@ const navSections = [
         <div class="flex flex-wrap gap-4">
           <a
             class="btn btn-primary rounded-sm font-mono text-xs uppercase tracking-wider"
-            href={withBasePath('/#consultation')}
+            href={`${withBasePath('services/')}#contact`}
           >
-            Schedule Free Consultation
+            Contact
           </a>
           <a
             class="btn btn-secondary rounded-sm font-mono text-xs uppercase tracking-wider"

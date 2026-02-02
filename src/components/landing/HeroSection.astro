@@ -11,6 +11,12 @@ interface Props {
   badge?: string;
   /** Enable animated entrance */
   animated?: boolean;
+  /** Optional primary CTA */
+  primaryCta?: { label: string; href: string };
+  /** Optional secondary CTA */
+  secondaryCta?: { label: string; href: string };
+  /** Show experimental hero controls */
+  showControls?: boolean;
 }
 
 const {
@@ -18,19 +24,19 @@ const {
   subheading = 'A production-ready Astro + Three.js demo with a real-time hero pulled straight from the 3D gallery — responsive, accessible, and performance-aware.',
   badge = 'High-trust static ops',
   animated = true,
+  primaryCta,
+  secondaryCta,
+  showControls = false,
 } = Astro.props;
 
 const animationClasses = animated ? 'animate-fade-in' : '';
 
-const primaryCta = {
-  label: 'Open 3D gallery',
-  href: withBasePath('gallery/'),
-};
+const resolvedPrimaryCta =
+  primaryCta ??
+  ({ label: 'Explore services', href: withBasePath('services/') } as const);
 
-const secondaryCta = {
-  label: 'Explore services',
-  href: withBasePath('services/'),
-};
+const resolvedSecondaryCta =
+  secondaryCta ?? ({ label: 'About', href: withBasePath('about/') } as const);
 ---
 
 <section class={`relative isolate overflow-hidden ${animationClasses}`}>
@@ -76,8 +82,6 @@ const secondaryCta = {
             class="h-2 w-2 rounded-full bg-accent-400 shadow-[0_0_20px_rgba(34,211,238,0.7)]"
             aria-hidden="true"></span>
           {badge}
-          <span class="text-white/40" aria-hidden="true">·</span>
-          <span class="text-white/70">Chapter 11</span>
         </p>
 
         <h1
@@ -94,95 +98,105 @@ const secondaryCta = {
         <div class="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <a
             class="inline-flex items-center justify-center rounded-md bg-accent-500 px-6 py-3 font-semibold text-white shadow-lg shadow-accent-500/20 transition hover:bg-accent-400 focus:outline-none focus:ring-2 focus:ring-accent-300"
-            href={primaryCta.href}
+            href={resolvedPrimaryCta.href}
           >
-            {primaryCta.label}
+            {resolvedPrimaryCta.label}
           </a>
           <a
             class="inline-flex items-center justify-center rounded-md border border-white/15 bg-white/5 px-6 py-3 font-semibold text-white transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-accent-300"
-            href={secondaryCta.href}
+            href={resolvedSecondaryCta.href}
           >
-            {secondaryCta.label}
+            {resolvedSecondaryCta.label}
           </a>
-          <button
-            type="button"
-            class="inline-flex items-center justify-center rounded-md border border-white/15 bg-white/5 px-6 py-3 font-semibold text-white transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-accent-300"
-            data-hero-controls-toggle
-            aria-expanded="false"
-            aria-controls="hero-controls-panel"
-          >
-            Hero controls
-          </button>
+          {
+            showControls ? (
+              <button
+                type="button"
+                class="inline-flex items-center justify-center rounded-md border border-white/15 bg-white/5 px-6 py-3 font-semibold text-white transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-accent-300"
+                data-hero-controls-toggle
+                aria-expanded="false"
+                aria-controls="hero-controls-panel"
+              >
+                Hero controls
+              </button>
+            ) : null
+          }
         </div>
 
-        <div
-          id="hero-controls-panel"
-          class="mt-5 hidden rounded-2xl border border-white/10 bg-black/25 p-4 backdrop-blur"
-          data-hero-controls-panel
-        >
-          <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <label class="grid gap-1 text-sm text-white/80">
-              Chapter
-              <select
-                class="rounded-md border border-white/15 bg-white/5 px-3 py-2 text-sm text-white"
-                data-hero-control="variant"
-              >
-                <option value="neural">Neural</option>
-                <option value="city">City</option>
-                <option value="storm">Storm</option>
-                <option value="aurora">Aurora</option>
-              </select>
-            </label>
-            <label class="grid gap-1 text-sm text-white/80">
-              Speed
-              <input
-                type="range"
-                min="0.25"
-                max="2"
-                step="0.05"
-                value="1"
-                data-hero-control="speed"
-              />
-            </label>
-            <label class="grid gap-1 text-sm text-white/80">
-              Zoom
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.01"
-                value="0"
-                data-hero-control="zoom"
-              />
-            </label>
-            <label class="grid gap-1 text-sm text-white/80">
-              Tint
-              <input
-                type="color"
-                value="#22d3ee"
-                class="h-10 w-full rounded-md border border-white/15 bg-white/5 p-1"
-                data-hero-control="tint"
-              />
-            </label>
-          </div>
-          <div class="mt-4 flex flex-wrap gap-3">
-            <button
-              type="button"
-              class="inline-flex items-center justify-center rounded-md bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/15 focus:outline-none focus:ring-2 focus:ring-accent-300"
-              data-hero-control="reset"
+        {
+          showControls ? (
+            <div
+              id="hero-controls-panel"
+              class="mt-5 hidden rounded-2xl border border-white/10 bg-black/25 p-4 backdrop-blur"
+              data-hero-controls-panel
             >
-              Reset
-            </button>
-            <p class="text-xs text-white/60 sm:self-center">
-              Tip: change chapter + speed/zoom/tint live.
-            </p>
-          </div>
-        </div>
+              <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <label class="grid gap-1 text-sm text-white/80">
+                  Chapter
+                  <select
+                    class="rounded-md border border-white/15 bg-white/5 px-3 py-2 text-sm text-white"
+                    data-hero-control="variant"
+                  >
+                    <option value="neural">Neural</option>
+                    <option value="city">City</option>
+                    <option value="storm">Storm</option>
+                    <option value="aurora">Aurora</option>
+                  </select>
+                </label>
+                <label class="grid gap-1 text-sm text-white/80">
+                  Speed
+                  <input
+                    type="range"
+                    min="0.25"
+                    max="2"
+                    step="0.05"
+                    value="1"
+                    data-hero-control="speed"
+                  />
+                </label>
+                <label class="grid gap-1 text-sm text-white/80">
+                  Zoom
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value="0"
+                    data-hero-control="zoom"
+                  />
+                </label>
+                <label class="grid gap-1 text-sm text-white/80">
+                  Tint
+                  <input
+                    type="color"
+                    value="#22d3ee"
+                    class="h-10 w-full rounded-md border border-white/15 bg-white/5 p-1"
+                    data-hero-control="tint"
+                  />
+                </label>
+              </div>
+              <div class="mt-4 flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  class="inline-flex items-center justify-center rounded-md bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/15 focus:outline-none focus:ring-2 focus:ring-accent-300"
+                  data-hero-control="reset"
+                >
+                  Reset
+                </button>
+                <p class="text-xs text-white/60 sm:self-center">
+                  Tip: change chapter + speed/zoom/tint live.
+                </p>
+              </div>
+            </div>
+          ) : null
+        }
       </div>
     </div>
   </div>
 </section>
 
-<script>
-  import '../../scripts/hero-canvas-controls';
-</script>
+{
+  showControls ? (
+    <script>import '../../scripts/hero-canvas-controls';</script>
+  ) : null
+}

@@ -3,12 +3,14 @@ import MarketingLayout from '../layouts/MarketingLayout.astro';
 import ModernCard from '../components/ui/ModernCard.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
 import PricingTier from '../components/business/PricingTier.astro';
-import ContactForm from '../components/ContactForm.astro';
 import PricingCalculator from '../components/business/PricingCalculator.tsx';
 import ROICalculator from '../components/business/ROICalculator.tsx';
 import { withBasePath } from '../utils/helpers';
+import { CONTACT_EMAIL } from '../consts';
 
-const consultationHref = '#consultation';
+const requestQuoteHref = `mailto:${encodeURIComponent(
+  CONTACT_EMAIL
+)}?subject=${encodeURIComponent('Request pricing / quote')}`;
 
 const tiers = [
   {
@@ -119,7 +121,7 @@ const faqs = [
             Review services
           </ModernButton>
           <ModernButton
-            href={consultationHref}
+            href={requestQuoteHref}
             variant="primary"
             className="min-h-[48px]"
           >
@@ -152,7 +154,7 @@ const faqs = [
               perks={t.perks}
               highlight={t.highlight}
               ctaLabel={t.highlight ? 'Choose Growth' : 'Talk to sales'}
-              ctaHref={consultationHref}
+              ctaHref={requestQuoteHref}
             />
           ))
         }
@@ -202,8 +204,8 @@ const faqs = [
       <div class="max-w-3xl space-y-4">
         <h2 class="text-3xl font-semibold text-white">FAQs</h2>
         <p class="text-sm text-zinc-300">
-          If you don’t see your question here, schedule a consultation and we’ll
-          walk you through options.
+          If you don’t see your question here, email us and we’ll walk you
+          through options.
         </p>
       </div>
 
@@ -222,35 +224,36 @@ const faqs = [
     </div>
   </section>
 
-  <section class="border-t border-white/5 bg-zinc-900/30" id="consultation">
+  <section class="border-t border-white/5 bg-zinc-900/30" id="contact">
     <div class="mx-auto max-w-[1220px] px-6 py-20">
-      <div class="grid gap-10 lg:grid-cols-2 lg:items-start">
-        <div class="space-y-4">
-          <h2 class="text-3xl font-semibold text-white">
-            Request a detailed quote
-          </h2>
-          <p class="text-sm text-zinc-300">
-            Tell us your user count, key apps, and compliance needs. We’ll
-            respond with a best-fit plan and recommended add-ons.
-          </p>
-          <div class="pt-2">
+      <div class="rounded-2xl border border-white/10 bg-white/5 p-8">
+        <div
+          class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between"
+        >
+          <div class="max-w-2xl">
+            <h2 class="text-2xl font-semibold text-white">Request a quote</h2>
+            <p class="mt-3 text-sm text-zinc-300">
+              Email your user/device counts, key apps, and compliance needs.
+              We’ll respond with a best-fit plan and recommended add-ons.
+            </p>
+            <p class="mt-3 text-sm text-zinc-300">
+              <a
+                class="text-accent-300 hover:underline"
+                href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a
+              >
+            </p>
+          </div>
+          <div class="flex flex-col gap-3 sm:flex-row">
             <ModernButton
-              href={withBasePath('/#consultation')}
-              variant="secondary"
+              href={requestQuoteHref}
+              variant="primary"
               className="min-h-[48px]"
             >
-              Prefer the homepage form?
+              Email for a quote
             </ModernButton>
           </div>
         </div>
-        <div class="rounded-2xl border border-white/10 bg-white/5 p-6">
-          <ContactForm />
-        </div>
       </div>
-      <p class="mt-6 text-xs text-zinc-500">
-        We do not sell your data. Response times depend on business hours and
-        intake volume.
-      </p>
     </div>
   </section>
 </MarketingLayout>

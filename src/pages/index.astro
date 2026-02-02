@@ -1,43 +1,123 @@
 ---
 import Layout from '../layouts/MarketingLayout.astro';
 import HeroSection from '../components/landing/HeroSection.astro';
-import ControlStackSection from '../components/landing/ControlStackSection.astro';
-import InsightSection from '../components/landing/InsightSection.astro';
-import PlaybookSection from '../components/landing/PlaybookSection.astro';
-import EngagementSection from '../components/landing/EngagementSection.astro';
-import TestimonialsSection from '../components/landing/TestimonialsSection.astro';
-import DemoCtaSection from '../components/landing/DemoCtaSection.astro';
-import ContactForm from '../components/ContactForm.astro';
-import Footer from '../components/Footer.astro';
+import ModernCard from '../components/ui/ModernCard.astro';
+import ModernButton from '../components/ui/ModernButton.astro';
+import { CONTACT_EMAIL } from '../consts';
+import { withBasePath } from '../utils/helpers';
+
+const startProjectHref = `mailto:${encodeURIComponent(
+  CONTACT_EMAIL
+)}?subject=${encodeURIComponent('New project inquiry')}`;
 ---
 
 <Layout
-  title="Olive Chicago — Managed IT, Security, Cloud"
-  description="Proactive MSP coverage: monitoring, security, cloud, and helpdesk — with a cinematic 3D front door."
+  title="Olive Chicago — Tech Consulting & Managed IT"
+  description="A senior, multi-discipline IT firm: strategy, engineering, security, and managed operations — delivered with clear outcomes."
+  showFooter={false}
+  showStickyCTA={false}
 >
   <main class="overflow-x-hidden">
     <HeroSection
-      badge="MSP • Security • Cloud • AI"
-      headline="Secure, modern IT — without the firefights."
-      subheading="Proactive monitoring, hardened identities and endpoints, cloud modernization, and a responsive helpdesk — delivered like a long-term partner, not a ticket queue."
+      badge="TECH CONSULTING • CLOUD • SECURITY"
+      headline="Technology that runs reliably — and ships faster."
+      subheading="We help teams plan, build, secure, and operate modern systems: cloud, identity, endpoints, apps, and automation. Clear scope, clean delivery, measurable outcomes."
     />
 
-    <div class="space-y-24 py-24">
-      <ControlStackSection />
-      <InsightSection />
-      <PlaybookSection />
-      <EngagementSection />
-      <TestimonialsSection />
-      <DemoCtaSection />
+    <section class="mx-auto max-w-6xl px-6 pb-20 pt-10 sm:px-10">
+      <div class="grid gap-6 lg:grid-cols-2">
+        <ModernCard
+          variant="minimal"
+          className="border-white/10 bg-zinc-950/60 p-6"
+        >
+          <p
+            class="text-xs font-semibold uppercase tracking-[0.32em] text-zinc-400"
+          >
+            Category 01
+          </p>
+          <h2 class="mt-3 text-2xl font-semibold text-white">
+            Consulting & Delivery
+          </h2>
+          <p class="mt-3 text-sm text-zinc-300">
+            Roadmaps, architecture, and hands-on engineering for cloud, apps,
+            and automation.
+          </p>
+          <ul class="mt-5 space-y-2 text-sm text-zinc-300">
+            <li class="flex items-start gap-2">
+              <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 bg-accent-500"
+              ></span><span>Cloud & DevOps (Azure/AWS), IaC, CI/CD</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 bg-accent-500"
+              ></span><span
+                >App delivery: web, integrations, internal tools</span
+              >
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 bg-accent-500"
+              ></span><span>Automation & AI enablement with guardrails</span>
+            </li>
+          </ul>
+          <div class="mt-6 flex flex-wrap gap-3">
+            <ModernButton
+              href={withBasePath('services/')}
+              variant="primary"
+              className="min-h-[48px]">Explore services</ModernButton
+            >
+            <ModernButton
+              href={startProjectHref}
+              variant="secondary"
+              className="min-h-[48px]">Email us</ModernButton
+            >
+          </div>
+        </ModernCard>
 
-      <div id="consultation" class="border-t border-white/5 pt-20">
-        <ContactForm
-          title="Free consultation"
-          subtitle="Tell us what you’re building and what constraints you’re under — we’ll reply with a practical next step."
-          showContactInfo={false}
-        />
+        <ModernCard
+          variant="minimal"
+          className="border-white/10 bg-zinc-950/60 p-6"
+        >
+          <p
+            class="text-xs font-semibold uppercase tracking-[0.32em] text-zinc-400"
+          >
+            Category 02
+          </p>
+          <h2 class="mt-3 text-2xl font-semibold text-white">
+            Managed IT & Security
+          </h2>
+          <p class="mt-3 text-sm text-zinc-300">
+            Predictable operations with proactive monitoring, security
+            baselines, and responsive support.
+          </p>
+          <ul class="mt-5 space-y-2 text-sm text-zinc-300">
+            <li class="flex items-start gap-2">
+              <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 bg-accent-500"
+              ></span><span>Monitoring, patching, backups, and reporting</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 bg-accent-500"
+              ></span><span>Identity & endpoint hardening (MFA/SSO/EDR)</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 bg-accent-500"
+              ></span><span
+                >Security advisory (vCISO-style) and compliance readiness</span
+              >
+            </li>
+          </ul>
+          <div class="mt-6 flex flex-wrap gap-3">
+            <ModernButton
+              href={withBasePath('about/')}
+              variant="secondary"
+              className="min-h-[48px]">About the team</ModernButton
+            >
+            <ModernButton
+              href={startProjectHref}
+              variant="primary"
+              className="min-h-[48px]">Start a project</ModernButton
+            >
+          </div>
+        </ModernCard>
       </div>
-    </div>
+    </section>
   </main>
-  <Footer />
 </Layout>

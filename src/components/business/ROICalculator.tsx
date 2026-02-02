@@ -131,7 +131,7 @@ export default function ROICalculator() {
 
           <a
             class="mt-6 inline-flex min-h-[48px] w-full items-center justify-center rounded-xl bg-accent-500 px-4 text-sm font-semibold text-white"
-            href={withBasePath('/#consultation')}
+            href={`${withBasePath('services/')}#contact`}
           >
             Request ROI review
           </a>

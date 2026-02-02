@@ -162,14 +162,14 @@ export default function PricingCalculator() {
 
           <a
             class="mt-6 inline-flex min-h-[48px] w-full items-center justify-center rounded-xl bg-accent-500 px-4 text-sm font-semibold text-white"
-            href={withBasePath('/#consultation')}
+            href={`${withBasePath('services/')}#contact`}
           >
-            Get a detailed quote
+            Request a quote
           </a>
 
           <p class="mt-3 text-xs text-zinc-500">
             Tip: For device-based pricing (servers/workstations), we’ll scope
-            your inventory during the consultation.
+            your inventory during discovery.
           </p>
         </div>
       </div>

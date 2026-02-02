@@ -1,5 +1,5 @@
 ---
-import { SITE_TITLE } from '../consts';
+import { CONTACT_EMAIL, SITE_TITLE } from '../consts';
 import { withBasePath } from '../utils/helpers';
 import ThemeSelector from './ThemeSelector.astro';
 import ModernButton from './ui/ModernButton.astro';
@@ -8,14 +8,12 @@ const homeHref = withBasePath('/');
 
 const links = [
   { label: 'Services', href: withBasePath('services/') },
-  { label: 'Pricing', href: withBasePath('pricing/') },
   { label: 'About', href: withBasePath('about/') },
-  { label: '3D Gallery', href: withBasePath('gallery/') },
-  { label: 'Car Showroom', href: withBasePath('car-showroom/') },
-  { label: 'Shop Demo', href: withBasePath('shop-demo/') },
 ];
 
-const consultationHref = withBasePath('/#consultation');
+const startProjectHref = `mailto:${encodeURIComponent(
+  CONTACT_EMAIL
+)}?subject=${encodeURIComponent('New project inquiry')}`;
 ---
 
 <header
@@ -78,17 +76,17 @@ const consultationHref = withBasePath('/#consultation');
         variant="secondary"
         className="font-mono text-xs uppercase tracking-wider"
         rounded="sm"
-        href={withBasePath('pricing/')}
+        href={withBasePath('services/')}
       >
-        View Pricing
+        View Services
       </ModernButton>
       <ModernButton
         variant="primary"
         className="font-mono text-xs uppercase tracking-wider"
         rounded="sm"
-        href={consultationHref}
+        href={startProjectHref}
       >
-        Free Consultation
+        Start a Project
       </ModernButton>
     </div>
 
@@ -141,15 +139,15 @@ const consultationHref = withBasePath('/#consultation');
       }
       <a
         class="min-h-touch flex touch-manipulation items-center rounded-lg px-3 py-3 font-semibold text-slate-100 transition hover:bg-white/5"
-        href={withBasePath('pricing/')}
+        href={withBasePath('services/')}
       >
-        View pricing
+        View services
       </a>
       <a
         class="min-h-touch flex touch-manipulation items-center rounded-lg bg-[rgba(99,102,241,0.15)] px-3 py-3 font-semibold text-white transition hover:bg-[rgba(99,102,241,0.25)]"
-        href={consultationHref}
+        href={startProjectHref}
       >
-        Schedule free consultation
+        Start a project
       </a>
     </div>
   </div>

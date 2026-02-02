@@ -5,19 +5,21 @@ import ModernCard from '../components/ui/ModernCard.astro';
 import ServiceCard from '../components/business/ServiceCard.astro';
 import CaseStudyCard from '../components/business/CaseStudyCard.astro';
 import TestimonialSlider from '../components/business/TestimonialSlider.astro';
-import ContactForm from '../components/ContactForm.astro';
 import ServicesQuiz from '../components/business/ServicesQuiz.tsx';
 import { getCollection } from 'astro:content';
 import { withBasePath } from '../utils/helpers';
+import { CONTACT_EMAIL } from '../consts';
 
-const consultationHref = '#consultation';
+const startProjectHref = `mailto:${encodeURIComponent(
+  CONTACT_EMAIL
+)}?subject=${encodeURIComponent('Services inquiry')}`;
 
 const services = [
   {
     id: 'managed-it',
-    title: 'Managed IT Services',
+    title: 'Managed IT & Support',
     description:
-      'Reliable operations, responsive support, and a clear roadmap—so IT becomes predictable.',
+      'Predictable operations, responsive support, and documented systems—so IT stays boring (in the best way).',
     bullets: [
       '24/7 monitoring & alerting',
       'Helpdesk + onsite dispatch options',
@@ -27,9 +29,9 @@ const services = [
   },
   {
     id: 'cybersecurity',
-    title: 'Cybersecurity',
+    title: 'Security & Compliance',
     description:
-      'Reduce risk with layered controls, visibility, and response playbooks tailored to your environment.',
+      'Layered controls, visibility, and response readiness—aligned to your risk profile and regulatory needs.',
     bullets: [
       'Endpoint protection + hardening',
       'Email security & phishing defense',
@@ -39,9 +41,9 @@ const services = [
   },
   {
     id: 'cloud',
-    title: 'Cloud Solutions',
+    title: 'Cloud & DevOps',
     description:
-      'Modernize safely: migrations, governance, cost optimization, and resilience by default.',
+      'Modernize safely: migrations, landing zones, IaC, CI/CD, and cost controls built-in.',
     bullets: [
       'Microsoft 365 / Google Workspace optimization',
       'Azure/AWS migrations & landing zones',
@@ -51,9 +53,9 @@ const services = [
   },
   {
     id: 'ai',
-    title: 'AI Integration',
+    title: 'Automation & AI Enablement',
     description:
-      'Adopt AI responsibly with guardrails, privacy protections, and measurable productivity gains.',
+      'Practical automation and AI adoption with governance, privacy, and measurable productivity gains.',
     bullets: [
       'AI readiness & data classification',
       'Workflow automation & copilots',
@@ -119,7 +121,7 @@ const featuredTestimonials = testimonials
 
 <MarketingLayout
   title="Services | Olive Chicago"
-  description="Managed IT, cybersecurity, cloud, and AI services designed for reliability and risk reduction."
+  description="Tech consulting and managed IT: delivery, security, cloud/DevOps, automation, and reliable operations."
 >
   <section class="relative overflow-hidden bg-zinc-950 pb-16 pt-28">
     <div
@@ -135,28 +137,27 @@ const featuredTestimonials = testimonials
             Services
           </p>
           <h1 class="text-4xl font-bold text-white sm:text-5xl">
-            Clear, complete coverage for your
-            <span class="text-accent-300"> IT and security.</span>
+            Consulting, engineering, and managed operations—
+            <span class="text-accent-300"> under one accountable team.</span>
           </h1>
           <p class="max-w-2xl text-base text-zinc-300">
-            We deliver the fundamentals (uptime, backups, patching, support) and
-            the advanced layers (security, cloud modernization, AI adoption)
-            with one accountable team.
+            We help teams plan, build, secure, and operate modern systems. Pick
+            a focused engagement or a long-term coverage plan.
           </p>
           <div class="flex flex-col gap-3 sm:flex-row">
             <ModernButton
-              href={withBasePath('pricing/')}
+              href={withBasePath('services/#engagement-model')}
               variant="secondary"
               className="min-h-[48px]"
             >
-              View pricing
+              How we work
             </ModernButton>
             <ModernButton
-              href={consultationHref}
+              href={startProjectHref}
               variant="primary"
               className="min-h-[48px]"
             >
-              Schedule consultation
+              Start a project
             </ModernButton>
           </div>
         </div>
@@ -216,7 +217,7 @@ const featuredTestimonials = testimonials
               <p class="text-sm text-zinc-300">{s.description}</p>
               <div class="pt-2">
                 <ModernButton
-                  href={consultationHref}
+                  href={startProjectHref}
                   variant="primary"
                   className="min-h-[48px]"
                 >
@@ -355,7 +356,7 @@ const featuredTestimonials = testimonials
             Take a 60-second quiz and we’ll recommend a starting package.
           </p>
           <ModernButton
-            href={consultationHref}
+            href={startProjectHref}
             variant="secondary"
             className="min-h-[48px]"
           >
@@ -385,26 +386,34 @@ const featuredTestimonials = testimonials
     </div>
   </section>
 
-  <section class="bg-zinc-950" id="consultation">
+  <section class="bg-zinc-950" id="contact">
     <div class="mx-auto max-w-[1220px] px-6 py-20">
-      <div class="grid gap-10 lg:grid-cols-2 lg:items-start">
-        <div class="space-y-4">
-          <h2 class="text-3xl font-semibold text-white">
-            Get a tailored recommendation
-          </h2>
-          <p class="text-sm text-zinc-300">
-            Tell us a bit about your environment (users, devices, compliance
-            needs) and we’ll follow up with a practical plan.
-          </p>
-        </div>
-        <div class="rounded-2xl border border-white/10 bg-white/5 p-6">
-          <ContactForm />
+      <div class="rounded-2xl border border-white/10 bg-white/5 p-8">
+        <div class="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
+          <div class="space-y-3">
+            <h2 class="text-2xl font-semibold text-white">Get in touch</h2>
+            <p class="text-sm text-zinc-300">
+              No forms. Email us a short summary of what you’re trying to
+              achieve and we’ll reply with next steps.
+            </p>
+            <p class="text-sm text-zinc-300">
+              <a
+                class="text-accent-300 hover:underline"
+                href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a
+              >
+            </p>
+          </div>
+          <div class="flex flex-col gap-3 sm:flex-row lg:justify-end">
+            <ModernButton
+              href={startProjectHref}
+              variant="primary"
+              className="min-h-[48px]"
+            >
+              Email project details
+            </ModernButton>
+          </div>
         </div>
       </div>
-      <p class="mt-6 text-xs text-zinc-500">
-        By submitting, you agree to be contacted about our services. We do not
-        sell your data.
-      </p>
     </div>
   </section>
 </MarketingLayout>

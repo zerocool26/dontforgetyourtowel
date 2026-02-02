@@ -128,9 +128,9 @@ export default function ServicesQuiz() {
           <div class="mt-5 flex flex-col gap-3 sm:flex-row">
             <a
               class="inline-flex min-h-[48px] flex-1 items-center justify-center rounded-xl bg-accent-500 px-4 text-sm font-semibold text-white"
-              href={withBasePath('/#consultation')}
+              href={`${withBasePath('services/')}#contact`}
             >
-              Schedule free consultation
+              Contact
             </a>
             <button
               type="button"

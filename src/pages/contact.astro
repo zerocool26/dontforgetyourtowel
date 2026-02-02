@@ -1,12 +1,11 @@
 ---
 import LegacyRedirect from '../components/LegacyRedirect.astro';
 
-// The MSP marketing site uses inline consultation forms (/#consultation).
-// Keep this route as a noindex redirect for backward compatibility.
+// No contact form on-site: keep this route as a noindex redirect.
 ---
 
 <LegacyRedirect
-  destination="/#consultation"
-  reason="The consultation form now lives on the homepage."
-  statusText="Redirecting to consultation"
+  destination="/services"
+  reason="Contact requests are handled via email; see services for details."
+  statusText="Redirecting to services"
 />
