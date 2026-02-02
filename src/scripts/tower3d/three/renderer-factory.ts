@@ -70,43 +70,53 @@ export const createSafeWebGLRenderer = (
     preserveDrawingBuffer = false,
   } = options;
 
-  // Try to obtain a context ourselves so we can vary attributes.
-  // If we succeed, hand it to three so the renderer can still be configured normally.
-  const attempts = createContextAttempts(
+  // Prefer Three.js' own context creation first.
+  // Some browsers can be sensitive to repeated `getContext()` probing or mismatched
+  // attributes; letting Three drive the first attempt is often most reliable.
+  try {
+    return new THREE.WebGLRenderer({
+      canvas,
+      alpha,
+      antialias,
+      powerPreference,
+      preserveDrawingBuffer,
+    });
+  } catch {
+    // fall through to explicit context attempts
+  }
+
+  // If the default attempt failed, try to obtain a context ourselves so we can vary attributes.
+  const attrsAttempts = createContextAttempts(
     alpha,
     antialias,
     powerPreference,
     preserveDrawingBuffer
   );
 
-  const contexts: Array<AnyWebGLContext> = [];
+  const contextAttempts: Array<{
+    kind: 'webgl2' | 'webgl' | 'experimental-webgl';
+    attrs?: WebGLContextAttributes;
+  }> = [
+    { kind: 'webgl2' },
+    { kind: 'webgl' },
+    { kind: 'experimental-webgl' },
+    ...attrsAttempts.flatMap(attrs => [
+      { kind: 'webgl2' as const, attrs },
+      { kind: 'webgl' as const, attrs },
+      { kind: 'experimental-webgl' as const, attrs },
+    ]),
+  ];
 
-  // 1) Totally default contexts
-  const defaultGl2 = tryGetContext(canvas, 'webgl2');
-  if (defaultGl2) contexts.push(defaultGl2);
-  const defaultGl1 =
-    tryGetContext(canvas, 'webgl') ||
-    tryGetContext(canvas, 'experimental-webgl');
-  if (defaultGl1) contexts.push(defaultGl1);
-
-  // 2) Attribute variations
-  for (const attrs of attempts) {
-    const gl2 = tryGetContext(canvas, 'webgl2', attrs);
-    if (gl2) contexts.push(gl2);
-
-    const gl1 =
-      tryGetContext(canvas, 'webgl', attrs) ||
-      tryGetContext(canvas, 'experimental-webgl', attrs);
-    if (gl1) contexts.push(gl1);
-  }
-
-  // De-dupe contexts (some browsers return same object for repeated calls)
-  const unique = Array.from(new Set(contexts));
-
+  const seen = new Set<AnyWebGLContext>();
   let lastError: unknown = null;
-  for (const context of unique) {
+  for (const attempt of contextAttempts) {
+    const context = tryGetContext(canvas, attempt.kind, attempt.attrs);
+    if (!context) continue;
+    if (seen.has(context)) continue;
+    seen.add(context);
+
     try {
-      const renderer = new THREE.WebGLRenderer({
+      return new THREE.WebGLRenderer({
         canvas,
         context,
         alpha,
@@ -114,7 +124,6 @@ export const createSafeWebGLRenderer = (
         powerPreference,
         preserveDrawingBuffer,
       });
-      return renderer;
     } catch (error) {
       lastError = error;
     }
