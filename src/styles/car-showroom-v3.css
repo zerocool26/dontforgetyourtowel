@@ -109,6 +109,41 @@
   min-height: 56svh;
 }
 
+.sr__letterbox {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  display: none;
+  z-index: 25;
+}
+
+.sr__letterbox::before,
+.sr__letterbox::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: var(--sr-letterbox-bar, 0px);
+  background: rgba(0, 0, 0, 0.92);
+}
+
+.sr__letterbox::before {
+  top: 0;
+}
+
+.sr__letterbox::after {
+  bottom: 0;
+}
+
+.sr__cinematicExit {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  z-index: 30;
+  display: none;
+  pointer-events: auto;
+}
+
 .sr__canvas {
   width: 100%;
   height: 100%;
@@ -118,6 +153,29 @@
   background: transparent;
   box-shadow: var(--sr-shadow);
   touch-action: none;
+}
+
+/* Cinematic mode: maximize viewer, hide UI chrome, and show letterbox/exit */
+[data-sr-root][data-sr-cinematic='1'] .sr__grid {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: 1fr;
+  grid-template-areas: 'viewer';
+}
+
+[data-sr-root][data-sr-cinematic='1'] .sr__top,
+[data-sr-root][data-sr-cinematic='1'] .sr__panel,
+[data-sr-root][data-sr-cinematic='1'] .sr__hud,
+[data-sr-root][data-sr-cinematic='1'] .sr__quick {
+  display: none;
+}
+
+[data-sr-root][data-sr-cinematic='1'] .sr__viewer {
+  min-height: calc(100svh - 110px);
+}
+
+[data-sr-root][data-sr-cinematic='1'] .sr__letterbox,
+[data-sr-root][data-sr-cinematic='1'] .sr__cinematicExit {
+  display: block;
 }
 
 .sr__hud {

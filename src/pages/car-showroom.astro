@@ -56,6 +56,16 @@ const galleryHref = `${base}gallery/`;
       <div class="sr__viewer">
         <canvas class="sr__canvas" data-sr-canvas></canvas>
 
+        <div class="sr__letterbox" data-sr-letterbox aria-hidden="true"></div>
+        <button
+          type="button"
+          class="sr-btn sr__cinematicExit"
+          data-sr-cinematic-exit
+          aria-label="Exit cinematic mode"
+        >
+          Exit cinematic
+        </button>
+
         <div class="sr__quick" data-sr-quick>
           <button
             type="button"
@@ -287,10 +297,40 @@ const galleryHref = `${base}gallery/`;
               </button>
             </div>
 
+            <div class="sr-grid">
+              <label class="sr-field">
+                <span>Cinematic mode</span>
+                <input type="checkbox" data-sr-cinematic />
+              </label>
+
+              <label class="sr-field">
+                <span>License plate text</span>
+                <input
+                  type="text"
+                  inputmode="text"
+                  maxlength="10"
+                  placeholder="DFYTWL"
+                  autocomplete="off"
+                  data-sr-plate-text
+                />
+              </label>
+
+              <div class="sr-row">
+                <button type="button" class="sr-btn" data-sr-plate-apply>
+                  Apply plate
+                </button>
+                <button type="button" class="sr-btn" data-sr-plate-reset>
+                  Reset plate
+                </button>
+              </div>
+            </div>
+
             <p class="sr-hint">
               Presets save everything you see in the panel (camera, lighting,
               quality, post, etc.).
             </p>
+
+            <p class="sr-hint">Tip: press <kbd>C</kbd> to toggle cinematic.</p>
           </section>
 
           <section class="sr-section" id="sr-sec-model" data-sr-section="model">

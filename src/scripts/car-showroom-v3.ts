@@ -254,6 +254,12 @@ const normalizeName = (s: string) =>
     .trim()
     .toLowerCase();
 
+const safeTrimText = (value: string, maxLen: number) =>
+  String(value || '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, Math.max(0, maxLen));
+
 const classifyMeshByName = (meshName: string, matName: string) => {
   const n = `${normalizeName(meshName)} ${normalizeName(matName)}`;
 
@@ -832,6 +838,25 @@ const init = () => {
   const regroundBtn =
     root.querySelector<HTMLButtonElement>('[data-sr-reground]');
 
+  // Cinematic + plate tools
+  const cinematicChk = root.querySelector<HTMLInputElement>(
+    '[data-sr-cinematic]'
+  );
+  const cinematicExitBtn = root.querySelector<HTMLButtonElement>(
+    '[data-sr-cinematic-exit]'
+  );
+  const letterboxEl = root.querySelector<HTMLElement>('[data-sr-letterbox]');
+
+  const plateTextInp = root.querySelector<HTMLInputElement>(
+    '[data-sr-plate-text]'
+  );
+  const plateApplyBtn = root.querySelector<HTMLButtonElement>(
+    '[data-sr-plate-apply]'
+  );
+  const plateResetBtn = root.querySelector<HTMLButtonElement>(
+    '[data-sr-plate-reset]'
+  );
+
   const panelBody = root.querySelector<HTMLElement>('[data-sr-panel-body]');
   const jumpBtns = Array.from(
     root.querySelectorAll<HTMLButtonElement>('[data-sr-jump]')
@@ -1354,6 +1379,20 @@ const init = () => {
     bloomThreshold: Number.parseFloat(bloomThreshold?.value || '0.9') || 0.9,
     bloomRadius: Number.parseFloat(bloomRadius?.value || '0') || 0,
     baseExposure: Number.parseFloat(exposure?.value || '1.25') || 1.25,
+
+    cinematic: Boolean(cinematicChk?.checked ?? false),
+    cinematicPrev: null as null | {
+      autorotate: boolean;
+      motionStyle: string;
+      motionSpeed: number;
+      bloomStrength: number;
+      bloomThreshold: number;
+      bloomRadius: number;
+      exposure: number;
+      panelSnap: PanelSnap;
+    },
+
+    plateText: safeTrimText(plateTextInp?.value || '', 10),
     loadingBoostT: 0,
     dynamicScale: 1,
 
@@ -1383,6 +1422,249 @@ const init = () => {
 
   const originalMaterialState = new WeakMap<THREE.Material, MaterialSnapshot>();
   let wrapTexture: THREE.Texture | null = null;
+
+  // License plate: applied on top of the current look and fully reversible.
+  let plateTexture: THREE.CanvasTexture | null = null;
+  let plateMaterials: Array<
+    THREE.MeshStandardMaterial | THREE.MeshPhysicalMaterial
+  > = [];
+  const plateBaseline = new WeakMap<THREE.Material, MaterialSnapshot>();
+
+  const findPlateMaterials = (obj: THREE.Object3D) => {
+    const found: Array<
+      THREE.MeshStandardMaterial | THREE.MeshPhysicalMaterial
+    > = [];
+    const seen = new Set<string>();
+
+    obj.traverse(child => {
+      const mesh = child as THREE.Mesh;
+      if (!mesh.isMesh) return;
+
+      const mats = Array.isArray(mesh.material)
+        ? mesh.material
+        : [mesh.material];
+      for (const mat of mats) {
+        if (!mat) continue;
+        if (
+          !(mat instanceof THREE.MeshStandardMaterial) &&
+          !(mat instanceof THREE.MeshPhysicalMaterial)
+        ) {
+          continue;
+        }
+
+        const key = mat.uuid;
+        if (seen.has(key)) continue;
+
+        const n = `${normalizeName(mesh.name || '')} ${normalizeName(
+          mat.name || ''
+        )}`;
+
+        const looksLikePlate =
+          /(?:license|licence|number\s*plate|numberplate|plate|registration|reg\b)/i.test(
+            n
+          );
+        if (!looksLikePlate) continue;
+
+        // Avoid obvious false positives.
+        if (/(?:template|placeholder|plateau)/i.test(n)) continue;
+
+        seen.add(key);
+        found.push(mat);
+      }
+    });
+
+    return found;
+  };
+
+  const buildPlateTexture = (rawText: string) => {
+    const text = safeTrimText(rawText, 10).toUpperCase();
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 1024;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+
+    // Background
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#f4f5f7';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Border
+    ctx.lineWidth = 26;
+    ctx.strokeStyle = '#0b1220';
+    ctx.strokeRect(26, 26, canvas.width - 52, canvas.height - 52);
+
+    // Subtle top band
+    ctx.fillStyle = '#0b1220';
+    ctx.fillRect(26, 26, canvas.width - 52, 76);
+
+    // State/brand microtext
+    ctx.fillStyle = 'rgba(255,255,255,0.88)';
+    ctx.font =
+      '700 34px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('DFYTWL', 58, 64);
+    ctx.textAlign = 'right';
+    ctx.fillText('SHOWROOM', canvas.width - 58, 64);
+    ctx.textAlign = 'left';
+
+    // Main text
+    ctx.fillStyle = '#0b1220';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font =
+      '900 160px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"';
+    ctx.fillText(text || 'DFYTWL', canvas.width / 2, canvas.height / 2 + 30);
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.wrapS = THREE.ClampToEdgeWrapping;
+    tex.wrapT = THREE.ClampToEdgeWrapping;
+    tex.anisotropy = 4;
+    tex.needsUpdate = true;
+    return tex;
+  };
+
+  const resetPlate = () => {
+    if (plateTexture) {
+      plateTexture.dispose?.();
+      plateTexture = null;
+    }
+
+    for (const mat of plateMaterials) {
+      const snap = plateBaseline.get(mat);
+      if (snap) restoreMaterial(mat, snap);
+    }
+  };
+
+  const applyPlate = (rawText: string) => {
+    if (!loadState.gltf) return;
+
+    const text = safeTrimText(rawText, 10);
+    runtime.plateText = text;
+
+    if (!text) {
+      resetPlate();
+      return;
+    }
+
+    if (!plateMaterials.length)
+      plateMaterials = findPlateMaterials(loadState.gltf);
+    if (!plateMaterials.length) {
+      setStatus(false, 'Plate mesh not found (try another model).');
+      window.setTimeout(() => setStatus(false, ''), 1400);
+      return;
+    }
+
+    for (const mat of plateMaterials) {
+      if (!plateBaseline.has(mat))
+        plateBaseline.set(mat, snapshotMaterial(mat));
+    }
+
+    if (plateTexture) {
+      plateTexture.dispose?.();
+      plateTexture = null;
+    }
+
+    const tex = buildPlateTexture(text);
+    if (!tex) return;
+    plateTexture = tex;
+
+    for (const mat of plateMaterials) {
+      mat.map = plateTexture;
+      mat.color.set(0xffffff);
+      mat.needsUpdate = true;
+    }
+  };
+
+  const syncLetterbox = () => {
+    if (!letterboxEl) return;
+    if (!runtime.cinematic) {
+      letterboxEl.style.setProperty('--sr-letterbox-bar', '0px');
+      return;
+    }
+
+    const rect = canvas.getBoundingClientRect();
+    const w = Math.max(1, rect.width);
+    const h = Math.max(1, rect.height);
+    const targetAspect = 2.35;
+    const targetH = w / targetAspect;
+    const bar = Math.max(0, Math.floor((h - targetH) / 2));
+    letterboxEl.style.setProperty('--sr-letterbox-bar', `${bar}px`);
+  };
+
+  const setCinematic = (on: boolean) => {
+    runtime.cinematic = Boolean(on);
+    root.dataset.srCinematic = runtime.cinematic ? '1' : '0';
+
+    if (runtime.cinematic) {
+      if (!runtime.cinematicPrev) {
+        runtime.cinematicPrev = {
+          autorotate: Boolean(autorotate?.checked ?? false),
+          motionStyle: (motionStyle?.value || 'turntable').trim().toLowerCase(),
+          motionSpeed: Number.parseFloat(motionSpeed?.value || '0.75') || 0.75,
+          bloomStrength: Number.parseFloat(bloom?.value || '0.35') || 0.35,
+          bloomThreshold:
+            Number.parseFloat(bloomThreshold?.value || '0.9') || 0.9,
+          bloomRadius: Number.parseFloat(bloomRadius?.value || '0') || 0,
+          exposure: Number.parseFloat(exposure?.value || '1.25') || 1.25,
+          panelSnap: panelApi.getSnap(),
+        };
+      }
+
+      // Hide the panel for a clean shot.
+      panelApi.setSnap('collapsed', true);
+
+      // Force a slow turntable orbit.
+      if (autorotate) autorotate.checked = true;
+      if (motionStyle) motionStyle.value = 'turntable';
+      if (motionSpeed) motionSpeed.value = '0.35';
+
+      // Commercial-ish bloom preset.
+      if (bloom) bloom.value = '0.9';
+      if (bloomThreshold) bloomThreshold.value = '0.65';
+      if (bloomRadius) bloomRadius.value = '0.25';
+
+      // Slight exposure lift.
+      if (exposure) exposure.value = '1.35';
+
+      runtime.autorotate = true;
+      runtime.motionStyle = 'turntable';
+      runtime.motionSpeed = 0.35;
+
+      applyMotion();
+      applyPost();
+      syncLetterbox();
+      return;
+    }
+
+    // Restore previous values.
+    const prev = runtime.cinematicPrev;
+    runtime.cinematicPrev = null;
+
+    if (prev) {
+      if (autorotate) autorotate.checked = prev.autorotate;
+      if (motionStyle) motionStyle.value = prev.motionStyle;
+      if (motionSpeed) motionSpeed.value = String(prev.motionSpeed);
+      if (bloom) bloom.value = String(prev.bloomStrength);
+      if (bloomThreshold) bloomThreshold.value = String(prev.bloomThreshold);
+      if (bloomRadius) bloomRadius.value = String(prev.bloomRadius);
+      if (exposure) exposure.value = String(prev.exposure);
+      panelApi.setSnap(prev.panelSnap, true);
+    }
+
+    runtime.autorotate = Boolean(autorotate?.checked ?? false);
+    runtime.motionStyle = (motionStyle?.value || 'turntable')
+      .trim()
+      .toLowerCase();
+    runtime.motionSpeed =
+      Number.parseFloat(motionSpeed?.value || '0.75') || 0.75;
+
+    applyMotion();
+    applyPost();
+    syncLetterbox();
+  };
 
   const syncRuntimeLookFromUi = () => {
     runtime.finish = (finishSel?.value || runtime.finish || 'gloss')
@@ -1915,6 +2197,7 @@ const init = () => {
     composer?.setSize(w, h);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
+    syncLetterbox();
   };
 
   const applyQuality = () => {
@@ -2027,6 +2310,10 @@ const init = () => {
     opts?: { objectUrlToRevoke?: string | null }
   ) => {
     const requestId = ++loadState.requestId;
+
+    // Model swap: drop plate overrides (texture/material targets are per-model).
+    resetPlate();
+    plateMaterials = [];
 
     if (loadState.gltf) {
       scene.remove(loadState.gltf);
@@ -2149,6 +2436,9 @@ const init = () => {
       maybeAutofillPartColorsFromModel(obj);
       applyLook();
 
+      // Plate applies after look so it sits "on top".
+      if (runtime.plateText) applyPlate(runtime.plateText);
+
       // Apply debug/inspector transforms after load
       grid.visible = Boolean(gridChk?.checked ?? runtime.grid);
       axes.visible = Boolean(axesChk?.checked ?? runtime.axes);
@@ -2179,6 +2469,39 @@ const init = () => {
   // Bind UI
   bgSel?.addEventListener('change', () => setBackground(bgSel.value));
   setBackground(runtime.background);
+
+  const syncPlateTextFromUi = () => {
+    runtime.plateText = safeTrimText(plateTextInp?.value || '', 10);
+  };
+
+  cinematicChk?.addEventListener('change', () => {
+    setCinematic(Boolean(cinematicChk.checked));
+  });
+
+  cinematicExitBtn?.addEventListener('click', () => {
+    if (cinematicChk) cinematicChk.checked = false;
+    setCinematic(false);
+  });
+
+  plateApplyBtn?.addEventListener('click', () => {
+    syncPlateTextFromUi();
+    applyPlate(runtime.plateText);
+  });
+
+  plateResetBtn?.addEventListener('click', () => {
+    if (plateTextInp) plateTextInp.value = '';
+    runtime.plateText = '';
+    resetPlate();
+  });
+
+  plateTextInp?.addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    syncPlateTextFromUi();
+    applyPlate(runtime.plateText);
+  });
+
+  plateTextInp?.addEventListener('input', () => syncPlateTextFromUi());
 
   const syncRuntimeModelTransformFromUi = () => {
     runtime.modelScaleMul = Number.parseFloat(modelScale?.value || '1') || 1;
@@ -2562,6 +2885,11 @@ const init = () => {
     if (Math.abs(bt - 0.9) > 0.0001) url.searchParams.set('bt', bt.toFixed(3));
     if (Math.abs(br) > 0.0001) url.searchParams.set('br', br.toFixed(3));
 
+    // Cinematic + plate
+    if (runtime.cinematic) url.searchParams.set('cine', '1');
+    const plt = safeTrimText(plateTextInp?.value || '', 10);
+    if (plt) url.searchParams.set('plt', plt);
+
     const ms = Number(runtime.modelScaleMul) || 1;
     const my = Number(runtime.modelYawDeg) || 0;
     const ml = Number(runtime.modelLift) || 0;
@@ -2608,6 +2936,7 @@ const init = () => {
   let lastSample = performance.now();
   let lastTick = lastSample;
   let frames = 0;
+  const cinematicShakeOffset = new THREE.Vector3();
   const tick = () => {
     frames += 1;
     const now = performance.now();
@@ -2678,6 +3007,40 @@ const init = () => {
 
     controls.update();
 
+    // Cinematic micro-shake (temporary offset; no drift)
+    let shakeApplied = false;
+    if (runtime.cinematic) {
+      const t = now * 0.001;
+      const amp = clamp(runtime.lastRadius * 0.00035, 0.00035, 0.01);
+      cinematicShakeOffset.set(
+        Math.sin(t * 1.7) * amp,
+        Math.cos(t * 2.1) * amp * 0.6,
+        Math.sin(t * 1.3 + 1.2) * amp
+      );
+      camera.position.add(cinematicShakeOffset);
+      shakeApplied = true;
+    }
+
+    // Cinematic micro-shake (temporary offset; no drift)
+    let shake = false;
+    if (runtime.cinematic) shake = true;
+    if (shake) {
+      const t = now * 0.001;
+      const amp = clamp(runtime.lastRadius * 0.00035, 0.00035, 0.01);
+      const off = new THREE.Vector3(
+        Math.sin(t * 1.7) * amp,
+        Math.cos(t * 2.1) * amp * 0.6,
+        Math.sin(t * 1.3 + 1.2) * amp
+      );
+      camera.position.add(off);
+      if (composer && runtime.bloomStrength > 0.001) composer.render();
+      else renderer.render(scene, camera);
+      camera.position.sub(off);
+
+      requestAnimationFrame(tick);
+      return;
+    }
+
     // Loading-time brightness boost
     {
       const loading = root.dataset.carShowroomLoading === '1';
@@ -2704,6 +3067,8 @@ const init = () => {
 
     if (composer && runtime.bloomStrength > 0.001) composer.render();
     else renderer.render(scene, camera);
+
+    if (shakeApplied) camera.position.sub(cinematicShakeOffset);
 
     requestAnimationFrame(tick);
   };
@@ -2736,6 +3101,9 @@ const init = () => {
     const bl = url.searchParams.get('bl');
     const bt = url.searchParams.get('bt');
     const br = url.searchParams.get('br');
+
+    const cine = url.searchParams.get('cine');
+    const plt = url.searchParams.get('plt');
 
     const fin = url.searchParams.get('fin');
     const coat = url.searchParams.get('coat');
@@ -2788,6 +3156,9 @@ const init = () => {
     if (bl && bloom) bloom.value = bl;
     if (bt && bloomThreshold) bloomThreshold.value = bt;
     if (br && bloomRadius) bloomRadius.value = br;
+
+    if (cine && cinematicChk) cinematicChk.checked = cine === '1';
+    if (plt && plateTextInp) plateTextInp.value = plt;
 
     if (fin && finishSel) finishSel.value = fin;
     if (coat && clearcoatInp) clearcoatInp.value = coat;
@@ -2852,6 +3223,11 @@ const init = () => {
   runtime.modelScaleMul = Number.parseFloat(modelScale?.value || '1') || 1;
   runtime.modelYawDeg = Number.parseFloat(modelYaw?.value || '0') || 0;
   runtime.modelLift = Number.parseFloat(modelLift?.value || '0') || 0;
+  runtime.cinematic = Boolean(cinematicChk?.checked ?? runtime.cinematic);
+  runtime.plateText = safeTrimText(
+    plateTextInp?.value || runtime.plateText,
+    10
+  );
 
   syncRuntimeLookFromUi();
 
@@ -2861,6 +3237,9 @@ const init = () => {
   syncPaint();
   applyQuality();
   applyPost();
+
+  // Initialize cinematic after URL hydration so the preset captures the prior values.
+  setCinematic(runtime.cinematic);
 
   const initial = (
     modelUrl?.value ||
@@ -2917,6 +3296,19 @@ const init = () => {
     if (tag === 'input' || tag === 'textarea' || tag === 'select') return true;
     return Boolean(ae.isContentEditable);
   };
+
+  // Keyboard shortcuts
+  window.addEventListener('keydown', e => {
+    if (isTypingContext()) return;
+    if (e.key === 'c' || e.key === 'C') {
+      const next = !runtime.cinematic;
+      if (cinematicChk) cinematicChk.checked = next;
+      setCinematic(next);
+    } else if (e.key === 'Escape' && runtime.cinematic) {
+      if (cinematicChk) cinematicChk.checked = false;
+      setCinematic(false);
+    }
+  });
 
   type CmdkItem = {
     id: string;
