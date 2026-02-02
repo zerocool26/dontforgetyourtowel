@@ -91,3 +91,32 @@ export const createPresetId = (): string => {
 };
 export const isMobilePanel = () =>
   window.matchMedia('(max-width: 980px)').matches;
+
+/**
+ * Resolves an asset URL by prepending the base URL if needed.
+ * This handles deployment to subdirectories (e.g. GitHub Pages).
+ * Safe to call on paths that are already resolved.
+ */
+export const resolveAssetUrl = (path: string): string => {
+  if (!path || path.match(/^[a-z]+:/i)) return path;
+
+  const base = import.meta.env.BASE_URL;
+  // If base is root, just return the path (assuming it points to root)
+  if (!base || base === '/') {
+    return path;
+  }
+
+  // Normalize base to ensure trailing slash
+  const cleanBase = base.endsWith('/') ? base : `${base}/`;
+  // Normalize path to ensure leading slash
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+
+  // If the path already includes the base, return it as-is to avoid double-prefixing.
+  // e.g. path is "/repo/models/foo.glb" and base is "/repo/"
+  if (cleanPath.startsWith(cleanBase)) {
+    return cleanPath;
+  }
+
+  // Prepend base
+  return `${cleanBase}${cleanPath.slice(1)}`;
+};

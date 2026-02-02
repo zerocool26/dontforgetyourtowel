@@ -34,6 +34,7 @@ import {
   fromBase64Url,
   createPresetId,
   isMobilePanel,
+  resolveAssetUrl,
 } from './car-showroom/showroom-utils';
 import {
   type SavedPreset,
@@ -1292,9 +1293,12 @@ createAstroMount(ROOT_SELECTOR, () => {
     import.meta.env.BASE_URL
   ).toString();
 
-  const SHOWROOM_DEFAULT_MODEL = '/models/porsche-911-gt3rs.glb';
-  const SHOWROOM_FALLBACK_MODEL =
-    '/models/free_porsche_911_carrera_4s_LOD3_low.glb';
+  const SHOWROOM_DEFAULT_MODEL = resolveAssetUrl(
+    '/models/porsche-911-gt3rs.glb'
+  );
+  const SHOWROOM_FALLBACK_MODEL = resolveAssetUrl(
+    '/models/free_porsche_911_carrera_4s_LOD3_low.glb'
+  );
 
   const isAutomation = detectAutomation();
   const isDebug = detectShowroomDebug();
@@ -1614,8 +1618,10 @@ createAstroMount(ROOT_SELECTOR, () => {
   // In real browsers, default to the showcase Porsche. In headless/automation,
   // prefer the lightweight non-Draco model to avoid WebAssembly/decoder flakiness.
   root.dataset.carShowroomModel ||= isAutomation
-    ? '/models/free_porsche_911_carrera_4s_LOD3_low.glb'
-    : modelSel?.value || '/models/porsche-911-gt3rs.glb';
+    ? resolveAssetUrl('/models/free_porsche_911_carrera_4s_LOD3_low.glb')
+    : modelSel?.value
+      ? resolveAssetUrl(modelSel.value)
+      : resolveAssetUrl('/models/porsche-911-gt3rs.glb');
   root.dataset.carShowroomCameraPreset ||= cameraSel?.value || 'hero';
   root.dataset.carShowroomCameraMode ||= cameraModeSel?.value || 'preset';
   root.dataset.carShowroomCamYaw ||= camYawRange?.value || '17';
@@ -1882,7 +1888,7 @@ createAstroMount(ROOT_SELECTOR, () => {
     if (!modelUrlInp) return;
     const model = (modelSel.value || '').trim();
     modelUrlInp.value = model;
-    root.dataset.carShowroomModel = model;
+    root.dataset.carShowroomModel = resolveAssetUrl(model);
 
     // When the model changes via the dropdown, swap to its saved part map.
     const map = loadPartMapForModel(model);
@@ -1920,7 +1926,7 @@ createAstroMount(ROOT_SELECTOR, () => {
   const applyModelUrl = () => {
     const raw = (modelUrlInp?.value || '').trim();
     if (!raw) return;
-    root.dataset.carShowroomModel = raw;
+    root.dataset.carShowroomModel = resolveAssetUrl(raw);
 
     // When switching models manually, load its saved part map.
     const map = loadPartMapForModel(raw);
@@ -2221,7 +2227,8 @@ createAstroMount(ROOT_SELECTOR, () => {
   });
 
   const syncFromInputs = () => {
-    if (modelSel) root.dataset.carShowroomModel = modelSel.value;
+    if (modelSel)
+      root.dataset.carShowroomModel = resolveAssetUrl(modelSel.value);
     if (cameraSel) root.dataset.carShowroomCameraPreset = cameraSel.value;
     if (cameraModeSel) root.dataset.carShowroomCameraMode = cameraModeSel.value;
     if (camYawRange) root.dataset.carShowroomCamYaw = camYawRange.value;

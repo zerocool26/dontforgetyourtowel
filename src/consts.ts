@@ -22,7 +22,7 @@ export const SITE_TITLE = 'Olive Chicago';
 export const SITE_DESCRIPTION =
   'Enterprise-grade managed IT, cybersecurity, cloud, and AI consulting for growing businesses.';
 export const SITE_URL = DEPLOYMENT.siteUrl;
-export const BASE_PATH = DEPLOYMENT.basePath;
+export const BASE_PATH = import.meta.env.BASE_URL ?? DEPLOYMENT.basePath;
 export const DEPLOYMENT_CONFIG = DEPLOYMENT;
 
 // Static site contact: uses a mailto: link (configurable via env for later)
