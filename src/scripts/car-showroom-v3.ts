@@ -913,6 +913,9 @@ const init = () => {
   const screenshotCopyBtn = root.querySelector<HTMLButtonElement>(
     '[data-sr-screenshot-copy]'
   );
+  const screenshotScaleSel = root.querySelector<HTMLSelectElement>(
+    '[data-sr-screenshot-scale]'
+  );
   const regroundBtn =
     root.querySelector<HTMLButtonElement>('[data-sr-reground]');
 
@@ -3489,13 +3492,51 @@ const init = () => {
 
   const downloadScreenshot = () => {
     hapticTap(15);
+
+    const scaleRaw = (screenshotScaleSel?.value || '1').trim();
+    const scale = Math.max(1, Math.min(4, Number.parseInt(scaleRaw, 10) || 1));
+
+    const oldPixelRatio = renderer.getPixelRatio();
+    const oldCurrent = currentPixelRatio;
+
+    if (scale > 1) {
+      setStatus(false, `Capturing ${scale}x…`);
+    }
+
     try {
+      // Use a one-frame pixelRatio boost (no layout resize) for a higher-res capture.
+      if (scale > 1) {
+        const boosted = clamp(oldPixelRatio * scale, 0.5, 8);
+        renderer.setPixelRatio(boosted);
+        composer?.setPixelRatio?.(boosted as never);
+        setSize();
+
+        if (composer && runtime.bloomStrength > 0.001) composer.render();
+        else renderer.render(scene, camera);
+      }
+
       const a = document.createElement('a');
-      a.download = 'car-showroom.png';
+      a.download =
+        scale > 1 ? `car-showroom@${scale}x.png` : 'car-showroom.png';
       a.href = renderer.domElement.toDataURL('image/png');
       a.click();
+
+      if (scale > 1) {
+        setStatus(false, 'Saved.');
+        window.setTimeout(() => setStatus(false, ''), 1200);
+      }
     } catch (e) {
       console.warn('[ShowroomV3] Screenshot failed:', e);
+      setStatus(false, 'Screenshot failed.');
+      window.setTimeout(() => setStatus(false, ''), 1200);
+    } finally {
+      // Restore renderer/composer pixel ratio + size.
+      if (scale > 1) {
+        renderer.setPixelRatio(oldPixelRatio);
+        composer?.setPixelRatio?.(oldPixelRatio as never);
+        currentPixelRatio = oldCurrent;
+        setSize();
+      }
     }
   };
   for (const btn of screenshotBtns)
@@ -4741,6 +4782,37 @@ const init = () => {
         hint: '?',
         keywords: 'keyboard tips controls gestures',
         run: openHelp,
+      },
+      {
+        id: 'tools.screenshot.1x',
+        group: 'Tools',
+        label: 'Screenshot: Download (1x)',
+        hint: 'S',
+        keywords: 'export image png',
+        run: () => {
+          if (screenshotScaleSel) screenshotScaleSel.value = '1';
+          screenshotBtns[0]?.click();
+        },
+      },
+      {
+        id: 'tools.screenshot.2x',
+        group: 'Tools',
+        label: 'Screenshot: Download (2x)',
+        keywords: 'export image png hi-res 4k',
+        run: () => {
+          if (screenshotScaleSel) screenshotScaleSel.value = '2';
+          screenshotBtns[0]?.click();
+        },
+      },
+      {
+        id: 'tools.screenshot.4x',
+        group: 'Tools',
+        label: 'Screenshot: Download (4x)',
+        keywords: 'export image png hi-res 8k',
+        run: () => {
+          if (screenshotScaleSel) screenshotScaleSel.value = '4';
+          screenshotBtns[0]?.click();
+        },
       },
       {
         id: 'history.undo',
