@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
@@ -67,6 +68,77 @@ const resolveModelUrl = (raw: string): string => {
   return withBasePath(normalized);
 };
 
+const normalizeModelKey = (raw: string) => {
+  const v = (raw || '').trim();
+  if (!v) return '';
+  if (isExternalUrl(v) || v.startsWith('blob:')) return v;
+  return v.replace(/^\/+/, '');
+};
+
+type ModelPreset = {
+  key: string;
+  label: string;
+  defaults?: {
+    scaleMul?: number;
+    yawDeg?: number;
+    lift?: number;
+  };
+};
+
+const MODEL_PRESETS: ModelPreset[] = [
+  {
+    key: 'models/porsche-911-gt3rs.glb',
+    label: 'Porsche GT3RS',
+    defaults: { scaleMul: 1, yawDeg: 0, lift: 0 },
+  },
+  {
+    key: 'models/free_porsche_911_carrera_4s_LOD3_low.glb',
+    label: 'Porsche Carrera (Low)',
+    defaults: { scaleMul: 1, yawDeg: 0, lift: 0 },
+  },
+  {
+    key: 'models/free_porsche_911_carrera_4s_advanced_perf.glb',
+    label: 'Porsche Carrera (Perf)',
+    defaults: { scaleMul: 1, yawDeg: 0, lift: 0 },
+  },
+  {
+    key: 'models/free_porsche_911_carrera_4s_advanced_materials.glb',
+    label: 'Porsche Carrera (Materials)',
+    defaults: { scaleMul: 1, yawDeg: 0, lift: 0 },
+  },
+  {
+    key: 'models/free_porsche_911_carrera_4s_LOD1_original_animated.glb',
+    label: 'Porsche Carrera (Animated)',
+    defaults: { scaleMul: 1, yawDeg: 0, lift: 0 },
+  },
+  {
+    key: 'models/free_porsche_911_carrera_4s_LOD0_highpoly_animated.glb',
+    label: 'Porsche Carrera (HiPoly)',
+    defaults: { scaleMul: 1, yawDeg: 0, lift: 0 },
+  },
+  {
+    key: 'models/2003_mitsubishi_eclipse_spyder_gts_shine_street.glb',
+    label: 'Mitsubishi Eclipse Spyder (2003)',
+    defaults: { scaleMul: 1, yawDeg: 0, lift: 0 },
+  },
+  {
+    key: 'models/mclaren_f1_gtr_longtail_ams2.glb',
+    label: 'McLaren F1 GTR Longtail',
+    defaults: { scaleMul: 1, yawDeg: 0, lift: 0 },
+  },
+  {
+    key: 'models/uploads_files_4252681_RED+BULL+2022+F1+CAR.fbx',
+    label: 'F1 Car (FBX - experimental)',
+    defaults: { scaleMul: 1, yawDeg: 0, lift: 0 },
+  },
+];
+
+const findModelPreset = (raw: string): ModelPreset | null => {
+  const key = normalizeModelKey(raw);
+  if (!key) return null;
+  return MODEL_PRESETS.find(p => normalizeModelKey(p.key) === key) || null;
+};
+
 const parseHexColor = (value: string): string | null => {
   const raw = String(value || '').trim();
   if (!raw) return null;
@@ -95,6 +167,58 @@ const disposeObject = (obj: THREE.Object3D) => {
       (mat as THREE.Material).dispose?.();
     }
   });
+};
+
+const upgradeToStandardMaterial = (mat: THREE.Material): THREE.Material => {
+  if (
+    mat instanceof THREE.MeshStandardMaterial ||
+    mat instanceof THREE.MeshPhysicalMaterial
+  ) {
+    return mat;
+  }
+
+  if (
+    mat instanceof THREE.MeshPhongMaterial ||
+    mat instanceof THREE.MeshLambertMaterial ||
+    mat instanceof THREE.MeshBasicMaterial
+  ) {
+    const src = mat as unknown as {
+      name?: string;
+      color?: THREE.Color;
+      map?: THREE.Texture | null;
+      emissive?: THREE.Color;
+      emissiveMap?: THREE.Texture | null;
+      transparent?: boolean;
+      opacity?: number;
+      side?: THREE.Side;
+      shininess?: number;
+    };
+
+    const shininess =
+      typeof src.shininess === 'number' ? clamp(src.shininess, 0, 200) : 30;
+    const roughness = clamp01(1 - shininess / 120);
+
+    const std = new THREE.MeshStandardMaterial({
+      color: src.color ? src.color.clone() : new THREE.Color(0xffffff),
+      roughness,
+      metalness: 0.06,
+    });
+
+    std.name = src.name || mat.name || '';
+    std.map = src.map ?? null;
+    std.emissive = src.emissive
+      ? src.emissive.clone()
+      : new THREE.Color(0x000000);
+    std.emissiveMap = src.emissiveMap ?? null;
+    std.transparent = Boolean(src.transparent);
+    std.opacity = typeof src.opacity === 'number' ? clamp01(src.opacity) : 1;
+    if (src.side !== undefined) std.side = src.side;
+    std.needsUpdate = true;
+
+    return std;
+  }
+
+  return mat;
 };
 
 const getObjectCenterAndRadius = (obj: THREE.Object3D) => {
@@ -132,6 +256,7 @@ const normalizeModelPlacement = (obj: THREE.Object3D) => {
 
 const applyPaintHeuristic = (rootObj: THREE.Object3D, hex: string) => {
   const color = new THREE.Color(hex);
+  const bodyMats = computeBodyMaterialUuids(rootObj);
 
   rootObj.traverse(child => {
     const mesh = child as THREE.Mesh;
@@ -151,6 +276,9 @@ const applyPaintHeuristic = (rootObj: THREE.Object3D, hex: string) => {
     for (const mat of mats) {
       if (!mat) continue;
       const material = mat as THREE.Material;
+
+      if (bodyMats.size && !bodyMats.has(material.uuid)) continue;
+
       const matName = String(material.name || '').toLowerCase();
       if (
         matName.includes('glass') ||
@@ -268,7 +396,9 @@ const classifyMeshByName = (meshName: string, matName: string) => {
   const n = `${normalizeName(meshName)} ${normalizeName(matName)}`;
 
   const isWheel =
-    (n.includes('wheel') || n.includes('rim')) && !n.includes('tire');
+    (n.includes('wheel') || n.includes('rim')) &&
+    !n.includes('tire') &&
+    !n.includes('tyre');
   const isCaliper = n.includes('caliper');
   const isGlass =
     n.includes('glass') ||
@@ -292,6 +422,82 @@ const classifyMeshByName = (meshName: string, matName: string) => {
     n.includes('handle');
 
   return { isWheel, isCaliper, isGlass, isLight, isTrim };
+};
+
+const scoreBodyCandidate = (combinedName: string, triCount: number) => {
+  const n = normalizeName(combinedName);
+
+  // Hard excludes (interior/mechanical/etc)
+  if (
+    /(interior|seat|steer|steering|dash|dashboard|cluster|carpet|liner|roofliner|pedal|engine|suspension|underbody|chassis|frame|cage)/.test(
+      n
+    )
+  ) {
+    return -100;
+  }
+  if (
+    /(glass|window|windshield|windscreen|light|lamp|headlight|taillight|indicator)/.test(
+      n
+    )
+  ) {
+    return -100;
+  }
+  if (/(wheel|rim|tire|tyre|caliper|brake|disc|rotor)/.test(n)) return -100;
+
+  let score = 0;
+  if (/(carpaint|car_paint|car-paint)/.test(n)) score += 10;
+  if (/\bbody\b/.test(n)) score += 9;
+  if (/(paint|coat|clearcoat)/.test(n)) score += 7;
+  if (/(exterior|outer)/.test(n)) score += 4;
+  if (/(panel|door|hood|bonnet|fender|bumper|shell)/.test(n)) score += 3;
+
+  const triWeight = clamp(Math.log10(Math.max(1, triCount) + 1), 0, 5);
+  score += triWeight;
+  return score;
+};
+
+const computeBodyMaterialUuids = (obj: THREE.Object3D) => {
+  const bestScoreByMat = new Map<string, number>();
+
+  obj.traverse(child => {
+    const mesh = child as THREE.Mesh;
+    if (!mesh.isMesh) return;
+
+    const tris = getMeshTriangleCount(mesh);
+    const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+    for (const mat of mats) {
+      if (!mat) continue;
+      const material = mat as THREE.Material;
+      if (
+        !(material instanceof THREE.MeshStandardMaterial) &&
+        !(material instanceof THREE.MeshPhysicalMaterial)
+      ) {
+        continue;
+      }
+
+      const anyMat = material as unknown as {
+        transparent?: boolean;
+        opacity?: number;
+      };
+      if (anyMat.transparent || (anyMat.opacity ?? 1) < 0.999) continue;
+
+      const combined = `${mesh.name || ''} ${material.name || ''}`;
+      const score = scoreBodyCandidate(combined, tris);
+      const prev = bestScoreByMat.get(material.uuid);
+      if (prev === undefined || score > prev)
+        bestScoreByMat.set(material.uuid, score);
+    }
+  });
+
+  const scores = Array.from(bestScoreByMat.values());
+  const max = scores.length ? Math.max(...scores) : -Infinity;
+  if (!Number.isFinite(max) || max < 5) return new Set<string>();
+
+  const selected = new Set<string>();
+  for (const [id, score] of bestScoreByMat.entries()) {
+    if (score >= Math.max(4, max - 2)) selected.add(id);
+  }
+  return selected;
 };
 
 const createWrapTexture = (pattern: string, tint01: number) => {
@@ -1188,6 +1394,7 @@ const init = () => {
   draco.setDecoderPath(withBasePath('/draco/gltf/'));
   const loader = new GLTFLoader();
   loader.setDRACOLoader(draco);
+  const fbxLoader = new FBXLoader();
 
   const loadState: LoadState = {
     requestId: 0,
@@ -1200,6 +1407,23 @@ const init = () => {
   let modelBaseY = 0;
   let modelBaseScale = new THREE.Vector3(1, 1, 1);
   let modelBaseQuat = new THREE.Quaternion();
+  let lastLoadedModelKey = '';
+
+  const applyModelTransformDefaults = (rawModel: string) => {
+    const preset = findModelPreset(rawModel);
+    const d = preset?.defaults;
+    const scaleMul = Number(d?.scaleMul ?? 1);
+    const yawDeg = Number(d?.yawDeg ?? 0);
+    const lift = Number(d?.lift ?? 0);
+
+    if (modelScale) modelScale.value = String(scaleMul);
+    if (modelYaw) modelYaw.value = String(yawDeg);
+    if (modelLift) modelLift.value = String(lift);
+
+    runtime.modelScaleMul = Number.isFinite(scaleMul) ? scaleMul : 1;
+    runtime.modelYawDeg = Number.isFinite(yawDeg) ? yawDeg : 0;
+    runtime.modelLift = Number.isFinite(lift) ? lift : 0;
+  };
 
   // Animation runtime
   let mixer: THREE.AnimationMixer | null = null;
@@ -2141,6 +2365,8 @@ const init = () => {
     syncRuntimeLookFromUi();
     captureOriginalMaterials(obj);
 
+    const bodyMats = computeBodyMaterialUuids(obj);
+
     if (wrapTexture) {
       wrapTexture.dispose?.();
       wrapTexture = null;
@@ -2179,6 +2405,8 @@ const init = () => {
         const flags = classifyMeshByName(mesh.name || '', material.name || '');
         if (flags.isWheel || flags.isCaliper || flags.isGlass || flags.isLight)
           continue;
+
+        if (bodyMats.size && !bodyMats.has(material.uuid)) continue;
 
         // Roughness/metalness are a big realism lever.
         material.roughness = clamp01(finishRoughness);
@@ -2233,6 +2461,8 @@ const init = () => {
             flags.isLight
           )
             continue;
+
+          if (bodyMats.size && !bodyMats.has(material.uuid)) continue;
 
           if (tex) {
             material.map = tex;
@@ -2941,6 +3171,11 @@ const init = () => {
   ) => {
     const requestId = ++loadState.requestId;
 
+    const nextKey = normalizeModelKey(raw);
+    const swapped = Boolean(nextKey && nextKey !== lastLoadedModelKey);
+    const isFirstLoad = !lastLoadedModelKey;
+    if (swapped && !isFirstLoad) applyModelTransformDefaults(raw);
+
     // Model swap: drop temporary hotspot glow tweaks.
     clearHotspotGlow();
 
@@ -2973,6 +3208,7 @@ const init = () => {
       loadState.objectUrlToRevoke = opts.objectUrlToRevoke;
 
     const resolved = resolveModelUrl(raw);
+    const isFbx = /\.fbx(?:\?.*)?$/i.test(resolved);
 
     setRootState(root, {
       carShowroomReady: '0',
@@ -2984,13 +3220,41 @@ const init = () => {
     setStatus(true, '');
 
     try {
-      const gltf = await loader.loadAsync(resolved);
+      let obj: THREE.Object3D | null = null;
+      if (isFbx) {
+        obj = await fbxLoader.loadAsync(resolved);
+        loadState.animations = [];
+      } else {
+        const gltf = await loader.loadAsync(resolved);
+        if (requestId !== loadState.requestId) return;
+        obj = gltf.scene || gltf.scenes?.[0] || null;
+        loadState.animations = gltf.animations || [];
+      }
       if (requestId !== loadState.requestId) return;
 
-      const obj = gltf.scene || gltf.scenes?.[0];
-      if (!obj) throw new Error('GLTF contained no scene');
+      if (!obj)
+        throw new Error(
+          isFbx ? 'FBX contained no scene' : 'GLTF contained no scene'
+        );
 
-      loadState.animations = gltf.animations || [];
+      if (isFbx) {
+        obj.traverse(child => {
+          const mesh = child as THREE.Mesh;
+          if (!mesh.isMesh) return;
+          const mats = Array.isArray(mesh.material)
+            ? mesh.material
+            : [mesh.material];
+          const upgraded: THREE.Material[] = [];
+          for (const m of mats) {
+            if (!m) continue;
+            upgraded.push(upgradeToStandardMaterial(m as THREE.Material));
+          }
+
+          // Preserve array-vs-single material shape.
+          if (Array.isArray(mesh.material)) mesh.material = upgraded;
+          else if (upgraded[0]) mesh.material = upgraded[0];
+        });
+      }
 
       obj.traverse(child => {
         const mesh = child as THREE.Mesh;
@@ -3002,6 +3266,8 @@ const init = () => {
       normalizeModelPlacement(obj);
       scene.add(obj);
       loadState.gltf = obj;
+
+      lastLoadedModelKey = nextKey;
 
       // Capture normalized base transform, then apply user transform on top.
       modelBaseQuat.copy(obj.quaternion);
@@ -3473,10 +3739,10 @@ const init = () => {
     void loadModel(url, { objectUrlToRevoke: url });
   });
 
-  // Drag-and-drop import (GLB/GLTF) onto the viewer.
+  // Drag-and-drop import (GLB/GLTF/FBX) onto the viewer.
   if (viewer) {
     createDropZone(viewer, {
-      accept: ['.glb', '.gltf', 'model/gltf-binary'],
+      accept: ['.glb', '.gltf', '.fbx', 'model/gltf-binary'],
       multiple: false,
       dragOverClass: 'sr-drop-over',
       onFileDrop: files => {
