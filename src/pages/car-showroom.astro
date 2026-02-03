@@ -32,6 +32,9 @@ const galleryHref = `${base}gallery/`;
           <button type="button" class="sr-btn sr-btn--icon" data-sr-cmdk-open>
             Search
           </button>
+          <button type="button" class="sr-btn sr-btn--icon" data-sr-help-open>
+            Help
+          </button>
           <button
             type="button"
             class="sr-btn sr-btn--primary sr-btn--icon"
@@ -90,6 +93,9 @@ const galleryHref = `${base}gallery/`;
               </button>
               <button type="button" class="sr-chip" data-sr-cmdk-open>
                 Search
+              </button>
+              <button type="button" class="sr-chip" data-sr-help-open>
+                Help
               </button>
               <button
                 type="button"
@@ -1536,6 +1542,60 @@ const galleryHref = `${base}gallery/`;
             Enter to run • ↑/↓ to navigate • Esc to close
           </div>
           <div class="sr__cmdkList" data-sr-cmdk-list></div>
+        </div>
+      </div>
+
+      <div class="sr__help" data-sr-help hidden>
+        <div class="sr__helpBackdrop" data-sr-help-backdrop></div>
+        <div
+          class="sr__helpDialog"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Help and shortcuts"
+        >
+          <div class="sr__helpHead">
+            <strong>Help & shortcuts</strong>
+            <button type="button" class="sr__helpClose" data-sr-help-close>
+              Esc
+            </button>
+          </div>
+          <div class="sr__helpBody">
+            <p class="sr__helpLead">
+              Tips for fast navigation and pro workflows (keyboard + touch).
+            </p>
+
+            <div class="sr__helpSection">
+              <h3>Keyboard</h3>
+              <ul>
+                <li>
+                  <kbd>Ctrl</kbd> / <kbd>Cmd</kbd> + <kbd>K</kbd> or <kbd>/</kbd
+                  > — Search settings
+                </li>
+                <li><kbd>Ctrl</kbd> / <kbd>Cmd</kbd> + <kbd>Z</kbd> — Undo</li>
+                <li>
+                  <kbd>Ctrl</kbd> / <kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd
+                    >Z</kbd
+                  > (or <kbd>Ctrl</kbd> + <kbd>Y</kbd>) — Redo
+                </li>
+                <li><kbd>?</kbd> — Open this help</li>
+                <li>
+                  <kbd>P</kbd> — Toggle panel • <kbd>F</kbd> — Frame • <kbd
+                    >R</kbd
+                  > — Re-ground • <kbd>S</kbd> — Screenshot
+                </li>
+              </ul>
+            </div>
+
+            <div class="sr__helpSection">
+              <h3>Touch / mouse</h3>
+              <ul>
+                <li>Drag to rotate • Scroll / pinch to zoom</li>
+                <li>
+                  Use the <strong>Quick</strong> menu for one-handed toggles
+                </li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
 

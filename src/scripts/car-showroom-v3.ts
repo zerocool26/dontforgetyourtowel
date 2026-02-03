@@ -4254,6 +4254,18 @@ const init = () => {
     root.querySelectorAll<HTMLButtonElement>('[data-sr-cmdk-open]')
   );
 
+  // Help / shortcuts
+  const helpModal = root.querySelector<HTMLElement>('[data-sr-help]');
+  const helpBackdrop = root.querySelector<HTMLElement>(
+    '[data-sr-help-backdrop]'
+  );
+  const helpCloseBtn = root.querySelector<HTMLButtonElement>(
+    '[data-sr-help-close]'
+  );
+  const helpOpenBtns = Array.from(
+    root.querySelectorAll<HTMLButtonElement>('[data-sr-help-open]')
+  );
+
   const isTypingContext = () => {
     const ae = document.activeElement as HTMLElement | null;
     if (!ae) return false;
@@ -4304,6 +4316,36 @@ const init = () => {
   let cmdkOpen = false;
   let cmdkIndex = 0;
   let cmdkItems: CmdkItem[] = [];
+
+  let helpOpen = false;
+  let helpRestoreFocus: HTMLElement | null = null;
+
+  function openHelp() {
+    if (!helpModal) return;
+    if (cmdkOpen) {
+      cmdkOpen = false;
+      if (cmdk) cmdk.hidden = true;
+    }
+    helpRestoreFocus = document.activeElement as HTMLElement | null;
+    helpModal.hidden = false;
+    helpOpen = true;
+    window.setTimeout(() => {
+      (helpCloseBtn || helpModal).focus?.();
+    }, 0);
+  }
+
+  function closeHelp() {
+    if (!helpModal) return;
+    helpModal.hidden = true;
+    helpOpen = false;
+    const prev = helpRestoreFocus;
+    helpRestoreFocus = null;
+    prev?.focus?.();
+  }
+
+  for (const b of helpOpenBtns) b.addEventListener('click', openHelp);
+  helpCloseBtn?.addEventListener('click', closeHelp);
+  helpBackdrop?.addEventListener('click', closeHelp);
 
   const CMDK_RECENTS_KEY = 'sr3-cmdk-recents-v1';
 
@@ -4623,6 +4665,14 @@ const init = () => {
     };
 
     cmdkItems = [
+      {
+        id: 'help.shortcuts',
+        group: 'Help',
+        label: 'Help: Shortcuts',
+        hint: '?',
+        keywords: 'keyboard tips controls gestures',
+        run: openHelp,
+      },
       {
         id: 'history.undo',
         group: 'History',
@@ -5232,6 +5282,18 @@ const init = () => {
 
     const key = (e.key || '').toLowerCase();
     const ctrlk = (e.ctrlKey || e.metaKey) && key === 'k';
+
+    if (helpOpen && key === 'escape') {
+      e.preventDefault();
+      closeHelp();
+      return;
+    }
+
+    if (key === '?') {
+      e.preventDefault();
+      openHelp();
+      return;
+    }
 
     if (ctrlk || key === '/') {
       e.preventDefault();
