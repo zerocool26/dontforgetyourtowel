@@ -897,6 +897,9 @@ const init = () => {
     '[data-sr-clearcoat]'
   );
   const wetChk = root.querySelector<HTMLInputElement>('[data-sr-wet]');
+  const wetAmountInp = root.querySelector<HTMLInputElement>(
+    '[data-sr-wet-amount]'
+  );
   const originalMatsChk = root.querySelector<HTMLInputElement>(
     '[data-sr-original-mats]'
   );
@@ -1828,6 +1831,7 @@ const init = () => {
     finish: (finishSel?.value || 'gloss').trim().toLowerCase(),
     clearcoat: Number.parseFloat(clearcoatInp?.value || '0.8') || 0.8,
     wet: Boolean(wetChk?.checked ?? false),
+    wetAmount: Number.parseFloat(wetAmountInp?.value || '0.85') || 0.85,
     wrapEnabled: Boolean(wrapEnabledChk?.checked ?? false),
     wrapPattern: (wrapPatternSel?.value || 'solid').trim().toLowerCase(),
     wrapColorHex: parseHexColor(wrapColorInp?.value || '') || '#ffffff',
@@ -2223,6 +2227,9 @@ const init = () => {
       runtime.clearcoat;
 
     runtime.wet = Boolean(wetChk?.checked ?? runtime.wet);
+    runtime.wetAmount =
+      Number.parseFloat(wetAmountInp?.value || `${runtime.wetAmount}`) ||
+      runtime.wetAmount;
 
     runtime.wrapEnabled = Boolean(
       wrapEnabledChk?.checked ?? runtime.wrapEnabled
@@ -2383,15 +2390,16 @@ const init = () => {
     const finish = (runtime.finish || 'gloss').trim().toLowerCase();
     const clearcoat = clamp01(runtime.clearcoat);
     const wet = Boolean(runtime.wet);
+    const wetAmount = wet ? clamp01(runtime.wetAmount) : 0;
     const finishRoughness =
       finish === 'matte' ? 0.92 : finish === 'satin' ? 0.48 : 0.18;
     const finishMetalness = finish === 'matte' ? 0.08 : 0.14;
 
-    const wetClearcoat = wet ? clamp01(clearcoat + 0.15) : clearcoat;
-    const wetRoughMul = wet ? 0.35 : 1;
-    const wetRoughMin = wet ? 0.04 : 0;
-    const wetClearcoatRoughMul = wet ? 0.35 : 1;
-    const wetEnvMul = wet ? 1.15 : 1;
+    const wetClearcoat = clamp01(clearcoat + 0.15 * wetAmount);
+    const wetRoughMul = 1 - 0.65 * wetAmount;
+    const wetRoughMin = 0.04 * wetAmount;
+    const wetClearcoatRoughMul = 1 - 0.65 * wetAmount;
+    const wetEnvMul = 1 + 0.15 * wetAmount;
 
     // Paint stays as the base look when not preserving originals.
     applyPaintHeuristic(obj, runtime.paintHex);
@@ -2764,6 +2772,7 @@ const init = () => {
     resetControlToDefault(finishSel);
     resetControlToDefault(clearcoatInp);
     resetControlToDefault(wetChk);
+    resetControlToDefault(wetAmountInp);
     resetControlToDefault(wrapEnabledChk);
     resetControlToDefault(wrapPatternSel);
     resetControlToDefault(wrapColorInp);
@@ -3550,7 +3559,11 @@ const init = () => {
   // Look controls
   finishSel?.addEventListener('change', () => applyLook());
   clearcoatInp?.addEventListener('input', () => applyLook());
-  wetChk?.addEventListener('change', () => applyLook());
+  wetChk?.addEventListener('change', () => {
+    if (wetAmountInp) wetAmountInp.disabled = !wetChk.checked;
+    applyLook();
+  });
+  wetAmountInp?.addEventListener('input', () => applyLook());
 
   wrapEnabledChk?.addEventListener('change', () => applyLook());
   wrapPatternSel?.addEventListener('change', () => applyLook());
@@ -3952,10 +3965,15 @@ const init = () => {
     const fin = (finishSel?.value || 'gloss').trim().toLowerCase();
     const coat = Number.parseFloat(clearcoatInp?.value || '0.8') || 0.8;
     const wet = Boolean(wetChk?.checked);
+    const wetAmount = clamp01(
+      Number.parseFloat(wetAmountInp?.value || '0.85') || 0.85
+    );
     if (fin && fin !== 'gloss') url.searchParams.set('fin', fin);
     if (Math.abs(coat - 0.8) > 0.0001)
       url.searchParams.set('coat', coat.toFixed(3));
     if (wet) url.searchParams.set('wet', '1');
+    if (wet && Math.abs(wetAmount - 0.85) > 0.0001)
+      url.searchParams.set('wa', wetAmount.toFixed(3));
 
     // Look
     const we = Boolean(wrapEnabledChk?.checked);
@@ -4393,6 +4411,7 @@ const init = () => {
     const fin = url.searchParams.get('fin');
     const coat = url.searchParams.get('coat');
     const wet = url.searchParams.get('wet');
+    const wa = url.searchParams.get('wa');
 
     // Look (wrap/glass/parts)
     const we = url.searchParams.get('we');
@@ -4466,6 +4485,7 @@ const init = () => {
     if (fin && finishSel) finishSel.value = fin;
     if (coat && clearcoatInp) clearcoatInp.value = coat;
     if (wet && wetChk) wetChk.checked = wet === '1';
+    if (wa && wetAmountInp) wetAmountInp.value = wa;
 
     if (we && wrapEnabledChk) wrapEnabledChk.checked = we === '1';
     if (wp && wrapPatternSel) wrapPatternSel.value = wp;
@@ -4563,6 +4583,8 @@ const init = () => {
     Number.parseFloat(decalOpacityInp?.value || '0.92') || 0.92;
 
   syncRuntimeLookFromUi();
+
+  if (wetAmountInp) wetAmountInp.disabled = !wetChk?.checked;
 
   grid.visible = runtime.grid;
   axes.visible = runtime.axes;
@@ -5348,9 +5370,31 @@ const init = () => {
       {
         id: 'look.wet',
         group: 'Look',
-        label: `Wet mode: ${onOff(Boolean(wetChk?.checked))}`,
+        label: `Wet mode: ${onOff(Boolean(wetChk?.checked))}${wetChk?.checked ? ` (${Math.round((Number.parseFloat(wetAmountInp?.value || '0.85') || 0.85) * 100)}%)` : ''}`,
         keywords: 'wet rain gloss clearcoat reflections',
         run: () => toggleCheckbox(wetChk),
+      },
+      {
+        id: 'look.wet.amount.cycle',
+        group: 'Look',
+        label: `Wet amount: ${Math.round((Number.parseFloat(wetAmountInp?.value || '0.85') || 0.85) * 100)}%`,
+        keywords: 'wet amount intensity rain gloss reflections clearcoat',
+        run: () => {
+          if (!wetChk || !wetAmountInp) return;
+          if (!wetChk.checked) {
+            wetChk.checked = true;
+            wetChk.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+
+          const steps = [0.25, 0.5, 0.75, 1];
+          const cur = clamp01(
+            Number.parseFloat(wetAmountInp.value || '0.85') || 0.85
+          );
+          const idx = steps.findIndex(v => Math.abs(v - cur) < 0.06);
+          const next = steps[(idx + 1 + steps.length) % steps.length];
+          wetAmountInp.value = String(next);
+          wetAmountInp.dispatchEvent(new Event('input', { bubbles: true }));
+        },
       },
       {
         id: 'look.wrap.pattern',
@@ -6539,6 +6583,7 @@ const init = () => {
       finish: (finishSel?.value || '').trim(),
       clearcoat: clearcoatInp?.value,
       wet: Boolean(wetChk?.checked ?? false),
+      wetAmount: wetAmountInp?.value,
 
       wrapEnabled: Boolean(wrapEnabledChk?.checked ?? false),
       wrapPattern: (wrapPatternSel?.value || '').trim(),
@@ -6659,6 +6704,7 @@ const init = () => {
     setVal(finishSel, state.finish);
     setVal(clearcoatInp, state.clearcoat);
     setChk(wetChk, state.wet);
+    setVal(wetAmountInp, state.wetAmount);
 
     setChk(wrapEnabledChk, state.wrapEnabled);
     setVal(wrapPatternSel, state.wrapPattern);
