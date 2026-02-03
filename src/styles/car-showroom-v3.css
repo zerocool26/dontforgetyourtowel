@@ -725,6 +725,10 @@
 }
 
 .sr-field span {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
   color: var(--sr-muted);
   font-size: 11px;
   letter-spacing: 0.12em;
@@ -732,6 +736,14 @@
   font-family:
     ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
     'Courier New', monospace;
+}
+
+.sr__rangeVal {
+  text-transform: none;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.7);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .sr-field input,

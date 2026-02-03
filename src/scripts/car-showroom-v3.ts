@@ -4347,6 +4347,75 @@ const init = () => {
   helpCloseBtn?.addEventListener('click', closeHelp);
   helpBackdrop?.addEventListener('click', closeHelp);
 
+  const initRangeValueReadouts = () => {
+    const ranges = Array.from(
+      root.querySelectorAll<HTMLInputElement>('input[type="range"]')
+    );
+
+    const clampInt = (v: number, min: number, max: number) =>
+      Math.max(min, Math.min(max, Math.trunc(v)));
+
+    const format = (el: HTMLInputElement) => {
+      const raw = String(el.value || '').trim();
+      const v = Number.parseFloat(raw);
+      if (!Number.isFinite(v)) return raw;
+
+      const min = Number.parseFloat(String(el.min || ''));
+      const max = Number.parseFloat(String(el.max || ''));
+      const stepRaw = String(el.step || '')
+        .trim()
+        .toLowerCase();
+      const step = Number.parseFloat(stepRaw);
+
+      if (
+        Number.isFinite(min) &&
+        Number.isFinite(max) &&
+        min === 0 &&
+        max === 1
+      ) {
+        if (Number.isFinite(step) && step <= 0.05)
+          return `${Math.round(v * 100)}%`;
+      }
+
+      let decimals = 2;
+      if (stepRaw && stepRaw !== 'any') {
+        const dot = stepRaw.indexOf('.');
+        decimals = dot >= 0 ? stepRaw.length - dot - 1 : 0;
+      }
+      decimals = clampInt(decimals, 0, 3);
+      return v.toFixed(decimals);
+    };
+
+    for (const el of ranges) {
+      if (el.closest('[data-sr-cmdk]') || el.closest('[data-sr-help]'))
+        continue;
+      const field = el.closest('.sr-field') as HTMLElement | null;
+      if (!field) continue;
+      const label = field.querySelector<HTMLElement>('span');
+      if (!label) continue;
+
+      let out = label.querySelector<HTMLElement>('[data-sr-range-val]');
+      if (!out) {
+        out = document.createElement('span');
+        out.className = 'sr__rangeVal';
+        out.dataset.srRangeVal = '1';
+        out.setAttribute('aria-hidden', 'true');
+        label.appendChild(out);
+      }
+
+      const update = () => {
+        if (!out) return;
+        out.textContent = format(el);
+      };
+
+      el.addEventListener('input', update);
+      el.addEventListener('change', update);
+      update();
+    }
+  };
+
+  initRangeValueReadouts();
+
   const CMDK_RECENTS_KEY = 'sr3-cmdk-recents-v1';
 
   const readCmdkRecents = (): string[] => {
