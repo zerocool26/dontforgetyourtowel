@@ -891,6 +891,9 @@ const init = () => {
     '[data-sr-model-transform-reset]'
   );
 
+  const lookPresetSel = root.querySelector<HTMLSelectElement>(
+    '[data-sr-look-preset]'
+  );
   const paintInp = root.querySelector<HTMLInputElement>('[data-sr-paint]');
   const finishSel = root.querySelector<HTMLSelectElement>('[data-sr-finish]');
   const clearcoatInp = root.querySelector<HTMLInputElement>(
@@ -3580,15 +3583,134 @@ const init = () => {
     if (loadState.gltf) applyLook();
   });
 
+  // Look presets
+  type LookPresetId = 'custom' | 'showroom' | 'rainy' | 'dusty' | 'track';
+  type LookPreset = {
+    finish?: 'gloss' | 'satin' | 'matte';
+    clearcoat?: number;
+    wet?: boolean;
+    wetAmount?: number;
+    grimeAmount?: number;
+  };
+
+  const LOOK_PRESETS: Record<Exclude<LookPresetId, 'custom'>, LookPreset> = {
+    showroom: {
+      finish: 'gloss',
+      clearcoat: 0.85,
+      wet: false,
+      wetAmount: 0.85,
+      grimeAmount: 0,
+    },
+    rainy: {
+      finish: 'gloss',
+      clearcoat: 0.92,
+      wet: true,
+      wetAmount: 1,
+      grimeAmount: 0.15,
+    },
+    dusty: {
+      finish: 'satin',
+      clearcoat: 0.55,
+      wet: false,
+      wetAmount: 0.85,
+      grimeAmount: 0.7,
+    },
+    track: {
+      finish: 'matte',
+      clearcoat: 0.2,
+      wet: false,
+      wetAmount: 0.85,
+      grimeAmount: 0.2,
+    },
+  };
+
+  let applyingLookPreset = false;
+
+  const markLookPresetCustom = () => {
+    if (!lookPresetSel) return;
+    if (applyingLookPreset) return;
+    if ((lookPresetSel.value || 'custom') !== 'custom')
+      lookPresetSel.value = 'custom';
+  };
+
+  const applyLookPreset = (rawId: string, opts?: { silent?: boolean }) => {
+    if (!lookPresetSel) return;
+    const id = (rawId || 'custom').trim().toLowerCase() as LookPresetId;
+
+    if (id === 'custom') {
+      lookPresetSel.value = 'custom';
+      return;
+    }
+
+    const preset = LOOK_PRESETS[id as Exclude<LookPresetId, 'custom'>];
+    if (!preset) {
+      lookPresetSel.value = 'custom';
+      return;
+    }
+
+    applyingLookPreset = true;
+    try {
+      if (finishSel && preset.finish) setSelect(finishSel, preset.finish);
+      if (clearcoatInp && preset.clearcoat !== undefined)
+        setRange(clearcoatInp, preset.clearcoat, 'input');
+
+      if (wetChk && preset.wet !== undefined) {
+        wetChk.checked = preset.wet;
+        wetChk.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+
+      if (wetAmountInp && preset.wetAmount !== undefined)
+        setRange(wetAmountInp, preset.wetAmount, 'input');
+
+      if (grimeAmountInp && preset.grimeAmount !== undefined)
+        setRange(grimeAmountInp, preset.grimeAmount, 'input');
+
+      lookPresetSel.value = id;
+    } finally {
+      applyingLookPreset = false;
+    }
+
+    if (!opts?.silent) {
+      const label =
+        id === 'showroom'
+          ? 'Showroom clean'
+          : id === 'rainy'
+            ? 'Rainy / wet'
+            : id === 'dusty'
+              ? 'Dusty / dirty'
+              : 'Track day';
+      setStatus(false, `Look preset: ${label}.`);
+      window.setTimeout(() => setStatus(false, ''), 1200);
+    }
+  };
+
   // Look controls
-  finishSel?.addEventListener('change', () => applyLook());
-  clearcoatInp?.addEventListener('input', () => applyLook());
+  lookPresetSel?.addEventListener('change', () => {
+    applyLookPreset(lookPresetSel.value);
+    if (loadState.gltf) applyLook();
+  });
+
+  finishSel?.addEventListener('change', () => {
+    markLookPresetCustom();
+    applyLook();
+  });
+  clearcoatInp?.addEventListener('input', () => {
+    markLookPresetCustom();
+    applyLook();
+  });
   wetChk?.addEventListener('change', () => {
+    markLookPresetCustom();
     if (wetAmountInp) wetAmountInp.disabled = !wetChk.checked;
     applyLook();
   });
-  wetAmountInp?.addEventListener('input', () => applyLook());
-  grimeAmountInp?.addEventListener('input', () => applyLook());
+  wetAmountInp?.addEventListener('input', () => {
+    markLookPresetCustom();
+    applyLook();
+  });
+  grimeAmountInp?.addEventListener('input', () => {
+    markLookPresetCustom();
+    applyLook();
+  });
 
   wrapEnabledChk?.addEventListener('change', () => applyLook());
   wrapPatternSel?.addEventListener('change', () => applyLook());
@@ -3996,6 +4118,7 @@ const init = () => {
     const grimeAmount = clamp01(
       Number.parseFloat(grimeAmountInp?.value || '0') || 0
     );
+    const lookPreset = (lookPresetSel?.value || 'custom').trim().toLowerCase();
     if (fin && fin !== 'gloss') url.searchParams.set('fin', fin);
     if (Math.abs(coat - 0.8) > 0.0001)
       url.searchParams.set('coat', coat.toFixed(3));
@@ -4004,6 +4127,8 @@ const init = () => {
       url.searchParams.set('wa', wetAmount.toFixed(3));
     if (Math.abs(grimeAmount) > 0.0001)
       url.searchParams.set('gr', grimeAmount.toFixed(3));
+    if (lookPreset && lookPreset !== 'custom')
+      url.searchParams.set('lk', lookPreset);
 
     // Look
     const we = Boolean(wrapEnabledChk?.checked);
@@ -4443,6 +4568,7 @@ const init = () => {
     const wet = url.searchParams.get('wet');
     const wa = url.searchParams.get('wa');
     const gr = url.searchParams.get('gr');
+    const lk = url.searchParams.get('lk');
 
     // Look (wrap/glass/parts)
     const we = url.searchParams.get('we');
@@ -4512,6 +4638,12 @@ const init = () => {
     if (ds && decalSizeInp) decalSizeInp.value = ds;
     if (dr && decalRotInp) decalRotInp.value = dr;
     if (dop && decalOpacityInp) decalOpacityInp.value = dop;
+
+    // Apply look preset first so explicit look params can override it.
+    if (lk && lookPresetSel) {
+      lookPresetSel.value = lk;
+      applyLookPreset(lk, { silent: true });
+    }
 
     if (fin && finishSel) finishSel.value = fin;
     if (coat && clearcoatInp) clearcoatInp.value = coat;
@@ -5377,6 +5509,79 @@ const init = () => {
         label: `Wrap mode: ${onOff(Boolean(wrapEnabledChk?.checked))}`,
         keywords: 'wrap vinyl paint pattern',
         run: () => toggleCheckbox(wrapEnabledChk),
+      },
+      {
+        id: 'look.preset.cycle',
+        group: 'Look',
+        label: `Look preset: ${(lookPresetSel?.value || 'custom').trim()}`,
+        keywords: 'preset look showroom rainy dusty track custom',
+        run: () => {
+          if (!lookPresetSel) return;
+          const order = [
+            'custom',
+            'showroom',
+            'rainy',
+            'dusty',
+            'track',
+          ] as const;
+          const cur = (lookPresetSel.value || 'custom').trim().toLowerCase();
+          const idx = Math.max(0, order.indexOf(cur as (typeof order)[number]));
+          const next = order[(idx + 1) % order.length];
+          lookPresetSel.value = next;
+          applyLookPreset(next);
+          if (loadState.gltf) applyLook();
+        },
+      },
+      {
+        id: 'look.preset.showroom',
+        group: 'Look',
+        label: 'Look preset: Showroom clean',
+        keywords: 'preset look showroom clean glossy',
+        run: () => {
+          applyLookPreset('showroom');
+          if (loadState.gltf) applyLook();
+        },
+      },
+      {
+        id: 'look.preset.rainy',
+        group: 'Look',
+        label: 'Look preset: Rainy / wet',
+        keywords: 'preset look rainy wet rain reflections',
+        run: () => {
+          applyLookPreset('rainy');
+          if (loadState.gltf) applyLook();
+        },
+      },
+      {
+        id: 'look.preset.dusty',
+        group: 'Look',
+        label: 'Look preset: Dusty / dirty',
+        keywords: 'preset look dusty dirty grime dirt',
+        run: () => {
+          applyLookPreset('dusty');
+          if (loadState.gltf) applyLook();
+        },
+      },
+      {
+        id: 'look.preset.track',
+        group: 'Look',
+        label: 'Look preset: Track day',
+        keywords: 'preset look track matte sporty',
+        run: () => {
+          applyLookPreset('track');
+          if (loadState.gltf) applyLook();
+        },
+      },
+      {
+        id: 'look.preset.custom',
+        group: 'Look',
+        label: 'Look preset: Custom',
+        keywords: 'preset look custom manual',
+        run: () => {
+          applyLookPreset('custom');
+          setStatus(false, 'Look preset: Custom.');
+          window.setTimeout(() => setStatus(false, ''), 1200);
+        },
       },
       {
         id: 'look.finish.cycle',
@@ -6655,6 +6860,7 @@ const init = () => {
       paint: (paintInp?.value || '').trim(),
       originalMats: Boolean(originalMatsChk?.checked ?? false),
 
+      lookPreset: (lookPresetSel?.value || 'custom').trim(),
       finish: (finishSel?.value || '').trim(),
       clearcoat: clearcoatInp?.value,
       wet: Boolean(wetChk?.checked ?? false),
@@ -6776,6 +6982,8 @@ const init = () => {
     setVal(bgSel, state.bg);
     setVal(paintInp, state.paint);
     setChk(originalMatsChk, state.originalMats);
+
+    setVal(lookPresetSel, state.lookPreset);
 
     setVal(finishSel, state.finish);
     setVal(clearcoatInp, state.clearcoat);

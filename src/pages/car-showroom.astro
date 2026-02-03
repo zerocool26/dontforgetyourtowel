@@ -609,6 +609,17 @@ const galleryHref = `${base}gallery/`;
             </div>
             <div class="sr-grid">
               <label class="sr-field">
+                <span>Look preset</span>
+                <select data-sr-look-preset>
+                  <option value="custom" selected>Custom</option>
+                  <option value="showroom">Showroom clean</option>
+                  <option value="rainy">Rainy / wet</option>
+                  <option value="dusty">Dusty / dirty</option>
+                  <option value="track">Track day</option>
+                </select>
+              </label>
+
+              <label class="sr-field">
                 <span>Paint</span>
                 <input type="color" value="#00d1b2" data-sr-paint />
               </label>
