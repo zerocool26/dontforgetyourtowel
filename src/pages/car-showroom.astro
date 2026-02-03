@@ -56,6 +56,12 @@ const galleryHref = `${base}gallery/`;
       <div class="sr__viewer">
         <canvas class="sr__canvas" data-sr-canvas></canvas>
 
+        <div class="sr__thirds" data-sr-thirds-overlay aria-hidden="true"></div>
+        <div class="sr__centerMarker" data-sr-center-overlay aria-hidden="true">
+        </div>
+        <div class="sr__horizon" data-sr-horizon-overlay aria-hidden="true">
+        </div>
+
         <div class="sr__letterbox" data-sr-letterbox aria-hidden="true"></div>
         <button
           type="button"
@@ -126,6 +132,36 @@ const galleryHref = `${base}gallery/`;
             </div>
 
             <div class="sr__quickRow">
+              <button type="button" class="sr-chip" data-sr-quick-frame>
+                Frame
+              </button>
+              <button type="button" class="sr-chip" data-sr-quick-photo>
+                Photo
+              </button>
+              <button type="button" class="sr-chip" data-sr-quick-thirds>
+                Thirds
+              </button>
+              <button type="button" class="sr-chip" data-sr-quick-center>
+                Center
+              </button>
+              <button type="button" class="sr-chip" data-sr-quick-horizon>
+                Horizon
+              </button>
+              <button type="button" class="sr-chip" data-sr-quick-cinematic>
+                Cine
+              </button>
+              <button type="button" class="sr-chip" data-sr-quick-interior>
+                Interior
+              </button>
+              <button type="button" class="sr-chip" data-sr-quick-hotspots>
+                Hotspots
+              </button>
+              <button type="button" class="sr-chip" data-sr-quick-decals>
+                Decals
+              </button>
+            </div>
+
+            <div class="sr__quickRow">
               <button type="button" class="sr-chip" data-sr-screenshot>
                 Screenshot
               </button>
@@ -158,7 +194,7 @@ const galleryHref = `${base}gallery/`;
       </div>
 
       <aside class="sr__panel" data-sr-panel>
-        <div class="sr__panelHead">
+        <div class="sr__panelHead" data-sr-panel-drag>
           <div>
             <div
               class="sr__panelHandle"
@@ -521,14 +557,23 @@ const galleryHref = `${base}gallery/`;
           <section class="sr-section" id="sr-sec-look" data-sr-section="look">
             <div class="sr-section__head">
               <h2>Look</h2>
-              <button
-                type="button"
-                class="sr-section__toggle"
-                data-sr-section-toggle
-                aria-expanded="true"
-              >
-                Hide
-              </button>
+              <div class="sr-section__headActions">
+                <button
+                  type="button"
+                  class="sr-section__toggle"
+                  data-sr-reset-look
+                >
+                  Reset
+                </button>
+                <button
+                  type="button"
+                  class="sr-section__toggle"
+                  data-sr-section-toggle
+                  aria-expanded="true"
+                >
+                  Hide
+                </button>
+              </div>
             </div>
             <div class="sr-grid">
               <label class="sr-field">
@@ -693,14 +738,23 @@ const galleryHref = `${base}gallery/`;
           >
             <div class="sr-section__head">
               <h2>Environment</h2>
-              <button
-                type="button"
-                class="sr-section__toggle"
-                data-sr-section-toggle
-                aria-expanded="true"
-              >
-                Hide
-              </button>
+              <div class="sr-section__headActions">
+                <button
+                  type="button"
+                  class="sr-section__toggle"
+                  data-sr-reset-environment
+                >
+                  Reset
+                </button>
+                <button
+                  type="button"
+                  class="sr-section__toggle"
+                  data-sr-section-toggle
+                  aria-expanded="true"
+                >
+                  Hide
+                </button>
+              </div>
             </div>
             <div class="sr-grid">
               <label class="sr-field">
@@ -1036,6 +1090,21 @@ const galleryHref = `${base}gallery/`;
                 />
               </label>
               <label class="sr-field">
+                <span>Floor reflections</span>
+                <input type="checkbox" data-sr-floor-reflections />
+              </label>
+              <label class="sr-field">
+                <span>Reflection strength</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value="0.55"
+                  data-sr-floor-reflection-strength
+                />
+              </label>
+              <label class="sr-field">
                 <span>Shadows</span>
                 <input type="checkbox" checked data-sr-shadows />
               </label>
@@ -1075,14 +1144,23 @@ const galleryHref = `${base}gallery/`;
           >
             <div class="sr-section__head">
               <h2>Camera</h2>
-              <button
-                type="button"
-                class="sr-section__toggle"
-                data-sr-section-toggle
-                aria-expanded="true"
-              >
-                Hide
-              </button>
+              <div class="sr-section__headActions">
+                <button
+                  type="button"
+                  class="sr-section__toggle"
+                  data-sr-reset-camera
+                >
+                  Reset
+                </button>
+                <button
+                  type="button"
+                  class="sr-section__toggle"
+                  data-sr-section-toggle
+                  aria-expanded="true"
+                >
+                  Hide
+                </button>
+              </div>
             </div>
             <div class="sr-grid">
               <label class="sr-field">
@@ -1163,6 +1241,21 @@ const galleryHref = `${base}gallery/`;
                   data-sr-camera-fov
                 />
               </label>
+
+              <label class="sr-field">
+                <span>Rule of thirds overlay</span>
+                <input type="checkbox" data-sr-thirds />
+              </label>
+
+              <label class="sr-field">
+                <span>Center marker</span>
+                <input type="checkbox" data-sr-center />
+              </label>
+
+              <label class="sr-field">
+                <span>Horizon line</span>
+                <input type="checkbox" data-sr-horizon />
+              </label>
               <div class="sr-row">
                 <button type="button" class="sr-btn" data-sr-camera-frame
                   >Frame</button
@@ -1221,14 +1314,23 @@ const galleryHref = `${base}gallery/`;
           >
             <div class="sr-section__head">
               <h2>Motion</h2>
-              <button
-                type="button"
-                class="sr-section__toggle"
-                data-sr-section-toggle
-                aria-expanded="true"
-              >
-                Hide
-              </button>
+              <div class="sr-section__headActions">
+                <button
+                  type="button"
+                  class="sr-section__toggle"
+                  data-sr-reset-motion
+                >
+                  Reset
+                </button>
+                <button
+                  type="button"
+                  class="sr-section__toggle"
+                  data-sr-section-toggle
+                  aria-expanded="true"
+                >
+                  Hide
+                </button>
+              </div>
             </div>
             <div class="sr-grid">
               <label class="sr-field">
@@ -1276,14 +1378,23 @@ const galleryHref = `${base}gallery/`;
           >
             <div class="sr-section__head">
               <h2>Performance</h2>
-              <button
-                type="button"
-                class="sr-section__toggle"
-                data-sr-section-toggle
-                aria-expanded="true"
-              >
-                Hide
-              </button>
+              <div class="sr-section__headActions">
+                <button
+                  type="button"
+                  class="sr-section__toggle"
+                  data-sr-reset-performance
+                >
+                  Reset
+                </button>
+                <button
+                  type="button"
+                  class="sr-section__toggle"
+                  data-sr-section-toggle
+                  aria-expanded="true"
+                >
+                  Hide
+                </button>
+              </div>
             </div>
             <div class="sr-grid">
               <label class="sr-field">
@@ -1316,14 +1427,23 @@ const galleryHref = `${base}gallery/`;
           <section class="sr-section" id="sr-sec-post" data-sr-section="post">
             <div class="sr-section__head">
               <h2>Post</h2>
-              <button
-                type="button"
-                class="sr-section__toggle"
-                data-sr-section-toggle
-                aria-expanded="true"
-              >
-                Hide
-              </button>
+              <div class="sr-section__headActions">
+                <button
+                  type="button"
+                  class="sr-section__toggle"
+                  data-sr-reset-post
+                >
+                  Reset
+                </button>
+                <button
+                  type="button"
+                  class="sr-section__toggle"
+                  data-sr-section-toggle
+                  aria-expanded="true"
+                >
+                  Hide
+                </button>
+              </div>
             </div>
             <div class="sr-grid">
               <label class="sr-field">

@@ -109,6 +109,131 @@
   min-height: 56svh;
 }
 
+.sr__thirds {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  opacity: 0;
+  transition: opacity 160ms ease;
+  --sr-thirds-line: rgba(255, 255, 255, 0.35);
+  background:
+    linear-gradient(
+      to right,
+      transparent calc(33.333% - 0.5px),
+      var(--sr-thirds-line) calc(33.333% - 0.5px),
+      var(--sr-thirds-line) calc(33.333% + 0.5px),
+      transparent calc(33.333% + 0.5px),
+      transparent calc(66.666% - 0.5px),
+      var(--sr-thirds-line) calc(66.666% - 0.5px),
+      var(--sr-thirds-line) calc(66.666% + 0.5px),
+      transparent calc(66.666% + 0.5px)
+    ),
+    linear-gradient(
+      to bottom,
+      transparent calc(33.333% - 0.5px),
+      var(--sr-thirds-line) calc(33.333% - 0.5px),
+      var(--sr-thirds-line) calc(33.333% + 0.5px),
+      transparent calc(33.333% + 0.5px),
+      transparent calc(66.666% - 0.5px),
+      var(--sr-thirds-line) calc(66.666% - 0.5px),
+      var(--sr-thirds-line) calc(66.666% + 0.5px),
+      transparent calc(66.666% + 0.5px)
+    );
+  mix-blend-mode: overlay;
+}
+
+.sr__viewer.sr-thirds-on .sr__thirds {
+  opacity: 1;
+}
+
+.sr__centerMarker {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+
+.sr__centerMarker::before,
+.sr__centerMarker::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.45);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
+}
+
+.sr__centerMarker::before {
+  width: 20px;
+  height: 1px;
+}
+
+.sr__centerMarker::after {
+  width: 1px;
+  height: 20px;
+}
+
+.sr__viewer.sr-center-on .sr__centerMarker {
+  opacity: 1;
+}
+
+.sr__horizon {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+
+.sr__horizon::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2);
+}
+
+.sr__viewer.sr-horizon-on .sr__horizon {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sr__thirds {
+    transition: none;
+  }
+
+  .sr__centerMarker,
+  .sr__horizon {
+    transition: none;
+  }
+}
+
+.sr__viewer.sr-drop-over::after {
+  content: 'Drop a .glb/.gltf model to load';
+  position: absolute;
+  inset: 12px;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  border: 2px dashed rgba(34, 211, 238, 0.55);
+  background: rgba(0, 0, 0, 0.35);
+  color: rgba(255, 255, 255, 0.92);
+  font-weight: 750;
+  letter-spacing: 0.02em;
+  text-align: center;
+  padding: 14px;
+  pointer-events: none;
+  z-index: 26;
+}
+
 .sr__letterbox {
   position: absolute;
   inset: 0;
@@ -440,6 +565,12 @@
   letter-spacing: 0.02em;
 }
 
+.sr-chip[aria-pressed='true'] {
+  background: rgba(96, 165, 250, 0.18);
+  border-color: rgba(96, 165, 250, 0.55);
+  color: rgba(255, 255, 255, 0.95);
+}
+
 .sr-section {
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.03);
@@ -454,6 +585,12 @@
   justify-content: space-between;
   gap: 10px;
   margin-bottom: 10px;
+}
+
+.sr-section__headActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .sr-section__toggle {
@@ -637,6 +774,7 @@
     height: var(--sr-panel-height);
     max-height: calc(100svh - 86px);
     z-index: 40;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
   .sr__quick {
@@ -687,6 +825,11 @@
 
   .sr__panelHead {
     padding: 10px;
+    touch-action: none;
+  }
+
+  .sr__panelBody {
+    overscroll-behavior: contain;
   }
 
   .sr__jump {
@@ -698,6 +841,26 @@
     background: rgba(10, 14, 22, 0.88);
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     backdrop-filter: blur(16px);
+
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    scroll-snap-type: x proximity;
+  }
+
+  .sr__jump::-webkit-scrollbar {
+    display: none;
+  }
+
+  .sr__jump .sr-chip {
+    scroll-snap-align: start;
+  }
+
+  .sr-chip,
+  .sr-section__toggle {
+    min-height: 42px;
+    padding: 9px 12px;
   }
 
   .sr__panelHandle {
@@ -706,6 +869,7 @@
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.22);
     margin: 0 auto;
+    user-select: none;
   }
 
   .sr-grid {

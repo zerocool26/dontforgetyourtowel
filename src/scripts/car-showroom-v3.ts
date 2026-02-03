@@ -7,7 +7,10 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { DecalGeometry } from 'three/examples/jsm/geometries/DecalGeometry.js';
+import { Reflector } from 'three/examples/jsm/objects/Reflector.js';
 
+import { onReducedMotionChange } from '../utils/a11y';
+import { createDropZone } from '../utils/drag-drop';
 import { withBasePath } from '../utils/helpers';
 import { createSafeWebGLRenderer } from './tower3d/three/renderer-factory';
 
@@ -436,6 +439,7 @@ const initPanel = (root: HTMLElement) => {
   );
   const close = root.querySelector<HTMLButtonElement>('[data-sr-panel-close]');
   const handle = root.querySelector<HTMLElement>('[data-sr-panel-handle]');
+  const dragArea = root.querySelector<HTMLElement>('[data-sr-panel-drag]');
   const fab = root.querySelector<HTMLButtonElement>('[data-sr-panel-fab]');
 
   if (!panel)
@@ -577,8 +581,20 @@ const initPanel = (root: HTMLElement) => {
     setSnap(next, true);
   };
 
-  handle?.addEventListener('pointerdown', e => {
+  const isInteractiveTarget = (t: EventTarget | null) => {
+    const el = t instanceof HTMLElement ? t : null;
+    if (!el) return false;
+    return Boolean(
+      el.closest(
+        'button, a, input, select, textarea, label, [role="button"], [data-sr-no-drag]'
+      )
+    );
+  };
+
+  const startDragFrom = (e: PointerEvent, captureEl: HTMLElement | null) => {
     if (!isMobile()) return;
+    if (e.button !== 0) return;
+
     drag = true;
     startY = e.clientY;
     const heights = getHeights();
@@ -588,14 +604,27 @@ const initPanel = (root: HTMLElement) => {
     lastY = startY;
     lastT = startT;
 
+    e.preventDefault();
+
     try {
-      handle.setPointerCapture(e.pointerId);
+      (captureEl || panel).setPointerCapture(e.pointerId);
     } catch {
       // ignore
     }
 
     window.addEventListener('pointermove', onMove, { passive: false });
     window.addEventListener('pointerup', onUp, { once: true, passive: true });
+  };
+
+  handle?.addEventListener('pointerdown', e => {
+    startDragFrom(e, handle);
+  });
+
+  dragArea?.addEventListener('pointerdown', e => {
+    const t = e.target as Node | null;
+    if (t && handle && handle.contains(t)) return;
+    if (isInteractiveTarget(e.target)) return;
+    startDragFrom(e, dragArea);
   });
 
   window.addEventListener('resize', () => initState());
@@ -613,6 +642,16 @@ const init = () => {
   html.dataset.carShowroomWebgl = '0';
 
   const canvas = root.querySelector<HTMLCanvasElement>('[data-sr-canvas]');
+  const viewer = root.querySelector<HTMLElement>('.sr__viewer');
+  const thirdsOverlay = root.querySelector<HTMLElement>(
+    '[data-sr-thirds-overlay]'
+  );
+  const centerOverlay = root.querySelector<HTMLElement>(
+    '[data-sr-center-overlay]'
+  );
+  const horizonOverlay = root.querySelector<HTMLElement>(
+    '[data-sr-horizon-overlay]'
+  );
   if (!canvas) {
     html.dataset.carShowroomBoot = '1';
     return;
@@ -717,6 +756,25 @@ const init = () => {
   );
   const lightRim = root.querySelector<HTMLInputElement>('[data-sr-light-rim]');
 
+  const resetLookBtn = root.querySelector<HTMLButtonElement>(
+    '[data-sr-reset-look]'
+  );
+  const resetEnvBtn = root.querySelector<HTMLButtonElement>(
+    '[data-sr-reset-environment]'
+  );
+  const resetCameraBtn = root.querySelector<HTMLButtonElement>(
+    '[data-sr-reset-camera]'
+  );
+  const resetMotionBtn = root.querySelector<HTMLButtonElement>(
+    '[data-sr-reset-motion]'
+  );
+  const resetPostBtn = root.querySelector<HTMLButtonElement>(
+    '[data-sr-reset-post]'
+  );
+  const resetPerformanceBtn = root.querySelector<HTMLButtonElement>(
+    '[data-sr-reset-performance]'
+  );
+
   const envIntensity = root.querySelector<HTMLInputElement>(
     '[data-sr-env-intensity]'
   );
@@ -739,6 +797,13 @@ const init = () => {
   );
   const floorMetalness = root.querySelector<HTMLInputElement>(
     '[data-sr-floor-metalness]'
+  );
+
+  const floorReflectionsChk = root.querySelector<HTMLInputElement>(
+    '[data-sr-floor-reflections]'
+  );
+  const floorReflectionStrength = root.querySelector<HTMLInputElement>(
+    '[data-sr-floor-reflection-strength]'
   );
 
   const shadowsChk = root.querySelector<HTMLInputElement>('[data-sr-shadows]');
@@ -764,6 +829,9 @@ const init = () => {
     '[data-sr-camera-distance]'
   );
   const camFov = root.querySelector<HTMLInputElement>('[data-sr-camera-fov]');
+  const thirdsChk = root.querySelector<HTMLInputElement>('[data-sr-thirds]');
+  const centerChk = root.querySelector<HTMLInputElement>('[data-sr-center]');
+  const horizonChk = root.querySelector<HTMLInputElement>('[data-sr-horizon]');
   const camFrame = root.querySelector<HTMLButtonElement>(
     '[data-sr-camera-frame]'
   );
@@ -1459,11 +1527,19 @@ const init = () => {
     envRotationDeg: Number.parseFloat(envRotation?.value || '0') || 0,
     grid: Boolean(gridChk?.checked ?? false),
     axes: Boolean(axesChk?.checked ?? false),
+    thirdsOverlay: Boolean(thirdsChk?.checked ?? false),
+    centerOverlay: Boolean(centerChk?.checked ?? false),
+    horizonOverlay: Boolean(horizonChk?.checked ?? false),
     haptics: Boolean(hapticsChk?.checked ?? true),
     floorHex: parseHexColor(floorColor?.value || '') || '#111827',
     floorOpacity: Number.parseFloat(floorOpacity?.value || '1') || 1,
     floorRoughness: Number.parseFloat(floorRoughness?.value || '1') || 1,
     floorMetalness: Number.parseFloat(floorMetalness?.value || '0') || 0,
+
+    floorReflections: Boolean(floorReflectionsChk?.checked ?? false),
+    floorReflectionStrength:
+      Number.parseFloat(floorReflectionStrength?.value || '0.55') || 0.55,
+
     shadows: Boolean(shadowsChk?.checked ?? true),
     shadowStrength: Number.parseFloat(shadowStrength?.value || '0.5') || 0.5,
     shadowSize: Number.parseFloat(shadowSize?.value || '6') || 6,
@@ -1538,6 +1614,27 @@ const init = () => {
     caliperColorHex: parseHexColor(caliperColorInp?.value || '') || '#ef4444',
     lightColorHex: parseHexColor(lightColorInp?.value || '') || '#ffffff',
     lightGlow: Number.parseFloat(lightGlowInp?.value || '1.25') || 1.25,
+  };
+
+  const applyThirdsOverlay = () => {
+    const on = Boolean(thirdsChk?.checked ?? runtime.thirdsOverlay);
+    runtime.thirdsOverlay = on;
+    viewer?.classList.toggle('sr-thirds-on', on);
+    if (thirdsOverlay) thirdsOverlay.hidden = !on;
+  };
+
+  const applyCenterOverlay = () => {
+    const on = Boolean(centerChk?.checked ?? runtime.centerOverlay);
+    runtime.centerOverlay = on;
+    viewer?.classList.toggle('sr-center-on', on);
+    if (centerOverlay) centerOverlay.hidden = !on;
+  };
+
+  const applyHorizonOverlay = () => {
+    const on = Boolean(horizonChk?.checked ?? runtime.horizonOverlay);
+    runtime.horizonOverlay = on;
+    viewer?.classList.toggle('sr-horizon-on', on);
+    if (horizonOverlay) horizonOverlay.hidden = !on;
   };
 
   const originalMaterialState = new WeakMap<THREE.Material, MaterialSnapshot>();
@@ -2359,6 +2456,219 @@ const init = () => {
     rim.position.copy(rimBase).applyMatrix4(rot);
   };
 
+  const resetControlToDefault = (
+    el:
+      | HTMLInputElement
+      | HTMLSelectElement
+      | HTMLTextAreaElement
+      | null
+      | undefined
+  ) => {
+    if (!el) return;
+
+    if (el instanceof HTMLInputElement) {
+      if (el.type === 'checkbox') {
+        el.checked = el.defaultChecked;
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+        return;
+      }
+
+      el.value = el.defaultValue;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+      return;
+    }
+
+    if (el instanceof HTMLSelectElement) {
+      const opts = Array.from(el.options);
+      const def = opts.find(o => o.defaultSelected) || opts[0];
+      if (def) el.value = def.value;
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+      return;
+    }
+
+    // Textareas rarely used for resets, but keep it symmetric.
+    el.value = el.defaultValue;
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+  };
+
+  resetEnvBtn?.addEventListener('click', () => {
+    resetControlToDefault(bgSel);
+    resetControlToDefault(lightPreset);
+    resetControlToDefault(lightIntensity);
+    resetControlToDefault(lightWarmth);
+    resetControlToDefault(lightRim);
+    resetControlToDefault(envIntensity);
+    resetControlToDefault(envRotation);
+  });
+
+  resetLookBtn?.addEventListener('click', () => {
+    resetControlToDefault(paintInp);
+    resetControlToDefault(finishSel);
+    resetControlToDefault(clearcoatInp);
+    resetControlToDefault(wrapEnabledChk);
+    resetControlToDefault(wrapPatternSel);
+    resetControlToDefault(wrapColorInp);
+    resetControlToDefault(wrapTintInp);
+    resetControlToDefault(wrapScaleInp);
+    resetControlToDefault(wrapRotationInp);
+    resetControlToDefault(wrapOffsetXInp);
+    resetControlToDefault(wrapOffsetYInp);
+    resetControlToDefault(glassModeChk);
+    resetControlToDefault(glassTintInp);
+    resetControlToDefault(wheelColorInp);
+    resetControlToDefault(trimColorInp);
+    resetControlToDefault(caliperColorInp);
+    resetControlToDefault(lightColorInp);
+    resetControlToDefault(lightGlowInp);
+    resetControlToDefault(originalMatsChk);
+  });
+
+  resetMotionBtn?.addEventListener('click', () => {
+    resetControlToDefault(autorotate);
+    resetControlToDefault(motionStyle);
+    resetControlToDefault(motionSpeed);
+    resetControlToDefault(zoom);
+
+    // Respect reduced-motion: never re-enable auto-rotate.
+    if (reducedMotionPref && autorotate) {
+      autorotate.checked = false;
+      autorotate.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  });
+
+  resetPostBtn?.addEventListener('click', () => {
+    resetControlToDefault(exposure);
+    resetControlToDefault(tonemapSel);
+    resetControlToDefault(bloom);
+    resetControlToDefault(bloomThreshold);
+    resetControlToDefault(bloomRadius);
+  });
+
+  resetPerformanceBtn?.addEventListener('click', () => {
+    resetControlToDefault(qualitySel);
+    resetControlToDefault(autoQuality);
+    resetControlToDefault(targetFps);
+  });
+
+  // Planar floor reflections (Reflector) — created lazily and fully disposable.
+  const FLOOR_REFLECTOR_SHADER = {
+    name: 'ShowroomFloorReflectorShader',
+    uniforms: {
+      color: { value: null },
+      tDiffuse: { value: null },
+      textureMatrix: { value: null },
+      strength: { value: 0.55 },
+    },
+    vertexShader: /* glsl */ `
+      uniform mat4 textureMatrix;
+      varying vec4 vUv;
+
+      #include <common>
+      #include <logdepthbuf_pars_vertex>
+
+      void main() {
+        vUv = textureMatrix * vec4( position, 1.0 );
+        gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+        #include <logdepthbuf_vertex>
+      }
+    `,
+    fragmentShader: /* glsl */ `
+      uniform vec3 color;
+      uniform sampler2D tDiffuse;
+      uniform float strength;
+      varying vec4 vUv;
+
+      #include <logdepthbuf_pars_fragment>
+
+      float blendOverlay( float base, float blend ) {
+        return( base < 0.5 ? ( 2.0 * base * blend ) : ( 1.0 - 2.0 * ( 1.0 - base ) * ( 1.0 - blend ) ) );
+      }
+
+      vec3 blendOverlay( vec3 base, vec3 blend ) {
+        return vec3( blendOverlay( base.r, blend.r ), blendOverlay( base.g, blend.g ), blendOverlay( base.b, blend.b ) );
+      }
+
+      void main() {
+        #include <logdepthbuf_fragment>
+
+        vec4 base = texture2DProj( tDiffuse, vUv );
+        vec3 tinted = blendOverlay( base.rgb, color );
+        vec3 mixed = mix( base.rgb, tinted, clamp( strength, 0.0, 1.0 ) );
+        gl_FragColor = vec4( mixed, 1.0 );
+
+        #include <tonemapping_fragment>
+        #include <colorspace_fragment>
+      }
+    `,
+  };
+
+  let floorReflector: Reflector | null = null;
+
+  const ensureFloorReflector = () => {
+    if (floorReflector) return;
+
+    const baseline =
+      runtime.quality === 'ultra'
+        ? 1024
+        : runtime.quality === 'balanced'
+          ? 768
+          : 512;
+    const texSize = isMobile() ? Math.min(768, baseline) : baseline;
+
+    floorReflector = new Reflector(new THREE.CircleGeometry(6, 64), {
+      clipBias: 0.003,
+      textureWidth: texSize,
+      textureHeight: texSize,
+      color: runtime.floorHex,
+      multisample: 0,
+      shader: FLOOR_REFLECTOR_SHADER,
+    });
+
+    floorReflector.rotation.x = -Math.PI / 2;
+    floorReflector.position.y = -0.0008;
+    // We keep reflections beneath the shadow catcher.
+    floorReflector.renderOrder = -5;
+
+    scene.add(floorReflector);
+  };
+
+  const disposeFloorReflector = () => {
+    if (!floorReflector) return;
+    try {
+      scene.remove(floorReflector);
+    } catch {
+      // ignore
+    }
+    try {
+      floorReflector.dispose?.();
+    } catch {
+      // ignore
+    }
+    floorReflector = null;
+  };
+
+  const applyFloorReflections = () => {
+    const enabled = Boolean(runtime.floorReflections);
+    if (enabled) ensureFloorReflector();
+    else disposeFloorReflector();
+
+    if (floorReflectionStrength) floorReflectionStrength.disabled = !enabled;
+
+    if (!floorReflector) return;
+    floorReflector.visible =
+      enabled && clamp01(runtime.floorOpacity) > 0.001 && floor.visible;
+
+    const mat = floorReflector.material as unknown as {
+      uniforms?: Record<string, { value: unknown }>;
+    };
+    const u = mat.uniforms;
+    if (u?.color && u.color.value && u.color.value instanceof THREE.Color) {
+      (u.color.value as THREE.Color).set(runtime.floorHex);
+    }
+    if (u?.strength)
+      u.strength.value = clamp01(runtime.floorReflectionStrength);
+  };
+
   const applyFloor = () => {
     floorMat.color.set(runtime.floorHex);
     floorMat.roughness = clamp01(runtime.floorRoughness);
@@ -2366,6 +2676,8 @@ const init = () => {
     floorMat.opacity = clamp01(runtime.floorOpacity);
     floorMat.transparent = floorMat.opacity < 0.999;
     floor.visible = floorMat.opacity > 0.001;
+
+    applyFloorReflections();
   };
 
   const applyShadows = () => {
@@ -2508,6 +2820,23 @@ const init = () => {
     camera.position.copy(t).add(offset);
     controls.update();
   };
+
+  resetCameraBtn?.addEventListener('click', () => {
+    resetControlToDefault(interiorChk);
+    resetControlToDefault(hotspotsChk);
+    resetControlToDefault(camPreset);
+    resetControlToDefault(camMode);
+    resetControlToDefault(camYaw);
+    resetControlToDefault(camPitch);
+    resetControlToDefault(camDist);
+    resetControlToDefault(camFov);
+    resetControlToDefault(thirdsChk);
+    resetControlToDefault(centerChk);
+    resetControlToDefault(horizonChk);
+
+    // Make sure the actual camera snaps to the restored UI.
+    applyCameraFromUi();
+  });
 
   const applyInteriorConstraints = () => {
     if (!runtime.interior) return;
@@ -2967,6 +3296,15 @@ const init = () => {
   });
   applyLighting();
 
+  thirdsChk?.addEventListener('change', () => applyThirdsOverlay());
+  applyThirdsOverlay();
+
+  centerChk?.addEventListener('change', () => applyCenterOverlay());
+  applyCenterOverlay();
+
+  horizonChk?.addEventListener('change', () => applyHorizonOverlay());
+  applyHorizonOverlay();
+
   gridChk?.addEventListener('change', () => {
     runtime.grid = Boolean(gridChk.checked);
     grid.visible = runtime.grid;
@@ -2994,6 +3332,17 @@ const init = () => {
   floorMetalness?.addEventListener('input', () => {
     runtime.floorMetalness = Number.parseFloat(floorMetalness.value) || 0;
     applyFloor();
+  });
+
+  floorReflectionsChk?.addEventListener('change', () => {
+    runtime.floorReflections = Boolean(floorReflectionsChk.checked);
+    applyFloorReflections();
+  });
+  floorReflectionStrength?.addEventListener('input', () => {
+    runtime.floorReflectionStrength =
+      Number.parseFloat(floorReflectionStrength.value) ||
+      runtime.floorReflectionStrength;
+    applyFloorReflections();
   });
   applyFloor();
 
@@ -3121,6 +3470,23 @@ const init = () => {
     void loadModel(url, { objectUrlToRevoke: url });
   });
 
+  // Drag-and-drop import (GLB/GLTF) onto the viewer.
+  if (viewer) {
+    createDropZone(viewer, {
+      accept: ['.glb', '.gltf', 'model/gltf-binary'],
+      multiple: false,
+      dragOverClass: 'sr-drop-over',
+      onFileDrop: files => {
+        const file = files[0];
+        if (!file) return;
+        const url = URL.createObjectURL(file);
+        if (modelUrl) modelUrl.value = url;
+        setStatus(false, 'Loading dropped model…');
+        void loadModel(url, { objectUrlToRevoke: url });
+      },
+    });
+  }
+
   const downloadScreenshot = () => {
     hapticTap(15);
     try {
@@ -3171,8 +3537,7 @@ const init = () => {
     void copyScreenshotToClipboard();
   });
 
-  const copyShareLink = async () => {
-    hapticTap(15);
+  const buildShareUrl = () => {
     const url = new URL(window.location.href);
     const v = (modelUrl?.value || modelSel?.value || '').trim();
     if (v) url.searchParams.set('model', v);
@@ -3244,6 +3609,9 @@ const init = () => {
     url.searchParams.set('er', String(runtime.envRotationDeg));
     url.searchParams.set('grid', runtime.grid ? '1' : '0');
     url.searchParams.set('axes', runtime.axes ? '1' : '0');
+    url.searchParams.set('rt', runtime.thirdsOverlay ? '1' : '0');
+    url.searchParams.set('cm', runtime.centerOverlay ? '1' : '0');
+    url.searchParams.set('hz', runtime.horizonOverlay ? '1' : '0');
     url.searchParams.set('wf', wireframeChk?.checked ? '1' : '0');
 
     // Post
@@ -3267,6 +3635,11 @@ const init = () => {
     url.searchParams.set('int', runtime.interior ? '1' : '0');
     url.searchParams.set('hs', runtime.hotspots ? '1' : '0');
 
+    // Floor reflections
+    url.searchParams.set('fr', runtime.floorReflections ? '1' : '0');
+    const frs = clamp01(Number(runtime.floorReflectionStrength) || 0.55);
+    if (Math.abs(frs - 0.55) > 0.0001) url.searchParams.set('frs', String(frs));
+
     // Decal settings (placements are not included)
     url.searchParams.set('dm', runtime.decalMode ? '1' : '0');
     const dt = safeTrimText(decalTextInp?.value || '', 18);
@@ -3289,6 +3662,12 @@ const init = () => {
     if (Math.abs(ms - 1) > 0.0001) url.searchParams.set('ms', ms.toFixed(3));
     if (Math.abs(my) > 0.0001) url.searchParams.set('my', my.toFixed(1));
     if (Math.abs(ml) > 0.0001) url.searchParams.set('ml', ml.toFixed(3));
+    return url;
+  };
+
+  const copyShareLink = async () => {
+    hapticTap(15);
+    const url = buildShareUrl();
     try {
       await navigator.clipboard.writeText(url.toString());
       setStatus(false, 'Link copied.');
@@ -3325,11 +3704,12 @@ const init = () => {
   ro.observe(canvas);
   setSize();
 
+  let reducedMotionPref = false;
+
   // FPS + adaptive quality + animation
   let lastSample = performance.now();
   let lastTick = lastSample;
   let frames = 0;
-  const cinematicShakeOffset = new THREE.Vector3();
   const tick = () => {
     frames += 1;
     const now = performance.now();
@@ -3373,8 +3753,15 @@ const init = () => {
         // Adjust dynamicScale in small steps; 1 = baseline.
         if (fps > 0 && fps < low) {
           // Prefer disabling expensive features before dropping resolution.
+          const reflections = Boolean(
+            floorReflectionsChk?.checked ?? runtime.floorReflections
+          );
           const hq = Boolean(shadowHQ?.checked ?? runtime.shadowHQ);
-          if (hq) {
+          if (reflections) {
+            if (floorReflectionsChk) floorReflectionsChk.checked = false;
+            runtime.floorReflections = false;
+            applyFloorReflections();
+          } else if (hq) {
             if (shadowHQ) shadowHQ.checked = false;
             runtime.shadowHQ = false;
             syncShadowUi();
@@ -3409,25 +3796,11 @@ const init = () => {
     controls.update();
 
     // Cinematic micro-shake (temporary offset; no drift)
-    let shakeApplied = false;
     if (runtime.cinematic) {
       const t = now * 0.001;
-      const amp = clamp(runtime.lastRadius * 0.00035, 0.00035, 0.01);
-      cinematicShakeOffset.set(
-        Math.sin(t * 1.7) * amp,
-        Math.cos(t * 2.1) * amp * 0.6,
-        Math.sin(t * 1.3 + 1.2) * amp
-      );
-      camera.position.add(cinematicShakeOffset);
-      shakeApplied = true;
-    }
-
-    // Cinematic micro-shake (temporary offset; no drift)
-    let shake = false;
-    if (runtime.cinematic) shake = true;
-    if (shake) {
-      const t = now * 0.001;
-      const amp = clamp(runtime.lastRadius * 0.00035, 0.00035, 0.01);
+      const amp = reducedMotionPref
+        ? 0
+        : clamp(runtime.lastRadius * 0.00035, 0.00035, 0.01);
       const off = new THREE.Vector3(
         Math.sin(t * 1.7) * amp,
         Math.cos(t * 2.1) * amp * 0.6,
@@ -3469,11 +3842,107 @@ const init = () => {
     if (composer && runtime.bloomStrength > 0.001) composer.render();
     else renderer.render(scene, camera);
 
-    if (shakeApplied) camera.position.sub(cinematicShakeOffset);
-
     requestAnimationFrame(tick);
   };
   requestAnimationFrame(tick);
+
+  let captureHistoryState: (() => Record<string, unknown>) | null = null;
+
+  const pushHistoryAfterUiChange = (() => {
+    const HISTORY_LIMIT = 60;
+    const history: Array<{ key: string; state: Record<string, unknown> }> = [];
+    let historyIndex = -1;
+    let applying = false;
+    let timer: number | null = null;
+
+    const snapshot = () => {
+      if (applying) return;
+      const state = captureHistoryState?.();
+      if (!state) return;
+      // Blob/object URLs are not stable across sessions/undos.
+      const model = String(state.model || '').trim();
+      if (model.startsWith('blob:')) state.model = '';
+
+      const key = JSON.stringify(state);
+      if (historyIndex >= 0 && history[historyIndex]?.key === key) return;
+
+      // Drop redo tail
+      history.splice(historyIndex + 1);
+      history.push({ key, state });
+      if (history.length > HISTORY_LIMIT) history.shift();
+      historyIndex = history.length - 1;
+    };
+
+    const schedule = (delayMs: number) => {
+      if (applying) return;
+      if (timer) window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        timer = null;
+        snapshot();
+      }, delayMs);
+    };
+
+    const applyAt = async (idx: number) => {
+      if (idx < 0 || idx >= history.length) return;
+      const entry = history[idx];
+      if (!entry) return;
+      const prevIndex = historyIndex;
+      applying = true;
+      if (timer) {
+        window.clearTimeout(timer);
+        timer = null;
+      }
+      try {
+        await applyPresetState(entry.state);
+        historyIndex = idx;
+        const msg = idx > prevIndex ? 'Redo.' : 'Undo.';
+        setStatus(false, msg);
+        window.setTimeout(() => setStatus(false, ''), 900);
+      } finally {
+        applying = false;
+      }
+    };
+
+    const undo = () => {
+      if (historyIndex <= 0) return;
+      void applyAt(historyIndex - 1);
+    };
+
+    const redo = () => {
+      if (historyIndex >= history.length - 1) return;
+      void applyAt(historyIndex + 1);
+    };
+
+    const init = () => {
+      snapshot();
+    };
+
+    const isApplying = () => applying;
+
+    return { schedule, undo, redo, init, isApplying };
+  })();
+
+  // Debounced history snapshots for undo/redo.
+  root.addEventListener(
+    'input',
+    e => {
+      if (pushHistoryAfterUiChange.isApplying()) return;
+      const el = e.target as Element | null;
+      if (el?.closest?.('[data-sr-cmdk]')) return;
+      pushHistoryAfterUiChange.schedule(220);
+    },
+    true
+  );
+  root.addEventListener(
+    'change',
+    e => {
+      if (pushHistoryAfterUiChange.isApplying()) return;
+      const el = e.target as Element | null;
+      if (el?.closest?.('[data-sr-cmdk]')) return;
+      pushHistoryAfterUiChange.schedule(60);
+    },
+    true
+  );
 
   // Initial state from URL
   try {
@@ -3493,6 +3962,9 @@ const init = () => {
     const er = url.searchParams.get('er');
     const gridParam = url.searchParams.get('grid');
     const axesParam = url.searchParams.get('axes');
+    const rtParam = url.searchParams.get('rt');
+    const cmParam = url.searchParams.get('cm');
+    const hzParam = url.searchParams.get('hz');
     const wf = url.searchParams.get('wf');
     const ms = url.searchParams.get('ms');
     const my = url.searchParams.get('my');
@@ -3507,6 +3979,9 @@ const init = () => {
     const plt = url.searchParams.get('plt');
     const intParam = url.searchParams.get('int');
     const hsParam = url.searchParams.get('hs');
+
+    const fr = url.searchParams.get('fr');
+    const frs = url.searchParams.get('frs');
 
     const dm = url.searchParams.get('dm');
     const dt = url.searchParams.get('dt');
@@ -3555,6 +4030,9 @@ const init = () => {
     if (er && envRotation) envRotation.value = er;
     if (gridParam && gridChk) gridChk.checked = gridParam === '1';
     if (axesParam && axesChk) axesChk.checked = axesParam === '1';
+    if (rtParam && thirdsChk) thirdsChk.checked = rtParam === '1';
+    if (cmParam && centerChk) centerChk.checked = cmParam === '1';
+    if (hzParam && horizonChk) horizonChk.checked = hzParam === '1';
     if (wf && wireframeChk) wireframeChk.checked = wf === '1';
 
     if (ms && modelScale) modelScale.value = ms;
@@ -3572,6 +4050,9 @@ const init = () => {
 
     if (intParam && interiorChk) interiorChk.checked = intParam === '1';
     if (hsParam && hotspotsChk) hotspotsChk.checked = hsParam === '1';
+
+    if (fr && floorReflectionsChk) floorReflectionsChk.checked = fr === '1';
+    if (frs && floorReflectionStrength) floorReflectionStrength.value = frs;
 
     if (dm && decalModeChk) decalModeChk.checked = dm === '1';
     if (dt && decalTextInp) decalTextInp.value = dt;
@@ -3640,7 +4121,25 @@ const init = () => {
     runtime.envRotationDeg;
   runtime.grid = Boolean(gridChk?.checked ?? runtime.grid);
   runtime.axes = Boolean(axesChk?.checked ?? runtime.axes);
+  runtime.thirdsOverlay = Boolean(thirdsChk?.checked ?? runtime.thirdsOverlay);
+  runtime.centerOverlay = Boolean(centerChk?.checked ?? runtime.centerOverlay);
+  runtime.horizonOverlay = Boolean(
+    horizonChk?.checked ?? runtime.horizonOverlay
+  );
   runtime.haptics = Boolean(hapticsChk?.checked ?? runtime.haptics);
+
+  applyThirdsOverlay();
+  applyCenterOverlay();
+  applyHorizonOverlay();
+
+  runtime.floorReflections = Boolean(
+    floorReflectionsChk?.checked ?? runtime.floorReflections
+  );
+  runtime.floorReflectionStrength =
+    Number.parseFloat(
+      floorReflectionStrength?.value || `${runtime.floorReflectionStrength}`
+    ) || runtime.floorReflectionStrength;
+
   runtime.modelScaleMul = Number.parseFloat(modelScale?.value || '1') || 1;
   runtime.modelYawDeg = Number.parseFloat(modelYaw?.value || '0') || 0;
   runtime.modelLift = Number.parseFloat(modelLift?.value || '0') || 0;
@@ -3666,6 +4165,7 @@ const init = () => {
   grid.visible = runtime.grid;
   axes.visible = runtime.axes;
   applyLighting();
+  applyFloor();
   syncPaint();
   applyQuality();
   applyPost();
@@ -3710,6 +4210,33 @@ const init = () => {
   const quickAutorotate = root.querySelector<HTMLInputElement>(
     '[data-sr-quick-autorotate]'
   );
+  const quickFrameBtn = root.querySelector<HTMLButtonElement>(
+    '[data-sr-quick-frame]'
+  );
+  const quickPhotoBtn = root.querySelector<HTMLButtonElement>(
+    '[data-sr-quick-photo]'
+  );
+  const quickCinematicBtn = root.querySelector<HTMLButtonElement>(
+    '[data-sr-quick-cinematic]'
+  );
+  const quickInteriorBtn = root.querySelector<HTMLButtonElement>(
+    '[data-sr-quick-interior]'
+  );
+  const quickHotspotsBtn = root.querySelector<HTMLButtonElement>(
+    '[data-sr-quick-hotspots]'
+  );
+  const quickDecalsBtn = root.querySelector<HTMLButtonElement>(
+    '[data-sr-quick-decals]'
+  );
+  const quickThirdsBtn = root.querySelector<HTMLButtonElement>(
+    '[data-sr-quick-thirds]'
+  );
+  const quickCenterBtn = root.querySelector<HTMLButtonElement>(
+    '[data-sr-quick-center]'
+  );
+  const quickHorizonBtn = root.querySelector<HTMLButtonElement>(
+    '[data-sr-quick-horizon]'
+  );
 
   // Command palette (Search)
   const cmdk = root.querySelector<HTMLElement>('[data-sr-cmdk]');
@@ -3738,6 +4265,23 @@ const init = () => {
   // Keyboard shortcuts
   window.addEventListener('keydown', e => {
     if (isTypingContext()) return;
+
+    const mod = e.ctrlKey || e.metaKey;
+    if (mod && !e.altKey) {
+      const k = (e.key || '').toLowerCase();
+      if (k === 'z') {
+        e.preventDefault();
+        if (e.shiftKey) pushHistoryAfterUiChange.redo();
+        else pushHistoryAfterUiChange.undo();
+        return;
+      }
+      if (k === 'y') {
+        e.preventDefault();
+        pushHistoryAfterUiChange.redo();
+        return;
+      }
+    }
+
     if (e.key === 'c' || e.key === 'C') {
       const next = !runtime.cinematic;
       if (cinematicChk) cinematicChk.checked = next;
@@ -4012,6 +4556,28 @@ const init = () => {
       el.dispatchEvent(new Event(trigger, { bubbles: true }));
     };
 
+    const setPhotoMode = (on: boolean) => {
+      const next = Boolean(on);
+
+      if (cinematicChk) cinematicChk.checked = next;
+      setCinematic(next);
+
+      const setOverlay = (el: HTMLInputElement | null | undefined) => {
+        if (!el) return;
+        el.checked = next;
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+      };
+      setOverlay(thirdsChk);
+      setOverlay(centerChk);
+      setOverlay(horizonChk);
+
+      // Photo mode should be still by default.
+      if (next && autorotate) {
+        autorotate.checked = false;
+        autorotate.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    };
+
     const readPresetsForCmdk = () => {
       try {
         const raw = (localStorage.getItem('sr3-presets-v1') || '').trim();
@@ -4057,6 +4623,22 @@ const init = () => {
     };
 
     cmdkItems = [
+      {
+        id: 'history.undo',
+        group: 'History',
+        label: 'Undo',
+        hint: 'Ctrl+Z',
+        keywords: 'back revert',
+        run: () => pushHistoryAfterUiChange.undo(),
+      },
+      {
+        id: 'history.redo',
+        group: 'History',
+        label: 'Redo',
+        hint: 'Ctrl+Y',
+        keywords: 'forward repeat',
+        run: () => pushHistoryAfterUiChange.redo(),
+      },
       {
         id: 'panel.toggle',
         group: 'Navigation',
@@ -4192,6 +4774,13 @@ const init = () => {
         run: () => toggleCheckbox(glassModeChk),
       },
       {
+        id: 'look.reset',
+        group: 'Look',
+        label: 'Look: Reset',
+        keywords: 'paint wrap finish clearcoat glass parts',
+        run: () => resetLookBtn?.click(),
+      },
+      {
         id: 'toggle.grid',
         group: 'Environment',
         label: `Grid: ${onOff(Boolean(gridChk?.checked))}`,
@@ -4213,6 +4802,13 @@ const init = () => {
         run: () => toggleCheckbox(shadowsChk),
       },
       {
+        id: 'env.reset',
+        group: 'Environment',
+        label: 'Environment: Reset',
+        keywords: 'background lighting hdr environment',
+        run: () => resetEnvBtn?.click(),
+      },
+      {
         id: 'tool.frame',
         group: 'Camera',
         label: 'Camera: Frame model',
@@ -4226,6 +4822,55 @@ const init = () => {
         label: 'Camera: Reset',
         keywords: 'home',
         run: () => camReset?.click(),
+      },
+      {
+        id: 'camera.panel.reset',
+        group: 'Camera',
+        label: 'Camera panel: Reset',
+        keywords: 'interior hotspots overlays view',
+        run: () => resetCameraBtn?.click(),
+      },
+      {
+        id: 'photo.on',
+        group: 'Photo',
+        label: 'Photo mode: Enable',
+        keywords: 'cinematic thirds center horizon composition',
+        run: () => setPhotoMode(true),
+      },
+      {
+        id: 'photo.off',
+        group: 'Photo',
+        label: 'Photo mode: Disable',
+        keywords: 'cinematic thirds center horizon composition',
+        run: () => setPhotoMode(false),
+      },
+      {
+        id: 'photo.cinematic.toggle',
+        group: 'Photo',
+        label: `Cinematic: ${onOff(Boolean(cinematicChk?.checked))}`,
+        keywords: 'letterbox bars',
+        run: () => toggleCheckbox(cinematicChk),
+      },
+      {
+        id: 'photo.thirds.toggle',
+        group: 'Photo',
+        label: `Thirds grid: ${onOff(Boolean(thirdsChk?.checked))}`,
+        keywords: 'rule of thirds grid overlay composition',
+        run: () => toggleCheckbox(thirdsChk),
+      },
+      {
+        id: 'photo.center.toggle',
+        group: 'Photo',
+        label: `Center marker: ${onOff(Boolean(centerChk?.checked))}`,
+        keywords: 'center crosshair overlay composition',
+        run: () => toggleCheckbox(centerChk),
+      },
+      {
+        id: 'photo.horizon.toggle',
+        group: 'Photo',
+        label: `Horizon line: ${onOff(Boolean(horizonChk?.checked))}`,
+        keywords: 'horizon level overlay composition',
+        run: () => toggleCheckbox(horizonChk),
       },
       {
         id: 'camera.view.save',
@@ -4279,6 +4924,13 @@ const init = () => {
         run: () => toggleInput(autoQuality),
       },
       {
+        id: 'perf.reset',
+        group: 'Performance',
+        label: 'Performance: Reset',
+        keywords: 'quality auto fps target',
+        run: () => resetPerformanceBtn?.click(),
+      },
+      {
         id: 'post.tonemap.cycle',
         group: 'Post',
         label: `Tone mapping: ${tmText}`,
@@ -4286,11 +4938,25 @@ const init = () => {
         run: () => bumpSelect(tonemapSel, +1),
       },
       {
+        id: 'post.reset',
+        group: 'Post',
+        label: 'Post: Reset',
+        keywords: 'exposure tonemap bloom',
+        run: () => resetPostBtn?.click(),
+      },
+      {
         id: 'post.exposure.reset',
         group: 'Post',
         label: 'Exposure: Reset',
         keywords: 'tonemap brightness',
         run: () => exposureResetBtn?.click(),
+      },
+      {
+        id: 'motion.reset',
+        group: 'Motion',
+        label: 'Motion: Reset',
+        keywords: 'autorotate style speed zoom',
+        run: () => resetMotionBtn?.click(),
       },
       {
         id: 'perf.targetFps30',
@@ -4611,6 +5277,14 @@ const init = () => {
     quickToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
   };
 
+  const setPressed = (
+    btn: HTMLButtonElement | null | undefined,
+    pressed: boolean
+  ) => {
+    if (!btn) return;
+    btn.setAttribute('aria-pressed', pressed ? 'true' : 'false');
+  };
+
   const syncQuickFromUi = () => {
     if (quickBgSel && bgSel)
       quickBgSel.value = (bgSel.value || 'studio').trim();
@@ -4618,13 +5292,157 @@ const init = () => {
       quickQualitySel.value = (qualitySel.value || 'balanced').trim();
     if (quickAutorotate && autorotate)
       quickAutorotate.checked = Boolean(autorotate.checked);
+
+    setPressed(quickCinematicBtn, Boolean(cinematicChk?.checked ?? false));
+    setPressed(quickInteriorBtn, Boolean(interiorChk?.checked ?? false));
+    setPressed(quickHotspotsBtn, Boolean(hotspotsChk?.checked ?? false));
+    setPressed(quickDecalsBtn, Boolean(decalModeChk?.checked ?? false));
+    setPressed(quickThirdsBtn, Boolean(thirdsChk?.checked ?? false));
+    setPressed(quickCenterBtn, Boolean(centerChk?.checked ?? false));
+    setPressed(quickHorizonBtn, Boolean(horizonChk?.checked ?? false));
+
+    const photoOn =
+      Boolean(cinematicChk?.checked ?? false) &&
+      Boolean(thirdsChk?.checked ?? false) &&
+      Boolean(centerChk?.checked ?? false) &&
+      Boolean(horizonChk?.checked ?? false);
+    setPressed(quickPhotoBtn, photoOn);
   };
+
+  quickFrameBtn?.addEventListener('click', () => {
+    camFrame?.click();
+    setQuickOpen(false);
+  });
+
+  quickPhotoBtn?.addEventListener('click', () => {
+    const onNow =
+      Boolean(cinematicChk?.checked ?? runtime.cinematic) &&
+      Boolean(thirdsChk?.checked ?? runtime.thirdsOverlay) &&
+      Boolean(centerChk?.checked ?? runtime.centerOverlay) &&
+      Boolean(horizonChk?.checked ?? runtime.horizonOverlay);
+    const next = !onNow;
+
+    // Cinematic
+    if (cinematicChk) cinematicChk.checked = next;
+    setCinematic(next);
+
+    // Overlays
+    if (thirdsChk) {
+      thirdsChk.checked = next;
+      thirdsChk.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    if (centerChk) {
+      centerChk.checked = next;
+      centerChk.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    if (horizonChk) {
+      horizonChk.checked = next;
+      horizonChk.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    // Photo mode should be still by default.
+    if (next && autorotate) {
+      autorotate.checked = false;
+      autorotate.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    syncQuickFromUi();
+    setQuickOpen(false);
+  });
+
+  quickCinematicBtn?.addEventListener('click', () => {
+    const next = !(cinematicChk?.checked ?? runtime.cinematic);
+    if (cinematicChk) cinematicChk.checked = next;
+    setCinematic(next);
+    syncQuickFromUi();
+    setQuickOpen(false);
+  });
+
+  quickInteriorBtn?.addEventListener('click', () => {
+    const next = !(interiorChk?.checked ?? runtime.interior);
+    if (interiorChk) interiorChk.checked = next;
+    setInterior(next);
+    syncQuickFromUi();
+    setQuickOpen(false);
+  });
+
+  quickHotspotsBtn?.addEventListener('click', () => {
+    const next = !(hotspotsChk?.checked ?? runtime.hotspots);
+    if (hotspotsChk) {
+      hotspotsChk.checked = next;
+      hotspotsChk.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    syncQuickFromUi();
+    setQuickOpen(false);
+  });
+
+  quickDecalsBtn?.addEventListener('click', () => {
+    const next = !(decalModeChk?.checked ?? runtime.decalMode);
+    if (decalModeChk) {
+      decalModeChk.checked = next;
+      decalModeChk.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    syncQuickFromUi();
+    setQuickOpen(false);
+  });
+
+  quickThirdsBtn?.addEventListener('click', () => {
+    const next = !(thirdsChk?.checked ?? runtime.thirdsOverlay);
+    if (thirdsChk) {
+      thirdsChk.checked = next;
+      thirdsChk.dispatchEvent(new Event('change', { bubbles: true }));
+    } else {
+      runtime.thirdsOverlay = next;
+      applyThirdsOverlay();
+    }
+    syncQuickFromUi();
+    setQuickOpen(false);
+  });
+
+  quickCenterBtn?.addEventListener('click', () => {
+    const next = !(centerChk?.checked ?? runtime.centerOverlay);
+    if (centerChk) {
+      centerChk.checked = next;
+      centerChk.dispatchEvent(new Event('change', { bubbles: true }));
+    } else {
+      runtime.centerOverlay = next;
+      applyCenterOverlay();
+    }
+    syncQuickFromUi();
+    setQuickOpen(false);
+  });
+
+  quickHorizonBtn?.addEventListener('click', () => {
+    const next = !(horizonChk?.checked ?? runtime.horizonOverlay);
+    if (horizonChk) {
+      horizonChk.checked = next;
+      horizonChk.dispatchEvent(new Event('change', { bubbles: true }));
+    } else {
+      runtime.horizonOverlay = next;
+      applyHorizonOverlay();
+    }
+    syncQuickFromUi();
+    setQuickOpen(false);
+  });
 
   quickToggle?.addEventListener('click', () => {
     const next = Boolean(quickMenu?.hidden ?? true);
     if (next) syncQuickFromUi();
     setQuickOpen(next);
   });
+
+  const syncQuickIfOpen = () => {
+    if (!quickMenu || quickMenu.hidden) return;
+    syncQuickFromUi();
+  };
+
+  cinematicChk?.addEventListener('change', () => syncQuickIfOpen());
+  interiorChk?.addEventListener('change', () => syncQuickIfOpen());
+  hotspotsChk?.addEventListener('change', () => syncQuickIfOpen());
+  decalModeChk?.addEventListener('change', () => syncQuickIfOpen());
+  thirdsChk?.addEventListener('change', () => syncQuickIfOpen());
+  centerChk?.addEventListener('change', () => syncQuickIfOpen());
+  horizonChk?.addEventListener('change', () => syncQuickIfOpen());
 
   // Click outside closes the quick menu.
   window.addEventListener('pointerdown', e => {
@@ -4644,6 +5462,15 @@ const init = () => {
     setQuickOpen(false);
   });
 
+  for (const btn of quickJumpBtns) {
+    btn.addEventListener('click', () => {
+      const key = String(btn.dataset.srQuickJump || '').trim();
+      if (!key) return;
+      jumpTo(key);
+      setQuickOpen(false);
+    });
+  }
+
   quickBgSel?.addEventListener('change', () => {
     if (!bgSel) return;
     bgSel.value = quickBgSel.value;
@@ -4660,6 +5487,36 @@ const init = () => {
     if (!autorotate) return;
     autorotate.checked = Boolean(quickAutorotate.checked);
     autorotate.dispatchEvent(new Event('change', { bubbles: true }));
+  });
+
+  // Reduced motion: disable auto-rotate + animation playback and remove camera shake.
+  onReducedMotionChange(prefersReduced => {
+    reducedMotionPref = prefersReduced;
+    root.dataset.srReducedMotion = prefersReduced ? '1' : '0';
+
+    if (prefersReduced) {
+      if (autorotate) {
+        autorotate.checked = false;
+        autorotate.disabled = true;
+      }
+      if (quickAutorotate) {
+        quickAutorotate.checked = false;
+        quickAutorotate.disabled = true;
+      }
+      runtime.autorotate = false;
+      applyMotion();
+
+      if (animPlayChk) {
+        animPlayChk.checked = false;
+        animPlayChk.disabled = true;
+      }
+    } else {
+      if (autorotate) autorotate.disabled = false;
+      if (quickAutorotate) quickAutorotate.disabled = false;
+      if (animPlayChk) animPlayChk.disabled = false;
+    }
+
+    if (quickMenu && !quickMenu.hidden) syncQuickFromUi();
   });
 
   const setSectionCollapsed = (
@@ -5113,12 +5970,33 @@ const init = () => {
       bloom: bloom?.value,
       bloomThreshold: bloomThreshold?.value,
       bloomRadius: bloomRadius?.value,
+
+      cinematic: Boolean(cinematicChk?.checked ?? false),
+      thirdsOverlay: Boolean(thirdsChk?.checked ?? false),
+      centerOverlay: Boolean(centerChk?.checked ?? false),
+      horizonOverlay: Boolean(horizonChk?.checked ?? false),
+      plateText: safeTrimText(plateTextInp?.value || '', 10),
+      interior: Boolean(interiorChk?.checked ?? false),
+      hotspots: Boolean(hotspotsChk?.checked ?? true),
+      floorReflections: Boolean(floorReflectionsChk?.checked ?? false),
+      floorReflectionStrength: floorReflectionStrength?.value,
+      decalMode: Boolean(decalModeChk?.checked ?? false),
+      decalText: safeTrimText(decalTextInp?.value || '', 18),
+      decalColor: (decalColorInp?.value || '').trim(),
+      decalSize: decalSizeInp?.value,
+      decalRotation: decalRotInp?.value,
+      decalOpacity: decalOpacityInp?.value,
+
       wireframe: Boolean(wireframeChk?.checked ?? false),
       inspectorPick: Boolean(inspectorPick?.checked ?? true),
       inspectorIsolate: Boolean(inspectorIsolate?.checked ?? false),
       inspectorHighlight: Boolean(inspectorHighlight?.checked ?? true),
     };
   };
+
+  // History snapshots piggy-back on the preset state (plus our extended fields).
+  captureHistoryState = capturePresetState;
+  pushHistoryAfterUiChange.init();
 
   const applyPresetState = async (state: Record<string, unknown>) => {
     const setVal = (
@@ -5219,6 +6097,22 @@ const init = () => {
     setVal(bloomThreshold, state.bloomThreshold);
     setVal(bloomRadius, state.bloomRadius);
 
+    setChk(cinematicChk, state.cinematic);
+    setChk(thirdsChk, state.thirdsOverlay);
+    setChk(centerChk, state.centerOverlay);
+    setChk(horizonChk, state.horizonOverlay);
+    setVal(plateTextInp, state.plateText);
+    setChk(interiorChk, state.interior);
+    setChk(hotspotsChk, state.hotspots);
+    setChk(floorReflectionsChk, state.floorReflections);
+    setVal(floorReflectionStrength, state.floorReflectionStrength);
+    setChk(decalModeChk, state.decalMode);
+    setVal(decalTextInp, state.decalText);
+    setVal(decalColorInp, state.decalColor);
+    setVal(decalSizeInp, state.decalSize);
+    setVal(decalRotInp, state.decalRotation);
+    setVal(decalOpacityInp, state.decalOpacity);
+
     setChk(wireframeChk, state.wireframe);
     setChk(inspectorPick, state.inspectorPick);
     setChk(inspectorIsolate, state.inspectorIsolate);
@@ -5289,6 +6183,52 @@ const init = () => {
     applyPost();
     applyWireframe();
     applyIsolate();
+
+    runtime.thirdsOverlay = Boolean(
+      thirdsChk?.checked ?? runtime.thirdsOverlay
+    );
+    runtime.centerOverlay = Boolean(
+      centerChk?.checked ?? runtime.centerOverlay
+    );
+    runtime.horizonOverlay = Boolean(
+      horizonChk?.checked ?? runtime.horizonOverlay
+    );
+    applyThirdsOverlay();
+    applyCenterOverlay();
+    applyHorizonOverlay();
+
+    runtime.cinematic = Boolean(cinematicChk?.checked ?? runtime.cinematic);
+    setCinematic(runtime.cinematic);
+
+    runtime.hotspots = Boolean(hotspotsChk?.checked ?? runtime.hotspots);
+    if (!runtime.hotspots) clearHotspotGlow();
+
+    runtime.interior = Boolean(interiorChk?.checked ?? runtime.interior);
+    setInterior(runtime.interior);
+
+    runtime.floorReflections = Boolean(
+      floorReflectionsChk?.checked ?? runtime.floorReflections
+    );
+    runtime.floorReflectionStrength =
+      Number.parseFloat(
+        floorReflectionStrength?.value || `${runtime.floorReflectionStrength}`
+      ) || runtime.floorReflectionStrength;
+    applyFloorReflections();
+
+    runtime.decalMode = Boolean(decalModeChk?.checked ?? runtime.decalMode);
+    runtime.decalText = safeTrimText(decalTextInp?.value || '', 18);
+    runtime.decalColorHex =
+      parseHexColor(decalColorInp?.value || '') || runtime.decalColorHex;
+    runtime.decalSize =
+      Number.parseFloat(decalSizeInp?.value || `${runtime.decalSize}`) ||
+      runtime.decalSize;
+    runtime.decalRotDeg =
+      Number.parseFloat(decalRotInp?.value || `${runtime.decalRotDeg}`) ||
+      runtime.decalRotDeg;
+    runtime.decalOpacity =
+      Number.parseFloat(decalOpacityInp?.value || `${runtime.decalOpacity}`) ||
+      runtime.decalOpacity;
+    if (runtime.decalMode) syncDecalTextureFromRuntime();
   };
 
   presetSaveBtn?.addEventListener('click', () => {
@@ -5612,9 +6552,8 @@ const init = () => {
     });
 
     const decalMesh = new THREE.Mesh(geo, mat);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (decalMesh as any).userData = {
-      ...(decalMesh as any).userData,
+    decalMesh.userData = {
+      ...decalMesh.userData,
       srDecal: true,
     };
     decalMesh.renderOrder = 5;
