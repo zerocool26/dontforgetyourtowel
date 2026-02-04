@@ -1518,12 +1518,42 @@
     overscroll-behavior: contain;
   }
 
+  .sr__panelChrome {
+    padding: 10px;
+    gap: 10px;
+  }
+
   .sr__jump {
     position: static;
     top: auto;
     z-index: auto;
     margin: 0;
     padding: 6px;
+  }
+
+  /* Mobile: the panel filter/search isn't necessary and takes too much room. */
+  .sr__panelTools {
+    padding: 8px;
+    gap: 8px;
+  }
+
+  .sr__panelSearch {
+    display: none;
+  }
+
+  [data-sr-panel-filter-clear],
+  .sr__panelCount {
+    display: none;
+  }
+
+  .sr__panelActions {
+    gap: 6px;
+  }
+
+  .sr__panelTools .sr-chip {
+    min-height: 36px;
+    padding: 8px 10px;
+    font-size: 11px;
   }
 
   .sr__jump::-webkit-scrollbar {
