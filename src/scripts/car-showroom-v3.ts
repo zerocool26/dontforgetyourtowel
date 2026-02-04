@@ -1502,6 +1502,7 @@ const init = () => {
   const targetFps = root.querySelector<HTMLInputElement>(
     '[data-sr-target-fps]'
   );
+  const resScale = root.querySelector<HTMLInputElement>('[data-sr-res-scale]');
 
   const exposure = root.querySelector<HTMLInputElement>('[data-sr-exposure]');
   const tonemapSel = root.querySelector<HTMLSelectElement>('[data-sr-tonemap]');
@@ -1512,12 +1513,6 @@ const init = () => {
   const bloomRadius = root.querySelector<HTMLInputElement>(
     '[data-sr-bloom-radius]'
   );
-  if (bloom) {
-    bloom.value = '0';
-    bloom.disabled = true;
-  }
-  if (bloomThreshold) bloomThreshold.disabled = true;
-  if (bloomRadius) bloomRadius.disabled = true;
   const exposureResetBtn = root.querySelector<HTMLButtonElement>(
     '[data-sr-exposure-reset]'
   );
@@ -2067,6 +2062,28 @@ const init = () => {
           true
         );
         panelApi.setSnap('collapsed', true);
+        return;
+      }
+
+      if (preset === 'readable') {
+        applyLayout(
+          {
+            ...readLayout(),
+            panelSide: 'right',
+            panelWidth: 460,
+            showTop: true,
+            showHud: true,
+            showSpecbar: true,
+            showDock: true,
+            compact: false,
+            uiScale: 1.08,
+            glass: 0.72,
+            idleEnabled: true,
+            idleDelay: 6,
+          },
+          true
+        );
+        panelApi.setSnap(isMobile() ? 'half' : 'peek', true);
         return;
       }
 
@@ -4601,6 +4618,8 @@ const init = () => {
     const eco = currentPixelRatio < baseline - 0.001;
     if (modeEl) modeEl.textContent = eco ? 'ECO' : 'LIVE';
     if (ecoEl) ecoEl.hidden = !eco;
+
+    if (resScale) resScale.value = runtime.dynamicScale.toFixed(2);
   };
 
   const fitCameraToObject = (obj: THREE.Object3D) => {
@@ -6076,20 +6095,36 @@ const init = () => {
       .trim()
       .toLowerCase();
     runtime.dynamicScale = 1;
+    if (resScale) resScale.value = '1';
     applyQuality();
   });
   autoQuality?.addEventListener('change', () => {
     runtime.autoQuality = Boolean(autoQuality.checked);
+    if (resScale) resScale.disabled = runtime.autoQuality;
     if (!runtime.autoQuality) {
-      runtime.dynamicScale = 1;
+      const v = Number.parseFloat(resScale?.value || '1') || 1;
+      runtime.dynamicScale = clamp(v, 0.5, 1);
       applyQuality();
     }
+  });
+
+  resScale?.addEventListener('input', () => {
+    const v = Number.parseFloat(resScale.value) || 1;
+    runtime.dynamicScale = clamp(v, 0.5, 1);
+    runtime.autoQuality = false;
+    if (autoQuality) autoQuality.checked = false;
+    resScale.disabled = false;
+    applyQuality();
   });
 
   targetFps?.addEventListener('input', () => {
     runtime.targetFps = Number.parseFloat(targetFps.value) || runtime.targetFps;
   });
   applyQuality();
+  if (resScale) {
+    resScale.value = String(clamp(runtime.dynamicScale, 0.5, 1));
+    resScale.disabled = Boolean(autoQuality?.checked ?? runtime.autoQuality);
+  }
 
   modelSel?.addEventListener('change', () => {
     const v = (modelSel.value || '').trim();
@@ -9383,6 +9418,9 @@ const init = () => {
     btn.addEventListener('click', () => {
       const key = String(btn.dataset.srJump || '').trim();
       if (!key) return;
+
+      const details = btn.closest<HTMLDetailsElement>('details');
+      if (details) details.open = false;
 
       // Ensure panel is open enough to see the content.
       panelApi.setSnap(isMobile() ? 'half' : 'peek', true);

@@ -531,6 +531,37 @@ const galleryHref = `${base}gallery/`;
               </svg>
               <span>Meta</span>
             </button>
+
+            <button type="button" class="sr-chip sr-tab" data-sr-jump="scene">
+              <span>Scene</span>
+            </button>
+            <button
+              type="button"
+              class="sr-chip sr-tab"
+              data-sr-jump="inspector"
+            >
+              <span>Inspector</span>
+            </button>
+            <button
+              type="button"
+              class="sr-chip sr-tab"
+              data-sr-jump="animation"
+            >
+              <span>Animation</span>
+            </button>
+            <button type="button" class="sr-chip sr-tab" data-sr-jump="floor">
+              <span>Floor</span>
+            </button>
+            <button type="button" class="sr-chip sr-tab" data-sr-jump="motion">
+              <span>Motion</span>
+            </button>
+            <button
+              type="button"
+              class="sr-chip sr-tab"
+              data-sr-jump="simulation"
+            >
+              <span>Simulation</span>
+            </button>
           </div>
 
           <div class="sr__panelTools" aria-label="Panel tools">
@@ -547,14 +578,6 @@ const galleryHref = `${base}gallery/`;
             <div class="sr__panelActions">
               <button type="button" class="sr-chip" data-sr-panel-filter-clear>
                 Clear
-              </button>
-              <button type="button" class="sr-chip" data-sr-undo> Undo </button>
-              <button type="button" class="sr-chip" data-sr-redo> Redo </button>
-              <button type="button" class="sr-chip" data-sr-panel-prev>
-                Prev
-              </button>
-              <button type="button" class="sr-chip" data-sr-panel-next>
-                Next
               </button>
               <button
                 type="button"
@@ -580,15 +603,47 @@ const galleryHref = `${base}gallery/`;
               >
                 Solo
               </button>
-              <button type="button" class="sr-chip" data-sr-panel-top>
-                Top
-              </button>
-              <button type="button" class="sr-chip" data-sr-panel-expand-all>
-                Expand all
-              </button>
-              <button type="button" class="sr-chip" data-sr-panel-collapse-all>
-                Collapse all
-              </button>
+
+              <details class="sr__panelMore">
+                <summary class="sr-chip" aria-label="More panel actions">
+                  More
+                </summary>
+                <div
+                  class="sr__panelMoreMenu"
+                  role="menu"
+                  aria-label="More panel actions"
+                >
+                  <button type="button" class="sr-chip" data-sr-undo>
+                    Undo
+                  </button>
+                  <button type="button" class="sr-chip" data-sr-redo>
+                    Redo
+                  </button>
+                  <button type="button" class="sr-chip" data-sr-panel-prev>
+                    Prev
+                  </button>
+                  <button type="button" class="sr-chip" data-sr-panel-next>
+                    Next
+                  </button>
+                  <button type="button" class="sr-chip" data-sr-panel-top>
+                    Top
+                  </button>
+                  <button
+                    type="button"
+                    class="sr-chip"
+                    data-sr-panel-expand-all
+                  >
+                    Expand all
+                  </button>
+                  <button
+                    type="button"
+                    class="sr-chip"
+                    data-sr-panel-collapse-all
+                  >
+                    Collapse all
+                  </button>
+                </div>
+              </details>
             </div>
             <span class="sr__panelCount" data-sr-panel-count></span>
           </div>
@@ -660,313 +715,6 @@ const galleryHref = `${base}gallery/`;
                 </button>
               </div>
             </div>
-          </section>
-
-          <section class="sr-section" id="sr-sec-tools" data-sr-section="tools">
-            <div class="sr-section__head">
-              <h2>Tools</h2>
-              <button
-                type="button"
-                class="sr-section__toggle"
-                data-sr-section-toggle
-                aria-expanded="true"
-              >
-                Hide
-              </button>
-            </div>
-
-            <div class="sr-row">
-              <button type="button" class="sr-btn" data-sr-reground>
-                Re-ground
-              </button>
-              <button type="button" class="sr-btn" data-sr-screenshot-copy>
-                Copy screenshot
-              </button>
-              <button type="button" class="sr-btn" data-sr-share>
-                Copy link
-              </button>
-            </div>
-
-            <div class="sr-grid">
-              <label class="sr-field">
-                <span>Screenshot scale</span>
-                <select data-sr-screenshot-scale>
-                  <option value="1">1x (viewport)</option>
-                  <option value="2">2x</option>
-                  <option value="4">4x</option>
-                </select>
-              </label>
-
-              <label class="sr-field">
-                <span>Cinematic mode</span>
-                <input
-                  type="checkbox"
-                  aria-label="Cinematic mode"
-                  data-sr-cinematic
-                />
-              </label>
-            </div>
-
-            <div class="sr-subsection">
-              <div class="sr-subsection__head">
-                <h3>Layout</h3>
-              </div>
-
-              <div class="sr-row">
-                <button
-                  type="button"
-                  class="sr-chip"
-                  data-sr-layout-preset="studio"
-                >
-                  Studio
-                </button>
-                <button
-                  type="button"
-                  class="sr-chip"
-                  data-sr-layout-preset="immersive"
-                >
-                  Immersive
-                </button>
-                <button
-                  type="button"
-                  class="sr-chip"
-                  data-sr-layout-preset="compact"
-                >
-                  Compact
-                </button>
-                <button type="button" class="sr-chip" data-sr-layout-reset>
-                  Reset
-                </button>
-              </div>
-
-              <div class="sr-grid">
-                <label class="sr-field">
-                  <span>Panel side</span>
-                  <select data-sr-panel-side>
-                    <option value="right">Right</option>
-                    <option value="left">Left</option>
-                  </select>
-                </label>
-
-                <label class="sr-field">
-                  <span>Panel width</span>
-                  <input
-                    type="range"
-                    min="320"
-                    max="560"
-                    step="10"
-                    value="420"
-                    aria-label="Panel width"
-                    data-sr-panel-width
-                  />
-                </label>
-
-                <label class="sr-field">
-                  <span>UI scale</span>
-                  <input
-                    type="range"
-                    min="0.9"
-                    max="1.1"
-                    step="0.02"
-                    value="1"
-                    aria-label="UI scale"
-                    data-sr-layout-scale
-                  />
-                </label>
-
-                <label class="sr-field">
-                  <span>Glass intensity</span>
-                  <input
-                    type="range"
-                    min="0.2"
-                    max="1"
-                    step="0.05"
-                    value="0.7"
-                    aria-label="Glass intensity"
-                    data-sr-layout-glass
-                  />
-                </label>
-
-                <label class="sr-field">
-                  <span>Show top bar</span>
-                  <input
-                    type="checkbox"
-                    aria-label="Show top bar"
-                    data-sr-layout-top
-                  />
-                </label>
-
-                <label class="sr-field">
-                  <span>Show HUD</span>
-                  <input
-                    type="checkbox"
-                    aria-label="Show HUD"
-                    data-sr-layout-hud
-                  />
-                </label>
-
-                <label class="sr-field">
-                  <span>Show spec bar</span>
-                  <input
-                    type="checkbox"
-                    aria-label="Show spec bar"
-                    data-sr-layout-specbar
-                  />
-                </label>
-
-                <label class="sr-field">
-                  <span>Show dock</span>
-                  <input
-                    type="checkbox"
-                    aria-label="Show dock"
-                    data-sr-layout-dock
-                  />
-                </label>
-
-                <label class="sr-field">
-                  <span>Compact controls</span>
-                  <input
-                    type="checkbox"
-                    aria-label="Compact controls"
-                    data-sr-layout-compact
-                  />
-                </label>
-
-                <label class="sr-field">
-                  <span>Auto-hide UI</span>
-                  <input
-                    type="checkbox"
-                    aria-label="Auto-hide UI"
-                    data-sr-layout-idle
-                  />
-                </label>
-
-                <label class="sr-field">
-                  <span>Idle delay (sec)</span>
-                  <input
-                    type="range"
-                    min="2"
-                    max="10"
-                    step="1"
-                    value="5"
-                    aria-label="Idle delay"
-                    data-sr-layout-idle-delay
-                  />
-                </label>
-              </div>
-            </div>
-
-            <div class="sr-grid">
-              <label class="sr-field">
-                <span>License plate text</span>
-                <input
-                  type="text"
-                  aria-label="License plate text"
-                  inputmode="text"
-                  maxlength="10"
-                  placeholder="DFYTWL"
-                  autocomplete="off"
-                  data-sr-plate-text
-                />
-              </label>
-
-              <div class="sr-row">
-                <button type="button" class="sr-btn" data-sr-plate-apply>
-                  Apply plate
-                </button>
-                <button type="button" class="sr-btn" data-sr-plate-reset>
-                  Reset plate
-                </button>
-              </div>
-
-              <label class="sr-field">
-                <span>Decal / sticker mode</span>
-                <input
-                  type="checkbox"
-                  aria-label="Decal / sticker mode"
-                  data-sr-decal-mode
-                />
-              </label>
-
-              <label class="sr-field">
-                <span>Decal text</span>
-                <input
-                  type="text"
-                  aria-label="Decal text"
-                  inputmode="text"
-                  maxlength="18"
-                  placeholder="RACE"
-                  autocomplete="off"
-                  data-sr-decal-text
-                />
-              </label>
-
-              <label class="sr-field">
-                <span>Decal color</span>
-                <input
-                  type="color"
-                  aria-label="Decal color"
-                  value="#ffffff"
-                  data-sr-decal-color
-                />
-              </label>
-
-              <label class="sr-field">
-                <span>Decal size</span>
-                <input
-                  type="range"
-                  aria-label="Decal size"
-                  min="0.05"
-                  max="1.2"
-                  step="0.01"
-                  value="0.35"
-                  data-sr-decal-size
-                />
-              </label>
-
-              <label class="sr-field">
-                <span>Decal rotation</span>
-                <input
-                  type="range"
-                  aria-label="Decal rotation"
-                  min="-180"
-                  max="180"
-                  step="1"
-                  value="0"
-                  data-sr-decal-rot
-                />
-              </label>
-
-              <label class="sr-field">
-                <span>Decal opacity</span>
-                <input
-                  type="range"
-                  aria-label="Decal opacity"
-                  min="0.1"
-                  max="1"
-                  step="0.01"
-                  value="0.92"
-                  data-sr-decal-opacity
-                />
-              </label>
-
-              <div class="sr-row">
-                <button type="button" class="sr-btn" data-sr-decal-clear>
-                  Clear decals
-                </button>
-              </div>
-            </div>
-
-            <p class="sr-hint">
-              Presets save everything you see in the panel (camera, lighting,
-              quality, post, etc.).
-            </p>
-
-            <p class="sr-hint">Tip: press <kbd>C</kbd> to toggle cinematic.</p>
-
-            <p class="sr-hint">
-              Tip: enable decal mode, then click the car to place stickers.
-            </p>
           </section>
 
           <section class="sr-section" id="sr-sec-model" data-sr-section="model">
@@ -1460,6 +1208,140 @@ const galleryHref = `${base}gallery/`;
                   type="checkbox"
                   aria-label="Keep original materials"
                   data-sr-original-mats
+                />
+              </label>
+            </div>
+          </section>
+
+          <section
+            class="sr-section"
+            id="sr-sec-materials-pro"
+            data-sr-section="materials-pro"
+          >
+            <div class="sr-section__head">
+              <h2>Materials Pro</h2>
+              <div class="sr-section__headActions">
+                <button
+                  type="button"
+                  class="sr-section__toggle"
+                  data-sr-section-toggle
+                  aria-expanded="true"
+                >
+                  Hide
+                </button>
+              </div>
+            </div>
+            <div class="sr-grid">
+              <label class="sr-field">
+                <span>Orange peel</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value="0"
+                  data-sr-orange-peel
+                />
+              </label>
+              <label class="sr-field">
+                <span>Flake density</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value="0.55"
+                  data-sr-flake-density
+                />
+              </label>
+              <label class="sr-field">
+                <span>Flake scale</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value="0.4"
+                  data-sr-flake-scale
+                />
+              </label>
+
+              <label class="sr-field">
+                <span>Tire tread normal</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value="0.42"
+                  data-sr-tire-tread-normal
+                />
+              </label>
+              <label class="sr-field">
+                <span>Tire sidewall normal</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value="0.22"
+                  data-sr-tire-sidewall-normal
+                />
+              </label>
+              <label class="sr-field">
+                <span>Tire wet sheen</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value="0"
+                  data-sr-tire-wet-sheen
+                />
+              </label>
+
+              <label class="sr-field">
+                <span>Brake aggression</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="4"
+                  step="0.05"
+                  value="1"
+                  data-sr-brake-aggression
+                />
+              </label>
+              <label class="sr-field">
+                <span>Brake cooling</span>
+                <input
+                  type="range"
+                  min="0.05"
+                  max="2"
+                  step="0.01"
+                  value="0.35"
+                  data-sr-brake-cooling
+                />
+              </label>
+              <label class="sr-field">
+                <span>Brake glow curve</span>
+                <input
+                  type="range"
+                  min="0.5"
+                  max="4"
+                  step="0.05"
+                  value="1.35"
+                  data-sr-brake-curve
+                />
+              </label>
+              <label class="sr-field">
+                <span>Brake max temp</span>
+                <input
+                  type="range"
+                  min="0.5"
+                  max="2"
+                  step="0.01"
+                  value="1"
+                  data-sr-brake-tempmax
                 />
               </label>
             </div>
@@ -2346,6 +2228,19 @@ const galleryHref = `${base}gallery/`;
                   data-sr-target-fps
                 />
               </label>
+
+              <label class="sr-field">
+                <span>Resolution scale</span>
+                <input
+                  type="range"
+                  aria-label="Resolution scale"
+                  min="0.5"
+                  max="1"
+                  step="0.01"
+                  value="1"
+                  data-sr-res-scale
+                />
+              </label>
             </div>
           </section>
 
@@ -2478,140 +2373,6 @@ const galleryHref = `${base}gallery/`;
             </div>
           </section>
 
-          <section
-            class="sr-section"
-            id="sr-sec-materials-pro"
-            data-sr-section="materials-pro"
-          >
-            <div class="sr-section__head">
-              <h2>Materials Pro</h2>
-              <div class="sr-section__headActions">
-                <button
-                  type="button"
-                  class="sr-section__toggle"
-                  data-sr-section-toggle
-                  aria-expanded="true"
-                >
-                  Hide
-                </button>
-              </div>
-            </div>
-            <div class="sr-grid">
-              <label class="sr-field">
-                <span>Orange peel</span>
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.01"
-                  value="0"
-                  data-sr-orange-peel
-                />
-              </label>
-              <label class="sr-field">
-                <span>Flake density</span>
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.01"
-                  value="0.55"
-                  data-sr-flake-density
-                />
-              </label>
-              <label class="sr-field">
-                <span>Flake scale</span>
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.01"
-                  value="0.4"
-                  data-sr-flake-scale
-                />
-              </label>
-
-              <label class="sr-field">
-                <span>Tire tread normal</span>
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.01"
-                  value="0.42"
-                  data-sr-tire-tread-normal
-                />
-              </label>
-              <label class="sr-field">
-                <span>Tire sidewall normal</span>
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.01"
-                  value="0.22"
-                  data-sr-tire-sidewall-normal
-                />
-              </label>
-              <label class="sr-field">
-                <span>Tire wet sheen</span>
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.01"
-                  value="0"
-                  data-sr-tire-wet-sheen
-                />
-              </label>
-
-              <label class="sr-field">
-                <span>Brake aggression</span>
-                <input
-                  type="range"
-                  min="0"
-                  max="4"
-                  step="0.05"
-                  value="1"
-                  data-sr-brake-aggression
-                />
-              </label>
-              <label class="sr-field">
-                <span>Brake cooling</span>
-                <input
-                  type="range"
-                  min="0.05"
-                  max="2"
-                  step="0.01"
-                  value="0.35"
-                  data-sr-brake-cooling
-                />
-              </label>
-              <label class="sr-field">
-                <span>Brake glow curve</span>
-                <input
-                  type="range"
-                  min="0.5"
-                  max="4"
-                  step="0.05"
-                  value="1.35"
-                  data-sr-brake-curve
-                />
-              </label>
-              <label class="sr-field">
-                <span>Brake max temp</span>
-                <input
-                  type="range"
-                  min="0.5"
-                  max="2"
-                  step="0.01"
-                  value="1"
-                  data-sr-brake-tempmax
-                />
-              </label>
-            </div>
-          </section>
-
           <section class="sr-section" id="sr-sec-post" data-sr-section="post">
             <div class="sr-section__head">
               <h2>Post</h2>
@@ -2667,7 +2428,6 @@ const galleryHref = `${base}gallery/`;
                   step="0.01"
                   value="0"
                   data-sr-bloom
-                  disabled
                 />
               </label>
               <label class="sr-field">
@@ -2680,7 +2440,6 @@ const galleryHref = `${base}gallery/`;
                   step="0.01"
                   value="0.9"
                   data-sr-bloom-threshold
-                  disabled
                 />
               </label>
               <label class="sr-field">
@@ -2693,7 +2452,6 @@ const galleryHref = `${base}gallery/`;
                   step="0.01"
                   value="0"
                   data-sr-bloom-radius
-                  disabled
                 />
               </label>
 
@@ -2703,6 +2461,320 @@ const galleryHref = `${base}gallery/`;
                 </button>
               </div>
             </div>
+          </section>
+
+          <section class="sr-section" id="sr-sec-tools" data-sr-section="tools">
+            <div class="sr-section__head">
+              <h2>Tools</h2>
+              <button
+                type="button"
+                class="sr-section__toggle"
+                data-sr-section-toggle
+                aria-expanded="true"
+              >
+                Hide
+              </button>
+            </div>
+
+            <div class="sr-row">
+              <button type="button" class="sr-btn" data-sr-reground>
+                Re-ground
+              </button>
+              <button type="button" class="sr-btn" data-sr-screenshot-copy>
+                Copy screenshot
+              </button>
+              <button type="button" class="sr-btn" data-sr-share>
+                Copy link
+              </button>
+            </div>
+
+            <div class="sr-grid">
+              <label class="sr-field">
+                <span>Screenshot scale</span>
+                <select data-sr-screenshot-scale>
+                  <option value="1">1x (viewport)</option>
+                  <option value="2">2x</option>
+                  <option value="4">4x</option>
+                </select>
+              </label>
+
+              <label class="sr-field">
+                <span>Cinematic mode</span>
+                <input
+                  type="checkbox"
+                  aria-label="Cinematic mode"
+                  data-sr-cinematic
+                />
+              </label>
+            </div>
+
+            <div class="sr-subsection">
+              <div class="sr-subsection__head">
+                <h3>Layout</h3>
+              </div>
+
+              <div class="sr-row">
+                <button
+                  type="button"
+                  class="sr-chip"
+                  data-sr-layout-preset="studio"
+                >
+                  Studio
+                </button>
+                <button
+                  type="button"
+                  class="sr-chip"
+                  data-sr-layout-preset="immersive"
+                >
+                  Immersive
+                </button>
+                <button
+                  type="button"
+                  class="sr-chip"
+                  data-sr-layout-preset="compact"
+                >
+                  Compact
+                </button>
+                <button
+                  type="button"
+                  class="sr-chip"
+                  data-sr-layout-preset="readable"
+                >
+                  Readable
+                </button>
+                <button type="button" class="sr-chip" data-sr-layout-reset>
+                  Reset
+                </button>
+              </div>
+
+              <div class="sr-grid">
+                <label class="sr-field">
+                  <span>Panel side</span>
+                  <select data-sr-panel-side>
+                    <option value="right">Right</option>
+                    <option value="left">Left</option>
+                  </select>
+                </label>
+
+                <label class="sr-field">
+                  <span>Panel width</span>
+                  <input
+                    type="range"
+                    min="320"
+                    max="560"
+                    step="10"
+                    value="420"
+                    aria-label="Panel width"
+                    data-sr-panel-width
+                  />
+                </label>
+
+                <label class="sr-field">
+                  <span>UI scale</span>
+                  <input
+                    type="range"
+                    min="0.85"
+                    max="1.2"
+                    step="0.02"
+                    value="1"
+                    aria-label="UI scale"
+                    data-sr-layout-scale
+                  />
+                </label>
+
+                <label class="sr-field">
+                  <span>Glass intensity</span>
+                  <input
+                    type="range"
+                    min="0.2"
+                    max="1"
+                    step="0.05"
+                    value="0.7"
+                    aria-label="Glass intensity"
+                    data-sr-layout-glass
+                  />
+                </label>
+
+                <label class="sr-field">
+                  <span>Show top bar</span>
+                  <input
+                    type="checkbox"
+                    aria-label="Show top bar"
+                    data-sr-layout-top
+                  />
+                </label>
+
+                <label class="sr-field">
+                  <span>Show HUD</span>
+                  <input
+                    type="checkbox"
+                    aria-label="Show HUD"
+                    data-sr-layout-hud
+                  />
+                </label>
+
+                <label class="sr-field">
+                  <span>Show spec bar</span>
+                  <input
+                    type="checkbox"
+                    aria-label="Show spec bar"
+                    data-sr-layout-specbar
+                  />
+                </label>
+
+                <label class="sr-field">
+                  <span>Show dock</span>
+                  <input
+                    type="checkbox"
+                    aria-label="Show dock"
+                    data-sr-layout-dock
+                  />
+                </label>
+
+                <label class="sr-field">
+                  <span>Compact controls</span>
+                  <input
+                    type="checkbox"
+                    aria-label="Compact controls"
+                    data-sr-layout-compact
+                  />
+                </label>
+
+                <label class="sr-field">
+                  <span>Auto-hide UI</span>
+                  <input
+                    type="checkbox"
+                    aria-label="Auto-hide UI"
+                    data-sr-layout-idle
+                  />
+                </label>
+
+                <label class="sr-field">
+                  <span>Idle delay (sec)</span>
+                  <input
+                    type="range"
+                    min="2"
+                    max="10"
+                    step="1"
+                    value="5"
+                    aria-label="Idle delay"
+                    data-sr-layout-idle-delay
+                  />
+                </label>
+              </div>
+            </div>
+
+            <div class="sr-grid">
+              <label class="sr-field">
+                <span>License plate text</span>
+                <input
+                  type="text"
+                  aria-label="License plate text"
+                  inputmode="text"
+                  maxlength="10"
+                  placeholder="DFYTWL"
+                  autocomplete="off"
+                  data-sr-plate-text
+                />
+              </label>
+
+              <div class="sr-row">
+                <button type="button" class="sr-btn" data-sr-plate-apply>
+                  Apply plate
+                </button>
+                <button type="button" class="sr-btn" data-sr-plate-reset>
+                  Reset plate
+                </button>
+              </div>
+
+              <label class="sr-field">
+                <span>Decal / sticker mode</span>
+                <input
+                  type="checkbox"
+                  aria-label="Decal / sticker mode"
+                  data-sr-decal-mode
+                />
+              </label>
+
+              <label class="sr-field">
+                <span>Decal text</span>
+                <input
+                  type="text"
+                  aria-label="Decal text"
+                  inputmode="text"
+                  maxlength="18"
+                  placeholder="RACE"
+                  autocomplete="off"
+                  data-sr-decal-text
+                />
+              </label>
+
+              <label class="sr-field">
+                <span>Decal color</span>
+                <input
+                  type="color"
+                  aria-label="Decal color"
+                  value="#ffffff"
+                  data-sr-decal-color
+                />
+              </label>
+
+              <label class="sr-field">
+                <span>Decal size</span>
+                <input
+                  type="range"
+                  aria-label="Decal size"
+                  min="0.05"
+                  max="1.2"
+                  step="0.01"
+                  value="0.35"
+                  data-sr-decal-size
+                />
+              </label>
+
+              <label class="sr-field">
+                <span>Decal rotation</span>
+                <input
+                  type="range"
+                  aria-label="Decal rotation"
+                  min="-180"
+                  max="180"
+                  step="1"
+                  value="0"
+                  data-sr-decal-rot
+                />
+              </label>
+
+              <label class="sr-field">
+                <span>Decal opacity</span>
+                <input
+                  type="range"
+                  aria-label="Decal opacity"
+                  min="0.1"
+                  max="1"
+                  step="0.01"
+                  value="0.92"
+                  data-sr-decal-opacity
+                />
+              </label>
+
+              <div class="sr-row">
+                <button type="button" class="sr-btn" data-sr-decal-clear>
+                  Clear decals
+                </button>
+              </div>
+            </div>
+
+            <p class="sr-hint">
+              Presets save everything you see in the panel (camera, lighting,
+              quality, post, etc.).
+            </p>
+
+            <p class="sr-hint">Tip: press <kbd>C</kbd> to toggle cinematic.</p>
+
+            <p class="sr-hint">
+              Tip: enable decal mode, then click the car to place stickers.
+            </p>
           </section>
         </div>
         <div class="sr__panelResize" data-sr-panel-resize aria-hidden="true">
