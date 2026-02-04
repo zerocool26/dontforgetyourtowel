@@ -10,6 +10,7 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { BokehPass } from 'three/examples/jsm/postprocessing/BokehPass.js';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import { SSRPass } from 'three/examples/jsm/postprocessing/SSRPass.js';
 import { RGBShiftShader } from 'three/examples/jsm/shaders/RGBShiftShader.js';
 import { RectAreaLightUniformsLib } from 'three/examples/jsm/lights/RectAreaLightUniformsLib.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
@@ -1527,6 +1528,10 @@ const init = () => {
   );
   const bloomRadius = root.querySelector<HTMLInputElement>(
     '[data-sr-bloom-radius]'
+  );
+  const ssrChk = root.querySelector<HTMLInputElement>('[data-sr-ssr]');
+  const ssrStrength = root.querySelector<HTMLInputElement>(
+    '[data-sr-ssr-strength]'
   );
   const exposureResetBtn = root.querySelector<HTMLButtonElement>(
     '[data-sr-exposure-reset]'
@@ -3092,6 +3097,7 @@ const init = () => {
   // Post
   let composer: EffectComposer | null = null;
   let bloomPass: UnrealBloomPass | null = null;
+  let ssrPass: SSRPass | null = null;
   let bokehPass: BokehPass | null = null;
   let vignettePass: ShaderPass | null = null;
   let rgbShiftPass: ShaderPass | null = null;
@@ -3128,6 +3134,21 @@ const init = () => {
     if (composer) return;
     composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
+
+    ssrPass = new SSRPass({
+      renderer,
+      scene,
+      camera,
+      width: 1,
+      height: 1,
+      groundReflector: null,
+      selects: [],
+    });
+    ssrPass.enabled = false;
+    ssrPass.maxDistance = 0.35;
+    ssrPass.thickness = 0.015;
+    ssrPass.opacity = 0.45;
+    composer.addPass(ssrPass);
 
     // PhotoMode (disabled by default)
     bokehPass = new BokehPass(scene, camera, {
@@ -3201,6 +3222,8 @@ const init = () => {
     bloomStrength: Number.parseFloat(bloom?.value || '0') || 0,
     bloomThreshold: Number.parseFloat(bloomThreshold?.value || '0.9') || 0.9,
     bloomRadius: Number.parseFloat(bloomRadius?.value || '0') || 0,
+    ssrReflections: Boolean(ssrChk?.checked ?? false),
+    ssrStrength: Number.parseFloat(ssrStrength?.value || '0.45') || 0.45,
     baseExposure: Number.parseFloat(exposure?.value || '1.25') || 1.25,
 
     cinematic: Boolean(cinematicChk?.checked ?? false),
@@ -4742,6 +4765,8 @@ const init = () => {
     resetControlToDefault(bloom);
     resetControlToDefault(bloomThreshold);
     resetControlToDefault(bloomRadius);
+    resetControlToDefault(ssrChk);
+    resetControlToDefault(ssrStrength);
   });
 
   resetPerformanceBtn?.addEventListener('click', () => {
@@ -4938,13 +4963,41 @@ const init = () => {
       Number.parseFloat(bloomThreshold?.value || '0.9') || 0.9;
     runtime.bloomRadius = Number.parseFloat(bloomRadius?.value || '0') || 0;
 
-    if (runtime.bloomStrength > 0.001 || photoActive) ensureComposer();
+    runtime.ssrReflections = Boolean(ssrChk?.checked ?? runtime.ssrReflections);
+    runtime.ssrStrength =
+      Number.parseFloat(ssrStrength?.value || `${runtime.ssrStrength}`) ||
+      runtime.ssrStrength;
+
+    const ssrActive =
+      runtime.quality !== 'eco' &&
+      runtime.ssrReflections &&
+      runtime.ssrStrength > 0.001;
+
+    if (runtime.bloomStrength > 0.001 || photoActive || ssrActive)
+      ensureComposer();
 
     if (bloomPass) {
       bloomPass.enabled = runtime.bloomStrength > 0.001;
       bloomPass.strength = runtime.bloomStrength;
       bloomPass.threshold = runtime.bloomThreshold;
       bloomPass.radius = runtime.bloomRadius;
+    }
+
+    if (ssrStrength)
+      ssrStrength.disabled =
+        !runtime.ssrReflections || runtime.quality === 'eco';
+
+    if (ssrPass) {
+      ssrPass.enabled = ssrActive;
+      ssrPass.opacity = clamp01(runtime.ssrStrength);
+      const qualityFactor =
+        runtime.quality === 'ultra'
+          ? 1
+          : runtime.quality === 'balanced'
+            ? 0.75
+            : 0.5;
+      ssrPass.maxDistance = 0.35 * qualityFactor;
+      ssrPass.thickness = 0.015 * qualityFactor;
     }
 
     if (bokehPass && pm) {
@@ -4986,6 +5039,7 @@ const init = () => {
     const h = Math.max(1, Math.floor(rect.height));
     renderer.setSize(w, h, false);
     composer?.setSize(w, h);
+    ssrPass?.setSize?.(w, h);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
     syncLetterbox();
@@ -6334,6 +6388,8 @@ const init = () => {
   bloom?.addEventListener('input', syncPostUi);
   bloomThreshold?.addEventListener('input', syncPostUi);
   bloomRadius?.addEventListener('input', syncPostUi);
+  ssrChk?.addEventListener('change', syncPostUi);
+  ssrStrength?.addEventListener('input', syncPostUi);
 
   const syncPhotoModeUi = () => {
     const pm = runtime.photoMode;
@@ -6535,6 +6591,7 @@ const init = () => {
     runtime.dynamicScale = 1;
     if (resScale) resScale.value = '1';
     applyQuality();
+    applyPost();
   });
   autoQuality?.addEventListener('change', () => {
     runtime.autoQuality = Boolean(autoQuality.checked);
@@ -6650,7 +6707,14 @@ const init = () => {
       (pm.dofStrength > 0.001 ||
         pm.vignette > 0.001 ||
         pm.chromaticAberration > 0.001);
-    return Boolean(composer) && (runtime.bloomStrength > 0.001 || photoActive);
+    const ssrActive =
+      runtime.quality !== 'eco' &&
+      runtime.ssrReflections &&
+      runtime.ssrStrength > 0.001;
+    return (
+      Boolean(composer) &&
+      (runtime.bloomStrength > 0.001 || photoActive || ssrActive)
+    );
   };
 
   const downloadScreenshot = () => {
@@ -6868,6 +6932,10 @@ const init = () => {
     if (Math.abs(bl - 0.35) > 0.0001) url.searchParams.set('bl', bl.toFixed(3));
     if (Math.abs(bt - 0.9) > 0.0001) url.searchParams.set('bt', bt.toFixed(3));
     if (Math.abs(br) > 0.0001) url.searchParams.set('br', br.toFixed(3));
+    url.searchParams.set('ssr', runtime.ssrReflections ? '1' : '0');
+    const ssrs = clamp01(Number(runtime.ssrStrength) || 0.45);
+    if (Math.abs(ssrs - 0.45) > 0.0001)
+      url.searchParams.set('ssrs', ssrs.toFixed(3));
 
     // Cinematic + plate
     if (runtime.cinematic) url.searchParams.set('cine', '1');
@@ -7362,6 +7430,8 @@ const init = () => {
     const bl = url.searchParams.get('bl');
     const bt = url.searchParams.get('bt');
     const br = url.searchParams.get('br');
+    const ssr = url.searchParams.get('ssr');
+    const ssrs = url.searchParams.get('ssrs');
 
     const cine = url.searchParams.get('cine');
     const plt = url.searchParams.get('plt');
@@ -7448,6 +7518,8 @@ const init = () => {
     if (bl && bloom) bloom.value = bl;
     if (bt && bloomThreshold) bloomThreshold.value = bt;
     if (br && bloomRadius) bloomRadius.value = br;
+    if (ssr && ssrChk) ssrChk.checked = ssr === '1';
+    if (ssrs && ssrStrength) ssrStrength.value = ssrs;
 
     if (cine && cinematicChk) cinematicChk.checked = cine === '1';
     if (plt && plateTextInp) plateTextInp.value = plt;
@@ -7578,6 +7650,11 @@ const init = () => {
     Number.parseFloat(
       floorReflectionStrength?.value || `${runtime.floorReflectionStrength}`
     ) || runtime.floorReflectionStrength;
+
+  runtime.ssrReflections = Boolean(ssrChk?.checked ?? runtime.ssrReflections);
+  runtime.ssrStrength =
+    Number.parseFloat(ssrStrength?.value || `${runtime.ssrStrength}`) ||
+    runtime.ssrStrength;
 
   runtime.modelScaleMul = Number.parseFloat(modelScale?.value || '1') || 1;
   runtime.modelYawDeg = Number.parseFloat(modelYaw?.value || '0') || 0;
@@ -10300,6 +10377,8 @@ const init = () => {
       bloom: bloom?.value,
       bloomThreshold: bloomThreshold?.value,
       bloomRadius: bloomRadius?.value,
+      ssrReflections: Boolean(ssrChk?.checked ?? false),
+      ssrStrength: ssrStrength?.value,
 
       cinematic: Boolean(cinematicChk?.checked ?? false),
       thirdsOverlay: Boolean(thirdsChk?.checked ?? false),
@@ -10434,6 +10513,8 @@ const init = () => {
     setVal(bloom, state.bloom);
     setVal(bloomThreshold, state.bloomThreshold);
     setVal(bloomRadius, state.bloomRadius);
+    setChk(ssrChk, state.ssrReflections);
+    setVal(ssrStrength, state.ssrStrength);
 
     setChk(cinematicChk, state.cinematic);
     setChk(thirdsChk, state.thirdsOverlay);

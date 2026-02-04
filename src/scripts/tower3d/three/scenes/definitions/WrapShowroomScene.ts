@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
+import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader.js';
 import { SceneBase } from './SceneBase';
 import type { SceneRuntime } from './types';
 import { damp } from './SceneUtils';
@@ -180,6 +181,7 @@ export class WrapShowroomScene extends SceneBase {
 
   private lastUiRevision = '';
   private wrapFinish: WrapFinish = 'custom';
+  private renderer: THREE.WebGLRenderer | null = null;
 
   constructor() {
     super();
@@ -281,6 +283,7 @@ export class WrapShowroomScene extends SceneBase {
   }
 
   init(ctx: SceneRuntime) {
+    this.renderer = ctx.renderer;
     // Ensure shadows are enabled globally.
     ctx.renderer.shadowMap.enabled = true;
 
@@ -471,6 +474,17 @@ export class WrapShowroomScene extends SceneBase {
     loader.setDRACOLoader(dracoLoader);
     loader.setMeshoptDecoder(MeshoptDecoder);
 
+    let ktx2: KTX2Loader | null = null;
+    try {
+      ktx2 = new KTX2Loader();
+      ktx2.setTranscoderPath(withBasePath('/basis/'));
+      if (this.renderer) ktx2.detectSupport(this.renderer);
+      loader.setKTX2Loader(ktx2);
+    } catch {
+      ktx2?.dispose();
+      ktx2 = null;
+    }
+
     const base = THREE.LoaderUtils.extractUrlBase(url);
 
     return await new Promise((resolve, reject) => {
@@ -478,12 +492,16 @@ export class WrapShowroomScene extends SceneBase {
         buffer,
         base,
         gltf => {
+          ktx2?.dispose();
           const root =
             gltf.scene ??
             (gltf as unknown as { scene: THREE.Object3D | undefined })?.scene;
           resolve(root ?? null);
         },
-        err => reject(err)
+        err => {
+          ktx2?.dispose();
+          reject(err);
+        }
       );
     });
   }

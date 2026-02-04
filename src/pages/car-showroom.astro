@@ -2468,6 +2468,26 @@ const galleryHref = `${base}gallery/`;
                   data-sr-bloom-radius
                 />
               </label>
+              <label class="sr-field">
+                <span>SSR reflections</span>
+                <input
+                  type="checkbox"
+                  aria-label="SSR reflections"
+                  data-sr-ssr
+                />
+              </label>
+              <label class="sr-field">
+                <span>SSR strength</span>
+                <input
+                  type="range"
+                  aria-label="SSR strength"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value="0.45"
+                  data-sr-ssr-strength
+                />
+              </label>
 
               <div class="sr-row">
                 <button type="button" class="sr-btn" data-sr-exposure-reset>
