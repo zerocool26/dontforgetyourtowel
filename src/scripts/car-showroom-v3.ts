@@ -640,24 +640,31 @@ const isMobile = () => window.matchMedia('(max-width: 980px)').matches;
 
 const initPanel = (root: HTMLElement) => {
   const panel = root.querySelector<HTMLElement>('[data-sr-panel]');
-  const toggle = root.querySelector<HTMLButtonElement>(
-    '[data-sr-panel-toggle]'
+  const toggles = Array.from(
+    root.querySelectorAll<HTMLButtonElement>('[data-sr-panel-toggle]')
   );
   const close = root.querySelector<HTMLButtonElement>('[data-sr-panel-close]');
   const handle = root.querySelector<HTMLElement>('[data-sr-panel-handle]');
   const dragArea = root.querySelector<HTMLElement>('[data-sr-panel-drag]');
   const fab = root.querySelector<HTMLButtonElement>('[data-sr-panel-fab]');
+  const resizeHandle = root.querySelector<HTMLElement>(
+    '[data-sr-panel-resize]'
+  );
 
   if (!panel)
     return {
       setSnap: (_: PanelSnap) => {},
       getSnap: () => 'peek' as PanelSnap,
+      setWidth: (_: number) => {},
+      getWidth: () => 420,
     };
 
   // Version bump: resets old persisted snap states so new controls are visible.
   const key = 'sr3-panel-snap-v2';
+  const widthKey = 'sr3-panel-width-v1';
   const order: PanelSnap[] = ['collapsed', 'peek', 'half', 'full'];
   let snap: PanelSnap = 'peek';
+  let panelWidth = 420;
 
   const getHeights = () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -684,13 +691,17 @@ const initPanel = (root: HTMLElement) => {
       panel.hidden = next === 'collapsed';
       root.style.setProperty('--sr-panel-height', `${h}px`);
     } else {
-      panel.hidden = next === 'collapsed';
+      panel.hidden = false;
     }
 
-    toggle?.setAttribute(
-      'aria-expanded',
-      next === 'collapsed' ? 'false' : 'true'
-    );
+    panel.setAttribute('aria-hidden', next === 'collapsed' ? 'true' : 'false');
+
+    for (const toggle of toggles) {
+      toggle.setAttribute(
+        'aria-expanded',
+        next === 'collapsed' ? 'false' : 'true'
+      );
+    }
 
     if (persist) {
       try {
@@ -714,17 +725,50 @@ const initPanel = (root: HTMLElement) => {
     setSnap(saved ?? defaultSnap, false);
   };
 
-  toggle?.addEventListener('click', () => {
-    setSnap(
-      snap === 'collapsed' ? (isMobile() ? 'half' : 'peek') : 'collapsed',
-      true
-    );
-  });
+  for (const toggle of toggles) {
+    toggle.addEventListener('click', () => {
+      setSnap(
+        snap === 'collapsed' ? (isMobile() ? 'half' : 'peek') : 'collapsed',
+        true
+      );
+    });
+  }
   close?.addEventListener('click', () => setSnap('collapsed', true));
 
   fab?.addEventListener('click', () => {
     setSnap(isMobile() ? 'half' : 'peek', true);
   });
+
+  const applyPanelWidth = (next: number, persist: boolean) => {
+    panelWidth = clamp(next, 320, 560);
+    root.style.setProperty('--sr-panel-width', `${panelWidth}px`);
+    if (persist) {
+      try {
+        localStorage.setItem(widthKey, String(panelWidth));
+      } catch {
+        // ignore
+      }
+      try {
+        root.dispatchEvent(
+          new CustomEvent('sr-panel-width', { detail: { width: panelWidth } })
+        );
+      } catch {
+        // ignore
+      }
+    }
+  };
+
+  const initPanelWidth = () => {
+    if (isMobile()) return;
+    let saved: number | null = null;
+    try {
+      const raw = Number.parseFloat(localStorage.getItem(widthKey) || '');
+      if (Number.isFinite(raw)) saved = raw;
+    } catch {
+      // ignore
+    }
+    applyPanelWidth(saved ?? panelWidth, false);
+  };
 
   // Drag to resize on mobile.
   let drag = false;
@@ -759,6 +803,35 @@ const initPanel = (root: HTMLElement) => {
     lastY = e.clientY;
     lastT = performance.now();
   };
+
+  // Desktop resize handle
+  let resizing = false;
+  let resizeStartX = 0;
+  let resizeStartW = 0;
+
+  const onResizeMove = (e: PointerEvent) => {
+    if (!resizing || isMobile()) return;
+    const dx = resizeStartX - e.clientX;
+    applyPanelWidth(resizeStartW + dx, false);
+  };
+
+  const onResizeUp = () => {
+    if (!resizing) return;
+    resizing = false;
+    applyPanelWidth(panelWidth, true);
+    window.removeEventListener('pointermove', onResizeMove);
+    window.removeEventListener('pointerup', onResizeUp);
+  };
+
+  resizeHandle?.addEventListener('pointerdown', e => {
+    if (isMobile()) return;
+    resizing = true;
+    resizeStartX = e.clientX;
+    resizeStartW = panelWidth;
+    resizeHandle.setPointerCapture?.(e.pointerId);
+    window.addEventListener('pointermove', onResizeMove);
+    window.addEventListener('pointerup', onResizeUp);
+  });
 
   const onUp = () => {
     if (!drag) return;
@@ -835,8 +908,14 @@ const initPanel = (root: HTMLElement) => {
 
   window.addEventListener('resize', () => initState());
   initState();
+  initPanelWidth();
 
-  return { setSnap, getSnap: () => snap };
+  return {
+    setSnap,
+    getSnap: () => snap,
+    setWidth: (next: number, persist = true) => applyPanelWidth(next, persist),
+    getWidth: () => panelWidth,
+  };
 };
 
 const init = () => {
@@ -1142,6 +1221,9 @@ const init = () => {
   const cinematicExitBtn = root.querySelector<HTMLButtonElement>(
     '[data-sr-cinematic-exit]'
   );
+  const cinematicToggleBtns = Array.from(
+    root.querySelectorAll<HTMLButtonElement>('[data-sr-cinematic-toggle]')
+  );
   const letterboxEl = root.querySelector<HTMLElement>('[data-sr-letterbox]');
 
   const plateTextInp = root.querySelector<HTMLInputElement>(
@@ -1219,6 +1301,10 @@ const init = () => {
   const statMats = root.querySelector<HTMLElement>('[data-sr-stat-mats]');
   const statTris = root.querySelector<HTMLElement>('[data-sr-stat-tris]');
   const statTex = root.querySelector<HTMLElement>('[data-sr-stat-tex]');
+  const specMeshes = root.querySelector<HTMLElement>('[data-sr-spec-meshes]');
+  const specMats = root.querySelector<HTMLElement>('[data-sr-spec-mats]');
+  const specTris = root.querySelector<HTMLElement>('[data-sr-spec-tris]');
+  const specTex = root.querySelector<HTMLElement>('[data-sr-spec-tex]');
 
   const inspectorFilter = root.querySelector<HTMLInputElement>(
     '[data-sr-inspector-filter]'
@@ -1285,6 +1371,181 @@ const init = () => {
 
   // Panel system (new)
   const panelApi = initPanel(root);
+
+  const focusToggleBtns = Array.from(
+    root.querySelectorAll<HTMLButtonElement>('[data-sr-focus-toggle]')
+  );
+  const FOCUS_KEY = 'sr3-focus-v1';
+  let focusOn = false;
+  let focusPrevSnap: PanelSnap | null = null;
+
+  const setFocus = (next: boolean, persist: boolean) => {
+    focusOn = next;
+    root.dataset.srFocus = next ? '1' : '0';
+    for (const btn of focusToggleBtns) {
+      btn.setAttribute('aria-pressed', next ? 'true' : 'false');
+    }
+
+    if (next) {
+      if (!focusPrevSnap) focusPrevSnap = panelApi.getSnap();
+      panelApi.setSnap('collapsed', true);
+    } else if (focusPrevSnap) {
+      panelApi.setSnap(focusPrevSnap, true);
+      focusPrevSnap = null;
+    }
+
+    if (persist) {
+      try {
+        localStorage.setItem(FOCUS_KEY, next ? '1' : '0');
+      } catch {
+        // ignore
+      }
+    }
+  };
+
+  const initFocus = () => {
+    let saved = false;
+    try {
+      saved = (localStorage.getItem(FOCUS_KEY) || '') === '1';
+    } catch {
+      // ignore
+    }
+    setFocus(saved, false);
+  };
+
+  for (const btn of focusToggleBtns) {
+    btn.addEventListener('click', () => setFocus(!focusOn, true));
+  }
+
+  initFocus();
+
+  const panelSideSel = root.querySelector<HTMLSelectElement>(
+    '[data-sr-panel-side]'
+  );
+  const panelWidthRange = root.querySelector<HTMLInputElement>(
+    '[data-sr-panel-width]'
+  );
+  const layoutTopChk = root.querySelector<HTMLInputElement>(
+    '[data-sr-layout-top]'
+  );
+  const layoutHudChk = root.querySelector<HTMLInputElement>(
+    '[data-sr-layout-hud]'
+  );
+  const layoutSpecChk = root.querySelector<HTMLInputElement>(
+    '[data-sr-layout-specbar]'
+  );
+  const layoutDockChk = root.querySelector<HTMLInputElement>(
+    '[data-sr-layout-dock]'
+  );
+
+  const LAYOUT_KEY = 'sr3-layout-v1';
+  type LayoutState = {
+    panelSide: 'left' | 'right';
+    panelWidth: number;
+    showTop: boolean;
+    showHud: boolean;
+    showSpecbar: boolean;
+    showDock: boolean;
+  };
+
+  const applyLayout = (state: LayoutState, persist: boolean) => {
+    root.dataset.srPanelSide = state.panelSide;
+    root.dataset.srShowTop = state.showTop ? '1' : '0';
+    root.dataset.srShowHud = state.showHud ? '1' : '0';
+    root.dataset.srShowSpecbar = state.showSpecbar ? '1' : '0';
+    root.dataset.srShowDock = state.showDock ? '1' : '0';
+
+    if (panelSideSel) panelSideSel.value = state.panelSide;
+    if (panelWidthRange)
+      panelWidthRange.value = String(Math.round(state.panelWidth));
+    if (layoutTopChk) layoutTopChk.checked = state.showTop;
+    if (layoutHudChk) layoutHudChk.checked = state.showHud;
+    if (layoutSpecChk) layoutSpecChk.checked = state.showSpecbar;
+    if (layoutDockChk) layoutDockChk.checked = state.showDock;
+
+    panelApi.setWidth(state.panelWidth, persist);
+
+    if (persist) {
+      try {
+        localStorage.setItem(LAYOUT_KEY, JSON.stringify(state));
+      } catch {
+        // ignore
+      }
+    }
+  };
+
+  const readLayout = (): LayoutState => {
+    let saved: Partial<LayoutState> = {};
+    try {
+      const raw = (localStorage.getItem(LAYOUT_KEY) || '').trim();
+      if (raw) saved = JSON.parse(raw) as Partial<LayoutState>;
+    } catch {
+      // ignore
+    }
+
+    return {
+      panelSide: saved.panelSide === 'left' ? 'left' : 'right',
+      panelWidth: Number.isFinite(saved.panelWidth ?? NaN)
+        ? Number(saved.panelWidth)
+        : panelApi.getWidth(),
+      showTop: saved.showTop ?? true,
+      showHud: saved.showHud ?? true,
+      showSpecbar: saved.showSpecbar ?? true,
+      showDock: saved.showDock ?? true,
+    };
+  };
+
+  const refreshLayout = () => applyLayout(readLayout(), false);
+
+  panelSideSel?.addEventListener('change', () => {
+    const next = (panelSideSel.value || 'right') as 'left' | 'right';
+    applyLayout({ ...readLayout(), panelSide: next }, true);
+  });
+
+  panelWidthRange?.addEventListener('input', () => {
+    const next = Number.parseFloat(panelWidthRange.value || '420') || 420;
+    applyLayout({ ...readLayout(), panelWidth: next }, false);
+  });
+
+  panelWidthRange?.addEventListener('change', () => {
+    const next = Number.parseFloat(panelWidthRange.value || '420') || 420;
+    applyLayout({ ...readLayout(), panelWidth: next }, true);
+  });
+
+  layoutTopChk?.addEventListener('change', () => {
+    applyLayout({ ...readLayout(), showTop: layoutTopChk.checked }, true);
+  });
+
+  layoutHudChk?.addEventListener('change', () => {
+    applyLayout({ ...readLayout(), showHud: layoutHudChk.checked }, true);
+  });
+
+  layoutSpecChk?.addEventListener('change', () => {
+    applyLayout({ ...readLayout(), showSpecbar: layoutSpecChk.checked }, true);
+  });
+
+  layoutDockChk?.addEventListener('change', () => {
+    applyLayout({ ...readLayout(), showDock: layoutDockChk.checked }, true);
+  });
+
+  root.addEventListener('sr-panel-width', e => {
+    const detail = (e as CustomEvent<{ width?: number }>).detail;
+    const width = Number(detail?.width ?? NaN);
+    if (!Number.isFinite(width)) return;
+    if (panelWidthRange) panelWidthRange.value = String(Math.round(width));
+    const current = readLayout();
+    if (Math.abs(current.panelWidth - width) < 1) return;
+    try {
+      localStorage.setItem(
+        LAYOUT_KEY,
+        JSON.stringify({ ...current, panelWidth: width })
+      );
+    } catch {
+      // ignore
+    }
+  });
+
+  refreshLayout();
 
   // Renderer
   let renderer: THREE.WebGLRenderer;
@@ -2156,6 +2417,9 @@ const init = () => {
   const setCinematic = (on: boolean) => {
     runtime.cinematic = Boolean(on);
     root.dataset.srCinematic = runtime.cinematic ? '1' : '0';
+    for (const btn of cinematicToggleBtns) {
+      btn.setAttribute('aria-pressed', runtime.cinematic ? 'true' : 'false');
+    }
 
     if (runtime.cinematic) {
       if (!runtime.cinematicPrev) {
@@ -3377,6 +3641,11 @@ const init = () => {
       if (statMats) statMats.textContent = formatInt(uniqueMats.size);
       if (statTris) statTris.textContent = formatInt(triCount);
       if (statTex) statTex.textContent = formatInt(uniqueTex.size);
+      if (specMeshes)
+        specMeshes.textContent = formatInt(inspectorMeshes.length);
+      if (specMats) specMats.textContent = formatInt(uniqueMats.size);
+      if (specTris) specTris.textContent = formatInt(triCount);
+      if (specTex) specTex.textContent = formatInt(uniqueTex.size);
       populateMeshSelect();
 
       // Enable animation controls if clips exist
@@ -3474,6 +3743,13 @@ const init = () => {
     if (cinematicChk) cinematicChk.checked = false;
     setCinematic(false);
   });
+  for (const btn of cinematicToggleBtns) {
+    btn.addEventListener('click', () => {
+      const next = !(cinematicChk?.checked ?? runtime.cinematic);
+      if (cinematicChk) cinematicChk.checked = next;
+      setCinematic(next);
+    });
+  }
 
   plateApplyBtn?.addEventListener('click', () => {
     syncPlateTextFromUi();
@@ -4911,6 +5187,8 @@ const init = () => {
       const next = !runtime.cinematic;
       if (cinematicChk) cinematicChk.checked = next;
       setCinematic(next);
+    } else if (e.key === 'f' || e.key === 'F') {
+      setFocus(!focusOn, true);
     } else if (e.key === 'Escape' && runtime.cinematic) {
       if (cinematicChk) cinematicChk.checked = false;
       setCinematic(false);
@@ -5028,6 +5306,34 @@ const init = () => {
   };
 
   initRangeValueReadouts();
+
+  const initIdleFade = () => {
+    const idleMs = 5000;
+    let idleTimer = 0;
+
+    const setIdle = (next: boolean) => {
+      root.dataset.srIdle = next ? '1' : '0';
+    };
+
+    const bump = () => {
+      setIdle(false);
+      if (idleTimer) window.clearTimeout(idleTimer);
+      idleTimer = window.setTimeout(() => setIdle(true), idleMs);
+    };
+
+    const events: Array<keyof WindowEventMap> = [
+      'pointermove',
+      'keydown',
+      'wheel',
+      'touchstart',
+    ];
+
+    for (const ev of events)
+      window.addEventListener(ev, bump, { passive: true });
+    bump();
+  };
+
+  initIdleFade();
 
   const CMDK_RECENTS_KEY = 'sr3-cmdk-recents-v1';
 

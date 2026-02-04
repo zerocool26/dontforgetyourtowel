@@ -47,6 +47,14 @@ const galleryHref = `${base}gallery/`;
           </button>
           <button
             type="button"
+            class="sr-btn sr-btn--icon"
+            data-sr-focus-toggle
+            aria-pressed="false"
+          >
+            Focus
+          </button>
+          <button
+            type="button"
             class="sr-btn"
             data-sr-panel-toggle
             aria-expanded="true"
@@ -207,6 +215,109 @@ const galleryHref = `${base}gallery/`;
             <span class="sr-pill__muted" data-sr-eco hidden>ECO</span>
           </div>
         </div>
+
+        <div class="sr__spec" aria-live="polite" data-sr-specbar>
+          <div class="sr__specItem">
+            <span>Meshes</span>
+            <strong data-sr-spec-meshes>--</strong>
+          </div>
+          <div class="sr__specItem">
+            <span>Materials</span>
+            <strong data-sr-spec-mats>--</strong>
+          </div>
+          <div class="sr__specItem">
+            <span>Triangles</span>
+            <strong data-sr-spec-tris>--</strong>
+          </div>
+          <div class="sr__specItem">
+            <span>Textures</span>
+            <strong data-sr-spec-tex>--</strong>
+          </div>
+        </div>
+
+        <div class="sr__dock" data-sr-dock>
+          <button
+            type="button"
+            class="sr__dockBtn"
+            data-sr-panel-toggle
+            aria-label="Toggle panel"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M5 7h14M5 12h14M5 17h14"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"></path>
+            </svg>
+          </button>
+          <button
+            type="button"
+            class="sr__dockBtn"
+            data-sr-cmdk-open
+            aria-label="Open command palette"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M4 6h16M4 12h10M4 18h6"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"></path>
+            </svg>
+          </button>
+          <button
+            type="button"
+            class="sr__dockBtn"
+            data-sr-cinematic-toggle
+            aria-label="Toggle cinematic mode"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M4 7h16v10H4z"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"></path>
+              <path
+                d="M7 5v14M17 5v14"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.2"></path>
+            </svg>
+          </button>
+          <button
+            type="button"
+            class="sr__dockBtn"
+            data-sr-screenshot
+            aria-label="Take screenshot"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M4 8h4l2-2h4l2 2h4v10H4z"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linejoin="round"></path>
+              <circle cx="12" cy="13" r="3"></circle>
+            </svg>
+          </button>
+          <button
+            type="button"
+            class="sr__dockBtn"
+            data-sr-focus-toggle
+            aria-label="Toggle focus mode"
+            aria-pressed="false"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M7 3H3v4M21 7V3h-4M3 17v4h4M17 21h4v-4"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"></path>
+            </svg>
+          </button>
+        </div>
       </div>
 
       <aside class="sr__panel" data-sr-panel>
@@ -233,27 +344,99 @@ const galleryHref = `${base}gallery/`;
             hidden
           />
 
-          <div class="sr__jump" aria-label="Jump to section" data-sr-jumpbar>
-            <button type="button" class="sr-chip" data-sr-jump="presets">
-              Presets
+          <div
+            class="sr__jump sr__tabs"
+            aria-label="Jump to section"
+            data-sr-jumpbar
+          >
+            <button type="button" class="sr-chip sr-tab" data-sr-jump="presets">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M5 7h14M5 12h10M5 17h6"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"></path>
+              </svg>
+              <span>Presets</span>
             </button>
-            <button type="button" class="sr-chip" data-sr-jump="model">
-              Model
+            <button type="button" class="sr-chip sr-tab" data-sr-jump="model">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M4 14l2-4 4-2h6l4 2 2 4-2 4H6z"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linejoin="round"></path>
+                <circle cx="8" cy="16" r="1.5"></circle>
+                <circle cx="16" cy="16" r="1.5"></circle>
+              </svg>
+              <span>Body</span>
             </button>
-            <button type="button" class="sr-chip" data-sr-jump="environment">
-              Env
+            <button
+              type="button"
+              class="sr-chip sr-tab"
+              data-sr-jump="environment"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M4 16l4-4 3 3 5-6 4 7"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"></path>
+              </svg>
+              <span>Atmosphere</span>
             </button>
-            <button type="button" class="sr-chip" data-sr-jump="inspector">
-              Inspect
+            <button type="button" class="sr-chip sr-tab" data-sr-jump="camera">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M4 8h4l2-2h4l2 2h4v10H4z"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linejoin="round"></path>
+                <circle cx="12" cy="13" r="3"></circle>
+              </svg>
+              <span>Camera</span>
             </button>
-            <button type="button" class="sr-chip" data-sr-jump="camera">
-              Camera
+            <button
+              type="button"
+              class="sr-chip sr-tab"
+              data-sr-jump="performance"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M5 19a7 7 0 0 1 14 0"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"></path>
+                <path
+                  d="M12 12l3-3"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"></path>
+              </svg>
+              <span>Performance</span>
             </button>
-            <button type="button" class="sr-chip" data-sr-jump="performance">
-              Perf
-            </button>
-            <button type="button" class="sr-chip" data-sr-jump="tools">
-              Tools
+            <button type="button" class="sr-chip sr-tab" data-sr-jump="tools">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M4 6h6v6H4zM14 12h6v6h-6z"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"></path>
+                <path
+                  d="M14 6h6M4 18h6"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"></path>
+              </svg>
+              <span>Meta</span>
             </button>
           </div>
 
@@ -369,7 +552,74 @@ const galleryHref = `${base}gallery/`;
                   data-sr-cinematic
                 />
               </label>
+            </div>
 
+            <div class="sr-subsection">
+              <div class="sr-subsection__head">
+                <h3>Layout</h3>
+              </div>
+
+              <div class="sr-grid">
+                <label class="sr-field">
+                  <span>Panel side</span>
+                  <select data-sr-panel-side>
+                    <option value="right">Right</option>
+                    <option value="left">Left</option>
+                  </select>
+                </label>
+
+                <label class="sr-field">
+                  <span>Panel width</span>
+                  <input
+                    type="range"
+                    min="320"
+                    max="560"
+                    step="10"
+                    value="420"
+                    aria-label="Panel width"
+                    data-sr-panel-width
+                  />
+                </label>
+
+                <label class="sr-field">
+                  <span>Show top bar</span>
+                  <input
+                    type="checkbox"
+                    aria-label="Show top bar"
+                    data-sr-layout-top
+                  />
+                </label>
+
+                <label class="sr-field">
+                  <span>Show HUD</span>
+                  <input
+                    type="checkbox"
+                    aria-label="Show HUD"
+                    data-sr-layout-hud
+                  />
+                </label>
+
+                <label class="sr-field">
+                  <span>Show spec bar</span>
+                  <input
+                    type="checkbox"
+                    aria-label="Show spec bar"
+                    data-sr-layout-specbar
+                  />
+                </label>
+
+                <label class="sr-field">
+                  <span>Show dock</span>
+                  <input
+                    type="checkbox"
+                    aria-label="Show dock"
+                    data-sr-layout-dock
+                  />
+                </label>
+              </div>
+            </div>
+
+            <div class="sr-grid">
               <label class="sr-field">
                 <span>License plate text</span>
                 <input
@@ -1767,6 +2017,8 @@ const galleryHref = `${base}gallery/`;
               </div>
             </div>
           </section>
+        </div>
+        <div class="sr__panelResize" data-sr-panel-resize aria-hidden="true">
         </div>
       </aside>
 
