@@ -836,6 +836,12 @@
   letter-spacing: 0.02em;
 }
 
+[data-sr-root][data-sr-panel-search='0'] .sr__panelSearch,
+[data-sr-root][data-sr-panel-search='0'] [data-sr-panel-filter-clear],
+[data-sr-root][data-sr-panel-search='0'] .sr__panelCount {
+  display: none;
+}
+
 .sr__panelActions {
   display: flex;
   flex-wrap: wrap;
@@ -1531,19 +1537,10 @@
     padding: 6px;
   }
 
-  /* Mobile: the panel filter/search isn't necessary and takes too much room. */
+  /* Mobile: keep panel tools compact. */
   .sr__panelTools {
     padding: 8px;
     gap: 8px;
-  }
-
-  .sr__panelSearch {
-    display: none;
-  }
-
-  [data-sr-panel-filter-clear],
-  .sr__panelCount {
-    display: none;
   }
 
   .sr__panelActions {

@@ -1650,6 +1650,9 @@ const init = () => {
   const panelFilterClearBtn = root.querySelector<HTMLButtonElement>(
     '[data-sr-panel-filter-clear]'
   );
+  const panelSearchToggleBtn = root.querySelector<HTMLButtonElement>(
+    '[data-sr-panel-search-toggle]'
+  );
   const panelUndoBtn = root.querySelector<HTMLButtonElement>('[data-sr-undo]');
   const panelRedoBtn = root.querySelector<HTMLButtonElement>('[data-sr-redo]');
   const panelPrevBtn = root.querySelector<HTMLButtonElement>(
@@ -9300,6 +9303,7 @@ const init = () => {
   };
 
   const ESSENTIALS_KEY = 'sr3-panel-essentials-v1';
+  const PANEL_SEARCH_KEY = 'sr3-panel-search-v1';
   const PINNED_KEY = 'sr3-panel-pinned-sections-v1';
   const PINNED_MODE_KEY = 'sr3-panel-pinned-mode-v1';
   const SOLO_MODE_KEY = 'sr3-panel-solo-mode-v1';
@@ -9317,9 +9321,42 @@ const init = () => {
     'tools',
   ]);
   let essentialsOn = false;
+  let panelSearchOn = true;
   let pinnedMode = false;
   let pinnedSet = new Set<string>();
   let soloMode = false;
+
+  const setPanelSearch = (next: boolean, persist: boolean) => {
+    panelSearchOn = next;
+    root.dataset.srPanelSearch = next ? '1' : '0';
+    panelSearchToggleBtn?.setAttribute('aria-pressed', next ? 'true' : 'false');
+    if (!next) {
+      if (panelFilterInp) panelFilterInp.value = '';
+      applyPanelFilter('');
+    }
+    if (persist) {
+      try {
+        localStorage.setItem(PANEL_SEARCH_KEY, next ? '1' : '0');
+      } catch {
+        // ignore
+      }
+    }
+  };
+
+  const initPanelSearch = () => {
+    try {
+      const raw = localStorage.getItem(PANEL_SEARCH_KEY);
+      if (raw === null) {
+        setPanelSearch(!isMobile(), false);
+        return;
+      }
+      setPanelSearch(raw === '1', false);
+      return;
+    } catch {
+      // ignore
+    }
+    setPanelSearch(!isMobile(), false);
+  };
 
   const setEssentials = (next: boolean, persist: boolean) => {
     essentialsOn = next;
@@ -9543,6 +9580,12 @@ const init = () => {
     panelFilterInp?.focus();
   });
 
+  panelSearchToggleBtn?.addEventListener('click', () => {
+    const next = !panelSearchOn;
+    setPanelSearch(next, true);
+    if (next) panelFilterInp?.focus();
+  });
+
   panelExpandAllBtn?.addEventListener('click', () => {
     for (const section of sections) setSectionCollapsed(section, false, true);
   });
@@ -9683,6 +9726,7 @@ const init = () => {
 
   initSectionCollapse();
   updatePanelCount(sections.length, sections.length, '');
+  initPanelSearch();
   initEssentials();
   pinnedSet = readPinned();
   ensureSectionPins();
