@@ -1669,6 +1669,7 @@ const init = () => {
     '[data-sr-panel-collapse-all]'
   );
   const panelCount = root.querySelector<HTMLElement>('[data-sr-panel-count]');
+  const jumpbar = root.querySelector<HTMLElement>('[data-sr-jumpbar]');
   const jumpBtns = Array.from(
     root.querySelectorAll<HTMLButtonElement>('[data-sr-jump]')
   );
@@ -8954,18 +8955,21 @@ const init = () => {
 
     const defaultCollapsed = new Set<string>();
     if (isMobile()) {
-      for (const k of [
+      const mobileOpen = new Set<string>([
+        'presets',
+        'model',
         'look',
         'environment',
-        'scene',
-        'inspector',
-        'animation',
-        'floor',
-        'motion',
-        'post',
-        'tools',
-      ]) {
-        defaultCollapsed.add(k);
+        'camera',
+        'tour',
+        'photomode',
+        'performance',
+      ]);
+
+      for (const section of sections) {
+        const key = String(section.dataset.srSection || '').trim();
+        if (!key) continue;
+        if (!mobileOpen.has(key)) defaultCollapsed.add(key);
       }
     }
 
@@ -9031,7 +9035,11 @@ const init = () => {
     'look',
     'environment',
     'camera',
+    'tour',
+    'photomode',
+    'materials-pro',
     'performance',
+    'post',
     'tools',
   ]);
   let essentialsOn = false;
@@ -9055,13 +9063,18 @@ const init = () => {
   };
 
   const initEssentials = () => {
-    let saved = false;
     try {
-      saved = (localStorage.getItem(ESSENTIALS_KEY) || '') === '1';
+      const raw = localStorage.getItem(ESSENTIALS_KEY);
+      if (raw === null) {
+        setEssentials(isMobile(), false);
+        return;
+      }
+      setEssentials(raw === '1', false);
+      return;
     } catch {
       // ignore
     }
-    setEssentials(saved, false);
+    setEssentials(isMobile(), false);
   };
 
   const readPinned = (): Set<string> => {
@@ -9349,6 +9362,23 @@ const init = () => {
     body.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
   };
 
+  const syncPanelStickyOffsets = () => {
+    // Mobile has a sticky jumpbar; ensure the sticky filter/tools dock below it.
+    if (!panelBody || !jumpbar) {
+      root.style.setProperty('--sr-panel-tools-top', '0px');
+      return;
+    }
+
+    if (!isMobile()) {
+      root.style.setProperty('--sr-panel-tools-top', '0px');
+      return;
+    }
+
+    // Use the rendered height (includes padding) to avoid overlap.
+    const h = Math.max(0, Math.round(jumpbar.getBoundingClientRect().height));
+    root.style.setProperty('--sr-panel-tools-top', `${h}px`);
+  };
+
   for (const btn of jumpBtns) {
     btn.addEventListener('click', () => {
       const key = String(btn.dataset.srJump || '').trim();
@@ -9392,6 +9422,9 @@ const init = () => {
   ensureSectionPins();
   initPinnedMode();
   initSoloMode();
+
+  syncPanelStickyOffsets();
+  window.addEventListener('resize', syncPanelStickyOffsets, { passive: true });
 
   const observeActiveSection = () => {
     if (!panelBody || !sections.length) return;
