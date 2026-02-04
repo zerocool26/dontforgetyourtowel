@@ -1260,6 +1260,22 @@ const init = () => {
   );
 
   const panelBody = root.querySelector<HTMLElement>('[data-sr-panel-body]');
+  const panelFilterInp = root.querySelector<HTMLInputElement>(
+    '[data-sr-panel-filter]'
+  );
+  const panelFilterClearBtn = root.querySelector<HTMLButtonElement>(
+    '[data-sr-panel-filter-clear]'
+  );
+  const panelTopBtn = root.querySelector<HTMLButtonElement>(
+    '[data-sr-panel-top]'
+  );
+  const panelExpandAllBtn = root.querySelector<HTMLButtonElement>(
+    '[data-sr-panel-expand-all]'
+  );
+  const panelCollapseAllBtn = root.querySelector<HTMLButtonElement>(
+    '[data-sr-panel-collapse-all]'
+  );
+  const panelCount = root.querySelector<HTMLElement>('[data-sr-panel-count]');
   const jumpBtns = Array.from(
     root.querySelectorAll<HTMLButtonElement>('[data-sr-jump]')
   );
@@ -1437,6 +1453,18 @@ const init = () => {
   const layoutDockChk = root.querySelector<HTMLInputElement>(
     '[data-sr-layout-dock]'
   );
+  const layoutCompactChk = root.querySelector<HTMLInputElement>(
+    '[data-sr-layout-compact]'
+  );
+  const layoutScaleRange = root.querySelector<HTMLInputElement>(
+    '[data-sr-layout-scale]'
+  );
+  const layoutGlassRange = root.querySelector<HTMLInputElement>(
+    '[data-sr-layout-glass]'
+  );
+  const layoutPresetBtns = Array.from(
+    root.querySelectorAll<HTMLButtonElement>('[data-sr-layout-preset]')
+  );
 
   const LAYOUT_KEY = 'sr3-layout-v1';
   type LayoutState = {
@@ -1446,6 +1474,9 @@ const init = () => {
     showHud: boolean;
     showSpecbar: boolean;
     showDock: boolean;
+    compact: boolean;
+    uiScale: number;
+    glass: number;
   };
 
   const applyLayout = (state: LayoutState, persist: boolean) => {
@@ -1454,6 +1485,13 @@ const init = () => {
     root.dataset.srShowHud = state.showHud ? '1' : '0';
     root.dataset.srShowSpecbar = state.showSpecbar ? '1' : '0';
     root.dataset.srShowDock = state.showDock ? '1' : '0';
+    root.dataset.srCompact = state.compact ? '1' : '0';
+    root.style.setProperty('--sr-ui-scale', String(state.uiScale));
+    const glass = clamp(state.glass, 0.2, 1);
+    const panelAlpha = 0.4 + glass * 0.35;
+    const glassAlpha = 0.03 + glass * 0.12;
+    root.style.setProperty('--sr-panel-alpha', panelAlpha.toFixed(2));
+    root.style.setProperty('--sr-glass-alpha', glassAlpha.toFixed(3));
 
     if (panelSideSel) panelSideSel.value = state.panelSide;
     if (panelWidthRange)
@@ -1462,6 +1500,11 @@ const init = () => {
     if (layoutHudChk) layoutHudChk.checked = state.showHud;
     if (layoutSpecChk) layoutSpecChk.checked = state.showSpecbar;
     if (layoutDockChk) layoutDockChk.checked = state.showDock;
+    if (layoutCompactChk) layoutCompactChk.checked = state.compact;
+    if (layoutScaleRange)
+      layoutScaleRange.value = String(state.uiScale.toFixed(2));
+    if (layoutGlassRange)
+      layoutGlassRange.value = String(state.glass.toFixed(2));
 
     panelApi.setWidth(state.panelWidth, persist);
 
@@ -1492,6 +1535,11 @@ const init = () => {
       showHud: saved.showHud ?? true,
       showSpecbar: saved.showSpecbar ?? true,
       showDock: saved.showDock ?? true,
+      compact: saved.compact ?? false,
+      uiScale: Number.isFinite(saved.uiScale ?? NaN)
+        ? Number(saved.uiScale)
+        : 1,
+      glass: Number.isFinite(saved.glass ?? NaN) ? Number(saved.glass) : 0.7,
     };
   };
 
@@ -1527,6 +1575,92 @@ const init = () => {
   layoutDockChk?.addEventListener('change', () => {
     applyLayout({ ...readLayout(), showDock: layoutDockChk.checked }, true);
   });
+
+  layoutCompactChk?.addEventListener('change', () => {
+    applyLayout({ ...readLayout(), compact: layoutCompactChk.checked }, true);
+  });
+
+  layoutScaleRange?.addEventListener('input', () => {
+    const next = Number.parseFloat(layoutScaleRange.value || '1') || 1;
+    applyLayout({ ...readLayout(), uiScale: next }, false);
+  });
+
+  layoutScaleRange?.addEventListener('change', () => {
+    const next = Number.parseFloat(layoutScaleRange.value || '1') || 1;
+    applyLayout({ ...readLayout(), uiScale: next }, true);
+  });
+
+  layoutGlassRange?.addEventListener('input', () => {
+    const next = Number.parseFloat(layoutGlassRange.value || '0.7') || 0.7;
+    applyLayout({ ...readLayout(), glass: next }, false);
+  });
+
+  layoutGlassRange?.addEventListener('change', () => {
+    const next = Number.parseFloat(layoutGlassRange.value || '0.7') || 0.7;
+    applyLayout({ ...readLayout(), glass: next }, true);
+  });
+
+  for (const btn of layoutPresetBtns) {
+    btn.addEventListener('click', () => {
+      const preset = (btn.dataset.srLayoutPreset || '').trim().toLowerCase();
+      if (preset === 'immersive') {
+        applyLayout(
+          {
+            ...readLayout(),
+            panelSide: 'right',
+            panelWidth: 420,
+            showTop: false,
+            showHud: true,
+            showSpecbar: false,
+            showDock: false,
+            compact: false,
+            uiScale: 1,
+            glass: 0.8,
+          },
+          true
+        );
+        panelApi.setSnap('collapsed', true);
+        return;
+      }
+
+      if (preset === 'compact') {
+        applyLayout(
+          {
+            ...readLayout(),
+            panelSide: 'right',
+            panelWidth: 360,
+            showTop: true,
+            showHud: true,
+            showSpecbar: true,
+            showDock: true,
+            compact: true,
+            uiScale: 0.96,
+            glass: 0.65,
+          },
+          true
+        );
+        panelApi.setSnap(isMobile() ? 'half' : 'peek', true);
+        return;
+      }
+
+      applyLayout(
+        {
+          ...readLayout(),
+          panelSide: 'right',
+          panelWidth: 420,
+          showTop: true,
+          showHud: true,
+          showSpecbar: true,
+          showDock: true,
+          compact: false,
+          uiScale: 1,
+          glass: 0.7,
+        },
+        true
+      );
+      panelApi.setSnap(isMobile() ? 'half' : 'peek', true);
+    });
+  }
 
   root.addEventListener('sr-panel-width', e => {
     const detail = (e as CustomEvent<{ width?: number }>).detail;
@@ -6866,6 +7000,98 @@ const init = () => {
     });
   }
 
+  const setJumpActive = (key: string) => {
+    for (const btn of jumpBtns) {
+      const match = String(btn.dataset.srJump || '').trim() === key;
+      btn.setAttribute('aria-pressed', match ? 'true' : 'false');
+    }
+    for (const section of sections) {
+      const match = String(section.dataset.srSection || '').trim() === key;
+      section.dataset.srActive = match ? '1' : '0';
+    }
+  };
+
+  const updatePanelCount = (visible: number, total: number, query: string) => {
+    if (!panelCount) return;
+    if (!query) {
+      panelCount.textContent = `${visible}/${total} sections`;
+      return;
+    }
+    panelCount.textContent = `${visible}/${total} match “${query}”`;
+  };
+
+  const applyPanelFilter = (raw: string) => {
+    const query = String(raw || '')
+      .trim()
+      .toLowerCase();
+    let visibleCount = 0;
+    const total = sections.length;
+    let firstVisibleKey: string | null = null;
+
+    for (const section of sections) {
+      const targets = Array.from(
+        section.querySelectorAll<HTMLElement>(
+          '.sr-field, .sr-row, .sr-readout, .sr-hint'
+        )
+      );
+
+      if (!query) {
+        section.classList.remove('sr-hidden');
+        for (const target of targets) target.classList.remove('sr-hidden');
+        visibleCount += 1;
+        if (!firstVisibleKey)
+          firstVisibleKey = String(section.dataset.srSection || '').trim();
+        continue;
+      }
+
+      let matched = false;
+      for (const target of targets) {
+        const text = (target.textContent || '').toLowerCase();
+        const isMatch = text.includes(query);
+        target.classList.toggle('sr-hidden', !isMatch);
+        if (isMatch) matched = true;
+      }
+
+      section.classList.toggle('sr-hidden', !matched);
+      if (matched) {
+        visibleCount += 1;
+        setSectionCollapsed(section, false, false);
+        if (!firstVisibleKey)
+          firstVisibleKey = String(section.dataset.srSection || '').trim();
+      }
+    }
+
+    updatePanelCount(visibleCount, total, query);
+    if (firstVisibleKey) setJumpActive(firstVisibleKey);
+  };
+
+  panelFilterInp?.addEventListener('input', () => {
+    applyPanelFilter(panelFilterInp.value);
+  });
+
+  panelFilterClearBtn?.addEventListener('click', () => {
+    if (panelFilterInp) panelFilterInp.value = '';
+    applyPanelFilter('');
+    panelFilterInp?.focus();
+  });
+
+  panelExpandAllBtn?.addEventListener('click', () => {
+    for (const section of sections) setSectionCollapsed(section, false, true);
+  });
+
+  panelCollapseAllBtn?.addEventListener('click', () => {
+    for (const section of sections) setSectionCollapsed(section, true, true);
+  });
+
+  panelTopBtn?.addEventListener('click', () => {
+    panelApi.setSnap(isMobile() ? 'half' : 'peek', true);
+    if (panelBody) {
+      panelBody.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  });
+
   const scrollPanelToSection = (section: HTMLElement) => {
     const body = panelBody;
     if (!body) {
@@ -6894,6 +7120,7 @@ const init = () => {
 
       setSectionCollapsed(section, false, true);
       scrollPanelToSection(section);
+      setJumpActive(key);
     });
   }
 
@@ -6913,6 +7140,36 @@ const init = () => {
   }
 
   initSectionCollapse();
+  updatePanelCount(sections.length, sections.length, '');
+
+  const observeActiveSection = () => {
+    if (!panelBody || !sections.length) return;
+    let currentKey = String(sections[0]?.dataset.srSection || '').trim();
+    if (currentKey) setJumpActive(currentKey);
+
+    const observer = new IntersectionObserver(
+      entries => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+        if (!visible.length) return;
+        const section = visible[0].target as HTMLElement;
+        const key = String(section.dataset.srSection || '').trim();
+        if (key && key !== currentKey) {
+          currentKey = key;
+          setJumpActive(currentKey);
+        }
+      },
+      {
+        root: panelBody,
+        threshold: [0.2, 0.4, 0.6],
+      }
+    );
+
+    for (const section of sections) observer.observe(section);
+  };
+
+  observeActiveSection();
 
   // Camera views (save/load/shareable JSON)
   type CameraViewV1 = {

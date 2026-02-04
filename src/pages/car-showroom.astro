@@ -440,6 +440,34 @@ const galleryHref = `${base}gallery/`;
             </button>
           </div>
 
+          <div class="sr__panelTools" aria-label="Panel tools">
+            <label class="sr__panelSearch">
+              <span>Filter</span>
+              <input
+                type="search"
+                inputmode="search"
+                placeholder="Search settings"
+                autocomplete="off"
+                data-sr-panel-filter
+              />
+            </label>
+            <div class="sr__panelActions">
+              <button type="button" class="sr-chip" data-sr-panel-filter-clear>
+                Clear
+              </button>
+              <button type="button" class="sr-chip" data-sr-panel-top>
+                Top
+              </button>
+              <button type="button" class="sr-chip" data-sr-panel-expand-all>
+                Expand all
+              </button>
+              <button type="button" class="sr-chip" data-sr-panel-collapse-all>
+                Collapse all
+              </button>
+            </div>
+            <span class="sr__panelCount" data-sr-panel-count></span>
+          </div>
+
           <section
             class="sr-section"
             id="sr-sec-presets"
@@ -559,6 +587,30 @@ const galleryHref = `${base}gallery/`;
                 <h3>Layout</h3>
               </div>
 
+              <div class="sr-row">
+                <button
+                  type="button"
+                  class="sr-chip"
+                  data-sr-layout-preset="studio"
+                >
+                  Studio
+                </button>
+                <button
+                  type="button"
+                  class="sr-chip"
+                  data-sr-layout-preset="immersive"
+                >
+                  Immersive
+                </button>
+                <button
+                  type="button"
+                  class="sr-chip"
+                  data-sr-layout-preset="compact"
+                >
+                  Compact
+                </button>
+              </div>
+
               <div class="sr-grid">
                 <label class="sr-field">
                   <span>Panel side</span>
@@ -578,6 +630,32 @@ const galleryHref = `${base}gallery/`;
                     value="420"
                     aria-label="Panel width"
                     data-sr-panel-width
+                  />
+                </label>
+
+                <label class="sr-field">
+                  <span>UI scale</span>
+                  <input
+                    type="range"
+                    min="0.9"
+                    max="1.1"
+                    step="0.02"
+                    value="1"
+                    aria-label="UI scale"
+                    data-sr-layout-scale
+                  />
+                </label>
+
+                <label class="sr-field">
+                  <span>Glass intensity</span>
+                  <input
+                    type="range"
+                    min="0.2"
+                    max="1"
+                    step="0.05"
+                    value="0.7"
+                    aria-label="Glass intensity"
+                    data-sr-layout-glass
                   />
                 </label>
 
@@ -614,6 +692,15 @@ const galleryHref = `${base}gallery/`;
                     type="checkbox"
                     aria-label="Show dock"
                     data-sr-layout-dock
+                  />
+                </label>
+
+                <label class="sr-field">
+                  <span>Compact controls</span>
+                  <input
+                    type="checkbox"
+                    aria-label="Compact controls"
+                    data-sr-layout-compact
                   />
                 </label>
               </div>
