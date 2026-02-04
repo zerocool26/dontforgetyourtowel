@@ -24,6 +24,11 @@ type LoadState = {
 
 type PanelSnap = 'collapsed' | 'peek' | 'half' | 'full';
 
+interface SimulationMesh extends THREE.Mesh {
+  _streamOffset?: number;
+  _waveTime?: number;
+}
+
 const ROOT = '[data-sr-root]';
 
 const clamp = (v: number, min: number, max: number) =>
@@ -313,6 +318,10 @@ type MaterialSnapshot = {
   metalness?: number;
   clearcoat?: number;
   clearcoatRoughness?: number;
+  sheen?: number;
+  sheenRoughness?: number;
+  iridescence?: number;
+  iridescenceIOR?: number;
   transmission?: number;
   thickness?: number;
   ior?: number;
@@ -340,6 +349,10 @@ const snapshotMaterial = (mat: THREE.Material): MaterialSnapshot => {
     if (mat instanceof THREE.MeshPhysicalMaterial) {
       s.clearcoat = mat.clearcoat;
       s.clearcoatRoughness = mat.clearcoatRoughness;
+      s.sheen = mat.sheen;
+      s.sheenRoughness = mat.sheenRoughness;
+      s.iridescence = mat.iridescence;
+      s.iridescenceIOR = mat.iridescenceIOR;
       s.transmission = mat.transmission;
       s.thickness = mat.thickness;
       s.ior = mat.ior;
@@ -498,6 +511,46 @@ const computeBodyMaterialUuids = (obj: THREE.Object3D) => {
     if (score >= Math.max(4, max - 2)) selected.add(id);
   }
   return selected;
+};
+
+const createFloorTexture = (): THREE.CanvasTexture => {
+  const size = 512;
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return new THREE.CanvasTexture(canvas);
+
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, size, size);
+
+  // Sub-grid
+  ctx.strokeStyle = '#f1f5f9';
+  ctx.lineWidth = 1;
+  const steps = 8;
+  const step = size / steps;
+  for (let i = 0; i <= steps; i++) {
+    const p = i * step;
+    ctx.beginPath();
+    ctx.moveTo(p, 0);
+    ctx.lineTo(p, size);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(0, p);
+    ctx.lineTo(size, p);
+    ctx.stroke();
+  }
+
+  // Main grid
+  ctx.strokeStyle = '#cbd5e1';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(0, 0, size, size);
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.wrapS = THREE.RepeatWrapping;
+  tex.wrapT = THREE.RepeatWrapping;
+  tex.repeat.set(10, 10);
+  return tex;
 };
 
 const createWrapTexture = (pattern: string, tint01: number) => {
@@ -966,6 +1019,9 @@ const init = () => {
   const modelLift = root.querySelector<HTMLInputElement>(
     '[data-sr-model-lift]'
   );
+  const modelDisassemble = root.querySelector<HTMLInputElement>(
+    '[data-sr-model-disassemble]'
+  );
   const modelTransformResetBtn = root.querySelector<HTMLButtonElement>(
     '[data-sr-model-transform-reset]'
   );
@@ -977,6 +1033,19 @@ const init = () => {
   const finishSel = root.querySelector<HTMLSelectElement>('[data-sr-finish]');
   const clearcoatInp = root.querySelector<HTMLInputElement>(
     '[data-sr-clearcoat]'
+  );
+  const clearcoatRoughInp = root.querySelector<HTMLInputElement>(
+    '[data-sr-clearcoat-roughness]'
+  );
+  const sheenInp = root.querySelector<HTMLInputElement>('[data-sr-sheen]');
+  const sheenRoughInp = root.querySelector<HTMLInputElement>(
+    '[data-sr-sheen-roughness]'
+  );
+  const iridescenceInp = root.querySelector<HTMLInputElement>(
+    '[data-sr-iridescence]'
+  );
+  const iridescenceIorInp = root.querySelector<HTMLInputElement>(
+    '[data-sr-iridescence-ior]'
   );
   const wetChk = root.querySelector<HTMLInputElement>('[data-sr-wet]');
   const wetAmountInp = root.querySelector<HTMLInputElement>(
@@ -1169,6 +1238,12 @@ const init = () => {
   const autorotate = root.querySelector<HTMLInputElement>(
     '[data-sr-autorotate]'
   );
+  const wheelSpinChk = root.querySelector<HTMLInputElement>(
+    '[data-sr-wheel-spin]'
+  );
+  const floorScrollChk = root.querySelector<HTMLInputElement>(
+    '[data-sr-floor-scroll]'
+  );
   const motionStyle = root.querySelector<HTMLSelectElement>(
     '[data-sr-motion-style]'
   );
@@ -1176,6 +1251,15 @@ const init = () => {
     '[data-sr-motion-speed]'
   );
   const zoom = root.querySelector<HTMLInputElement>('[data-sr-zoom]');
+
+  const streamlinesChk = root.querySelector<HTMLInputElement>(
+    '[data-sr-streamlines]'
+  );
+  const thermalChk = root.querySelector<HTMLInputElement>('[data-sr-thermal]');
+  const acousticsChk = root.querySelector<HTMLInputElement>(
+    '[data-sr-acoustics]'
+  );
+  const xrayChk = root.querySelector<HTMLInputElement>('[data-sr-xray]');
 
   const qualitySel = root.querySelector<HTMLSelectElement>('[data-sr-quality]');
   const autoQuality = root.querySelector<HTMLInputElement>(
@@ -1869,6 +1953,13 @@ const init = () => {
   shadow.receiveShadow = true;
   scene.add(shadow);
 
+  // Simulation Groups
+  const streamlinesGroup = new THREE.Group();
+  scene.add(streamlinesGroup);
+
+  const acousticsGroup = new THREE.Group();
+  scene.add(acousticsGroup);
+
   // Loader
   const draco = new DRACOLoader();
   draco.setDecoderPath(withBasePath('/draco/gltf/'));
@@ -2252,9 +2343,17 @@ const init = () => {
     shadowSize: Number.parseFloat(shadowSize?.value || '6') || 6,
     shadowHQ: Boolean(shadowHQ?.checked ?? false),
     autorotate: Boolean(autorotate?.checked ?? false),
+    wheelSpin: Boolean(wheelSpinChk?.checked ?? false),
+    floorScroll: Boolean(floorScrollChk?.checked ?? false),
     motionStyle: (motionStyle?.value || 'turntable').trim().toLowerCase(),
     motionSpeed: Number.parseFloat(motionSpeed?.value || '0.75') || 0.75,
     zoomT: Number.parseFloat(zoom?.value || '0.8') || 0.8,
+
+    streamlines: Boolean(streamlinesChk?.checked ?? false),
+    thermal: Boolean(thermalChk?.checked ?? false),
+    acoustics: Boolean(acousticsChk?.checked ?? false),
+    xray: Boolean(xrayChk?.checked ?? false),
+
     quality: (qualitySel?.value || (isMobile() ? 'balanced' : 'ultra'))
       .trim()
       .toLowerCase(),
@@ -2302,10 +2401,17 @@ const init = () => {
     modelScaleMul: Number.parseFloat(modelScale?.value || '1') || 1,
     modelYawDeg: Number.parseFloat(modelYaw?.value || '0') || 0,
     modelLift: Number.parseFloat(modelLift?.value || '0') || 0,
+    modelDisassemble: Number.parseFloat(modelDisassemble?.value || '0') || 0,
 
     // Look (wrap/glass/parts)
     finish: (finishSel?.value || 'gloss').trim().toLowerCase(),
     clearcoat: Number.parseFloat(clearcoatInp?.value || '0.8') || 0.8,
+    clearcoatRoughness:
+      Number.parseFloat(clearcoatRoughInp?.value || '0.03') || 0.03,
+    sheen: Number.parseFloat(sheenInp?.value || '0') || 0,
+    sheenRoughness: Number.parseFloat(sheenRoughInp?.value || '0.5') || 0.5,
+    iridescence: Number.parseFloat(iridescenceInp?.value || '0') || 0,
+    iridescenceIOR: Number.parseFloat(iridescenceIorInp?.value || '1.3') || 1.3,
     wet: Boolean(wetChk?.checked ?? false),
     wetAmount: Number.parseFloat(wetAmountInp?.value || '0.85') || 0.85,
     grimeAmount: Number.parseFloat(grimeAmountInp?.value || '0') || 0,
@@ -2347,7 +2453,81 @@ const init = () => {
     if (horizonOverlay) horizonOverlay.hidden = !on;
   };
 
+  const labelsOverlay = root.querySelector<HTMLElement>(
+    '[data-sr-labels-overlay]'
+  );
+  let labelEls: HTMLElement[] = [];
+  const labelPositions: Array<{
+    name: string;
+    value: string;
+    pos: THREE.Vector3;
+  }> = [
+    {
+      name: 'Engine',
+      value: 'Flat-6 Twin Turbo',
+      pos: new THREE.Vector3(0, 0.4, -1.2),
+    },
+    { name: 'Power', value: '518 HP', pos: new THREE.Vector3(0, 0.8, -1.5) },
+    {
+      name: 'Brakes',
+      value: 'Ceramic Composite',
+      pos: new THREE.Vector3(0.9, 0.3, 1.1),
+    },
+    { name: 'Chassis', value: 'Monocoque', pos: new THREE.Vector3(0, 0.1, 0) },
+  ];
+
+  const createLabels = () => {
+    if (!labelsOverlay) return;
+    labelsOverlay.replaceChildren();
+    labelEls = labelPositions.map(lp => {
+      const el = document.createElement('div');
+      el.className = 'sr-label';
+      el.innerHTML = `
+        <div class="sr-label__card">${lp.name}<strong>${lp.value}</strong></div>
+        <div class="sr-label__line"></div>
+        <div class="sr-label__dot"></div>
+      `;
+      labelsOverlay.appendChild(el);
+      return el;
+    });
+  };
+
+  const updateLabels = () => {
+    const active = Boolean(hotspotsChk?.checked ?? runtime.hotspots);
+    if (!labelsOverlay || !loadState.gltf || !active) {
+      if (labelsOverlay) labelsOverlay.hidden = true;
+      return;
+    }
+    labelsOverlay.hidden = false;
+
+    const obj = loadState.gltf;
+    const rect = canvas.getBoundingClientRect();
+    const halfW = rect.width / 2;
+    const halfH = rect.height / 2;
+
+    labelPositions.forEach((lp, i) => {
+      const el = labelEls[i];
+      if (!el) return;
+
+      const worldPos = lp.pos.clone().applyMatrix4(obj.matrixWorld);
+      const screenPos = worldPos.clone().project(camera);
+
+      if (screenPos.z > 1) {
+        el.classList.remove('is-visible');
+        return;
+      }
+
+      const x = screenPos.x * halfW + halfW;
+      const y = -screenPos.y * halfH + halfH;
+
+      el.style.left = `${x}px`;
+      el.style.top = `${y}px`;
+      el.classList.add('is-visible');
+    });
+  };
+
   const originalMaterialState = new WeakMap<THREE.Material, MaterialSnapshot>();
+  const originalPositionState = new WeakMap<THREE.Object3D, THREE.Vector3>();
   let wrapTexture: THREE.Texture | null = null;
 
   // License plate: applied on top of the current look and fully reversible.
@@ -2703,6 +2883,24 @@ const init = () => {
     runtime.clearcoat =
       Number.parseFloat(clearcoatInp?.value || `${runtime.clearcoat}`) ||
       runtime.clearcoat;
+    runtime.clearcoatRoughness =
+      Number.parseFloat(
+        clearcoatRoughInp?.value || `${runtime.clearcoatRoughness}`
+      ) || runtime.clearcoatRoughness;
+
+    runtime.sheen =
+      Number.parseFloat(sheenInp?.value || `${runtime.sheen}`) || runtime.sheen;
+    runtime.sheenRoughness =
+      Number.parseFloat(sheenRoughInp?.value || `${runtime.sheenRoughness}`) ||
+      runtime.sheenRoughness;
+
+    runtime.iridescence =
+      Number.parseFloat(iridescenceInp?.value || `${runtime.iridescence}`) ||
+      runtime.iridescence;
+    runtime.iridescenceIOR =
+      Number.parseFloat(
+        iridescenceIorInp?.value || `${runtime.iridescenceIOR}`
+      ) || runtime.iridescenceIOR;
 
     runtime.wet = Boolean(wetChk?.checked ?? runtime.wet);
     runtime.wetAmount =
@@ -2933,9 +3131,14 @@ const init = () => {
         if (material instanceof THREE.MeshPhysicalMaterial) {
           material.clearcoat = wetClearcoat * grimeClearcoatMul;
           material.clearcoatRoughness = clamp01(
-            (0.08 + finishRoughness * 0.22) * wetClearcoatRoughMul +
+            runtime.clearcoatRoughness * wetClearcoatRoughMul +
               grimeClearcoatRoughAdd
           );
+
+          material.sheen = runtime.sheen;
+          material.sheenRoughness = runtime.sheenRoughness;
+          material.iridescence = runtime.iridescence;
+          material.iridescenceIOR = runtime.iridescenceIOR;
         }
 
         if (grimeTintAmt > 0) material.color.lerp(grimeTint, grimeTintAmt);
@@ -3006,9 +3209,14 @@ const init = () => {
           if (material instanceof THREE.MeshPhysicalMaterial) {
             material.clearcoat = wetClearcoat * grimeClearcoatMul;
             material.clearcoatRoughness = clamp01(
-              (0.08 + finishRoughness * 0.22) * wetClearcoatRoughMul +
+              runtime.clearcoatRoughness * wetClearcoatRoughMul +
                 grimeClearcoatRoughAdd
             );
+
+            material.sheen = runtime.sheen;
+            material.sheenRoughness = runtime.sheenRoughness;
+            material.iridescence = runtime.iridescence;
+            material.iridescenceIOR = runtime.iridescenceIOR;
           }
 
           if (grimeTintAmt > 0) material.color.lerp(grimeTint, grimeTintAmt);
@@ -3112,6 +3320,105 @@ const init = () => {
         material.envMapIntensity = clamp(runtime.envIntensity, 0, 3);
       }
     });
+
+    // Thermal Analysis override
+    if (runtime.thermal) {
+      const heatStart = new THREE.Color('#0000ff');
+      const heatMid = new THREE.Color('#ffff00');
+      const heatEnd = new THREE.Color('#ff0000');
+
+      obj.traverse(child => {
+        const mesh = child as THREE.Mesh;
+        if (!mesh.isMesh) return;
+        const mats = Array.isArray(mesh.material)
+          ? mesh.material
+          : [mesh.material];
+        for (const mat of mats) {
+          if (
+            !(mat instanceof THREE.MeshStandardMaterial) &&
+            !(mat instanceof THREE.MeshPhysicalMaterial)
+          ) {
+            continue;
+          }
+
+          const worldPos = new THREE.Vector3();
+          mesh.getWorldPosition(worldPos);
+
+          const distEngine = worldPos.distanceTo(
+            new THREE.Vector3(0, 0.4, 1.8)
+          );
+          const distBrakes = Math.min(
+            worldPos.distanceTo(new THREE.Vector3(1, 0.4, 1.5)),
+            worldPos.distanceTo(new THREE.Vector3(-1, 0.4, 1.5)),
+            worldPos.distanceTo(new THREE.Vector3(1, 0.4, -1.5)),
+            worldPos.distanceTo(new THREE.Vector3(-1, 0.4, -1.5))
+          );
+
+          const heat = Math.max(
+            clamp01(1 - distEngine / 3.0),
+            clamp01(1 - distBrakes / 1.0) * 0.7
+          );
+
+          const col =
+            heat < 0.5
+              ? heatStart.clone().lerp(heatMid, heat * 2)
+              : heatMid.clone().lerp(heatEnd, (heat - 0.5) * 2);
+
+          mat.color.copy(col);
+          if (mat.emissive) {
+            mat.emissive.copy(col).multiplyScalar(0.4);
+            mat.emissiveIntensity = 1;
+          }
+          mat.roughness = 0.6;
+          mat.metalness = 0.1;
+          mat.transparent = false;
+          mat.opacity = 1;
+
+          if (mat instanceof THREE.MeshPhysicalMaterial) {
+            mat.clearcoat = 0;
+            mat.transmission = 0;
+            mat.sheen = 0;
+            mat.iridescence = 0;
+          }
+          mat.needsUpdate = true;
+        }
+      });
+    }
+
+    // X-Ray override
+    if (runtime.xray) {
+      obj.traverse(child => {
+        const mesh = child as THREE.Mesh;
+        if (!mesh.isMesh) return;
+        const flags = classifyMeshByName(mesh.name || '', '');
+        const n = (mesh.name || '').toLowerCase();
+        // If it looks like exterior body or trim, ghost it.
+        // Keep engine, interior, and glass (glass is already ghosted)
+        if (
+          !flags.isGlass &&
+          !n.includes('engine') &&
+          !n.includes('interior') &&
+          !n.includes('seat') &&
+          !n.includes('dash') &&
+          !n.includes('wheel')
+        ) {
+          const mats = Array.isArray(mesh.material)
+            ? mesh.material
+            : [mesh.material];
+          for (const material of mats) {
+            if (
+              material instanceof THREE.MeshStandardMaterial ||
+              material instanceof THREE.MeshPhysicalMaterial
+            ) {
+              material.transparent = true;
+              material.opacity = 0.12;
+              material.color.set(0x00aaff);
+              material.needsUpdate = true;
+            }
+          }
+        }
+      });
+    }
   };
 
   const applyLook = () => {
@@ -3155,6 +3462,51 @@ const init = () => {
     const box = new THREE.Box3().setFromObject(obj);
     obj.position.y -= box.min.y;
     modelBaseY = obj.position.y;
+  };
+
+  const applyDisassembly = () => {
+    const obj = loadState.gltf;
+    if (!obj) return;
+
+    const factor = clamp01(runtime.modelDisassemble);
+    if (factor < 0.001) {
+      obj.traverse(child => {
+        const orig = originalPositionState.get(child);
+        if (orig) child.position.copy(orig);
+      });
+      return;
+    }
+
+    const box = new THREE.Box3().setFromObject(obj);
+    const center = box.getCenter(new THREE.Vector3());
+
+    obj.traverse(child => {
+      const mesh = child as THREE.Mesh;
+      if (!mesh.isMesh) return;
+
+      const orig = originalPositionState.get(child);
+      if (!orig) {
+        originalPositionState.set(child, child.position.clone());
+        return;
+      }
+
+      // We determine world center to get a good radial expansion dir.
+      const worldPos = new THREE.Vector3();
+      mesh.getWorldPosition(worldPos);
+      const dir = worldPos.clone().sub(center);
+
+      // Scale expansion: move sideways/up more than forward/back?
+      // Actually, radial is fine.
+      dir.normalize();
+
+      // Bias Y expansion to pull roof up more.
+      if (dir.y > 0.2) dir.y *= 1.4;
+
+      const strength = factor * 2.2;
+      const offset = dir.multiplyScalar(strength);
+
+      child.position.copy(orig).add(offset);
+    });
   };
 
   const setBackground = (mode: string) => {
@@ -3268,6 +3620,11 @@ const init = () => {
     resetControlToDefault(paintInp);
     resetControlToDefault(finishSel);
     resetControlToDefault(clearcoatInp);
+    resetControlToDefault(clearcoatRoughInp);
+    resetControlToDefault(sheenInp);
+    resetControlToDefault(sheenRoughInp);
+    resetControlToDefault(iridescenceInp);
+    resetControlToDefault(iridescenceIorInp);
     resetControlToDefault(wetChk);
     resetControlToDefault(wetAmountInp);
     resetControlToDefault(grimeAmountInp);
@@ -3291,6 +3648,8 @@ const init = () => {
 
   resetMotionBtn?.addEventListener('click', () => {
     resetControlToDefault(autorotate);
+    resetControlToDefault(wheelSpinChk);
+    resetControlToDefault(floorScrollChk);
     resetControlToDefault(motionStyle);
     resetControlToDefault(motionSpeed);
     resetControlToDefault(zoom);
@@ -3435,6 +3794,7 @@ const init = () => {
       u.strength.value = clamp01(runtime.floorReflectionStrength);
   };
 
+  let floorTexture: THREE.CanvasTexture | null = null;
   const applyFloor = () => {
     floorMat.color.set(runtime.floorHex);
     floorMat.roughness = clamp01(runtime.floorRoughness);
@@ -3442,6 +3802,16 @@ const init = () => {
     floorMat.opacity = clamp01(runtime.floorOpacity);
     floorMat.transparent = floorMat.opacity < 0.999;
     floor.visible = floorMat.opacity > 0.001;
+
+    if (runtime.floorScroll) {
+      if (!floorTexture) {
+        floorTexture = createFloorTexture();
+      }
+      floorMat.map = floorTexture;
+    } else {
+      floorMat.map = null;
+    }
+    floorMat.needsUpdate = true;
 
     applyFloorReflections();
   };
@@ -3681,6 +4051,60 @@ const init = () => {
     controls.autoRotateSpeed = runtime.motionSpeed;
   };
 
+  const applyStreamlines = () => {
+    streamlinesGroup.clear();
+    if (!runtime.streamlines) return;
+
+    const count = 12;
+    const segments = 20;
+    const material = new THREE.MeshBasicMaterial({
+      color: 0x00ffff,
+      transparent: true,
+      opacity: 0.35,
+      blending: THREE.AdditiveBlending,
+    });
+
+    for (let i = 0; i < count; i++) {
+      const x = (Math.random() - 0.5) * 3.5;
+      const yBase = 0.4 + Math.random() * 1.2;
+      const curvePoints = [];
+      for (let j = 0; j < segments; j++) {
+        const z = -7 + j * 0.8;
+        const y = yBase + Math.sin(j * 0.3 + i * 2) * 0.1;
+        curvePoints.push(new THREE.Vector3(x, y, z));
+      }
+      const curve = new THREE.CatmullRomCurve3(curvePoints);
+      const geom = new THREE.TubeGeometry(curve, 32, 0.005, 6, false);
+      const mesh = new THREE.Mesh(geom, material) as SimulationMesh;
+      mesh._streamOffset = Math.random() * 20;
+      streamlinesGroup.add(mesh);
+    }
+  };
+
+  const applyAcoustics = () => {
+    acousticsGroup.clear();
+    if (!runtime.acoustics) return;
+
+    const count = 3;
+    const material = new THREE.MeshBasicMaterial({
+      color: 0xff00ff,
+      transparent: true,
+      opacity: 0.15,
+      side: THREE.BackSide,
+      blending: THREE.AdditiveBlending,
+    });
+
+    for (let i = 0; i < count; i++) {
+      const sphere = new THREE.Mesh(
+        new THREE.SphereGeometry(1.5, 32, 32),
+        material
+      ) as SimulationMesh;
+      sphere.scale.set(0.01, 0.01, 0.01);
+      sphere._waveTime = i / count;
+      acousticsGroup.add(sphere);
+    }
+  };
+
   const applyZoom = () => {
     const t = clamp01(runtime.zoomT);
     const dist = THREE.MathUtils.lerp(
@@ -3708,6 +4132,10 @@ const init = () => {
     const requestId = ++loadState.requestId;
 
     const nextKey = normalizeModelKey(raw);
+    if (modelDisassemble) {
+      modelDisassemble.value = '0';
+      runtime.modelDisassemble = 0;
+    }
     const swapped = Boolean(nextKey && nextKey !== lastLoadedModelKey);
     const isFirstLoad = !lastLoadedModelKey;
     if (swapped && !isFirstLoad) applyModelTransformDefaults(raw);
@@ -4030,6 +4458,8 @@ const init = () => {
     runtime.modelScaleMul = Number.parseFloat(modelScale?.value || '1') || 1;
     runtime.modelYawDeg = Number.parseFloat(modelYaw?.value || '0') || 0;
     runtime.modelLift = Number.parseFloat(modelLift?.value || '0') || 0;
+    runtime.modelDisassemble =
+      Number.parseFloat(modelDisassemble?.value || '0') || 0;
   };
 
   modelScale?.addEventListener('input', () => {
@@ -4043,6 +4473,26 @@ const init = () => {
   modelLift?.addEventListener('input', () => {
     syncRuntimeModelTransformFromUi();
   });
+  modelDisassemble?.addEventListener('input', () => {
+    syncRuntimeModelTransformFromUi();
+    applyDisassembly();
+  });
+
+  const syncRuntimeMotionFromUi = () => {
+    runtime.autorotate = Boolean(autorotate?.checked);
+    runtime.wheelSpin = Boolean(wheelSpinChk?.checked);
+    runtime.floorScroll = Boolean(floorScrollChk?.checked);
+    runtime.motionStyle = (motionStyle?.value || 'turntable')
+      .trim()
+      .toLowerCase();
+    runtime.motionSpeed = Number.parseFloat(motionSpeed?.value || '1') || 1;
+  };
+
+  autorotate?.addEventListener('change', () => syncRuntimeMotionFromUi());
+  wheelSpinChk?.addEventListener('change', () => syncRuntimeMotionFromUi());
+  floorScrollChk?.addEventListener('change', () => syncRuntimeMotionFromUi());
+  motionStyle?.addEventListener('change', () => syncRuntimeMotionFromUi());
+  motionSpeed?.addEventListener('input', () => syncRuntimeMotionFromUi());
 
   modelTransformResetBtn?.addEventListener('click', () => {
     if (modelScale) modelScale.value = '1';
@@ -4067,36 +4517,66 @@ const init = () => {
   });
 
   // Look presets
-  type LookPresetId = 'custom' | 'showroom' | 'rainy' | 'dusty' | 'track';
+  type LookPresetId =
+    | 'custom'
+    | 'showroom'
+    | 'rainy'
+    | 'dusty'
+    | 'track'
+    | 'blueprint'
+    | 'midnight'
+    | 'commercial';
   type LookPreset = {
     finish?: 'gloss' | 'satin' | 'matte';
     clearcoat?: number;
+    clearcoatRoughness?: number;
+    sheen?: number;
+    iridescence?: number;
     wet?: boolean;
     wetAmount?: number;
     grimeAmount?: number;
+    bg?: string;
+    paint?: string;
+    light?: string;
+    wheelSpin?: boolean;
+    floorScroll?: boolean;
+    disassemble?: number;
+    streamlines?: boolean;
+    thermal?: boolean;
+    xray?: boolean;
   };
 
   const LOOK_PRESETS: Record<Exclude<LookPresetId, 'custom'>, LookPreset> = {
     showroom: {
       finish: 'gloss',
       clearcoat: 0.85,
+      clearcoatRoughness: 0.03,
+      sheen: 0.1,
       wet: false,
       wetAmount: 0.85,
       grimeAmount: 0,
+      wheelSpin: false,
+      floorScroll: false,
     },
     rainy: {
       finish: 'gloss',
       clearcoat: 0.92,
+      clearcoatRoughness: 0,
       wet: true,
       wetAmount: 1,
       grimeAmount: 0.15,
+      wheelSpin: false,
+      floorScroll: false,
     },
     dusty: {
       finish: 'satin',
       clearcoat: 0.55,
+      clearcoatRoughness: 0.4,
       wet: false,
       wetAmount: 0.85,
       grimeAmount: 0.7,
+      wheelSpin: false,
+      floorScroll: false,
     },
     track: {
       finish: 'matte',
@@ -4104,6 +4584,39 @@ const init = () => {
       wet: false,
       wetAmount: 0.85,
       grimeAmount: 0.2,
+      wheelSpin: false,
+      floorScroll: false,
+    },
+    blueprint: {
+      finish: 'matte',
+      clearcoat: 0,
+      bg: 'grid',
+      paint: '#ffffff',
+      disassemble: 0.35,
+      wheelSpin: false,
+      floorScroll: false,
+      streamlines: true,
+    },
+    midnight: {
+      finish: 'satin',
+      clearcoat: 0.9,
+      iridescence: 0.5,
+      bg: 'night',
+      paint: '#0a0a0f',
+      light: 'neon',
+      wheelSpin: true,
+      floorScroll: true,
+    },
+    commercial: {
+      finish: 'gloss',
+      clearcoat: 1,
+      clearcoatRoughness: 0.02,
+      sheen: 0.4,
+      bg: 'studio',
+      light: 'golden',
+      wheelSpin: true,
+      floorScroll: true,
+      streamlines: true,
     },
   };
 
@@ -4155,6 +4668,12 @@ const init = () => {
       if (finishSel && preset.finish) setSelectValue(finishSel, preset.finish);
       if (clearcoatInp && preset.clearcoat !== undefined)
         setRangeValue(clearcoatInp, preset.clearcoat, 'input');
+      if (clearcoatRoughInp && preset.clearcoatRoughness !== undefined)
+        setRangeValue(clearcoatRoughInp, preset.clearcoatRoughness, 'input');
+      if (sheenInp && preset.sheen !== undefined)
+        setRangeValue(sheenInp, preset.sheen, 'input');
+      if (iridescenceInp && preset.iridescence !== undefined)
+        setRangeValue(iridescenceInp, preset.iridescence, 'input');
 
       if (wetChk && preset.wet !== undefined) {
         wetChk.checked = preset.wet;
@@ -4167,20 +4686,52 @@ const init = () => {
       if (grimeAmountInp && preset.grimeAmount !== undefined)
         setRangeValue(grimeAmountInp, preset.grimeAmount, 'input');
 
+      if (bgSel && preset.bg) setSelectValue(bgSel, preset.bg);
+
+      if (paintInp && preset.paint) {
+        paintInp.value = preset.paint;
+        paintInp.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+      if (lightPreset && preset.light)
+        setSelectValue(lightPreset, preset.light);
+
+      if (wheelSpinChk && preset.wheelSpin !== undefined) {
+        wheelSpinChk.checked = preset.wheelSpin;
+        wheelSpinChk.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      if (floorScrollChk && preset.floorScroll !== undefined) {
+        floorScrollChk.checked = preset.floorScroll;
+        floorScrollChk.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      if (modelDisassemble && preset.disassemble !== undefined) {
+        setRangeValue(modelDisassemble, preset.disassemble, 'input');
+      }
+
+      if (streamlinesChk && preset.streamlines !== undefined) {
+        streamlinesChk.checked = preset.streamlines;
+        streamlinesChk.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      if (thermalChk && preset.thermal !== undefined) {
+        thermalChk.checked = preset.thermal;
+        thermalChk.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+
       lookPresetSel.value = id;
     } finally {
       applyingLookPreset = false;
     }
 
     if (!opts?.silent) {
-      const label =
-        id === 'showroom'
-          ? 'Showroom clean'
-          : id === 'rainy'
-            ? 'Rainy / wet'
-            : id === 'dusty'
-              ? 'Dusty / dirty'
-              : 'Track day';
+      const labelMap: Record<string, string> = {
+        showroom: 'Showroom clean',
+        rainy: 'Rainy / wet',
+        dusty: 'Dusty / dirty',
+        track: 'Track day',
+        blueprint: 'Technical blueprint',
+        midnight: 'Midnight run',
+        commercial: 'Commercial shot',
+      };
+      const label = labelMap[id as string] || id;
       setStatus(false, `Look preset: ${label}.`);
       window.setTimeout(() => setStatus(false, ''), 1200);
     }
@@ -4371,6 +4922,15 @@ const init = () => {
     runtime.autorotate = Boolean(autorotate.checked);
     applyMotion();
   });
+  wheelSpinChk?.addEventListener('change', () => {
+    runtime.wheelSpin = Boolean(wheelSpinChk.checked);
+    applyMotion();
+  });
+  floorScrollChk?.addEventListener('change', () => {
+    runtime.floorScroll = Boolean(floorScrollChk.checked);
+    applyFloor();
+    applyMotion();
+  });
   motionStyle?.addEventListener('change', () => {
     runtime.motionStyle = (motionStyle.value || 'turntable')
       .trim()
@@ -4386,6 +4946,24 @@ const init = () => {
     runtime.zoomT = Number.parseFloat(zoom.value) || 0;
     applyZoom();
   });
+
+  streamlinesChk?.addEventListener('change', () => {
+    runtime.streamlines = Boolean(streamlinesChk.checked);
+    applyStreamlines();
+  });
+  thermalChk?.addEventListener('change', () => {
+    runtime.thermal = Boolean(thermalChk.checked);
+    applyLook();
+  });
+  acousticsChk?.addEventListener('change', () => {
+    runtime.acoustics = Boolean(acousticsChk.checked);
+    applyAcoustics();
+  });
+  xrayChk?.addEventListener('change', () => {
+    runtime.xray = Boolean(xrayChk.checked);
+    applyLook();
+  });
+
   applyMotion();
   applyZoom();
 
@@ -4808,6 +5386,33 @@ const init = () => {
 
     if (selectionBox) selectionBox.update();
 
+    // Wheel Spin
+    if (loadState.gltf && runtime.wheelSpin) {
+      const speed = runtime.motionSpeed * deltaS * 12;
+      loadState.gltf.traverse(child => {
+        if (!(child as THREE.Mesh).isMesh) return;
+        const n = child.name.toLowerCase();
+        // Look for wheel/rim/tire/brake components that should rotate
+        if (
+          n.includes('wheel') ||
+          n.includes('rim') ||
+          n.includes('tire') ||
+          n.includes('tyre')
+        ) {
+          // Avoid rotating stationary parts if possible (calipers usually don't rotate with wheel)
+          if (!n.includes('caliper') && !n.includes('brake')) {
+            child.rotateX(speed);
+          }
+        }
+      });
+    }
+
+    // Floor Scroll
+    if (floorMat && floorMat.map && runtime.floorScroll) {
+      const speed = runtime.motionSpeed * deltaS * 0.5;
+      floorMat.map.offset.y -= speed;
+    }
+
     // Animation mixer
     if (mixer && animationEnabled) {
       const playing = Boolean(animPlayChk?.checked ?? true);
@@ -4815,6 +5420,41 @@ const init = () => {
       mixer.timeScale = sp;
       if (playing) mixer.update(deltaS);
     }
+
+    updateLabels();
+
+    // Streamlines animation
+    if (runtime.streamlines) {
+      streamlinesGroup.children.forEach(child => {
+        const mesh = child as SimulationMesh;
+        const offset = mesh._streamOffset || 0;
+        const time = (now * 0.001 * (runtime.motionSpeed + 0.2) + offset) % 15;
+        mesh.position.z = time - 7.5;
+        mesh.visible = mesh.position.z > -7 && mesh.position.z < 7;
+        const dist = Math.abs(mesh.position.z);
+        if (mesh.material instanceof THREE.MeshBasicMaterial) {
+          mesh.material.opacity = clamp01(1 - dist / 7.5) * 0.35;
+        }
+      });
+    }
+
+    // Acoustics animation
+    if (runtime.acoustics) {
+      acousticsGroup.children.forEach(child => {
+        const mesh = child as SimulationMesh;
+        let t = mesh._waveTime || 0;
+        t += deltaS * 0.5;
+        if (t > 1) t = 0;
+        mesh._waveTime = t;
+
+        const s = t * 7;
+        mesh.scale.set(s, s, s);
+        if (mesh.material instanceof THREE.MeshBasicMaterial) {
+          mesh.material.opacity = clamp01(1 - t) * 0.15;
+        }
+      });
+    }
+
     const dt = now - lastSample;
     if (dt >= 1000) {
       const fps = Math.round((frames * 1000) / dt);
@@ -8622,6 +9262,7 @@ const init = () => {
     });
   }
 
+  createLabels();
   html.dataset.carShowroomBoot = '1';
 };
 

@@ -74,6 +74,7 @@ const galleryHref = `${base}gallery/`;
         </div>
 
         <div class="sr__letterbox" data-sr-letterbox aria-hidden="true"></div>
+        <div class="sr__labels" data-sr-labels-overlay></div>
         <button
           type="button"
           class="sr-btn sr__cinematicExit"
@@ -994,6 +995,19 @@ const galleryHref = `${base}gallery/`;
                     data-sr-model-lift
                   />
                 </label>
+
+                <label class="sr-field">
+                  <span>Exploded view</span>
+                  <input
+                    type="range"
+                    aria-label="Exploded view"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value="0"
+                    data-sr-model-disassemble
+                  />
+                </label>
               </div>
 
               <div class="sr-row">
@@ -1038,6 +1052,9 @@ const galleryHref = `${base}gallery/`;
                   <option value="rainy">Rainy / wet</option>
                   <option value="dusty">Dusty / dirty</option>
                   <option value="track">Track day</option>
+                  <option value="blueprint">Technical blueprint</option>
+                  <option value="midnight">Midnight run</option>
+                  <option value="commercial">Commercial shot</option>
                 </select>
               </label>
 
@@ -1070,6 +1087,71 @@ const galleryHref = `${base}gallery/`;
                   step="0.01"
                   value="0.8"
                   data-sr-clearcoat
+                />
+              </label>
+
+              <label class="sr-field">
+                <span>Clearcoat Rough</span>
+                <input
+                  type="range"
+                  aria-label="Clearcoat roughness"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value="0.03"
+                  data-sr-clearcoat-roughness
+                />
+              </label>
+
+              <label class="sr-field">
+                <span>Sheen</span>
+                <input
+                  type="range"
+                  aria-label="Sheen intensity"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value="0"
+                  data-sr-sheen
+                />
+              </label>
+
+              <label class="sr-field">
+                <span>Sheen Rough</span>
+                <input
+                  type="range"
+                  aria-label="Sheen roughness"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value="0.5"
+                  data-sr-sheen-roughness
+                />
+              </label>
+
+              <label class="sr-field">
+                <span>Iridescence</span>
+                <input
+                  type="range"
+                  aria-label="Iridescence"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value="0"
+                  data-sr-iridescence
+                />
+              </label>
+
+              <label class="sr-field">
+                <span>Iridescence IOR</span>
+                <input
+                  type="range"
+                  aria-label="Iridescence IOR"
+                  min="1"
+                  max="2.5"
+                  step="0.01"
+                  value="1.3"
+                  data-sr-iridescence-ior
                 />
               </label>
 
@@ -1977,6 +2059,38 @@ const galleryHref = `${base}gallery/`;
                   data-sr-autorotate
                 />
               </label>
+
+              <label class="sr-field">
+                <span>Spin wheels</span>
+                <input
+                  type="checkbox"
+                  aria-label="Spin wheels"
+                  data-sr-wheel-spin
+                />
+              </label>
+
+              <label class="sr-field">
+                <span>Floor scroll</span>
+                <input
+                  type="checkbox"
+                  aria-label="Floor scroll"
+                  data-sr-floor-scroll
+                />
+              </label>
+
+              <label class="sr-field">
+                <span>Speed factor</span>
+                <input
+                  type="range"
+                  aria-label="Motion speed factor"
+                  min="0"
+                  max="4"
+                  step="0.01"
+                  value="1"
+                  data-sr-motion-speed
+                />
+              </label>
+
               <label class="sr-field">
                 <span>Style</span>
                 <select data-sr-motion-style>
@@ -2009,6 +2123,56 @@ const galleryHref = `${base}gallery/`;
                   value="0"
                   data-sr-zoom
                 />
+              </label>
+            </div>
+          </section>
+
+          <section
+            class="sr-section"
+            id="sr-sec-sim"
+            data-sr-section="simulation"
+          >
+            <div class="sr-section__head">
+              <h2>Simulation</h2>
+              <div class="sr-section__headActions">
+                <button
+                  type="button"
+                  class="sr-section__toggle"
+                  data-sr-section-toggle
+                  aria-expanded="true"
+                >
+                  Hide
+                </button>
+              </div>
+            </div>
+            <div class="sr-grid">
+              <label class="sr-field">
+                <span>Aerodynamics (Flow)</span>
+                <input
+                  type="checkbox"
+                  aria-label="Aerodynamics"
+                  data-sr-streamlines
+                />
+              </label>
+              <label class="sr-field">
+                <span>Thermal Heatmap</span>
+                <input
+                  type="checkbox"
+                  aria-label="Thermal Analysis"
+                  data-sr-thermal
+                />
+              </label>
+              <label class="sr-field">
+                <span>Acoustic Visualizer</span>
+                <input
+                  type="checkbox"
+                  aria-label="Acoustic visualization"
+                  data-sr-acoustics
+                />
+              </label>
+              <label class="sr-field">
+                <span>X-Ray Vision</span>
+                <input type="checkbox" aria-label="X-Ray Vision" data-sr-xray />
               </label>
             </div>
           </section>

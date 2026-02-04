@@ -335,6 +335,68 @@
   display: block;
 }
 
+/* AR-style Labels Overlay */
+.sr__labels {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 52;
+  overflow: hidden;
+}
+
+.sr-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  transform: translate(-50%, -100%);
+  opacity: 0;
+  transition: opacity 220ms var(--sr-ease);
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.6));
+}
+
+.sr-label.is-visible {
+  opacity: 1;
+}
+
+.sr-label__card {
+  background: var(--sr-panel-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--sr-border);
+  border-radius: 8px;
+  padding: 6px 12px;
+  color: var(--sr-text);
+  white-space: nowrap;
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+    'Courier New', monospace;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.sr-label__card strong {
+  color: var(--sr-accent);
+  margin-left: 4px;
+}
+
+.sr-label__line {
+  width: 1px;
+  height: 24px;
+  background: linear-gradient(to top, var(--sr-accent), transparent);
+}
+
+.sr-label__dot {
+  width: 6px;
+  height: 6px;
+  background: var(--sr-accent);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--sr-accent);
+}
+
 .sr__hud {
   position: fixed;
   right: 16px;
