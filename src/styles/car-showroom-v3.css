@@ -4,6 +4,10 @@
   overflow: hidden;
 }
 
+body.car-showroom-fullscreen astro-dev-toolbar {
+  display: none !important;
+}
+
 .sr-chip {
   text-decoration: none;
 }
@@ -54,6 +58,12 @@
     BlinkMacSystemFont,
     'Segoe UI',
     sans-serif;
+
+  --sr-panel-w: min(var(--sr-panel-width), 92vw);
+  --sr-safe-left: 0px;
+  --sr-safe-right: 0px;
+  --sr-safe-top: 0px;
+  --sr-safe-bottom: 0px;
 }
 
 .sr__grid {
@@ -66,8 +76,8 @@
 .sr__top {
   position: fixed;
   top: 16px;
-  left: 16px;
-  right: 16px;
+  left: calc(16px + var(--sr-safe-left, 0px));
+  right: calc(16px + var(--sr-safe-right, 0px));
   z-index: 40;
   display: flex;
   align-items: flex-start;
@@ -140,9 +150,22 @@
 
 .sr__viewer {
   position: fixed;
-  inset: 0;
-  z-index: 0;
+  inset: var(--sr-safe-top) var(--sr-safe-right) var(--sr-safe-bottom)
+    var(--sr-safe-left);
   min-height: 100svh;
+  transition: inset 420ms var(--sr-ease);
+}
+
+/* When the settings panel is open, reserve space so it does not cover the 3D view. */
+[data-sr-root]:not([data-sr-panel-snap='collapsed']) {
+  --sr-safe-right: calc(var(--sr-panel-w) + 32px);
+}
+
+[data-sr-root][data-sr-panel-side='left']:not(
+    [data-sr-panel-snap='collapsed']
+  ) {
+  --sr-safe-left: calc(var(--sr-panel-w) + 32px);
+  --sr-safe-right: 0px;
 }
 
 /* Fullscreen menu (gallery-style) */
@@ -498,7 +521,7 @@
 
 .sr__hud {
   position: fixed;
-  right: 16px;
+  right: calc(16px + var(--sr-safe-right, 0px));
   top: 92px;
   display: flex;
   flex-direction: column;
@@ -738,8 +761,8 @@
 
 .sr__guide {
   position: fixed;
-  left: 16px;
-  bottom: 16px;
+  left: calc(16px + var(--sr-safe-left, 0px));
+  bottom: calc(16px + var(--sr-safe-bottom, 0px));
   z-index: 41;
   pointer-events: auto;
   width: min(380px, calc(100vw - 28px));
@@ -1377,9 +1400,10 @@
 
 .sr__spec {
   position: fixed;
-  left: 50%;
-  bottom: 16px;
-  transform: translateX(-50%);
+  left: calc(16px + var(--sr-safe-left, 0px));
+  right: calc(16px + var(--sr-safe-right, 0px));
+  bottom: calc(16px + var(--sr-safe-bottom, 0px));
+  transform: none;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 14px;
@@ -1396,8 +1420,8 @@
 
 .sr__dock {
   position: fixed;
-  left: 16px;
-  bottom: 16px;
+  left: calc(16px + var(--sr-safe-left, 0px));
+  bottom: calc(16px + var(--sr-safe-bottom, 0px));
   display: flex;
   gap: 10px;
   padding: 10px;
@@ -1407,11 +1431,6 @@
   backdrop-filter: blur(18px);
   box-shadow: var(--sr-shadow);
   z-index: 30;
-}
-
-.sr[data-sr-panel-side='left'] .sr__dock {
-  left: auto;
-  right: 16px;
 }
 
 .sr__dockBtn {
@@ -1598,27 +1617,27 @@
 
   .sr__top {
     top: 10px;
-    left: 10px;
-    right: 10px;
+    left: calc(10px + var(--sr-safe-left, 0px));
+    right: calc(10px + var(--sr-safe-right, 0px));
   }
 
   .sr__panel {
     position: fixed;
-    left: 10px;
-    right: 10px;
+    top: 10px;
     bottom: 10px;
-    height: var(--sr-panel-height);
-    max-height: calc(100svh - 86px);
+    right: 10px;
+    left: auto;
+    width: var(--sr-panel-w);
+    height: auto;
+    max-height: none;
     z-index: 40;
     padding-bottom: env(safe-area-inset-bottom, 0px);
-    width: auto;
-    top: auto;
-    transform: translateY(0);
+    transform: translateX(0);
   }
 
   .sr[data-sr-panel-side='left'] .sr__panel {
     left: 10px;
-    right: 10px;
+    right: auto;
   }
 
   .sr__panelResize {
@@ -1627,19 +1646,15 @@
 
   .sr__quick {
     position: fixed;
-    right: 12px;
-    bottom: calc(
-      var(--sr-panel-height, 0px) + 12px + env(safe-area-inset-bottom, 0px)
-    );
+    right: calc(12px + var(--sr-safe-right, 0px));
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
     z-index: 42;
     display: block;
   }
 
   .sr__guide {
-    left: 12px;
-    bottom: calc(
-      var(--sr-panel-height, 0px) + 12px + env(safe-area-inset-bottom, 0px)
-    );
+    left: calc(12px + var(--sr-safe-left, 0px));
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
   }
 
   .sr__quickMenu {
@@ -1655,8 +1670,8 @@
 
   .sr__fab {
     position: fixed;
-    right: 14px;
-    bottom: 14px;
+    right: calc(12px + var(--sr-safe-right, 0px));
+    bottom: calc(12px + 56px + env(safe-area-inset-bottom, 0px));
     z-index: 41;
     display: none;
     align-items: center;
@@ -1750,7 +1765,7 @@
 
   .sr__hud {
     top: 84px;
-    right: 10px;
+    right: calc(10px + var(--sr-safe-right, 0px));
   }
 
   .sr[data-sr-show-top='0'] .sr__hud {
@@ -1758,23 +1773,17 @@
   }
 
   .sr__spec {
-    bottom: 10px;
-    left: 10px;
-    right: 10px;
-    transform: none;
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    left: calc(10px + var(--sr-safe-left, 0px));
+    right: calc(10px + var(--sr-safe-right, 0px));
     grid-template-columns: repeat(2, minmax(0, 1fr));
     border-radius: 18px;
   }
 
   .sr__dock {
-    left: 10px;
-    bottom: 84px;
+    left: calc(10px + var(--sr-safe-left, 0px));
+    bottom: calc(84px + env(safe-area-inset-bottom, 0px));
     padding: 8px;
-  }
-
-  .sr[data-sr-panel-side='left'] .sr__dock {
-    left: 10px;
-    right: auto;
   }
 
   .sr-grid {

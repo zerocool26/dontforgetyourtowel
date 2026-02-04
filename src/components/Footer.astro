@@ -1,6 +1,7 @@
 ---
 import { withBasePath } from '../utils/helpers';
 import ModernCard from './ui/ModernCard.astro';
+import ModernButton from './ui/ModernButton.astro';
 
 const today = new Date();
 
@@ -68,22 +69,26 @@ const navSections = [
           growing your business.
         </p>
         <div class="flex flex-wrap gap-4">
-          <a
-            class="btn btn-primary rounded-sm font-mono text-xs uppercase tracking-wider"
+          <ModernButton
             href={`${withBasePath('services/')}#contact`}
+            variant="primary"
+            rounded="sm"
+            className="font-mono text-xs uppercase tracking-wider"
           >
             Contact
-          </a>
-          <a
-            class="btn btn-secondary rounded-sm font-mono text-xs uppercase tracking-wider"
+          </ModernButton>
+          <ModernButton
             href={withBasePath('pricing/')}
+            variant="secondary"
+            rounded="sm"
+            className="font-mono text-xs uppercase tracking-wider"
           >
             View Pricing
-          </a>
+          </ModernButton>
         </div>
         <div class="flex gap-3 text-zinc-500">
           <a
-            class="inline-flex h-10 w-10 items-center justify-center rounded-sm border border-zinc-800 bg-zinc-900 transition hover:border-accent-500 hover:text-accent-500"
+            class="inline-flex h-10 w-10 items-center justify-center rounded-sm border border-zinc-800 bg-zinc-900 transition hover:border-accent-500 hover:text-accent-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400"
             href="https://github.com"
             target="_blank"
             rel="noopener noreferrer"
@@ -96,7 +101,7 @@ const navSections = [
             </svg>
           </a>
           <a
-            class="inline-flex h-10 w-10 items-center justify-center rounded-sm border border-zinc-800 bg-zinc-900 transition hover:border-accent-500 hover:text-accent-500"
+            class="inline-flex h-10 w-10 items-center justify-center rounded-sm border border-zinc-800 bg-zinc-900 transition hover:border-accent-500 hover:text-accent-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400"
             href="https://www.linkedin.com"
             target="_blank"
             rel="noopener noreferrer"
@@ -131,7 +136,7 @@ const navSections = [
                 {section.items.map(item => (
                   <li>
                     <a
-                      class="inline-flex items-center gap-2 text-slate-200 transition hover:text-white"
+                      class="inline-flex items-center gap-2 rounded-sm text-slate-200 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400"
                       href={item.href}
                     >
                       <span class="h-px w-8 bg-white/15" />

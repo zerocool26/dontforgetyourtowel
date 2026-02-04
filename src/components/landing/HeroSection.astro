@@ -1,6 +1,7 @@
 ---
 import { withBasePath } from '../../utils/helpers';
 import HeroCanvas from '../ui/HeroCanvas.astro';
+import ModernButton from '../ui/ModernButton.astro';
 
 interface Props {
   /** Main headline text */
@@ -96,18 +97,12 @@ const resolvedSecondaryCta =
         </p>
 
         <div class="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-          <a
-            class="inline-flex items-center justify-center rounded-md bg-accent-500 px-6 py-3 font-semibold text-white shadow-lg shadow-accent-500/20 transition hover:bg-accent-400 focus:outline-none focus:ring-2 focus:ring-accent-300"
-            href={resolvedPrimaryCta.href}
-          >
+          <ModernButton href={resolvedPrimaryCta.href} variant="primary">
             {resolvedPrimaryCta.label}
-          </a>
-          <a
-            class="inline-flex items-center justify-center rounded-md border border-white/15 bg-white/5 px-6 py-3 font-semibold text-white transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-accent-300"
-            href={resolvedSecondaryCta.href}
-          >
+          </ModernButton>
+          <ModernButton href={resolvedSecondaryCta.href} variant="secondary">
             {resolvedSecondaryCta.label}
-          </a>
+          </ModernButton>
           {
             showControls ? (
               <button

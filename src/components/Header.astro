@@ -1,5 +1,5 @@
 ---
-import { CONTACT_EMAIL, SITE_TITLE } from '../consts';
+import { BASE_PATH, CONTACT_EMAIL, SITE_TITLE } from '../consts';
 import { withBasePath } from '../utils/helpers';
 import ThemeSelector from './ThemeSelector.astro';
 import ModernButton from './ui/ModernButton.astro';
@@ -8,6 +8,7 @@ const homeHref = withBasePath('/');
 
 const links = [
   { label: 'Services', href: withBasePath('services/') },
+  { label: 'Pricing', href: withBasePath('pricing/') },
   { label: 'About', href: withBasePath('about/') },
 ];
 
@@ -20,6 +21,26 @@ const demoLinks = [
 const startProjectHref = `mailto:${encodeURIComponent(
   CONTACT_EMAIL
 )}?subject=${encodeURIComponent('New project inquiry')}`;
+
+const normalizePath = (value: string) => {
+  const strippedBase =
+    BASE_PATH && BASE_PATH !== '/' ? value.replace(BASE_PATH, '/') : value;
+  const trimmed = strippedBase.replace(/\/+$/, '');
+  return trimmed.length ? trimmed : '/';
+};
+
+const currentPath = normalizePath(Astro.url.pathname);
+
+const isActiveHref = (href: string) => {
+  try {
+    const url = Astro.site
+      ? new URL(href, Astro.site)
+      : new URL(href, 'https://local.invalid');
+    return normalizePath(url.pathname) === currentPath;
+  } catch {
+    return normalizePath(href) === currentPath;
+  }
+};
 ---
 
 <header
@@ -30,7 +51,7 @@ const startProjectHref = `mailto:${encodeURIComponent(
     aria-label="Main navigation"
   >
     <a
-      class="group flex h-full items-center gap-3 py-3 text-zinc-100"
+      class="group flex h-full items-center gap-3 rounded-md py-3 text-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:ring-offset-0"
       href={homeHref}
       aria-label={`${SITE_TITLE} home`}
     >
@@ -54,38 +75,62 @@ const startProjectHref = `mailto:${encodeURIComponent(
     </a>
 
     <div class="hidden h-full items-center md:flex">
-      <a
-        class="flex h-full items-center border-l border-zinc-800/50 px-4 font-mono text-xs uppercase tracking-wide text-zinc-400 transition hover:bg-zinc-900 hover:text-white"
-        href={homeHref}
-      >
-        Home
-      </a>
       {
-        links.map(link => (
-          <a
-            class={
-              'flex h-full items-center border-l border-zinc-800/50 px-4 font-mono text-xs uppercase tracking-wide text-zinc-400 transition hover:bg-zinc-900 hover:text-white'
-            }
-            href={link.href}
-          >
-            {link.label}
-          </a>
-        ))
+        (() => {
+          const active = isActiveHref(homeHref);
+          return (
+            <a
+              class={`flex h-full items-center border-l border-zinc-800/50 px-4 font-mono text-xs uppercase tracking-wide transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:ring-offset-0 ${
+                active
+                  ? 'bg-zinc-900 text-white'
+                  : 'text-zinc-400 hover:bg-zinc-900 hover:text-white'
+              }`}
+              href={homeHref}
+              aria-current={active ? 'page' : undefined}
+            >
+              Home
+            </a>
+          );
+        })()
+      }
+      {
+        links.map(link => {
+          const active = isActiveHref(link.href);
+          return (
+            <a
+              class={`flex h-full items-center border-l border-zinc-800/50 px-4 font-mono text-xs uppercase tracking-wide transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:ring-offset-0 ${
+                active
+                  ? 'bg-zinc-900 text-white'
+                  : 'text-zinc-400 hover:bg-zinc-900 hover:text-white'
+              }`}
+              href={link.href}
+              aria-current={active ? 'page' : undefined}
+            >
+              {link.label}
+            </a>
+          );
+        })
       }
 
       <div class="h-full w-px bg-zinc-800/50"></div>
 
       {
-        demoLinks.map(link => (
-          <a
-            class={
-              'flex h-full items-center border-l border-zinc-800/50 px-4 font-mono text-xs uppercase tracking-wide text-zinc-400 transition hover:bg-zinc-900 hover:text-white'
-            }
-            href={link.href}
-          >
-            {link.label}
-          </a>
-        ))
+        demoLinks.map(link => {
+          const active = isActiveHref(link.href);
+          return (
+            <a
+              class={`flex h-full items-center border-l border-zinc-800/50 px-4 font-mono text-xs uppercase tracking-wide transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:ring-offset-0 ${
+                active
+                  ? 'bg-zinc-900 text-white'
+                  : 'text-zinc-400 hover:bg-zinc-900 hover:text-white'
+              }`}
+              href={link.href}
+              aria-current={active ? 'page' : undefined}
+            >
+              {link.label}
+            </a>
+          );
+        })
       }
       <div class="h-full w-px bg-zinc-800/50"></div>
     </div>
@@ -135,42 +180,55 @@ const startProjectHref = `mailto:${encodeURIComponent(
       class="space-y-2 border-t border-white/10 bg-[rgba(11,19,35,0.92)] px-4 py-5 text-sm"
     >
       <a
-        class="min-h-touch flex touch-manipulation items-center rounded-lg px-3 py-3 font-medium text-slate-200 transition hover:bg-white/5"
+        class="min-h-touch flex touch-manipulation items-center rounded-lg px-3 py-3 font-medium text-slate-200 transition hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400"
         href={homeHref}
+        aria-current={isActiveHref(homeHref) ? 'page' : undefined}
       >
         Home
       </a>
       {
-        links.map(link => (
-          <a
-            class="min-h-touch flex touch-manipulation items-center rounded-lg px-3 py-3 font-medium text-slate-200 transition hover:bg-white/5"
-            href={link.href}
-          >
-            {link.label}
-          </a>
-        ))
+        links.map(link => {
+          const active = isActiveHref(link.href);
+          return (
+            <a
+              class={`min-h-touch flex touch-manipulation items-center rounded-lg px-3 py-3 font-medium transition hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400 ${
+                active ? 'bg-white/10 text-white' : 'text-slate-200'
+              }`}
+              href={link.href}
+              aria-current={active ? 'page' : undefined}
+            >
+              {link.label}
+            </a>
+          );
+        })
       }
 
       <div class="h-px w-full bg-white/10"></div>
 
       {
-        demoLinks.map(link => (
-          <a
-            class="min-h-touch flex touch-manipulation items-center rounded-lg px-3 py-3 font-medium text-slate-200 transition hover:bg-white/5"
-            href={link.href}
-          >
-            {link.label}
-          </a>
-        ))
+        demoLinks.map(link => {
+          const active = isActiveHref(link.href);
+          return (
+            <a
+              class={`min-h-touch flex touch-manipulation items-center rounded-lg px-3 py-3 font-medium transition hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400 ${
+                active ? 'bg-white/10 text-white' : 'text-slate-200'
+              }`}
+              href={link.href}
+              aria-current={active ? 'page' : undefined}
+            >
+              {link.label}
+            </a>
+          );
+        })
       }
       <a
-        class="min-h-touch flex touch-manipulation items-center rounded-lg px-3 py-3 font-semibold text-slate-100 transition hover:bg-white/5"
+        class="min-h-touch flex touch-manipulation items-center rounded-lg px-3 py-3 font-semibold text-slate-100 transition hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400"
         href={withBasePath('services/')}
       >
         View services
       </a>
       <a
-        class="min-h-touch flex touch-manipulation items-center rounded-lg bg-[rgba(99,102,241,0.15)] px-3 py-3 font-semibold text-white transition hover:bg-[rgba(99,102,241,0.25)]"
+        class="min-h-touch flex touch-manipulation items-center rounded-lg bg-[rgba(99,102,241,0.15)] px-3 py-3 font-semibold text-white transition hover:bg-[rgba(99,102,241,0.25)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400"
         href={startProjectHref}
       >
         Start a project

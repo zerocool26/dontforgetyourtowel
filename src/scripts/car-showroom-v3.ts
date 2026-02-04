@@ -1082,7 +1082,7 @@ const initPanel = (root: HTMLElement, signal?: AbortSignal) => {
   const widthKey = 'sr3-panel-width-v1';
   const order: PanelSnap[] = ['collapsed', 'peek', 'half', 'full'];
   let snap: PanelSnap = 'peek';
-  let panelWidth = 420;
+  let panelWidth = isMobile() ? 320 : 420;
 
   const getHeights = () => {
     const vv =
@@ -1147,26 +1147,26 @@ const initPanel = (root: HTMLElement, signal?: AbortSignal) => {
       // ignore
     }
 
-    const defaultSnap: PanelSnap = isMobile() ? 'half' : 'peek';
+    // Mobile defaults to collapsed so the 3D view is unobstructed.
+    const defaultSnap: PanelSnap = isMobile() ? 'collapsed' : 'peek';
     setSnap(saved ?? defaultSnap, false);
   };
 
   for (const toggle of toggles) {
     toggle.addEventListener('click', () => {
-      setSnap(
-        snap === 'collapsed' ? (isMobile() ? 'half' : 'peek') : 'collapsed',
-        true
-      );
+      setSnap(snap === 'collapsed' ? 'peek' : 'collapsed', true);
     });
   }
   close?.addEventListener('click', () => setSnap('collapsed', true));
 
   fab?.addEventListener('click', () => {
-    setSnap(isMobile() ? 'half' : 'peek', true);
+    setSnap('peek', true);
   });
 
   const applyPanelWidth = (next: number, persist: boolean) => {
-    panelWidth = clamp(next, 320, 560);
+    const minW = isMobile() ? 240 : 320;
+    const maxW = isMobile() ? 420 : 560;
+    panelWidth = clamp(next, minW, maxW);
     root.style.setProperty('--sr-panel-width', `${panelWidth}px`);
     if (persist) {
       try {
@@ -2031,18 +2031,6 @@ const init = () => {
   const syncSmartLayout = () => {
     const compact = isMobile() || isCoarsePointer();
     root.dataset.srCompact = compact ? '1' : '0';
-
-    const snap = panelApi.getSnap();
-    const panelOpen = snap !== 'collapsed';
-    const hideTop = compact && panelOpen;
-    const hideHud = compact && panelOpen;
-    const hideSpec = compact && (snap === 'full' || snap === 'half');
-    const hideDock = compact;
-
-    root.dataset.srShowTop = hideTop ? '0' : '1';
-    root.dataset.srShowHud = hideHud ? '0' : '1';
-    root.dataset.srShowSpecbar = hideSpec ? '0' : '1';
-    root.dataset.srShowDock = hideDock ? '0' : '1';
   };
 
   root.addEventListener('sr-panel-snap', syncSmartLayout as EventListener);
