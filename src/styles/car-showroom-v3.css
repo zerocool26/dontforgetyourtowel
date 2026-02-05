@@ -83,8 +83,8 @@ body.car-showroom-fullscreen astro-dev-toolbar {
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  flex-wrap: wrap;
-  padding: 12px 14px;
+  flex-wrap: nowrap;
+  padding: 10px 12px;
   border-radius: 16px;
   border: 1px solid var(--sr-border);
   background: var(--sr-panel-bg);
@@ -113,8 +113,26 @@ body.car-showroom-fullscreen astro-dev-toolbar {
 .sr__actions {
   display: flex;
   gap: 10px;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+}
+
+.sr__panelHeadLeft {
+  min-width: 0;
+}
+
+.sr__panelHeadActions {
+  display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+}
+
+.sr__panelHeadActions .sr-chip {
+  min-height: 36px;
+  padding: 8px 10px;
+  font-size: 11px;
 }
 
 .sr__fab {
@@ -536,6 +554,13 @@ body.car-showroom-fullscreen astro-dev-toolbar {
   transition: opacity 320ms var(--sr-ease);
 }
 
+.sr__quickBar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
 .sr__cmdk {
   position: fixed;
   inset: 0;
@@ -745,6 +770,13 @@ body.car-showroom-fullscreen astro-dev-toolbar {
   min-height: 44px;
   backdrop-filter: blur(16px);
   box-shadow: 0 16px 45px rgba(0, 0, 0, 0.55);
+}
+
+.sr__quickBtn--secondary {
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(0, 0, 0, 0.35);
+  color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.45);
 }
 
 .sr__quickMenu {
@@ -1591,6 +1623,20 @@ body.car-showroom-fullscreen astro-dev-toolbar {
     padding: 0;
   }
 
+  .sr__top {
+    top: 10px;
+    left: calc(10px + var(--sr-safe-left, 0px));
+    right: calc(10px + var(--sr-safe-right, 0px));
+    padding: 8px 10px;
+    gap: 10px;
+    justify-content: flex-start;
+    align-items: center;
+  }
+
+  .sr__title {
+    display: none;
+  }
+
   .sr__actions {
     width: 100%;
     justify-content: flex-start;
@@ -1613,12 +1659,6 @@ body.car-showroom-fullscreen astro-dev-toolbar {
 
   .sr__grid {
     padding: 10px;
-  }
-
-  .sr__top {
-    top: 10px;
-    left: calc(10px + var(--sr-safe-left, 0px));
-    right: calc(10px + var(--sr-safe-right, 0px));
   }
 
   .sr__panel {

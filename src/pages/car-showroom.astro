@@ -33,31 +33,6 @@ const galleryHref = `${base}gallery/`;
           <button type="button" class="sr-btn sr-btn--icon" data-sr-menu-toggle>
             Menu
           </button>
-          <a class="sr-btn" href={galleryHref}>3D Gallery</a>
-          <button type="button" class="sr-btn sr-btn--icon" data-sr-cmdk-open>
-            Search
-          </button>
-          <button type="button" class="sr-btn sr-btn--icon" data-sr-help-open>
-            Help
-          </button>
-          <button
-            type="button"
-            class="sr-btn sr-btn--primary sr-btn--icon"
-            data-sr-screenshot
-          >
-            Screenshot
-          </button>
-          <button type="button" class="sr-btn sr-btn--icon" data-sr-share>
-            Copy link
-          </button>
-          <button
-            type="button"
-            class="sr-btn sr-btn--icon"
-            data-sr-focus-toggle
-            aria-pressed="false"
-          >
-            Focus
-          </button>
           <button
             type="button"
             class="sr-btn"
@@ -99,15 +74,26 @@ const galleryHref = `${base}gallery/`;
         </button>
 
         <div class="sr__quick" data-sr-quick>
-          <button
-            type="button"
-            class="sr__quickBtn"
-            data-sr-quick-toggle
-            aria-expanded="false"
-            aria-label="Open quick controls"
-          >
-            Quick
-          </button>
+          <div class="sr__quickBar">
+            <button
+              type="button"
+              class="sr__quickBtn"
+              data-sr-quick-toggle
+              aria-expanded="false"
+              aria-label="Open quick controls"
+            >
+              Quick
+            </button>
+
+            <button
+              type="button"
+              class="sr__quickBtn sr__quickBtn--secondary"
+              data-sr-share
+              aria-label="Copy link"
+            >
+              Link
+            </button>
+          </div>
 
           <div class="sr__quickMenu" data-sr-quick-menu hidden>
             <div class="sr__quickRow">
@@ -578,7 +564,7 @@ const galleryHref = `${base}gallery/`;
 
       <aside class="sr__panel" data-sr-panel>
         <div class="sr__panelHead" data-sr-panel-drag>
-          <div>
+          <div class="sr__panelHeadLeft">
             <div
               class="sr__panelHandle"
               data-sr-panel-handle
@@ -587,8 +573,35 @@ const galleryHref = `${base}gallery/`;
             </div>
             <strong>Settings</strong>
           </div>
-          <button type="button" class="sr-btn" data-sr-panel-close>Close</button
-          >
+
+          <div class="sr__panelHeadActions" aria-label="Global actions">
+            <button type="button" class="sr-chip" data-sr-menu-toggle>
+              Menu
+            </button>
+            <button type="button" class="sr-chip" data-sr-cmdk-open>
+              Search
+            </button>
+            <button type="button" class="sr-chip" data-sr-help-open>
+              Help
+            </button>
+            <button type="button" class="sr-chip" data-sr-screenshot>
+              Screenshot
+            </button>
+            <button type="button" class="sr-chip" data-sr-share>
+              Copy link
+            </button>
+            <button
+              type="button"
+              class="sr-chip"
+              data-sr-focus-toggle
+              aria-pressed="false"
+            >
+              Focus
+            </button>
+            <button type="button" class="sr-chip" data-sr-panel-close>
+              Close
+            </button>
+          </div>
         </div>
 
         <input
