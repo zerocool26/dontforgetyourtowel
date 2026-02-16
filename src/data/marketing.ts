@@ -240,7 +240,7 @@ export const insightReports: InsightReport[] = [
     description:
       'A condensed review flow for security, compliance, and product sign-off designed for static delivery teams.',
     linkLabel: 'Run the audit',
-    href: 'pricing/',
+    href: 'contact-hq/',
   },
   {
     category: 'Playbook',

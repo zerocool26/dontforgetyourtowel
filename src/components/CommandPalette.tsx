@@ -96,9 +96,9 @@ const BASE_COMMANDS: CommandItem[] = [
   },
   {
     id: 'nav-pricing',
-    label: 'Go to Pricing',
+    label: 'Go to Contact',
     icon: FileText,
-    action: () => navigate(withBasePath('pricing/')),
+    action: () => navigate(withBasePath('contact-hq/')),
     category: 'Navigation',
   },
   {

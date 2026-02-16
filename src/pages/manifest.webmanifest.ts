@@ -39,10 +39,10 @@ export const GET: APIRoute = () => {
         icons: [{ src: withBasePath('favicon-192.png'), sizes: '192x192' }],
       },
       {
-        name: 'Pricing',
-        short_name: 'Pricing',
-        description: 'View tiers and calculators',
-        url: withBasePath('pricing/'),
+        name: 'Contact',
+        short_name: 'Contact',
+        description: 'Start project intake and support routing',
+        url: withBasePath('contact-hq/'),
         icons: [{ src: withBasePath('favicon-192.png'), sizes: '192x192' }],
       },
       {

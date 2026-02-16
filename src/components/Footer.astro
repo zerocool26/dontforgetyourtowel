@@ -11,7 +11,7 @@ const navSections = [
     items: [
       { label: 'About', href: withBasePath('about/') },
       { label: 'Services', href: withBasePath('services/') },
-      { label: 'Pricing', href: withBasePath('pricing/') },
+      { label: 'Contact', href: withBasePath('contact-hq/') },
       { label: 'Privacy', href: withBasePath('privacy/') },
       { label: 'Terms', href: withBasePath('terms/') },
     ],
@@ -23,7 +23,7 @@ const navSections = [
         label: 'Contact',
         href: `${withBasePath('services/')}#contact`,
       },
-      { label: 'Request a quote', href: withBasePath('pricing/') },
+      { label: 'Request a quote', href: withBasePath('contact-hq/') },
       { label: 'Explore services', href: withBasePath('services/') },
     ],
   },
@@ -78,12 +78,12 @@ const navSections = [
             Contact
           </ModernButton>
           <ModernButton
-            href={withBasePath('pricing/')}
+            href={withBasePath('contact-hq/')}
             variant="secondary"
             rounded="sm"
             className="font-mono text-xs uppercase tracking-wider"
           >
-            View Pricing
+            Contact HQ
           </ModernButton>
         </div>
         <div class="flex gap-3 text-zinc-500">

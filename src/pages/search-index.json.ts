@@ -75,7 +75,7 @@ export async function GET() {
       title: 'Contact',
       description: 'Project intake, support channels, and engagement kickoff',
       category: 'Page',
-      url: 'pricing/',
+      url: 'contact-hq/',
       tags: ['contact', 'intake', 'support', 'project'],
     },
     {

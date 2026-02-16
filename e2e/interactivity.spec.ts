@@ -113,7 +113,7 @@ test.describe('Interactivity Features', () => {
     test('contact hub should expose channels and intake guidance', async ({
       page,
     }) => {
-      await page.goto('pricing/');
+      await page.goto('contact-hq/');
       await page.waitForLoadState('domcontentloaded');
 
       await expect(

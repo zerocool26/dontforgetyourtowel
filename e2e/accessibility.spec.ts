@@ -31,8 +31,8 @@ test.describe('Accessibility', () => {
     expect(accessibilityScanResults.violations).toEqual([]);
   });
 
-  test('pricing page should be accessible', async ({ page }) => {
-    await page.goto('pricing/');
+  test('contact hub page should be accessible', async ({ page }) => {
+    await page.goto('contact-hq/');
     await page.waitForLoadState('domcontentloaded');
     await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible();
 
