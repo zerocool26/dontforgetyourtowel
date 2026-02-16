@@ -2,261 +2,291 @@
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 import ModernCard from '../components/ui/ModernCard.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
-import { withBasePath } from '../utils/helpers';
+import { demoProducts } from '../data/demo-ecommerce';
 import { CONTACT_EMAIL } from '../consts';
+import { withBasePath } from '../utils/helpers';
 
-const portfolioStats = [
+const featuredProducts = demoProducts.slice(0, 4);
+
+const collections = [
   {
-    label: 'Artifact Type',
-    value: 'Interactive Commerce Concept',
-    note: 'Editorial storefront with cinematic pacing',
+    name: 'Street Utility',
+    items: 'Outerwear • Footwear • Carry',
+    note: 'Daily performance pieces designed for movement and durability.',
   },
   {
-    label: 'Build Tempo',
-    value: '4 Rapid Sprints',
-    note: 'Concept, interface, data model, testing loops',
+    name: 'Studio Minimal',
+    items: 'Deskware • Home • Work Essentials',
+    note: 'Clean forms and tactile finishes for focused creative environments.',
   },
   {
-    label: 'Core Stack',
-    value: 'Astro + TS + Islands',
-    note: 'Static-first shell with selective interactivity',
-  },
-  {
-    label: 'Current State',
-    value: 'Retired From Production',
-    note: 'Preserved as a reference piece after direction changed',
+    name: 'Launch Week',
+    items: 'Limited Drops',
+    note: 'Small-batch releases with elevated materials and seasonal palettes.',
   },
 ];
 
-const projectGoals = [
-  {
-    title: 'Prototype a story-first storefront',
-    description:
-      'Blend editorial pacing with practical buying flows so discovery and conversion feel like one continuous scene.',
-  },
-  {
-    title: 'Pressure-test reusable design primitives',
-    description:
-      'Push cards, navigation shells, and content layouts beyond default templates to prove they could carry future experiments.',
-  },
-  {
-    title: 'Keep speed as a creative constraint',
-    description:
-      'Deliver visual richness without abandoning Astro’s static strengths, keeping interactions sharp and pages lightweight.',
-  },
+const checkoutSteps = [
+  'Add products and auto-calculate subtotal',
+  'Apply shipping and tax previews instantly',
+  'Persist cart state between route transitions',
+  'Trigger trust and confirmation states at checkout',
 ];
 
-const implementationPhases = [
-  {
-    phase: 'Act I',
-    title: 'Narrative architecture',
-    detail:
-      'Mapped the journey from landing to checkout like a storyboard, defining rhythm, hierarchy, and trust cues first.',
-  },
-  {
-    phase: 'Act II',
-    title: 'Systemized buildout',
-    detail:
-      'Built reusable primitives and assembled route-level scenes for hero, listing, PDP, cart, and checkout touchpoints.',
-  },
-  {
-    phase: 'Act III',
-    title: 'Interaction polish',
-    detail:
-      'Refined loading, error, and keyboard states until the experience felt deliberate across desktop and mobile breakpoints.',
-  },
-  {
-    phase: 'Act IV',
-    title: 'Retirement with intent',
-    detail:
-      'Removed the demo from live navigation and archived it cleanly so the learnings stayed usable for future creative builds.',
-  },
-];
+const formatPrice = (priceCents: number) =>
+  new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
+  }).format(priceCents / 100);
 
-const outcomes = [
-  'Reusable UX patterns for discovery, filtering, and intent-driven cart progression.',
-  'A stronger playbook for cinematic visual treatment within static-first constraints.',
-  'A cleaner retirement workflow: archive, redirect, preserve, and keep moving.',
-];
-
-const contactHref = `mailto:${encodeURIComponent(
+const demoTotal = featuredProducts.reduce(
+  (sum, product) => sum + product.priceCents,
+  0
+);
+const supportHref = `mailto:${encodeURIComponent(
   CONTACT_EMAIL
-)}?subject=${encodeURIComponent('Portfolio inquiry')}`;
+)}?subject=${encodeURIComponent('E-commerce demo request')}`;
 ---
 
 <MarketingLayout
-  title="Portfolio | Olive Global Systems"
-  description="Portfolio spotlight: the retired Shop Demo as a creative systems case study, from concept to controlled retirement."
+  title="Portfolio | E-Commerce Demo Experience"
+  description="Interactive portfolio route rebuilt as a modern e-commerce demo setup with product storytelling, merchandising, and checkout flow previews."
 >
-  <section class="relative overflow-hidden bg-zinc-950" data-reveal>
-    <div
-      class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(0,102,255,0.16),_transparent_55%)]"
-    >
-    </div>
-    <div class="mx-auto max-w-[1220px] px-6 pb-16 pt-28">
-      <div class="max-w-4xl space-y-6">
-        <p
-          class="text-xs font-semibold uppercase tracking-[0.32em] text-zinc-400"
+  <div class="creative-page">
+    <section class="relative overflow-hidden bg-zinc-950" data-reveal>
+      <div
+        class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(34,211,238,0.24),_transparent_52%)]"
+      >
+      </div>
+      <div class="mx-auto max-w-[1220px] px-6 pb-16 pt-28">
+        <div
+          class="creative-hero-shell grid gap-8 p-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center"
         >
-          Portfolio
-        </p>
-        <h1 class="text-4xl font-bold text-white sm:text-5xl">
-          Shop Demo: a concept piece,
-          <span class="text-accent-300">
-            now archived and repurposed as portfolio evidence.</span
-          >
-        </h1>
-        <p class="text-base text-zinc-300">
-          This wasn’t a throwaway mockup. It was a full creative systems drill
-          that explored commerce UX, narrative pacing, and reusable component
-          architecture. The route is gone from production, but the craft and
-          patterns continue to influence the site.
-        </p>
-        <div class="flex flex-col gap-3 sm:flex-row">
-          <ModernButton
-            href={withBasePath('services/')}
-            variant="secondary"
-            className="min-h-[48px]"
-          >
-            Explore services
-          </ModernButton>
-          <ModernButton
-            href={contactHref}
-            variant="primary"
-            className="min-h-[48px]"
-          >
-            Discuss a similar build
-          </ModernButton>
+          <div class="space-y-6">
+            <span class="creative-kicker">Portfolio • Demo Commerce Build</span>
+            <h1
+              class="creative-title text-4xl font-bold text-white sm:text-5xl"
+            >
+              E-commerce demo setup,
+              <span class="text-accent-300">
+                rebuilt as a live portfolio experience.</span
+              >
+            </h1>
+            <p class="creative-copy text-base">
+              This page now behaves like a modern storefront showcase: product
+              merchandising, collection framing, pricing hierarchy, and
+              checkout-preview flow—all tuned for design quality and conversion
+              clarity.
+            </p>
+            <div class="flex flex-col gap-3 sm:flex-row">
+              <ModernButton
+                href={withBasePath('contact-hq/')}
+                variant="primary"
+                className="min-h-[48px]"
+              >
+                Request this build
+              </ModernButton>
+              <ModernButton
+                href={supportHref}
+                variant="secondary"
+                className="min-h-[48px]"
+              >
+                Ask for stack details
+              </ModernButton>
+            </div>
+          </div>
+
+          <ModernCard variant="minimal" className="creative-panel p-6">
+            <p class="text-xs uppercase tracking-[0.24em] text-zinc-500">
+              Demo Basket
+            </p>
+            <p class="mt-2 text-3xl font-semibold text-white">
+              {formatPrice(demoTotal)}
+            </p>
+            <p class="mt-2 text-sm text-zinc-300">
+              {featuredProducts.length} featured products staged in cart preview.
+            </p>
+            <ul class="mt-4 space-y-2 text-sm text-zinc-300">
+              <li class="flex items-start gap-2">
+                <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 bg-accent-400"
+                ></span>
+                <span>Real merchandising cadence</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 bg-accent-400"
+                ></span>
+                <span>Trust and delivery messaging built-in</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 bg-accent-400"
+                ></span>
+                <span>Conversion-focused UI hierarchy</span>
+              </li>
+            </ul>
+          </ModernCard>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <section class="border-y border-white/5 bg-zinc-900/30" data-reveal>
-    <div
-      class="mx-auto grid max-w-[1220px] gap-4 px-6 py-8 sm:grid-cols-2 lg:grid-cols-4"
-    >
-      {
-        portfolioStats.map(stat => (
-          <ModernCard
-            variant="minimal"
-            className="border-white/10 bg-zinc-950/60 p-5"
-          >
-            <p class="text-xs uppercase tracking-[0.22em] text-zinc-500">
-              {stat.label}
-            </p>
-            <p class="mt-2 text-2xl font-semibold text-white">{stat.value}</p>
-            <p class="mt-1 text-xs text-zinc-400">{stat.note}</p>
-          </ModernCard>
-        ))
-      }
-    </div>
-  </section>
+    <section class="border-y border-white/5 bg-zinc-900/25" data-reveal>
+      <div class="mx-auto max-w-[1220px] px-6 py-16">
+        <div class="mb-6 flex flex-wrap items-center gap-2">
+          <span class="creative-kicker">Collections</span>
+          {
+            collections.map(collection => (
+              <span class="creative-chip">{collection.name}</span>
+            ))
+          }
+        </div>
 
-  <section class="bg-zinc-950" data-reveal>
-    <div class="mx-auto max-w-[1220px] px-6 py-20">
-      <div class="max-w-3xl space-y-4">
-        <h2 class="text-3xl font-semibold text-white">Project goals</h2>
-        <p class="text-sm text-zinc-300">
-          The goal was to push taste, pacing, and interaction quality without
-          sacrificing maintainability.
-        </p>
+        <div class="grid gap-5 md:grid-cols-3">
+          {
+            collections.map(collection => (
+              <ModernCard variant="minimal" className="creative-panel p-6">
+                <p class="text-xs uppercase tracking-[0.24em] text-zinc-500">
+                  {collection.items}
+                </p>
+                <h2 class="mt-2 text-xl font-semibold text-white">
+                  {collection.name}
+                </h2>
+                <p class="mt-3 text-sm text-zinc-300">{collection.note}</p>
+              </ModernCard>
+            ))
+          }
+        </div>
       </div>
+    </section>
 
-      <div class="mt-10 grid gap-5 md:grid-cols-3">
-        {
-          projectGoals.map(goal => (
-            <ModernCard
-              variant="minimal"
-              className="p-6 bg-zinc-950/60 border-white/10"
-            >
-              <h3 class="text-lg font-semibold text-white">{goal.title}</h3>
-              <p class="mt-3 text-sm leading-relaxed text-zinc-300">
-                {goal.description}
-              </p>
-            </ModernCard>
-          ))
-        }
-      </div>
-    </div>
-  </section>
+    <section class="bg-zinc-950" data-reveal>
+      <div class="mx-auto max-w-[1220px] px-6 py-20">
+        <div class="max-w-3xl space-y-4">
+          <h2 class="creative-title text-3xl font-semibold text-white">
+            Featured products
+          </h2>
+          <p class="creative-copy text-sm">
+            Product cards include image hierarchy, pricing context, ratings, and
+            category tags to simulate a production merch layer.
+          </p>
+        </div>
 
-  <section class="border-y border-white/5 bg-zinc-900/30" data-reveal>
-    <div class="mx-auto max-w-[1220px] px-6 py-20">
-      <div class="max-w-3xl space-y-4">
-        <h2 class="text-3xl font-semibold text-white">Creative timeline</h2>
-        <p class="text-sm text-zinc-300">
-          Four acts from concept to delivery to sunset, each with clear intent.
-        </p>
-      </div>
-
-      <div class="mt-10 grid gap-4">
-        {
-          implementationPhases.map(item => (
-            <ModernCard
-              variant="minimal"
-              className="p-6 bg-zinc-950/60 border-white/10"
-            >
-              <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                  <p class="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-400">
-                    {item.phase}
-                  </p>
-                  <p class="mt-2 text-base font-semibold text-white">
-                    {item.title}
-                  </p>
-                  <p class="mt-2 text-sm text-zinc-300">{item.detail}</p>
+        <div class="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+          {
+            featuredProducts.map(product => (
+              <ModernCard
+                variant="minimal"
+                className="creative-panel overflow-hidden p-0"
+              >
+                <div class="aspect-[4/3] overflow-hidden border-b border-white/10 bg-black/30">
+                  <img
+                    src={product.images[0]}
+                    alt={product.name}
+                    class="h-full w-full object-cover transition duration-500 hover:scale-105"
+                    loading="lazy"
+                  />
                 </div>
-              </div>
-            </ModernCard>
-          ))
-        }
+                <div class="space-y-3 p-5">
+                  <p class="text-xs uppercase tracking-[0.18em] text-zinc-500">
+                    {product.brand}
+                  </p>
+                  <h3 class="text-base font-semibold text-white">
+                    {product.name}
+                  </h3>
+                  <p class="line-clamp-2 text-sm text-zinc-300">
+                    {product.description}
+                  </p>
+                  <div class="flex items-center justify-between gap-2">
+                    <p class="text-lg font-semibold text-white">
+                      {formatPrice(product.priceCents)}
+                    </p>
+                    {product.compareAtCents ? (
+                      <p class="text-sm text-zinc-500 line-through">
+                        {formatPrice(product.compareAtCents)}
+                      </p>
+                    ) : null}
+                  </div>
+                  <p class="text-xs text-zinc-400">
+                    ★ {product.rating.toFixed(1)} · {product.reviewCount}{' '}
+                    reviews
+                  </p>
+                  <ModernButton
+                    href={withBasePath('contact-hq/')}
+                    variant="secondary"
+                    className="min-h-[44px] w-full"
+                  >
+                    Add to demo cart
+                  </ModernButton>
+                </div>
+              </ModernCard>
+            ))
+          }
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <section class="bg-zinc-950" data-reveal>
-    <div class="mx-auto max-w-[1220px] px-6 py-20">
-      <div class="rounded-2xl border border-white/10 bg-white/5 p-8">
-        <div class="grid gap-8 lg:grid-cols-[1.2fr_1fr] lg:items-center">
-          <div>
-            <h2 class="text-2xl font-semibold text-white">
-              What survived the sunset
-            </h2>
-            <p class="mt-3 text-sm text-zinc-300">
-              The route is retired, but the project left behind stronger UI
-              primitives, better interaction standards, and cleaner delivery
-              mechanics.
-            </p>
-            <ul class="mt-4 space-y-2 text-sm text-zinc-200">
-              {
-                outcomes.map(outcome => (
-                  <li class="flex items-start gap-2">
-                    <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 bg-accent-500" />
-                    <span>{outcome}</span>
-                  </li>
-                ))
-              }
-            </ul>
+    <section class="border-y border-white/5 bg-zinc-900/30" data-reveal>
+      <div
+        class="mx-auto grid max-w-[1220px] gap-8 px-6 py-20 lg:grid-cols-[1.1fr_0.9fr] lg:items-start"
+      >
+        <div class="space-y-4">
+          <h2 class="creative-title text-3xl font-semibold text-white">
+            Checkout experience preview
+          </h2>
+          <p class="creative-copy text-sm">
+            The flow is structured to reduce friction: clear totals, confidence
+            cues, and progressive handoff to order confirmation.
+          </p>
+          <ul class="mt-5 space-y-3 text-sm text-zinc-300">
+            {
+              checkoutSteps.map(step => (
+                <li class="flex items-start gap-2">
+                  <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 bg-violet-400" />
+                  <span>{step}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+
+        <ModernCard variant="minimal" className="creative-panel p-6">
+          <p class="text-xs uppercase tracking-[0.24em] text-zinc-500">
+            Order Summary
+          </p>
+          <div class="mt-4 space-y-2 text-sm text-zinc-300">
+            <div class="flex items-center justify-between">
+              <span>Subtotal</span><span>{formatPrice(demoTotal)}</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span>Shipping</span><span>{formatPrice(1200)}</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span>Estimated Tax</span><span>{formatPrice(980)}</span>
+            </div>
+            <div
+              class="mt-3 flex items-center justify-between border-t border-white/10 pt-3 text-base font-semibold text-white"
+            >
+              <span>Total</span>
+              <span>{formatPrice(demoTotal + 1200 + 980)}</span>
+            </div>
           </div>
-          <div class="flex flex-col gap-3 sm:flex-row lg:flex-col">
+          <div class="mt-5 flex flex-col gap-3">
             <ModernButton
               href={withBasePath('contact-hq/')}
               variant="primary"
-              className="min-h-[48px]"
+              className="min-h-[48px] w-full"
             >
-              Start project intake
+              Start demo checkout
             </ModernButton>
             <ModernButton
-              href={contactHref}
-              variant="secondary"
-              className="min-h-[48px]"
+              href={withBasePath('services/')}
+              variant="outline"
+              className="min-h-[48px] w-full"
             >
-              Email portfolio questions
+              See implementation services
             </ModernButton>
           </div>
-        </div>
+        </ModernCard>
       </div>
-    </div>
-  </section>
+    </section>
+  </div>
 </MarketingLayout>

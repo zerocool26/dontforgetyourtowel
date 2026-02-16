@@ -56,11 +56,12 @@ export async function GET() {
     },
     {
       id: 'page-about',
-      title: 'Portfolio',
-      description: 'Case-study portfolio including the retired Shop Demo',
+      title: 'Portfolio Shop Demo',
+      description:
+        'Interactive e-commerce portfolio setup with products and checkout preview',
       category: 'Page',
       url: 'about/',
-      tags: ['portfolio', 'case-study', 'shop-demo'],
+      tags: ['portfolio', 'shop-demo', 'ecommerce', 'checkout'],
     },
     {
       id: 'page-services',

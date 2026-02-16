@@ -49,26 +49,43 @@
   }
 
   [data-theme='corporate'] {
-    --color-background: #ffffff;
-    --color-surface: #f4f4f5;
-    --color-surface-subtle: rgba(244, 244, 245, 0.8);
-    --color-border: #e2e8f0;
-    --color-primary: #334155; /* Slate 700 */
-    --color-primary-strong: #0f172a; /* Slate 900 */
+    --color-background: #f8fafc;
+    --color-surface: #ffffff;
+    --color-surface-subtle: rgba(255, 255, 255, 0.82);
+    --color-border: #dbe4f2;
+    --color-primary: #2563eb;
+    --color-primary-strong: #7c3aed;
     --color-success: #059669;
     --color-warning: #d97706;
     --color-danger: #dc2626;
-    --color-text-primary: #1e293b;
-    --color-text-secondary: #475569;
+    --color-text-primary: #0f172a;
+    --color-text-secondary: #334155;
     --color-text-muted: #64748b;
     --color-text-inverse: #ffffff;
-    --shadow-soft: 0 2px 10px -2px rgba(0, 0, 0, 0.1);
-    --shadow-strong: 0 10px 30px -4px rgba(0, 0, 0, 0.15);
+    --shadow-soft: 0 14px 34px -24px rgba(37, 99, 235, 0.24);
+    --shadow-strong: 0 28px 58px -32px rgba(124, 58, 237, 0.34);
     --radius-sm: 4px;
     --radius-md: 8px;
     --radius-lg: 12px;
     --blur-soft: blur(12px);
-    --font-display: 'Inter', system-ui, sans-serif;
+    --font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  }
+
+  [data-theme='corporate'] body {
+    background-image:
+      radial-gradient(
+        circle at 14% 12%,
+        rgba(37, 99, 235, 0.16) 0%,
+        transparent 48%
+      ),
+      radial-gradient(
+        circle at 86% 18%,
+        rgba(124, 58, 237, 0.15) 0%,
+        transparent 48%
+      ),
+      linear-gradient(135deg, rgba(148, 163, 184, 0.2) 1px, transparent 1px),
+      linear-gradient(45deg, rgba(148, 163, 184, 0.15) 1px, transparent 1px);
+    color: var(--color-text-primary);
   }
 
   [data-theme='terminal'] {
@@ -570,6 +587,30 @@
   .creative-title {
     letter-spacing: -0.035em;
     line-height: 1.08;
+  }
+
+  [data-theme='corporate'] .creative-hero-shell,
+  [data-theme='corporate'] .creative-panel {
+    border-color: rgba(15, 23, 42, 0.12);
+    background:
+      linear-gradient(
+        165deg,
+        rgba(255, 255, 255, 0.95),
+        rgba(248, 250, 252, 0.78)
+      ),
+      rgba(255, 255, 255, 0.9);
+    box-shadow: var(--shadow-soft);
+  }
+
+  [data-theme='corporate'] .creative-kicker,
+  [data-theme='corporate'] .creative-chip {
+    border-color: rgba(15, 23, 42, 0.12);
+    background: rgba(255, 255, 255, 0.82);
+    color: rgba(15, 23, 42, 0.86);
+  }
+
+  [data-theme='corporate'] .creative-copy {
+    color: rgba(30, 41, 59, 0.9);
   }
 
   .app-shell {
