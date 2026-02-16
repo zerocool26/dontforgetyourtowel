@@ -22,11 +22,11 @@
     --viewport-height-dynamic: 100vh;
 
     --color-background: #09090b;
-    --color-surface: #18181b;
+    --color-surface: #111827;
     --color-surface-subtle: rgba(24, 24, 27, 0.6);
     --color-border: #27272a;
-    --color-primary: #cbd5e1; /* Slate 300 */
-    --color-primary-strong: #f8fafc; /* Slate 50 */
+    --color-primary: #22d3ee;
+    --color-primary-strong: #c4b5fd;
     --color-success: #10b981;
     --color-warning: #f59e0b;
     --color-danger: #ef4444;
@@ -34,17 +34,17 @@
     --color-text-secondary: #a1a1aa;
     --color-text-muted: #71717a;
     --color-text-inverse: #09090b;
-    --shadow-soft: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
-    --shadow-strong: 0 8px 30px -4px rgba(0, 0, 0, 0.8);
-    --radius-sm: 0px;
-    --radius-md: 2px;
-    --radius-lg: 4px;
+    --shadow-soft: 0 10px 36px -10px rgba(3, 7, 18, 0.72);
+    --shadow-strong: 0 28px 72px -22px rgba(3, 7, 18, 0.88);
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 22px;
     --blur-soft: blur(8px);
     --font-sans:
       'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
       sans-serif;
     --font-display:
-      'JetBrains Mono', 'Space Grotesk', 'Inter', system-ui, sans-serif;
+      'Space Grotesk', 'JetBrains Mono', 'Inter', system-ui, sans-serif;
     --font-mono: 'JetBrains Mono', 'SFMono-Regular', Menlo, monospace;
   }
 
@@ -115,18 +115,58 @@
     margin: 0;
     background-color: var(--color-background);
     background-image:
-      linear-gradient(var(--color-border) 1px, transparent 1px),
-      linear-gradient(90deg, var(--color-border) 1px, transparent 1px);
-    background-size: 24px 24px;
-    background-position: center top;
-    /* Fade out the grid at the bottom */
-    mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+      radial-gradient(
+        circle at 14% 12%,
+        color-mix(in srgb, var(--color-primary) 24%, transparent) 0%,
+        transparent 42%
+      ),
+      radial-gradient(
+        circle at 86% 18%,
+        color-mix(in srgb, var(--color-primary-strong) 22%, transparent) 0%,
+        transparent 45%
+      ),
+      linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--color-border) 48%, transparent) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        45deg,
+        color-mix(in srgb, var(--color-border) 28%, transparent) 1px,
+        transparent 1px
+      );
+    background-size:
+      100% 100%,
+      100% 100%,
+      28px 28px,
+      28px 28px;
+    background-position:
+      center,
+      center,
+      center top,
+      center top;
     color: var(--color-text-primary);
     font-family: var(--font-sans);
-    line-height: 1.5;
+    line-height: 1.65;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    transition: background 0.3s ease;
+    transition:
+      background 0.45s ease,
+      color 0.3s ease;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+    opacity: 0.2;
+    background-image: radial-gradient(
+      circle at 50% 0%,
+      color-mix(in srgb, var(--color-primary) 24%, transparent),
+      transparent 62%
+    );
   }
 
   /* When the mobile menu is open, prevent background scroll (JS sets fixed positioning). */
@@ -307,17 +347,17 @@
   h5,
   h6 {
     font-family: var(--font-display);
-    font-weight: 600;
-    letter-spacing: -0.02em;
+    font-weight: 700;
+    letter-spacing: -0.03em;
     color: var(--color-text-primary);
-    margin: 0 0 0.6em;
+    margin: 0 0 0.5em;
   }
 
   h1 {
-    font-size: clamp(2.8rem, 4vw, 3.8rem);
+    font-size: clamp(3rem, 4.8vw, 5rem);
   }
   h2 {
-    font-size: clamp(2.3rem, 3vw, 3.1rem);
+    font-size: clamp(2.1rem, 3.5vw, 3.6rem);
   }
   h3 {
     font-size: clamp(1.9rem, 2.5vw, 2.45rem);

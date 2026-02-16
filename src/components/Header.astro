@@ -38,7 +38,7 @@ const isActiveHref = (href: string) => {
 ---
 
 <header
-  class="safe-area-inset-top sticky top-0 z-50 border-b border-t-4 border-b-zinc-800 border-t-accent-500 bg-zinc-950/95 backdrop-blur-md"
+  class="safe-area-inset-top sticky top-0 z-50 border-b border-zinc-800/70 bg-zinc-950/80 backdrop-blur-xl"
 >
   <nav
     class="mx-auto flex h-16 max-w-[1400px] items-center justify-between px-5 py-0 sm:px-6 lg:px-8"
@@ -50,7 +50,7 @@ const isActiveHref = (href: string) => {
       aria-label={`${SITE_TITLE} home`}
     >
       <span
-        class="inline-flex h-8 w-8 items-center justify-center border border-zinc-700 bg-zinc-900 text-[10px] font-bold uppercase tracking-widest text-zinc-100 transition-colors group-hover:border-accent-500 group-hover:text-accent-500"
+        class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-700/70 bg-zinc-900/80 text-[10px] font-bold uppercase tracking-widest text-zinc-100 transition-colors group-hover:border-accent-400 group-hover:text-accent-300"
       >
         OC
       </span>
@@ -61,9 +61,9 @@ const isActiveHref = (href: string) => {
           {SITE_TITLE}
         </span>
         <span
-          class="mt-0.5 font-mono text-[0.6rem] uppercase tracking-widest text-accent-500"
+          class="mt-0.5 font-mono text-[0.6rem] uppercase tracking-[0.22em] text-accent-300"
         >
-          CONSULTING • SECURITY • CLOUD • ENGINEERING
+          DESIGN SYSTEMS • EXPERIENCES • ENGINEERING
         </span>
       </div>
     </a>
@@ -76,8 +76,8 @@ const isActiveHref = (href: string) => {
             <a
               class={`flex h-full items-center border-l border-zinc-800/50 px-4 font-mono text-xs uppercase tracking-wide transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:ring-offset-0 ${
                 active
-                  ? 'bg-zinc-900 text-white'
-                  : 'text-zinc-400 hover:bg-zinc-900 hover:text-white'
+                  ? 'bg-zinc-900/90 text-white'
+                  : 'text-zinc-300 hover:bg-zinc-900/70 hover:text-white'
               }`}
               href={homeHref}
               data-astro-prefetch
@@ -95,8 +95,8 @@ const isActiveHref = (href: string) => {
             <a
               class={`flex h-full items-center border-l border-zinc-800/50 px-4 font-mono text-xs uppercase tracking-wide transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:ring-offset-0 ${
                 active
-                  ? 'bg-zinc-900 text-white'
-                  : 'text-zinc-400 hover:bg-zinc-900 hover:text-white'
+                  ? 'bg-zinc-900/90 text-white'
+                  : 'text-zinc-300 hover:bg-zinc-900/70 hover:text-white'
               }`}
               href={link.href}
               data-astro-prefetch
