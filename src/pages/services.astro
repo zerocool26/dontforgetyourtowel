@@ -122,8 +122,8 @@ const featuredTestimonials = testimonials
 ---
 
 <MarketingLayout
-  title="Services | Olive Chicago"
-  description="Tech consulting and managed IT: delivery, security, cloud/DevOps, automation, and reliable operations."
+  title="Services | Olive Global Systems"
+  description="Enterprise service catalog across cybersecurity, MSP, AI consulting, application engineering, network architecture, and cloud delivery."
 >
   <section class="relative overflow-hidden bg-zinc-950 pb-16 pt-28">
     <div
@@ -210,10 +210,101 @@ const featuredTestimonials = testimonials
     </div>
   </section>
 
+  <section
+    class="sticky top-16 z-20 border-b border-white/5 bg-zinc-950/85 backdrop-blur"
+  >
+    <div class="mx-auto max-w-[1220px] px-6 py-4 sm:py-5">
+      <div class="flex flex-wrap items-center gap-2">
+        <p class="mr-2 text-xs uppercase tracking-[0.28em] text-zinc-500">
+          Quick Jump
+        </p>
+        <a
+          class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-zinc-300 transition hover:-translate-y-0.5 hover:border-white/20 hover:text-white"
+          href="#managed-it">Managed IT</a
+        >
+        <a
+          class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-zinc-300 transition hover:-translate-y-0.5 hover:border-white/20 hover:text-white"
+          href="#cybersecurity">Cybersecurity</a
+        >
+        <a
+          class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-zinc-300 transition hover:-translate-y-0.5 hover:border-white/20 hover:text-white"
+          href="#cloud">Cloud & DevOps</a
+        >
+        <a
+          class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-zinc-300 transition hover:-translate-y-0.5 hover:border-white/20 hover:text-white"
+          href="#ai">AI Enablement</a
+        >
+        <a
+          class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-zinc-300 transition hover:-translate-y-0.5 hover:border-white/20 hover:text-white"
+          href="#engagement-model">Engagement Model</a
+        >
+        <a
+          class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-zinc-300 transition hover:-translate-y-0.5 hover:border-white/20 hover:text-white"
+          href="#contact">Contact</a
+        >
+      </div>
+    </div>
+  </section>
+
+  <section class="border-b border-white/5 bg-zinc-900/20">
+    <div class="mx-auto max-w-[1220px] px-6 py-10">
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <ModernCard
+          variant="minimal"
+          className="border-white/10 bg-zinc-950/60 p-5"
+        >
+          <p class="text-xs uppercase tracking-[0.24em] text-zinc-500">
+            Catalog Depth
+          </p>
+          <p class="mt-2 text-2xl font-semibold text-white">100+ Services</p>
+          <p class="mt-1 text-xs text-zinc-400">
+            Specialist offerings mapped across six enterprise domains.
+          </p>
+        </ModernCard>
+        <ModernCard
+          variant="minimal"
+          className="border-white/10 bg-zinc-950/60 p-5"
+        >
+          <p class="text-xs uppercase tracking-[0.24em] text-zinc-500">
+            Operating Model
+          </p>
+          <p class="mt-2 text-2xl font-semibold text-white">4 Phases</p>
+          <p class="mt-1 text-xs text-zinc-400">
+            Assess, onboard, operate, and optimize with measurable cadence.
+          </p>
+        </ModernCard>
+        <ModernCard
+          variant="minimal"
+          className="border-white/10 bg-zinc-950/60 p-5"
+        >
+          <p class="text-xs uppercase tracking-[0.24em] text-zinc-500">
+            Coverage Window
+          </p>
+          <p class="mt-2 text-2xl font-semibold text-white">24/7 Option</p>
+          <p class="mt-1 text-xs text-zinc-400">
+            Production support, detection, and escalation pathways.
+          </p>
+        </ModernCard>
+        <ModernCard
+          variant="minimal"
+          className="border-white/10 bg-zinc-950/60 p-5"
+        >
+          <p class="text-xs uppercase tracking-[0.24em] text-zinc-500">
+            Delivery Focus
+          </p>
+          <p class="mt-2 text-2xl font-semibold text-white">Outcome-First</p>
+          <p class="mt-1 text-xs text-zinc-400">
+            Roadmaps translated into operating controls and shipped systems.
+          </p>
+        </ModernCard>
+      </div>
+    </div>
+  </section>
+
   {
     services.map(s => (
-      <section id={s.id} class="bg-zinc-950">
-        <div class="mx-auto max-w-[1220px] px-6 py-20">
+      <section id={s.id} class="scroll-mt-32 bg-zinc-950">
+        <div class="mx-auto max-w-[1220px] px-6 py-16 sm:py-20">
           <div class="grid gap-10 lg:grid-cols-2 lg:items-start">
             <div class="space-y-4">
               <h2 class="text-3xl font-semibold text-white">{s.title}</h2>

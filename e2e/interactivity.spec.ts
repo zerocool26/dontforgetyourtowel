@@ -78,16 +78,26 @@ test.describe('Interactivity Features', () => {
         quiz.getByText(/what is your top priority right now\?/i)
       ).toBeVisible({ timeout: 10000 });
 
-      // Click through 3 visible answer choices.
-      for (let index = 0; index < 3; index += 1) {
-        const option = quiz
-          .locator('button')
-          .filter({ hasNotText: /contact|retake/i })
-          .first();
-        await expect(option).toBeVisible({ timeout: 10000 });
-        await option.click();
-        await page.waitForTimeout(150);
-      }
+      await expect(
+        quiz.getByText(/what is your top priority right now\?/i)
+      ).toBeVisible({ timeout: 10000 });
+      await quiz
+        .getByRole('button', { name: /reduce it firefighting/i })
+        .click();
+
+      await expect(
+        quiz.getByText(/which risk feels most urgent\?/i)
+      ).toBeVisible({
+        timeout: 10000,
+      });
+      await quiz.getByRole('button', { name: /unpatched devices/i }).click();
+
+      await expect(
+        quiz.getByText(/how fast do you need results\?/i)
+      ).toBeVisible({
+        timeout: 10000,
+      });
+      await quiz.getByRole('button', { name: /this quarter/i }).click();
 
       await expect(quiz.getByText(/recommended starting point/i)).toBeVisible({
         timeout: 10000,

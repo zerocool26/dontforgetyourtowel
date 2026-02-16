@@ -24,7 +24,32 @@ const startProjectHref = `mailto:${encodeURIComponent(
       subheading="We build, secure, and orchestrate the world's most complex digital infrastructure. From AI-native red teaming to private 6G networks, we provide the architecture for global leadership."
     />
 
-    <section class="mx-auto max-w-6xl px-6 pb-20 pt-10 sm:px-10">
+    <section
+      class="mx-auto max-w-6xl px-6 pb-16 pt-8 sm:px-10 sm:pb-20 sm:pt-10"
+    >
+      <div
+        class="mb-6 flex flex-wrap items-center gap-2 rounded-2xl border border-white/10 bg-zinc-950/50 p-3 text-xs text-zinc-300"
+      >
+        <span class="mr-2 uppercase tracking-[0.24em] text-zinc-500"
+          >Capability Lanes</span
+        >
+        <a
+          class="rounded-full border border-white/10 bg-white/5 px-3 py-1 transition hover:border-white/20 hover:text-white"
+          href={withBasePath('services/#ai')}>AI Systems</a
+        >
+        <a
+          class="rounded-full border border-white/10 bg-white/5 px-3 py-1 transition hover:border-white/20 hover:text-white"
+          href={withBasePath('services/#cybersecurity')}>Cybersecurity</a
+        >
+        <a
+          class="rounded-full border border-white/10 bg-white/5 px-3 py-1 transition hover:border-white/20 hover:text-white"
+          href={withBasePath('services/#cloud')}>Cloud Engineering</a
+        >
+        <a
+          class="rounded-full border border-white/10 bg-white/5 px-3 py-1 transition hover:border-white/20 hover:text-white"
+          href={withBasePath('services/#managed-it')}>Managed Operations</a
+        >
+      </div>
       <div class="grid gap-6 lg:grid-cols-2">
         <ModernCard
           variant="minimal"
@@ -113,6 +138,144 @@ const startProjectHref = `mailto:${encodeURIComponent(
             >
           </div>
         </ModernCard>
+      </div>
+    </section>
+
+    <section class="border-y border-white/5 bg-zinc-900/30">
+      <div
+        class="mx-auto grid max-w-6xl gap-4 px-6 py-8 sm:grid-cols-2 sm:px-10 sm:py-10 lg:grid-cols-4"
+      >
+        <ModernCard
+          variant="minimal"
+          className="border-white/10 bg-zinc-950/60 p-5"
+        >
+          <p class="text-xs uppercase tracking-[0.22em] text-zinc-500">
+            Coverage
+          </p>
+          <p class="mt-2 text-2xl font-semibold text-white">24/7/365</p>
+          <p class="mt-1 text-xs text-zinc-400">
+            Threat detection, incident triage, and platform monitoring.
+          </p>
+        </ModernCard>
+        <ModernCard
+          variant="minimal"
+          className="border-white/10 bg-zinc-950/60 p-5"
+        >
+          <p class="text-xs uppercase tracking-[0.22em] text-zinc-500">
+            Practice Areas
+          </p>
+          <p class="mt-2 text-2xl font-semibold text-white">6 Domains</p>
+          <p class="mt-1 text-xs text-zinc-400">
+            Security, MSP, AI, Apps, Network, and Cloud Engineering.
+          </p>
+        </ModernCard>
+        <ModernCard
+          variant="minimal"
+          className="border-white/10 bg-zinc-950/60 p-5"
+        >
+          <p class="text-xs uppercase tracking-[0.22em] text-zinc-500">
+            Service Depth
+          </p>
+          <p class="mt-2 text-2xl font-semibold text-white">100+ Offers</p>
+          <p class="mt-1 text-xs text-zinc-400">
+            Enterprise-ready service catalog with clear execution lanes.
+          </p>
+        </ModernCard>
+        <ModernCard
+          variant="minimal"
+          className="border-white/10 bg-zinc-950/60 p-5"
+        >
+          <p class="text-xs uppercase tracking-[0.22em] text-zinc-500">
+            Delivery Model
+          </p>
+          <p class="mt-2 text-2xl font-semibold text-white">Assess → Operate</p>
+          <p class="mt-1 text-xs text-zinc-400">
+            Structured onboarding, runbooks, and optimization cadence.
+          </p>
+        </ModernCard>
+      </div>
+    </section>
+
+    <section class="mx-auto max-w-6xl px-6 py-14 sm:px-10 sm:py-20">
+      <div class="grid gap-8 lg:grid-cols-[1fr_1.1fr] lg:items-start">
+        <div class="space-y-5">
+          <p
+            class="text-xs font-semibold uppercase tracking-[0.32em] text-zinc-400"
+          >
+            Why Teams Switch
+          </p>
+          <h2 class="text-3xl font-semibold text-white sm:text-4xl">
+            Replace fragmented vendors with one accountable engineering partner.
+          </h2>
+          <p class="text-sm leading-relaxed text-zinc-300">
+            Most organizations run separate providers for infrastructure,
+            security, and product engineering. We unify strategy and execution
+            across all three, so roadmaps become shippable and security stays
+            built-in.
+          </p>
+          <div class="flex flex-wrap gap-3">
+            <ModernButton
+              href={withBasePath('services/')}
+              variant="primary"
+              className="min-h-[48px]"
+            >
+              Explore all capabilities
+            </ModernButton>
+            <ModernButton
+              href={withBasePath('pricing/')}
+              variant="secondary"
+              className="min-h-[48px]"
+            >
+              Compare delivery plans
+            </ModernButton>
+          </div>
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-2">
+          <ModernCard
+            variant="minimal"
+            className="border-white/10 bg-zinc-950/60 p-5"
+          >
+            <p class="text-sm font-semibold text-white">
+              Architecture-led delivery
+            </p>
+            <p class="mt-2 text-sm text-zinc-300">
+              Principal engineers define system constraints before build starts.
+            </p>
+          </ModernCard>
+          <ModernCard
+            variant="minimal"
+            className="border-white/10 bg-zinc-950/60 p-5"
+          >
+            <p class="text-sm font-semibold text-white">Security by default</p>
+            <p class="mt-2 text-sm text-zinc-300">
+              Identity, endpoint, and cloud controls are integrated from day
+              one.
+            </p>
+          </ModernCard>
+          <ModernCard
+            variant="minimal"
+            className="border-white/10 bg-zinc-950/60 p-5"
+          >
+            <p class="text-sm font-semibold text-white">
+              Product + platform alignment
+            </p>
+            <p class="mt-2 text-sm text-zinc-300">
+              Application teams and ops teams move on a shared release cadence.
+            </p>
+          </ModernCard>
+          <ModernCard
+            variant="minimal"
+            className="border-white/10 bg-zinc-950/60 p-5"
+          >
+            <p class="text-sm font-semibold text-white">
+              Measurable operating rhythm
+            </p>
+            <p class="mt-2 text-sm text-zinc-300">
+              Monthly health reviews and quarterly optimization planning.
+            </p>
+          </ModernCard>
+        </div>
       </div>
     </section>
   </main>

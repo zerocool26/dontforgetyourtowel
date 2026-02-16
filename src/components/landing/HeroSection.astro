@@ -41,7 +41,9 @@ const resolvedSecondaryCta =
 ---
 
 <section class={`relative isolate overflow-hidden ${animationClasses}`}>
-  <div class="mx-auto w-full max-w-6xl px-6 pb-16 pt-24 sm:px-10">
+  <div
+    class="mx-auto w-full max-w-6xl px-6 pb-12 pt-20 sm:px-10 sm:pb-16 sm:pt-24"
+  >
     <div
       class="pointer-events-none mb-6 rounded-2xl border border-white/10 bg-[radial-gradient(circle_at_30%_25%,rgba(124,58,237,0.12),transparent_60%),radial-gradient(circle_at_70%_45%,rgba(34,211,238,0.1),transparent_60%)] p-3 sm:mb-10"
       aria-hidden="true"
@@ -72,7 +74,7 @@ const resolvedSecondaryCta =
       </div>
     </div>
 
-    <div class="mt-8 grid gap-6">
+    <div class="mt-6 grid gap-6 sm:mt-8">
       <div
         class="pointer-events-auto rounded-2xl border border-white/10 bg-black/35 p-6 backdrop-blur-xl sm:p-8"
       >
@@ -96,13 +98,21 @@ const resolvedSecondaryCta =
           {subheading}
         </p>
 
-        <div class="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+        <div
+          class="mt-8 flex flex-col gap-3 sm:mt-9 sm:flex-row sm:flex-wrap sm:items-center"
+        >
           <ModernButton href={resolvedPrimaryCta.href} variant="primary">
             {resolvedPrimaryCta.label}
           </ModernButton>
           <ModernButton href={resolvedSecondaryCta.href} variant="secondary">
             {resolvedSecondaryCta.label}
           </ModernButton>
+          <a
+            href={withBasePath('pricing/')}
+            class="inline-flex min-h-[48px] items-center justify-center rounded-lg border border-white/10 bg-white/5 px-5 text-sm font-semibold text-zinc-200 transition hover:border-white/20 hover:text-white"
+          >
+            View pricing
+          </a>
           {
             showControls ? (
               <button
@@ -116,6 +126,24 @@ const resolvedSecondaryCta =
               </button>
             ) : null
           }
+        </div>
+
+        <div class="mt-6 flex flex-wrap gap-2">
+          <span
+            class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-wide text-zinc-300"
+          >
+            24/7 Delivery Pods
+          </span>
+          <span
+            class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-wide text-zinc-300"
+          >
+            Security-First Architecture
+          </span>
+          <span
+            class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-wide text-zinc-300"
+          >
+            AI + Platform Engineering
+          </span>
         </div>
 
         {
