@@ -302,14 +302,14 @@ const render = (report: ProbeReport) => {
     'rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-xs font-semibold text-white hover:bg-white/10';
   clearBtn.textContent = 'Reset offline cache';
 
-  const openGallery = document.createElement('a');
-  openGallery.dataset.openGallery = '1';
-  openGallery.className =
+  const openServices = document.createElement('a');
+  openServices.dataset.openServices = '1';
+  openServices.className =
     'rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-xs font-semibold text-white hover:bg-white/10';
-  openGallery.href = `${base}gallery/`;
-  openGallery.textContent = 'Open gallery';
+  openServices.href = `${base}services/`;
+  openServices.textContent = 'Open services';
 
-  actions.append(copyBtn, clearBtn, openGallery);
+  actions.append(copyBtn, clearBtn, openServices);
   header.append(left, actions);
 
   const pre = document.createElement('pre');

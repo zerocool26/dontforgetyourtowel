@@ -8,8 +8,8 @@ const description =
   'Device + browser diagnostics to determine why 3D rendering fails (WebGL, service worker cache, asset paths).';
 
 const homeHref = withBasePath('/');
-const galleryHref = withBasePath('gallery/');
-const showroomHref = withBasePath('car-showroom/');
+const servicesHref = withBasePath('services/');
+const demoHref = withBasePath('demo/');
 ---
 
 <MarketingLayout
@@ -30,12 +30,10 @@ const showroomHref = withBasePath('car-showroom/');
 
     <div class="mt-6 flex flex-wrap gap-3">
       <ModernButton variant="secondary" href={homeHref}>Home</ModernButton>
-      <ModernButton variant="secondary" href={galleryHref}
-        >3D Gallery</ModernButton
+      <ModernButton variant="secondary" href={servicesHref}
+        >Services</ModernButton
       >
-      <ModernButton variant="secondary" href={showroomHref}
-        >Car Showroom</ModernButton
-      >
+      <ModernButton variant="secondary" href={demoHref}>Demo</ModernButton>
     </div>
 
     <div
