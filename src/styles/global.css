@@ -477,6 +477,101 @@
 }
 
 @layer components {
+  .creative-page {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .creative-page::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+    opacity: 0.16;
+    background-image: radial-gradient(
+      circle at 15% 35%,
+      rgba(34, 211, 238, 0.32),
+      transparent 34%
+    );
+  }
+
+  .creative-hero-shell {
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 1.5rem;
+    background:
+      linear-gradient(
+        150deg,
+        rgba(255, 255, 255, 0.08),
+        rgba(255, 255, 255, 0.03)
+      ),
+      rgba(9, 9, 11, 0.64);
+    box-shadow: 0 24px 90px -42px rgba(34, 211, 238, 0.45);
+    backdrop-filter: blur(14px);
+  }
+
+  .creative-panel {
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 1.25rem;
+    background:
+      linear-gradient(
+        165deg,
+        rgba(255, 255, 255, 0.07),
+        rgba(255, 255, 255, 0.02)
+      ),
+      rgba(9, 9, 11, 0.56);
+    box-shadow: 0 22px 60px -44px rgba(196, 181, 253, 0.55);
+    backdrop-filter: blur(10px);
+  }
+
+  .creative-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.06);
+    padding: 0.45rem 0.85rem;
+    font-size: 0.67rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(228, 228, 231, 0.88);
+  }
+
+  .creative-chip {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.04);
+    padding: 0.34rem 0.72rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(212, 212, 216, 0.86);
+    transition:
+      border-color 0.25s ease,
+      color 0.25s ease,
+      transform 0.25s ease;
+  }
+
+  .creative-chip:hover {
+    border-color: rgba(196, 181, 253, 0.44);
+    color: #fff;
+    transform: translateY(-1px);
+  }
+
+  .creative-copy {
+    max-width: 66ch;
+    color: rgb(212 212 216);
+    line-height: 1.72;
+  }
+
+  .creative-title {
+    letter-spacing: -0.035em;
+    line-height: 1.08;
+  }
+
   .app-shell {
     position: relative;
     min-height: 100vh;

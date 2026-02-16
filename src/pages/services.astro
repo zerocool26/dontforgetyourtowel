@@ -131,21 +131,19 @@ const featuredTestimonials = testimonials
     >
     </div>
     <div class="mx-auto max-w-[1220px] px-6">
-      <div class="grid gap-10 lg:grid-cols-2 lg:items-center">
+      <div
+        class="creative-hero-shell grid gap-10 p-8 lg:grid-cols-2 lg:items-center"
+      >
         <div class="space-y-6">
-          <p
-            class="text-xs font-semibold uppercase tracking-[0.32em] text-zinc-400"
-          >
-            Services
-          </p>
-          <h1 class="text-4xl font-bold text-white sm:text-5xl">
-            Next-generation IT, security, and
-            <span class="text-accent-300"> autonomous engineering.</span>
+          <p class="creative-kicker">Services</p>
+          <h1 class="creative-title text-4xl font-bold text-white sm:text-5xl">
+            Creative systems delivery across
+            <span class="text-accent-300"> AI, security, and cloud.</span>
           </h1>
-          <p class="max-w-2xl text-base text-zinc-300">
-            From Fortune 500-level cybersecurity and AI orchestration to
-            high-performance game engines and global network backbones. We
-            deliver the specialized expertise required to lead in 2026.
+          <p class="creative-copy text-base">
+            We design and operate ambitious technology programs: product-facing
+            AI, hardened infrastructure, and cloud/platform systems that stay
+            expressive without becoming fragile.
           </p>
           <div class="flex flex-col gap-3 sm:flex-row">
             <ModernButton
@@ -166,26 +164,20 @@ const featuredTestimonials = testimonials
         </div>
 
         <div class="grid gap-4">
-          <ModernCard
-            variant="minimal"
-            className="border-white/10 bg-zinc-950/60 p-6"
-          >
+          <ModernCard variant="minimal" className="creative-panel p-6">
             <p class="text-sm font-semibold text-white">Fast onboarding</p>
             <p class="mt-2 text-sm text-zinc-300">
-              Most environments are fully monitored within 10–14 days (depending
-              on size and complexity).
+              Most engagements move from intake to active instrumentation in
+              10–14 days, depending on system complexity.
             </p>
           </ModernCard>
-          <ModernCard
-            variant="minimal"
-            className="border-white/10 bg-zinc-950/60 p-6"
-          >
+          <ModernCard variant="minimal" className="creative-panel p-6">
             <p class="text-sm font-semibold text-white">
               Transparent reporting
             </p>
             <p class="mt-2 text-sm text-zinc-300">
-              Monthly health reports and quarterly roadmap reviews—no mystery
-              work.
+              Weekly delivery signal, monthly operating reviews, and no
+              black-box implementation work.
             </p>
           </ModernCard>
         </div>
@@ -195,6 +187,13 @@ const featuredTestimonials = testimonials
 
   <section class="border-y border-white/5 bg-zinc-900/30" data-reveal>
     <div class="mx-auto max-w-[1220px] px-6 py-16">
+      <div class="mb-5 flex flex-wrap items-center gap-2">
+        <span class="creative-kicker">Service Lanes</span>
+        <a class="creative-chip" href="#managed-it">Managed IT</a>
+        <a class="creative-chip" href="#cybersecurity">Cybersecurity</a>
+        <a class="creative-chip" href="#cloud">Cloud & DevOps</a>
+        <a class="creative-chip" href="#ai">AI Enablement</a>
+      </div>
       <div class="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
         {
           services.map(s => (
@@ -211,37 +210,17 @@ const featuredTestimonials = testimonials
   </section>
 
   <section
-    class="sticky top-16 z-20 border-b border-white/5 bg-zinc-950/85 backdrop-blur"
+    class="sticky top-16 z-20 border-b border-white/5 bg-zinc-950/80 backdrop-blur-xl"
   >
     <div class="mx-auto max-w-[1220px] px-6 py-4 sm:py-5">
       <div class="flex flex-wrap items-center gap-2">
-        <p class="mr-2 text-xs uppercase tracking-[0.28em] text-zinc-500">
-          Quick Jump
-        </p>
-        <a
-          class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-zinc-300 transition hover:-translate-y-0.5 hover:border-white/20 hover:text-white"
-          href="#managed-it">Managed IT</a
-        >
-        <a
-          class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-zinc-300 transition hover:-translate-y-0.5 hover:border-white/20 hover:text-white"
-          href="#cybersecurity">Cybersecurity</a
-        >
-        <a
-          class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-zinc-300 transition hover:-translate-y-0.5 hover:border-white/20 hover:text-white"
-          href="#cloud">Cloud & DevOps</a
-        >
-        <a
-          class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-zinc-300 transition hover:-translate-y-0.5 hover:border-white/20 hover:text-white"
-          href="#ai">AI Enablement</a
-        >
-        <a
-          class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-zinc-300 transition hover:-translate-y-0.5 hover:border-white/20 hover:text-white"
-          href="#engagement-model">Engagement Model</a
-        >
-        <a
-          class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-zinc-300 transition hover:-translate-y-0.5 hover:border-white/20 hover:text-white"
-          href="#contact">Contact</a
-        >
+        <span class="creative-kicker">Quick Jump</span>
+        <a class="creative-chip" href="#managed-it">Managed IT</a>
+        <a class="creative-chip" href="#cybersecurity">Cybersecurity</a>
+        <a class="creative-chip" href="#cloud">Cloud & DevOps</a>
+        <a class="creative-chip" href="#ai">AI Enablement</a>
+        <a class="creative-chip" href="#engagement-model">Engagement Model</a>
+        <a class="creative-chip" href="#contact">Contact</a>
       </div>
     </div>
   </section>
@@ -249,10 +228,7 @@ const featuredTestimonials = testimonials
   <section class="border-b border-white/5 bg-zinc-900/20" data-reveal>
     <div class="mx-auto max-w-[1220px] px-6 py-10">
       <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <ModernCard
-          variant="minimal"
-          className="border-white/10 bg-zinc-950/60 p-5"
-        >
+        <ModernCard variant="minimal" className="creative-panel p-5">
           <p class="text-xs uppercase tracking-[0.24em] text-zinc-500">
             Catalog Depth
           </p>
@@ -261,10 +237,7 @@ const featuredTestimonials = testimonials
             Specialist offerings mapped across six enterprise domains.
           </p>
         </ModernCard>
-        <ModernCard
-          variant="minimal"
-          className="border-white/10 bg-zinc-950/60 p-5"
-        >
+        <ModernCard variant="minimal" className="creative-panel p-5">
           <p class="text-xs uppercase tracking-[0.24em] text-zinc-500">
             Operating Model
           </p>
@@ -273,10 +246,7 @@ const featuredTestimonials = testimonials
             Assess, onboard, operate, and optimize with measurable cadence.
           </p>
         </ModernCard>
-        <ModernCard
-          variant="minimal"
-          className="border-white/10 bg-zinc-950/60 p-5"
-        >
+        <ModernCard variant="minimal" className="creative-panel p-5">
           <p class="text-xs uppercase tracking-[0.24em] text-zinc-500">
             Coverage Window
           </p>

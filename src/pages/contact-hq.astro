@@ -8,159 +8,138 @@ import { CONTACT_EMAIL } from '../consts';
 const contactChannels = [
   {
     title: 'New Project / Sales',
-    note: 'Scope alignment, proposals, and phased delivery planning.',
+    note: 'Scope alignment, proposal framing, and delivery sequencing.',
     email: CONTACT_EMAIL,
     subject: 'New project inquiry',
   },
   {
     title: 'Managed Services Support',
-    note: 'Operational support, escalations, and service continuity.',
+    note: 'Operational support, escalations, and continuity requests.',
     email: CONTACT_EMAIL,
     subject: 'Managed services support request',
   },
   {
     title: 'Security Advisory',
-    note: 'Risk assessments, governance, and response planning.',
+    note: 'Risk reviews, architecture guidance, and response readiness.',
     email: CONTACT_EMAIL,
     subject: 'Security advisory request',
   },
   {
     title: 'Partnerships',
-    note: 'Strategic alliances, implementation partnerships, and co-delivery.',
+    note: 'Strategic collaboration and co-delivery opportunities.',
     email: CONTACT_EMAIL,
     subject: 'Partnership inquiry',
   },
 ];
 
 const intakeChecklist = [
-  'Business goals and required outcomes',
-  'Current environment (users/devices/cloud footprint)',
-  'Security/compliance constraints (if any)',
-  'Preferred timeline and decision milestones',
-  'Known blockers or urgent risks',
+  'What outcome you want in plain language',
+  'Current stack and system constraints',
+  'Security/compliance boundaries (if relevant)',
+  'Timeline expectations and decision dates',
+  'Known blockers or operational pressure points',
 ];
 
 const engagementSteps = [
   {
     phase: '01 • Discovery',
     detail:
-      'We review goals, constraints, architecture context, and urgency to align scope.',
+      'We align on intent, urgency, constraints, and architectural context before solutions are proposed.',
   },
   {
-    phase: '02 • Solution Design',
+    phase: '02 • Design',
     detail:
-      'We map the operating model, milestones, and recommended delivery path.',
+      'We frame options, sequencing, and operating model tradeoffs around your real delivery environment.',
   },
   {
-    phase: '03 • Proposal & Plan',
+    phase: '03 • Plan',
     detail:
-      'You receive a right-sized engagement proposal with clear execution checkpoints.',
+      'You receive a right-sized plan with milestones, owners, and confidence checkpoints.',
   },
   {
     phase: '04 • Kickoff',
     detail:
-      'On approval, we begin onboarding, owner alignment, and implementation sequencing.',
+      'Once approved, we activate onboarding, workflows, and the first implementation cycle.',
   },
 ];
 
 const faqs = [
   {
     q: 'How quickly do you respond?',
-    a: 'Initial responses are typically same-business-day. Critical operational escalations are prioritized.',
+    a: 'Most first responses happen same business day. Critical operational escalations are prioritized immediately.',
   },
   {
     q: 'Do you support co-managed engagements?',
-    a: 'Yes. We frequently work alongside internal teams and provide specialist coverage where needed.',
+    a: 'Yes. We commonly embed with internal teams and fill specialist capability gaps where needed.',
   },
   {
-    q: 'Can we start with a small scope?',
-    a: 'Yes. Many clients begin with a focused discovery or hardening sprint and scale into managed coverage.',
+    q: 'Can we start with a narrow scope?',
+    a: 'Absolutely. Many clients begin with discovery or hardening sprints, then scale into broader programs.',
   },
   {
-    q: 'Do you provide fixed-price and recurring options?',
-    a: 'Yes. Engagement format depends on your delivery model, operating cadence, and risk profile.',
+    q: 'Do you offer fixed-price and recurring options?',
+    a: 'Yes. The model is chosen based on scope volatility, risk profile, and desired operating cadence.',
   },
 ];
 ---
 
 <MarketingLayout
   title="Contact | Olive Global Systems"
-  description="Start a project, request support, or speak with our team about security, cloud, and managed operations."
+  description="Creative intake hub for project discovery, operational support, security advisory, and partnership conversations."
 >
   <section
     class="relative overflow-hidden bg-zinc-950 text-zinc-50"
     data-reveal
   >
     <div
-      class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(0,102,255,0.16),_transparent_55%)]"
+      class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(124,58,237,0.24),_transparent_52%)]"
     >
     </div>
     <div class="relative mx-auto max-w-[1220px] px-6 pb-16 pt-28">
-      <div class="max-w-3xl space-y-6">
-        <p class="pro-kicker">Contact HQ</p>
-        <h1 class="text-4xl font-bold text-white sm:text-5xl">
-          Let’s scope your next initiative—
-          <span class="text-accent-300">with speed and clarity.</span>
-        </h1>
-        <p class="pro-copy text-base">
-          Use this page as your primary intake hub for project planning, managed
-          operations support, security advisory, or partnership conversations.
-        </p>
-        <div class="flex flex-col gap-3 sm:flex-row">
-          <ModernButton
-            href={`mailto:${encodeURIComponent(CONTACT_EMAIL)}?subject=${encodeURIComponent('New project inquiry')}`}
-            variant="primary"
-            className="min-h-[48px]"
-          >
-            Start a project
-          </ModernButton>
-          <ModernButton
-            href={withBasePath('services/')}
-            variant="secondary"
-            className="min-h-[48px]"
-          >
-            Review services
-          </ModernButton>
+      <div class="creative-hero-shell p-8 sm:p-10">
+        <div class="max-w-3xl space-y-6">
+          <span class="creative-kicker">Contact HQ</span>
+          <h1 class="creative-title text-4xl font-bold text-white sm:text-5xl">
+            Let’s scope your next initiative
+            <span class="text-accent-300">—with speed and clarity.</span>
+          </h1>
+          <p class="creative-copy text-base">
+            This is the fastest way to route a serious request. Share context
+            once, and we’ll map it to the right team, the right delivery path,
+            and the right pace.
+          </p>
+          <div class="flex flex-col gap-3 sm:flex-row">
+            <ModernButton
+              href={`mailto:${encodeURIComponent(CONTACT_EMAIL)}?subject=${encodeURIComponent('New project inquiry')}`}
+              variant="primary"
+              className="min-h-[48px]"
+            >
+              Start a project
+            </ModernButton>
+            <ModernButton
+              href={withBasePath('services/')}
+              variant="secondary"
+              className="min-h-[48px]"
+            >
+              Review services
+            </ModernButton>
+          </div>
         </div>
       </div>
-
-      <ModernCard
-        variant="minimal"
-        className="mt-10 border-white/10 bg-white/5 p-6"
-      >
-        <p class="text-sm text-zinc-300">
-          <span class="font-semibold text-white">Best results:</span> include your
-          current stack, desired outcomes, and timeline in your first email.
-        </p>
-      </ModernCard>
     </div>
   </section>
 
   <section
-    class="sticky top-16 z-20 border-y border-white/5 bg-zinc-950/85 backdrop-blur"
+    class="sticky top-16 z-20 border-y border-white/5 bg-zinc-950/80 backdrop-blur-xl"
     data-reveal
   >
     <div class="mx-auto max-w-[1220px] px-6 py-4 sm:py-5">
       <div class="flex flex-wrap items-center gap-2">
-        <p class="mr-2 text-xs uppercase tracking-[0.28em] text-zinc-500">
-          Navigator
-        </p>
-        <a
-          class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-zinc-300 transition hover:-translate-y-0.5 hover:border-white/20 hover:text-white"
-          href="#channels">Channels</a
-        >
-        <a
-          class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-zinc-300 transition hover:-translate-y-0.5 hover:border-white/20 hover:text-white"
-          href="#intake">Intake Checklist</a
-        >
-        <a
-          class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-zinc-300 transition hover:-translate-y-0.5 hover:border-white/20 hover:text-white"
-          href="#engagement">Engagement Model</a
-        >
-        <a
-          class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-zinc-300 transition hover:-translate-y-0.5 hover:border-white/20 hover:text-white"
-          href="#faq">FAQ</a
-        >
+        <span class="creative-kicker">Navigator</span>
+        <a class="creative-chip" href="#channels">Channels</a>
+        <a class="creative-chip" href="#intake">Intake Checklist</a>
+        <a class="creative-chip" href="#engagement">Engagement Model</a>
+        <a class="creative-chip" href="#faq">FAQ</a>
       </div>
     </div>
   </section>
@@ -172,22 +151,19 @@ const faqs = [
   >
     <div class="mx-auto max-w-[1220px] px-6 py-16">
       <div class="max-w-3xl space-y-3">
-        <h2 class="text-3xl font-semibold text-white">
+        <h2 class="creative-title text-3xl font-semibold text-white">
           Choose the right channel
         </h2>
-        <p class="text-sm text-zinc-300">
-          Route your request to the correct path so we can respond with the
-          right context quickly.
+        <p class="creative-copy text-sm">
+          Picking the correct lane means faster first response and fewer
+          handoffs.
         </p>
       </div>
 
       <div class="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
         {
           contactChannels.map(channel => (
-            <ModernCard
-              variant="minimal"
-              className="border-white/10 bg-zinc-950/60 p-6"
-            >
+            <ModernCard variant="minimal" className="creative-panel p-6">
               <p class="text-sm font-semibold text-white">{channel.title}</p>
               <p class="mt-3 text-sm text-zinc-300">{channel.note}</p>
               <a
@@ -207,24 +183,21 @@ const faqs = [
     <div class="mx-auto max-w-[1220px] px-6 py-20">
       <div class="grid gap-10 lg:grid-cols-2 lg:items-start">
         <div class="space-y-4">
-          <h2 class="text-3xl font-semibold text-white">
+          <h2 class="creative-title text-3xl font-semibold text-white">
             What to include in your first message
           </h2>
-          <p class="text-sm text-zinc-300">
-            A complete intake note accelerates discovery and produces a sharper
-            first recommendation.
+          <p class="creative-copy text-sm">
+            Better context on day one creates better recommendations in the
+            first call.
           </p>
         </div>
 
-        <ModernCard
-          variant="minimal"
-          className="border-white/10 bg-zinc-950/60 p-6"
-        >
+        <ModernCard variant="minimal" className="creative-panel p-6">
           <ul class="space-y-3 text-sm text-zinc-300">
             {
               intakeChecklist.map(item => (
                 <li class="flex items-start gap-2">
-                  <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 bg-accent-500" />
+                  <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 bg-accent-400" />
                   <span>{item}</span>
                 </li>
               ))
@@ -242,20 +215,18 @@ const faqs = [
   >
     <div class="mx-auto max-w-[1220px] px-6 py-20">
       <div class="max-w-3xl space-y-3">
-        <h2 class="text-3xl font-semibold text-white">How engagement starts</h2>
-        <p class="text-sm text-zinc-300">
-          We keep project kickoff disciplined and transparent from first contact
-          to execution.
+        <h2 class="creative-title text-3xl font-semibold text-white">
+          How engagement starts
+        </h2>
+        <p class="creative-copy text-sm">
+          A clear kickoff sequence from first message to active execution.
         </p>
       </div>
 
       <div class="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
         {
           engagementSteps.map(step => (
-            <ModernCard
-              variant="minimal"
-              className="border-white/10 bg-zinc-950/60 p-6"
-            >
+            <ModernCard variant="minimal" className="creative-panel p-6">
               <p class="text-xs uppercase tracking-[0.24em] text-zinc-500">
                 {step.phase}
               </p>
@@ -270,16 +241,14 @@ const faqs = [
   <section class="bg-zinc-950" id="faq" data-reveal>
     <div class="mx-auto max-w-[1220px] px-6 py-20">
       <div class="max-w-3xl space-y-4">
-        <h2 class="text-3xl font-semibold text-white">FAQs</h2>
-        <p class="text-sm text-zinc-300">
-          Common questions before kickoff and onboarding.
-        </p>
+        <h2 class="creative-title text-3xl font-semibold text-white">FAQs</h2>
+        <p class="creative-copy text-sm">Quick answers before kickoff.</p>
       </div>
 
       <div class="mt-10 grid gap-4">
         {
           faqs.map(item => (
-            <details class="rounded-2xl border border-white/10 bg-white/5 p-6">
+            <details class="creative-panel p-6">
               <summary class="cursor-pointer select-none text-sm font-semibold text-white">
                 {item.q}
               </summary>
@@ -293,15 +262,17 @@ const faqs = [
 
   <section class="border-t border-white/5 bg-zinc-900/30" data-reveal>
     <div class="mx-auto max-w-[1220px] px-6 py-20">
-      <div class="rounded-2xl border border-white/10 bg-white/5 p-8">
+      <div class="creative-hero-shell p-8">
         <div
           class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between"
         >
           <div class="max-w-2xl">
-            <h2 class="text-2xl font-semibold text-white">Primary contact</h2>
+            <h2 class="creative-title text-2xl font-semibold text-white">
+              Primary contact
+            </h2>
             <p class="mt-3 text-sm text-zinc-300">
-              Send your intake summary and we’ll respond with a recommended next
-              step and engagement path.
+              Send your intake summary and we’ll reply with the recommended next
+              step.
             </p>
             <p class="mt-3 text-sm text-zinc-300">
               <a
@@ -317,6 +288,13 @@ const faqs = [
               className="min-h-[48px]"
             >
               Email now
+            </ModernButton>
+            <ModernButton
+              href={withBasePath('services/')}
+              variant="secondary"
+              className="min-h-[48px]"
+            >
+              Browse services
             </ModernButton>
           </div>
         </div>
