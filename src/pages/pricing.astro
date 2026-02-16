@@ -2,94 +2,90 @@
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 import ModernCard from '../components/ui/ModernCard.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
-import PricingTier from '../components/business/PricingTier.astro';
-import PricingCalculator from '../components/business/PricingCalculator.tsx';
-import ROICalculator from '../components/business/ROICalculator.tsx';
 import { withBasePath } from '../utils/helpers';
 import { CONTACT_EMAIL } from '../consts';
 
-const requestQuoteHref = `mailto:${encodeURIComponent(
-  CONTACT_EMAIL
-)}?subject=${encodeURIComponent('Request pricing / quote')}`;
+const contactChannels = [
+  {
+    title: 'New Project / Sales',
+    note: 'Scope alignment, proposals, and phased delivery planning.',
+    email: CONTACT_EMAIL,
+    subject: 'New project inquiry',
+  },
+  {
+    title: 'Managed Services Support',
+    note: 'Operational support, escalations, and service continuity.',
+    email: CONTACT_EMAIL,
+    subject: 'Managed services support request',
+  },
+  {
+    title: 'Security Advisory',
+    note: 'Risk assessments, governance, and response planning.',
+    email: CONTACT_EMAIL,
+    subject: 'Security advisory request',
+  },
+  {
+    title: 'Partnerships',
+    note: 'Strategic alliances, implementation partnerships, and co-delivery.',
+    email: CONTACT_EMAIL,
+    subject: 'Partnership inquiry',
+  },
+];
 
-const tiers = [
+const intakeChecklist = [
+  'Business goals and required outcomes',
+  'Current environment (users/devices/cloud footprint)',
+  'Security/compliance constraints (if any)',
+  'Preferred timeline and decision milestones',
+  'Known blockers or urgent risks',
+];
+
+const engagementSteps = [
   {
-    name: 'Essentials',
-    price: '$99 / user / mo',
-    description:
-      'A reliable foundation for helpdesk, patching, backups, and monitoring.',
-    perks: [
-      'Monitoring + alerting (workstations & key services)',
-      'Ticketing + response SLAs',
-      'Patch management cadence',
-      'Backup oversight + restore testing',
-    ],
-    highlight: false,
+    phase: '01 • Discovery',
+    detail:
+      'We review goals, constraints, architecture context, and urgency to align scope.',
   },
   {
-    name: 'Growth',
-    price: '$149 / user / mo',
-    description:
-      'The best fit for growing teams who need stronger security and more proactive IT.',
-    perks: [
-      'Everything in Essentials',
-      'Identity hardening (MFA, SSO guidance)',
-      'Security baseline + policy templates',
-      'Quarterly roadmap review',
-    ],
-    highlight: true,
+    phase: '02 • Solution Design',
+    detail:
+      'We map the operating model, milestones, and recommended delivery path.',
   },
   {
-    name: 'Secure+',
-    price: '$199 / user / mo',
-    description:
-      'Advanced security coverage, governance, and incident readiness for regulated environments.',
-    perks: [
-      'Everything in Growth',
-      'Managed EDR + response playbooks',
-      'Security awareness + phishing program',
-      'Compliance support (SOC 2 / ISO-style controls)',
-    ],
-    highlight: false,
+    phase: '03 • Proposal & Plan',
+    detail:
+      'You receive a right-sized engagement proposal with clear execution checkpoints.',
   },
   {
-    name: 'Custom',
-    price: 'Quoted',
-    description:
-      'Complex environments, multi-site networks, or dedicated vCISO / SOC requirements.',
-    perks: [
-      'Device + server-based pricing options',
-      'Custom SLA & escalation',
-      'Dedicated security program support',
-      'Cloud migration + modernization workstreams',
-    ],
-    highlight: false,
+    phase: '04 • Kickoff',
+    detail:
+      'On approval, we begin onboarding, owner alignment, and implementation sequencing.',
   },
 ];
 
 const faqs = [
   {
-    q: 'Do you support co-managed IT?',
-    a: 'Yes. We can partner with your internal IT team—handling monitoring, escalations, security, and projects while your team stays close to the business.',
+    q: 'How quickly do you respond?',
+    a: 'Initial responses are typically same-business-day. Critical operational escalations are prioritized.',
   },
   {
-    q: 'What impacts pricing the most?',
-    a: 'User and device counts, compliance scope, server footprint, and response SLAs. We confirm scope during discovery and onboarding.',
+    q: 'Do you support co-managed engagements?',
+    a: 'Yes. We frequently work alongside internal teams and provide specialist coverage where needed.',
   },
   {
-    q: 'Can you help with SOC 2 readiness?',
-    a: 'We can help build security controls, evidence collection habits, and vendor/process documentation to support readiness efforts. We do not act as an auditor.',
+    q: 'Can we start with a small scope?',
+    a: 'Yes. Many clients begin with a focused discovery or hardening sprint and scale into managed coverage.',
   },
   {
-    q: 'How fast can we onboard?',
-    a: 'Many SMB environments onboard within 10–14 days. Larger or multi-site environments can take longer depending on tooling and access readiness.',
+    q: 'Do you provide fixed-price and recurring options?',
+    a: 'Yes. Engagement format depends on your delivery model, operating cadence, and risk profile.',
   },
 ];
 ---
 
 <MarketingLayout
-  title="Pricing | Olive Global Systems"
-  description="Transparent pricing for managed operations, cybersecurity, cloud engineering, and AI enablement."
+  title="Contact | Olive Global Systems"
+  description="Start a project, request support, or speak with our team about security, cloud, and managed operations."
 >
   <section
     class="relative overflow-hidden bg-zinc-950 text-zinc-50"
@@ -101,34 +97,29 @@ const faqs = [
     </div>
     <div class="relative mx-auto max-w-[1220px] px-6 pb-16 pt-28">
       <div class="max-w-3xl space-y-6">
-        <p
-          class="text-xs font-semibold uppercase tracking-[0.32em] text-zinc-400"
-        >
-          Pricing
-        </p>
+        <p class="pro-kicker">Contact HQ</p>
         <h1 class="text-4xl font-bold text-white sm:text-5xl">
-          Plans that scale with your business—
-          <span class="text-accent-300">without surprises.</span>
+          Let’s scope your next initiative—
+          <span class="text-accent-300">with speed and clarity.</span>
         </h1>
-        <p class="text-base text-zinc-300">
-          Our pricing is typically per user, with add-ons for advanced security
-          and special compliance scope. We’ll confirm the best-fit plan during a
-          free consultation.
+        <p class="pro-copy text-base">
+          Use this page as your primary intake hub for project planning, managed
+          operations support, security advisory, or partnership conversations.
         </p>
         <div class="flex flex-col gap-3 sm:flex-row">
+          <ModernButton
+            href={`mailto:${encodeURIComponent(CONTACT_EMAIL)}?subject=${encodeURIComponent('New project inquiry')}`}
+            variant="primary"
+            className="min-h-[48px]"
+          >
+            Start a project
+          </ModernButton>
           <ModernButton
             href={withBasePath('services/')}
             variant="secondary"
             className="min-h-[48px]"
           >
             Review services
-          </ModernButton>
-          <ModernButton
-            href={requestQuoteHref}
-            variant="primary"
-            className="min-h-[48px]"
-          >
-            Get a quote
           </ModernButton>
         </div>
       </div>
@@ -138,28 +129,10 @@ const faqs = [
         className="mt-10 border-white/10 bg-white/5 p-6"
       >
         <p class="text-sm text-zinc-300">
-          <span class="font-semibold text-white">All plans include</span> onboarding,
-          documented runbooks, and monthly reporting.
+          <span class="font-semibold text-white">Best results:</span> include your
+          current stack, desired outcomes, and timeline in your first email.
         </p>
       </ModernCard>
-
-      <div class="mt-6 flex flex-wrap gap-2">
-        <span
-          class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-wide text-zinc-300"
-        >
-          Flat monthly model
-        </span>
-        <span
-          class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-wide text-zinc-300"
-        >
-          Quarterly roadmap reviews
-        </span>
-        <span
-          class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-wide text-zinc-300"
-        >
-          Security add-ons available
-        </span>
-      </div>
     </div>
   </section>
 
@@ -170,93 +143,126 @@ const faqs = [
     <div class="mx-auto max-w-[1220px] px-6 py-4 sm:py-5">
       <div class="flex flex-wrap items-center gap-2">
         <p class="mr-2 text-xs uppercase tracking-[0.28em] text-zinc-500">
-          Plan Navigator
+          Navigator
         </p>
         <a
           class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-zinc-300 transition hover:-translate-y-0.5 hover:border-white/20 hover:text-white"
-          href="#tiers">Tiers</a
+          href="#channels">Channels</a
         >
         <a
           class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-zinc-300 transition hover:-translate-y-0.5 hover:border-white/20 hover:text-white"
-          href="#calculator">Cost Estimator</a
+          href="#intake">Intake Checklist</a
         >
         <a
           class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-zinc-300 transition hover:-translate-y-0.5 hover:border-white/20 hover:text-white"
-          href="#roi">ROI</a
+          href="#engagement">Engagement Model</a
         >
         <a
           class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-zinc-300 transition hover:-translate-y-0.5 hover:border-white/20 hover:text-white"
           href="#faq">FAQ</a
         >
-        <a
-          class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-zinc-300 transition hover:-translate-y-0.5 hover:border-white/20 hover:text-white"
-          href="#contact">Contact</a
-        >
       </div>
     </div>
   </section>
 
   <section
-    id="tiers"
+    id="channels"
     class="scroll-mt-32 border-y border-white/5 bg-zinc-900/30"
     data-reveal
   >
     <div class="mx-auto max-w-[1220px] px-6 py-16">
-      <div class="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+      <div class="max-w-3xl space-y-3">
+        <h2 class="text-3xl font-semibold text-white">
+          Choose the right channel
+        </h2>
+        <p class="text-sm text-zinc-300">
+          Route your request to the correct path so we can respond with the
+          right context quickly.
+        </p>
+      </div>
+
+      <div class="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
         {
-          tiers.map(t => (
-            <PricingTier
-              name={t.name}
-              price={t.price}
-              description={t.description}
-              perks={t.perks}
-              highlight={t.highlight}
-              ctaLabel={t.highlight ? 'Choose Growth' : 'Talk to sales'}
-              ctaHref={requestQuoteHref}
-            />
+          contactChannels.map(channel => (
+            <ModernCard
+              variant="minimal"
+              className="border-white/10 bg-zinc-950/60 p-6"
+            >
+              <p class="text-sm font-semibold text-white">{channel.title}</p>
+              <p class="mt-3 text-sm text-zinc-300">{channel.note}</p>
+              <a
+                class="mt-5 inline-flex text-sm font-semibold text-accent-300 hover:underline"
+                href={`mailto:${encodeURIComponent(channel.email)}?subject=${encodeURIComponent(channel.subject)}`}
+              >
+                Email this channel
+              </a>
+            </ModernCard>
           ))
         }
       </div>
-      <p class="mt-6 text-xs text-zinc-500">
-        Prices are illustrative. Final pricing depends on device counts, server
-        footprint, compliance scope, and SLA.
-      </p>
     </div>
   </section>
 
-  <section id="calculator" class="scroll-mt-32 bg-zinc-950" data-reveal>
+  <section id="intake" class="scroll-mt-32 bg-zinc-950" data-reveal>
     <div class="mx-auto max-w-[1220px] px-6 py-20">
       <div class="grid gap-10 lg:grid-cols-2 lg:items-start">
         <div class="space-y-4">
           <h2 class="text-3xl font-semibold text-white">
-            Estimate your monthly cost
+            What to include in your first message
           </h2>
           <p class="text-sm text-zinc-300">
-            Use the calculator for a ballpark estimate. We’ll validate
-            assumptions and produce a detailed quote in discovery.
+            A complete intake note accelerates discovery and produces a sharper
+            first recommendation.
           </p>
         </div>
-        <PricingCalculator client:load />
+
+        <ModernCard
+          variant="minimal"
+          className="border-white/10 bg-zinc-950/60 p-6"
+        >
+          <ul class="space-y-3 text-sm text-zinc-300">
+            {
+              intakeChecklist.map(item => (
+                <li class="flex items-start gap-2">
+                  <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 bg-accent-500" />
+                  <span>{item}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </ModernCard>
       </div>
     </div>
   </section>
 
   <section
-    id="roi"
+    id="engagement"
     class="scroll-mt-32 border-y border-white/5 bg-zinc-900/30"
     data-reveal
   >
     <div class="mx-auto max-w-[1220px] px-6 py-20">
-      <div class="grid gap-10 lg:grid-cols-2 lg:items-start">
-        <div class="space-y-4">
-          <h2 class="text-3xl font-semibold text-white">Estimate ROI</h2>
-          <p class="text-sm text-zinc-300">
-            A quick planning tool to evaluate payback periods. Real savings
-            often come from reduced downtime, stronger security controls, and
-            fewer emergency projects.
-          </p>
-        </div>
-        <ROICalculator client:load />
+      <div class="max-w-3xl space-y-3">
+        <h2 class="text-3xl font-semibold text-white">How engagement starts</h2>
+        <p class="text-sm text-zinc-300">
+          We keep project kickoff disciplined and transparent from first contact
+          to execution.
+        </p>
+      </div>
+
+      <div class="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+        {
+          engagementSteps.map(step => (
+            <ModernCard
+              variant="minimal"
+              className="border-white/10 bg-zinc-950/60 p-6"
+            >
+              <p class="text-xs uppercase tracking-[0.24em] text-zinc-500">
+                {step.phase}
+              </p>
+              <p class="mt-3 text-sm text-zinc-300">{step.detail}</p>
+            </ModernCard>
+          ))
+        }
       </div>
     </div>
   </section>
@@ -266,8 +272,7 @@ const faqs = [
       <div class="max-w-3xl space-y-4">
         <h2 class="text-3xl font-semibold text-white">FAQs</h2>
         <p class="text-sm text-zinc-300">
-          If you don’t see your question here, email us and we’ll walk you
-          through options.
+          Common questions before kickoff and onboarding.
         </p>
       </div>
 
@@ -286,21 +291,17 @@ const faqs = [
     </div>
   </section>
 
-  <section
-    class="border-t border-white/5 bg-zinc-900/30"
-    id="contact"
-    data-reveal
-  >
+  <section class="border-t border-white/5 bg-zinc-900/30" data-reveal>
     <div class="mx-auto max-w-[1220px] px-6 py-20">
       <div class="rounded-2xl border border-white/10 bg-white/5 p-8">
         <div
           class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between"
         >
           <div class="max-w-2xl">
-            <h2 class="text-2xl font-semibold text-white">Request a quote</h2>
+            <h2 class="text-2xl font-semibold text-white">Primary contact</h2>
             <p class="mt-3 text-sm text-zinc-300">
-              Email your user/device counts, key apps, and compliance needs.
-              We’ll respond with a best-fit plan and recommended add-ons.
+              Send your intake summary and we’ll respond with a recommended next
+              step and engagement path.
             </p>
             <p class="mt-3 text-sm text-zinc-300">
               <a
@@ -311,11 +312,11 @@ const faqs = [
           </div>
           <div class="flex flex-col gap-3 sm:flex-row">
             <ModernButton
-              href={requestQuoteHref}
+              href={`mailto:${encodeURIComponent(CONTACT_EMAIL)}?subject=${encodeURIComponent('New project inquiry')}`}
               variant="primary"
               className="min-h-[48px]"
             >
-              Email for a quote
+              Email now
             </ModernButton>
           </div>
         </div>

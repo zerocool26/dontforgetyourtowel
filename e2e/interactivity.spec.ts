@@ -110,68 +110,33 @@ test.describe('Interactivity Features', () => {
       ).toBeVisible();
     });
 
-    test('pricing calculator should update when tier changes', async ({
+    test('contact hub should expose channels and intake guidance', async ({
       page,
     }) => {
       await page.goto('pricing/');
-      await page.waitForTimeout(750);
+      await page.waitForLoadState('domcontentloaded');
 
       await expect(
-        page.getByRole('heading', { name: /pricing calculator/i })
+        page.getByRole('heading', { name: /let’s scope your next initiative/i })
       ).toBeVisible();
 
-      const calculator = page
-        .locator('section')
-        .filter({
-          has: page.getByRole('heading', { name: /pricing calculator/i }),
+      await expect(
+        page.getByRole('heading', { name: /choose the right channel/i })
+      ).toBeVisible();
+
+      await expect(
+        page.getByRole('heading', {
+          name: /what to include in your first message/i,
         })
-        .first();
-
-      await calculator.scrollIntoViewIfNeeded();
-      await expect(calculator.locator('[data-hydrated="true"]')).toBeVisible({
-        timeout: 10000,
-      });
-
-      const totalValue = calculator.locator('p.text-4xl').first();
-
-      // Default is SILVER at 25 users => 25 * 150 = $3,750
-      await expect(totalValue).toHaveText('$3,750');
-
-      // Switch tier and assert deterministic total.
-      await calculator.getByRole('button', { name: /^PLATINUM$/ }).click();
-      await expect(totalValue).toHaveText('$6,250', { timeout: 10000 });
-    });
-
-    test('ROI calculator should compute savings and payback', async ({
-      page,
-    }) => {
-      await page.goto('pricing/');
-      await page.waitForTimeout(750);
-
-      await expect(
-        page.getByRole('heading', { name: /roi calculator/i })
       ).toBeVisible();
 
-      const roi = page
-        .locator('section')
-        .filter({ has: page.getByRole('heading', { name: /roi calculator/i }) })
+      const salesChannel = page.getByText(/new project \/ sales/i).first();
+      await expect(salesChannel).toBeVisible();
+
+      const emailLink = page
+        .getByRole('link', { name: /email this channel/i })
         .first();
-
-      await roi.scrollIntoViewIfNeeded();
-
-      await expect(roi.locator('[data-hydrated="true"]')).toBeVisible({
-        timeout: 10000,
-      });
-
-      await roi.getByLabel(/current it cost/i).fill('10000');
-      await roi.getByLabel(/estimated savings/i).fill('25');
-      await roi.getByLabel(/one-time transition cost/i).fill('5000');
-
-      // 10,000 * 25% = 2,500 monthly savings; payback = 5,000 / 2,500 = 2.0 mo
-      await expect(roi.getByText('$2,500')).toBeVisible({ timeout: 10000 });
-      await expect(roi.getByText(/2\.0 months/i)).toBeVisible({
-        timeout: 10000,
-      });
+      await expect(emailLink).toHaveAttribute('href', /mailto:/i);
     });
   });
 });

@@ -39,13 +39,13 @@ test.describe('Navigation', () => {
     }
     await expect(page).toHaveURL(/.*\/services\/?$/);
 
-    // Pricing page
+    // Contact page (pricing route)
     await page.goto('./');
     if (isMobile) {
       const mobileMenu = await openMobileMenuIfNeeded();
-      await mobileMenu!.getByRole('link', { name: /^pricing$/i }).click();
+      await mobileMenu!.getByRole('link', { name: /^contact$/i }).click();
     } else {
-      await headerNav.getByRole('link', { name: /^pricing$/i }).click();
+      await headerNav.getByRole('link', { name: /^contact$/i }).click();
     }
     await expect(page).toHaveURL(/.*\/pricing\/?$/);
   });

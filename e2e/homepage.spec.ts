@@ -38,7 +38,7 @@ test.describe('Homepage', () => {
         mobileMenu!.getByRole('link', { name: /^services$/i })
       ).toBeVisible();
       await expect(
-        mobileMenu!.getByRole('link', { name: /^pricing$/i })
+        mobileMenu!.getByRole('link', { name: /^contact$/i })
       ).toBeVisible();
       await expect(
         mobileMenu!.getByRole('link', { name: /^about$/i })
@@ -51,7 +51,7 @@ test.describe('Homepage', () => {
         headerNav.getByRole('link', { name: /^services$/i })
       ).toBeVisible();
       await expect(
-        headerNav.getByRole('link', { name: /^pricing$/i })
+        headerNav.getByRole('link', { name: /^contact$/i })
       ).toBeVisible();
       await expect(
         headerNav.getByRole('link', { name: /^about$/i })
@@ -77,7 +77,7 @@ test.describe('Homepage', () => {
 
     await Promise.all([
       page.waitForURL(/.*\/pricing\/?$/, { timeout: 15000 }),
-      headerNav.getByRole('link', { name: /^pricing$/i }).click(),
+      headerNav.getByRole('link', { name: /^contact$/i }).click(),
     ]);
 
     await Promise.all([
