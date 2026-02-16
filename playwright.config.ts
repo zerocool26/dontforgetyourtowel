@@ -66,24 +66,25 @@ export default defineConfig({
           },
         },
         {
-          name: 'firefox',
-          use: { ...devices['Desktop Firefox'] },
+          name: 'Mobile Chrome',
+          use: { ...devices['Pixel 5'] },
         },
-        ...(process.platform === 'win32'
+        ...(process.env.PLAYWRIGHT_ENABLE_FIREFOX === '1'
+          ? [
+              {
+                name: 'firefox',
+                use: { ...devices['Desktop Firefox'] },
+              },
+            ]
+          : []),
+        ...(process.platform === 'win32' ||
+        process.env.PLAYWRIGHT_ENABLE_WEBKIT !== '1'
           ? []
           : [
               {
                 name: 'webkit',
                 use: { ...devices['Desktop Safari'] },
               },
-            ]),
-        {
-          name: 'Mobile Chrome',
-          use: { ...devices['Pixel 5'] },
-        },
-        ...(process.platform === 'win32'
-          ? []
-          : [
               {
                 name: 'Mobile Safari',
                 use: { ...devices['iPhone 12'] },

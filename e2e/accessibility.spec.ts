@@ -44,10 +44,14 @@ test.describe('Accessibility', () => {
     expect(accessibilityScanResults.violations).toEqual([]);
   });
 
-  test('consultation form section should be accessible', async ({ page }) => {
-    await page.goto('./#consultation');
+  test('primary homepage service section should be accessible', async ({
+    page,
+  }) => {
+    await page.goto('./');
     await page.waitForLoadState('domcontentloaded');
-    await expect(page.locator('#consultation')).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: /Consulting & Delivery/i })
+    ).toBeVisible();
 
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])

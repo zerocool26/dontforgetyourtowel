@@ -5,14 +5,16 @@ test.describe('Landing Page Integrity', () => {
     await page.goto('./');
   });
 
-  test('should display the primary service chip', async ({ page }) => {
-    await expect(
-      page.locator('#main-content').getByText(/Chapter 11/i)
-    ).toBeVisible();
+  test('should display the primary hero badge and service framing', async ({
+    page,
+  }) => {
     await expect(
       page
         .locator('#main-content')
-        .getByText(/MSP\s*•\s*Security\s*•\s*Cloud\s*•\s*AI/i)
+        .getByText(/TECH CONSULTING • CLOUD • SECURITY/i)
+    ).toBeVisible();
+    await expect(
+      page.locator('#main-content').getByText(/Technology that runs reliably/i)
     ).toBeVisible();
   });
 
@@ -32,7 +34,9 @@ test.describe('Landing Page Integrity', () => {
 
     // Compare the hero heading to the primary CTA to ensure stacking.
     const heroHeading = page.getByRole('heading', { level: 1 }).first();
-    const primaryCta = page.getByRole('link', { name: /Open 3D gallery/i });
+    const primaryCta = page
+      .getByRole('link', { name: /Explore services/i })
+      .first();
 
     const heroBox = await heroHeading.boundingBox();
     const ctaBox = await primaryCta.boundingBox();

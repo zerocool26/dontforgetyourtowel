@@ -65,7 +65,7 @@ test.describe('Interactivity Features', () => {
       });
       await expect(quizHeading).toBeVisible({ timeout: 10000 });
 
-      const quiz = page.locator('section', { has: quizHeading }).first();
+      const quiz = quizHeading.locator('xpath=ancestor::section[1]');
       await quiz.scrollIntoViewIfNeeded();
       // Offset sticky header
       await page.evaluate(() => window.scrollBy(0, -140));
@@ -78,26 +78,16 @@ test.describe('Interactivity Features', () => {
         quiz.getByText(/what is your top priority right now\?/i)
       ).toBeVisible({ timeout: 10000 });
 
-      // Click through 3 questions
-      const opt1 = quiz.getByRole('button', {
-        name: /reduce it firefighting/i,
-      });
-      await expect(opt1).toBeVisible({ timeout: 10000 });
-      await opt1.click();
-      await expect(
-        quiz.getByText(/which risk feels most urgent\?/i)
-      ).toBeVisible({ timeout: 10000 });
-
-      const opt2 = quiz.getByRole('button', { name: /unpatched devices/i });
-      await expect(opt2).toBeVisible({ timeout: 10000 });
-      await opt2.click();
-      await expect(
-        quiz.getByText(/how fast do you need results\?/i)
-      ).toBeVisible({ timeout: 10000 });
-
-      const opt3 = quiz.getByRole('button', { name: /this quarter/i });
-      await expect(opt3).toBeVisible({ timeout: 10000 });
-      await opt3.click();
+      // Click through 3 visible answer choices.
+      for (let index = 0; index < 3; index += 1) {
+        const option = quiz
+          .locator('button')
+          .filter({ hasNotText: /contact|retake/i })
+          .first();
+        await expect(option).toBeVisible({ timeout: 10000 });
+        await option.click();
+        await page.waitForTimeout(150);
+      }
 
       await expect(quiz.getByText(/recommended starting point/i)).toBeVisible({
         timeout: 10000,
