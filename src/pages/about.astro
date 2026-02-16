@@ -53,8 +53,8 @@ const supportHref = `mailto:${encodeURIComponent(
   title="Portfolio | E-Commerce Demo Experience"
   description="Interactive portfolio route rebuilt as a modern e-commerce demo setup with product storytelling, merchandising, and checkout flow previews."
 >
-  <div class="creative-page">
-    <section class="relative overflow-hidden bg-zinc-950" data-reveal>
+  <div class="creative-page shop-demo-page">
+    <section class="tone-surface relative overflow-hidden" data-reveal>
       <div
         class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(34,211,238,0.24),_transparent_52%)]"
       >
@@ -66,14 +66,14 @@ const supportHref = `mailto:${encodeURIComponent(
           <div class="space-y-6">
             <span class="creative-kicker">Portfolio • Demo Commerce Build</span>
             <h1
-              class="creative-title text-4xl font-bold text-white sm:text-5xl"
+              class="creative-title tone-title text-4xl font-bold sm:text-5xl"
             >
               E-commerce demo setup,
               <span class="text-accent-300">
                 rebuilt as a live portfolio experience.</span
               >
             </h1>
-            <p class="creative-copy text-base">
+            <p class="creative-copy tone-body text-base">
               This page now behaves like a modern storefront showcase: product
               merchandising, collection framing, pricing hierarchy, and
               checkout-preview flow—all tuned for design quality and conversion
@@ -97,17 +97,20 @@ const supportHref = `mailto:${encodeURIComponent(
             </div>
           </div>
 
-          <ModernCard variant="minimal" className="creative-panel p-6">
-            <p class="text-xs uppercase tracking-[0.24em] text-zinc-500">
+          <ModernCard
+            variant="minimal"
+            className="creative-panel tone-elevated p-6"
+          >
+            <p class="tone-muted text-xs uppercase tracking-[0.24em]">
               Demo Basket
             </p>
-            <p class="mt-2 text-3xl font-semibold text-white">
+            <p class="tone-title mt-2 text-3xl font-semibold">
               {formatPrice(demoTotal)}
             </p>
-            <p class="mt-2 text-sm text-zinc-300">
+            <p class="tone-body mt-2 text-sm">
               {featuredProducts.length} featured products staged in cart preview.
             </p>
-            <ul class="mt-4 space-y-2 text-sm text-zinc-300">
+            <ul class="tone-body mt-4 space-y-2 text-sm">
               <li class="flex items-start gap-2">
                 <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 bg-accent-400"
                 ></span>
@@ -129,7 +132,7 @@ const supportHref = `mailto:${encodeURIComponent(
       </div>
     </section>
 
-    <section class="border-y border-white/5 bg-zinc-900/25" data-reveal>
+    <section class="tone-border tone-surface border-y" data-reveal>
       <div class="mx-auto max-w-[1220px] px-6 py-16">
         <div class="mb-6 flex flex-wrap items-center gap-2">
           <span class="creative-kicker">Collections</span>
@@ -143,14 +146,17 @@ const supportHref = `mailto:${encodeURIComponent(
         <div class="grid gap-5 md:grid-cols-3">
           {
             collections.map(collection => (
-              <ModernCard variant="minimal" className="creative-panel p-6">
-                <p class="text-xs uppercase tracking-[0.24em] text-zinc-500">
+              <ModernCard
+                variant="minimal"
+                className="creative-panel tone-elevated p-6"
+              >
+                <p class="tone-muted text-xs uppercase tracking-[0.24em]">
                   {collection.items}
                 </p>
-                <h2 class="mt-2 text-xl font-semibold text-white">
+                <h2 class="tone-title mt-2 text-xl font-semibold">
                   {collection.name}
                 </h2>
-                <p class="mt-3 text-sm text-zinc-300">{collection.note}</p>
+                <p class="tone-body mt-3 text-sm">{collection.note}</p>
               </ModernCard>
             ))
           }
@@ -158,13 +164,13 @@ const supportHref = `mailto:${encodeURIComponent(
       </div>
     </section>
 
-    <section class="bg-zinc-950" data-reveal>
+    <section class="tone-surface" data-reveal>
       <div class="mx-auto max-w-[1220px] px-6 py-20">
         <div class="max-w-3xl space-y-4">
-          <h2 class="creative-title text-3xl font-semibold text-white">
+          <h2 class="creative-title tone-title text-3xl font-semibold">
             Featured products
           </h2>
-          <p class="creative-copy text-sm">
+          <p class="creative-copy tone-body text-sm">
             Product cards include image hierarchy, pricing context, ratings, and
             category tags to simulate a production merch layer.
           </p>
@@ -175,9 +181,9 @@ const supportHref = `mailto:${encodeURIComponent(
             featuredProducts.map(product => (
               <ModernCard
                 variant="minimal"
-                className="creative-panel overflow-hidden p-0"
+                className="creative-panel tone-elevated overflow-hidden p-0"
               >
-                <div class="aspect-[4/3] overflow-hidden border-b border-white/10 bg-black/30">
+                <div class="tone-border tone-surface aspect-[4/3] overflow-hidden border-b">
                   <img
                     src={product.images[0]}
                     alt={product.name}
@@ -186,26 +192,26 @@ const supportHref = `mailto:${encodeURIComponent(
                   />
                 </div>
                 <div class="space-y-3 p-5">
-                  <p class="text-xs uppercase tracking-[0.18em] text-zinc-500">
+                  <p class="tone-muted text-xs uppercase tracking-[0.18em]">
                     {product.brand}
                   </p>
-                  <h3 class="text-base font-semibold text-white">
+                  <h3 class="tone-title text-base font-semibold">
                     {product.name}
                   </h3>
-                  <p class="line-clamp-2 text-sm text-zinc-300">
+                  <p class="tone-body line-clamp-2 text-sm">
                     {product.description}
                   </p>
                   <div class="flex items-center justify-between gap-2">
-                    <p class="text-lg font-semibold text-white">
+                    <p class="tone-title text-lg font-semibold">
                       {formatPrice(product.priceCents)}
                     </p>
                     {product.compareAtCents ? (
-                      <p class="text-sm text-zinc-500 line-through">
+                      <p class="tone-muted text-sm line-through">
                         {formatPrice(product.compareAtCents)}
                       </p>
                     ) : null}
                   </div>
-                  <p class="text-xs text-zinc-400">
+                  <p class="tone-muted text-xs">
                     ★ {product.rating.toFixed(1)} · {product.reviewCount}{' '}
                     reviews
                   </p>
@@ -224,19 +230,19 @@ const supportHref = `mailto:${encodeURIComponent(
       </div>
     </section>
 
-    <section class="border-y border-white/5 bg-zinc-900/30" data-reveal>
+    <section class="tone-border tone-surface border-y" data-reveal>
       <div
         class="mx-auto grid max-w-[1220px] gap-8 px-6 py-20 lg:grid-cols-[1.1fr_0.9fr] lg:items-start"
       >
         <div class="space-y-4">
-          <h2 class="creative-title text-3xl font-semibold text-white">
+          <h2 class="creative-title tone-title text-3xl font-semibold">
             Checkout experience preview
           </h2>
-          <p class="creative-copy text-sm">
+          <p class="creative-copy tone-body text-sm">
             The flow is structured to reduce friction: clear totals, confidence
             cues, and progressive handoff to order confirmation.
           </p>
-          <ul class="mt-5 space-y-3 text-sm text-zinc-300">
+          <ul class="tone-body mt-5 space-y-3 text-sm">
             {
               checkoutSteps.map(step => (
                 <li class="flex items-start gap-2">
@@ -248,11 +254,14 @@ const supportHref = `mailto:${encodeURIComponent(
           </ul>
         </div>
 
-        <ModernCard variant="minimal" className="creative-panel p-6">
-          <p class="text-xs uppercase tracking-[0.24em] text-zinc-500">
+        <ModernCard
+          variant="minimal"
+          className="creative-panel tone-elevated p-6"
+        >
+          <p class="tone-muted text-xs uppercase tracking-[0.24em]">
             Order Summary
           </p>
-          <div class="mt-4 space-y-2 text-sm text-zinc-300">
+          <div class="tone-body mt-4 space-y-2 text-sm">
             <div class="flex items-center justify-between">
               <span>Subtotal</span><span>{formatPrice(demoTotal)}</span>
             </div>
@@ -263,7 +272,7 @@ const supportHref = `mailto:${encodeURIComponent(
               <span>Estimated Tax</span><span>{formatPrice(980)}</span>
             </div>
             <div
-              class="mt-3 flex items-center justify-between border-t border-white/10 pt-3 text-base font-semibold text-white"
+              class="tone-title tone-border mt-3 flex items-center justify-between border-t pt-3 text-base font-semibold"
             >
               <span>Total</span>
               <span>{formatPrice(demoTotal + 1200 + 980)}</span>

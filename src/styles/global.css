@@ -589,6 +589,36 @@
     line-height: 1.08;
   }
 
+  .tone-title {
+    color: var(--color-text-primary);
+  }
+
+  .tone-body {
+    color: var(--color-text-secondary);
+  }
+
+  .tone-muted {
+    color: var(--color-text-muted);
+  }
+
+  .tone-border {
+    border-color: color-mix(in srgb, var(--color-border) 72%, transparent);
+  }
+
+  .tone-surface {
+    background: color-mix(in srgb, var(--color-surface) 88%, transparent);
+  }
+
+  .tone-elevated {
+    background:
+      linear-gradient(
+        165deg,
+        color-mix(in srgb, var(--color-surface) 94%, white 6%),
+        color-mix(in srgb, var(--color-surface) 82%, transparent)
+      ),
+      color-mix(in srgb, var(--color-surface) 84%, transparent);
+  }
+
   [data-theme='corporate'] .creative-hero-shell,
   [data-theme='corporate'] .creative-panel {
     border-color: rgba(15, 23, 42, 0.12);
