@@ -1,117 +1,96 @@
 ---
 import MarketingLayout from '../layouts/MarketingLayout.astro';
+import { CONTACT_EMAIL } from '../consts';
 ---
 
 <MarketingLayout
-  title="Privacy Policy | Elite Project"
-  description="Learn how Elite Project collects, uses, and protects your personal information."
+  title="Privacy Policy | Olive Global Systems"
+  description="How Olive Global Systems handles privacy for this static marketing site and project intake communications."
 >
-  <section class="relative overflow-hidden bg-slate-950 text-slate-100">
+  <section
+    class="relative overflow-hidden bg-zinc-950 text-zinc-100"
+    data-reveal
+  >
     <div
-      class="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(67,56,202,0.18),_transparent_60%)]"
+      class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(34,211,238,0.2),_transparent_58%)]"
     >
     </div>
-    <div class="relative mx-auto max-w-4xl px-6 pb-24 pt-28">
-      <p
-        class="text-xs font-semibold uppercase tracking-[0.35em] text-slate-400"
+    <div class="relative mx-auto max-w-4xl px-6 pb-20 pt-28">
+      <span class="creative-kicker">Legal</span>
+      <h1
+        class="creative-title mt-6 text-4xl font-semibold text-white sm:text-5xl"
       >
-        Legal
-      </p>
-      <h1 class="mt-6 text-4xl font-semibold text-white sm:text-5xl">
         Privacy Policy
       </h1>
-      <p class="mt-6 text-base text-slate-300">
-        Last updated: October 23, 2025
+      <p class="mt-6 text-base text-zinc-300">
+        Last updated: February 15, 2026
       </p>
     </div>
   </section>
 
-  <section class="bg-slate-950/80 py-16">
-    <div class="mx-auto max-w-4xl space-y-12 px-6 text-slate-300">
-      <article class="space-y-4">
+  <section class="bg-zinc-950/70 py-16" data-reveal>
+    <div class="mx-auto max-w-4xl space-y-10 px-6 text-zinc-300">
+      <article class="creative-panel space-y-4 p-6">
         <h2 class="text-2xl font-semibold text-white">
           Information We Collect
         </h2>
         <p>
-          Elite Project is a static site template designed for GitHub Pages
-          deployment. As a static site, we do not collect, store, or process any
-          personal data directly.
-        </p>
-        <p>
-          When you contact us via email (through the contact form or directly),
-          your email provider and our email service will handle your
-          communication according to their respective privacy policies.
+          This website is primarily static. We do not run a custom backend that
+          stores visitor profiles or account data. Information is only shared
+          when you intentionally contact us by email.
         </p>
       </article>
 
-      <article class="space-y-4">
-        <h2 class="text-2xl font-semibold text-white">Third-Party Services</h2>
-        <p>
-          If you deploy this template and integrate third-party services
-          (analytics, form processors, etc.), those services may collect data
-          according to their own privacy policies. We recommend reviewing the
-          privacy policies of any services you integrate.
-        </p>
-      </article>
-
-      <article class="space-y-4">
-        <h2 class="text-2xl font-semibold text-white">GitHub Pages</h2>
-        <p>
-          This site is hosted on GitHub Pages. GitHub may collect visitor IP
-          addresses and other technical information for security and compliance
-          purposes. Please review GitHub's privacy statement for more
-          information.
-        </p>
-      </article>
-
-      <article class="space-y-4">
-        <h2 class="text-2xl font-semibold text-white">Cookies and Tracking</h2>
-        <p>
-          The base Elite Project template does not use cookies or tracking
-          scripts. The theme preference you select is stored locally in your
-          browser's localStorage and never transmitted to any server.
-        </p>
-      </article>
-
-      <article class="space-y-4">
-        <h2 class="text-2xl font-semibold text-white">Data Security</h2>
-        <p>
-          As a static site with no backend, there is no database or server-side
-          processing of user data. All content is delivered as pre-built HTML,
-          CSS, and JavaScript files.
-        </p>
-      </article>
-
-      <article class="space-y-4">
-        <h2 class="text-2xl font-semibold text-white">Your Rights</h2>
-        <p>
-          Since we do not collect or store personal data, there is no data to
-          access, modify, or delete. If you have questions about data collected
-          by third-party services you've integrated, please contact those
-          services directly.
-        </p>
-      </article>
-
-      <article class="space-y-4">
+      <article class="creative-panel space-y-4 p-6">
         <h2 class="text-2xl font-semibold text-white">
-          Changes to This Policy
+          Contact Communications
         </h2>
         <p>
-          We may update this privacy policy from time to time. Changes will be
-          posted on this page with an updated revision date.
+          If you send us an email, your message and sender details are processed
+          by your email provider and ours so we can respond. We use that
+          information strictly for inquiry handling, project conversations, and
+          support communication.
         </p>
       </article>
 
-      <article class="space-y-4">
-        <h2 class="text-2xl font-semibold text-white">Contact Us</h2>
+      <article class="creative-panel space-y-4 p-6">
+        <h2 class="text-2xl font-semibold text-white">Third-Party Hosting</h2>
         <p>
-          If you have questions about this privacy policy, please contact us at
+          This site is delivered via static hosting. Hosting providers may log
+          technical request data (for example IP address, timestamp, and
+          user-agent) for reliability and security operations.
+        </p>
+      </article>
+
+      <article class="creative-panel space-y-4 p-6">
+        <h2 class="text-2xl font-semibold text-white">
+          Cookies & Local Storage
+        </h2>
+        <p>
+          The site does not use tracking cookies by default. Theme preference
+          and similar UI settings may be stored locally in your browser to
+          preserve your experience.
+        </p>
+      </article>
+
+      <article class="creative-panel space-y-4 p-6">
+        <h2 class="text-2xl font-semibold text-white">Policy Updates</h2>
+        <p>
+          We may revise this policy as the site evolves. Any updates appear on
+          this page with a revised date.
+        </p>
+      </article>
+
+      <article class="creative-panel space-y-4 p-6">
+        <h2 class="text-2xl font-semibold text-white">Contact</h2>
+        <p>
+          Questions about this privacy policy can be sent to
           <a
-            href="mailto:hello@eliteproject.dev"
-            class="text-indigo-400 hover:text-indigo-300"
+            href={`mailto:${CONTACT_EMAIL}`}
+            class="text-accent-300 hover:text-accent-200 hover:underline"
           >
-            hello@eliteproject.dev
-          </a>
+            {CONTACT_EMAIL}
+          </a>.
         </p>
       </article>
     </div>

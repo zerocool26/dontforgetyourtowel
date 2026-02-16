@@ -31,7 +31,7 @@ const navSections = [
 ---
 
 <footer
-  class="relative overflow-hidden border-t border-zinc-800 bg-zinc-950 text-zinc-400"
+  class="relative overflow-hidden border-t border-zinc-800/70 bg-zinc-950/85 text-zinc-300"
   role="contentinfo"
 >
   <!-- Technical Grid Background for Footer -->
@@ -46,7 +46,7 @@ const navSections = [
       <div class="space-y-6">
         <div class="flex items-center gap-3">
           <span
-            class="inline-flex h-10 w-10 items-center justify-center border border-zinc-700 bg-zinc-900 text-sm font-bold uppercase tracking-widest text-zinc-100"
+            class="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-700/70 bg-zinc-900/80 text-sm font-bold uppercase tracking-widest text-zinc-100"
           >
             OC
           </span>
@@ -55,27 +55,27 @@ const navSections = [
               Olive Chicago
             </p>
             <p
-              class="font-mono text-xs uppercase tracking-widest text-accent-500"
+              class="font-mono text-xs uppercase tracking-[0.22em] text-accent-300"
             >
-              Managed Services • Security • Cloud • AI
+              CREATIVE SYSTEMS • SECURITY • CLOUD • AI
             </p>
           </div>
         </div>
         <p
-          class="max-w-lg border-l-2 border-zinc-800 pl-4 font-mono text-sm leading-relaxed text-zinc-400"
+          class="creative-copy max-w-lg border-l-2 border-zinc-800/80 pl-4 font-mono text-sm"
         >
-          Enterprise-grade IT with the personal touch of a dedicated partner. We
-          protect, optimize, and transform your technology so you can focus on
-          growing your business.
+          We design and operate ambitious digital systems with an emphasis on
+          clarity, momentum, and technical depth—from early concept to ongoing
+          operations.
         </p>
         <div class="flex flex-wrap gap-4">
           <ModernButton
-            href={`${withBasePath('services/')}#contact`}
+            href={withBasePath('contact-hq/')}
             variant="primary"
             rounded="sm"
             className="font-mono text-xs uppercase tracking-wider"
           >
-            Contact
+            Start intake
           </ModernButton>
           <ModernButton
             href={withBasePath('contact-hq/')}
@@ -83,7 +83,7 @@ const navSections = [
             rounded="sm"
             className="font-mono text-xs uppercase tracking-wider"
           >
-            Contact HQ
+            Explore services
           </ModernButton>
         </div>
         <div class="flex gap-3 text-zinc-500">
@@ -128,7 +128,7 @@ const navSections = [
       <div class="grid gap-10 sm:grid-cols-2">
         {
           navSections.map(section => (
-            <ModernCard variant="minimal" className="p-6 bg-zinc-900/50">
+            <ModernCard variant="minimal" className="creative-panel p-6">
               <p class="mb-4 border-b border-zinc-800 pb-2 font-mono text-xs font-bold uppercase tracking-widest text-zinc-500">
                 {section.title}
               </p>
@@ -148,16 +148,23 @@ const navSections = [
             </ModernCard>
           ))
         }
-        <ModernCard variant="glass" className="border-white/10 p-6">
+        <ModernCard variant="glass" className="creative-panel p-6">
           <p
             class="text-xs font-semibold uppercase tracking-[0.32em] text-slate-400"
           >
-            Contact
+            HQ
           </p>
           <ul class="mt-4 space-y-2 text-sm text-slate-200">
             <li>Serving North America (remote + on-site)</li>
-            <li>+1 (555) 123-4567</li>
-            <li>hello@yourmsp.com</li>
+            <li>Project intake + support routing</li>
+            <li>
+              <a
+                class="text-accent-300 hover:text-accent-200 hover:underline"
+                href={withBasePath('contact-hq/')}
+              >
+                Contact HQ
+              </a>
+            </li>
           </ul>
         </ModernCard>
       </div>
