@@ -65,7 +65,8 @@ test.describe('Interactivity Features', () => {
       });
       await expect(quizHeading).toBeVisible({ timeout: 10000 });
 
-      const quiz = quizHeading.locator('xpath=ancestor::section[1]');
+      const quiz = page.getByTestId('services-quiz');
+      await expect(quiz).toBeVisible({ timeout: 10000 });
       await quiz.scrollIntoViewIfNeeded();
       // Offset sticky header
       await page.evaluate(() => window.scrollBy(0, -140));
@@ -78,30 +79,29 @@ test.describe('Interactivity Features', () => {
         quiz.getByText(/what is your top priority right now\?/i)
       ).toBeVisible({ timeout: 10000 });
 
-      await expect(
-        quiz.getByText(/what is your top priority right now\?/i)
-      ).toBeVisible({ timeout: 10000 });
+      await expect(quiz.getByTestId('services-quiz-question')).toHaveText(
+        /what is your top priority right now\?/i,
+        { timeout: 10000 }
+      );
       await quiz
         .getByRole('button', { name: /reduce it firefighting/i })
         .click();
 
-      await expect(
-        quiz.getByText(/which risk feels most urgent\?/i)
-      ).toBeVisible({
-        timeout: 10000,
-      });
+      await expect(quiz.getByTestId('services-quiz-question')).toHaveText(
+        /which risk feels most urgent\?/i,
+        { timeout: 10000 }
+      );
       await quiz.getByRole('button', { name: /unpatched devices/i }).click();
 
-      await expect(
-        quiz.getByText(/how fast do you need results\?/i)
-      ).toBeVisible({
-        timeout: 10000,
-      });
+      await expect(quiz.getByTestId('services-quiz-question')).toHaveText(
+        /how fast do you need results\?/i,
+        { timeout: 10000 }
+      );
       await quiz.getByRole('button', { name: /this quarter/i }).click();
 
-      await expect(quiz.getByText(/recommended starting point/i)).toBeVisible({
-        timeout: 10000,
-      });
+      await expect(
+        quiz.getByTestId('services-quiz-recommendation-label')
+      ).toBeVisible({ timeout: 10000 });
       await expect(
         quiz.getByText(/Managed IT Services \(Bronze/i)
       ).toBeVisible();

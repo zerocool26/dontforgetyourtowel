@@ -71,8 +71,8 @@ const startProjectHref = `mailto:${encodeURIComponent(
 ---
 
 <MarketingLayout
-  title="About | Olive Chicago"
-  description="Meet the team and learn how we deliver consulting, engineering, security, and managed IT with clear outcomes."
+  title="About | Olive Global Systems"
+  description="Meet the team behind enterprise cybersecurity, cloud engineering, and AI-enabled delivery programs."
 >
   <section class="relative overflow-hidden bg-zinc-950">
     <div
@@ -128,6 +128,94 @@ const startProjectHref = `mailto:${encodeURIComponent(
   </section>
 
   <section class="border-y border-white/5 bg-zinc-900/30">
+    <div
+      class="mx-auto grid max-w-[1220px] gap-4 px-6 py-8 sm:grid-cols-2 lg:grid-cols-4"
+    >
+      <ModernCard
+        variant="minimal"
+        className="border-white/10 bg-zinc-950/60 p-5"
+      >
+        <p class="text-xs uppercase tracking-[0.22em] text-zinc-500">
+          Operating Model
+        </p>
+        <p class="mt-2 text-2xl font-semibold text-white">Assess → Optimize</p>
+        <p class="mt-1 text-xs text-zinc-400">
+          Structured engagement lifecycle with clear checkpoints.
+        </p>
+      </ModernCard>
+      <ModernCard
+        variant="minimal"
+        className="border-white/10 bg-zinc-950/60 p-5"
+      >
+        <p class="text-xs uppercase tracking-[0.22em] text-zinc-500">
+          Capability Breadth
+        </p>
+        <p class="mt-2 text-2xl font-semibold text-white">6 Practices</p>
+        <p class="mt-1 text-xs text-zinc-400">
+          Security, MSP, AI, Apps, Network, and Cloud engineering.
+        </p>
+      </ModernCard>
+      <ModernCard
+        variant="minimal"
+        className="border-white/10 bg-zinc-950/60 p-5"
+      >
+        <p class="text-xs uppercase tracking-[0.22em] text-zinc-500">
+          Engagement Types
+        </p>
+        <p class="mt-2 text-2xl font-semibold text-white">Project + Managed</p>
+        <p class="mt-1 text-xs text-zinc-400">
+          From focused architecture sprints to ongoing operations.
+        </p>
+      </ModernCard>
+      <ModernCard
+        variant="minimal"
+        className="border-white/10 bg-zinc-950/60 p-5"
+      >
+        <p class="text-xs uppercase tracking-[0.22em] text-zinc-500">
+          Delivery Cadence
+        </p>
+        <p class="mt-2 text-2xl font-semibold text-white">
+          Monthly + Quarterly
+        </p>
+        <p class="mt-1 text-xs text-zinc-400">
+          Recurring reporting and roadmap alignment rhythm.
+        </p>
+      </ModernCard>
+    </div>
+  </section>
+
+  <section
+    class="sticky top-16 z-20 border-b border-white/5 bg-zinc-950/85 backdrop-blur"
+  >
+    <div class="mx-auto max-w-[1220px] px-6 py-4 sm:py-5">
+      <div class="flex flex-wrap items-center gap-2">
+        <p class="mr-2 text-xs uppercase tracking-[0.28em] text-zinc-500">
+          Quick Jump
+        </p>
+        <a
+          class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-zinc-300 transition hover:-translate-y-0.5 hover:border-white/20 hover:text-white"
+          href="#mission-values">Mission</a
+        >
+        <a
+          class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-zinc-300 transition hover:-translate-y-0.5 hover:border-white/20 hover:text-white"
+          href="#leadership">Leadership</a
+        >
+        <a
+          class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-zinc-300 transition hover:-translate-y-0.5 hover:border-white/20 hover:text-white"
+          href="#certifications">Certifications</a
+        >
+        <a
+          class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-zinc-300 transition hover:-translate-y-0.5 hover:border-white/20 hover:text-white"
+          href="#milestones">Milestones</a
+        >
+      </div>
+    </div>
+  </section>
+
+  <section
+    id="mission-values"
+    class="scroll-mt-32 border-y border-white/5 bg-zinc-900/30"
+  >
     <div class="mx-auto max-w-[1220px] px-6 py-20">
       <div class="max-w-3xl space-y-4">
         <h2 class="text-3xl font-semibold text-white">Mission & core values</h2>
@@ -155,7 +243,7 @@ const startProjectHref = `mailto:${encodeURIComponent(
     </div>
   </section>
 
-  <section class="bg-zinc-950">
+  <section id="leadership" class="scroll-mt-32 bg-zinc-950">
     <div class="mx-auto max-w-[1220px] px-6 py-20">
       <div class="max-w-3xl space-y-4">
         <h2 class="text-3xl font-semibold text-white">Leadership</h2>
@@ -187,7 +275,10 @@ const startProjectHref = `mailto:${encodeURIComponent(
     </div>
   </section>
 
-  <section class="border-y border-white/5 bg-zinc-900/30">
+  <section
+    id="certifications"
+    class="scroll-mt-32 border-y border-white/5 bg-zinc-900/30"
+  >
     <div class="mx-auto max-w-[1220px] px-6 py-20">
       <div class="grid gap-10 lg:grid-cols-2 lg:items-start">
         <div class="space-y-4">
@@ -209,7 +300,7 @@ const startProjectHref = `mailto:${encodeURIComponent(
     </div>
   </section>
 
-  <section class="bg-zinc-950">
+  <section id="milestones" class="scroll-mt-32 bg-zinc-950">
     <div class="mx-auto max-w-[1220px] px-6 py-20">
       <div class="max-w-3xl space-y-4">
         <h2 class="text-3xl font-semibold text-white">Milestones</h2>

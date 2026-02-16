@@ -76,13 +76,17 @@ export default function ServicesQuiz() {
   const isComplete = step >= QUESTIONS.length;
 
   return (
-    <section class="rounded-2xl border border-white/10 bg-white/5 p-6">
+    <section
+      class="rounded-2xl border border-white/10 bg-white/5 p-6"
+      data-testid="services-quiz"
+      data-step={step}
+    >
       <div class="flex items-center justify-between gap-4">
         <div>
           <p class="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-400">
             Find your perfect IT solution
           </p>
-          <h3 class="mt-2 text-xl font-semibold text-white">
+          <h3 class="mt-2 text-xl font-semibold text-white" data-testid="services-quiz-title">
             60-second services quiz
           </h3>
         </div>
@@ -101,13 +105,14 @@ export default function ServicesQuiz() {
 
       {!isComplete ? (
         <div class="mt-6">
-          <p class="text-sm font-semibold text-white">
+          <p class="text-sm font-semibold text-white" data-testid="services-quiz-question">
             {QUESTIONS[step]?.title}
           </p>
           <div class="mt-4 grid gap-3">
             {QUESTIONS[step]?.options.map(opt => (
               <button
                 type="button"
+                data-testid="services-quiz-option"
                 class="min-h-[48px] rounded-xl border border-white/10 bg-zinc-950/40 px-4 py-3 text-left text-sm text-zinc-200 hover:border-white/20"
                 onClick={() => {
                   setAnswers(prev => [...prev, opt.value]);
@@ -121,7 +126,7 @@ export default function ServicesQuiz() {
         </div>
       ) : (
         <div class="mt-6">
-          <p class="text-sm text-zinc-300">Recommended starting point</p>
+          <p class="text-sm text-zinc-300" data-testid="services-quiz-recommendation-label">Recommended starting point</p>
           <p class="mt-2 text-lg font-semibold text-white">
             {result ? recommendationLabel(result) : '—'}
           </p>
