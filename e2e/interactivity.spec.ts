@@ -86,18 +86,21 @@ test.describe('Interactivity Features', () => {
       await quiz
         .getByRole('button', { name: /reduce it firefighting/i })
         .click();
+      await expect(quiz).toHaveAttribute('data-step', '1', { timeout: 10000 });
 
       await expect(quiz.getByTestId('services-quiz-question')).toHaveText(
         /which risk feels most urgent\?/i,
         { timeout: 10000 }
       );
       await quiz.getByRole('button', { name: /unpatched devices/i }).click();
+      await expect(quiz).toHaveAttribute('data-step', '2', { timeout: 10000 });
 
       await expect(quiz.getByTestId('services-quiz-question')).toHaveText(
         /how fast do you need results\?/i,
         { timeout: 10000 }
       );
       await quiz.getByRole('button', { name: /this quarter/i }).click();
+      await expect(quiz).toHaveAttribute('data-step', '3', { timeout: 10000 });
 
       await expect(
         quiz.getByTestId('services-quiz-recommendation-label')

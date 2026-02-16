@@ -37,43 +37,45 @@ const positionClasses = {
         <ModernButton
           href={withBasePath('demo/')}
           variant="outline"
-          className="group flex items-center gap-3 px-6 py-4 bg-zinc-900 border-zinc-800 text-zinc-100 shadow-lg hover:border-accent-500 hover:bg-zinc-900"
+          className="group flex items-center gap-3 border-zinc-800 bg-zinc-900 px-6 py-4 text-zinc-100 shadow-lg hover:border-accent-500 hover:bg-zinc-900"
         >
-          <span class="text-2xl">🚀</span>
+          <span class="text-xl text-accent-500">•</span>
           <div class="flex flex-col items-start">
             <span class="font-mono text-sm font-bold text-accent-500">
-              TRY DEMO
+              Demo Center
             </span>
-            <span class="font-mono text-xs opacity-70">INTERACTIVE_MODE</span>
+            <span class="font-mono text-xs opacity-70">
+              Guided product walkthrough
+            </span>
           </div>
         </ModernButton>
         <ModernButton
-          href={withBasePath('demo/')}
+          href={withBasePath('demo-lab/')}
           variant="ghost"
-          className="flex items-center gap-3 px-6 py-3 bg-zinc-950/90 backdrop-blur-sm border border-zinc-800 text-zinc-400 hover:text-accent-500 hover:border-accent-500/50 hover:bg-zinc-900"
+          className="flex items-center gap-3 border border-zinc-800 bg-zinc-950/90 px-6 py-3 text-zinc-400 backdrop-blur-sm hover:border-accent-500/50 hover:bg-zinc-900 hover:text-accent-500"
         >
-          <span class="text-xl">🎨</span>
-          <span class="font-mono text-sm font-semibold">VISUAL_TOUR</span>
+          <span class="text-lg text-accent-500">•</span>
+          <span class="font-mono text-sm font-semibold">Demo Lab</span>
         </ModernButton>
       </div>
     ) : variant === 'minimal' ? (
       <ModernButton
         href={withBasePath('demo/')}
         variant="outline"
-        className="w-14 h-14 p-0 flex items-center justify-center bg-zinc-900 border-zinc-800 text-accent-500 shadow-lg hover:border-accent-500 hover:bg-zinc-800"
-        title="Try Interactive Demo"
-        aria-label="Try Interactive Demo"
+        className="flex h-14 w-14 items-center justify-center border-zinc-800 bg-zinc-900 p-0 text-accent-500 shadow-lg hover:border-accent-500 hover:bg-zinc-800"
+        title="Open Demo Center"
+        aria-label="Open Demo Center"
       >
-        <span class="text-2xl">🚀</span>
+        <span class="text-lg">••</span>
       </ModernButton>
     ) : (
       <ModernButton
         href={withBasePath('demo/')}
         variant="outline"
-        className="group flex items-center gap-3 px-5 py-3 bg-zinc-900 border-zinc-800 text-zinc-100 shadow-lg hover:border-accent-500 hover:bg-zinc-900 font-mono font-semibold"
+        className="group flex items-center gap-3 border-zinc-800 bg-zinc-900 px-5 py-3 font-mono font-semibold text-zinc-100 shadow-lg hover:border-accent-500 hover:bg-zinc-900"
       >
-        <span class="text-xl text-accent-500">🚀</span>
-        <span>TRY_DEMO</span>
+        <span class="text-base text-accent-500">•</span>
+        <span>Book Demo</span>
         <svg
           class="h-4 w-4 text-accent-500 transition-transform group-hover:translate-x-1"
           fill="none"
@@ -118,21 +120,10 @@ const positionClasses = {
 </script>
 
 <style>
-  @keyframes pulse-glow {
-    0%,
-    100% {
-      box-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
-    }
-    50% {
-      box-shadow: 0 0 30px rgba(99, 102, 241, 0.8);
-    }
-  }
-
   #floating-demo-button a {
-    animation: pulse-glow 2s ease-in-out infinite;
-  }
-
-  #floating-demo-button a:hover {
-    animation: none;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease,
+      border-color 0.2s ease;
   }
 </style>

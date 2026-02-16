@@ -150,6 +150,52 @@ const {
     {showStickyCTA ? <StickyCTA /> : null}
     {showMobileNav ? <MobileNav /> : null}
     {showLiveChat ? <LiveChat client:idle /> : null}
+
+    <script is:inline>
+      (() => {
+        try {
+          if (window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+            return;
+
+          const revealTargets = Array.from(
+            document.querySelectorAll('[data-reveal]')
+          );
+          if (!revealTargets.length) return;
+
+          document.body.setAttribute('data-motion-ready', '1');
+
+          const observer = new IntersectionObserver(
+            entries => {
+              entries.forEach(entry => {
+                if (!entry.isIntersecting) return;
+                entry.target.classList.add('is-visible');
+                observer.unobserve(entry.target);
+              });
+            },
+            {
+              threshold: 0.15,
+              rootMargin: '0px 0px -8% 0px',
+            }
+          );
+
+          revealTargets.forEach((target, index) => {
+            if (!target.hasAttribute('data-reveal-delay')) {
+              const delay = Math.min(index * 40, 220);
+              target.style.setProperty('--reveal-delay', `${delay}ms`);
+            } else {
+              target.style.setProperty(
+                '--reveal-delay',
+                `${target.getAttribute('data-reveal-delay')}ms`
+              );
+            }
+            observer.observe(target);
+          });
+        } catch {
+          // no-op
+        }
+      })();
+    </script>
+
     <PWARegistration />
     <WebVitals />
     <ErrorTracking />

@@ -149,30 +149,24 @@ const ctaId = `cta-${Math.random().toString(36).slice(2, 9)}`;
         >
           <ModernButton
             href={withBasePath('demo/')}
-            variant="gradient"
-            className="from-indigo-600 to-purple-600 shadow-indigo-500/50 text-lg hover:scale-105"
+            variant="primary"
+            className="text-lg"
           >
-            <span class="mr-2 text-xl" aria-hidden="true">
-              🚀
-            </span>
-            <span>Interactive Demo Center</span>
+            Explore Demo Center
           </ModernButton>
           <ModernButton
-            href={withBasePath('demo/')}
-            variant="outline"
-            className="border-white text-white hover:bg-white hover:text-primary-600 text-lg"
+            href={withBasePath('demo-lab/')}
+            variant="secondary"
+            className="text-lg"
           >
-            <span class="mr-2 text-xl" aria-hidden="true">
-              🎨
-            </span>
-            <span>Visual Showcase</span>
+            Open Demo Lab
           </ModernButton>
           <ModernButton
             href={withBasePath('contact/')}
-            variant="ghost"
-            className="bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20"
+            variant="outline"
+            className="border-white text-white hover:bg-white hover:text-primary-600"
           >
-            <span>Get Personalized Demo</span>
+            Request Guided Demo
           </ModernButton>
         </div>
       )
