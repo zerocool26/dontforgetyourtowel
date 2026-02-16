@@ -1,4 +1,4 @@
-import { createDeploymentConfig } from './deployment';
+import { createDeploymentConfig } from '../../config/deployment.js';
 
 const deployment = createDeploymentConfig();
 
@@ -19,7 +19,7 @@ export const SITE_CONFIG = {
   author: 'Olive Chicago',
   defaultLanguage: 'en-US',
   social: {
-    github: deployment.repo.url || 'https://github.com',
+    github: deployment.repoUrl || 'https://github.com',
   },
   seo: {
     ogImage: '/og-image.png',
@@ -34,7 +34,7 @@ export const THEME_CONFIG = {
 } as const;
 
 export const API_CONFIG = {
-  baseUrl: deployment.apiUrl,
+  baseUrl: process.env.NEXT_PUBLIC_API_URL || '',
   timeout: 10000,
   retryAttempts: 3,
 } as const;

@@ -1,7 +1,7 @@
-import type { ReactNode } from 'react';
+import type { ComponentChildren } from 'preact';
 
 interface ModernCardProps {
-  children: ReactNode;
+  children: ComponentChildren;
   className?: string;
   variant?: 'minimal';
 }

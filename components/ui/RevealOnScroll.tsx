@@ -1,12 +1,12 @@
 'use client';
 
-import type { ReactNode } from 'react';
 import { useEffect, useRef, useState } from 'react';
+import type { ComponentChildren } from 'preact';
 
 type Animation = 'slide-up' | 'slide-left' | 'slide-right';
 
 interface RevealOnScrollProps {
-  children: ReactNode;
+  children: ComponentChildren;
   className?: string;
   delay?: number;
   animation?: Animation;

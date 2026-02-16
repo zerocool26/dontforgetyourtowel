@@ -1,11 +1,10 @@
-import Link from 'next/link';
-import type { ReactNode } from 'react';
+import type { ComponentChildren } from 'preact';
 
 type Variant = 'primary' | 'secondary';
 
 interface ModernButtonProps {
   href?: string;
-  children: ReactNode;
+  children: ComponentChildren;
   variant?: Variant;
   className?: string;
   type?: 'button' | 'submit' | 'reset';
@@ -38,9 +37,9 @@ export default function ModernButton({
     }
 
     return (
-      <Link className={classes} href={href}>
+      <a className={classes} href={href}>
         {children}
-      </Link>
+      </a>
     );
   }
 

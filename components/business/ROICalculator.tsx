@@ -34,7 +34,7 @@ export default function ROICalculator() {
             id="roi-current-monthly-cost"
             min={0}
             name="currentMonthlyCost"
-            onChange={event => setCurrentMonthlyCost(Number(event.target.value))}
+            onChange={event => setCurrentMonthlyCost(Number(event.currentTarget.value))}
             type="number"
             value={currentMonthlyCost}
           />
@@ -48,7 +48,7 @@ export default function ROICalculator() {
             max={80}
             min={0}
             name="estimatedSavingsPct"
-            onChange={event => setEstimatedSavingsPct(Number(event.target.value))}
+            onChange={event => setEstimatedSavingsPct(Number(event.currentTarget.value))}
             type="number"
             value={estimatedSavingsPct}
           />
@@ -61,7 +61,7 @@ export default function ROICalculator() {
             id="roi-one-time-transition-cost"
             min={0}
             name="oneTimeTransitionCost"
-            onChange={event => setOneTimeTransitionCost(Number(event.target.value))}
+            onChange={event => setOneTimeTransitionCost(Number(event.currentTarget.value))}
             type="number"
             value={oneTimeTransitionCost}
           />

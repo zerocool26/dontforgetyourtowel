@@ -56,7 +56,7 @@ export default function PricingCalculator() {
             max={500}
             min={10}
             name="users"
-            onChange={event => setUsers(Number(event.target.value))}
+            onChange={event => setUsers(Number(event.currentTarget.value))}
             type="range"
             value={users}
           />
@@ -99,7 +99,7 @@ export default function PricingCalculator() {
                     checked={addons.has(addon.id)}
                     className="mt-1"
                     onChange={event => {
-                      const checked = event.target.checked;
+                      const checked = event.currentTarget.checked;
                       setAddons(prev => {
                         const next = new Set(prev);
                         if (checked) {
