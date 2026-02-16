@@ -58,10 +58,17 @@ export async function GET() {
       id: 'page-about',
       title: 'Portfolio Shop Demo',
       description:
-        'Interactive e-commerce portfolio setup with products and checkout preview',
+        'Interactive e-commerce portfolio lab with search, compare, cart persistence, and checkout simulation',
       category: 'Page',
       url: 'about/',
-      tags: ['portfolio', 'shop-demo', 'ecommerce', 'checkout'],
+      tags: [
+        'portfolio',
+        'shop-demo',
+        'ecommerce',
+        'checkout',
+        'filters',
+        'cart',
+      ],
     },
     {
       id: 'page-services',

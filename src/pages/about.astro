@@ -2,56 +2,18 @@
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 import ModernCard from '../components/ui/ModernCard.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
-import { demoProducts } from '../data/demo-ecommerce';
+import EcommerceShowcase from '../components/demo-lab/EcommerceShowcase';
 import { CONTACT_EMAIL } from '../consts';
 import { withBasePath } from '../utils/helpers';
 
-const featuredProducts = demoProducts.slice(0, 4);
-
-const collections = [
-  {
-    name: 'Street Utility',
-    items: 'Outerwear • Footwear • Carry',
-    note: 'Daily performance pieces designed for movement and durability.',
-  },
-  {
-    name: 'Studio Minimal',
-    items: 'Deskware • Home • Work Essentials',
-    note: 'Clean forms and tactile finishes for focused creative environments.',
-  },
-  {
-    name: 'Launch Week',
-    items: 'Limited Drops',
-    note: 'Small-batch releases with elevated materials and seasonal palettes.',
-  },
-];
-
-const checkoutSteps = [
-  'Add products and auto-calculate subtotal',
-  'Apply shipping and tax previews instantly',
-  'Persist cart state between route transitions',
-  'Trigger trust and confirmation states at checkout',
-];
-
-const formatPrice = (priceCents: number) =>
-  new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 0,
-  }).format(priceCents / 100);
-
-const demoTotal = featuredProducts.reduce(
-  (sum, product) => sum + product.priceCents,
-  0
-);
 const supportHref = `mailto:${encodeURIComponent(
   CONTACT_EMAIL
 )}?subject=${encodeURIComponent('E-commerce demo request')}`;
 ---
 
 <MarketingLayout
-  title="Portfolio | E-Commerce Demo Experience"
-  description="Interactive portfolio route rebuilt as a modern e-commerce demo setup with product storytelling, merchandising, and checkout flow previews."
+  title="Portfolio | Interactive E-Commerce Demo"
+  description="Interactive portfolio storefront with search, filters, compare, wishlist, cart persistence, and simulated checkout flow."
 >
   <div class="creative-page shop-demo-page">
     <section class="tone-surface relative overflow-hidden" data-reveal>
@@ -59,25 +21,25 @@ const supportHref = `mailto:${encodeURIComponent(
         class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(34,211,238,0.24),_transparent_52%)]"
       >
       </div>
-      <div class="mx-auto max-w-[1220px] px-6 pb-16 pt-28">
+      <div class="mx-auto max-w-[1220px] px-6 pb-14 pt-28">
         <div
-          class="creative-hero-shell grid gap-8 p-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center"
+          class="creative-hero-shell grid gap-8 p-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-center"
         >
           <div class="space-y-6">
-            <span class="creative-kicker">Portfolio • Demo Commerce Build</span>
+            <span class="creative-kicker">Portfolio • Live Commerce Engine</span
+            >
             <h1
               class="creative-title tone-title text-4xl font-bold sm:text-5xl"
             >
-              E-commerce demo setup,
+              Full demo e-commerce setup,
               <span class="text-accent-300">
-                rebuilt as a live portfolio experience.</span
+                now embedded in the portfolio route.</span
               >
             </h1>
             <p class="creative-copy tone-body text-base">
-              This page now behaves like a modern storefront showcase: product
-              merchandising, collection framing, pricing hierarchy, and
-              checkout-preview flow—all tuned for design quality and conversion
-              clarity.
+              This is no longer a static showcase. You now have a complete
+              interactive commerce lab on this page with product discovery,
+              merchandising controls, and a simulated checkout workflow.
             </p>
             <div class="flex flex-col gap-3 sm:flex-row">
               <ModernButton
@@ -92,7 +54,7 @@ const supportHref = `mailto:${encodeURIComponent(
                 variant="secondary"
                 className="min-h-[48px]"
               >
-                Ask for stack details
+                Ask implementation details
               </ModernButton>
             </div>
           </div>
@@ -102,29 +64,28 @@ const supportHref = `mailto:${encodeURIComponent(
             className="creative-panel tone-elevated p-6"
           >
             <p class="tone-muted text-xs uppercase tracking-[0.24em]">
-              Demo Basket
-            </p>
-            <p class="tone-title mt-2 text-3xl font-semibold">
-              {formatPrice(demoTotal)}
-            </p>
-            <p class="tone-body mt-2 text-sm">
-              {featuredProducts.length} featured products staged in cart preview.
+              Enabled capabilities
             </p>
             <ul class="tone-body mt-4 space-y-2 text-sm">
               <li class="flex items-start gap-2">
                 <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 bg-accent-400"
                 ></span>
-                <span>Real merchandising cadence</span>
+                <span>Instant search + smart filtering + sorting</span>
               </li>
               <li class="flex items-start gap-2">
                 <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 bg-accent-400"
                 ></span>
-                <span>Trust and delivery messaging built-in</span>
+                <span>Wishlist, compare view, and quick product previews</span>
               </li>
               <li class="flex items-start gap-2">
                 <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 bg-accent-400"
                 ></span>
-                <span>Conversion-focused UI hierarchy</span>
+                <span>Cart persistence + promo flow + checkout simulation</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 bg-accent-400"
+                ></span>
+                <span>Safety console for pause/reduced-motion/perf mode</span>
               </li>
             </ul>
           </ModernCard>
@@ -133,169 +94,83 @@ const supportHref = `mailto:${encodeURIComponent(
     </section>
 
     <section class="tone-border tone-surface border-y" data-reveal>
-      <div class="mx-auto max-w-[1220px] px-6 py-16">
-        <div class="mb-6 flex flex-wrap items-center gap-2">
-          <span class="creative-kicker">Collections</span>
-          {
-            collections.map(collection => (
-              <span class="creative-chip">{collection.name}</span>
-            ))
-          }
-        </div>
-
-        <div class="grid gap-5 md:grid-cols-3">
-          {
-            collections.map(collection => (
-              <ModernCard
-                variant="minimal"
-                className="creative-panel tone-elevated p-6"
-              >
-                <p class="tone-muted text-xs uppercase tracking-[0.24em]">
-                  {collection.items}
-                </p>
-                <h2 class="tone-title mt-2 text-xl font-semibold">
-                  {collection.name}
-                </h2>
-                <p class="tone-body mt-3 text-sm">{collection.note}</p>
-              </ModernCard>
-            ))
-          }
-        </div>
-      </div>
-    </section>
-
-    <section class="tone-surface" data-reveal>
-      <div class="mx-auto max-w-[1220px] px-6 py-20">
-        <div class="max-w-3xl space-y-4">
-          <h2 class="creative-title tone-title text-3xl font-semibold">
-            Featured products
-          </h2>
-          <p class="creative-copy tone-body text-sm">
-            Product cards include image hierarchy, pricing context, ratings, and
-            category tags to simulate a production merch layer.
-          </p>
-        </div>
-
-        <div class="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-          {
-            featuredProducts.map(product => (
-              <ModernCard
-                variant="minimal"
-                className="creative-panel tone-elevated overflow-hidden p-0"
-              >
-                <div class="tone-border tone-surface aspect-[4/3] overflow-hidden border-b">
-                  <img
-                    src={product.images[0]}
-                    alt={product.name}
-                    class="h-full w-full object-cover transition duration-500 hover:scale-105"
-                    loading="lazy"
-                  />
-                </div>
-                <div class="space-y-3 p-5">
-                  <p class="tone-muted text-xs uppercase tracking-[0.18em]">
-                    {product.brand}
-                  </p>
-                  <h3 class="tone-title text-base font-semibold">
-                    {product.name}
-                  </h3>
-                  <p class="tone-body line-clamp-2 text-sm">
-                    {product.description}
-                  </p>
-                  <div class="flex items-center justify-between gap-2">
-                    <p class="tone-title text-lg font-semibold">
-                      {formatPrice(product.priceCents)}
-                    </p>
-                    {product.compareAtCents ? (
-                      <p class="tone-muted text-sm line-through">
-                        {formatPrice(product.compareAtCents)}
-                      </p>
-                    ) : null}
-                  </div>
-                  <p class="tone-muted text-xs">
-                    ★ {product.rating.toFixed(1)} · {product.reviewCount}{' '}
-                    reviews
-                  </p>
-                  <ModernButton
-                    href={withBasePath('contact-hq/')}
-                    variant="secondary"
-                    className="min-h-[44px] w-full"
-                  >
-                    Add to demo cart
-                  </ModernButton>
-                </div>
-              </ModernCard>
-            ))
-          }
-        </div>
-      </div>
-    </section>
-
-    <section class="tone-border tone-surface border-y" data-reveal>
-      <div
-        class="mx-auto grid max-w-[1220px] gap-8 px-6 py-20 lg:grid-cols-[1.1fr_0.9fr] lg:items-start"
-      >
-        <div class="space-y-4">
-          <h2 class="creative-title tone-title text-3xl font-semibold">
-            Checkout experience preview
-          </h2>
-          <p class="creative-copy tone-body text-sm">
-            The flow is structured to reduce friction: clear totals, confidence
-            cues, and progressive handoff to order confirmation.
-          </p>
-          <ul class="tone-body mt-5 space-y-3 text-sm">
-            {
-              checkoutSteps.map(step => (
-                <li class="flex items-start gap-2">
-                  <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 bg-violet-400" />
-                  <span>{step}</span>
-                </li>
-              ))
-            }
-          </ul>
-        </div>
-
+      <div class="mx-auto max-w-[1220px] px-6 py-10">
         <ModernCard
-          variant="minimal"
           className="creative-panel tone-elevated p-6"
+          variant="minimal"
         >
-          <p class="tone-muted text-xs uppercase tracking-[0.24em]">
-            Order Summary
-          </p>
-          <div class="tone-body mt-4 space-y-2 text-sm">
-            <div class="flex items-center justify-between">
-              <span>Subtotal</span><span>{formatPrice(demoTotal)}</span>
+          <div class="grid gap-6 md:grid-cols-[1.2fr_1fr] md:items-start">
+            <div class="space-y-3">
+              <h2 class="tone-title text-2xl font-semibold">Safety Console</h2>
+              <p class="tone-body text-sm leading-relaxed">
+                Toggle pause, reduced motion, and perf mode. These controls
+                apply through
+                <code class="tone-border tone-surface rounded px-1.5 py-0.5"
+                  >data-demo-*</code
+                >
+                attributes and are respected by the interactive showcase.
+              </p>
             </div>
-            <div class="flex items-center justify-between">
-              <span>Shipping</span><span>{formatPrice(1200)}</span>
+
+            <div class="grid gap-2 sm:grid-cols-3 md:w-auto">
+              <button
+                type="button"
+                class="demo-toggle tone-border tone-surface tone-title inline-flex h-11 items-center justify-center rounded-lg border px-4 text-sm font-semibold transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-accent-400"
+                data-demo-toggle="paused"
+                aria-pressed="false"
+              >
+                Pause
+              </button>
+              <button
+                type="button"
+                class="demo-toggle tone-border tone-surface tone-title inline-flex h-11 items-center justify-center rounded-lg border px-4 text-sm font-semibold transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-accent-400"
+                data-demo-toggle="reduced"
+                aria-pressed="false"
+              >
+                Reduced motion
+              </button>
+              <button
+                type="button"
+                class="demo-toggle tone-border tone-surface tone-title inline-flex h-11 items-center justify-center rounded-lg border px-4 text-sm font-semibold transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-accent-400"
+                data-demo-toggle="perf"
+                aria-pressed="false"
+              >
+                Perf mode
+              </button>
             </div>
-            <div class="flex items-center justify-between">
-              <span>Estimated Tax</span><span>{formatPrice(980)}</span>
-            </div>
-            <div
-              class="tone-title tone-border mt-3 flex items-center justify-between border-t pt-3 text-base font-semibold"
-            >
-              <span>Total</span>
-              <span>{formatPrice(demoTotal + 1200 + 980)}</span>
-            </div>
-          </div>
-          <div class="mt-5 flex flex-col gap-3">
-            <ModernButton
-              href={withBasePath('contact-hq/')}
-              variant="primary"
-              className="min-h-[48px] w-full"
-            >
-              Start demo checkout
-            </ModernButton>
-            <ModernButton
-              href={withBasePath('services/')}
-              variant="outline"
-              className="min-h-[48px] w-full"
-            >
-              See implementation services
-            </ModernButton>
           </div>
         </ModernCard>
       </div>
     </section>
+
+    <section class="pb-20 pt-10" data-reveal>
+      <div class="mx-auto max-w-[1220px] px-6">
+        <div class="demo-module" data-demo-module="ecommerce-showcase">
+          <EcommerceShowcase client:visible />
+        </div>
+      </div>
+    </section>
   </div>
 </MarketingLayout>
+
+<style>
+  .demo-module {
+    content-visibility: auto;
+    contain: layout paint style;
+    contain-intrinsic-size: 900px;
+  }
+
+  .demo-module[data-demo-paused='true'] * {
+    animation-play-state: paused !important;
+  }
+
+  html[data-demo-reduced-motion='true'] .demo-module *,
+  .demo-module[data-demo-reduced-motion='true'] * {
+    animation: none !important;
+    transition: none !important;
+  }
+</style>
+
+<script>
+  import '../scripts/demo-lab';
+</script>
