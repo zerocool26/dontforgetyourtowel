@@ -41,7 +41,7 @@ test.describe('Homepage', () => {
         mobileMenu!.getByRole('link', { name: /^contact$/i })
       ).toBeVisible();
       await expect(
-        mobileMenu!.getByRole('link', { name: /^about$/i })
+        mobileMenu!.getByRole('link', { name: /^portfolio$/i })
       ).toBeVisible();
       await expect(
         mobileMenu!.getByRole('link', { name: /^home$/i })
@@ -54,7 +54,7 @@ test.describe('Homepage', () => {
         headerNav.getByRole('link', { name: /^contact$/i })
       ).toBeVisible();
       await expect(
-        headerNav.getByRole('link', { name: /^about$/i })
+        headerNav.getByRole('link', { name: /^portfolio$/i })
       ).toBeVisible();
     }
   });
@@ -76,13 +76,13 @@ test.describe('Homepage', () => {
     ]);
 
     await Promise.all([
-      page.waitForURL(/.*\/pricing\/?$/, { timeout: 15000 }),
+      page.waitForURL(/.*\/contact-hq\/?$/, { timeout: 15000 }),
       headerNav.getByRole('link', { name: /^contact$/i }).click(),
     ]);
 
     await Promise.all([
       page.waitForURL(/.*\/about\/?$/, { timeout: 15000 }),
-      headerNav.getByRole('link', { name: /^about$/i }).click(),
+      headerNav.getByRole('link', { name: /^portfolio$/i }).click(),
     ]);
   });
 

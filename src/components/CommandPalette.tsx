@@ -103,7 +103,7 @@ const BASE_COMMANDS: CommandItem[] = [
   },
   {
     id: 'nav-about',
-    label: 'Go to About',
+    label: 'Go to Portfolio',
     icon: User,
     action: () => navigate(withBasePath('about/')),
     category: 'Navigation',

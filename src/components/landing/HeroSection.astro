@@ -37,7 +37,8 @@ const resolvedPrimaryCta =
   ({ label: 'Explore services', href: withBasePath('services/') } as const);
 
 const resolvedSecondaryCta =
-  secondaryCta ?? ({ label: 'About', href: withBasePath('about/') } as const);
+  secondaryCta ??
+  ({ label: 'Portfolio', href: withBasePath('about/') } as const);
 ---
 
 <section class={`relative isolate overflow-hidden ${animationClasses}`}>

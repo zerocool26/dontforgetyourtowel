@@ -56,11 +56,11 @@ export async function GET() {
     },
     {
       id: 'page-about',
-      title: 'About Us',
-      description: 'Company story, leadership, and certifications',
+      title: 'Portfolio',
+      description: 'Case-study portfolio including the retired Shop Demo',
       category: 'Page',
       url: 'about/',
-      tags: ['about', 'team'],
+      tags: ['portfolio', 'case-study', 'shop-demo'],
     },
     {
       id: 'page-services',

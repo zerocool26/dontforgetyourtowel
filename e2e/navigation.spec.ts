@@ -19,12 +19,12 @@ test.describe('Navigation', () => {
       name: /main navigation/i,
     });
 
-    // About page
+    // Portfolio page
     if (isMobile) {
       const mobileMenu = await openMobileMenuIfNeeded();
-      await mobileMenu!.getByRole('link', { name: /^about$/i }).click();
+      await mobileMenu!.getByRole('link', { name: /^portfolio$/i }).click();
     } else {
-      await headerNav.getByRole('link', { name: /^about$/i }).click();
+      await headerNav.getByRole('link', { name: /^portfolio$/i }).click();
     }
     await expect(page).toHaveURL(/.*\/about\/?$/);
     await expect(page.locator('main')).toBeVisible();
@@ -39,7 +39,7 @@ test.describe('Navigation', () => {
     }
     await expect(page).toHaveURL(/.*\/services\/?$/);
 
-    // Contact page (pricing route)
+    // Contact page (canonical contact-hq route)
     await page.goto('./');
     if (isMobile) {
       const mobileMenu = await openMobileMenuIfNeeded();
@@ -47,7 +47,7 @@ test.describe('Navigation', () => {
     } else {
       await headerNav.getByRole('link', { name: /^contact$/i }).click();
     }
-    await expect(page).toHaveURL(/.*\/pricing\/?$/);
+    await expect(page).toHaveURL(/.*\/contact-hq\/?$/);
   });
 
   test('should handle mobile menu', async ({ page, isMobile }) => {
