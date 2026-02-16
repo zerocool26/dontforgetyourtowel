@@ -1,16 +1,14 @@
 ---
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 import { CONTACT_EMAIL } from '../consts';
+import { withBasePath } from '../utils/helpers';
 ---
 
 <MarketingLayout
   title="Privacy Policy | Olive Global Systems"
   description="How Olive Global Systems handles privacy for this static marketing site and project intake communications."
 >
-  <section
-    class="relative overflow-hidden bg-zinc-950 text-zinc-100"
-    data-reveal
-  >
+  <section class="tone-surface relative overflow-hidden" data-reveal>
     <div
       class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(34,211,238,0.2),_transparent_58%)]"
     >
@@ -18,20 +16,33 @@ import { CONTACT_EMAIL } from '../consts';
     <div class="relative mx-auto max-w-4xl px-6 pb-20 pt-28">
       <span class="creative-kicker">Legal</span>
       <h1
-        class="creative-title mt-6 text-4xl font-semibold text-white sm:text-5xl"
+        class="creative-title tone-title mt-6 text-4xl font-semibold sm:text-5xl"
       >
         Privacy Policy
       </h1>
-      <p class="mt-6 text-base text-zinc-300">
-        Last updated: February 15, 2026
-      </p>
+      <p class="tone-body mt-6 text-base">Last updated: February 15, 2026</p>
+
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a
+          href={withBasePath('contact-hq/')}
+          class="tone-border tone-surface tone-title inline-flex items-center justify-center rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] transition hover:opacity-90"
+        >
+          Contact HQ
+        </a>
+        <a
+          href={withBasePath('about/?demo=cart#shop-experience')}
+          class="tone-border tone-surface tone-title inline-flex items-center justify-center rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] transition hover:opacity-90"
+        >
+          Open cart demo
+        </a>
+      </div>
     </div>
   </section>
 
-  <section class="bg-zinc-950/70 py-16" data-reveal>
-    <div class="mx-auto max-w-4xl space-y-10 px-6 text-zinc-300">
-      <article class="creative-panel space-y-4 p-6">
-        <h2 class="text-2xl font-semibold text-white">
+  <section class="tone-border tone-surface border-y py-16" data-reveal>
+    <div class="tone-body mx-auto max-w-4xl space-y-10 px-6">
+      <article class="creative-panel tone-elevated space-y-4 p-6">
+        <h2 class="tone-title text-2xl font-semibold">
           Information We Collect
         </h2>
         <p>
@@ -41,8 +52,8 @@ import { CONTACT_EMAIL } from '../consts';
         </p>
       </article>
 
-      <article class="creative-panel space-y-4 p-6">
-        <h2 class="text-2xl font-semibold text-white">
+      <article class="creative-panel tone-elevated space-y-4 p-6">
+        <h2 class="tone-title text-2xl font-semibold">
           Contact Communications
         </h2>
         <p>
@@ -53,8 +64,8 @@ import { CONTACT_EMAIL } from '../consts';
         </p>
       </article>
 
-      <article class="creative-panel space-y-4 p-6">
-        <h2 class="text-2xl font-semibold text-white">Third-Party Hosting</h2>
+      <article class="creative-panel tone-elevated space-y-4 p-6">
+        <h2 class="tone-title text-2xl font-semibold">Third-Party Hosting</h2>
         <p>
           This site is delivered via static hosting. Hosting providers may log
           technical request data (for example IP address, timestamp, and
@@ -62,8 +73,8 @@ import { CONTACT_EMAIL } from '../consts';
         </p>
       </article>
 
-      <article class="creative-panel space-y-4 p-6">
-        <h2 class="text-2xl font-semibold text-white">
+      <article class="creative-panel tone-elevated space-y-4 p-6">
+        <h2 class="tone-title text-2xl font-semibold">
           Cookies & Local Storage
         </h2>
         <p>
@@ -73,16 +84,16 @@ import { CONTACT_EMAIL } from '../consts';
         </p>
       </article>
 
-      <article class="creative-panel space-y-4 p-6">
-        <h2 class="text-2xl font-semibold text-white">Policy Updates</h2>
+      <article class="creative-panel tone-elevated space-y-4 p-6">
+        <h2 class="tone-title text-2xl font-semibold">Policy Updates</h2>
         <p>
           We may revise this policy as the site evolves. Any updates appear on
           this page with a revised date.
         </p>
       </article>
 
-      <article class="creative-panel space-y-4 p-6">
-        <h2 class="text-2xl font-semibold text-white">Contact</h2>
+      <article class="creative-panel tone-elevated space-y-4 p-6">
+        <h2 class="tone-title text-2xl font-semibold">Contact</h2>
         <p>
           Questions about this privacy policy can be sent to
           <a

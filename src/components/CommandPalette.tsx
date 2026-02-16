@@ -123,6 +123,34 @@ const BASE_COMMANDS: CommandItem[] = [
     category: 'Navigation',
     keywords: ['shop', 'demo', 'ecommerce', 'cart', 'checkout'],
   },
+  {
+    id: 'nav-portfolio-cart',
+    label: 'Portfolio Demo: Cart Flow',
+    icon: Box,
+    action: () => navigate(withBasePath('about/?demo=cart#shop-experience')),
+    category: 'Navigation',
+    keywords: ['portfolio', 'ecommerce', 'demo', 'cart', 'launch'],
+  },
+  {
+    id: 'nav-portfolio-compare',
+    label: 'Portfolio Demo: Compare Mode',
+    icon: Box,
+    action: () =>
+      navigate(withBasePath('about/?demo=compare#shop-experience')),
+    category: 'Navigation',
+    keywords: ['portfolio', 'ecommerce', 'demo', 'compare', 'launch'],
+  },
+  {
+    id: 'nav-portfolio-checkout',
+    label: 'Portfolio Demo: Checkout Simulation',
+    icon: Box,
+    action: () =>
+      navigate(
+        withBasePath('about/?demo=checkout&product=aurora-hoodie#shop-experience')
+      ),
+    category: 'Navigation',
+    keywords: ['portfolio', 'ecommerce', 'demo', 'checkout', 'launch'],
+  },
   // Theme
   {
     id: 'theme-ops',

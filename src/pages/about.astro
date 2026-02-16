@@ -88,6 +88,44 @@ const supportHref = `mailto:${encodeURIComponent(
                 <span>Safety console for pause/reduced-motion/perf mode</span>
               </li>
             </ul>
+
+            <div class="tone-border mt-5 border-t pt-4">
+              <p class="tone-muted text-xs uppercase tracking-[0.24em]">
+                Launch scenarios
+              </p>
+              <div class="mt-3 grid gap-2 sm:grid-cols-2">
+                <button
+                  type="button"
+                  class="demo-launch tone-border tone-surface tone-title inline-flex h-10 items-center justify-center rounded-lg border px-3 text-xs font-semibold uppercase tracking-[0.12em] transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-accent-400"
+                  data-demo-command="open-cart"
+                >
+                  Open cart
+                </button>
+                <button
+                  type="button"
+                  class="demo-launch tone-border tone-surface tone-title inline-flex h-10 items-center justify-center rounded-lg border px-3 text-xs font-semibold uppercase tracking-[0.12em] transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-accent-400"
+                  data-demo-command="open-compare"
+                >
+                  Open compare
+                </button>
+                <button
+                  type="button"
+                  class="demo-launch tone-border tone-surface tone-title inline-flex h-10 items-center justify-center rounded-lg border px-3 text-xs font-semibold uppercase tracking-[0.12em] transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-accent-400"
+                  data-demo-command="open-quick-view"
+                  data-demo-product="spectral-sneaker"
+                >
+                  Quick view
+                </button>
+                <button
+                  type="button"
+                  class="demo-launch tone-border tone-surface tone-title inline-flex h-10 items-center justify-center rounded-lg border px-3 text-xs font-semibold uppercase tracking-[0.12em] transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-accent-400"
+                  data-demo-command="start-checkout"
+                  data-demo-product="aurora-hoodie"
+                >
+                  Jump to checkout
+                </button>
+              </div>
+            </div>
           </ModernCard>
         </div>
       </div>
@@ -143,8 +181,8 @@ const supportHref = `mailto:${encodeURIComponent(
       </div>
     </section>
 
-    <section class="pb-20 pt-10" data-reveal>
-      <div class="mx-auto max-w-[1220px] px-6">
+    <section class="pb-20 pt-10" data-reveal id="shop-experience">
+      <div class="mx-auto max-w-[1220px] scroll-mt-24 px-6">
         <div class="demo-module" data-demo-module="ecommerce-showcase">
           <EcommerceShowcase client:visible />
         </div>
@@ -173,4 +211,40 @@ const supportHref = `mailto:${encodeURIComponent(
 
 <script>
   import '../scripts/demo-lab';
+
+  const commandButtons = document.querySelectorAll(
+    '[data-demo-command]'
+  ) as NodeListOf<HTMLButtonElement>;
+
+  const dispatchDemoCommand = (payload: {
+    action: 'open-cart' | 'open-compare' | 'open-quick-view' | 'start-checkout';
+    productId?: string;
+  }) => {
+    window.dispatchEvent(
+      new CustomEvent('demo:ecom-command', {
+        detail: payload,
+      })
+    );
+
+    const demoSection = document.getElementById('shop-experience');
+    if (demoSection) {
+      demoSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  commandButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const action = button.dataset.demoCommand;
+      if (!action) return;
+
+      dispatchDemoCommand({
+        action: action as
+          | 'open-cart'
+          | 'open-compare'
+          | 'open-quick-view'
+          | 'start-checkout',
+        productId: button.dataset.demoProduct,
+      });
+    });
+  });
 </script>

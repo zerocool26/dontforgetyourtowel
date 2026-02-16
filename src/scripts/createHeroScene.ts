@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { getTowerCaps } from './tower3d/core/caps';
 import { createSafeWebGLRenderer } from './tower3d/three/renderer-factory';
 import { AuroraCurtainScene } from './tower3d/three/scenes/definitions/AuroraCurtainScene';
+import { ArtisticSkylineScene } from './tower3d/three/scenes/definitions/ArtisticSkylineScene';
 import { ElectricStormScene } from './tower3d/three/scenes/definitions/ElectricStormScene';
 import { HolographicCityScene } from './tower3d/three/scenes/definitions/HolographicCityScene';
 import { NeuralNetworkScene } from './tower3d/three/scenes/definitions/NeuralNetworkScene';
@@ -18,6 +19,7 @@ const damp = (current: number, target: number, lambda: number, dt: number) =>
 // with graceful fallbacks for reduced-motion / low-tier devices.
 export type HeroSceneVariant =
   | 'auto'
+  | 'skyline' // Scene 17 — Artistic Skyline Pulse
   | 'neural' // Scene 11 — Neural Constellation (preferred)
   | 'city' // Scene 14 — Neon Metropolis
   | 'storm' // Scene 16 — Ethereal Storm
@@ -135,6 +137,7 @@ export function createHeroScene(
   renderer.setSize(width, height, false);
 
   const pickScene = (): TowerScene => {
+    if (variant === 'skyline') return new ArtisticSkylineScene();
     if (variant === 'neural') return new NeuralNetworkScene();
     if (variant === 'city') return new HolographicCityScene();
     if (variant === 'storm') return new ElectricStormScene();
@@ -144,9 +147,8 @@ export function createHeroScene(
       return new AuroraCurtainScene();
     }
 
-    // Default: use a real chapter from the gallery (Scene 11).
-    // It reads well behind typography and stays performant.
-    return new NeuralNetworkScene();
+    // Default: advanced artistic skyline chapter on capable devices.
+    return new ArtisticSkylineScene();
   };
 
   const scene = pickScene();

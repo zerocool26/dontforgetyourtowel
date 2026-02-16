@@ -28,6 +28,29 @@ const lanes = [
     href: withBasePath('services/#managed-it'),
   },
 ];
+
+const demoLaunches = [
+  {
+    label: 'Cart flow',
+    href: withBasePath('about/?demo=cart#shop-experience'),
+  },
+  {
+    label: 'Compare mode',
+    href: withBasePath('about/?demo=compare#shop-experience'),
+  },
+  {
+    label: 'Quick view',
+    href: withBasePath(
+      'about/?demo=quickview&product=spectral-sneaker#shop-experience'
+    ),
+  },
+  {
+    label: 'Checkout simulation',
+    href: withBasePath(
+      'about/?demo=checkout&product=aurora-hoodie#shop-experience'
+    ),
+  },
+];
 ---
 
 <Layout
@@ -55,6 +78,17 @@ const lanes = [
             lanes.map(lane => (
               <a class="creative-chip" href={lane.href}>
                 {lane.label}
+              </a>
+            ))
+          }
+        </div>
+
+        <div class="mb-6 flex flex-wrap items-center gap-2">
+          <span class="creative-kicker">Live Demo Launch</span>
+          {
+            demoLaunches.map(item => (
+              <a class="creative-chip" href={item.href}>
+                {item.label}
               </a>
             ))
           }

@@ -11,10 +11,12 @@ test.describe('Landing Page Integrity', () => {
     await expect(
       page
         .locator('#main-content')
-        .getByText(/AUTONOMOUS AI • GLOBAL NETWORK BACKBONES/i)
+        .getByText(/EXPERIENCE DESIGN • MOTION SYSTEMS • ENGINEERING/i)
     ).toBeVisible();
     await expect(
-      page.locator('#main-content').getByText(/Engineered for the 2026/i)
+      page
+        .locator('#main-content')
+        .getByText(/Creative technology without template energy\./i)
     ).toBeVisible();
   });
 

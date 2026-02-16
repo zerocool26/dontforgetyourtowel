@@ -1,16 +1,14 @@
 ---
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 import { CONTACT_EMAIL } from '../consts';
+import { withBasePath } from '../utils/helpers';
 ---
 
 <MarketingLayout
   title="Terms of Service | Olive Global Systems"
   description="Terms governing access to this website and engagement communications with Olive Global Systems."
 >
-  <section
-    class="relative overflow-hidden bg-zinc-950 text-zinc-100"
-    data-reveal
-  >
+  <section class="tone-surface relative overflow-hidden" data-reveal>
     <div
       class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(124,58,237,0.24),_transparent_58%)]"
     >
@@ -18,28 +16,43 @@ import { CONTACT_EMAIL } from '../consts';
     <div class="relative mx-auto max-w-4xl px-6 pb-20 pt-28">
       <span class="creative-kicker">Legal</span>
       <h1
-        class="creative-title mt-6 text-4xl font-semibold text-white sm:text-5xl"
+        class="creative-title tone-title mt-6 text-4xl font-semibold sm:text-5xl"
       >
         Terms of Service
       </h1>
-      <p class="mt-6 text-base text-zinc-300">
-        Last updated: February 15, 2026
-      </p>
+      <p class="tone-body mt-6 text-base">Last updated: February 15, 2026</p>
+
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a
+          href={withBasePath('contact-hq/')}
+          class="tone-border tone-surface tone-title inline-flex items-center justify-center rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] transition hover:opacity-90"
+        >
+          Contact HQ
+        </a>
+        <a
+          href={withBasePath(
+            'about/?demo=checkout&product=aurora-hoodie#shop-experience'
+          )}
+          class="tone-border tone-surface tone-title inline-flex items-center justify-center rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] transition hover:opacity-90"
+        >
+          Open checkout demo
+        </a>
+      </div>
     </div>
   </section>
 
-  <section class="bg-zinc-950/70 py-16" data-reveal>
-    <div class="mx-auto max-w-4xl space-y-10 px-6 text-zinc-300">
-      <article class="creative-panel space-y-4 p-6">
-        <h2 class="text-2xl font-semibold text-white">1. Acceptance</h2>
+  <section class="tone-border tone-surface border-y py-16" data-reveal>
+    <div class="tone-body mx-auto max-w-4xl space-y-10 px-6">
+      <article class="creative-panel tone-elevated space-y-4 p-6">
+        <h2 class="tone-title text-2xl font-semibold">1. Acceptance</h2>
         <p>
           By using this website, you agree to these terms. If you do not agree,
           please discontinue use of the site.
         </p>
       </article>
 
-      <article class="creative-panel space-y-4 p-6">
-        <h2 class="text-2xl font-semibold text-white">2. Informational Use</h2>
+      <article class="creative-panel tone-elevated space-y-4 p-6">
+        <h2 class="tone-title text-2xl font-semibold">2. Informational Use</h2>
         <p>
           Site content is provided for general information about services,
           capabilities, and project intake pathways. Content may be updated
@@ -47,8 +60,8 @@ import { CONTACT_EMAIL } from '../consts';
         </p>
       </article>
 
-      <article class="creative-panel space-y-4 p-6">
-        <h2 class="text-2xl font-semibold text-white">3. Engagement Scope</h2>
+      <article class="creative-panel tone-elevated space-y-4 p-6">
+        <h2 class="tone-title text-2xl font-semibold">3. Engagement Scope</h2>
         <p>
           Nothing on this site creates a service contract by itself. Formal
           scope, pricing, and delivery terms are defined only in signed
@@ -56,16 +69,16 @@ import { CONTACT_EMAIL } from '../consts';
         </p>
       </article>
 
-      <article class="creative-panel space-y-4 p-6">
-        <h2 class="text-2xl font-semibold text-white">4. Acceptable Use</h2>
+      <article class="creative-panel tone-elevated space-y-4 p-6">
+        <h2 class="tone-title text-2xl font-semibold">4. Acceptable Use</h2>
         <p>
           You agree not to misuse, disrupt, probe, or attempt unauthorized
           access to this site, related infrastructure, or connected services.
         </p>
       </article>
 
-      <article class="creative-panel space-y-4 p-6">
-        <h2 class="text-2xl font-semibold text-white">
+      <article class="creative-panel tone-elevated space-y-4 p-6">
+        <h2 class="tone-title text-2xl font-semibold">
           5. Third-Party Services
         </h2>
         <p>
@@ -74,8 +87,8 @@ import { CONTACT_EMAIL } from '../consts';
         </p>
       </article>
 
-      <article class="creative-panel space-y-4 p-6">
-        <h2 class="text-2xl font-semibold text-white">
+      <article class="creative-panel tone-elevated space-y-4 p-6">
+        <h2 class="tone-title text-2xl font-semibold">
           6. Warranty Disclaimer
         </h2>
         <p>
@@ -84,8 +97,8 @@ import { CONTACT_EMAIL } from '../consts';
         </p>
       </article>
 
-      <article class="creative-panel space-y-4 p-6">
-        <h2 class="text-2xl font-semibold text-white">
+      <article class="creative-panel tone-elevated space-y-4 p-6">
+        <h2 class="tone-title text-2xl font-semibold">
           7. Limitation of Liability
         </h2>
         <p>
@@ -95,8 +108,8 @@ import { CONTACT_EMAIL } from '../consts';
         </p>
       </article>
 
-      <article class="creative-panel space-y-4 p-6">
-        <h2 class="text-2xl font-semibold text-white">8. Contact</h2>
+      <article class="creative-panel tone-elevated space-y-4 p-6">
+        <h2 class="tone-title text-2xl font-semibold">8. Contact</h2>
         <p>
           Questions regarding these terms can be sent to
           <a

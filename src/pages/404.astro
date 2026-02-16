@@ -29,6 +29,11 @@ const quickLinks = [
     href: withBasePath('contact-hq/'),
     description: 'How to reach us',
   },
+  {
+    label: 'Demo Cart',
+    href: withBasePath('about/?demo=cart#shop-experience'),
+    description: 'Open the interactive ecommerce cart flow',
+  },
 ];
 ---
 
@@ -37,7 +42,7 @@ const quickLinks = [
   description="The page you're looking for doesn't exist. Use the links below to navigate."
 >
   <section
-    class="relative flex min-h-[80vh] items-center justify-center overflow-hidden bg-zinc-950"
+    class="tone-surface relative flex min-h-[80vh] items-center justify-center overflow-hidden"
     aria-labelledby="error-title"
   >
     {/* Background grid pattern */}
@@ -50,28 +55,28 @@ const quickLinks = [
     <div class="relative mx-auto max-w-[800px] px-6 py-20 text-center">
       <ModernCard
         variant="minimal"
-        className="relative bg-zinc-900/80 px-10 py-16 backdrop-blur-sm sm:px-14 sm:py-20"
+        className="creative-panel tone-elevated relative px-10 py-16 backdrop-blur-sm sm:px-14 sm:py-20"
         role="alert"
         aria-live="polite"
       >
         {/* Decorative corners */}
         <div
-          class="absolute left-0 top-0 h-2 w-2 border-l border-t border-zinc-700"
+          class="tone-border absolute left-0 top-0 h-2 w-2 border-l border-t"
           aria-hidden="true"
         >
         </div>
         <div
-          class="absolute right-0 top-0 h-2 w-2 border-r border-t border-zinc-700"
+          class="tone-border absolute right-0 top-0 h-2 w-2 border-r border-t"
           aria-hidden="true"
         >
         </div>
         <div
-          class="absolute bottom-0 left-0 h-2 w-2 border-b border-l border-zinc-700"
+          class="tone-border absolute bottom-0 left-0 h-2 w-2 border-b border-l"
           aria-hidden="true"
         >
         </div>
         <div
-          class="absolute bottom-0 right-0 h-2 w-2 border-b border-r border-zinc-700"
+          class="tone-border absolute bottom-0 right-0 h-2 w-2 border-b border-r"
           aria-hidden="true"
         >
         </div>
@@ -80,7 +85,7 @@ const quickLinks = [
         <div class="mb-8 flex justify-center">
           <ModernCard
             variant="minimal"
-            className="inline-flex h-24 w-24 items-center justify-center bg-zinc-950 font-mono text-4xl font-bold text-accent-500"
+            className="tone-surface tone-border inline-flex h-24 w-24 items-center justify-center border font-mono text-4xl font-bold text-accent-500"
             aria-hidden="true"
           >
             404
@@ -89,21 +94,21 @@ const quickLinks = [
 
         <h1
           id="error-title"
-          class="font-display text-4xl font-bold uppercase tracking-tight text-white sm:text-5xl"
+          class="tone-title font-display text-4xl font-bold uppercase tracking-tight sm:text-5xl"
         >
           Page Not Found
         </h1>
 
-        <p class="mx-auto mt-6 max-w-md font-mono text-lg text-zinc-400">
+        <p class="tone-body mx-auto mt-6 max-w-md font-mono text-lg">
           The page you're looking for doesn't exist or has been moved. Try one
           of the links below to get back on track.
         </p>
 
         {/* Current URL display */}
-        <p class="mt-4 font-mono text-sm text-zinc-500">
+        <p class="tone-muted mt-4 font-mono text-sm">
           <span class="sr-only">Requested URL:</span>
           Requested: <code
-            class="break-all border border-zinc-800 bg-zinc-950 px-2 py-1 text-accent-500"
+            class="tone-border tone-surface break-all border px-2 py-1 text-accent-500"
             id="current-url"
             aria-label="Current URL path"></code>
         </p>
@@ -168,9 +173,9 @@ const quickLinks = [
         </script>
 
         {/* Quick links navigation */}
-        <div class="mt-12 border-t border-zinc-800 pt-10">
+        <div class="tone-border mt-12 border-t pt-10">
           <p
-            class="font-mono text-xs font-bold uppercase tracking-widest text-zinc-500"
+            class="tone-muted font-mono text-xs font-bold uppercase tracking-widest"
             id="quick-links-title"
           >
             Quick Links
@@ -182,7 +187,7 @@ const quickLinks = [
             {
               quickLinks.map(link => (
                 <a
-                  class="font-mono text-sm uppercase tracking-wider text-zinc-400 transition hover:text-accent-500 focus:text-accent-500 focus:underline focus:outline-none"
+                  class="tone-body font-mono text-sm uppercase tracking-wider transition hover:text-accent-500 focus:text-accent-500 focus:underline focus:outline-none"
                   href={link.href}
                   title={link.description}
                 >

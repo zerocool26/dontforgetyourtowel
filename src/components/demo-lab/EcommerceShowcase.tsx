@@ -14,6 +14,16 @@ type CheckoutStep = 'cart' | 'shipping' | 'payment' | 'confirm';
 type ViewMode = 'grid' | 'list';
 type Currency = 'USD' | 'EUR';
 type ShippingMethod = 'standard' | 'express';
+type DemoCommandAction =
+  | 'open-cart'
+  | 'open-compare'
+  | 'open-quick-view'
+  | 'start-checkout';
+
+type DemoCommand = {
+  action: DemoCommandAction;
+  productId?: string;
+};
 
 type DemoFlags = {
   reducedMotion: boolean;
@@ -343,12 +353,17 @@ export default function EcommerceShowcase() {
   const [shippingProtection, setShippingProtection] = useState(false);
 
   const [toast, setToast] = useState<string | null>(null);
+  const [hasHydrated, setHasHydrated] = useState(false);
 
   const cartDialogRef = useRef<HTMLDivElement | null>(null);
   const quickViewDialogRef = useRef<HTMLDivElement | null>(null);
   const quickViewGalleryRef = useRef<HTMLDivElement | null>(null);
   const compareDialogRef = useRef<HTMLDivElement | null>(null);
   const searchRef = useRef<HTMLInputElement | null>(null);
+  const urlCommandHandledRef = useRef(false);
+  const runDemoCommandRef = useRef<(command: DemoCommand) => void>(
+    () => undefined
+  );
 
   useBodyScrollLock(cartOpen || quickViewProductId !== null || compareOpen);
   useFocusTrap(cartOpen, cartDialogRef);
@@ -376,6 +391,8 @@ export default function EcommerceShowcase() {
     if (Array.isArray(prefs?.wishlist)) setWishlist(prefs.wishlist);
     if (Array.isArray(prefs?.recent)) setRecent(prefs.recent);
     if (prefs?.shippingMethod) setShippingMethod(prefs.shippingMethod);
+
+    setHasHydrated(true);
   }, []);
 
   // Persist cart.
@@ -728,6 +745,113 @@ export default function EcommerceShowcase() {
     setQuickViewProductId(null);
     setCheckoutStep('cart');
   }
+
+  function resolveDemoProduct(productId?: string): DemoProduct | undefined {
+    if (productId) {
+      const exact = getProductById(productId);
+      if (exact) return exact;
+    }
+
+    return demoProducts.find(p => p.featured) ?? demoProducts[0];
+  }
+
+  function runDemoCommand(command: DemoCommand) {
+    if (command.action === 'open-cart') {
+      setQuickViewProductId(null);
+      setCompareOpen(false);
+      setCartOpen(true);
+      return;
+    }
+
+    if (command.action === 'open-compare') {
+      setQuickViewProductId(null);
+      setCartOpen(false);
+
+      setCompareIds(prev => {
+        if (prev.length > 0) return prev;
+        return demoProducts
+          .filter(p => p.featured)
+          .slice(0, 2)
+          .map(p => p.id);
+      });
+
+      setCompareOpen(true);
+      return;
+    }
+
+    if (command.action === 'open-quick-view') {
+      setCartOpen(false);
+      setCompareOpen(false);
+
+      const product = resolveDemoProduct(command.productId);
+      if (product) {
+        openQuickView(product);
+      }
+      return;
+    }
+
+    if (command.action === 'start-checkout') {
+      const product = resolveDemoProduct(command.productId);
+      if (product) {
+        setCartLines(prev => {
+          if (prev.length > 0) return prev;
+          const colorId = product.colors[0]?.id ?? 'default';
+          const sizeId = product.sizes[0]?.id ?? 'default';
+          return [{ productId: product.id, qty: 1, colorId, sizeId }];
+        });
+      }
+
+      setQuickViewProductId(null);
+      setCompareOpen(false);
+      setCartOpen(true);
+      setCheckoutStep('shipping');
+    }
+  }
+
+  useEffect(() => {
+    runDemoCommandRef.current = runDemoCommand;
+  });
+
+  useEffect(() => {
+    if (!hasHydrated || urlCommandHandledRef.current) return;
+
+    const params = new URLSearchParams(window.location.search);
+    const rawMode = params.get('demo');
+    if (!rawMode) {
+      urlCommandHandledRef.current = true;
+      return;
+    }
+
+    const actionMap: Record<string, DemoCommandAction> = {
+      cart: 'open-cart',
+      compare: 'open-compare',
+      quickview: 'open-quick-view',
+      checkout: 'start-checkout',
+    };
+
+    const action = actionMap[rawMode.toLowerCase()];
+    if (!action) {
+      urlCommandHandledRef.current = true;
+      return;
+    }
+
+    runDemoCommandRef.current({
+      action,
+      productId: params.get('product') ?? undefined,
+    });
+    urlCommandHandledRef.current = true;
+  }, [hasHydrated]);
+
+  useEffect(() => {
+    const onDemoCommand = (event: Event) => {
+      const detail = (event as CustomEvent<DemoCommand | undefined>).detail;
+      if (!detail || !detail.action) return;
+      runDemoCommandRef.current(detail);
+    };
+
+    window.addEventListener('demo:ecom-command', onDemoCommand);
+    return () => window.removeEventListener('demo:ecom-command', onDemoCommand);
+  }, []);
 
   function addToCart(
     product: DemoProduct,

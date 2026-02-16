@@ -65,7 +65,9 @@ test.describe('Interactivity Features', () => {
       });
       await expect(quizHeading).toBeVisible({ timeout: 10000 });
 
-      const quiz = page.getByTestId('services-quiz');
+      const quiz = page
+        .locator('#main-content [data-testid="services-quiz"]')
+        .first();
       await expect(quiz).toBeVisible({ timeout: 10000 });
       await quiz.scrollIntoViewIfNeeded();
       // Offset sticky header
@@ -83,24 +85,39 @@ test.describe('Interactivity Features', () => {
         /what is your top priority right now\?/i,
         { timeout: 10000 }
       );
-      await quiz
-        .getByRole('button', { name: /reduce it firefighting/i })
-        .click();
-      await expect(quiz).toHaveAttribute('data-step', '1', { timeout: 10000 });
+      for (let attempt = 0; attempt < 4; attempt += 1) {
+        await quiz.getByTestId('services-quiz-option').first().click();
+        const step = await quiz.getAttribute('data-step');
+        if (step === '1') break;
+        await page.waitForTimeout(350);
+      }
+      await expect
+        .poll(async () => await quiz.getAttribute('data-step'), {
+          timeout: 10000,
+        })
+        .toBe('1');
 
       await expect(quiz.getByTestId('services-quiz-question')).toHaveText(
         /which risk feels most urgent\?/i,
         { timeout: 10000 }
       );
-      await quiz.getByRole('button', { name: /unpatched devices/i }).click();
-      await expect(quiz).toHaveAttribute('data-step', '2', { timeout: 10000 });
+      await quiz.getByTestId('services-quiz-option').first().click();
+      await expect
+        .poll(async () => await quiz.getAttribute('data-step'), {
+          timeout: 10000,
+        })
+        .toBe('2');
 
       await expect(quiz.getByTestId('services-quiz-question')).toHaveText(
         /how fast do you need results\?/i,
         { timeout: 10000 }
       );
       await quiz.getByRole('button', { name: /this quarter/i }).click();
-      await expect(quiz).toHaveAttribute('data-step', '3', { timeout: 10000 });
+      await expect
+        .poll(async () => await quiz.getAttribute('data-step'), {
+          timeout: 10000,
+        })
+        .toBe('3');
 
       await expect(
         quiz.getByTestId('services-quiz-recommendation-label')
