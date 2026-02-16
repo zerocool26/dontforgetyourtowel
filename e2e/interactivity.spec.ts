@@ -61,7 +61,7 @@ test.describe('Interactivity Features', () => {
       await page.goto('services/');
 
       const quizHeading = page.getByRole('heading', {
-        name: /60-second services quiz/i,
+        name: /Not sure what you need\?/i,
       });
       await expect(quizHeading).toBeVisible({ timeout: 10000 });
 

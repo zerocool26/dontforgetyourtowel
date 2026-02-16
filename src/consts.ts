@@ -18,9 +18,9 @@ const analyticsEnabled =
   analyticsFlag === 'true' || analyticsFlag === '1' || analyticsFlag === true;
 
 // MSP/IT services branding (safe defaults; customise as needed)
-export const SITE_TITLE = 'Olive Chicago';
+export const SITE_TITLE = 'Olive Global Systems';
 export const SITE_DESCRIPTION =
-  'Enterprise-grade managed IT, cybersecurity, cloud, and AI consulting for growing businesses.';
+  'Elite-tier IT architecture, autonomous AI engineering, and next-gen cybersecurity for global enterprises. Leading the 2026 technology transition.';
 export const SITE_URL = DEPLOYMENT.siteUrl;
 export const BASE_PATH = import.meta.env.BASE_URL ?? DEPLOYMENT.basePath;
 export const DEPLOYMENT_CONFIG = DEPLOYMENT;

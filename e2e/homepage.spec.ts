@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Homepage', () => {
   test('should load successfully', async ({ page }) => {
     await page.goto('./');
-    await expect(page).toHaveTitle(/(Astro Demo 2026|Olive Chicago)/i);
+    await expect(page).toHaveTitle(/(Astro Demo 2026|Olive Global Systems)/i);
   });
 
   test('should display hero section', async ({ page }) => {

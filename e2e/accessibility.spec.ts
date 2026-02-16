@@ -50,7 +50,7 @@ test.describe('Accessibility', () => {
     await page.goto('./');
     await page.waitForLoadState('domcontentloaded');
     await expect(
-      page.getByRole('heading', { name: /Consulting & Delivery/i })
+      page.getByRole('heading', { name: /AI Orchestration & Advanced Dev/i })
     ).toBeVisible();
 
     const accessibilityScanResults = await new AxeBuilder({ page })
