@@ -23,10 +23,10 @@ describe('Runtime routes', () => {
     expect(shortcutUrls.some((u: any) => String(u).includes('services'))).toBe(
       true
     );
-    expect(shortcutUrls.some((u: any) => String(u).includes('pricing'))).toBe(
-      true
-    );
-    expect(shortcutUrls.some((u: any) => String(u).includes('#contact'))).toBe(
+    expect(
+      shortcutUrls.some((u: any) => String(u).includes('contact-hq'))
+    ).toBe(true);
+    expect(shortcutUrls.some((u: any) => String(u).includes('demo-lab'))).toBe(
       true
     );
   });
