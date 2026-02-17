@@ -4,7 +4,15 @@ import ModernCard from '../components/ui/ModernCard.astro';
 import Advanced3DShowcase from '../components/ui/Advanced3DShowcase.astro';
 import ParticleVortex from '../components/ui/ParticleVortex.astro';
 import InfinityTunnel from '../components/ui/InfinityTunnel.astro';
+import MatrixRain from '../components/ui/MatrixRain.astro';
 import { withBasePath } from '../utils/helpers';
+import { BASE_PATH } from '../consts';
+
+const basePathSamples = [
+  { input: 'demo-lab/', output: withBasePath('demo-lab/') },
+  { input: 'services/', output: withBasePath('services/') },
+  { input: 'contact-hq/', output: withBasePath('contact-hq/') },
+];
 ---
 
 <MarketingLayout
@@ -31,6 +39,11 @@ import { withBasePath } from '../utils/helpers';
           <a class="creative-chip" href="#showcase">3D Showcase</a>
           <a class="creative-chip" href="#vortex">Particle Vortex</a>
           <a class="creative-chip" href="#tunnel">Infinity Tunnel</a>
+          <a class="creative-chip" href="#matrix">Matrix Rain</a>
+          <a class="creative-chip" href="#safety-console">Safety Console</a>
+          <a class="creative-chip" href="#base-path-console"
+            >Base-path console</a
+          >
           <a class="creative-chip" href={withBasePath('contact-hq/')}
             >Start a project</a
           >
@@ -47,21 +60,177 @@ import { withBasePath } from '../utils/helpers';
           Advanced 3D Showcase
         </h2>
       </ModernCard>
-      <div class="mt-8">
+      <div class="demo-module mt-8" data-demo-module="advanced-3d-showcase">
         <Advanced3DShowcase />
       </div>
     </div>
   </section>
 
+  <section
+    id="safety-console"
+    class="tone-border tone-surface border-b"
+    data-reveal
+  >
+    <div class="mx-auto max-w-[1220px] px-6 py-10">
+      <ModernCard
+        className="creative-panel tone-elevated p-6"
+        variant="minimal"
+      >
+        <div class="grid gap-6 md:grid-cols-[1.2fr_1fr] md:items-start">
+          <div class="space-y-3">
+            <h2
+              class="tone-title text-2xl font-semibold"
+              data-testid="demo-safety-title"
+            >
+              Safety Console
+            </h2>
+            <p class="tone-body text-sm leading-relaxed">
+              Toggle pause, reduced motion, and perf mode. These controls apply
+              via
+              <code class="tone-border tone-surface rounded px-1.5 py-0.5"
+                >data-demo-*</code
+              >
+              attributes and are respected across all demo modules.
+            </p>
+          </div>
+
+          <div class="grid gap-2 sm:grid-cols-3 md:w-auto">
+            <button
+              type="button"
+              class="demo-toggle tone-border tone-surface tone-title inline-flex h-11 items-center justify-center rounded-lg border px-4 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-accent-400 [@media(hover:hover)]:hover:opacity-90"
+              data-demo-toggle="paused"
+              data-testid="demo-toggle-paused"
+              aria-pressed="false"
+            >
+              Pause
+            </button>
+            <button
+              type="button"
+              class="demo-toggle tone-border tone-surface tone-title inline-flex h-11 items-center justify-center rounded-lg border px-4 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-accent-400 [@media(hover:hover)]:hover:opacity-90"
+              data-demo-toggle="reduced"
+              data-testid="demo-toggle-reduced"
+              aria-pressed="false"
+            >
+              Reduced motion
+            </button>
+            <button
+              type="button"
+              class="demo-toggle tone-border tone-surface tone-title inline-flex h-11 items-center justify-center rounded-lg border px-4 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-accent-400 [@media(hover:hover)]:hover:opacity-90"
+              data-demo-toggle="perf"
+              data-testid="demo-toggle-perf"
+              aria-pressed="false"
+            >
+              Perf mode
+            </button>
+          </div>
+        </div>
+
+        <noscript>
+          <p
+            class="tone-border tone-surface tone-body mt-5 rounded-xl border p-4 text-sm"
+          >
+            JavaScript is disabled, so the Safety Console and interactive demo
+            controls are inactive. Core content still renders.
+          </p>
+        </noscript>
+      </ModernCard>
+    </div>
+  </section>
+
   <section id="vortex" class="tone-surface" data-reveal>
     <div class="mx-auto max-w-[1220px] px-6 py-16">
-      <ParticleVortex />
+      <div class="demo-module" data-demo-module="particle-vortex">
+        <ParticleVortex />
+      </div>
     </div>
   </section>
 
   <section id="tunnel" class="tone-border tone-surface border-y" data-reveal>
     <div class="mx-auto max-w-[1220px] px-6 py-16">
-      <InfinityTunnel />
+      <div class="demo-module" data-demo-module="infinity-tunnel">
+        <InfinityTunnel />
+      </div>
+    </div>
+  </section>
+
+  <section id="matrix" class="tone-surface" data-reveal>
+    <div class="mx-auto max-w-[1220px] px-6 py-16">
+      <div class="demo-module" data-demo-module="matrix-rain">
+        <MatrixRain />
+      </div>
+    </div>
+  </section>
+
+  <section
+    id="base-path-console"
+    class="tone-border tone-surface border-y"
+    data-reveal
+  >
+    <div class="mx-auto max-w-[1220px] px-6 py-16">
+      <ModernCard
+        className="creative-panel tone-elevated p-6"
+        variant="minimal"
+      >
+        <p class="tone-muted text-xs uppercase tracking-[0.22em]">
+          Base-path console
+        </p>
+        <h2 class="tone-title mt-2 text-2xl font-semibold">
+          Base-aware route diagnostics
+        </h2>
+        <p class="tone-body mt-2 text-sm leading-relaxed">
+          Effective base path: <strong>{BASE_PATH}</strong>
+        </p>
+        <div
+          class="tone-border tone-surface mt-4 overflow-auto rounded-xl border"
+        >
+          <table class="w-full min-w-[420px] text-left text-sm">
+            <thead
+              class="tone-border tone-muted border-b text-xs uppercase tracking-[0.12em]"
+            >
+              <tr>
+                <th class="px-4 py-3">Input</th>
+                <th class="px-4 py-3">withBasePath()</th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                basePathSamples.map(sample => (
+                  <tr class="tone-border border-b last:border-0">
+                    <td class="tone-body px-4 py-3 font-mono">
+                      {sample.input}
+                    </td>
+                    <td class="tone-title px-4 py-3 font-mono">
+                      {sample.output}
+                    </td>
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </div>
+      </ModernCard>
     </div>
   </section>
 </MarketingLayout>
+
+<style>
+  .demo-module {
+    content-visibility: auto;
+    contain: layout paint style;
+    contain-intrinsic-size: 900px;
+  }
+
+  .demo-module[data-demo-paused='true'] * {
+    animation-play-state: paused !important;
+  }
+
+  html[data-demo-reduced-motion='true'] .demo-module *,
+  .demo-module[data-demo-reduced-motion='true'] * {
+    animation: none !important;
+    transition: none !important;
+  }
+</style>
+
+<script>
+  import '../scripts/demo-lab';
+</script>
