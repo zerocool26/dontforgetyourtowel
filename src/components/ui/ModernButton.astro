@@ -44,7 +44,7 @@ const {
 } = Astro.props;
 
 const baseClasses =
-  'group inline-flex select-none touch-manipulation items-center justify-center font-semibold transition-all duration-300 ease-smooth focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transform-gpu active:scale-95 relative overflow-hidden will-change-transform';
+  'group inline-flex select-none touch-manipulation items-center justify-center font-semibold transition-all duration-300 ease-smooth focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transform-gpu active:scale-95 relative overflow-hidden will-change-transform motion-reduce:transition-none motion-reduce:transform-none';
 
 const variants = {
   primary:
@@ -93,7 +93,7 @@ const shadowClasses = {
 };
 
 const hoverEffects =
-  'hover:-translate-y-1 hover:scale-[1.02] hover:brightness-110';
+  '[@media(hover:hover)]:hover:-translate-y-1 [@media(hover:hover)]:hover:scale-[1.02] [@media(hover:hover)]:hover:brightness-110';
 const focusEffects = 'focus:translate-y-0 focus:scale-100 focus:brightness-100';
 
 const classes =
@@ -135,7 +135,7 @@ const ariaProps = { 'aria-busy': loading };
 
   {/* Shimmer effect */}
   <div
-    class="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-1000 group-hover:translate-x-full"
+    class="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-1000 motion-reduce:transition-none [@media(hover:hover)]:group-hover:translate-x-full"
   >
   </div>
 
@@ -150,8 +150,13 @@ const ariaProps = { 'aria-busy': loading };
 <script>
   // Add ripple effect on click
   document.querySelectorAll('.modern-button').forEach(button => {
+    const element = button as HTMLElement;
+    if (element.dataset.rippleBound === '1') return;
+    element.dataset.rippleBound = '1';
+
     button.addEventListener('click', e => {
       if (!(e instanceof MouseEvent)) return;
+      if (e.detail === 0) return;
       const target = e.currentTarget as HTMLElement;
       if (!target) return;
 
@@ -192,9 +197,25 @@ const ariaProps = { 'aria-busy': loading };
   }
 
   /* Smooth transitions */
-  button,
-  a {
+  .modern-button {
     transition-property: transform, box-shadow, filter, background-color;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .modern-button {
+      transition-duration: 0.01ms !important;
+    }
+
+    .modern-button:hover,
+    .modern-button:active {
+      transform: none !important;
+      filter: none !important;
+    }
+
+    .ripple-effect {
+      animation: none !important;
+      opacity: 0;
+    }
   }
 </style>

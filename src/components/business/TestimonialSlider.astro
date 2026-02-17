@@ -20,13 +20,13 @@ const testimonials = ((await getCollection('testimonials' as never)) as any[])
       testimonials.map(t => (
         <ModernCard
           variant="minimal"
-          className="min-w-[85%] sm:min-w-[55%] lg:min-w-[35%] snap-start p-6 bg-zinc-950/60 border-white/10"
+          className="creative-panel tone-elevated tone-border min-w-[85%] snap-start border p-6 sm:min-w-[55%] lg:min-w-[35%]"
         >
-          <p class="text-sm leading-relaxed text-zinc-200">“{t.data.quote}”</p>
+          <p class="tone-body text-sm leading-relaxed">“{t.data.quote}”</p>
           <div class="mt-5 flex items-center justify-between gap-4">
             <div>
-              <p class="text-sm font-semibold text-white">{t.data.name}</p>
-              <p class="text-xs text-zinc-400">
+              <p class="tone-title text-sm font-semibold">{t.data.name}</p>
+              <p class="tone-muted text-xs">
                 {[t.data.role, t.data.company].filter(Boolean).join(' · ')}
               </p>
             </div>

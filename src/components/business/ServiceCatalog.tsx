@@ -1,5 +1,6 @@
-import { useState, useMemo } from 'preact/hooks';
+import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import type { Service } from '../../data/services-extended';
+import { withBasePath } from '../../utils/helpers';
 
 interface Props {
   services: Service[];
@@ -9,11 +10,73 @@ export default function ServiceCatalog({ services }: Props) {
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const hydratedFromUrlRef = useRef(false);
+  const inactivePillClass =
+    'tone-border tone-muted tone-surface border [@media(hover:hover)]:hover:bg-white/5 [@media(hover:hover)]:hover:text-accent-200';
 
   const categories = useMemo(() => {
     const cats = new Set(services.map(s => s.category));
     return Array.from(cats).sort();
   }, [services]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const params = new URLSearchParams(window.location.search);
+    const urlSearch = params.get('q')?.trim() ?? '';
+    const urlCategory = params.get('cat')?.trim() ?? '';
+    const urlView = params.get('view');
+
+    if (urlSearch) {
+      setSearch(urlSearch);
+    }
+
+    if (urlCategory) {
+      const matchedCategory = services.some(s => s.category === urlCategory)
+        ? urlCategory
+        : null;
+      setSelectedCategory(matchedCategory);
+    }
+
+    if (urlView === 'grid' || urlView === 'list') {
+      setViewMode(urlView);
+    }
+
+    hydratedFromUrlRef.current = true;
+  }, [services]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !hydratedFromUrlRef.current) return;
+
+    const currentUrl = new URL(window.location.href);
+    const params = currentUrl.searchParams;
+
+    if (search) {
+      params.set('q', search);
+    } else {
+      params.delete('q');
+    }
+
+    if (selectedCategory) {
+      params.set('cat', selectedCategory);
+    } else {
+      params.delete('cat');
+    }
+
+    if (viewMode !== 'grid') {
+      params.set('view', viewMode);
+    } else {
+      params.delete('view');
+    }
+
+    const nextSearch = params.toString();
+    const nextUrl = `${currentUrl.pathname}${nextSearch ? `?${nextSearch}` : ''}${currentUrl.hash}`;
+    const currentPathAndQuery = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+
+    if (nextUrl !== currentPathAndQuery) {
+      window.history.replaceState({}, '', nextUrl);
+    }
+  }, [search, selectedCategory, viewMode]);
 
   const filteredServices = useMemo(() => {
     return services.filter(s => {
@@ -34,12 +97,12 @@ export default function ServiceCatalog({ services }: Props) {
   }, [categories, services]);
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 space-y-8 duration-700">
-      <div className="grid gap-4 rounded-2xl border border-white/10 bg-zinc-950/40 p-4 md:grid-cols-[1fr_auto] md:items-end">
+    <div className="animate-in fade-in slide-in-from-bottom-4 space-y-8 duration-700 motion-reduce:animate-none motion-reduce:duration-0">
+      <div className="tone-border tone-surface grid gap-4 rounded-2xl border p-4 md:grid-cols-[1fr_auto] md:items-end">
         <div className="max-w-md flex-1 space-y-2">
           <label
             htmlFor="service-search"
-            className="text-xs font-semibold uppercase tracking-wider text-zinc-400"
+            className="tone-muted text-xs font-semibold uppercase tracking-wider"
           >
             Search Catalog
           </label>
@@ -49,17 +112,18 @@ export default function ServiceCatalog({ services }: Props) {
             placeholder="e.g. 'Cloud Security', 'Kubernetes'..."
             value={search}
             onInput={e => setSearch(e.currentTarget.value)}
-            className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-zinc-500 transition-all focus:border-accent-500/50 focus:outline-none focus:ring-1 focus:ring-accent-500/50"
+            className="tone-border tone-title tone-surface w-full rounded-xl border px-4 py-3 text-sm placeholder-zinc-500 transition-all focus:border-accent-500/50 focus:outline-none focus:ring-1 focus:ring-accent-500/50 motion-reduce:transition-none"
           />
         </div>
         <div className="flex items-center gap-2 self-start md:self-end">
           <button
             type="button"
             onClick={() => setViewMode('grid')}
-            className={`rounded-lg px-3 py-2 text-xs font-medium transition ${
+            aria-pressed={viewMode === 'grid'}
+            className={`rounded-lg px-3 py-2 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400/60 motion-reduce:transition-none ${
               viewMode === 'grid'
                 ? 'bg-accent-600 text-white'
-                : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200'
+                : inactivePillClass
             }`}
           >
             Grid
@@ -67,10 +131,11 @@ export default function ServiceCatalog({ services }: Props) {
           <button
             type="button"
             onClick={() => setViewMode('list')}
-            className={`rounded-lg px-3 py-2 text-xs font-medium transition ${
+            aria-pressed={viewMode === 'list'}
+            className={`rounded-lg px-3 py-2 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400/60 motion-reduce:transition-none ${
               viewMode === 'list'
                 ? 'bg-accent-600 text-white'
-                : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200'
+                : inactivePillClass
             }`}
           >
             List
@@ -79,16 +144,15 @@ export default function ServiceCatalog({ services }: Props) {
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        <span className="mr-2 text-xs uppercase tracking-wider text-zinc-500">
+        <span className="tone-muted mr-2 text-xs uppercase tracking-wider">
           Categories
         </span>
         <button
           type="button"
           onClick={() => setSelectedCategory(null)}
-          className={`rounded-full px-4 py-2 text-xs font-medium transition-all ${
-            !selectedCategory
-              ? 'bg-accent-600 text-white'
-              : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200'
+          aria-pressed={!selectedCategory}
+          className={`rounded-full px-4 py-2 text-xs font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400/60 motion-reduce:transition-none ${
+            !selectedCategory ? 'bg-accent-600 text-white' : inactivePillClass
           }`}
         >
           All Services ({services.length})
@@ -98,10 +162,11 @@ export default function ServiceCatalog({ services }: Props) {
             type="button"
             key={category}
             onClick={() => setSelectedCategory(category)}
-            className={`rounded-full px-4 py-2 text-xs font-medium transition-all ${
+            aria-pressed={selectedCategory === category}
+            className={`rounded-full px-4 py-2 text-xs font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400/60 motion-reduce:transition-none ${
               selectedCategory === category
                 ? 'bg-accent-600 text-white'
-                : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200'
+                : inactivePillClass
             }`}
           >
             {category} ({count})
@@ -109,9 +174,9 @@ export default function ServiceCatalog({ services }: Props) {
         ))}
       </div>
 
-      <p className="text-xs text-zinc-500">
-        Showing <span className="text-zinc-300">{filteredServices.length}</span>{' '}
-        of <span className="text-zinc-300">{services.length}</span> services
+      <p className="tone-muted text-xs" aria-live="polite">
+        Showing <span className="tone-body">{filteredServices.length}</span> of{' '}
+        <span className="tone-body">{services.length}</span> services
         {selectedCategory ? ` in ${selectedCategory}` : ''}.
       </p>
 
@@ -123,35 +188,39 @@ export default function ServiceCatalog({ services }: Props) {
         }
       >
         {filteredServices.map(s => (
-          <div
+          <a
             key={s.id}
-            className={`group relative overflow-hidden rounded-2xl border border-white/5 bg-gradient-to-br from-zinc-900/50 to-zinc-950 p-6 transition-all hover:border-white/20 hover:shadow-2xl hover:shadow-accent-500/10 ${
+            href={withBasePath(
+              `contact-hq/?service=${encodeURIComponent(s.id)}`
+            )}
+            className={`tone-border tone-elevated group relative overflow-hidden rounded-2xl border p-6 transition-all motion-reduce:transition-none [@media(hover:hover)]:hover:border-accent-400/40 [@media(hover:hover)]:hover:shadow-2xl [@media(hover:hover)]:hover:shadow-accent-500/10 ${
               viewMode === 'list'
                 ? 'grid gap-4 md:grid-cols-[0.24fr_1fr_auto] md:items-center'
                 : 'flex flex-col justify-between'
             }`}
+            aria-label={`Contact HQ about ${s.name}`}
           >
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-bold uppercase tracking-widest text-accent-400">
                   {s.category}
                 </span>
-                <div className="h-1.5 w-1.5 rounded-full bg-accent-500/50 opacity-0 transition-opacity group-hover:opacity-100" />
+                <div className="h-1.5 w-1.5 rounded-full bg-accent-500/50 opacity-0 transition-opacity motion-reduce:transition-none [@media(hover:hover)]:group-hover:opacity-100" />
               </div>
-              <h3 className="text-lg font-semibold text-white transition-colors group-hover:text-accent-300">
+              <h3 className="tone-title text-lg font-semibold transition-colors motion-reduce:transition-none [@media(hover:hover)]:group-hover:text-accent-300">
                 {s.name}
               </h3>
-              <p className="text-sm leading-relaxed text-zinc-400">
+              <p className="tone-body text-sm leading-relaxed">
                 {s.description}
               </p>
             </div>
 
             <div
-              className={`flex items-center gap-2 text-xs font-medium text-zinc-500 group-hover:text-zinc-300 ${viewMode === 'grid' ? 'mt-6' : 'md:justify-end'}`}
+              className={`tone-muted flex items-center gap-2 text-xs font-medium [@media(hover:hover)]:group-hover:text-accent-200 ${viewMode === 'grid' ? 'mt-6' : 'md:justify-end'}`}
             >
-              <span>View details</span>
+              <span>Get plan details</span>
               <svg
-                className="h-4 w-4 transition-transform group-hover:translate-x-1"
+                className="h-4 w-4 transition-transform motion-reduce:transition-none [@media(hover:hover)]:group-hover:translate-x-1"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -164,21 +233,22 @@ export default function ServiceCatalog({ services }: Props) {
                 />
               </svg>
             </div>
-          </div>
+          </a>
         ))}
       </div>
 
       {filteredServices.length === 0 && (
-        <div className="rounded-2xl border border-dashed border-white/10 py-20 text-center">
-          <p className="text-zinc-500">
+        <div className="tone-border tone-surface rounded-2xl border border-dashed py-20 text-center">
+          <p className="tone-muted">
             No services found matching your criteria.
           </p>
           <button
+            type="button"
             onClick={() => {
               setSearch('');
               setSelectedCategory(null);
             }}
-            className="mt-4 text-sm text-accent-400 hover:underline"
+            className="mt-4 text-sm text-accent-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400/60 [@media(hover:hover)]:hover:underline"
           >
             Clear all filters
           </button>

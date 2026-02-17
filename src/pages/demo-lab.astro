@@ -1,9 +1,67 @@
 ---
-import LegacyRedirect from '../components/LegacyRedirect.astro';
-
-const destination = '/';
-const reason =
-  'Legacy 3D demo lab retired in favor of the new landing experience.';
+import MarketingLayout from '../layouts/MarketingLayout.astro';
+import ModernCard from '../components/ui/ModernCard.astro';
+import Advanced3DShowcase from '../components/ui/Advanced3DShowcase.astro';
+import ParticleVortex from '../components/ui/ParticleVortex.astro';
+import InfinityTunnel from '../components/ui/InfinityTunnel.astro';
+import { withBasePath } from '../utils/helpers';
 ---
 
-<LegacyRedirect destination={destination} reason={reason} />
+<MarketingLayout
+  title="Demo Lab | Olive Global Systems"
+  description="Experimental creative lab for advanced 3D interactions, motion systems, and showcase-grade visual prototypes."
+>
+  <section
+    class="tone-surface relative overflow-hidden pb-12 pt-28"
+    data-reveal
+  >
+    <div class="mx-auto max-w-[1220px] px-6">
+      <div class="creative-hero-shell space-y-6 p-8 sm:p-10">
+        <p class="creative-kicker">Demo Lab</p>
+        <h1 class="creative-title tone-title text-4xl font-bold sm:text-5xl">
+          Experimental interaction systems
+          <span class="text-accent-300"> built for production ideas.</span>
+        </h1>
+        <p class="creative-copy text-base">
+          This is our official sandbox for high-intensity interface experiments.
+          Every module is isolated from core business pages so creativity can
+          move fast without compromising conversion surfaces.
+        </p>
+        <div class="flex flex-wrap gap-3">
+          <a class="creative-chip" href="#showcase">3D Showcase</a>
+          <a class="creative-chip" href="#vortex">Particle Vortex</a>
+          <a class="creative-chip" href="#tunnel">Infinity Tunnel</a>
+          <a class="creative-chip" href={withBasePath('contact-hq/')}
+            >Start a project</a
+          >
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="showcase" class="tone-border tone-surface border-y" data-reveal>
+    <div class="mx-auto max-w-[1220px] px-6 py-16">
+      <ModernCard variant="minimal" className="creative-panel p-6">
+        <p class="tone-muted text-xs uppercase tracking-[0.22em]">Module 01</p>
+        <h2 class="tone-title mt-2 text-2xl font-semibold">
+          Advanced 3D Showcase
+        </h2>
+      </ModernCard>
+      <div class="mt-8">
+        <Advanced3DShowcase />
+      </div>
+    </div>
+  </section>
+
+  <section id="vortex" class="tone-surface" data-reveal>
+    <div class="mx-auto max-w-[1220px] px-6 py-16">
+      <ParticleVortex />
+    </div>
+  </section>
+
+  <section id="tunnel" class="tone-border tone-surface border-y" data-reveal>
+    <div class="mx-auto max-w-[1220px] px-6 py-16">
+      <InfinityTunnel />
+    </div>
+  </section>
+</MarketingLayout>

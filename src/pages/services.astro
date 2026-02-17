@@ -119,13 +119,51 @@ const testimonials = (await getCollection('testimonials' as never)) as any[];
 const featuredTestimonials = testimonials
   .filter(t => t?.data?.featured)
   .slice(0, 6);
+
+const organizationSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Olive Global Systems',
+  url: new URL(withBasePath('/'), Astro.site).toString(),
+};
+
+const servicesBreadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'Home',
+      item: new URL(withBasePath('/'), Astro.site).toString(),
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: 'Services',
+      item: new URL(withBasePath('services/'), Astro.site).toString(),
+    },
+  ],
+};
 ---
 
 <MarketingLayout
   title="Services | Olive Global Systems"
   description="Enterprise service catalog across cybersecurity, MSP, AI consulting, application engineering, network architecture, and cloud delivery."
 >
-  <section class="relative overflow-hidden bg-zinc-950 pb-16 pt-28" data-reveal>
+  <script
+    type="application/ld+json"
+    set:html={JSON.stringify(organizationSchema)}
+  />
+  <script
+    type="application/ld+json"
+    set:html={JSON.stringify(servicesBreadcrumbSchema)}
+  />
+
+  <section
+    class="tone-surface relative overflow-hidden pb-16 pt-28"
+    data-reveal
+  >
     <div
       class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(0,102,255,0.16),_transparent_55%)]"
     >
@@ -136,7 +174,7 @@ const featuredTestimonials = testimonials
       >
         <div class="space-y-6">
           <p class="creative-kicker">Services</p>
-          <h1 class="creative-title text-4xl font-bold text-white sm:text-5xl">
+          <h1 class="creative-title tone-title text-4xl font-bold sm:text-5xl">
             Creative systems delivery across
             <span class="text-accent-300"> AI, security, and cloud.</span>
           </h1>
@@ -165,17 +203,17 @@ const featuredTestimonials = testimonials
 
         <div class="grid gap-4">
           <ModernCard variant="minimal" className="creative-panel p-6">
-            <p class="text-sm font-semibold text-white">Fast onboarding</p>
-            <p class="mt-2 text-sm text-zinc-300">
+            <p class="tone-title text-sm font-semibold">Fast onboarding</p>
+            <p class="tone-body mt-2 text-sm">
               Most engagements move from intake to active instrumentation in
               10–14 days, depending on system complexity.
             </p>
           </ModernCard>
           <ModernCard variant="minimal" className="creative-panel p-6">
-            <p class="text-sm font-semibold text-white">
+            <p class="tone-title text-sm font-semibold">
               Transparent reporting
             </p>
-            <p class="mt-2 text-sm text-zinc-300">
+            <p class="tone-body mt-2 text-sm">
               Weekly delivery signal, monthly operating reviews, and no
               black-box implementation work.
             </p>
@@ -185,7 +223,7 @@ const featuredTestimonials = testimonials
     </div>
   </section>
 
-  <section class="border-y border-white/5 bg-zinc-900/30" data-reveal>
+  <section class="tone-border tone-surface border-y" data-reveal>
     <div class="mx-auto max-w-[1220px] px-6 py-16">
       <div class="mb-5 flex flex-wrap items-center gap-2">
         <span class="creative-kicker">Service Lanes</span>
@@ -210,60 +248,138 @@ const featuredTestimonials = testimonials
   </section>
 
   <section
-    class="sticky top-16 z-20 border-b border-white/5 bg-zinc-950/80 backdrop-blur-xl"
+    class="tone-border tone-surface sticky top-16 z-20 border-b backdrop-blur-xl"
   >
     <div class="mx-auto max-w-[1220px] px-6 py-4 sm:py-5">
-      <div class="flex flex-wrap items-center gap-2">
+      <div class="flex flex-wrap items-center gap-2" data-services-jump>
         <span class="creative-kicker">Quick Jump</span>
-        <a class="creative-chip" href="#managed-it">Managed IT</a>
-        <a class="creative-chip" href="#cybersecurity">Cybersecurity</a>
-        <a class="creative-chip" href="#cloud">Cloud & DevOps</a>
-        <a class="creative-chip" href="#ai">AI Enablement</a>
-        <a class="creative-chip" href="#engagement-model">Engagement Model</a>
-        <a class="creative-chip" href="#contact">Contact</a>
+        <a class="creative-chip" data-jump-link href="#managed-it">Managed IT</a
+        >
+        <a class="creative-chip" data-jump-link href="#cybersecurity"
+          >Cybersecurity</a
+        >
+        <a class="creative-chip" data-jump-link href="#cloud">Cloud & DevOps</a>
+        <a class="creative-chip" data-jump-link href="#ai">AI Enablement</a>
+        <a class="creative-chip" data-jump-link href="#engagement-model"
+          >Engagement Model</a
+        >
+        <a class="creative-chip" data-jump-link href="#contact">Contact</a>
       </div>
     </div>
   </section>
 
-  <section class="border-b border-white/5 bg-zinc-900/20" data-reveal>
+  <script is:inline>
+    (() => {
+      const nav = document.querySelector('[data-services-jump]');
+      if (!nav) return;
+
+      const links = Array.from(nav.querySelectorAll('a[data-jump-link]'));
+      if (!links.length) return;
+
+      const targets = links
+        .map(link => {
+          const hash = link.getAttribute('href') || '';
+          const id = hash.startsWith('#') ? hash.slice(1) : '';
+          const section = id ? document.getElementById(id) : null;
+          return section ? { link, id, section } : null;
+        })
+        .filter(Boolean);
+
+      const setActive = activeId => {
+        for (const item of targets) {
+          const isActive = item.id === activeId;
+          item.link.classList.toggle('is-active', isActive);
+          if (isActive) {
+            item.link.setAttribute('aria-current', 'location');
+          } else {
+            item.link.removeAttribute('aria-current');
+          }
+        }
+      };
+
+      setActive(targets[0]?.id ?? '');
+
+      const observer = new IntersectionObserver(
+        entries => {
+          const visible = entries
+            .filter(entry => entry.isIntersecting)
+            .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+
+          if (!visible.length) return;
+
+          const activeSection = visible[0].target;
+          const activeItem = targets.find(
+            item => item.section === activeSection
+          );
+          if (activeItem) setActive(activeItem.id);
+        },
+        {
+          root: null,
+          rootMargin: '-35% 0px -55% 0px',
+          threshold: [0.15, 0.35, 0.65],
+        }
+      );
+
+      for (const item of targets) {
+        observer.observe(item.section);
+        item.link.addEventListener('click', () => setActive(item.id), {
+          passive: true,
+        });
+      }
+    })();
+  </script>
+
+  <style is:inline>
+    [data-services-jump] .creative-chip.is-active {
+      border-color: color-mix(
+        in srgb,
+        var(--color-accent, #7c3aed) 45%,
+        transparent
+      );
+      color: color-mix(in srgb, var(--color-accent, #7c3aed) 68%, white 32%);
+      background: color-mix(in srgb, var(--color-surface) 78%, transparent);
+    }
+  </style>
+
+  <section class="tone-border tone-surface border-b" data-reveal>
     <div class="mx-auto max-w-[1220px] px-6 py-10">
       <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <ModernCard variant="minimal" className="creative-panel p-5">
-          <p class="text-xs uppercase tracking-[0.24em] text-zinc-500">
+          <p class="tone-muted text-xs uppercase tracking-[0.24em]">
             Catalog Depth
           </p>
-          <p class="mt-2 text-2xl font-semibold text-white">100+ Services</p>
-          <p class="mt-1 text-xs text-zinc-400">
+          <p class="tone-title mt-2 text-2xl font-semibold">100+ Services</p>
+          <p class="tone-body mt-1 text-xs">
             Specialist offerings mapped across six enterprise domains.
           </p>
         </ModernCard>
         <ModernCard variant="minimal" className="creative-panel p-5">
-          <p class="text-xs uppercase tracking-[0.24em] text-zinc-500">
+          <p class="tone-muted text-xs uppercase tracking-[0.24em]">
             Operating Model
           </p>
-          <p class="mt-2 text-2xl font-semibold text-white">4 Phases</p>
-          <p class="mt-1 text-xs text-zinc-400">
+          <p class="tone-title mt-2 text-2xl font-semibold">4 Phases</p>
+          <p class="tone-body mt-1 text-xs">
             Assess, onboard, operate, and optimize with measurable cadence.
           </p>
         </ModernCard>
         <ModernCard variant="minimal" className="creative-panel p-5">
-          <p class="text-xs uppercase tracking-[0.24em] text-zinc-500">
+          <p class="tone-muted text-xs uppercase tracking-[0.24em]">
             Coverage Window
           </p>
-          <p class="mt-2 text-2xl font-semibold text-white">24/7 Option</p>
-          <p class="mt-1 text-xs text-zinc-400">
+          <p class="tone-title mt-2 text-2xl font-semibold">24/7 Option</p>
+          <p class="tone-body mt-1 text-xs">
             Production support, detection, and escalation pathways.
           </p>
         </ModernCard>
         <ModernCard
           variant="minimal"
-          className="border-white/10 bg-zinc-950/60 p-5"
+          className="creative-panel tone-elevated p-5"
         >
-          <p class="text-xs uppercase tracking-[0.24em] text-zinc-500">
+          <p class="tone-muted text-xs uppercase tracking-[0.24em]">
             Delivery Focus
           </p>
-          <p class="mt-2 text-2xl font-semibold text-white">Outcome-First</p>
-          <p class="mt-1 text-xs text-zinc-400">
+          <p class="tone-title mt-2 text-2xl font-semibold">Outcome-First</p>
+          <p class="tone-body mt-1 text-xs">
             Roadmaps translated into operating controls and shipped systems.
           </p>
         </ModernCard>
@@ -273,12 +389,12 @@ const featuredTestimonials = testimonials
 
   {
     services.map(s => (
-      <section id={s.id} class="scroll-mt-32 bg-zinc-950">
+      <section id={s.id} class="tone-surface scroll-mt-32">
         <div class="mx-auto max-w-[1220px] px-6 py-16 sm:py-20">
           <div class="grid gap-10 lg:grid-cols-2 lg:items-start">
             <div class="space-y-4">
-              <h2 class="text-3xl font-semibold text-white">{s.title}</h2>
-              <p class="text-sm text-zinc-300">{s.description}</p>
+              <h2 class="tone-title text-3xl font-semibold">{s.title}</h2>
+              <p class="tone-body text-sm">{s.description}</p>
               <div class="pt-2">
                 <ModernButton
                   href={startProjectHref}
@@ -291,10 +407,10 @@ const featuredTestimonials = testimonials
             </div>
             <ModernCard
               variant="minimal"
-              className="p-6 bg-zinc-950/60 border-white/10"
+              className="creative-panel tone-elevated p-6"
             >
-              <p class="text-sm font-semibold text-white">What’s included</p>
-              <ul class="mt-4 space-y-2 text-sm text-zinc-300">
+              <p class="tone-title text-sm font-semibold">What’s included</p>
+              <ul class="tone-body mt-4 space-y-2 text-sm">
                 {s.bullets.map(item => (
                   <li class="flex items-start gap-2">
                     <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 bg-accent-500" />
@@ -302,7 +418,7 @@ const featuredTestimonials = testimonials
                   </li>
                 ))}
               </ul>
-              <p class="mt-5 text-xs text-zinc-400">
+              <p class="tone-body mt-5 text-xs">
                 Exact scope depends on your plan and environment. We’ll confirm
                 inclusions during onboarding.
               </p>
@@ -314,13 +430,13 @@ const featuredTestimonials = testimonials
   }
 
   <section
-    class="overflow-hidden border-y border-white/5 bg-zinc-900/10"
+    class="tone-border tone-surface overflow-hidden border-y"
     data-reveal
   >
     <div class="mx-auto max-w-[1220px] px-6 py-24">
       <div class="mb-16 space-y-4 text-center">
-        <h2 class="text-4xl font-bold text-white">The Comprehensive Catalog</h2>
-        <p class="mx-auto max-w-2xl text-zinc-400">
+        <h2 class="tone-title text-4xl font-bold">The Comprehensive Catalog</h2>
+        <p class="tone-body mx-auto max-w-2xl">
           Explore our full range of 100+ specialized services across security,
           development, and AI consulting. Built for the most demanding technical
           environments.
@@ -331,7 +447,7 @@ const featuredTestimonials = testimonials
     </div>
   </section>
 
-  <section class="bg-zinc-950" data-reveal>
+  <section class="tone-surface" data-reveal>
     <div class="mx-auto max-w-[1220px] px-6 py-24">
       <div class="grid gap-16 lg:grid-cols-2 lg:items-center">
         <div class="space-y-8">
@@ -340,12 +456,12 @@ const featuredTestimonials = testimonials
           >
             Strategic Outlook 2026
           </div>
-          <h2 class="text-4xl font-bold leading-tight text-white sm:text-5xl">
+          <h2 class="tone-title text-4xl font-bold leading-tight sm:text-5xl">
             The Technology Transition: <span class="text-accent-300"
               >Beyond Traditional IT.</span
             >
           </h2>
-          <p class="text-lg leading-relaxed text-zinc-300">
+          <p class="tone-body text-lg leading-relaxed">
             The era of basic managed services is over. We are transitioning into
             an age of autonomous operations, quantum-safe security, and
             AI-orchestrated infrastructure.
@@ -353,7 +469,7 @@ const featuredTestimonials = testimonials
           <div class="space-y-6">
             <div class="flex gap-4">
               <div
-                class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-white/10 bg-zinc-900 text-accent-400"
+                class="tone-border tone-surface flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border text-accent-400"
               >
                 <svg
                   class="h-6 w-6"
@@ -368,10 +484,10 @@ const featuredTestimonials = testimonials
                 >
               </div>
               <div>
-                <h3 class="text-lg font-semibold text-white">
+                <h3 class="tone-title text-lg font-semibold">
                   Autonomous Operations
                 </h3>
-                <p class="mt-1 text-sm text-zinc-400">
+                <p class="tone-body mt-1 text-sm">
                   Moving from reactive patching to self-healing clusters and
                   AI-driven performance optimization.
                 </p>
@@ -379,7 +495,7 @@ const featuredTestimonials = testimonials
             </div>
             <div class="flex gap-4">
               <div
-                class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-white/10 bg-zinc-900 text-accent-400"
+                class="tone-border tone-surface flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border text-accent-400"
               >
                 <svg
                   class="h-6 w-6"
@@ -395,10 +511,10 @@ const featuredTestimonials = testimonials
                 >
               </div>
               <div>
-                <h3 class="text-lg font-semibold text-white">
+                <h3 class="tone-title text-lg font-semibold">
                   Quantum Resilience
                 </h3>
-                <p class="mt-1 text-sm text-zinc-400">
+                <p class="tone-body mt-1 text-sm">
                   Hardening data architectures today against the decryption
                   threats of tomorrow.
                 </p>
@@ -412,7 +528,7 @@ const featuredTestimonials = testimonials
           >
           </div>
           <div
-            class="relative overflow-hidden rounded-3xl border border-white/10 bg-zinc-900 p-1"
+            class="tone-border tone-surface relative overflow-hidden rounded-3xl border p-1"
           >
             <div
               class="aspect-square flex items-center justify-center bg-gradient-to-br from-zinc-800 to-zinc-950"
@@ -424,15 +540,15 @@ const featuredTestimonials = testimonials
                   100%
                 </div>
                 <p
-                  class="font-mono text-sm uppercase tracking-tighter text-zinc-500"
+                  class="tone-muted font-mono text-sm uppercase tracking-tighter"
                 >
                   Cloud-native native alignment
                 </p>
                 <div class="h-px w-full bg-white/5"></div>
-                <div class="text-3xl font-bold text-white">
+                <div class="tone-title text-3xl font-bold">
                   Strategic Advantage
                 </div>
-                <p class="text-xs text-zinc-400">
+                <p class="tone-body text-xs">
                   We don't just maintain; we accelerate. Our engineering
                   philosophy is rooted in building systems that aren't just
                   reliable, but competitive.
@@ -446,14 +562,14 @@ const featuredTestimonials = testimonials
   </section>
 
   <section
-    class="border-y border-white/5 bg-zinc-900/30"
+    class="tone-border tone-surface border-y"
     id="engagement-model"
     data-reveal
   >
     <div class="mx-auto max-w-[1220px] px-6 py-20">
       <div class="max-w-3xl space-y-4">
-        <h2 class="text-3xl font-semibold text-white">How we work</h2>
-        <p class="text-sm text-zinc-300">
+        <h2 class="tone-title text-3xl font-semibold">How we work</h2>
+        <p class="tone-body text-sm">
           A simple engagement model: assess risk, onboard cleanly, operate with
           discipline, and optimize continuously.
         </p>
@@ -464,10 +580,10 @@ const featuredTestimonials = testimonials
           engagementModel.map(step => (
             <ModernCard
               variant="minimal"
-              className="p-6 bg-zinc-950/60 border-white/10"
+              className="creative-panel tone-elevated p-6"
             >
-              <p class="text-sm font-semibold text-white">{step.phase}</p>
-              <ul class="mt-4 space-y-2 text-sm text-zinc-300">
+              <p class="tone-title text-sm font-semibold">{step.phase}</p>
+              <ul class="tone-body mt-4 space-y-2 text-sm">
                 {step.outcomes.map(outcome => (
                   <li class="flex items-start gap-2">
                     <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 bg-accent-500" />
@@ -482,11 +598,11 @@ const featuredTestimonials = testimonials
     </div>
   </section>
 
-  <section class="bg-zinc-950" id="industries" data-reveal>
+  <section class="tone-surface" id="industries" data-reveal>
     <div class="mx-auto max-w-[1220px] px-6 py-20">
       <div class="max-w-3xl space-y-4">
-        <h2 class="text-3xl font-semibold text-white">Industries we support</h2>
-        <p class="text-sm text-zinc-300">
+        <h2 class="tone-title text-3xl font-semibold">Industries we support</h2>
+        <p class="tone-body text-sm">
           We bring proven playbooks, documentation, and controls to regulated
           and fast-moving environments.
         </p>
@@ -497,10 +613,10 @@ const featuredTestimonials = testimonials
           industries.map(i => (
             <ModernCard
               variant="minimal"
-              className="p-6 bg-zinc-950/60 border-white/10"
+              className="creative-panel tone-elevated p-6"
             >
-              <p class="text-sm font-semibold text-white">{i.name}</p>
-              <p class="mt-2 text-sm text-zinc-300">{i.note}</p>
+              <p class="tone-title text-sm font-semibold">{i.name}</p>
+              <p class="tone-body mt-2 text-sm">{i.note}</p>
             </ModernCard>
           ))
         }
@@ -509,7 +625,7 @@ const featuredTestimonials = testimonials
   </section>
 
   <section
-    class="border-y border-white/5 bg-zinc-900/30"
+    class="tone-border tone-surface border-y"
     id="case-studies"
     data-reveal
   >
@@ -518,8 +634,8 @@ const featuredTestimonials = testimonials
         class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between"
       >
         <div class="max-w-3xl space-y-3">
-          <h2 class="text-3xl font-semibold text-white">Recent outcomes</h2>
-          <p class="text-sm text-zinc-300">
+          <h2 class="tone-title text-3xl font-semibold">Recent outcomes</h2>
+          <p class="tone-body text-sm">
             A few examples of modernization, security hardening, and automation
             delivered for real teams.
           </p>
@@ -549,14 +665,14 @@ const featuredTestimonials = testimonials
     </div>
   </section>
 
-  <section class="bg-zinc-950" data-reveal>
+  <section class="tone-surface" data-reveal>
     <div class="mx-auto max-w-[1220px] px-6 py-20">
       <div class="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
         <div class="space-y-4">
-          <h2 class="text-3xl font-semibold text-white">
+          <h2 class="tone-title text-3xl font-semibold">
             Not sure what you need?
           </h2>
-          <p class="text-sm text-zinc-300">
+          <p class="tone-body text-sm">
             Take a 60-second quiz and we’ll recommend a starting package.
           </p>
           <ModernButton
@@ -567,7 +683,7 @@ const featuredTestimonials = testimonials
             Or talk to an expert
           </ModernButton>
         </div>
-        <div class="rounded-2xl border border-white/10 bg-white/5 p-6">
+        <div class="tone-border tone-surface rounded-2xl border p-6">
           <ServicesQuiz client:load />
         </div>
       </div>
@@ -575,14 +691,14 @@ const featuredTestimonials = testimonials
   </section>
 
   <section
-    class="border-t border-white/5 bg-zinc-900/30"
+    class="tone-border tone-surface border-t"
     id="testimonials"
     data-reveal
   >
     <div class="mx-auto max-w-[1220px] px-6 py-20">
       <div class="max-w-3xl space-y-4">
-        <h2 class="text-3xl font-semibold text-white">What clients say</h2>
-        <p class="text-sm text-zinc-300">
+        <h2 class="tone-title text-3xl font-semibold">What clients say</h2>
+        <p class="tone-body text-sm">
           Trust is earned in the day-to-day: reliable support, clear reporting,
           and real risk reduction.
         </p>
@@ -594,17 +710,17 @@ const featuredTestimonials = testimonials
     </div>
   </section>
 
-  <section class="bg-zinc-950" id="contact" data-reveal>
+  <section class="tone-surface" id="contact" data-reveal>
     <div class="mx-auto max-w-[1220px] px-6 py-20">
-      <div class="rounded-2xl border border-white/10 bg-white/5 p-8">
+      <div class="tone-border tone-surface rounded-2xl border p-8">
         <div class="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
           <div class="space-y-3">
-            <h2 class="text-2xl font-semibold text-white">Get in touch</h2>
-            <p class="text-sm text-zinc-300">
+            <h2 class="tone-title text-2xl font-semibold">Get in touch</h2>
+            <p class="tone-body text-sm">
               No forms. Email us a short summary of what you’re trying to
               achieve and we’ll reply with next steps.
             </p>
-            <p class="text-sm text-zinc-300">
+            <p class="tone-body text-sm">
               <a
                 class="text-accent-300 hover:underline"
                 href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a

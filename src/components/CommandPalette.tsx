@@ -95,11 +95,12 @@ const BASE_COMMANDS: CommandItem[] = [
     category: 'Navigation',
   },
   {
-    id: 'nav-pricing',
+    id: 'nav-contact',
     label: 'Go to Contact',
     icon: FileText,
     action: () => navigate(withBasePath('contact-hq/')),
     category: 'Navigation',
+    keywords: ['contact', 'intake', 'brief', 'proposal'],
   },
   {
     id: 'nav-about',
@@ -109,11 +110,12 @@ const BASE_COMMANDS: CommandItem[] = [
     category: 'Navigation',
   },
   {
-    id: 'nav-contact',
-    label: 'Go to Contact',
+    id: 'nav-demo-lab',
+    label: 'Open Demo Lab',
     icon: Layout,
-    action: () => navigate(withBasePath('contact/')),
+    action: () => navigate(withBasePath('demo-lab/')),
     category: 'Navigation',
+    keywords: ['demo', 'lab', '3d', 'motion', 'showcase'],
   },
   {
     id: 'nav-shop-demo',
@@ -135,8 +137,7 @@ const BASE_COMMANDS: CommandItem[] = [
     id: 'nav-portfolio-compare',
     label: 'Portfolio Demo: Compare Mode',
     icon: Box,
-    action: () =>
-      navigate(withBasePath('about/?demo=compare#shop-experience')),
+    action: () => navigate(withBasePath('about/?demo=compare#shop-experience')),
     category: 'Navigation',
     keywords: ['portfolio', 'ecommerce', 'demo', 'compare', 'launch'],
   },
@@ -146,7 +147,9 @@ const BASE_COMMANDS: CommandItem[] = [
     icon: Box,
     action: () =>
       navigate(
-        withBasePath('about/?demo=checkout&product=aurora-hoodie#shop-experience')
+        withBasePath(
+          'about/?demo=checkout&product=aurora-hoodie#shop-experience'
+        )
       ),
     category: 'Navigation',
     keywords: ['portfolio', 'ecommerce', 'demo', 'checkout', 'launch'],
@@ -528,14 +531,14 @@ export default function CommandPalette() {
       {/* Modal */}
       <div
         ref={modalRef}
-        className="animate-in fade-in zoom-in-95 relative w-full max-w-2xl overflow-hidden rounded-xl border border-white/10 bg-zinc-900 shadow-2xl duration-200"
+        className="tone-border tone-surface animate-in fade-in zoom-in-95 relative w-full max-w-2xl overflow-hidden rounded-xl border shadow-2xl duration-200"
         role="dialog"
         aria-modal="true"
         aria-label="Command palette"
       >
         {/* Search Input */}
-        <div className="flex items-center border-b border-white/10 px-4 py-3">
-          <Search className="mr-3 h-5 w-5 text-zinc-400" />
+        <div className="tone-border flex items-center border-b px-4 py-3">
+          <Search className="tone-muted mr-3 h-5 w-5" />
           <input
             ref={inputRef}
             type="text"
@@ -546,7 +549,7 @@ export default function CommandPalette() {
             aria-expanded={isOpen}
             aria-activedescendant={activeDescendantId}
             aria-describedby={hintId}
-            className="flex-1 bg-transparent text-lg text-white placeholder-zinc-500 focus:outline-none"
+            className="tone-title flex-1 bg-transparent text-lg placeholder-zinc-500 focus:outline-none"
             placeholder="Type a command or search..."
             value={query}
             onInput={e => {
@@ -560,17 +563,17 @@ export default function CommandPalette() {
           <div className="flex items-center gap-2">
             <span
               aria-live="polite"
-              className="hidden text-xs text-zinc-500 sm:inline-block"
+              className="tone-muted hidden text-xs sm:inline-block"
             >
               {filteredCommands.length} result
               {filteredCommands.length === 1 ? '' : 's'}
             </span>
-            <kbd className="hidden rounded bg-zinc-800 px-2 py-1 text-xs font-medium text-zinc-400 sm:inline-block">
+            <kbd className="tone-border tone-surface tone-muted hidden rounded border px-2 py-1 text-xs font-medium sm:inline-block">
               ESC
             </kbd>
             <button
               onClick={() => setIsOpen(false)}
-              className="rounded p-1 text-zinc-400 hover:bg-zinc-800 hover:text-white"
+              className="tone-muted tone-border rounded border border-transparent p-1 hover:bg-zinc-800 hover:text-white"
               aria-label="Close command palette"
             >
               <X className="h-5 w-5" />
@@ -581,7 +584,7 @@ export default function CommandPalette() {
         {/* Results List */}
         <div className="max-h-[60vh] overflow-y-auto p-2">
           {filteredCommands.length === 0 ? (
-            <div className="py-12 text-center text-zinc-500">
+            <div className="tone-muted py-12 text-center">
               <p>No results found.</p>
             </div>
           ) : (
@@ -606,7 +609,7 @@ export default function CommandPalette() {
                     className={`flex cursor-pointer items-center gap-3 rounded-lg px-4 py-3 transition-colors ${
                       isSelected
                         ? 'bg-indigo-600 text-white'
-                        : 'text-zinc-300 hover:bg-zinc-800'
+                        : 'tone-body hover:bg-zinc-800'
                     }`}
                     onClick={() => {
                       command.action();
@@ -615,12 +618,12 @@ export default function CommandPalette() {
                     onMouseEnter={() => setSelectedIndex(index)}
                   >
                     <Icon
-                      className={`h-5 w-5 ${isSelected ? 'text-white' : 'text-zinc-400'}`}
+                      className={`h-5 w-5 ${isSelected ? 'text-white' : 'tone-muted'}`}
                     />
                     <div className="flex flex-1 flex-col">
                       <span className="font-medium">{command.label}</span>
                       <span
-                        className={`text-xs ${isSelected ? 'text-indigo-200' : 'text-zinc-500'}`}
+                        className={`text-xs ${isSelected ? 'text-indigo-200' : 'tone-muted'}`}
                       >
                         {command.category}
                       </span>
@@ -636,7 +639,7 @@ export default function CommandPalette() {
         </div>
 
         {/* Footer */}
-        <div className="border-t border-white/10 bg-zinc-900/50 px-4 py-2 text-xs text-zinc-500">
+        <div className="tone-border tone-surface tone-muted border-t px-4 py-2 text-xs">
           <div className="flex items-center justify-between">
             <div className="flex gap-4">
               <span>

@@ -48,12 +48,13 @@ const currentPath = Astro.url.pathname;
     z-index: 100;
     background: linear-gradient(
       180deg,
-      rgba(15, 23, 42, 0.92),
-      rgba(15, 23, 42, 0.98)
+      color-mix(in srgb, var(--color-surface) 92%, transparent),
+      color-mix(in srgb, var(--color-surface) 98%, transparent)
     );
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border-top: 1px solid rgba(148, 163, 184, 0.15);
+    border-top: 1px solid
+      color-mix(in srgb, var(--color-border) 78%, transparent);
     box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.1);
 
     /* Safe area support for devices with notches/home indicator */
@@ -85,7 +86,7 @@ const currentPath = Astro.url.pathname;
     gap: 4px;
     padding: 10px 12px;
     border-radius: 12px;
-    color: rgba(148, 163, 184, 0.8);
+    color: color-mix(in srgb, var(--color-text-muted) 90%, transparent);
     text-decoration: none;
     transition:
       background-color 200ms ease,
@@ -108,13 +109,21 @@ const currentPath = Astro.url.pathname;
 
   .bottom-nav-item:hover,
   .bottom-nav-item:focus-visible {
-    background: rgba(99, 102, 241, 0.1);
-    color: rgba(255, 255, 255, 0.95);
+    background: color-mix(
+      in srgb,
+      var(--color-accent-primary) 14%,
+      transparent
+    );
+    color: var(--color-text-primary);
   }
 
   .bottom-nav-item.active {
-    color: #6366f1;
-    background: rgba(99, 102, 241, 0.15);
+    color: var(--color-accent-primary);
+    background: color-mix(
+      in srgb,
+      var(--color-accent-primary) 18%,
+      transparent
+    );
   }
 
   .bottom-nav-item.active::before {
@@ -125,7 +134,7 @@ const currentPath = Astro.url.pathname;
     transform: translateX(-50%);
     width: 24px;
     height: 3px;
-    background: #6366f1;
+    background: var(--color-accent-primary);
     border-radius: 0 0 3px 3px;
   }
 
@@ -143,34 +152,10 @@ const currentPath = Astro.url.pathname;
     white-space: nowrap;
   }
 
-  /* Corporate theme adjustments */
-  [data-theme='corporate'] .bottom-nav {
-    background: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.92),
-      rgba(255, 255, 255, 0.98)
-    );
-    border-top-color: rgba(100, 116, 139, 0.2);
-  }
-
-  [data-theme='corporate'] .bottom-nav-item {
-    color: rgba(51, 65, 85, 0.7);
-  }
-
-  [data-theme='corporate'] .bottom-nav-item:hover,
-  [data-theme='corporate'] .bottom-nav-item:focus-visible {
-    color: rgba(15, 23, 42, 0.95);
-    background: rgba(99, 102, 241, 0.08);
-  }
-
-  [data-theme='corporate'] .bottom-nav-item.active {
-    color: #4f46e5;
-    background: rgba(99, 102, 241, 0.12);
-  }
-
   /* Focus indicators */
   .bottom-nav-item:focus-visible {
-    outline: 2px solid rgba(99, 102, 241, 0.95);
+    outline: 2px solid
+      color-mix(in srgb, var(--color-accent-primary) 92%, transparent);
     outline-offset: 2px;
   }
 

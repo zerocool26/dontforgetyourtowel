@@ -74,38 +74,55 @@ export default function ServicesQuiz() {
   }, [answers]);
 
   const isComplete = step >= QUESTIONS.length;
+  const contactHref = result
+    ? withBasePath(`contact-hq/?service=${encodeURIComponent(result)}`)
+    : withBasePath('contact-hq/');
 
   return (
     <section
-      class="rounded-2xl border border-white/10 bg-white/5 p-6"
+      class="tone-border tone-surface rounded-2xl border p-6"
       data-testid="services-quiz"
       data-step={step}
     >
       <div class="flex items-center justify-between gap-4">
         <div>
-          <p class="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-400">
+          <p class="tone-muted text-xs font-semibold uppercase tracking-[0.3em]">
             Find your perfect IT solution
           </p>
-          <h3 class="mt-2 text-xl font-semibold text-white" data-testid="services-quiz-title">
+          <h3
+            class="tone-title mt-2 text-xl font-semibold"
+            data-testid="services-quiz-title"
+          >
             60-second services quiz
           </h3>
         </div>
         <div class="text-right">
-          <p class="text-xs text-zinc-400">Progress</p>
-          <p class="text-sm font-semibold text-white">{progress}%</p>
+          <p class="tone-muted text-xs">Progress</p>
+          <p class="tone-title text-sm font-semibold">{progress}%</p>
         </div>
       </div>
 
-      <div class="mt-4 h-2 w-full rounded-full bg-white/10">
+      <div
+        class="tone-border tone-surface mt-4 h-2 w-full rounded-full border"
+        role="progressbar"
+        aria-label="Quiz completion"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={Math.min(progress, 100)}
+      >
         <div
-          class="h-2 rounded-full bg-gradient-to-r from-accent-500 to-cyan-300 transition-all"
+          class="h-2 rounded-full bg-gradient-to-r from-accent-500 to-cyan-300 transition-all motion-reduce:transition-none"
           style={{ width: `${Math.min(progress, 100)}%` }}
         />
       </div>
 
       {!isComplete ? (
         <div class="mt-6">
-          <p class="text-sm font-semibold text-white" data-testid="services-quiz-question">
+          <p
+            class="tone-title text-sm font-semibold"
+            data-testid="services-quiz-question"
+            aria-live="polite"
+          >
             {QUESTIONS[step]?.title}
           </p>
           <div class="mt-4 grid gap-3">
@@ -113,7 +130,7 @@ export default function ServicesQuiz() {
               <button
                 type="button"
                 data-testid="services-quiz-option"
-                class="min-h-[48px] rounded-xl border border-white/10 bg-zinc-950/40 px-4 py-3 text-left text-sm text-zinc-200 hover:border-white/20"
+                class="tone-border tone-body tone-surface min-h-[48px] rounded-xl border px-4 py-3 text-left text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400/60 motion-reduce:transition-none [@media(hover:hover)]:hover:border-accent-400/40 [@media(hover:hover)]:hover:text-accent-200"
                 onClick={() => {
                   setAnswers(prev => [...prev, opt.value]);
                   setStep(prev => prev + 1);
@@ -126,20 +143,25 @@ export default function ServicesQuiz() {
         </div>
       ) : (
         <div class="mt-6">
-          <p class="text-sm text-zinc-300" data-testid="services-quiz-recommendation-label">Recommended starting point</p>
-          <p class="mt-2 text-lg font-semibold text-white">
+          <p
+            class="tone-body text-sm"
+            data-testid="services-quiz-recommendation-label"
+          >
+            Recommended starting point
+          </p>
+          <p class="tone-title mt-2 text-lg font-semibold" aria-live="polite">
             {result ? recommendationLabel(result) : '—'}
           </p>
           <div class="mt-5 flex flex-col gap-3 sm:flex-row">
             <a
-              class="inline-flex min-h-[48px] flex-1 items-center justify-center rounded-xl bg-accent-500 px-4 text-sm font-semibold text-white"
-              href={`${withBasePath('services/')}#contact`}
+              class="inline-flex min-h-[48px] flex-1 items-center justify-center rounded-xl bg-accent-500 px-4 text-sm font-semibold text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-300 motion-reduce:transition-none [@media(hover:hover)]:hover:bg-accent-400"
+              href={contactHref}
             >
               Contact
             </a>
             <button
               type="button"
-              class="inline-flex min-h-[48px] flex-1 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-4 text-sm font-semibold text-white"
+              class="tone-border tone-title tone-surface inline-flex min-h-[48px] flex-1 items-center justify-center rounded-xl border px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400/60 motion-reduce:transition-none [@media(hover:hover)]:hover:border-accent-400/40 [@media(hover:hover)]:hover:text-accent-200"
               onClick={() => {
                 setStep(0);
                 setAnswers([]);
