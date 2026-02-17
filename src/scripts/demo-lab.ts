@@ -87,6 +87,23 @@ const syncButtons = (state: DemoLabState) => {
   });
 };
 
+const formatStatusSummary = (state: DemoLabState): string => {
+  const paused = state.paused ? 'on' : 'off';
+  const reducedMotion = state.reduced ? 'on' : 'off';
+  const perfMode = state.perf ? 'on' : 'off';
+  return `Demo safety status: pause ${paused}, reduced motion ${reducedMotion}, perf mode ${perfMode}.`;
+};
+
+const syncStatusOutput = (state: DemoLabState) => {
+  const statusNodes =
+    document.querySelectorAll<HTMLElement>('[data-demo-status]');
+  const summary = formatStatusSummary(state);
+
+  statusNodes.forEach(node => {
+    node.textContent = summary;
+  });
+};
+
 export function initDemoLab(): void {
   if (typeof window === 'undefined') return;
 
@@ -111,6 +128,7 @@ export function initDemoLab(): void {
   applyDemoLabStateToDOM(state);
   applyStateToModules(modules, state);
   syncButtons(state);
+  syncStatusOutput(state);
 
   const onClick = (event: MouseEvent) => {
     const target = event.target as HTMLElement | null;
@@ -127,6 +145,7 @@ export function initDemoLab(): void {
     applyDemoLabStateToDOM(state);
     applyStateToModules(modules, state);
     syncButtons(state);
+    syncStatusOutput(state);
   };
 
   document.addEventListener('click', onClick, {
