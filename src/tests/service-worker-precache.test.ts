@@ -27,6 +27,43 @@ function extractStaticAssetPaths(swSource: string): string[] {
 }
 
 describe('service worker precache list', () => {
+  it('contains core static assets required for offline shell', () => {
+    const swPath = path.join(projectRoot, 'public', 'sw.js');
+    const source = fs.readFileSync(swPath, 'utf8');
+    const paths = extractStaticAssetPaths(source);
+
+    expect(paths).toEqual(
+      expect.arrayContaining([
+        'offline/',
+        'manifest.webmanifest',
+        'favicon.svg',
+        'favicon-192.png',
+        'favicon-512.png',
+      ])
+    );
+  });
+
+  it('does not include route HTML entries in static precache list', () => {
+    const swPath = path.join(projectRoot, 'public', 'sw.js');
+    const source = fs.readFileSync(swPath, 'utf8');
+    const paths = extractStaticAssetPaths(source);
+
+    const htmlOrRoutePaths = paths.filter(
+      p => p.endsWith('.html') || p === 'demo-lab/' || p === 'services/'
+    );
+
+    expect(htmlOrRoutePaths).toEqual([]);
+  });
+
+  it('keeps static precache entries unique', () => {
+    const swPath = path.join(projectRoot, 'public', 'sw.js');
+    const source = fs.readFileSync(swPath, 'utf8');
+    const paths = extractStaticAssetPaths(source);
+
+    const unique = new Set(paths);
+    expect(unique.size).toBe(paths.length);
+  });
+
   it('does not include legacy/robots-disallowed route prefixes', () => {
     const swPath = path.join(projectRoot, 'public', 'sw.js');
     const source = fs.readFileSync(swPath, 'utf8');
@@ -41,5 +78,14 @@ describe('service worker precache list', () => {
     });
 
     expect(violations).toEqual([]);
+  });
+
+  it('keeps fetch cache policy from storing HTML-like requests', () => {
+    const swPath = path.join(projectRoot, 'public', 'sw.js');
+    const source = fs.readFileSync(swPath, 'utf8');
+
+    expect(source).toContain('const isHtmlLikeRequest =');
+    expect(source).toContain("acceptHeader.includes('text/html')");
+    expect(source).toContain('!isHtmlLikeRequest');
   });
 });

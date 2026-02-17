@@ -154,15 +154,22 @@ self.addEventListener('fetch', event => {
 
   const url = new URL(request.url);
   const pathname = url.pathname;
+  const acceptHeader = request.headers.get('accept') || '';
 
   const isNavigationRequest = request.mode === 'navigate';
   const isAstroBundleAsset = pathname.includes('/_astro/');
+  const isHtmlLikeRequest =
+    request.destination === 'document' ||
+    acceptHeader.includes('text/html') ||
+    pathname.endsWith('.html') ||
+    pathname.endsWith('/');
 
   // Avoid SW-caching navigations or hashed bundle assets.
   // These are the most common sources of “stale HTML -> missing hashed JS” after deploy.
   const shouldCache =
     !isNavigationRequest &&
     !isAstroBundleAsset &&
+    !isHtmlLikeRequest &&
     request.destination !== 'script' &&
     request.destination !== 'style' &&
     !pathname.endsWith('.js') &&
