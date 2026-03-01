@@ -16,12 +16,12 @@ const demoHref = withBasePath('demo/');
   title={title}
   description={description}
   mainClass="pb-24 pt-12"
-  bodyClass="bg-zinc-950"
+  bodyClass="bg-[#030303]"
 >
   <section class="mx-auto w-full max-w-5xl px-6">
     <div class="space-y-3">
       <h1 class="text-3xl font-semibold text-white">WebGL Diagnostics</h1>
-      <p class="text-sm text-zinc-300">
+      <p class="text-sm text-neutral-400">
         This page runs a safe set of probes to determine whether your browser
         can create a WebGL context, whether the Service Worker is interfering,
         and whether your deployed JS assets are returning 200s.
@@ -40,10 +40,10 @@ const demoHref = withBasePath('demo/');
       id="debug-webgl-root"
       class="mt-8 rounded-2xl border border-white/10 bg-black/30 p-5 backdrop-blur"
     >
-      <div class="text-sm text-zinc-300">Running probes…</div>
+      <div class="text-sm text-neutral-400">Running probes…</div>
     </div>
 
-    <div class="mt-6 text-xs text-zinc-500">
+    <div class="mt-6 text-xs text-neutral-500">
       Tip: if you’re on a phone, avoid in-app browsers (Instagram/TikTok/etc).
       Open this in Chrome/Edge/Safari directly.
     </div>

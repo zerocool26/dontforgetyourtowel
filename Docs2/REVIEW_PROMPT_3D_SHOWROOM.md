@@ -1,6 +1,7 @@
 # Advanced 3D Car Showroom Code Review & Feature Gap Analysis Prompt
 
 ## Objective
+
 Perform a comprehensive software architecture review, UX audit, and feature gap analysis of the 3D Car Showroom application. Identify missing capabilities, suboptimal information architecture, opportunities for enhanced modularity, and areas where professional automotive configurator standards are not yet met.
 
 ---
@@ -12,6 +13,7 @@ Perform a comprehensive software architecture review, UX audit, and feature gap 
 Analyze the current feature set against industry-standard automotive configurators (e.g., Porsche, BMW, Tesla configurators) and identify gaps:
 
 #### Model & Asset Management
+
 - [ ] **Model Library/Catalog System**: Is there a structured model catalog with metadata (make, model, year, category, tags)?
 - [ ] **LOD (Level of Detail) Switching**: Does the system dynamically swap mesh resolution based on camera distance or performance metrics?
 - [ ] **Lazy Loading / Progressive Loading**: Are high-res textures and geometry streamed progressively?
@@ -20,6 +22,7 @@ Analyze the current feature set against industry-standard automotive configurato
 - [ ] **Model Comparison Mode**: Side-by-side or overlay comparison of different models/configurations?
 
 #### Material & Paint System
+
 - [ ] **Two-Tone Paint**: Support for dual-color schemes (roof vs body)?
 - [ ] **Metallic Flake Visualization**: Sparkle/flake effect in paint materials?
 - [ ] **Paint Swatch Presets**: Curated OEM color palettes with official color codes?
@@ -28,6 +31,7 @@ Analyze the current feature set against industry-standard automotive configurato
 - [ ] **Per-Part Material Override**: Paint individual body panels different colors?
 
 #### Lighting & Environment
+
 - [ ] **HDR Environment Upload**: Custom HDRI/EXR skybox upload?
 - [ ] **Time-of-Day Slider**: Animated sun position with realistic sky gradients?
 - [ ] **Weather Effects**: Rain droplets on paint, wet reflections, fog/mist?
@@ -36,6 +40,7 @@ Analyze the current feature set against industry-standard automotive configurato
 - [ ] **Ambient Occlusion Control**: User-adjustable SSAO intensity and radius?
 
 #### Camera & Composition
+
 - [ ] **Focal Length Presets**: 24mm, 35mm, 50mm, 85mm, 135mm with proper perspective distortion?
 - [ ] **Depth of Field**: Adjustable aperture with bokeh preview?
 - [ ] **Rule of Thirds Grid Overlay**: Composition guide for screenshots?
@@ -44,12 +49,14 @@ Analyze the current feature set against industry-standard automotive configurato
 - [ ] **VR/AR Mode Toggle**: WebXR integration for immersive viewing?
 
 #### Annotation & Hotspots
+
 - [ ] **Feature Hotspot Authoring**: Admin/user can place clickable info points on model?
 - [ ] **Hotspot Content Types**: Text, images, video, links, specifications?
 - [ ] **Hotspot Visibility Toggle**: Show/hide all annotations?
 - [ ] **Guided Tour Mode**: Sequential hotspot walkthrough with narration?
 
 #### Configuration & Options
+
 - [ ] **Wheel/Rim Configurator**: Browse and swap wheel styles?
 - [ ] **Interior Configurator**: Seat materials, dashboard trims, steering wheel options?
 - [ ] **Accessory Add-Ons**: Spoilers, body kits, roof racks as toggleable meshes?
@@ -58,6 +65,7 @@ Analyze the current feature set against industry-standard automotive configurato
 - [ ] **Configuration Summary Export**: PDF/image spec sheet generation?
 
 #### Animation & Interactivity
+
 - [ ] **Door/Hood/Trunk Animations**: Are these properly rigged with easing curves?
 - [ ] **Window Raise/Lower**: Animated glass transitions?
 - [ ] **Convertible Top Animation**: Roof open/close for applicable models?
@@ -67,6 +75,7 @@ Analyze the current feature set against industry-standard automotive configurato
 - [ ] **Turn Signal Animation**: Blinking indicator lights?
 
 #### Performance & Optimization
+
 - [ ] **GPU Instancing**: Repeated geometry (e.g., bolts, vents) using instanced meshes?
 - [ ] **Texture Atlasing**: Combined texture maps to reduce draw calls?
 - [ ] **Occlusion Culling**: Skip rendering of non-visible geometry?
@@ -75,6 +84,7 @@ Analyze the current feature set against industry-standard automotive configurato
 - [ ] **Service Worker Caching**: Offline-capable model/texture caching?
 
 #### Export & Sharing
+
 - [ ] **High-Resolution Render**: 4K+ screenshot with supersampling?
 - [ ] **Video Recording**: WebM/MP4 capture of viewport?
 - [ ] **AR Quick Look**: USDZ export for iOS AR preview?
@@ -83,6 +93,7 @@ Analyze the current feature set against industry-standard automotive configurato
 - [ ] **Deep Link State Serialization**: Full configuration encoded in shareable URL?
 
 #### Accessibility & Localization
+
 - [ ] **Keyboard Navigation**: Full panel/control navigation without mouse?
 - [ ] **Screen Reader Announcements**: ARIA live regions for state changes?
 - [ ] **Reduced Motion Mode**: Disable auto-rotate and animations for vestibular sensitivity?
@@ -95,9 +106,11 @@ Analyze the current feature set against industry-standard automotive configurato
 ### 2. INFORMATION ARCHITECTURE & UX ANALYSIS
 
 #### Menu Structure & Navigation
+
 Evaluate the current panel section ordering and hierarchy:
 
 **Current Section Order:**
+
 1. Presets
 2. Tools
 3. Model
@@ -113,6 +126,7 @@ Evaluate the current panel section ordering and hierarchy:
 13. Post
 
 **Recommended Priority-Based Reordering (most-used first):**
+
 ```
 1. Model (primary action - what am I viewing?)
 2. Look/Paint (most common customization)
@@ -129,6 +143,7 @@ Evaluate the current panel section ordering and hierarchy:
 ```
 
 **Questions to Address:**
+
 - [ ] Should sections be collapsible by default based on user role (casual vs power user)?
 - [ ] Is there a "Quick Start" or "Getting Started" wizard for first-time users?
 - [ ] Should frequently-used controls be pinned to a persistent quick-access bar?
@@ -136,6 +151,7 @@ Evaluate the current panel section ordering and hierarchy:
 - [ ] Are related controls grouped logically (e.g., all color pickers together)?
 
 #### Control Density & Cognitive Load
+
 - [ ] **Progressive Disclosure**: Are advanced options hidden until needed?
 - [ ] **Sensible Defaults**: Do default values represent optimal starting points?
 - [ ] **Reset Buttons**: Can users reset individual sections, not just everything?
@@ -145,6 +161,7 @@ Evaluate the current panel section ordering and hierarchy:
 - [ ] **Input Validation**: Are out-of-range values handled gracefully?
 
 #### Mobile UX Considerations
+
 - [ ] **Bottom Sheet Snap Points**: Are peek/half/full states intuitive?
 - [ ] **Gesture Conflicts**: Does panel drag conflict with canvas orbit?
 - [ ] **Touch Target Sizes**: Are all interactive elements ≥44px?
@@ -156,20 +173,24 @@ Evaluate the current panel section ordering and hierarchy:
 ### 3. CODE ARCHITECTURE & MODULARITY ANALYSIS
 
 #### Current Architecture Assessment
+
 Analyze the TypeScript implementation for:
 
 **Separation of Concerns:**
+
 - [ ] Is Three.js scene management decoupled from UI state management?
 - [ ] Are DOM event handlers isolated from rendering logic?
 - [ ] Is there a clear boundary between "engine" and "application" code?
 
 **State Management:**
+
 - [ ] Is application state centralized or scattered across closures?
 - [ ] Are state updates predictable and traceable?
 - [ ] Is there support for state persistence (localStorage, URL params)?
 - [ ] Can state be serialized/deserialized for presets?
 
 **Module Decomposition Recommendations:**
+
 ```
 src/scripts/car-showroom/
 ├── core/
@@ -201,6 +222,7 @@ src/scripts/car-showroom/
 ```
 
 **Design Patterns to Apply:**
+
 - [ ] **Observer Pattern**: Event emitter for cross-module communication?
 - [ ] **Strategy Pattern**: Swappable rendering/quality strategies?
 - [ ] **Factory Pattern**: Material/mesh creation abstraction?
@@ -208,6 +230,7 @@ src/scripts/car-showroom/
 - [ ] **Singleton vs DI**: Is there proper dependency injection or global singletons?
 
 #### Performance Optimization Checklist
+
 - [ ] **Render Loop Efficiency**: Is `requestAnimationFrame` properly managed?
 - [ ] **Unnecessary Re-renders**: Are materials/uniforms only updated on change?
 - [ ] **Event Listener Cleanup**: Are listeners removed on component unmount?
@@ -220,23 +243,27 @@ src/scripts/car-showroom/
 ### 4. ADVANCED FEATURE OPPORTUNITIES
 
 #### AI/ML Integration
+
 - [ ] **Paint Color Suggestion**: AI-powered complementary color recommendations?
 - [ ] **Background Removal**: Automatic alpha matte generation?
 - [ ] **Style Transfer**: Apply artistic filters to renders?
 - [ ] **Damage Visualization**: Show wear/aging simulation?
 
 #### Real-Time Collaboration
+
 - [ ] **Multiplayer Cursors**: See other users exploring the same car?
 - [ ] **Shared Configuration**: Sync state across multiple viewers?
 - [ ] **Comment/Annotation Threads**: Collaborative feedback on specific views?
 
 #### Analytics & Telemetry
+
 - [ ] **Interaction Heatmaps**: Track which features users engage with?
 - [ ] **Configuration Popularity**: Most-selected color/option combinations?
 - [ ] **Performance Metrics**: Client-side FPS/load time reporting?
 - [ ] **A/B Testing Hooks**: Feature flag integration for experiments?
 
 #### E-Commerce Integration
+
 - [ ] **Add to Cart**: Direct purchase flow integration?
 - [ ] **Dealer Locator**: Find nearest dealership with selected config?
 - [ ] **Finance Calculator**: Monthly payment estimation?
@@ -247,6 +274,7 @@ src/scripts/car-showroom/
 ### 5. TECHNICAL DEBT & CODE QUALITY
 
 #### Refactoring Candidates
+
 - [ ] **Magic Numbers**: Are numeric constants named and documented?
 - [ ] **String Literals**: Are data-attribute selectors centralized?
 - [ ] **Type Safety**: Are there `any` types that should be properly typed?
@@ -255,6 +283,7 @@ src/scripts/car-showroom/
 - [ ] **Documentation**: Are public APIs documented with JSDoc/TSDoc?
 
 #### Build & DevOps
+
 - [ ] **Hot Module Replacement**: Does dev server support live reload?
 - [ ] **Source Maps**: Are production errors traceable?
 - [ ] **Lighthouse Audit**: Performance, accessibility, SEO scores?
@@ -299,4 +328,4 @@ When conducting this analysis:
 
 ---
 
-*This prompt is designed for senior software engineers, technical architects, and UX specialists conducting a thorough audit of a WebGL-based 3D product configurator.*
+_This prompt is designed for senior software engineers, technical architects, and UX specialists conducting a thorough audit of a WebGL-based 3D product configurator._

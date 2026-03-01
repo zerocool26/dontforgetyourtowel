@@ -85,7 +85,7 @@ const quickLinks = [
         <div class="mb-8 flex justify-center">
           <ModernCard
             variant="minimal"
-            className="tone-surface tone-border inline-flex h-24 w-24 items-center justify-center border font-mono text-4xl font-bold text-accent-500"
+            className="tone-surface tone-border inline-flex h-24 w-24 items-center justify-center border font-mono text-4xl font-bold text-[#ccff00]"
             aria-hidden="true"
           >
             404
@@ -108,7 +108,7 @@ const quickLinks = [
         <p class="tone-muted mt-4 font-mono text-sm">
           <span class="sr-only">Requested URL:</span>
           Requested: <code
-            class="tone-border tone-surface break-all border px-2 py-1 text-accent-500"
+            class="tone-border tone-surface break-all border px-2 py-1 text-[#ccff00]"
             id="current-url"
             aria-label="Current URL path"></code>
         </p>
@@ -187,7 +187,7 @@ const quickLinks = [
             {
               quickLinks.map(link => (
                 <a
-                  class="tone-body font-mono text-sm uppercase tracking-wider transition hover:text-accent-500 focus:text-accent-500 focus:underline focus:outline-none"
+                  class="tone-body font-mono text-sm uppercase tracking-wider transition hover:text-[#ccff00] focus:text-[#ccff00] focus:underline focus:outline-none"
                   href={link.href}
                   title={link.description}
                 >

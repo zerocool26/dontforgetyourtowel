@@ -143,7 +143,7 @@ if (!displayReadingTime && Astro.slots.has('default')) {
   <body class="antialiased">
     <a
       href="#main-content"
-      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-sm focus:bg-accent-600 focus:px-4 focus:py-2 focus:text-white focus:outline-none focus:ring-2 focus:ring-accent-400"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-sm focus:bg-[#ccff00] focus:px-4 focus:py-2 focus:text-[#0a0a0a] focus:outline-none focus:ring-2 focus:ring-[#ccff00]"
     >
       Skip to main content
     </a>
@@ -217,14 +217,14 @@ if (!displayReadingTime && Astro.slots.has('default')) {
                   </h2>
                   <ul class="mt-4 grid list-none gap-4 p-0 sm:grid-cols-2">
                     {relatedPosts.map(post => (
-                      <li class="m-0 rounded-xl border border-white/10 bg-zinc-950/40 p-4">
+                      <li class="m-0 rounded-xl border border-white/10 bg-[#030303] p-4">
                         <a
-                          class="text-base font-semibold text-accent-300 hover:underline"
+                          class="text-base font-semibold text-[#ccff00] hover:underline"
                           href={withBasePath(post.url)}
                         >
                           {post.title}
                         </a>
-                        <p class="mt-2 text-sm leading-relaxed text-zinc-300">
+                        <p class="mt-2 text-sm leading-relaxed text-neutral-400">
                           {post.description}
                         </p>
                       </li>

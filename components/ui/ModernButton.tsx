@@ -25,12 +25,18 @@ export default function ModernButton({
   className = '',
   type = 'button',
 }: ModernButtonProps) {
-  const classes = `inline-flex items-center justify-center rounded-xl px-4 py-3 text-sm font-semibold transition-colors ${variantClasses(variant)} ${className}`.trim();
+  const classes =
+    `inline-flex items-center justify-center rounded-xl px-4 py-3 text-sm font-semibold transition-colors ${variantClasses(variant)} ${className}`.trim();
 
   if (href) {
     if (href.startsWith('http') || href.startsWith('mailto:')) {
       return (
-        <a className={classes} href={href} rel="noreferrer" target={href.startsWith('http') ? '_blank' : undefined}>
+        <a
+          className={classes}
+          href={href}
+          rel="noreferrer"
+          target={href.startsWith('http') ? '_blank' : undefined}
+        >
           {children}
         </a>
       );

@@ -46,29 +46,34 @@ const resolvedSecondaryCta =
     class="mx-auto w-full max-w-6xl px-6 pb-12 pt-20 sm:px-10 sm:pb-16 sm:pt-24"
   >
     <div
-      class="pointer-events-none mb-6 rounded-2xl border border-white/10 bg-[radial-gradient(circle_at_30%_25%,rgba(124,58,237,0.12),transparent_60%),radial-gradient(circle_at_70%_45%,rgba(34,211,238,0.1),transparent_60%)] p-3 sm:mb-10"
+      class="pointer-events-none mb-6 rounded-2xl border border-white/5 bg-white/[0.02] p-3 backdrop-blur-xl sm:mb-10"
       aria-hidden="true"
     >
       <div
-        class="h-0.5 w-full rounded-full bg-gradient-to-r from-accent-500/30 via-white/10 to-violet-500/30"
+        class="h-px w-full rounded-full bg-gradient-to-r from-transparent via-white/40 to-transparent"
       >
       </div>
     </div>
 
     <div
-      class="bg-space-950/40 relative overflow-hidden rounded-2xl border border-white/10"
+      class="relative overflow-hidden rounded-2xl border border-white/10 bg-[#050505]/60 shadow-[0_0_80px_rgba(0,0,0,0.8)]"
       data-hero-canvas-shell
     >
-      <div class="relative h-[46vh] max-h-[560px] min-h-[320px] sm:h-[54vh]">
-        <HeroCanvas className="opacity-100" variant="skyline" />
+      <div
+        class="group relative h-[46vh] max-h-[560px] min-h-[320px] sm:h-[54vh]"
+      >
+        <HeroCanvas
+          className="opacity-100 transition-transform duration-1000 group-hover:scale-105"
+          variant="skyline"
+        />
 
         <div class="pointer-events-none absolute inset-0">
           <div
-            class="from-space-950/35 via-space-950/10 to-space-950/55 absolute inset-0 bg-gradient-to-b"
+            class="absolute inset-0 bg-gradient-to-b from-[#000000]/80 via-transparent to-[#000000]/80"
           >
           </div>
           <div
-            class="absolute inset-0 bg-[radial-gradient(circle_at_30%_25%,rgba(124,58,237,0.26),transparent_58%),radial-gradient(circle_at_70%_45%,rgba(34,211,238,0.22),transparent_58%)]"
+            class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_30%,#000000_100%)] opacity-80"
           >
           </div>
         </div>
@@ -77,30 +82,34 @@ const resolvedSecondaryCta =
 
     <div class="mt-6 grid gap-6 sm:mt-8">
       <div
-        class="pointer-events-auto rounded-2xl border border-white/10 bg-black/35 p-6 backdrop-blur-xl sm:p-8"
+        class="pointer-events-auto relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] p-6 shadow-2xl backdrop-blur-3xl sm:p-10"
       >
+        <div
+          class="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/[0.04] to-transparent"
+        >
+        </div>
         <p
-          class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 font-mono text-xs tracking-wide text-slate-100"
+          class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-white"
         >
           <span
-            class="h-2 w-2 rounded-full bg-accent-400 shadow-[0_0_20px_rgba(34,211,238,0.7)]"
+            class="h-1.5 w-1.5 rounded-full bg-[#ccff00] shadow-[0_0_12px_rgba(204,255,0,0.8)]"
             aria-hidden="true"></span>
           {badge}
         </p>
 
         <h1
-          class="mt-6 text-balance text-4xl font-semibold tracking-tight text-white sm:text-6xl"
+          class="mt-8 text-balance font-display text-5xl font-medium !leading-[1.05] tracking-tighter text-white sm:text-6xl lg:text-7xl"
         >
           {headline}
         </h1>
         <p
-          class="mt-5 max-w-2xl text-pretty text-base leading-relaxed text-slate-200 sm:text-lg"
+          class="mt-6 max-w-2xl text-pretty text-lg font-light leading-relaxed text-neutral-400 sm:text-xl"
         >
           {subheading}
         </p>
 
         <div
-          class="mt-8 flex flex-col gap-3 sm:mt-9 sm:flex-row sm:flex-wrap sm:items-center"
+          class="mt-10 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center"
         >
           <ModernButton href={resolvedPrimaryCta.href} variant="primary">
             {resolvedPrimaryCta.label}
@@ -110,15 +119,15 @@ const resolvedSecondaryCta =
           </ModernButton>
           <a
             href={withBasePath('contact-hq/')}
-            class="inline-flex min-h-[48px] items-center justify-center rounded-lg border border-white/10 bg-white/5 px-5 text-sm font-semibold text-zinc-200 transition hover:border-white/20 hover:text-white"
+            class="inline-flex min-h-[48px] items-center justify-center rounded-lg border border-white/10 bg-transparent px-5 text-sm font-medium tracking-wide text-neutral-400 transition-all duration-300 hover:border-white/30 hover:text-white"
           >
-            Contact HQ
+            CONTACT HQ
           </a>
           {
             showControls ? (
               <button
                 type="button"
-                class="inline-flex items-center justify-center rounded-md border border-white/15 bg-white/5 px-6 py-3 font-semibold text-white transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-accent-300"
+                class="inline-flex items-center justify-center rounded-md border border-white/15 bg-white/5 px-6 py-3 font-semibold text-white transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-[#ccff00]"
                 data-hero-controls-toggle
                 aria-expanded="false"
                 aria-controls="hero-controls-panel"
@@ -131,17 +140,17 @@ const resolvedSecondaryCta =
 
         <div class="mt-6 flex flex-wrap gap-2">
           <span
-            class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-wide text-zinc-300"
+            class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-wide text-neutral-300"
           >
             Story-driven UI
           </span>
           <span
-            class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-wide text-zinc-300"
+            class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-wide text-neutral-300"
           >
             Motion with intention
           </span>
           <span
-            class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-wide text-zinc-300"
+            class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-wide text-neutral-300"
           >
             Static-first speed
           </span>
@@ -196,7 +205,7 @@ const resolvedSecondaryCta =
                   Tint
                   <input
                     type="color"
-                    value="#22d3ee"
+                    value="#ccff00"
                     class="h-10 w-full rounded-md border border-white/15 bg-white/5 p-1"
                     aria-label="Tint"
                     data-hero-control="tint"
@@ -206,7 +215,7 @@ const resolvedSecondaryCta =
               <div class="mt-4 flex flex-wrap gap-3">
                 <button
                   type="button"
-                  class="inline-flex items-center justify-center rounded-md bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/15 focus:outline-none focus:ring-2 focus:ring-accent-300"
+                  class="inline-flex items-center justify-center rounded-md bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/15 focus:outline-none focus:ring-2 focus:ring-[#ccff00]"
                   data-hero-control="reset"
                 >
                   Reset

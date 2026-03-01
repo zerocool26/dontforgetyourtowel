@@ -18,12 +18,12 @@ const { variant = 'icon', showLabel = false } = Astro.props;
     variant === 'icon' ? (
       <button
         id="theme-toggle"
-        class="theme-toggle-btn inline-flex items-center justify-center w-10 h-10 rounded-lg border border-white/15 text-slate-200 hover:border-white/25 hover:text-white transition-all hover:scale-105"
+        class="theme-toggle-btn inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/15 text-slate-200 transition-all hover:scale-105 hover:border-white/25 hover:text-white"
         aria-label="Toggle theme"
         title="Toggle theme"
       >
         <svg
-          class="theme-icon sun-icon w-5 h-5"
+          class="theme-icon sun-icon h-5 w-5"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -36,7 +36,7 @@ const { variant = 'icon', showLabel = false } = Astro.props;
           />
         </svg>
         <svg
-          class="theme-icon moon-icon w-5 h-5 hidden"
+          class="theme-icon moon-icon hidden h-5 w-5"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -49,7 +49,7 @@ const { variant = 'icon', showLabel = false } = Astro.props;
           />
         </svg>
         <svg
-          class="theme-icon system-icon w-5 h-5 hidden"
+          class="theme-icon system-icon hidden h-5 w-5"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -65,11 +65,11 @@ const { variant = 'icon', showLabel = false } = Astro.props;
     ) : variant === 'button' ? (
       <button
         id="theme-toggle"
-        class="theme-toggle-btn inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-white/15 text-slate-200 hover:border-white/25 hover:text-white transition-all hover:scale-105"
+        class="theme-toggle-btn inline-flex items-center gap-2 rounded-lg border border-white/15 px-4 py-2 text-slate-200 transition-all hover:scale-105 hover:border-white/25 hover:text-white"
         aria-label="Toggle theme"
       >
         <svg
-          class="theme-icon sun-icon w-4 h-4"
+          class="theme-icon sun-icon h-4 w-4"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -82,7 +82,7 @@ const { variant = 'icon', showLabel = false } = Astro.props;
           />
         </svg>
         <svg
-          class="theme-icon moon-icon w-4 h-4 hidden"
+          class="theme-icon moon-icon hidden h-4 w-4"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -95,7 +95,7 @@ const { variant = 'icon', showLabel = false } = Astro.props;
           />
         </svg>
         <svg
-          class="theme-icon system-icon w-4 h-4 hidden"
+          class="theme-icon system-icon hidden h-4 w-4"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -115,13 +115,13 @@ const { variant = 'icon', showLabel = false } = Astro.props;
       <div class="relative">
         <button
           id="theme-toggle"
-          class="theme-toggle-btn inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-white/15 text-slate-200 hover:border-white/25 hover:text-white transition-all"
+          class="theme-toggle-btn inline-flex items-center gap-2 rounded-lg border border-white/15 px-4 py-2 text-slate-200 transition-all hover:border-white/25 hover:text-white"
           aria-label="Toggle theme"
           aria-haspopup="true"
           aria-expanded="false"
         >
           <svg
-            class="theme-icon sun-icon w-4 h-4"
+            class="theme-icon sun-icon h-4 w-4"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -134,7 +134,7 @@ const { variant = 'icon', showLabel = false } = Astro.props;
             />
           </svg>
           <svg
-            class="theme-icon moon-icon w-4 h-4 hidden"
+            class="theme-icon moon-icon hidden h-4 w-4"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -147,7 +147,7 @@ const { variant = 'icon', showLabel = false } = Astro.props;
             />
           </svg>
           <svg
-            class="theme-icon system-icon w-4 h-4 hidden"
+            class="theme-icon system-icon hidden h-4 w-4"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -161,7 +161,7 @@ const { variant = 'icon', showLabel = false } = Astro.props;
           </svg>
           <span class="text-sm">Theme</span>
           <svg
-            class="w-4 h-4"
+            class="h-4 w-4"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -177,16 +177,16 @@ const { variant = 'icon', showLabel = false } = Astro.props;
 
         <div
           id="theme-menu"
-          class="absolute right-0 mt-2 w-48 rounded-lg border border-white/15 bg-slate-900/95 backdrop-blur-lg shadow-lg hidden z-50"
+          class="absolute right-0 z-50 mt-2 hidden w-48 rounded-lg border border-white/15 bg-slate-900/95 shadow-lg backdrop-blur-lg"
           role="menu"
         >
           <button
-            class="theme-option w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-white/5 hover:text-white transition-colors rounded-t-lg"
+            class="theme-option flex w-full items-center gap-3 rounded-t-lg px-4 py-3 text-sm text-slate-300 transition-colors hover:bg-white/5 hover:text-white"
             data-theme="light"
             role="menuitem"
           >
             <svg
-              class="w-4 h-4"
+              class="h-4 w-4"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -200,7 +200,7 @@ const { variant = 'icon', showLabel = false } = Astro.props;
             </svg>
             <span>Light Mode</span>
             <svg
-              class="w-4 h-4 ml-auto hidden check-icon"
+              class="check-icon ml-auto hidden h-4 w-4"
               fill="currentColor"
               viewBox="0 0 20 20"
             >
@@ -212,12 +212,12 @@ const { variant = 'icon', showLabel = false } = Astro.props;
             </svg>
           </button>
           <button
-            class="theme-option w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-white/5 hover:text-white transition-colors"
+            class="theme-option flex w-full items-center gap-3 px-4 py-3 text-sm text-slate-300 transition-colors hover:bg-white/5 hover:text-white"
             data-theme="dark"
             role="menuitem"
           >
             <svg
-              class="w-4 h-4"
+              class="h-4 w-4"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -231,7 +231,7 @@ const { variant = 'icon', showLabel = false } = Astro.props;
             </svg>
             <span>Dark Mode</span>
             <svg
-              class="w-4 h-4 ml-auto hidden check-icon"
+              class="check-icon ml-auto hidden h-4 w-4"
               fill="currentColor"
               viewBox="0 0 20 20"
             >
@@ -243,12 +243,12 @@ const { variant = 'icon', showLabel = false } = Astro.props;
             </svg>
           </button>
           <button
-            class="theme-option w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-white/5 hover:text-white transition-colors rounded-b-lg"
+            class="theme-option flex w-full items-center gap-3 rounded-b-lg px-4 py-3 text-sm text-slate-300 transition-colors hover:bg-white/5 hover:text-white"
             data-theme="system"
             role="menuitem"
           >
             <svg
-              class="w-4 h-4"
+              class="h-4 w-4"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -262,7 +262,7 @@ const { variant = 'icon', showLabel = false } = Astro.props;
             </svg>
             <span>System</span>
             <svg
-              class="w-4 h-4 ml-auto hidden check-icon"
+              class="check-icon ml-auto hidden h-4 w-4"
               fill="currentColor"
               viewBox="0 0 20 20"
             >

@@ -4,7 +4,7 @@ import { glob } from 'astro/loaders';
 
 const blog = defineCollection({
   loader: glob({
-    base: './src/content/blog',
+    base: './src/data/blog',
     pattern: '**/*.{md,mdx}',
   }),
   schema: ({ image }: { image: ImageFunction }) =>
@@ -21,7 +21,7 @@ const blog = defineCollection({
 
 const caseStudies = defineCollection({
   loader: glob({
-    base: './src/content/case-studies',
+    base: './src/data/case-studies',
     pattern: '**/*.{md,mdx}',
   }),
   schema: ({ image }: { image: ImageFunction }) =>
@@ -55,7 +55,7 @@ const caseStudies = defineCollection({
 
 const testimonials = defineCollection({
   loader: glob({
-    base: './src/content/testimonials',
+    base: './src/data/testimonials',
     pattern: '**/*.{md,mdx}',
   }),
   schema: z.object({

@@ -9,38 +9,44 @@ export interface Props {
 const { title, framework, color, client = 'visible' } = Astro.props;
 ---
 
-<div class="relative group">
+<div class="group relative">
   <!-- Framework indicator -->
-  <div class="absolute -top-2 -right-2 z-10">
-    <div 
-      class="px-3 py-1 rounded-full text-xs font-semibold text-white shadow-lg"
+  <div class="absolute -right-2 -top-2 z-10">
+    <div
+      class="rounded-full px-3 py-1 text-xs font-semibold text-white shadow-lg"
       style={`background: ${color}; box-shadow: 0 0 15px ${color}50;`}
     >
       {framework}
     </div>
   </div>
-  
+
   <!-- Hydration indicator -->
-  <div class="absolute -top-2 -left-2 z-10">
-    <div class="px-2 py-1 bg-blue-500 text-white text-xs rounded-full font-mono">
+  <div class="absolute -left-2 -top-2 z-10">
+    <div
+      class="rounded-full bg-blue-500 px-2 py-1 font-mono text-xs text-white"
+    >
       client:{client}
     </div>
   </div>
-  
+
   <!-- Main content area -->
-  <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl border border-gray-200 dark:border-gray-700 transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
-    <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-white">
+  <div
+    class="rounded-2xl border border-gray-200 bg-white p-6 shadow-xl transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl dark:border-gray-700 dark:bg-gray-800"
+  >
+    <h3 class="mb-4 text-lg font-semibold text-gray-800 dark:text-white">
       {title}
     </h3>
-    
+
     <div class="relative">
       <slot />
     </div>
-    
+
     <!-- Performance indicator -->
-    <div class="mt-4 flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+    <div
+      class="mt-4 flex items-center justify-between text-sm text-gray-500 dark:text-gray-400"
+    >
       <div class="flex items-center space-x-2">
-        <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+        <div class="h-2 w-2 animate-pulse rounded-full bg-green-400"></div>
         <span>Hydrated</span>
       </div>
       <div class="font-mono text-xs">

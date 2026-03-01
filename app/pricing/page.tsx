@@ -10,7 +10,8 @@ const tiers = [
   {
     name: 'Essentials',
     price: '$99 / user / mo',
-    description: 'Reliable foundation for helpdesk, patching, backups, and monitoring.',
+    description:
+      'Reliable foundation for helpdesk, patching, backups, and monitoring.',
     perks: [
       'Monitoring and alerting',
       'Ticketing with response SLAs',
@@ -22,7 +23,8 @@ const tiers = [
   {
     name: 'Growth',
     price: '$149 / user / mo',
-    description: 'Best fit for growing teams that need stronger security and proactive IT.',
+    description:
+      'Best fit for growing teams that need stronger security and proactive IT.',
     perks: [
       'Everything in Essentials',
       'Identity hardening (MFA and SSO)',
@@ -34,7 +36,8 @@ const tiers = [
   {
     name: 'Secure+',
     price: '$199 / user / mo',
-    description: 'Advanced security coverage and incident readiness for regulated environments.',
+    description:
+      'Advanced security coverage and incident readiness for regulated environments.',
     perks: [
       'Everything in Growth',
       'Managed EDR and response playbooks',
@@ -46,7 +49,8 @@ const tiers = [
   {
     name: 'Custom',
     price: 'Quoted',
-    description: 'Complex environments, multi-site networks, or dedicated vCISO requirements.',
+    description:
+      'Complex environments, multi-site networks, or dedicated vCISO requirements.',
     perks: [
       'Custom device and server-based pricing',
       'Custom SLA and escalation paths',
@@ -89,29 +93,44 @@ export default function Page() {
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(0,102,255,0.16),_transparent_55%)]" />
         <div className="mx-auto max-w-[1220px] px-6">
           <RevealOnScroll animation="slide-up" className="max-w-3xl space-y-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.32em] text-zinc-400">Pricing</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.32em] text-zinc-400">
+              Pricing
+            </p>
             <h1 className="text-4xl font-bold text-white sm:text-5xl">
               Plans that scale with your business—
               <span className="text-accent-300"> without surprises.</span>
             </h1>
             <p className="text-base text-zinc-300">
-              Pricing is typically per user, with add-ons for security depth and compliance scope.
-              We’ll confirm best fit in a free consultation.
+              Pricing is typically per user, with add-ons for security depth and
+              compliance scope. We’ll confirm best fit in a free consultation.
             </p>
             <div className="flex flex-col gap-3 sm:flex-row">
-              <ModernButton className="min-h-[48px]" href="/services" variant="secondary">
+              <ModernButton
+                className="min-h-[48px]"
+                href="/services"
+                variant="secondary"
+              >
                 Review services
               </ModernButton>
-              <ModernButton className="min-h-[48px]" href={requestQuoteHref} variant="primary">
+              <ModernButton
+                className="min-h-[48px]"
+                href={requestQuoteHref}
+                variant="primary"
+              >
                 Get a quote
               </ModernButton>
             </div>
           </RevealOnScroll>
 
-          <ModernCard className="mt-10 border-white/10 bg-white/5 p-6" variant="minimal">
+          <ModernCard
+            className="mt-10 border-white/10 bg-white/5 p-6"
+            variant="minimal"
+          >
             <p className="text-sm text-zinc-300">
-              <span className="font-semibold text-white">All plans include</span> onboarding, documented runbooks,
-              and monthly reporting.
+              <span className="font-semibold text-white">
+                All plans include
+              </span>{' '}
+              onboarding, documented runbooks, and monthly reporting.
             </p>
           </ModernCard>
         </div>
@@ -121,14 +140,28 @@ export default function Page() {
         <div className="mx-auto max-w-[1220px] px-6 py-16">
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
             {tiers.map((tier, index) => (
-              <RevealOnScroll animation="slide-up" delay={index * 75} key={tier.name}>
+              <RevealOnScroll
+                animation="slide-up"
+                delay={index * 75}
+                key={tier.name}
+              >
                 <ModernCard
-                  className={tier.highlight ? 'border-accent-400/50 bg-zinc-950 p-6' : 'border-white/10 bg-zinc-950/60 p-6'}
+                  className={
+                    tier.highlight
+                      ? 'border-accent-400/50 bg-zinc-950 p-6'
+                      : 'border-white/10 bg-zinc-950/60 p-6'
+                  }
                   variant="minimal"
                 >
-                  <p className="text-sm font-semibold text-white">{tier.name}</p>
-                  <p className="mt-2 text-xl font-bold text-accent-300">{tier.price}</p>
-                  <p className="mt-2 text-sm text-zinc-300">{tier.description}</p>
+                  <p className="text-sm font-semibold text-white">
+                    {tier.name}
+                  </p>
+                  <p className="mt-2 text-xl font-bold text-accent-300">
+                    {tier.price}
+                  </p>
+                  <p className="mt-2 text-sm text-zinc-300">
+                    {tier.description}
+                  </p>
                   <ul className="mt-4 space-y-2 text-xs text-zinc-300">
                     {tier.perks.map(perk => (
                       <li className="flex items-start gap-2" key={perk}>
@@ -137,7 +170,11 @@ export default function Page() {
                       </li>
                     ))}
                   </ul>
-                  <ModernButton className="mt-5 w-full" href={requestQuoteHref} variant={tier.highlight ? 'primary' : 'secondary'}>
+                  <ModernButton
+                    className="mt-5 w-full"
+                    href={requestQuoteHref}
+                    variant={tier.highlight ? 'primary' : 'secondary'}
+                  >
                     {tier.highlight ? 'Choose Growth' : 'Talk to sales'}
                   </ModernButton>
                 </ModernCard>
@@ -145,7 +182,8 @@ export default function Page() {
             ))}
           </div>
           <p className="mt-6 text-xs text-zinc-500">
-            Prices are illustrative. Final pricing depends on device counts, server footprint, compliance scope, and SLA.
+            Prices are illustrative. Final pricing depends on device counts,
+            server footprint, compliance scope, and SLA.
           </p>
         </div>
       </section>
@@ -154,9 +192,12 @@ export default function Page() {
         <div className="mx-auto max-w-[1220px] px-6 py-20">
           <div className="grid gap-10 lg:grid-cols-2 lg:items-start">
             <RevealOnScroll animation="slide-up" className="space-y-4">
-              <h2 className="text-3xl font-semibold text-white">Estimate your monthly cost</h2>
+              <h2 className="text-3xl font-semibold text-white">
+                Estimate your monthly cost
+              </h2>
               <p className="text-sm text-zinc-300">
-                Use this calculator for a ballpark estimate. We’ll validate assumptions and produce a detailed quote in discovery.
+                Use this calculator for a ballpark estimate. We’ll validate
+                assumptions and produce a detailed quote in discovery.
               </p>
             </RevealOnScroll>
             <PricingCalculator />
@@ -168,10 +209,13 @@ export default function Page() {
         <div className="mx-auto max-w-[1220px] px-6 py-20">
           <div className="grid gap-10 lg:grid-cols-2 lg:items-start">
             <RevealOnScroll animation="slide-up" className="space-y-4">
-              <h2 className="text-3xl font-semibold text-white">Estimate ROI</h2>
+              <h2 className="text-3xl font-semibold text-white">
+                Estimate ROI
+              </h2>
               <p className="text-sm text-zinc-300">
-                A quick planning tool to evaluate payback periods. Real savings often come from reduced downtime,
-                stronger security controls, and fewer emergency projects.
+                A quick planning tool to evaluate payback periods. Real savings
+                often come from reduced downtime, stronger security controls,
+                and fewer emergency projects.
               </p>
             </RevealOnScroll>
             <ROICalculator />
@@ -183,7 +227,10 @@ export default function Page() {
         <div className="mx-auto max-w-[1220px] px-6 py-20">
           <RevealOnScroll animation="slide-up" className="max-w-3xl space-y-4">
             <h2 className="text-3xl font-semibold text-white">FAQs</h2>
-            <p className="text-sm text-zinc-300">If you don’t see your question here, email us and we’ll walk you through options.</p>
+            <p className="text-sm text-zinc-300">
+              If you don’t see your question here, email us and we’ll walk you
+              through options.
+            </p>
           </RevealOnScroll>
           <RevealOnScroll animation="slide-up" className="mt-10">
             <FAQAccordion items={faqs} />
@@ -194,12 +241,19 @@ export default function Page() {
       <section className="border-t border-white/5 bg-zinc-900/30" id="contact">
         <div className="mx-auto max-w-[1220px] px-6 py-20">
           <div className="rounded-2xl border border-white/10 bg-white/5 p-8">
-            <h2 className="text-2xl font-semibold text-white">Request a quote</h2>
+            <h2 className="text-2xl font-semibold text-white">
+              Request a quote
+            </h2>
             <p className="mt-3 max-w-2xl text-sm text-zinc-300">
-              Email your user/device counts, key apps, and compliance needs. We’ll respond with a best-fit plan.
+              Email your user/device counts, key apps, and compliance needs.
+              We’ll respond with a best-fit plan.
             </p>
             <div className="mt-6">
-              <ModernButton className="min-h-[48px]" href={requestQuoteHref} variant="primary">
+              <ModernButton
+                className="min-h-[48px]"
+                href={requestQuoteHref}
+                variant="primary"
+              >
                 Email for a quote
               </ModernButton>
             </div>
@@ -209,4 +263,3 @@ export default function Page() {
     </>
   );
 }
-

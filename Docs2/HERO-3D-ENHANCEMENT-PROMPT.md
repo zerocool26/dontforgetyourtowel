@@ -5,6 +5,7 @@
 You are enhancing an Astro-based static site (deployed to GitHub Pages) with an ultra-premium 3D hero experience. The codebase already contains advanced CSS 3D components (OrbitalArray, PrismaticSphere, InfinityTunnel, Advanced3DShowcase) demonstrating proficiency with `transform-style: preserve-3d`, perspective transforms, complex animations, and performance-conscious patterns.
 
 **Current Tech Stack:**
+
 - Astro 5.x with TypeScript
 - Tailwind CSS 4.x
 - Pure CSS 3D transforms (no Three.js/WebGL - must remain static-compatible)
@@ -13,6 +14,7 @@ You are enhancing an Astro-based static site (deployed to GitHub Pages) with an 
 - Performance modes for mobile/low-power devices
 
 **Current OrbitalArray.astro baseline:**
+
 - Simple orbital ring system with rotating dots/satellites
 - Conic gradient halo effect
 - Pulsing core with glow
@@ -24,6 +26,7 @@ You are enhancing an Astro-based static site (deployed to GitHub Pages) with an 
 ## Enhancement Objective
 
 Transform OrbitalArray into a **2026-standard hero centerpiece** that:
+
 1. Immediately captures attention as the first thing visitors see
 2. Creates a "wow factor" moment that establishes premium brand perception
 3. Remains performant on static hosting (no server-side rendering needed)
@@ -50,6 +53,7 @@ LAYER STRUCTURE (front to back):
 ```
 
 **Geometric primitives to implement:**
+
 - Icosahedral wireframe structure (20-sided, CSS clip-path based)
 - Toroidal energy rings with flowing gradient animation
 - Fractal-like recursive scaling elements
@@ -58,6 +62,7 @@ LAYER STRUCTURE (front to back):
 ### 2. Advanced Animation Choreography
 
 **Timeline-based entrance sequence (CSS @keyframes orchestration):**
+
 ```
 0ms:     Grid fades in from below
 200ms:   Core materializes (scale 0→1 with overshoot)
@@ -69,6 +74,7 @@ LAYER STRUCTURE (front to back):
 ```
 
 **Steady-state animations (must loop seamlessly):**
+
 - Orbital rings: Different speeds, different rotation axes
 - Core: Breathing pulse with chromatic aberration effect
 - Particles: Brownian-motion-like drift
@@ -78,6 +84,7 @@ LAYER STRUCTURE (front to back):
 ### 3. Mouse/Pointer Interactivity (Desktop Only)
 
 Implement gyroscope-like tilt response:
+
 ```javascript
 // Pseudocode for effect
 onPointerMove(e) {
@@ -88,6 +95,7 @@ onPointerMove(e) {
 ```
 
 **Interactivity requirements:**
+
 - Use `requestAnimationFrame` for smooth updates
 - Implement pointer lock optional (for drag-rotate)
 - Add magnetic pull toward cursor for particles
@@ -101,8 +109,8 @@ onPointerMove(e) {
 ```css
 /* Chromatic aberration on core */
 .core-element {
-  filter: drop-shadow(2px 0 0 rgba(255,0,0,0.3))
-          drop-shadow(-2px 0 0 rgba(0,255,255,0.3));
+  filter: drop-shadow(2px 0 0 rgba(255, 0, 0, 0.3))
+    drop-shadow(-2px 0 0 rgba(0, 255, 255, 0.3));
 }
 
 /* Scan line overlay */
@@ -111,16 +119,25 @@ onPointerMove(e) {
     0deg,
     transparent,
     transparent 2px,
-    rgba(0,0,0,0.1) 2px,
-    rgba(0,0,0,0.1) 4px
+    rgba(0, 0, 0, 0.1) 2px,
+    rgba(0, 0, 0, 0.1) 4px
   );
 }
 
 /* Glitch effect (on hover/periodic) */
 @keyframes glitch {
-  0%, 100% { clip-path: inset(0 0 0 0); }
-  20% { clip-path: inset(20% 0 30% 0); transform: translateX(-5px); }
-  40% { clip-path: inset(50% 0 10% 0); transform: translateX(5px); }
+  0%,
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+  20% {
+    clip-path: inset(20% 0 30% 0);
+    transform: translateX(-5px);
+  }
+  40% {
+    clip-path: inset(50% 0 10% 0);
+    transform: translateX(5px);
+  }
 }
 
 /* Holographic foil gradient */
@@ -154,6 +171,7 @@ Add "live" data streams to reinforce tech/premium feel:
 ```
 
 **Visual data elements:**
+
 - Binary streams (0s and 1s flowing)
 - HEX color codes floating
 - Coordinate readouts (X:0.00 Y:0.00 Z:0.00)
@@ -190,6 +208,7 @@ Add "live" data streams to reinforce tech/premium feel:
 ```
 
 **CSS containment for performance:**
+
 ```css
 .hero-3d-container {
   contain: layout style paint;
@@ -199,6 +218,7 @@ Add "live" data streams to reinforce tech/premium feel:
 ```
 
 **GPU acceleration hints:**
+
 ```css
 .animated-element {
   will-change: transform, opacity;
@@ -251,20 +271,20 @@ Add "live" data streams to reinforce tech/premium feel:
 ```css
 :root {
   /* Core accent colors */
-  --hero-primary: 99, 102, 241;      /* Indigo-500 */
-  --hero-secondary: 168, 85, 247;    /* Purple-500 */
-  --hero-accent: 236, 72, 153;       /* Pink-500 */
-  --hero-cyber: 6, 182, 212;         /* Cyan-500 */
+  --hero-primary: 99, 102, 241; /* Indigo-500 */
+  --hero-secondary: 168, 85, 247; /* Purple-500 */
+  --hero-accent: 236, 72, 153; /* Pink-500 */
+  --hero-cyber: 6, 182, 212; /* Cyan-500 */
 
   /* Glow intensities */
   --glow-soft: 0.3;
   --glow-medium: 0.6;
-  --glow-intense: 1.0;
+  --glow-intense: 1;
 
   /* Background layers */
-  --bg-void: #030712;               /* Near black */
-  --bg-deep: #0f172a;               /* Slate-900 */
-  --bg-surface: #1e293b;            /* Slate-800 */
+  --bg-void: #030712; /* Near black */
+  --bg-deep: #0f172a; /* Slate-900 */
+  --bg-surface: #1e293b; /* Slate-800 */
 }
 ```
 
@@ -348,12 +368,9 @@ interface HeroProps {
 import {
   getDemoModuleRoot,
   isDemoPaused,
-  observeDemoLabFlags
+  observeDemoLabFlags,
 } from '@/utils/demo-lab';
-import {
-  onReducedMotionChange,
-  prefersReducedMotion
-} from '@/utils/a11y';
+import { onReducedMotionChange, prefersReducedMotion } from '@/utils/a11y';
 
 class Hero3DController {
   private container: HTMLElement;
@@ -401,42 +418,49 @@ document.querySelectorAll('[data-hero-3d]').forEach(el => {
 ## Implementation Checklist
 
 ### Phase 1: Core Structure
+
 - [ ] Create new `Hero3DUltra.astro` component
 - [ ] Implement base HTML structure with all layers
 - [ ] Set up CSS custom properties system
 - [ ] Add basic keyframe animations
 
 ### Phase 2: 3D Geometry
+
 - [ ] Implement crystalline core (icosahedron approximation)
 - [ ] Create orbital ring system with independent rotations
 - [ ] Add energy beam connectors
 - [ ] Build particle field layer
 
 ### Phase 3: Visual Polish
+
 - [ ] Add holographic gradient effects
 - [ ] Implement chromatic aberration
 - [ ] Create scan line overlay
 - [ ] Add glitch effect triggers
 
 ### Phase 4: Interactivity
+
 - [ ] Mouse tracking with tilt effect
 - [ ] Particle attraction to cursor
 - [ ] Touch gesture support (optional)
 - [ ] Performance throttling
 
 ### Phase 5: Performance
+
 - [ ] Add CSS containment
 - [ ] Implement quality tiers
 - [ ] Test on mobile devices
 - [ ] Add intersection observer pausing
 
 ### Phase 6: Accessibility
+
 - [ ] Add ARIA labels
 - [ ] Implement reduced-motion fallback
 - [ ] Ensure content remains readable
 - [ ] Test with screen readers
 
 ### Phase 7: Integration
+
 - [ ] Replace current hero section usage
 - [ ] Add to Astro component exports
 - [ ] Document props and usage
@@ -447,6 +471,7 @@ document.querySelectorAll('[data-hero-3d]').forEach(el => {
 ## Example Implementations to Reference
 
 **Inspiration Sources (conceptual, implement CSS-only equivalents):**
+
 - Apple Vision Pro marketing pages (layered depth, glass morphism)
 - Stripe's animated gradients (smooth color transitions)
 - Linear's homepage hero (clean 3D, professional)
@@ -454,6 +479,7 @@ document.querySelectorAll('[data-hero-3d]').forEach(el => {
 - Raycast's interface (holographic panels, scan lines)
 
 **CSS-Only 3D Techniques to Study:**
+
 - Ana Tudor's CSS 3D experiments (CodePen)
 - Jhey Tompkins' CSS animations
 - Kevin Powell's CSS transforms tutorials
@@ -478,6 +504,7 @@ The final component should:
 ## Code Style Guidelines
 
 Follow existing codebase patterns:
+
 - Use TypeScript for all scripts
 - Follow Astro component conventions
 - Use CSS custom properties for theming

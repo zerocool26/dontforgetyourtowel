@@ -48,18 +48,18 @@ const blurClasses = {
     variant === 'mesh' && (
       <div class={`absolute inset-0 ${intensityOpacity[intensity]}`}>
         <div
-          class={`absolute top-0 -left-4 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter ${blurClasses[blur]} ${animated ? 'animate-float' : ''}`}
+          class={`absolute -left-4 top-0 h-72 w-72 rounded-full bg-purple-500 mix-blend-multiply filter ${blurClasses[blur]} ${animated ? 'animate-float' : ''}`}
         />
         <div
-          class={`absolute top-0 -right-4 w-72 h-72 bg-yellow-500 rounded-full mix-blend-multiply filter ${blurClasses[blur]} ${animated ? 'animate-float' : ''}`}
+          class={`absolute -right-4 top-0 h-72 w-72 rounded-full bg-yellow-500 mix-blend-multiply filter ${blurClasses[blur]} ${animated ? 'animate-float' : ''}`}
           style="animation-delay: 2s"
         />
         <div
-          class={`absolute -bottom-8 left-20 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter ${blurClasses[blur]} ${animated ? 'animate-float' : ''}`}
+          class={`absolute -bottom-8 left-20 h-72 w-72 rounded-full bg-pink-500 mix-blend-multiply filter ${blurClasses[blur]} ${animated ? 'animate-float' : ''}`}
           style="animation-delay: 4s"
         />
         <div
-          class={`absolute bottom-0 right-20 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter ${blurClasses[blur]} ${animated ? 'animate-float' : ''}`}
+          class={`absolute bottom-0 right-20 h-72 w-72 rounded-full bg-blue-500 mix-blend-multiply filter ${blurClasses[blur]} ${animated ? 'animate-float' : ''}`}
           style="animation-delay: 6s"
         />
       </div>
@@ -70,14 +70,14 @@ const blurClasses = {
     variant === 'orbs' && (
       <div class={`absolute inset-0 ${intensityOpacity[intensity]}`}>
         <div
-          class={`absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-radial from-blue-500 to-transparent rounded-full ${blurClasses[blur]} ${animated ? 'animate-pulse-slow' : ''}`}
+          class={`absolute left-1/4 top-1/4 h-96 w-96 rounded-full bg-gradient-radial from-blue-500 to-transparent ${blurClasses[blur]} ${animated ? 'animate-pulse-slow' : ''}`}
         />
         <div
-          class={`absolute bottom-1/4 right-1/4 w-80 h-80 bg-gradient-radial from-purple-500 to-transparent rounded-full ${blurClasses[blur]} ${animated ? 'animate-pulse-slow' : ''}`}
+          class={`absolute bottom-1/4 right-1/4 h-80 w-80 rounded-full bg-gradient-radial from-purple-500 to-transparent ${blurClasses[blur]} ${animated ? 'animate-pulse-slow' : ''}`}
           style="animation-delay: 1.5s"
         />
         <div
-          class={`absolute top-1/2 right-1/3 w-64 h-64 bg-gradient-radial from-pink-500 to-transparent rounded-full ${blurClasses[blur]} ${animated ? 'animate-pulse-slow' : ''}`}
+          class={`absolute right-1/3 top-1/2 h-64 w-64 rounded-full bg-gradient-radial from-pink-500 to-transparent ${blurClasses[blur]} ${animated ? 'animate-pulse-slow' : ''}`}
           style="animation-delay: 3s"
         />
       </div>
@@ -106,7 +106,7 @@ const blurClasses = {
       <div class={`absolute inset-0 ${intensityOpacity[intensity]}`}>
         {Array.from({ length: 20 }).map(() => (
           <div
-            class={`absolute w-1 h-1 bg-white rounded-full ${animated ? 'animate-float' : ''}`}
+            class={`absolute h-1 w-1 rounded-full bg-white ${animated ? 'animate-float' : ''}`}
             style={`
             top: ${Math.random() * 100}%;
             left: ${Math.random() * 100}%;

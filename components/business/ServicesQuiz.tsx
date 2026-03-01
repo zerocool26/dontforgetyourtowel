@@ -87,8 +87,12 @@ export default function ServicesQuiz() {
     <section className="rounded-2xl border border-white/10 bg-white/5 p-6">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-400">Find your perfect IT solution</p>
-          <h3 className="mt-2 text-xl font-semibold text-white">60-second services quiz</h3>
+          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-400">
+            Find your perfect IT solution
+          </p>
+          <h3 className="mt-2 text-xl font-semibold text-white">
+            60-second services quiz
+          </h3>
         </div>
         <div className="text-right">
           <p className="text-xs text-zinc-400">Progress</p>
@@ -105,7 +109,9 @@ export default function ServicesQuiz() {
 
       {!isComplete ? (
         <div className="mt-6">
-          <p className="text-sm font-semibold text-white">{QUESTIONS[step]?.title}</p>
+          <p className="text-sm font-semibold text-white">
+            {QUESTIONS[step]?.title}
+          </p>
           <div className="mt-4 grid gap-3">
             {QUESTIONS[step]?.options.map(option => (
               <button
@@ -125,9 +131,15 @@ export default function ServicesQuiz() {
       ) : (
         <div className="mt-6">
           <p className="text-sm text-zinc-300">Recommended starting point</p>
-          <p className="mt-2 text-lg font-semibold text-white">{result ? recommendationLabel(result) : '—'}</p>
+          <p className="mt-2 text-lg font-semibold text-white">
+            {result ? recommendationLabel(result) : '—'}
+          </p>
           <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-            <ModernButton className="min-h-[48px] flex-1" href="/services#contact" variant="primary">
+            <ModernButton
+              className="min-h-[48px] flex-1"
+              href="/services#contact"
+              variant="primary"
+            >
               Contact
             </ModernButton>
             <button

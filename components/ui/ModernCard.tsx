@@ -6,6 +6,9 @@ interface ModernCardProps {
   variant?: 'minimal';
 }
 
-export default function ModernCard({ children, className = '' }: ModernCardProps) {
+export default function ModernCard({
+  children,
+  className = '',
+}: ModernCardProps) {
   return <div className={`rounded-2xl ${className}`.trim()}>{children}</div>;
 }

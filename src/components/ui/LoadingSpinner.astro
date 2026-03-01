@@ -68,34 +68,34 @@ const colorClasses = {
       <div class={cn('flex space-x-1', colorClasses[color])}>
         <div
           class={cn(
-            'rounded-full bg-current animate-bounce',
+            'animate-bounce rounded-full bg-current',
             size === 'xs'
-              ? 'w-1 h-1'
+              ? 'h-1 w-1'
               : size === 'sm'
-                ? 'w-1.5 h-1.5'
-                : 'w-2 h-2'
+                ? 'h-1.5 w-1.5'
+                : 'h-2 w-2'
           )}
           style="animation-delay: 0ms"
         />
         <div
           class={cn(
-            'rounded-full bg-current animate-bounce',
+            'animate-bounce rounded-full bg-current',
             size === 'xs'
-              ? 'w-1 h-1'
+              ? 'h-1 w-1'
               : size === 'sm'
-                ? 'w-1.5 h-1.5'
-                : 'w-2 h-2'
+                ? 'h-1.5 w-1.5'
+                : 'h-2 w-2'
           )}
           style="animation-delay: 150ms"
         />
         <div
           class={cn(
-            'rounded-full bg-current animate-bounce',
+            'animate-bounce rounded-full bg-current',
             size === 'xs'
-              ? 'w-1 h-1'
+              ? 'h-1 w-1'
               : size === 'sm'
-                ? 'w-1.5 h-1.5'
-                : 'w-2 h-2'
+                ? 'h-1.5 w-1.5'
+                : 'h-2 w-2'
           )}
           style="animation-delay: 300ms"
         />
@@ -109,19 +109,19 @@ const colorClasses = {
         class={cn('flex space-x-0.5', sizeClasses[size], colorClasses[color])}
       >
         <div
-          class="w-1 bg-current animate-loading-bar"
+          class="animate-loading-bar w-1 bg-current"
           style="animation-delay: 0ms"
         />
         <div
-          class="w-1 bg-current animate-loading-bar"
+          class="animate-loading-bar w-1 bg-current"
           style="animation-delay: 100ms"
         />
         <div
-          class="w-1 bg-current animate-loading-bar"
+          class="animate-loading-bar w-1 bg-current"
           style="animation-delay: 200ms"
         />
         <div
-          class="w-1 bg-current animate-loading-bar"
+          class="animate-loading-bar w-1 bg-current"
           style="animation-delay: 300ms"
         />
       </div>
@@ -132,7 +132,7 @@ const colorClasses = {
     variant === 'pulse' && (
       <div
         class={cn(
-          'rounded-full bg-current animate-pulse',
+          'animate-pulse rounded-full bg-current',
           sizeClasses[size],
           colorClasses[color]
         )}

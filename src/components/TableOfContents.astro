@@ -11,18 +11,20 @@ const filteredHeadings = headings.filter(h => h.depth <= 3);
 ---
 
 <nav
-  class="toc hidden lg:block sticky top-24 max-h-[calc(100vh-6rem)] overflow-y-auto"
+  class="toc sticky top-24 hidden max-h-[calc(100vh-6rem)] overflow-y-auto lg:block"
 >
-  <h2 class="text-sm font-semibold uppercase tracking-wider text-zinc-500 mb-4">
+  <h2
+    class="mb-4 text-sm font-semibold uppercase tracking-wider text-neutral-500"
+  >
     On this page
   </h2>
-  <ul class="space-y-2 text-sm border-l border-zinc-800">
+  <ul class="space-y-2 border-l border-white/10 text-sm">
     {
       filteredHeadings.map(heading => (
         <li class={`toc-item depth-${heading.depth}`}>
           <a
             href={`#${heading.slug}`}
-            class="text-zinc-400 hover:text-white transition-colors block pl-4 py-1 border-l-2 border-transparent -ml-[1px] hover:border-indigo-500"
+            class="-ml-[1px] block border-l-2 border-transparent py-1 pl-4 text-neutral-400 transition-colors hover:border-[#ccff00] hover:text-white"
           >
             {heading.text}
           </a>
@@ -47,9 +49,9 @@ const filteredHeadings = headings.filter(h => h.depth <= 3);
               'border-indigo-500',
               'font-medium'
             );
-            a.classList.add('text-zinc-400', 'border-transparent');
+            a.classList.add('text-neutral-400', 'border-transparent');
           });
-          link?.classList.remove('text-zinc-400', 'border-transparent');
+          link?.classList.remove('text-neutral-400', 'border-transparent');
           link?.classList.add(
             'text-indigo-400',
             'border-indigo-500',

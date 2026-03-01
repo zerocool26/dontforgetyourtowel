@@ -109,21 +109,13 @@ const currentPath = Astro.url.pathname;
 
   .bottom-nav-item:hover,
   .bottom-nav-item:focus-visible {
-    background: color-mix(
-      in srgb,
-      var(--color-accent-primary) 14%,
-      transparent
-    );
+    background: color-mix(in srgb, var(--color-primary) 14%, transparent);
     color: var(--color-text-primary);
   }
 
   .bottom-nav-item.active {
-    color: var(--color-accent-primary);
-    background: color-mix(
-      in srgb,
-      var(--color-accent-primary) 18%,
-      transparent
-    );
+    color: var(--color-primary);
+    background: color-mix(in srgb, var(--color-primary) 18%, transparent);
   }
 
   .bottom-nav-item.active::before {
@@ -134,7 +126,7 @@ const currentPath = Astro.url.pathname;
     transform: translateX(-50%);
     width: 24px;
     height: 3px;
-    background: var(--color-accent-primary);
+    background: var(--color-primary);
     border-radius: 0 0 3px 3px;
   }
 
@@ -154,8 +146,7 @@ const currentPath = Astro.url.pathname;
 
   /* Focus indicators */
   .bottom-nav-item:focus-visible {
-    outline: 2px solid
-      color-mix(in srgb, var(--color-accent-primary) 92%, transparent);
+    outline: 2px solid color-mix(in srgb, var(--color-primary) 92%, transparent);
     outline-offset: 2px;
   }
 

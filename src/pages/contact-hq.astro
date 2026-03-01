@@ -163,7 +163,7 @@ const faqSchema = {
           <span class="creative-kicker">Contact HQ</span>
           <h1 class="creative-title tone-title text-4xl font-bold sm:text-5xl">
             Let’s scope your next initiative
-            <span class="text-accent-300">—with speed and clarity.</span>
+            <span class="text-[#ccff00]">—with speed and clarity.</span>
           </h1>
           <p class="creative-copy text-base">
             This is the fastest way to route a serious request. Share context
@@ -242,7 +242,7 @@ const faqSchema = {
               <p class="tone-title text-sm font-semibold">{channel.title}</p>
               <p class="tone-body mt-3 text-sm">{channel.note}</p>
               <a
-                class="mt-5 inline-flex text-sm font-semibold text-accent-300 hover:underline"
+                class="mt-5 inline-flex text-sm font-semibold text-[#ccff00] hover:underline"
                 href={`mailto:${encodeURIComponent(channel.email)}?subject=${encodeURIComponent(channel.subject)}`}
               >
                 Email this channel
@@ -275,7 +275,7 @@ const faqSchema = {
             {
               intakeChecklist.map(item => (
                 <li class="flex items-start gap-2">
-                  <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 bg-accent-400" />
+                  <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 bg-[#ccff00]" />
                   <span>{item}</span>
                 </li>
               ))
@@ -354,7 +354,7 @@ const faqSchema = {
             </p>
             <p class="tone-body mt-3 text-sm">
               <a
-                class="text-accent-300 hover:underline"
+                class="text-[#ccff00] hover:underline"
                 href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a
               >
             </p>

@@ -28,5 +28,3 @@ motion/CPU load when requested.
 - `npm run typecheck`
 - `npm test`
 - `npm run test:e2e`
-
-

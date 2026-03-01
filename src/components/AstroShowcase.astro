@@ -1,102 +1,127 @@
 ---
 const features = [
   {
-    icon: "🚀",
-    title: "Zero JavaScript by Default",
-    description: "Ship pure HTML/CSS. Add JS only when needed with client directives.",
-    stats: "0KB JS baseline"
+    icon: '🚀',
+    title: 'Zero JavaScript by Default',
+    description:
+      'Ship pure HTML/CSS. Add JS only when needed with client directives.',
+    stats: '0KB JS baseline',
   },
   {
-    icon: "🎨",
-    title: "Multi-Framework Support",
-    description: "Use React, Vue, Svelte, Solid, Preact, and more in one project.",
-    stats: "10+ frameworks"
+    icon: '🎨',
+    title: 'Multi-Framework Support',
+    description:
+      'Use React, Vue, Svelte, Solid, Preact, and more in one project.',
+    stats: '10+ frameworks',
   },
   {
-    icon: "🏝️",
-    title: "Island Architecture",
-    description: "Interactive components hydrate independently for optimal performance.",
-    stats: "Selective hydration"
+    icon: '🏝️',
+    title: 'Island Architecture',
+    description:
+      'Interactive components hydrate independently for optimal performance.',
+    stats: 'Selective hydration',
   },
   {
-    icon: "📦",
-    title: "Content Collections",
-    description: "Type-safe content management with automatic validation and IntelliSense.",
-    stats: "Type-safe CMS"
+    icon: '📦',
+    title: 'Content Collections',
+    description:
+      'Type-safe content management with automatic validation and IntelliSense.',
+    stats: 'Type-safe CMS',
   },
   {
-    icon: "⚡",
-    title: "Lightning Fast",
-    description: "Static site generation with optional SSR. Deploy anywhere.",
-    stats: "100/100 Lighthouse"
+    icon: '⚡',
+    title: 'Lightning Fast',
+    description: 'Static site generation with optional SSR. Deploy anywhere.',
+    stats: '100/100 Lighthouse',
   },
   {
-    icon: "🛠️",
-    title: "Built-in Optimizations",
-    description: "Image optimization, CSS/JS bundling, and automatic code splitting.",
-    stats: "Zero config"
-  }
+    icon: '🛠️',
+    title: 'Built-in Optimizations',
+    description:
+      'Image optimization, CSS/JS bundling, and automatic code splitting.',
+    stats: 'Zero config',
+  },
 ];
 
 const integrations = [
-  { name: "React", logo: "⚛️", color: "from-blue-400 to-cyan-400" },
-  { name: "Vue", logo: "💚", color: "from-green-400 to-emerald-400" },
-  { name: "Svelte", logo: "🧡", color: "from-orange-400 to-red-400" },
-  { name: "Solid", logo: "💙", color: "from-blue-400 to-indigo-400" },
-  { name: "Preact", logo: "💜", color: "from-purple-400 to-pink-400" },
-  { name: "Alpine", logo: "🏔️", color: "from-gray-400 to-slate-400" },
-  { name: "Lit", logo: "🔥", color: "from-yellow-400 to-orange-400" },
-  { name: "MDX", logo: "📝", color: "from-indigo-400 to-purple-400" }
+  { name: 'React', logo: '⚛️', color: 'from-blue-400 to-cyan-400' },
+  { name: 'Vue', logo: '💚', color: 'from-green-400 to-emerald-400' },
+  { name: 'Svelte', logo: '🧡', color: 'from-orange-400 to-red-400' },
+  { name: 'Solid', logo: '💙', color: 'from-blue-400 to-indigo-400' },
+  { name: 'Preact', logo: '💜', color: 'from-purple-400 to-pink-400' },
+  { name: 'Alpine', logo: '🏔️', color: 'from-gray-400 to-slate-400' },
+  { name: 'Lit', logo: '🔥', color: 'from-yellow-400 to-orange-400' },
+  { name: 'MDX', logo: '📝', color: 'from-indigo-400 to-purple-400' },
 ];
 ---
 
 <div class="space-y-16">
   <!-- Hero Section -->
-  <section class="text-center space-y-8">
+  <section class="space-y-8 text-center">
     <div class="space-y-4">
-      <div class="inline-flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full border border-purple-500/30">
-        <span class="text-purple-400 text-sm font-medium">✨ The Web Framework for the Modern Era</span>
+      <div
+        class="inline-flex items-center space-x-2 rounded-full border border-purple-500/30 bg-gradient-to-r from-purple-500/20 to-pink-500/20 px-4 py-2"
+      >
+        <span class="text-sm font-medium text-purple-400"
+          >✨ The Web Framework for the Modern Era</span
+        >
       </div>
-      
-      <h1 class="text-6xl md:text-8xl font-bold bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent leading-tight">
+
+      <h1
+        class="bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-6xl font-bold leading-tight text-transparent md:text-8xl"
+      >
         Astro
       </h1>
-      
-      <p class="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-        Build the web you want with the tools you love. 
-        <span class="text-purple-400 font-semibold">Zero JavaScript runtime</span> by default, 
-        <span class="text-pink-400 font-semibold">any frontend framework</span>, 
-        and <span class="text-cyan-400 font-semibold">blazing fast performance</span>.
+
+      <p
+        class="mx-auto max-w-3xl text-xl leading-relaxed text-gray-300 md:text-2xl"
+      >
+        Build the web you want with the tools you love.
+        <span class="font-semibold text-purple-400"
+          >Zero JavaScript runtime</span
+        > by default,
+        <span class="font-semibold text-pink-400">any frontend framework</span>,
+        and <span class="font-semibold text-cyan-400"
+          >blazing fast performance</span
+        >.
       </p>
     </div>
 
     <!-- Interactive Stats -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+    <div class="mx-auto grid max-w-4xl grid-cols-2 gap-6 md:grid-cols-4">
       <div class="group cursor-pointer">
-        <div class="bg-gradient-to-br from-gray-900 to-gray-800 p-6 rounded-2xl border border-gray-700 hover:border-purple-500/50 transition-all duration-300 hover:scale-105">
-          <div class="text-3xl font-bold text-purple-400 mb-2">0KB</div>
-          <div class="text-gray-300 text-sm">JavaScript by default</div>
+        <div
+          class="rounded-2xl border border-gray-700 bg-gradient-to-br from-gray-900 to-gray-800 p-6 transition-all duration-300 hover:scale-105 hover:border-purple-500/50"
+        >
+          <div class="mb-2 text-3xl font-bold text-purple-400">0KB</div>
+          <div class="text-sm text-gray-300">JavaScript by default</div>
         </div>
       </div>
-      
+
       <div class="group cursor-pointer">
-        <div class="bg-gradient-to-br from-gray-900 to-gray-800 p-6 rounded-2xl border border-gray-700 hover:border-pink-500/50 transition-all duration-300 hover:scale-105">
-          <div class="text-3xl font-bold text-pink-400 mb-2">100+</div>
-          <div class="text-gray-300 text-sm">Available integrations</div>
+        <div
+          class="rounded-2xl border border-gray-700 bg-gradient-to-br from-gray-900 to-gray-800 p-6 transition-all duration-300 hover:scale-105 hover:border-pink-500/50"
+        >
+          <div class="mb-2 text-3xl font-bold text-pink-400">100+</div>
+          <div class="text-sm text-gray-300">Available integrations</div>
         </div>
       </div>
-      
+
       <div class="group cursor-pointer">
-        <div class="bg-gradient-to-br from-gray-900 to-gray-800 p-6 rounded-2xl border border-gray-700 hover:border-cyan-500/50 transition-all duration-300 hover:scale-105">
-          <div class="text-3xl font-bold text-cyan-400 mb-2">10+</div>
-          <div class="text-gray-300 text-sm">Supported frameworks</div>
+        <div
+          class="rounded-2xl border border-gray-700 bg-gradient-to-br from-gray-900 to-gray-800 p-6 transition-all duration-300 hover:scale-105 hover:border-cyan-500/50"
+        >
+          <div class="mb-2 text-3xl font-bold text-cyan-400">10+</div>
+          <div class="text-sm text-gray-300">Supported frameworks</div>
         </div>
       </div>
-      
+
       <div class="group cursor-pointer">
-        <div class="bg-gradient-to-br from-gray-900 to-gray-800 p-6 rounded-2xl border border-gray-700 hover:border-green-500/50 transition-all duration-300 hover:scale-105">
-          <div class="text-3xl font-bold text-green-400 mb-2">100</div>
-          <div class="text-gray-300 text-sm">Lighthouse score</div>
+        <div
+          class="rounded-2xl border border-gray-700 bg-gradient-to-br from-gray-900 to-gray-800 p-6 transition-all duration-300 hover:scale-105 hover:border-green-500/50"
+        >
+          <div class="mb-2 text-3xl font-bold text-green-400">100</div>
+          <div class="text-sm text-gray-300">Lighthouse score</div>
         </div>
       </div>
     </div>
@@ -105,73 +130,100 @@ const integrations = [
   <!-- Features Grid -->
   <section class="space-y-8">
     <div class="text-center">
-      <h2 class="text-4xl font-bold text-white mb-4">Why Choose Astro?</h2>
-      <p class="text-gray-300 text-lg max-w-2xl mx-auto">
-        Astro combines the best of static site generation with modern developer experience
+      <h2 class="mb-4 text-4xl font-bold text-white">Why Choose Astro?</h2>
+      <p class="mx-auto max-w-2xl text-lg text-gray-300">
+        Astro combines the best of static site generation with modern developer
+        experience
       </p>
     </div>
 
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-      {features.map((feature) => (
-        <div class="group cursor-pointer">
-          <div class="bg-gradient-to-br from-gray-900/80 to-gray-800/80 backdrop-blur-sm p-8 rounded-2xl border border-gray-700/50 hover:border-gray-600 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl">
-            <div class="text-4xl mb-4">{feature.icon}</div>
-            <h3 class="text-xl font-bold text-white mb-3">{feature.title}</h3>
-            <p class="text-gray-300 mb-4 leading-relaxed">{feature.description}</p>
-            <div class="inline-flex items-center px-3 py-1 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full border border-purple-500/30">
-              <span class="text-purple-400 text-sm font-medium">{feature.stats}</span>
+    <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+      {
+        features.map(feature => (
+          <div class="group cursor-pointer">
+            <div class="rounded-2xl border border-gray-700/50 bg-gradient-to-br from-gray-900/80 to-gray-800/80 p-8 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:border-gray-600 hover:shadow-2xl">
+              <div class="mb-4 text-4xl">{feature.icon}</div>
+              <h3 class="mb-3 text-xl font-bold text-white">{feature.title}</h3>
+              <p class="mb-4 leading-relaxed text-gray-300">
+                {feature.description}
+              </p>
+              <div class="inline-flex items-center rounded-full border border-purple-500/30 bg-gradient-to-r from-purple-500/20 to-pink-500/20 px-3 py-1">
+                <span class="text-sm font-medium text-purple-400">
+                  {feature.stats}
+                </span>
+              </div>
             </div>
           </div>
-        </div>
-      ))}
+        ))
+      }
     </div>
   </section>
 
   <!-- Framework Integration Showcase -->
   <section class="space-y-8">
     <div class="text-center">
-      <h2 class="text-4xl font-bold text-white mb-4">One Project, Any Framework</h2>
-      <p class="text-gray-300 text-lg max-w-2xl mx-auto">
-        Mix and match your favorite frameworks. Astro lets you use the right tool for each component.
+      <h2 class="mb-4 text-4xl font-bold text-white">
+        One Project, Any Framework
+      </h2>
+      <p class="mx-auto max-w-2xl text-lg text-gray-300">
+        Mix and match your favorite frameworks. Astro lets you use the right
+        tool for each component.
       </p>
     </div>
 
     <div class="relative overflow-hidden">
       <!-- Animated Integration Grid -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-        {integrations.map((integration, index) => (
-          <div 
-            class="group cursor-pointer"
-            style={`animation-delay: ${index * 100}ms`}
-          >
-            <div class={`bg-gradient-to-br ${integration.color} p-1 rounded-2xl hover:scale-110 transition-all duration-300`}>
-              <div class="bg-gray-900 p-6 rounded-2xl h-full flex flex-col items-center justify-center space-y-3">
-                <div class="text-4xl">{integration.logo}</div>
-                <div class="text-white font-semibold">{integration.name}</div>
+      <div class="grid grid-cols-2 gap-6 md:grid-cols-4">
+        {
+          integrations.map((integration, index) => (
+            <div
+              class="group cursor-pointer"
+              style={`animation-delay: ${index * 100}ms`}
+            >
+              <div
+                class={`bg-gradient-to-br ${integration.color} rounded-2xl p-1 transition-all duration-300 hover:scale-110`}
+              >
+                <div class="flex h-full flex-col items-center justify-center space-y-3 rounded-2xl bg-gray-900 p-6">
+                  <div class="text-4xl">{integration.logo}</div>
+                  <div class="font-semibold text-white">{integration.name}</div>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))
+        }
       </div>
 
       <!-- Connection Lines Animation -->
-      <div class="absolute inset-0 pointer-events-none">
-        <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+      <div class="pointer-events-none absolute inset-0">
+        <svg
+          class="h-full w-full"
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+        >
           <defs>
-            <linearGradient id="connectionGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" style="stop-color:rgb(139, 92, 246);stop-opacity:0.3" />
-              <stop offset="100%" style="stop-color:rgb(236, 72, 153);stop-opacity:0.1" />
+            <linearGradient
+              id="connectionGradient"
+              x1="0%"
+              y1="0%"
+              x2="100%"
+              y2="100%"
+            >
+              <stop
+                offset="0%"
+                style="stop-color:rgb(139, 92, 246);stop-opacity:0.3"></stop>
+              <stop
+                offset="100%"
+                style="stop-color:rgb(236, 72, 153);stop-opacity:0.1"></stop>
             </linearGradient>
           </defs>
-          
+
           <!-- Animated connection lines -->
-          <path 
-            d="M 20 20 Q 50 10 80 20 Q 90 50 80 80 Q 50 90 20 80 Q 10 50 20 20" 
-            stroke="url(#connectionGradient)" 
-            stroke-width="0.5" 
+          <path
+            d="M 20 20 Q 50 10 80 20 Q 90 50 80 80 Q 50 90 20 80 Q 10 50 20 20"
+            stroke="url(#connectionGradient)"
+            stroke-width="0.5"
             fill="none"
-            class="animate-pulse"
-          />
+            class="animate-pulse"></path>
         </svg>
       </div>
     </div>
@@ -179,45 +231,56 @@ const integrations = [
 
   <!-- Performance Metrics -->
   <section class="relative">
-    <div class="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-3xl"></div>
-    <div class="relative p-8 space-y-6">
+    <div
+      class="absolute inset-0 rounded-3xl bg-gradient-to-r from-purple-500/10 to-pink-500/10"
+    >
+    </div>
+    <div class="relative space-y-6 p-8">
       <div class="text-center">
-        <h2 class="text-4xl font-bold text-white mb-4">Performance by Design</h2>
-        <p class="text-gray-300 text-lg">
+        <h2 class="mb-4 text-4xl font-bold text-white">
+          Performance by Design
+        </h2>
+        <p class="text-lg text-gray-300">
           Astro delivers exceptional performance out of the box
         </p>
       </div>
 
-      <div class="grid md:grid-cols-3 gap-8">
+      <div class="grid gap-8 md:grid-cols-3">
         <!-- Build Time -->
-        <div class="text-center space-y-4">
-          <div class="w-20 h-20 bg-gradient-to-br from-green-400 to-emerald-400 rounded-full flex items-center justify-center mx-auto">
+        <div class="space-y-4 text-center">
+          <div
+            class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-green-400 to-emerald-400"
+          >
             <span class="text-2xl">⚡</span>
           </div>
           <div>
-            <div class="text-3xl font-bold text-green-400 mb-2">&lt; 1s</div>
+            <div class="mb-2 text-3xl font-bold text-green-400">&lt; 1s</div>
             <div class="text-gray-300">Build time (avg)</div>
           </div>
         </div>
 
         <!-- Bundle Size -->
-        <div class="text-center space-y-4">
-          <div class="w-20 h-20 bg-gradient-to-br from-blue-400 to-cyan-400 rounded-full flex items-center justify-center mx-auto">
+        <div class="space-y-4 text-center">
+          <div
+            class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-cyan-400"
+          >
             <span class="text-2xl">📦</span>
           </div>
           <div>
-            <div class="text-3xl font-bold text-blue-400 mb-2">~0KB</div>
+            <div class="mb-2 text-3xl font-bold text-blue-400">~0KB</div>
             <div class="text-gray-300">JS baseline</div>
           </div>
         </div>
 
         <!-- Lighthouse Score -->
-        <div class="text-center space-y-4">
-          <div class="w-20 h-20 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center mx-auto">
+        <div class="space-y-4 text-center">
+          <div
+            class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-purple-400 to-pink-400"
+          >
             <span class="text-2xl">🎯</span>
           </div>
           <div>
-            <div class="text-3xl font-bold text-purple-400 mb-2">100</div>
+            <div class="mb-2 text-3xl font-bold text-purple-400">100</div>
             <div class="text-gray-300">Lighthouse score</div>
           </div>
         </div>
@@ -248,12 +311,28 @@ const integrations = [
   }
 
   /* Staggered animation */
-  .grid .group:nth-child(1) { animation-delay: 0ms; }
-  .grid .group:nth-child(2) { animation-delay: 100ms; }
-  .grid .group:nth-child(3) { animation-delay: 200ms; }
-  .grid .group:nth-child(4) { animation-delay: 300ms; }
-  .grid .group:nth-child(5) { animation-delay: 400ms; }
-  .grid .group:nth-child(6) { animation-delay: 500ms; }
-  .grid .group:nth-child(7) { animation-delay: 600ms; }
-  .grid .group:nth-child(8) { animation-delay: 700ms; }
+  .grid .group:nth-child(1) {
+    animation-delay: 0ms;
+  }
+  .grid .group:nth-child(2) {
+    animation-delay: 100ms;
+  }
+  .grid .group:nth-child(3) {
+    animation-delay: 200ms;
+  }
+  .grid .group:nth-child(4) {
+    animation-delay: 300ms;
+  }
+  .grid .group:nth-child(5) {
+    animation-delay: 400ms;
+  }
+  .grid .group:nth-child(6) {
+    animation-delay: 500ms;
+  }
+  .grid .group:nth-child(7) {
+    animation-delay: 600ms;
+  }
+  .grid .group:nth-child(8) {
+    animation-delay: 700ms;
+  }
 </style>

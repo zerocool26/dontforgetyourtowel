@@ -39,7 +39,7 @@ const sectionId = 'insight-section';
       {
         insightReports.map((report, index) => (
           <article
-            class="glass-panel flex h-full flex-col justify-between gap-5 border border-white/10 p-6 transition-all duration-300 hover:border-indigo-500/30 hover:shadow-lg focus-within:ring-2 focus-within:ring-indigo-500/50"
+            class="glass-panel flex h-full flex-col justify-between gap-5 border border-white/10 p-6 transition-all duration-300 focus-within:ring-2 focus-within:ring-indigo-500/50 hover:border-indigo-500/30 hover:shadow-lg"
             role="listitem"
             aria-labelledby={`report-${index}-title`}
           >
@@ -59,7 +59,7 @@ const sectionId = 'insight-section';
               <p class="text-sm text-slate-300">{report.description}</p>
             </div>
             <a
-              class="inline-flex w-max items-center gap-2 text-sm font-semibold text-slate-200 transition hover:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-slate-900 rounded-sm"
+              class="inline-flex w-max items-center gap-2 rounded-sm text-sm font-semibold text-slate-200 transition hover:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-slate-900"
               href={withBasePath(report.href)}
               aria-describedby={`report-${index}-title`}
             >

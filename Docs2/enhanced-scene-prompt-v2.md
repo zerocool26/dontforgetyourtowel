@@ -1,4 +1,5 @@
 # ULTIMATE 3D EXPERIENCE ENHANCEMENT PROMPT
+
 ## Master Developer + Creative Director + 3D Visionary Brief
 
 ---
@@ -6,6 +7,7 @@
 ## 🎯 MISSION: TRANSFORM INTO THE MOST MIND-BLOWING 3D WEB EXPERIENCE OF 2026
 
 You are an **award-winning creative technologist** combining:
+
 - **10+ years Three.js/WebGL mastery** (raymarching, compute shaders, advanced particle systems)
 - **World-class interaction design** (micro-interactions that feel like magic)
 - **Cinematic art direction** (Awwwards FotD-level visual polish)
@@ -17,6 +19,7 @@ You are an **award-winning creative technologist** combining:
 ## 📋 PROJECT CONTEXT & CURRENT STATE
 
 **What Exists Now:**
+
 - Astro static site with 10 scroll-driven 3D scenes (Scene00-Scene10)
 - SceneDirector orchestrating transitions between scenes
 - Advanced techniques: raymarching, particle systems, custom shaders, post-processing
@@ -24,6 +27,7 @@ You are an **award-winning creative technologist** combining:
 - Current scenes are GOOD but need to become LEGENDARY
 
 **Your Mission:**
+
 1. **ENHANCE all existing 10 scenes** → Make them 10/10 jaw-dropping
 2. **ADD 5 NEW scenes** (Scene11-Scene15) → Push creative boundaries even further
 3. **UPGRADE the original hero animation** (Scene00) → Make it iconic
@@ -37,6 +41,7 @@ You are an **award-winning creative technologist** combining:
 **Core Concept:** Not just a tower of floors—it's a **journey through impossible spaces**, each scene a self-contained universe with its own physics, aesthetic, and interaction paradigm.
 
 ### Visual Philosophy:
+
 - **Luxury Brutalism Meets Organic Flow** - Hard edges, soft gradients, unexpected warmth
 - **Cinematic Lighting as Storytelling** - Every light source has purpose and emotion
 - **Controlled Chaos** - Organized complexity that reveals depth over time
@@ -44,6 +49,7 @@ You are an **award-winning creative technologist** combining:
 - **Haptic Visual Feedback** - Interactions feel tactile through motion design
 
 ### UI Overlay System:
+
 ```
 Scene Index: Elegant numeric counter (00-15)
 Scene Title: Ultra-refined typography (variable font weight based on scroll)
@@ -53,6 +59,7 @@ Scroll Indicator: Contextual to each scene's aesthetic
 ```
 
 ### Transition Palette (Mix & Match):
+
 1. **Portal Transitions** - Circular iris in/out with distortion field
 2. **Liquid Wipe** - Metaball-based screen wipe with surface tension
 3. **Particle Swarm Bridge** - Particles disassemble one scene, build the next
@@ -69,6 +76,7 @@ Scroll Indicator: Contextual to each scene's aesthetic
 ## 🔧 TECHNICAL ARCHITECTURE REQUIREMENTS
 
 ### Performance Tiers (Auto-Detect):
+
 ```
 TIER 1 - Ultra (High-end Desktop)
 - Full post-processing (bloom, DOF, motion blur, chromatic aberration)
@@ -104,6 +112,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 ```
 
 ### Advanced Features to Implement:
+
 - **GPU Compute Shaders** (where supported) for particle physics
 - **Temporal Anti-Aliasing (TAA)** for ultra-smooth edges
 - **Screen-Space Reflections (SSR)** for premium scenes
@@ -116,6 +125,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 - **Haptic Feedback** (vibration on interactions, where supported)
 
 ### Asset Pipeline:
+
 - **GLTF/GLB Models** with Draco compression
 - **KTX2/Basis Textures** for optimal loading
 - **Procedural Generation** where possible (less loading)
@@ -131,6 +141,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 
 **Current:** Basic icosahedron with particles
 **Transform Into:**
+
 - **Visual:** Cosmic seed/egg floating in deep space, pulsing with creation energy
 - **Geometry:** Multi-layered nested icosahedrons with different materials
   - Outer shell: Glass-like transmission with iridescent rim lighting
@@ -155,6 +166,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 
 **Current:** Raymarched metal artifact
 **Enhance To:**
+
 - **Visual Upgrade:**
   - Artifact morphs between 5 forms (sphere → torus → möbius strip → klein bottle → hypercube projection)
   - Surface: Mercury-like reflectivity with oil-slick rainbow shimmer
@@ -182,6 +194,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 
 **Current:** Particle swarm
 **Enhance To:**
+
 - **Particle Count:** Scale dynamically (100k on desktop, 10k mobile)
 - **Behavior Layers:**
   - **Layer 1 - Swarm:** Boids algorithm (separation, alignment, cohesion)
@@ -211,6 +224,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 
 **Current:** Text particles assemble/scatter
 **Enhance To:**
+
 - **Typography System:**
   - 3D extruded text with bevels
   - Multiple text phrases that cycle
@@ -245,6 +259,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 
 **Current:** Portal with impossible space
 **Enhance To:**
+
 - **Geometry:**
   - Infinite corridor made of instanced portal frames
   - Each frame is different architecture style (modernist → gothic → brutalist → organic)
@@ -276,6 +291,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 
 **Current:** Refractive crystals
 **Enhance To:**
+
 - **Crystal Array:**
   - 20-30 crystals of various shapes (emerald cut, raw clusters, shards)
   - Floating in formation like asteroid field
@@ -308,6 +324,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 
 **Current:** Lines to solid objects
 **Enhance To:**
+
 - **Sequence:**
   1. **Phase 1:** Technical blueprint grid appears
   2. **Phase 2:** Lines draw themselves (animated dash offset)
@@ -342,6 +359,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 
 **Current:** Ink fog reveal
 **Enhance To:**
+
 - **Fog System:**
   - Raymarched volume in bounding box
   - Multiple noise octaves (Perlin + Curl + FBM)
@@ -377,6 +395,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 
 **Current:** Fabric physics
 **Enhance To:**
+
 - **Fabric System:**
   - Large-scale cloth banner (think theater curtain size)
   - GPU-based cloth simulation (compute shader or vertex shader)
@@ -410,6 +429,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 
 **Current:** Point cloud morphing
 **Enhance To:**
+
 - **Point Cloud System:**
   - Dense point sprites (50k-200k points)
   - Morphs between 3 distinct sculptures:
@@ -450,6 +470,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 
 **Current:** Raymarched fractal
 **Enhance To:**
+
 - **Fractal Types:** (Choose 2-3, sequence through them)
   - Mandelbulb (3D Mandelbrot set)
   - Mandelbox (box-folding fractal)
@@ -494,6 +515,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 **Concept:** Journey into an AI's mind - a living neural network visualized in 3D space
 
 **Visual:**
+
 - Thousands of nodes (neurons) floating in space
 - Connections (synapses) as light beams between nodes
 - Data pulses travel along connections
@@ -501,6 +523,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 - Different layers at different depths
 
 **Technique:**
+
 - Graph visualization algorithm (force-directed layout)
 - Instanced spheres for nodes
 - Line segments with animated UVs for connections
@@ -508,6 +531,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 - Particle system for data packets
 
 **Interaction:**
+
 - **Mouse:** Highlights neural pathway from cursor to distant node
 - **Scroll:** Zoom from macro (whole brain) to micro (single neuron)
 - **Click Node:** Activates that node, pulse spreads to connected nodes
@@ -515,6 +539,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 - **Gyro:** Entire network rotates
 
 **Advanced:**
+
 - Simulate actual neural network computation (e.g., recognize handwritten digit)
 - Connections grow/shrink based on "training"
 - Color represents signal strength
@@ -531,6 +556,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 **Concept:** Infinite library with physics-defying architecture (inspired by Borges)
 
 **Visual:**
+
 - Hexagonal rooms tessellating infinitely
 - Bookshelves from floor to ceiling
 - Books with procedural spines
@@ -539,6 +565,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 - Warm candlelight, deep shadows
 
 **Technique:**
+
 - Instanced geometry for rooms/books
 - Portal rendering for adjacent rooms
 - Procedural textures for book spines
@@ -546,6 +573,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 - Level-of-detail (distant rooms simplified)
 
 **Interaction:**
+
 - **Scroll:** Navigate through rooms (forward/backward)
 - **Mouse:** Look around (first-person camera)
 - **Click Book:** Book pulls out, pages flutter, glows
@@ -554,6 +582,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 - **Gyro:** Subtle head-tracking for immersion
 
 **Easter Eggs:**
+
 - Specific books have titles (famous literature)
 - One book reveals hidden message
 - Candles flicker when approached
@@ -569,6 +598,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 **Concept:** Deep sea ecosystem where organisms are living light
 
 **Visual:**
+
 - Dozens of bioluminescent creatures floating
 - Jellyfish with trailing tentacles (glowing edges)
 - Fish schools that move in synchronized patterns
@@ -577,6 +607,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 - Volumetric light shafts from surface
 
 **Technique:**
+
 - Skeletal animation for creatures
 - Procedural tentacle physics (inverse kinematics)
 - Particle systems for plankton
@@ -585,6 +616,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 - Bioluminescence via emissive materials + bloom
 
 **Interaction:**
+
 - **Mouse:** Attracts/repels creatures (fear/curiosity)
 - **Scroll:** Descends deeper (light decreases, different species appear)
 - **Click:** Creates bioluminescent burst (creatures scatter)
@@ -592,6 +624,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 - **Gyro:** Water current direction
 
 **Behavior AI:**
+
 - Flocking behavior for fish
 - Avoidance of obstacles/cursor
 - Feeding animation on plankton
@@ -608,6 +641,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 **Concept:** Cyberpunk data visualization - information as physical space
 
 **Visual:**
+
 - Skyscraper-scale data structures (towers of info)
 - Holographic screens floating in space
 - Code rain (Matrix-style) forming structures
@@ -616,6 +650,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 - Glitch artifacts and scanlines
 
 **Technique:**
+
 - Procedural building generation
 - Text rendering on planes (scrolling code)
 - Particle trails for data packets
@@ -623,6 +658,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 - Hologram shader (transparent, edge glow, scan lines)
 
 **Interaction:**
+
 - **Scroll:** Navigate through data city (forward/up)
 - **Mouse:** Highlights data streams (connections light up)
 - **Click Building:** Zooms into that structure, reveals detailed data
@@ -630,6 +666,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 - **Velocity:** Data flow speed increases
 
 **Visual Effects:**
+
 - Numbers and code actually compile/make sense
 - Hidden messages in code scrolls
 - Binary rain forms recognizable patterns
@@ -648,30 +685,35 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 **Visual - Multi-Stage Finale:**
 
 **Stage 1 - The Gathering (0-20% scroll):**
+
 - Fragments from ALL previous scenes float in
 - Origin Core, liquid metal relic, fireflies, crystals, etc.
 - All rotating slowly around center
 - Each maintains its unique material/behavior
 
 **Stage 2 - The Merge (20-40%):**
+
 - Fragments begin orbiting faster
 - Gravitational pull toward center
 - Materials blend at edges
 - Particles connect different objects
 
 **Stage 3 - The Fusion (40-60%):**
+
 - All elements compress into single form
 - Form shifts between geometry from each scene
 - Rapid morphing, energy building
 - Lights intensify, bloom maxes out
 
 **Stage 4 - The Collapse (60-80%):**
+
 - Everything implodes to singularity point
 - White flash (full screen)
 - Silence moment (audio cuts)
 - Ringing sound (tinnitus effect)
 
 **Stage 5 - The Resolution (80-100%):**
+
 - From white, simple geometric shape forms (cube/sphere)
 - Shape unfolds into company logo
 - Logo settles with perfect timing
@@ -679,6 +721,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 - Subtle breathing animation (idle state)
 
 **Interaction:**
+
 - **Scroll:** Drives entire sequence (precise control)
 - **Mouse:** Rotates entire assembly
 - **Click (stage 1-3):** Highlights that scene's fragments
@@ -686,6 +729,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 - **Velocity:** Affects fusion energy intensity
 
 **Advanced:**
+
 - Each fragment maintains its original shader/material
 - Seamless blending between materials
 - Orchestrated sound design (builds to crescendo)
@@ -695,6 +739,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 **Audio:** All previous scene sounds layered → crescendo → silence → rebirth
 
 **CTA Design:**
+
 - Clean, minimal, confident
 - Micro-interaction: Hover = subtle scale + glow
 - Click = ripple effect expanding outward
@@ -707,6 +752,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 ### Multi-Input Support:
 
 **Mouse/Trackpad:**
+
 - Position (XY NDC coordinates)
 - Velocity (delta movement)
 - Hover (element detection)
@@ -714,6 +760,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 - Drag (gesture recognition)
 
 **Touch (Mobile/Tablet):**
+
 - Single touch (position)
 - Multi-touch (pinch, spread, rotate)
 - Swipe (direction + velocity)
@@ -721,6 +768,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 - Double tap
 
 **Keyboard (Desktop):**
+
 - Arrow keys (navigation)
 - Space (pause/play)
 - Shift (modifier - show hidden elements)
@@ -728,28 +776,33 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 - Enter (trigger action)
 
 **Gyroscope (Mobile):**
+
 - Device tilt (alpha, beta, gamma)
 - Parallax effects
 - Gravity direction
 - Rotation rate
 
 **Scroll:**
+
 - Position (scene index + progress)
 - Velocity (speed affects visuals)
 - Direction (forward/backward)
 - Inertia (smooth deceleration)
 
 **Audio Input (Optional):**
+
 - Microphone level (reactive visuals)
 - Frequency analysis (spectrum bands)
 - Beat detection
 
 **Haptics (Mobile):**
+
 - Light tap (UI interaction)
 - Medium (scene transition)
 - Heavy (major event)
 
 ### Interaction Feedback Principles:
+
 1. **Immediate** - No lag between input and visual response
 2. **Proportional** - Response magnitude matches input strength
 3. **Satisfying** - Movements feel weighted and physical
@@ -761,6 +814,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 ## 🎭 TRANSITION SYSTEM 2.0
 
 ### Transition Director:
+
 - Detects when scene threshold crossed (90% of scene scrolled)
 - Analyzes next scene type
 - Selects appropriate transition from palette
@@ -771,24 +825,28 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 ### Transition Techniques (Choose Contextually):
 
 **1. Portal Iris:**
+
 - Circular mask grows from center
 - Distortion field around edge
 - Duration: 0.8s
 - Use when: Scenes are conceptually "portals" to each other
 
 **2. Particle Bridge:**
+
 - Current scene dissolves into particles
 - Particles swarm and reform into next scene
 - Duration: 1.2s
 - Use when: Both scenes have particle elements
 
 **3. Liquid Wipe:**
+
 - Metaball-based screen wipe
 - Surface tension and flow
 - Duration: 1.0s
 - Use when: One scene has fluid/organic elements
 
 **4. Glitch Cut:**
+
 - Digital artifacts, RGB split
 - Rapid flicker
 - Datamosh aesthetics
@@ -796,12 +854,14 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 - Use when: Transitioning to/from tech scenes
 
 **5. Depth Fog:**
+
 - Fog rolls in, obscures scene
 - Next scene fades in through clearing fog
 - Duration: 1.5s
 - Use when: Atmospheric scenes
 
 **6. Fractal Zoom:**
+
 - Zoom into detail of current scene
 - Detail becomes next scene
 - Infinite zoom feeling
@@ -809,6 +869,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 - Use when: Scenes have nested/fractal quality
 
 **7. Mirror Flip:**
+
 - Scene reflects in mirror surface
 - Reflection becomes reality
 - Current scene fades
@@ -816,6 +877,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 - Use when: Scenes are conceptual opposites
 
 **8. Light Tunnel:**
+
 - Bloom explosion (overexposure)
 - White out
 - New scene fades in from white
@@ -823,6 +885,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 - Use when: High energy to calm, or vice versa
 
 **9. Geometric Fold:**
+
 - Origami-like paper fold
 - Scene folds into shape
 - Shape unfolds into new scene
@@ -830,6 +893,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 - Use when: Both scenes have geometric elements
 
 **10. Time Dilation:**
+
 - Slow motion effect
 - Motion blur increases
 - Time "snaps" to new scene
@@ -837,6 +901,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 - Use when: Dramatic moment needed
 
 ### Transition Timing:
+
 - **Ease In-Out:** Starts slow, speeds up, ends slow (smooth)
 - **Anticipation:** Slight move backward before forward
 - **Follow-through:** Scene continues motion after transition
@@ -847,6 +912,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
 ## 📊 PERFORMANCE OPTIMIZATION STRATEGY
 
 ### Loading Strategy:
+
 1. **Initial Load:**
    - Load Scene 00 assets immediately
    - Show loading progress bar with style
@@ -864,6 +930,7 @@ TIER 4 - Low (Budget Mobile / Reduced Motion)
    - Low: Particle textures, detail elements
 
 ### Memory Management:
+
 ```javascript
 // Pseudo-code structure
 class SceneDirector {
@@ -904,6 +971,7 @@ class SceneDirector {
 ```
 
 ### Frame Budget:
+
 - Target: 60fps (16.67ms per frame)
 - Budget allocation:
   - Scene update: 6ms
@@ -912,6 +980,7 @@ class SceneDirector {
   - Overhead: 0.67ms
 
 ### Optimization Techniques:
+
 - **Instancing:** Reuse geometry for repeated objects
 - **LOD:** Swap models based on distance/performance
 - **Frustum Culling:** Don't render what's not visible
@@ -926,6 +995,7 @@ class SceneDirector {
 ## 🎨 VISUAL POLISH DETAILS
 
 ### Micro-Interactions:
+
 - Button hover: Scale 1.0 → 1.05, 200ms ease-out
 - Button press: Scale 1.05 → 0.98, 100ms ease-in
 - Icon breathe: Opacity 0.6 ↔ 1.0, 2s loop
@@ -934,6 +1004,7 @@ class SceneDirector {
 - Scroll indicator: Animates based on scroll velocity
 
 ### Typography:
+
 - Variable font weights (100-900)
 - Optical sizing (small text = wider, large = narrower)
 - Kerning and tracking adjustments
@@ -941,12 +1012,14 @@ class SceneDirector {
 - Fallback fonts: System font stack
 
 ### Color Theory:
+
 - Each scene has signature color palette
 - Transitions blend color spaces (OKLCH for perceptual smoothness)
 - Accessibility: Color not the only indicator
 - Dark mode optimized (true blacks, not grays)
 
 ### Motion Principles:
+
 - Nothing static (everything has subtle motion)
 - Parallax creates depth
 - Ease curves feel natural (not linear)
@@ -958,6 +1031,7 @@ class SceneDirector {
 ## 🧪 TESTING & QUALITY ASSURANCE
 
 ### Browser Testing:
+
 - Chrome/Edge (desktop & mobile)
 - Firefox (desktop & mobile)
 - Safari (macOS & iOS)
@@ -965,6 +1039,7 @@ class SceneDirector {
 - WebGL2 fallback for older browsers
 
 ### Device Testing:
+
 - Desktop: 1920x1080, 2560x1440, 3840x2160
 - Laptop: 1366x768, 1920x1080
 - Tablet: iPad, Android tablets
@@ -972,6 +1047,7 @@ class SceneDirector {
 - Orientation: Portrait & landscape
 
 ### Performance Testing:
+
 - 60fps on flagship devices (iPhone 14, Pixel 7, etc.)
 - 30fps minimum on mid-range (3-year-old devices)
 - Graceful degradation on low-end
@@ -979,6 +1055,7 @@ class SceneDirector {
 - Load time < 3s on 4G
 
 ### Accessibility:
+
 - Keyboard navigation works
 - Screen reader: Scene descriptions
 - Prefers-reduced-motion: Static fallbacks
@@ -991,6 +1068,7 @@ class SceneDirector {
 ## 📝 DELIVERABLES CHECKLIST
 
 ### Code Architecture:
+
 - [ ] `SceneDirector` class managing all scenes
 - [ ] Individual scene modules (Scene00-Scene15)
 - [ ] Transition system with 10 transition types
@@ -1000,6 +1078,7 @@ class SceneDirector {
 - [ ] Audio system (optional but recommended)
 
 ### Scene Implementations:
+
 - [ ] Scene 00 - Genesis Origin Core (enhanced)
 - [ ] Scene 01 - Liquid-Metal Relic (enhanced)
 - [ ] Scene 02 - Million Fireflies Symphony (enhanced)
@@ -1018,6 +1097,7 @@ class SceneDirector {
 - [ ] Scene 15 - Reality Collapse Finale (NEW)
 
 ### UI/UX Elements:
+
 - [ ] Scene index indicator
 - [ ] Scene title display
 - [ ] Interaction hints (contextual per scene)
@@ -1027,6 +1107,7 @@ class SceneDirector {
 - [ ] Settings menu (quality, audio, reduced motion)
 
 ### Documentation:
+
 - [ ] Architecture overview (how system works)
 - [ ] How to add a new scene (developer guide)
 - [ ] Performance tiers explanation
@@ -1035,6 +1116,7 @@ class SceneDirector {
 - [ ] Browser compatibility notes
 
 ### Testing:
+
 - [ ] All scenes render correctly
 - [ ] Transitions are smooth
 - [ ] No memory leaks (check with DevTools)
@@ -1050,6 +1132,7 @@ class SceneDirector {
 This implementation will be considered **LEGENDARY** when:
 
 ### Technical Excellence:
+
 ✅ 60fps maintained on flagship devices in all 15 scenes
 ✅ Zero memory leaks (can scroll up/down infinitely)
 ✅ Load time under 3 seconds on 4G
@@ -1057,6 +1140,7 @@ This implementation will be considered **LEGENDARY** when:
 ✅ Clean, modular code (any developer can add Scene16 easily)
 
 ### Visual Impact:
+
 ✅ Each scene looks like it's from a different studio's showreel
 ✅ Non-technical users say "wow" or "how did they do that"
 ✅ Developers ask "what framework is this?" (Three.js surprises)
@@ -1064,6 +1148,7 @@ This implementation will be considered **LEGENDARY** when:
 ✅ No scene feels generic or "template-like"
 
 ### Interaction Design:
+
 ✅ Users naturally discover interactions without instructions
 ✅ Every input type (mouse, touch, scroll, gyro) adds value
 ✅ Interactions feel responsive and satisfying
@@ -1071,6 +1156,7 @@ This implementation will be considered **LEGENDARY** when:
 ✅ Reduced motion users get full experience (different, not broken)
 
 ### Emotional Response:
+
 ✅ Creates sense of wonder and curiosity
 ✅ Users scroll slowly to see every detail
 ✅ Users share it with others
@@ -1082,21 +1168,25 @@ This implementation will be considered **LEGENDARY** when:
 ## 🚀 FINAL NOTES TO THE AGENT
 
 ### Your Mission:
+
 You are not just implementing features—you are **crafting an experience** that will be referenced, studied, and remembered. Every line of code should serve beauty and performance equally.
 
 ### Mindset:
+
 - **Think like a film director:** Every frame matters
 - **Think like a game developer:** Performance is non-negotiable
 - **Think like an artist:** Aesthetics are not optional
 - **Think like an engineer:** Architecture must be clean
 
 ### If You Must Choose:
+
 1. **Prefer smooth to detailed** - 60fps smooth simple > 30fps detailed complex
 2. **Prefer unique to polished** - Rough original > Polished generic
 3. **Prefer interactive to beautiful** - Responds to input > Static beauty
 4. **Prefer modular to monolithic** - Clean separation > One-file efficiency
 
 ### Forbidden Phrases:
+
 - "Basic cube/sphere" (every shape must have purpose)
 - "Simple particle system" (particles must have behavior)
 - "Standard material" (materials must have character)
@@ -1104,7 +1194,9 @@ You are not just implementing features—you are **crafting an experience** that
 - "Good enough" (only "legendary" is acceptable)
 
 ### Quality Bar:
+
 Before considering any scene "done", ask:
+
 1. Would this scene win FotD on Awwwards?
 2. Would Bruno Simon be impressed?
 3. Is this scene meaningfully interactive?
@@ -1118,6 +1210,7 @@ Before considering any scene "done", ask:
 ## 🎬 NOW BEGIN:
 
 **Your first step:** Ask me 3-5 clarifying questions about:
+
 - Brand aesthetic preferences (prefer organic vs. geometric, warm vs. cool, minimal vs. maximal)
 - Target devices (can we drop support for old mobile devices?)
 - Audio (OK to include? User-initiated or auto-play?)
@@ -1130,4 +1223,4 @@ Before considering any scene "done", ask:
 
 ---
 
-*Let's create magic. 🌟*
+_Let's create magic. 🌟_

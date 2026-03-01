@@ -57,7 +57,9 @@ export default function RevealOnScroll({
       ref={ref}
       style={{
         opacity: revealed ? 1 : 0,
-        transform: revealed ? 'translate3d(0,0,0)' : initialTransform(animation),
+        transform: revealed
+          ? 'translate3d(0,0,0)'
+          : initialTransform(animation),
         transition: `opacity 500ms ease ${delay}ms, transform 500ms ease ${delay}ms`,
       }}
     >

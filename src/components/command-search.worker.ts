@@ -14,7 +14,8 @@ type WorkerRequest =
 
 type WorkerResponse = { type: 'results'; query: string; ids: string[] };
 
-const ctx: DedicatedWorkerGlobalScope = self as unknown as DedicatedWorkerGlobalScope;
+const ctx: DedicatedWorkerGlobalScope =
+  self as unknown as DedicatedWorkerGlobalScope;
 
 const FUSE_OPTIONS = {
   keys: ['label', 'category', 'keywords', 'description'],
@@ -42,7 +43,11 @@ function handleSearch(query: string) {
     if (collection.length > 0) {
       ensureFuse(collection);
     } else {
-      ctx.postMessage({ type: 'results', query, ids: [] } satisfies WorkerResponse);
+      ctx.postMessage({
+        type: 'results',
+        query,
+        ids: [],
+      } satisfies WorkerResponse);
       return;
     }
   }
