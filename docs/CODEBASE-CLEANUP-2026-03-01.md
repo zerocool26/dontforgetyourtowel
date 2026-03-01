@@ -81,3 +81,19 @@ After the archive pass, additional reliability and feature-completion fixes were
 - `npm run lint` ✅
 - `npm run build` ✅
 - `runTests` (all) ✅
+
+## Compatibility redirects added
+
+To avoid hard 404s for old public links/bookmarks, lightweight legacy stubs were
+reintroduced under `src/pages/` using `LegacyRedirect`:
+
+- `components.astro`
+- `demo.astro`
+- `demo-lab.astro`
+- `hero-lab.astro`
+- `mobile-features-demo.astro`
+- `shop-demo.astro`
+- `utility-demo.astro`
+
+These routes now immediately redirect to maintained destinations while remaining
+excluded by legacy route policy/robots controls.
