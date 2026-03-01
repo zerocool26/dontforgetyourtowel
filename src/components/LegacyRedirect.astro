@@ -6,12 +6,14 @@ interface Props {
   destination?: string;
   reason?: string;
   statusText?: string;
+  preserveParams?: boolean;
 }
 
 const {
   destination = '/',
   reason = 'This page is no longer available.',
   statusText = 'Redirecting…',
+  preserveParams = true,
 } = Astro.props as Props;
 
 const href = destination.startsWith('/')
@@ -20,7 +22,11 @@ const href = destination.startsWith('/')
 ---
 
 <!doctype html>
-<html lang="en">
+<html
+  lang="en"
+  data-redirect-target={href}
+  data-redirect-preserve={preserveParams ? 'true' : 'false'}
+>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -65,7 +71,7 @@ const href = destination.startsWith('/')
         line-height: 1.5;
       }
       a {
-        color: #60a5fa;
+        color: #ccff00;
       }
     </style>
   </head>
@@ -81,5 +87,33 @@ const href = destination.startsWith('/')
         </p>
       </div>
     </main>
+    <script is:inline>
+      (() => {
+        try {
+          const root = document.documentElement;
+          const targetValue = root.getAttribute('data-redirect-target') || '';
+          const shouldPreserve =
+            root.getAttribute('data-redirect-preserve') !== 'false';
+
+          if (!targetValue) return;
+
+          const target = new URL(targetValue, window.location.href);
+          const current = new URL(window.location.href);
+
+          if (shouldPreserve) {
+            if (!target.search && current.search)
+              target.search = current.search;
+            if (!target.hash && current.hash) target.hash = current.hash;
+          }
+
+          const nextUrl = target.toString();
+          if (nextUrl !== window.location.href) {
+            window.location.replace(nextUrl);
+          }
+        } catch {
+          // no-op: meta refresh remains fallback
+        }
+      })();
+    </script>
   </body>
 </html>

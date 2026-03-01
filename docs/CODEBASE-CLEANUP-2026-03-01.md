@@ -93,7 +93,13 @@ reintroduced under `src/pages/` using `LegacyRedirect`:
 - `hero-lab.astro`
 - `mobile-features-demo.astro`
 - `shop-demo.astro`
+- `showcase.astro`
+- `ultimate-3d-gallery.astro`
 - `utility-demo.astro`
+- `visual-showcase.astro`
 
 These routes now immediately redirect to maintained destinations while remaining
 excluded by legacy route policy/robots controls.
+
+`LegacyRedirect` was also enhanced to preserve incoming query-string and hash
+fragments by default, so old shared URLs keep their context when forwarding.
