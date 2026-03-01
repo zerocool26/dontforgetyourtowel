@@ -6,6 +6,7 @@ import { ArtisticSkylineScene } from './tower3d/three/scenes/definitions/Artisti
 import { ElectricStormScene } from './tower3d/three/scenes/definitions/ElectricStormScene';
 import { HolographicCityScene } from './tower3d/three/scenes/definitions/HolographicCityScene';
 import { NeuralNetworkScene } from './tower3d/three/scenes/definitions/NeuralNetworkScene';
+import { CreativeNexusScene } from './tower3d/three/scenes/definitions/CreativeNexusScene';
 import type {
   SceneRuntime,
   TowerScene,
@@ -23,7 +24,8 @@ export type HeroSceneVariant =
   | 'neural' // Scene 11 — Neural Constellation (preferred)
   | 'city' // Scene 14 — Neon Metropolis
   | 'storm' // Scene 16 — Ethereal Storm
-  | 'aurora'; // Scene 04 — Aurora Curtains
+  | 'aurora' // Scene 04 — Aurora Curtains
+  | 'nexus'; // Creative Nexus (New)
 
 export function createHeroScene(
   canvas: HTMLCanvasElement,
@@ -142,13 +144,14 @@ export function createHeroScene(
     if (variant === 'city') return new HolographicCityScene();
     if (variant === 'storm') return new ElectricStormScene();
     if (variant === 'aurora') return new AuroraCurtainScene();
+    if (variant === 'nexus') return new CreativeNexusScene();
 
     if (caps.reducedMotion || caps.performanceTier === 'low') {
       return new AuroraCurtainScene();
     }
 
-    // Default: advanced artistic skyline chapter on capable devices.
-    return new ArtisticSkylineScene();
+    // Default: new creative nexus chapter on capable devices.
+    return new CreativeNexusScene();
   };
 
   const scene = pickScene();
