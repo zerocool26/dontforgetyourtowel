@@ -1,4 +1,5 @@
 ---
+/* eslint-disable astro/no-set-html-directive */
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
 import ModernCard from '../components/ui/ModernCard.astro';
@@ -151,10 +152,12 @@ const servicesBreadcrumbSchema = {
   title="Services | Olive Global Systems"
   description="Enterprise service catalog across cybersecurity, MSP, AI consulting, application engineering, network architecture, and cloud delivery."
 >
+  <!-- eslint-disable-next-line astro/no-set-html-directive -->
   <script
     type="application/ld+json"
     set:html={JSON.stringify(organizationSchema)}
   />
+  <!-- eslint-disable-next-line astro/no-set-html-directive -->
   <script
     type="application/ld+json"
     set:html={JSON.stringify(servicesBreadcrumbSchema)}
@@ -165,7 +168,7 @@ const servicesBreadcrumbSchema = {
     data-reveal
   >
     <div
-      class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(0,102,255,0.16),_transparent_55%)]"
+      class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(204,255,0,0.12),_transparent_55%)]"
     >
     </div>
     <div class="mx-auto max-w-[1220px] px-6">

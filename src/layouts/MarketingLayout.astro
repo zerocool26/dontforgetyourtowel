@@ -60,7 +60,7 @@ const {
           );
 
           const hasBadAssetPath = scripts.some(el => {
-            const src = (el as HTMLScriptElement).src;
+            const src = el instanceof HTMLScriptElement ? el.src : '';
             if (!src) return false;
             const p = new URL(src, document.baseURI).pathname;
             return p.startsWith('/_astro/');

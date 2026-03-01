@@ -1,26 +1,23 @@
 ## Github Pages 2026 Demo
 
-Astro static site with base-path-safe routing, interactive demo modules, and
+Astro static site with base-path-safe routing, premium marketing UI, and
 Playwright/Vitest quality gates.
 
 ### Key routes
 
 - `/` Home
 - `/services/` Service catalog and engagement flow
+- `/about/` Portfolio + interactive commerce showcase
 - `/contact-hq/` Contact intake and recommendation handoff
-- `/demo-lab/` Interactive module sandbox with Safety Console controls
+- `/blog/` Blog index and tag/slug routes
 
-### Demo Lab safety controls
+### Cleanup and archive policy
 
-The Safety Console on `/demo-lab/` exposes three runtime toggles backed by
-`data-demo-*` attributes on `<html>` and module containers:
+Dead code and stale docs are migrated to archive folders instead of being
+hard-deleted from git history.
 
-- `paused`
-- `reduced` (reduced motion override)
-- `perf` (performance mode)
-
-Interactive modules observe these flags to pause off-screen work and reduce
-motion/CPU load when requested.
+- Archive root: `backups/dead-code-archive-2026-03-01/`
+- Cleanup notes: `docs/CODEBASE-CLEANUP-2026-03-01.md`
 
 ### Validation commands
 

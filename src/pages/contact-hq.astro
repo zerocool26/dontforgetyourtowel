@@ -1,4 +1,5 @@
 ---
+/* eslint-disable astro/no-set-html-directive */
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 import ModernCard from '../components/ui/ModernCard.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
@@ -142,19 +143,22 @@ const faqSchema = {
   title="Contact | Olive Global Systems"
   description="Creative intake hub for project discovery, operational support, security advisory, and partnership conversations."
 >
+  <!-- eslint-disable-next-line astro/no-set-html-directive -->
   <script
     type="application/ld+json"
     set:html={JSON.stringify(organizationSchema)}
   />
+  <!-- eslint-disable-next-line astro/no-set-html-directive -->
   <script
     type="application/ld+json"
     set:html={JSON.stringify(contactBreadcrumbSchema)}
   />
+  <!-- eslint-disable-next-line astro/no-set-html-directive -->
   <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
 
   <section class="tone-surface relative overflow-hidden" data-reveal>
     <div
-      class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(124,58,237,0.24),_transparent_52%)]"
+      class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(204,255,0,0.14),_transparent_52%)]"
     >
     </div>
     <div class="relative mx-auto max-w-[1220px] px-6 pb-16 pt-28">
