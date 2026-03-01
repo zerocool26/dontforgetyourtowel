@@ -13,7 +13,7 @@ export const GET: APIRoute = () => {
     scope: withBasePath(''),
     display: 'standalone',
     background_color: '#0f172a',
-    theme_color: '#6366f1',
+    theme_color: '#ccff00',
     orientation: 'portrait-primary',
     categories: ['business', 'productivity', 'portfolio'],
     icons: [
@@ -46,10 +46,10 @@ export const GET: APIRoute = () => {
         icons: [{ src: withBasePath('favicon-192.png'), sizes: '192x192' }],
       },
       {
-        name: 'Demo Lab',
-        short_name: 'Demo Lab',
-        description: 'Open interactive creative technology demos',
-        url: withBasePath('demo-lab/'),
+        name: 'Portfolio Demo',
+        short_name: 'Portfolio',
+        description: 'Open interactive ecommerce portfolio experience',
+        url: withBasePath('about/#shop-experience'),
         icons: [{ src: withBasePath('favicon-192.png'), sizes: '192x192' }],
       },
     ],

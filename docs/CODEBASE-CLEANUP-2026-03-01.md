@@ -60,3 +60,24 @@ These docs referenced deprecated routes/components and old upgrade prompts that 
 ## Follow-up recommendation
 
 If no rollback is needed after 1–2 release cycles, archive folders can be split into a separate long-term branch or external storage to further slim repository size.
+
+## Post-cleanup hardening (same day)
+
+After the archive pass, additional reliability and feature-completion fixes were applied:
+
+- Fixed inline script compatibility in `src/layouts/MarketingLayout.astro` by removing TypeScript-only assertion syntax from browser-executed code.
+- Migrated the old demo-lab safety checks to the live portfolio experience in `src/pages/about.astro` by adding a testable safety status output (`data-demo-status`, `data-testid="demo-safety-status"`).
+- Updated e2e coverage to current live routes:
+  - `e2e/demo-lab.spec.ts` now validates `/about/` demo behavior.
+  - `e2e/search.spec.ts` and `e2e/seo-deployment-coherence.spec.ts` were aligned with retired route policy.
+- Removed stale discoverability/navigation links to retired pages:
+  - `src/components/CommandPalette.tsx`
+  - `src/pages/search-index.json.ts`
+  - `src/pages/manifest.webmanifest.ts`
+- Marked `/demo-lab` as legacy in `config/legacyRoutes.js` and aligned tests accordingly.
+
+### Verification outcome
+
+- `npm run lint` ✅
+- `npm run build` ✅
+- `runTests` (all) ✅

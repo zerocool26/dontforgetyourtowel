@@ -49,7 +49,7 @@ describe('service worker precache list', () => {
     const paths = extractStaticAssetPaths(source);
 
     const htmlOrRoutePaths = paths.filter(
-      p => p.endsWith('.html') || p === 'demo-lab/' || p === 'services/'
+      p => p.endsWith('.html') || p === 'about/' || p === 'services/'
     );
 
     expect(htmlOrRoutePaths).toEqual([]);

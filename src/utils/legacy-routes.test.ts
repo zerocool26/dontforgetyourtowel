@@ -22,7 +22,6 @@ describe('legacy routes (URL normalization)', () => {
     expect(isLegacyRouteUrl('/demo')).toBe(true);
     expect(isLegacyRouteUrl('/demo/anything')).toBe(true);
 
-    // Important: should not match /demo-lab.
-    expect(isLegacyRouteUrl('/demo-lab/')).toBe(false);
+    expect(isLegacyRouteUrl('/demo-lab/')).toBe(true);
   });
 });

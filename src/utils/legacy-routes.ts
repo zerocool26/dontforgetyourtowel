@@ -6,7 +6,7 @@ function stripHashAndQuery(value: string): string {
 }
 
 /**
- * Normalizes a base-agnostic route-ish string (e.g. `services/`, `/demo-lab/`,
+ * Normalizes a base-agnostic route-ish string (e.g. `services/`, `/about/`,
  * `services/#case-studies`, or a full URL) into a pathname for legacy matching.
  */
 export function normalizePathnameFromUrlish(urlish: string): string {

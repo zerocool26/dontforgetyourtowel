@@ -111,23 +111,6 @@ export async function GET() {
       tags: ['contact', 'intake', 'support', 'project'],
     },
     {
-      id: 'page-shop-demo',
-      title: 'Shop Demo',
-      description: 'A realistic e-commerce shopping experience demo',
-      category: 'Page',
-      url: 'shop-demo/',
-      tags: ['demo', 'shop', 'ecommerce', 'cart', 'checkout'],
-    },
-    {
-      id: 'page-demo-lab',
-      title: 'Demo Lab',
-      description:
-        'Experimental 3D and motion playground for advanced interface prototypes',
-      category: 'Page',
-      url: 'demo-lab/',
-      tags: ['demo', 'lab', '3d', 'creative', 'motion', 'showcase'],
-    },
-    {
       id: 'page-privacy',
       title: 'Privacy Policy',
       description: 'How we handle data and privacy',

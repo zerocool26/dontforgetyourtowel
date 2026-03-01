@@ -15,11 +15,11 @@ test.describe('SEO + deployment coherence', () => {
     expect(body).toContain('Disallow: /dashboard/');
     expect(body).toContain('Disallow: /demo/');
 
-    // Demo lab is a current route and must not be blocked by robots rules.
-    expect(body).not.toContain('Disallow: /demo-lab/');
+    // Demo lab was retired and should remain blocked from indexing.
+    expect(body).toContain('Disallow: /demo-lab/');
   });
 
-  test('search index includes demo-lab and excludes legacy routes', async ({
+  test('search index excludes retired demo-lab and legacy routes', async ({
     request,
   }) => {
     const searchIndexResponse = await request.get('./search-index.json');
@@ -33,7 +33,7 @@ test.describe('SEO + deployment coherence', () => {
       .map(item => item.url)
       .filter((url): url is string => typeof url === 'string');
 
-    expect(urls).toContain('demo-lab/');
+    expect(urls).not.toContain('demo-lab/');
     expect(urls).not.toContain('dashboard/');
     expect(urls).not.toContain('demo/');
   });

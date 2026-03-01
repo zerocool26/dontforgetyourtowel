@@ -9,6 +9,7 @@ export const LEGACY_ROUTE_BASES = [
   '/dashboard',
   '/dashboard-v2',
   '/demo',
+  '/demo-lab',
   '/error-dashboard',
   '/showcase',
   '/ultimate-3d-gallery',

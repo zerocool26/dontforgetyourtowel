@@ -23,16 +23,18 @@ test.describe('Search index discoverability', () => {
 
     expect(urls).toContain('services/');
     expect(urls).toContain('contact-hq/');
-    expect(urls).toContain('demo-lab/');
     expect(urls).toContain('about/');
+    expect(urls).toContain('about/?demo=cart#shop-experience');
 
     expect(urls).not.toContain('dashboard/');
     expect(urls).not.toContain('dashboard-v2/');
     expect(urls).not.toContain('demo/');
+    expect(urls).not.toContain('demo-lab/');
+    expect(urls).not.toContain('shop-demo/');
     expect(urls).not.toContain('utility-demo/');
   });
 
-  test('contains expected searchable metadata for demo-lab', async ({
+  test('contains expected searchable metadata for portfolio demo', async ({
     request,
   }) => {
     const response = await request.get('./search-index.json');
@@ -45,11 +47,15 @@ test.describe('Search index discoverability', () => {
       url?: string;
     }>;
 
-    const demoLab = items.find(item => item.url === 'demo-lab/');
-    expect(demoLab).toBeTruthy();
-    expect(demoLab?.id).toContain('demo-lab');
-    expect((demoLab?.tags ?? []).some(tag => /demo|lab|3d/i.test(tag))).toBe(
-      true
+    const portfolioDemo = items.find(
+      item => item.url === 'about/?demo=cart#shop-experience'
     );
+    expect(portfolioDemo).toBeTruthy();
+    expect(portfolioDemo?.id).toContain('about-demo-cart');
+    expect(
+      (portfolioDemo?.tags ?? []).some(tag =>
+        /portfolio|demo|ecommerce|cart/i.test(tag)
+      )
+    ).toBe(true);
   });
 });
