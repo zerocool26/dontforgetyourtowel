@@ -7,6 +7,7 @@ import MarketingLayout from '../layouts/MarketingLayout.astro';
 import ModernCard from '../components/ui/ModernCard.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
 import { withBasePath } from '../utils/helpers';
+import { LEGACY_REDIRECT_DESTINATIONS } from '../../config/legacyRedirects.js';
 
 const quickLinks = [
   {
@@ -36,21 +37,11 @@ const quickLinks = [
   },
 ];
 
-const legacyRedirectMap: Record<string, string> = {
-  '/components': withBasePath('services/'),
-  '/dashboard': withBasePath('/'),
-  '/dashboard-v2': withBasePath('/'),
-  '/demo': withBasePath('about/'),
-  '/demo-lab': withBasePath('about/#shop-experience'),
-  '/error-dashboard': withBasePath('/'),
-  '/hero-lab': withBasePath('about/'),
-  '/mobile-features-demo': withBasePath('about/'),
-  '/showcase': withBasePath('about/'),
-  '/shop-demo': withBasePath('about/#shop-experience'),
-  '/ultimate-3d-gallery': withBasePath('about/#shop-experience'),
-  '/utility-demo': withBasePath('about/'),
-  '/visual-showcase': withBasePath('about/'),
-};
+const legacyRedirectMap = Object.fromEntries(
+  Object.entries(LEGACY_REDIRECT_DESTINATIONS).map(
+    ([legacyPath, destination]) => [legacyPath, withBasePath(destination)]
+  )
+);
 ---
 
 <MarketingLayout

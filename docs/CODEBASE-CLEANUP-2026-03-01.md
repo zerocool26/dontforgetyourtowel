@@ -114,3 +114,7 @@ stale commented templates and unused frontmatter:
 The 404 experience now includes a base-path-aware legacy route fallback map so
 known retired URLs are auto-forwarded to current destinations even if a direct
 legacy stub is missed.
+
+Legacy route destinations are now centralized in
+`config/legacyRedirects.js` and reused by both route-policy logic and 404
+fallback handling to avoid configuration drift.

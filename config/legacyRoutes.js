@@ -4,21 +4,9 @@
  * filtering, and any other route-truth sources.
  */
 
-export const LEGACY_ROUTE_BASES = [
-  '/components',
-  '/dashboard',
-  '/dashboard-v2',
-  '/demo',
-  '/demo-lab',
-  '/error-dashboard',
-  '/hero-lab',
-  '/mobile-features-demo',
-  '/showcase',
-  '/shop-demo',
-  '/ultimate-3d-gallery',
-  '/utility-demo',
-  '/visual-showcase',
-];
+import { LEGACY_REDIRECT_DESTINATIONS } from './legacyRedirects.js';
+
+export const LEGACY_ROUTE_BASES = Object.keys(LEGACY_REDIRECT_DESTINATIONS);
 
 const trimTrailingSlashes = value =>
   value === '/' ? '/' : String(value).replace(/\/+$/, '');
