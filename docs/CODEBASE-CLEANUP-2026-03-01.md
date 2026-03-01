@@ -118,3 +118,32 @@ legacy stub is missed.
 Legacy route destinations are now centralized in
 `config/legacyRedirects.js` and reused by both route-policy logic and 404
 fallback handling to avoid configuration drift.
+
+## Maturity follow-up (telemetry, blog, and RSS)
+
+Additional lifecycle hardening was applied to reduce operational ambiguity in
+the static deployment profile:
+
+- Telemetry is now explicit opt-in end-to-end (`PUBLIC_ENABLE_ANALYTICS` must
+  be truthy for web vitals/error beaconing and utility tracker activity).
+- Public blog routes were decommissioned and replaced with legacy redirects to
+  active case-study content (`/services/#case-studies`).
+- Search index generation no longer publishes blog entries.
+- `rss.xml` now returns `410 Gone` to make feed retirement explicit to crawlers.
+- Scaffolding was realigned from blog-post generation to case-study generation
+  (`case-study <title>`), with `post <title>` retained as a deprecated alias.
+
+## Wave 2 cleanup (orphan removal)
+
+After decommission behavior stabilized, a follow-up pruning pass removed orphaned
+blog-era code that no longer participates in runtime execution:
+
+- Removed unused blog helper module: `src/utils/blog.ts`.
+- Removed blog-related recommendation branch from
+  `src/utils/related-content.ts` and kept case-study logic only.
+- Pruned blog-only unit tests from `src/utils/related-content.test.ts`.
+- Removed stale blog interfaces from `src/types/index.ts`.
+- Removed stale skipped blog e2e suite: `e2e/blog.spec.ts`.
+- Removed unused layout: `src/layouts/BlogPost.astro`.
+- Updated route tests to assert current manifest shortcut behavior and RSS
+  decommission contract (`410 Gone`).

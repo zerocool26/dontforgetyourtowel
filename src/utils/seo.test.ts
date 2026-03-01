@@ -207,8 +207,8 @@ describe('generateBreadcrumbSchema', () => {
   it('generates valid breadcrumb schema', () => {
     const schema = generateBreadcrumbSchema([
       { name: 'Home', url: 'https://example.com' },
-      { name: 'Blog', url: 'https://example.com/blog' },
-      { name: 'Article', url: 'https://example.com/blog/article' },
+      { name: 'Services', url: 'https://example.com/services' },
+      { name: 'Case Study', url: 'https://example.com/services#case-studies' },
     ]);
 
     expect(schema).toHaveProperty('@type', 'BreadcrumbList');

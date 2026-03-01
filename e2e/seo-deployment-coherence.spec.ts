@@ -36,5 +36,17 @@ test.describe('SEO + deployment coherence', () => {
     expect(urls).not.toContain('demo-lab/');
     expect(urls).not.toContain('dashboard/');
     expect(urls).not.toContain('demo/');
+    expect(urls).not.toContain('blog/');
+  });
+
+  test('rss endpoint is explicitly retired', async ({ request }) => {
+    const rssResponse = await request.get('./rss.xml');
+    expect(rssResponse.status()).toBe(410);
+
+    const contentType = rssResponse.headers()['content-type'] ?? '';
+    expect(contentType).toContain('application/xml');
+
+    const body = await rssResponse.text();
+    expect(body).toContain('RSS feed has been retired');
   });
 });

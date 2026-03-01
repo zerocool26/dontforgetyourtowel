@@ -82,59 +82,6 @@ export type Prettify<T> = {
   [K in keyof T]: T[K];
 } & Record<string, never>;
 
-/* ==================== BLOG TYPES ==================== */
-
-// Astro component type
-export type AstroComponent = {
-  default: (props: Record<string, unknown>) => unknown;
-};
-
-// Enhanced blog post types with modern features
-export interface BlogPostFrontmatter {
-  title: string;
-  description: string;
-  pubDate: Date;
-  updatedDate?: Date;
-  heroImage?: string;
-  tags?: string[];
-  author?: string;
-  draft?: boolean;
-  featured?: boolean;
-  category?: string;
-  readingTime?: number;
-  seo?: {
-    title?: string;
-    description?: string;
-    ogImage?: string;
-    ogType?: string;
-    twitterCard?: 'summary' | 'summary_large_image';
-    canonicalUrl?: string;
-  };
-}
-
-export interface BlogPost {
-  slug: string;
-  frontmatter: BlogPostFrontmatter;
-  Content: AstroComponent;
-  excerpt?: string;
-  wordCount?: number;
-  relatedPosts?: BlogPost[];
-}
-
-export interface BlogCategory {
-  name: string;
-  slug: string;
-  description?: string;
-  color?: string;
-  postCount?: number;
-}
-
-export interface BlogTag {
-  name: string;
-  slug: string;
-  postCount?: number;
-}
-
 /* ==================== UI COMPONENT TYPES ==================== */
 
 // Modern button component types

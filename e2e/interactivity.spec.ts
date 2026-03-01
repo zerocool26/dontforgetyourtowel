@@ -24,7 +24,7 @@ test.describe('Interactivity Features', () => {
       await expect(modal).toBeVisible({ timeout: 10000 });
     });
 
-    test.skip('should navigate to pages via command', async ({ page }) => {
+    test.skip('should navigate to services via command', async ({ page }) => {
       await page.goto('./');
 
       // Wait for client-side hydration
@@ -43,14 +43,14 @@ test.describe('Interactivity Features', () => {
       );
       await expect(input).toBeVisible({ timeout: 10000 });
 
-      // Type "Blog"
-      await input.fill('Blog');
+      // Type "Services"
+      await input.fill('Services');
 
       // Press Enter on the first result
       await page.keyboard.press('Enter');
 
       // Verify navigation
-      await expect(page).toHaveURL(/\/blog/);
+      await expect(page).toHaveURL(/\/services/);
     });
   });
 

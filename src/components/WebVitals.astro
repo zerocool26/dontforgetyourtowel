@@ -9,7 +9,16 @@
   import { onCLS, onFCP, onLCP, onTTFB, onINP } from 'web-vitals';
   import type { Metric } from 'web-vitals';
 
+  const analyticsFlag = import.meta.env.PUBLIC_ENABLE_ANALYTICS;
+  const analyticsEnabled =
+    analyticsFlag === 'true' ||
+    analyticsFlag === '1' ||
+    analyticsFlag === 'yes' ||
+    analyticsFlag === 'on';
+
   function sendToAnalytics(metric: Metric): void {
+    if (!analyticsEnabled) return;
+
     const body = JSON.stringify(metric);
 
     // Send to analytics endpoint (customize this)
@@ -30,11 +39,13 @@
   }
 
   // Track all Core Web Vitals
-  onCLS(sendToAnalytics);
-  onFCP(sendToAnalytics);
-  onLCP(sendToAnalytics);
-  onTTFB(sendToAnalytics);
-  onINP(sendToAnalytics); // INP replaced FID in web-vitals v3+
+  if (analyticsEnabled) {
+    onCLS(sendToAnalytics);
+    onFCP(sendToAnalytics);
+    onLCP(sendToAnalytics);
+    onTTFB(sendToAnalytics);
+    onINP(sendToAnalytics); // INP replaced FID in web-vitals v3+
+  }
 
   // Performance observer for additional metrics
   if ('PerformanceObserver' in window) {

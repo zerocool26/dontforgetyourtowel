@@ -52,7 +52,11 @@ class AnalyticsTracker {
     provider?: AnalyticsProvider;
   } = {
     debug: import.meta.env.DEV,
-    enabled: true,
+    enabled:
+      import.meta.env.PUBLIC_ENABLE_ANALYTICS === 'true' ||
+      import.meta.env.PUBLIC_ENABLE_ANALYTICS === '1' ||
+      import.meta.env.PUBLIC_ENABLE_ANALYTICS === 'yes' ||
+      import.meta.env.PUBLIC_ENABLE_ANALYTICS === 'on',
     sampleRate: 1,
   };
 

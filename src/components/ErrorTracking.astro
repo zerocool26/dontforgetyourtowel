@@ -19,8 +19,16 @@
 
   const errors: ErrorReport[] = [];
   const MAX_ERRORS = 10;
+  const analyticsFlag = import.meta.env.PUBLIC_ENABLE_ANALYTICS;
+  const analyticsEnabled =
+    analyticsFlag === 'true' ||
+    analyticsFlag === '1' ||
+    analyticsFlag === 'yes' ||
+    analyticsFlag === 'on';
 
   function sendErrorReport(error: ErrorReport) {
+    if (!analyticsEnabled) return;
+
     // Store in localStorage for debugging
     try {
       const stored = JSON.parse(localStorage.getItem('error-reports') || '[]');
@@ -50,48 +58,50 @@
     }
   }
 
-  // Global error handler
-  window.addEventListener('error', event => {
-    const error: ErrorReport = {
-      message: event.message,
-      stack: event.error?.stack,
-      url: event.filename || window.location.href,
-      line: event.lineno,
-      column: event.colno,
-      userAgent: navigator.userAgent,
-      timestamp: Date.now(),
-      type: 'error',
-    };
-    sendErrorReport(error);
-  });
+  if (analyticsEnabled) {
+    // Global error handler
+    window.addEventListener('error', event => {
+      const error: ErrorReport = {
+        message: event.message,
+        stack: event.error?.stack,
+        url: event.filename || window.location.href,
+        line: event.lineno,
+        column: event.colno,
+        userAgent: navigator.userAgent,
+        timestamp: Date.now(),
+        type: 'error',
+      };
+      sendErrorReport(error);
+    });
 
-  // Unhandled promise rejection handler
-  window.addEventListener('unhandledrejection', event => {
-    const error: ErrorReport = {
-      message: event.reason?.message || String(event.reason),
-      stack: event.reason?.stack,
-      url: window.location.href,
-      userAgent: navigator.userAgent,
-      timestamp: Date.now(),
-      type: 'unhandledrejection',
-    };
-    sendErrorReport(error);
-  });
+    // Unhandled promise rejection handler
+    window.addEventListener('unhandledrejection', event => {
+      const error: ErrorReport = {
+        message: event.reason?.message || String(event.reason),
+        stack: event.reason?.stack,
+        url: window.location.href,
+        userAgent: navigator.userAgent,
+        timestamp: Date.now(),
+        type: 'unhandledrejection',
+      };
+      sendErrorReport(error);
+    });
 
-  // Console error override (optional)
-  const originalConsoleError = console.error;
-  console.error = function (...args) {
-    originalConsoleError.apply(console, args);
+    // Console error override (optional)
+    const originalConsoleError = console.error;
+    console.error = function (...args) {
+      originalConsoleError.apply(console, args);
 
-    const error: ErrorReport = {
-      message: args.map(arg => String(arg)).join(' '),
-      url: window.location.href,
-      userAgent: navigator.userAgent,
-      timestamp: Date.now(),
-      type: 'error',
+      const error: ErrorReport = {
+        message: args.map(arg => String(arg)).join(' '),
+        url: window.location.href,
+        userAgent: navigator.userAgent,
+        timestamp: Date.now(),
+        type: 'error',
+      };
+      sendErrorReport(error);
     };
-    sendErrorReport(error);
-  };
+  }
 
   // Type declaration for custom window property (using module augmentation)
   declare global {
@@ -120,31 +130,33 @@
   };
 
   // Monitor fetch failures
-  const originalFetch = window.fetch;
-  window.fetch = async function (...args) {
-    try {
-      const response = await originalFetch.apply(this, args);
-      if (!response.ok && import.meta.env.DEV) {
-        console.warn(
-          '[Fetch Error]',
-          response.status,
-          response.statusText,
-          args[0]
-        );
+  if (analyticsEnabled) {
+    const originalFetch = window.fetch;
+    window.fetch = async function (...args) {
+      try {
+        const response = await originalFetch.apply(this, args);
+        if (!response.ok && import.meta.env.DEV) {
+          console.warn(
+            '[Fetch Error]',
+            response.status,
+            response.statusText,
+            args[0]
+          );
+        }
+        return response;
+      } catch (error) {
+        const errorReport: ErrorReport = {
+          message: `Fetch failed: ${error}`,
+          url: typeof args[0] === 'string' ? args[0] : window.location.href,
+          userAgent: navigator.userAgent,
+          timestamp: Date.now(),
+          type: 'error',
+        };
+        sendErrorReport(errorReport);
+        throw error;
       }
-      return response;
-    } catch (error) {
-      const errorReport: ErrorReport = {
-        message: `Fetch failed: ${error}`,
-        url: typeof args[0] === 'string' ? args[0] : window.location.href,
-        userAgent: navigator.userAgent,
-        timestamp: Date.now(),
-        type: 'error',
-      };
-      sendErrorReport(errorReport);
-      throw error;
-    }
-  };
+    };
+  }
 
   // Report to console on page unload (dev only)
   if (import.meta.env.DEV) {

@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { GET as manifestGET } from '../pages/manifest.webmanifest.ts';
 import { GET as robotsGET } from '../pages/robots.txt.ts';
 import { GET as securityGET } from '../pages/.well-known/security.txt.ts';
+import { GET as rssGET } from '../pages/rss.xml.js';
 
 describe('Runtime routes', () => {
   it('emits a base-aware manifest', async () => {
@@ -26,7 +27,7 @@ describe('Runtime routes', () => {
     expect(
       shortcutUrls.some((u: any) => String(u).includes('contact-hq'))
     ).toBe(true);
-    expect(shortcutUrls.some((u: any) => String(u).includes('demo-lab'))).toBe(
+    expect(shortcutUrls.some((u: any) => String(u).includes('about'))).toBe(
       true
     );
   });
@@ -50,5 +51,16 @@ describe('Runtime routes', () => {
 
     const expiry = new Date(match?.[1] ?? '');
     expect(expiry.getTime()).toBeGreaterThan(Date.now());
+  });
+
+  it('returns 410 for retired rss.xml', async () => {
+    const res = await rssGET({} as any);
+    expect(res.status).toBe(410);
+
+    const contentType = res.headers.get('Content-Type') ?? '';
+    expect(contentType).toContain('application/xml');
+
+    const text = await res.text();
+    expect(text).toContain('RSS feed has been retired');
   });
 });

@@ -30,6 +30,7 @@ test.describe('Search index discoverability', () => {
     expect(urls).not.toContain('dashboard-v2/');
     expect(urls).not.toContain('demo/');
     expect(urls).not.toContain('demo-lab/');
+    expect(urls).not.toContain('blog/');
     expect(urls).not.toContain('shop-demo/');
     expect(urls).not.toContain('utility-demo/');
   });

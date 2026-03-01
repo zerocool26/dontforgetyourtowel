@@ -9,7 +9,9 @@ Playwright/Vitest quality gates.
 - `/services/` Service catalog and engagement flow
 - `/about/` Portfolio + interactive commerce showcase
 - `/contact-hq/` Contact intake and recommendation handoff
-- `/blog/` Blog index and tag/slug routes
+
+Legacy content routes such as `/blog/*` and `/rss.xml` are retired and now redirect
+or return decommissioned responses.
 
 ### Cleanup and archive policy
 

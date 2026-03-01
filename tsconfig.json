@@ -4,6 +4,11 @@
   "exclude": [
     "dist",
     "node_modules",
+    "backups",
+    "Docs2",
+    "coverage",
+    "playwright-report",
+    "test-results",
     "src/**/*.test.ts",
     "src/**/*.spec.ts",
     "src/tests",

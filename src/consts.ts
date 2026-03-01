@@ -15,7 +15,11 @@ const analyticsFlag =
     ? import.meta.env.PUBLIC_ENABLE_ANALYTICS
     : process.env.PUBLIC_ENABLE_ANALYTICS;
 const analyticsEnabled =
-  analyticsFlag === 'true' || analyticsFlag === '1' || analyticsFlag === true;
+  analyticsFlag === 'true' ||
+  analyticsFlag === '1' ||
+  analyticsFlag === true ||
+  analyticsFlag === 'yes' ||
+  analyticsFlag === 'on';
 
 // MSP/IT services branding (safe defaults; customise as needed)
 export const SITE_TITLE = 'Olive Global Systems';
@@ -82,6 +86,7 @@ export const PERFORMANCE_BUDGETS = {
  * Feature flags
  */
 export const FEATURES = {
+  // Privacy-first default: analytics is disabled unless explicitly enabled.
   enableAnalytics: analyticsEnabled,
   enablePWA: true,
   enableDarkMode: true,

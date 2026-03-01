@@ -1,40 +1,15 @@
 ---
-import { getCollection, render } from 'astro:content';
-import BlogPost from '../../layouts/BlogPost.astro';
-import { getRelatedBlogPosts } from '../../utils/related-content';
+import { getCollection } from 'astro:content';
+import LegacyRedirect from '../../components/LegacyRedirect.astro';
 
 export const prerender = true;
 
 export async function getStaticPaths() {
-  // Cast to avoid editor stale-type issues (repo uses this pattern elsewhere).
+  // Keep legacy blog links resolvable and redirect each slug.
   const posts = (await getCollection('blog' as never)) as any[];
   const published = posts.filter(entry => !entry.data.draft);
   return published.map(entry => ({ params: { slug: entry.id } }));
 }
-
-const { slug } = Astro.params;
-if (!slug) throw new Error('Missing blog slug');
-
-const posts = (await getCollection('blog' as never)) as any[];
-const entry = posts.find(e => e.id === slug);
-
-if (!entry || entry.data?.draft) {
-  throw new Error(`Blog post not found: ${slug}`);
-}
-
-const { Content, headings } = await render(entry);
-
-const published = posts.filter(e => !e?.data?.draft);
-const relatedEntries = getRelatedBlogPosts(entry, published, 3);
-const relatedPosts = relatedEntries.map((e: any) => ({
-  id: e.id,
-  title: e.data.title,
-  description: e.data.description,
-  url: `blog/${e.id}/`,
-  pubDate: e.data.pubDate,
-}));
 ---
 
-<BlogPost {...entry.data} headings={headings} relatedPosts={relatedPosts}>
-  <Content />
-</BlogPost>
+<LegacyRedirect destination="services/#case-studies" />

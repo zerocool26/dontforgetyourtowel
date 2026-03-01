@@ -4,7 +4,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { slugify } from '../src/utils/string';
 
-const BLOG_DIR = path.join(process.cwd(), 'src', 'content', 'blog');
+const CASE_STUDY_DIR = path.join(process.cwd(), 'src', 'data', 'case-studies');
 const COMPONENTS_DIR = path.join(process.cwd(), 'src', 'components');
 
 const ensureDir = async (dir: string) => {
@@ -15,10 +15,12 @@ const ensureDir = async (dir: string) => {
   }
 };
 
-interface PostArgs {
+interface CaseStudyArgs {
   title: string;
-  author?: string;
-  description?: string;
+  industry?: string;
+  summary?: string;
+  challenge?: string;
+  solution?: string;
   tags?: string;
 }
 
@@ -27,29 +29,45 @@ interface ComponentArgs {
   type: 'astro' | 'react' | 'solid';
 }
 
-const createPost = async (argv: unknown) => {
-  const { title, author, description, tags } = argv as PostArgs;
+const createCaseStudy = async (argv: unknown) => {
+  const { title, industry, summary, challenge, solution, tags } =
+    argv as CaseStudyArgs;
   const slug = slugify(title);
   const date = new Date().toISOString();
   const fileName = `${slug}.md`;
-  const filePath = path.join(BLOG_DIR, fileName);
+  const filePath = path.join(CASE_STUDY_DIR, fileName);
 
   const content = `---
 title: "${title}"
-description: "${description || 'Enter description here'}"
-pubDate: ${date}
-author: "${author || 'default'}"
+industry: "${industry || 'Other'}"
+summary: "${summary || 'Outcome-focused transformation summary'}"
+challenge: "${challenge || 'Document the core operational or technical challenge.'}"
+solution: "${solution || 'Describe the implemented architecture and delivery approach.'}"
+results:
+  - label: "Lead metric"
+    value: "TBD"
 tags: ${JSON.stringify(tags ? tags.split(',') : [])}
+published: ${date}
 ---
 
 # ${title}
 
-Write your content here...
+## Background
+
+Add project background and business context.
+
+## Implementation
+
+Describe architecture, execution, and rollout details.
+
+## Outcomes
+
+Document measurable results and learnings.
 `;
 
-  await ensureDir(BLOG_DIR);
+  await ensureDir(CASE_STUDY_DIR);
   await fs.writeFile(filePath, content);
-  console.log(`✅ Created new post: ${filePath}`);
+  console.log(`✅ Created new case study: ${filePath}`);
 };
 
 const createComponent = async (argv: unknown) => {
@@ -129,7 +147,7 @@ export default ${name};
 yargs(hideBin(process.argv))
   .command(
     'post <title>',
-    'Create a new blog post',
+    '[Deprecated] Blog is retired; use `case-study <title>` instead',
     yargs => {
       return yargs
         .positional('title', {
@@ -152,7 +170,48 @@ yargs(hideBin(process.argv))
           description: 'Comma-separated tags',
         });
     },
-    createPost
+    async argv => {
+      console.warn(
+        '⚠️ Blog scaffolding is deprecated. Creating a case study scaffold instead.'
+      );
+      await createCaseStudy(argv);
+    }
+  )
+  .command(
+    'case-study <title>',
+    'Create a new case study',
+    yargs => {
+      return yargs
+        .positional('title', {
+          describe: 'Case study title',
+          type: 'string',
+        })
+        .option('industry', {
+          alias: 'i',
+          type: 'string',
+          description: 'Industry (e.g. Technology, Healthcare)',
+        })
+        .option('summary', {
+          alias: 's',
+          type: 'string',
+          description: 'One-line case study summary',
+        })
+        .option('challenge', {
+          alias: 'c',
+          type: 'string',
+          description: 'Primary challenge statement',
+        })
+        .option('solution', {
+          type: 'string',
+          description: 'Implemented solution statement',
+        })
+        .option('tags', {
+          alias: 't',
+          type: 'string',
+          description: 'Comma-separated tags',
+        });
+    },
+    createCaseStudy
   )
   .command(
     'component <name>',
