@@ -35,6 +35,22 @@ const quickLinks = [
     description: 'Open the interactive ecommerce cart flow',
   },
 ];
+
+const legacyRedirectMap: Record<string, string> = {
+  '/components': withBasePath('services/'),
+  '/dashboard': withBasePath('/'),
+  '/dashboard-v2': withBasePath('/'),
+  '/demo': withBasePath('about/'),
+  '/demo-lab': withBasePath('about/#shop-experience'),
+  '/error-dashboard': withBasePath('/'),
+  '/hero-lab': withBasePath('about/'),
+  '/mobile-features-demo': withBasePath('about/'),
+  '/showcase': withBasePath('about/'),
+  '/shop-demo': withBasePath('about/#shop-experience'),
+  '/ultimate-3d-gallery': withBasePath('about/#shop-experience'),
+  '/utility-demo': withBasePath('about/'),
+  '/visual-showcase': withBasePath('about/'),
+};
 ---
 
 <MarketingLayout
@@ -104,6 +120,13 @@ const quickLinks = [
           of the links below to get back on track.
         </p>
 
+        <p
+          id="legacy-redirect-status"
+          class="tone-muted mx-auto mt-4 hidden max-w-lg rounded border border-white/10 bg-white/5 px-3 py-2 font-mono text-xs"
+          aria-live="polite"
+        >
+        </p>
+
         {/* Current URL display */}
         <p class="tone-muted mt-4 font-mono text-sm">
           <span class="sr-only">Requested URL:</span>
@@ -163,12 +186,60 @@ const quickLinks = [
           </ModernButton>
         </div>
 
-        <script is:inline>
+        <script define:vars={{ legacyRedirectMap }} is:inline>
           document.addEventListener('DOMContentLoaded', () => {
             const urlElement = document.getElementById('current-url');
+            const statusElement = document.getElementById(
+              'legacy-redirect-status'
+            );
             if (urlElement) {
               urlElement.textContent = window.location.pathname;
             }
+
+            const trimTrailingSlash = value =>
+              value === '/' ? '/' : value.replace(/\/+$/, '');
+
+            const basePathRaw =
+              document.documentElement.getAttribute('data-base-path') || '/';
+            const basePath = trimTrailingSlash(basePathRaw);
+
+            const pathname = window.location.pathname;
+            let normalizedPath = pathname;
+
+            if (
+              basePath &&
+              basePath !== '/' &&
+              normalizedPath.startsWith(basePath)
+            ) {
+              normalizedPath = normalizedPath.slice(basePath.length) || '/';
+            }
+
+            if (!normalizedPath.startsWith('/')) {
+              normalizedPath = `/${normalizedPath}`;
+            }
+
+            const routeKey = trimTrailingSlash(normalizedPath);
+            const redirectTarget = legacyRedirectMap[routeKey];
+
+            if (!redirectTarget) return;
+
+            const target = new URL(redirectTarget, window.location.origin);
+            if (!target.search && window.location.search) {
+              target.search = window.location.search;
+            }
+            if (!target.hash && window.location.hash) {
+              target.hash = window.location.hash;
+            }
+
+            if (statusElement) {
+              statusElement.classList.remove('hidden');
+              statusElement.textContent =
+                'Legacy route detected. Redirecting to the updated location…';
+            }
+
+            window.setTimeout(() => {
+              window.location.replace(target.toString());
+            }, 120);
           });
         </script>
 

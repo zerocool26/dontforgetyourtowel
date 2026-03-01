@@ -110,3 +110,7 @@ stale commented templates and unused frontmatter:
 - `src/pages/dashboard.astro`
 - `src/pages/dashboard-v2.astro`
 - `src/pages/error-dashboard.astro`
+
+The 404 experience now includes a base-path-aware legacy route fallback map so
+known retired URLs are auto-forwarded to current destinations even if a direct
+legacy stub is missed.
