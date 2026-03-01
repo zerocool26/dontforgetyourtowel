@@ -103,3 +103,10 @@ excluded by legacy route policy/robots controls.
 
 `LegacyRedirect` was also enhanced to preserve incoming query-string and hash
 fragments by default, so old shared URLs keep their context when forwarding.
+
+Legacy dashboard routes were further simplified to redirect-only pages to remove
+stale commented templates and unused frontmatter:
+
+- `src/pages/dashboard.astro`
+- `src/pages/dashboard-v2.astro`
+- `src/pages/error-dashboard.astro`
