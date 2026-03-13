@@ -55,8 +55,8 @@ export const CHAPTERS: ChapterDef[] = [
   {
     id: 'genesis',
     kicker: 'Creative Technology Studio',
-    title: ['Creative technology', 'without template energy.'],
-    copy: 'We design and build product experiences that feel alive — cinematic visuals, intentional motion, and production-grade engineering under one roof.',
+    title: ['Creative technology', 'that lands harder.'],
+    copy: 'We build cinematic digital systems that look premium, move fast, and push conversion harder.',
     accent: '#ccff00',
     metrics: ['AI Systems', 'Cybersecurity', 'Cloud Eng', 'Managed Ops'],
     ctas: [
@@ -72,8 +72,8 @@ export const CHAPTERS: ChapterDef[] = [
   {
     id: 'neural',
     kicker: 'AI Systems',
-    title: ['AI Orchestration', '& Advanced Dev'],
-    copy: 'Multi-agent products, decision systems, and AI-native workflows crafted for clarity, speed, and measurable impact.',
+    title: ['AI Orchestration', 'built to ship.'],
+    copy: 'AI operators, decision flows, and automations built to remove drag and create leverage.',
     accent: '#00d4ff',
     ctas: [
       {
@@ -88,8 +88,8 @@ export const CHAPTERS: ChapterDef[] = [
   {
     id: 'vault',
     kicker: 'Cybersecurity',
-    title: ['Digital Resilience', 'at Scale'],
-    copy: 'Security and reliability programs built to support ambitious product velocity — not slow it down. Threat modeling tied directly to product roadmaps.',
+    title: ['Digital Resilience', 'without slowdowns.'],
+    copy: 'Security is engineered into delivery, so you move fast without opening blind spots.',
     accent: '#a855f7',
     ctas: [
       {
@@ -104,8 +104,8 @@ export const CHAPTERS: ChapterDef[] = [
   {
     id: 'cloud',
     kicker: 'Cloud Engineering',
-    title: ['Infrastructure', 'That Thinks'],
-    copy: 'Cloud architecture designed for scale, resilience, and zero-surprise delivery. Every node purposeful. Every path optimized.',
+    title: ['Infrastructure', 'that scales clean.'],
+    copy: 'Cloud systems built to stay fast, resilient, and brutally efficient when traffic and stakes spike.',
     accent: '#38bdf8',
     ctas: [
       {
@@ -120,8 +120,8 @@ export const CHAPTERS: ChapterDef[] = [
   {
     id: 'signal',
     kicker: 'Managed Operations',
-    title: ['Signal Zero.', 'Noise Eliminated.'],
-    copy: 'Operational runbooks that keep launches calm. Monitoring, incident response, and continuous improvement as a fully embedded service.',
+    title: ['Signal locked.', 'Noise removed.'],
+    copy: 'Embedded ops that cut noise, tighten response, and keep launches under control.',
     accent: '#22c55e',
     ctas: [
       {
@@ -137,7 +137,7 @@ export const CHAPTERS: ChapterDef[] = [
     id: 'singularity',
     kicker: 'Start Your Project',
     title: ['Enter', 'the System.'],
-    copy: "One creative engineering partner instead of five disconnected vendors. Let's build something unforgettable together.",
+    copy: 'One elite partner. Less drag. Faster launch. Better systems.',
     accent: '#ccff00',
     ctas: [
       { label: 'Contact HQ', href: withBasePath('contact-hq/'), primary: true },
@@ -373,6 +373,63 @@ export function getSceneProfile(
   };
 }
 
+export function optimizeSceneProfileForMobile(
+  sceneProfile: SceneProfile,
+  options?: { preservePostFx?: boolean }
+): SceneProfile {
+  const preservePostFx = options?.preservePostFx ?? false;
+
+  return {
+    ...sceneProfile,
+    particleCount: Math.min(
+      sceneProfile.particleCount,
+      preservePostFx ? 9800 : 7600
+    ),
+    neuralNodeCount: Math.min(
+      sceneProfile.neuralNodeCount,
+      preservePostFx ? 28 : 24
+    ),
+    signalGridSize: Math.min(
+      sceneProfile.signalGridSize,
+      preservePostFx ? 9 : 8
+    ),
+    starCount: Math.min(sceneProfile.starCount, preservePostFx ? 1450 : 900),
+    starFactor: Math.min(sceneProfile.starFactor, preservePostFx ? 2.9 : 2.4),
+    cloudSparkles: Math.min(
+      sceneProfile.cloudSparkles,
+      preservePostFx ? 28 : 18
+    ),
+    signalSparkles: Math.min(
+      sceneProfile.signalSparkles,
+      preservePostFx ? 20 : 12
+    ),
+    singularitySparkles: Math.min(
+      sceneProfile.singularitySparkles,
+      preservePostFx ? 78 : 52
+    ),
+    singularitySparkleSize: Math.min(
+      sceneProfile.singularitySparkleSize,
+      preservePostFx ? 4 : 3.6
+    ),
+    enablePostFx: preservePostFx && sceneProfile.enablePostFx,
+    bloomIntensity: Math.min(
+      sceneProfile.bloomIntensity,
+      preservePostFx ? 1.05 : 0.85
+    ),
+    noiseOpacity: Math.min(
+      sceneProfile.noiseOpacity,
+      preservePostFx ? 0.018 : 0.012
+    ),
+    aberrationOffset: Math.min(
+      sceneProfile.aberrationOffset,
+      preservePostFx ? 0.0003 : 0.0002
+    ),
+    ambientLight: Math.max(sceneProfile.ambientLight, 0.12),
+    fogFar: Math.min(sceneProfile.fogFar, preservePostFx ? 74 : 68),
+    pointerParallax: false,
+  };
+}
+
 export const HERO_MODE_LABELS: Record<HeroVisualMode, string> = {
   immersive: 'Immersive 3D',
   lite: 'Adaptive 3D',
@@ -381,10 +438,8 @@ export const HERO_MODE_LABELS: Record<HeroVisualMode, string> = {
 };
 
 export const HERO_MODE_NOTES: Record<HeroVisualMode, string> = {
-  immersive: 'Full cinematic rendering is active for capable devices.',
-  lite: 'The hero has shifted into a lighter scene profile for smoother playback.',
-  reduced:
-    'Reduced-motion preferences are active, so the hero is using a calm ambient presentation.',
-  fallback:
-    'WebGL is unavailable, so the hero is using a resilient layered fallback instead.',
+  immersive: 'Full 3D is live.',
+  lite: 'The lighter 3D stack is active for smoother playback.',
+  reduced: 'Calm presentation is active.',
+  fallback: 'WebGL is unavailable, so the layered fallback is active.',
 };

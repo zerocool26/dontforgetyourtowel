@@ -22,6 +22,7 @@ import {
   HERO_MODE_LABELS,
   HERO_MODE_NOTES,
   hexToRgbString,
+  optimizeSceneProfileForMobile,
   prefersReducedMotion,
   supportsWebGL,
   type ChapterDef,
@@ -90,19 +91,19 @@ const RENDER_PROFILE_OPTIONS: Record<
     label: 'Adaptive',
     statusLabel: 'Device-aware auto',
     description: 'Follow device telemetry',
-    note: 'Adaptive render profile is active, so the hero is balancing fidelity and responsiveness around your device.',
+    note: 'Adaptive render profile is active, balancing detail and responsiveness around your device.',
   },
   cinematic: {
     label: 'Cinematic',
     statusLabel: 'High detail focus',
     description: 'Favor bloom and particle depth',
-    note: 'Cinematic render profile is active, favoring high-detail particles, bloom, and parallax for the most dramatic chapter transitions.',
+    note: 'Cinematic render profile is active, favoring denser particles, bloom, and bigger transitions.',
   },
   stable: {
     label: 'Stable',
     statusLabel: 'Smooth playback',
     description: 'Keep the lighter 3D stack',
-    note: 'Stable render profile is active, keeping the hero on the lighter 3D scene stack for smoother playback while preserving every chapter.',
+    note: 'Stable render profile is active, keeping the lighter 3D stack on for smoother playback across every chapter.',
   },
 };
 
@@ -878,10 +879,19 @@ export default function OliveUniverse() {
       : effectiveVisualMode;
   const activeChapter = CHAPTERS[chapter] ?? CHAPTERS[0];
   const activeAtmosphere = CHAPTER_ATMOSPHERES[activeChapter.id];
-  const sceneProfile = useMemo(
+  const baseSceneProfile = useMemo(
     () => getSceneProfile(runtimeQuality, runtimeSceneMode),
     [runtimeQuality, runtimeSceneMode]
   );
+  const sceneProfile = useMemo(() => {
+    if (!touchCapable && !isCompactViewport) {
+      return baseSceneProfile;
+    }
+
+    return optimizeSceneProfileForMobile(baseSceneProfile, {
+      preservePostFx: renderProfile === 'cinematic',
+    });
+  }, [baseSceneProfile, isCompactViewport, renderProfile, touchCapable]);
   const sceneSharePath = useMemo(
     () =>
       withBasePath(
@@ -1055,6 +1065,8 @@ export default function OliveUniverse() {
   const mobilePanelMeta = shouldRenderCanvas
     ? activeAtmosphere.label
     : runtimeLabel;
+  const mobileThreeDMode =
+    touchCapable || isCompactViewport ? 'optimized' : 'standard';
   const mobilePanelToggleLabel = `${mobilePanelOpen ? 'Hide' : 'Show'} hero controls for ${activeChapter.kicker}`;
   const handleSceneReady = useCallback(() => {
     setSceneResolved(true);
@@ -1235,6 +1247,7 @@ export default function OliveUniverse() {
       data-olive-tour-speed={guidedTourSpeed}
       data-olive-motion-preference={motionPreference}
       data-olive-mobile-panel={mobilePanelState}
+      data-olive-mobile-3d={mobileThreeDMode}
       style={
         {
           '--universe-accent': activeChapter.accent,

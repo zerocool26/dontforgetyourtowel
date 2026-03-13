@@ -267,6 +267,30 @@ function getSceneWarmPriority(centerIndex: number, totalCount: number) {
   return order;
 }
 
+function getCanvasDprCap(quality: QualityTier, profile: SceneProfile) {
+  if (quality === 'low') {
+    return 1;
+  }
+
+  if (!profile.enablePostFx) {
+    return 1.15;
+  }
+
+  if (!profile.pointerParallax) {
+    return quality === 'high' ? 1.3 : 1.2;
+  }
+
+  return quality === 'high' ? 1.85 : 1.45;
+}
+
+function getWarmDelayMs(profile: SceneProfile, shouldAnimate: boolean) {
+  if (!profile.enablePostFx) {
+    return shouldAnimate ? 360 : 240;
+  }
+
+  return shouldAnimate ? 640 : 480;
+}
+
 function ParticleGalaxy({
   isLive,
   progressRef,
@@ -1931,6 +1955,15 @@ export default function OliveUniverseCanvas({
       ),
     [sceneProfile.aberrationOffset]
   );
+  const canvasDprCap = useMemo(
+    () => getCanvasDprCap(quality, sceneProfile),
+    [quality, sceneProfile]
+  );
+  const antialiasEnabled = quality !== 'low' && sceneProfile.enablePostFx;
+  const warmDelayMs = useMemo(
+    () => getWarmDelayMs(sceneProfile, shouldAnimate),
+    [sceneProfile, shouldAnimate]
+  );
 
   useEffect(() => {
     onReady?.();
@@ -1959,23 +1992,20 @@ export default function OliveUniverseCanvas({
       return;
     }
 
-    const timeoutId = window.setTimeout(
-      () => {
-        setWarmedSceneIndices(current =>
-          mergeSceneIndices(
-            current,
-            getSceneWarmPriority(activeChapterIndex, CHAPTERS.length),
-            CHAPTERS.length
-          )
-        );
-      },
-      shouldAnimate ? 640 : 480
-    );
+    const timeoutId = window.setTimeout(() => {
+      setWarmedSceneIndices(current =>
+        mergeSceneIndices(
+          current,
+          getSceneWarmPriority(activeChapterIndex, CHAPTERS.length),
+          CHAPTERS.length
+        )
+      );
+    }, warmDelayMs);
 
     return () => {
       window.clearTimeout(timeoutId);
     };
-  }, [activeChapterIndex, shouldAnimate, warmedSceneIndices.length]);
+  }, [activeChapterIndex, warmDelayMs, warmedSceneIndices.length]);
 
   return (
     <div className="universe-canvas" aria-hidden="true">
@@ -1985,17 +2015,14 @@ export default function OliveUniverseCanvas({
         dpr={
           typeof window === 'undefined'
             ? 1
-            : quality === 'low'
-              ? 1
-              : Math.min(
-                  window.devicePixelRatio || 1,
-                  quality === 'high' ? 2 : 1.5
-                )
+            : Math.min(window.devicePixelRatio || 1, canvasDprCap)
         }
         gl={{
-          antialias: quality !== 'low',
+          antialias: antialiasEnabled,
           alpha: false,
-          powerPreference: 'high-performance',
+          powerPreference: sceneProfile.enablePostFx
+            ? 'high-performance'
+            : 'default',
           toneMapping: THREE.ACESFilmicToneMapping,
           toneMappingExposure: 1.25,
         }}

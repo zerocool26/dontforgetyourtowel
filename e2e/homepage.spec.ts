@@ -742,6 +742,7 @@ test.describe('Homepage', () => {
     await expect(hero).toBeVisible();
     await expect(hero).toHaveAttribute('data-olive-mode', 'reduced');
     await expect(hero).toHaveAttribute('data-olive-mobile-panel', 'closed');
+    await expect(hero).toHaveAttribute('data-olive-mobile-3d', 'optimized');
     await expect(
       page.getByRole('button', {
         name: /show hero controls for creative technology studio/i,
@@ -817,6 +818,7 @@ test.describe('Homepage', () => {
     });
     await expect(hero).toBeVisible();
     await expect(hero).toHaveAttribute('data-olive-mobile-panel', 'closed');
+    await expect(hero).toHaveAttribute('data-olive-mobile-3d', 'optimized');
     await expect(mobileToggle).toBeVisible();
 
     await mobileToggle.click();
@@ -833,6 +835,10 @@ test.describe('Homepage', () => {
     await expect(hero).toHaveAttribute('data-olive-atmosphere', 'cloud');
     await expect(hero).toHaveAttribute('data-olive-mobile-panel', 'closed');
     await expect(hero).toHaveAttribute('data-olive-mode', /(immersive|lite)/);
+    await expect(hero).toHaveAttribute(
+      'data-olive-scene',
+      /(staging|booting|interactive)/
+    );
     await expect(
       page.getByRole('button', {
         name: /show hero controls for cloud engineering/i,
