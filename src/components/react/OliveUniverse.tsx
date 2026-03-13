@@ -1,9 +1,16 @@
 /** @jsxImportSource react */
 /** @jsxRuntime automatic */
-import { useRef, useEffect, useMemo, useState, useCallback } from 'react';
+import {
+  useRef,
+  useEffect,
+  useMemo,
+  useState,
+  useCallback,
+  type MutableRefObject,
+} from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Stars, Float, Sparkles } from '@react-three/drei';
+import { Stars, Sparkles } from '@react-three/drei';
 import {
   EffectComposer,
   Bloom,
@@ -13,6 +20,7 @@ import {
 } from '@react-three/postprocessing';
 import { BlendFunction } from 'postprocessing';
 import '@/styles/olive-universe.css';
+import { withBasePath } from '@/utils/helpers';
 
 // ============================================================
 // TYPES & CONSTANTS
@@ -31,8 +39,6 @@ interface ChapterDef {
   range: [number, number];
 }
 
-const BASE = (typeof window !== 'undefined' && (window as any).__ASTRO_BASE_PATH__) || '';
-
 const CHAPTERS: ChapterDef[] = [
   {
     id: 'genesis',
@@ -42,8 +48,12 @@ const CHAPTERS: ChapterDef[] = [
     accent: '#ccff00',
     metrics: ['AI Systems', 'Cybersecurity', 'Cloud Eng', 'Managed Ops'],
     ctas: [
-      { label: 'Explore Services', href: `${BASE}/services/`, primary: true },
-      { label: 'View Portfolio', href: `${BASE}/about/` },
+      {
+        label: 'Explore Services',
+        href: withBasePath('services/'),
+        primary: true,
+      },
+      { label: 'View Portfolio', href: withBasePath('about/') },
     ],
     range: [0, 0.18],
   },
@@ -54,8 +64,12 @@ const CHAPTERS: ChapterDef[] = [
     copy: 'Multi-agent products, decision systems, and AI-native workflows crafted for clarity, speed, and measurable impact.',
     accent: '#00d4ff',
     ctas: [
-      { label: 'Explore AI Services', href: `${BASE}/services/#ai`, primary: true },
-      { label: 'Start a Project', href: `${BASE}/contact-hq/` },
+      {
+        label: 'Explore AI Services',
+        href: withBasePath('services/#ai'),
+        primary: true,
+      },
+      { label: 'Start a Project', href: withBasePath('contact-hq/') },
     ],
     range: [0.22, 0.38],
   },
@@ -66,8 +80,12 @@ const CHAPTERS: ChapterDef[] = [
     copy: 'Security and reliability programs built to support ambitious product velocity — not slow it down. Threat modeling tied directly to product roadmaps.',
     accent: '#a855f7',
     ctas: [
-      { label: 'Security Services', href: `${BASE}/services/#cybersecurity`, primary: true },
-      { label: 'View Portfolio', href: `${BASE}/about/` },
+      {
+        label: 'Security Services',
+        href: withBasePath('services/#cybersecurity'),
+        primary: true,
+      },
+      { label: 'View Portfolio', href: withBasePath('about/') },
     ],
     range: [0.42, 0.58],
   },
@@ -78,8 +96,12 @@ const CHAPTERS: ChapterDef[] = [
     copy: 'Cloud architecture designed for scale, resilience, and zero-surprise delivery. Every node purposeful. Every path optimized.',
     accent: '#38bdf8',
     ctas: [
-      { label: 'Cloud Services', href: `${BASE}/services/#cloud`, primary: true },
-      { label: 'Build Studio', href: `${BASE}/build-studio/` },
+      {
+        label: 'Cloud Services',
+        href: withBasePath('services/#cloud'),
+        primary: true,
+      },
+      { label: 'Build Studio', href: withBasePath('build-studio/') },
     ],
     range: [0.62, 0.78],
   },
@@ -90,8 +112,12 @@ const CHAPTERS: ChapterDef[] = [
     copy: 'Operational runbooks that keep launches calm. Monitoring, incident response, and continuous improvement as a fully embedded service.',
     accent: '#22c55e',
     ctas: [
-      { label: 'Ops Services', href: `${BASE}/services/#managed-it`, primary: true },
-      { label: 'Compare Plans', href: `${BASE}/pricing/` },
+      {
+        label: 'Ops Services',
+        href: withBasePath('services/#managed-it'),
+        primary: true,
+      },
+      { label: 'Compare Plans', href: withBasePath('pricing/') },
     ],
     range: [0.82, 0.92],
   },
@@ -102,28 +128,28 @@ const CHAPTERS: ChapterDef[] = [
     copy: "One creative engineering partner instead of five disconnected vendors. Let's build something unforgettable together.",
     accent: '#ccff00',
     ctas: [
-      { label: 'Contact HQ', href: `${BASE}/contact-hq/`, primary: true },
-      { label: 'Open Build Studio', href: `${BASE}/build-studio/` },
+      { label: 'Contact HQ', href: withBasePath('contact-hq/'), primary: true },
+      { label: 'Open Build Studio', href: withBasePath('build-studio/') },
     ],
     range: [0.94, 1.0],
   },
 ];
 
 const CAMERA_KF = [
-  { t: 0.00, pos: [0, 0, 9] as const,    look: [0, 0, 0] as const },
-  { t: 0.20, pos: [-1, 1.5, 12] as const, look: [-1, 0.5, 0] as const },
-  { t: 0.38, pos: [-2, 0.5, 7] as const,  look: [0, 0, 0] as const },
-  { t: 0.58, pos: [2, -0.5, 6] as const,  look: [0, 0, 0] as const },
-  { t: 0.78, pos: [0, 2.5, 8] as const,   look: [0, 0, 0] as const },
-  { t: 0.92, pos: [-1, 0.5, 7] as const,  look: [0, 0, 0] as const },
-  { t: 1.00, pos: [0, 0, 4.5] as const,   look: [0, 0, 0] as const },
+  { t: 0.0, pos: [0, 0, 9] as const, look: [0, 0, 0] as const },
+  { t: 0.2, pos: [-1, 1.5, 12] as const, look: [-1, 0.5, 0] as const },
+  { t: 0.38, pos: [-2, 0.5, 7] as const, look: [0, 0, 0] as const },
+  { t: 0.58, pos: [2, -0.5, 6] as const, look: [0, 0, 0] as const },
+  { t: 0.78, pos: [0, 2.5, 8] as const, look: [0, 0, 0] as const },
+  { t: 0.92, pos: [-1, 0.5, 7] as const, look: [0, 0, 0] as const },
+  { t: 1.0, pos: [0, 0, 4.5] as const, look: [0, 0, 0] as const },
 ];
 
 // ============================================================
 // SHADERS
 // ============================================================
 
-const PARTICLE_VERT = /* glsl */`
+const PARTICLE_VERT = /* glsl */ `
   uniform float uTime;
   uniform float uMorph;
   uniform vec2  uMouse;
@@ -169,7 +195,7 @@ const PARTICLE_VERT = /* glsl */`
   }
 `;
 
-const PARTICLE_FRAG = /* glsl */`
+const PARTICLE_FRAG = /* glsl */ `
   uniform vec3  uColor;
   uniform float uMorph;
   void main() {
@@ -183,7 +209,7 @@ const PARTICLE_FRAG = /* glsl */`
   }
 `;
 
-const NEURAL_VERT = /* glsl */`
+const NEURAL_VERT = /* glsl */ `
   attribute float aP;
   varying float vP;
   void main() {
@@ -192,7 +218,7 @@ const NEURAL_VERT = /* glsl */`
   }
 `;
 
-const NEURAL_FRAG = /* glsl */`
+const NEURAL_FRAG = /* glsl */ `
   uniform float uTime;
   uniform vec3  uColor;
   varying float vP;
@@ -203,7 +229,7 @@ const NEURAL_FRAG = /* glsl */`
   }
 `;
 
-const SHIELD_VERT = /* glsl */`
+const SHIELD_VERT = /* glsl */ `
   varying vec3 vW;
   varying vec3 vN;
   void main() {
@@ -214,7 +240,7 @@ const SHIELD_VERT = /* glsl */`
   }
 `;
 
-const SHIELD_FRAG = /* glsl */`
+const SHIELD_FRAG = /* glsl */ `
   uniform float uTime;
   uniform vec3  uColor;
   varying vec3  vW;
@@ -232,7 +258,7 @@ const SHIELD_FRAG = /* glsl */`
   }
 `;
 
-const DATA_VERT = /* glsl */`
+const DATA_VERT = /* glsl */ `
   attribute float aI;
   uniform float uTime;
   varying float vH;
@@ -248,7 +274,7 @@ const DATA_VERT = /* glsl */`
   }
 `;
 
-const DATA_FRAG = /* glsl */`
+const DATA_FRAG = /* glsl */ `
   uniform vec3  uColor;
   varying float vH;
   void main() {
@@ -272,10 +298,18 @@ function detectQuality(): QualityTier {
   return 'medium';
 }
 
+function prefersReducedMotion() {
+  return (
+    typeof window !== 'undefined' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  );
+}
+
 function sampleText(text: string, count: number): Float32Array {
   if (typeof document === 'undefined') return new Float32Array(count * 3);
   const cvs = document.createElement('canvas');
-  cvs.width = 512; cvs.height = 128;
+  cvs.width = 512;
+  cvs.height = 128;
   const ctx = cvs.getContext('2d');
   if (!ctx) return new Float32Array(count * 3);
   ctx.fillStyle = '#fff';
@@ -293,7 +327,7 @@ function sampleText(text: string, count: number): Float32Array {
   for (let i = 0; i < count; i++) {
     const p = pts[Math.min(i * stride, pts.length - 1)];
     if (p) {
-      out[i * 3]     = (p[0] / 512 - 0.5) * 10.5;
+      out[i * 3] = (p[0] / 512 - 0.5) * 10.5;
       out[i * 3 + 1] = -(p[1] / 128 - 0.5) * 2.6;
       out[i * 3 + 2] = (Math.random() - 0.5) * 0.4;
     }
@@ -304,14 +338,29 @@ function sampleText(text: string, count: number): Float32Array {
 function camAtT(t: number) {
   const kf = CAMERA_KF;
   if (t <= kf[0].t) return { pos: kf[0].pos, look: kf[0].look };
-  if (t >= kf[kf.length - 1].t) { const l = kf[kf.length - 1]; return { pos: l.pos, look: l.look }; }
+  if (t >= kf[kf.length - 1].t) {
+    const l = kf[kf.length - 1];
+    return { pos: l.pos, look: l.look };
+  }
   for (let i = 0; i < kf.length - 1; i++) {
     if (t >= kf[i].t && t <= kf[i + 1].t) {
       const local = (t - kf[i].t) / (kf[i + 1].t - kf[i].t);
-      const e = local < 0.5 ? 2 * local * local : 1 - Math.pow(-2 * local + 2, 2) / 2;
-      const lerp3 = (a: readonly [number,number,number], b: readonly [number,number,number], t: number) =>
-        [a[0]+(b[0]-a[0])*t, a[1]+(b[1]-a[1])*t, a[2]+(b[2]-a[2])*t] as [number,number,number];
-      return { pos: lerp3(kf[i].pos, kf[i+1].pos, e), look: lerp3(kf[i].look, kf[i+1].look, e) };
+      const e =
+        local < 0.5 ? 2 * local * local : 1 - Math.pow(-2 * local + 2, 2) / 2;
+      const lerp3 = (
+        a: readonly [number, number, number],
+        b: readonly [number, number, number],
+        t: number
+      ) =>
+        [
+          a[0] + (b[0] - a[0]) * t,
+          a[1] + (b[1] - a[1]) * t,
+          a[2] + (b[2] - a[2]) * t,
+        ] as [number, number, number];
+      return {
+        pos: lerp3(kf[i].pos, kf[i + 1].pos, e),
+        look: lerp3(kf[i].look, kf[i + 1].look, e),
+      };
     }
   }
   return { pos: kf[0].pos, look: kf[0].look };
@@ -322,61 +371,77 @@ function camAtT(t: number) {
 // ============================================================
 
 // ── Chapter 0: Particle Galaxy ────────────────────────────
-function ParticleGalaxy({ progressRef }: { progressRef: React.RefObject<number> }) {
+function ParticleGalaxy({
+  progressRef,
+}: {
+  progressRef: MutableRefObject<number>;
+}) {
   const matRef = useRef<THREE.ShaderMaterial | null>(null);
   const mouseRef = useRef(new THREE.Vector2());
   const COUNT = 16000;
 
   const geo = useMemo(() => {
     const seeds = new Float32Array(COUNT);
-    const pos   = new Float32Array(COUNT * 3);
+    const pos = new Float32Array(COUNT * 3);
     for (let i = 0; i < COUNT; i++) {
       const s = i / COUNT;
       seeds[i] = s;
       const phi = s * Math.PI * 2 * 137.508;
-      const r   = Math.sqrt(s) * 6.5;
-      pos[i*3]   = Math.cos(phi) * r;
-      pos[i*3+1] = (Math.random() - 0.5) * 3.5;
-      pos[i*3+2] = Math.sin(phi) * r;
+      const r = Math.sqrt(s) * 6.5;
+      pos[i * 3] = Math.cos(phi) * r;
+      pos[i * 3 + 1] = (Math.random() - 0.5) * 3.5;
+      pos[i * 3 + 2] = Math.sin(phi) * r;
     }
     const targets = sampleText('OLIVE', COUNT);
     const g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-    g.setAttribute('aTarget',  new THREE.BufferAttribute(targets, 3));
-    g.setAttribute('aSeed',    new THREE.BufferAttribute(seeds, 1));
+    g.setAttribute('aTarget', new THREE.BufferAttribute(targets, 3));
+    g.setAttribute('aSeed', new THREE.BufferAttribute(seeds, 1));
     return g;
   }, []);
 
-  const mat = useMemo(() => new THREE.ShaderMaterial({
-    vertexShader: PARTICLE_VERT, fragmentShader: PARTICLE_FRAG,
-    uniforms: {
-      uTime:  { value: 0 },
-      uMorph: { value: 0 },
-      uMouse: { value: new THREE.Vector2() },
-      uColor: { value: new THREE.Color('#ccff00') },
-    },
-    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
-  }), []);
+  const mat = useMemo(
+    () =>
+      new THREE.ShaderMaterial({
+        vertexShader: PARTICLE_VERT,
+        fragmentShader: PARTICLE_FRAG,
+        uniforms: {
+          uTime: { value: 0 },
+          uMorph: { value: 0 },
+          uMouse: { value: new THREE.Vector2() },
+          uColor: { value: new THREE.Color('#ccff00') },
+        },
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      }),
+    []
+  );
 
   useEffect(() => {
-    const fn = (e: MouseEvent) => mouseRef.current.set(
-      (e.clientX / window.innerWidth)  * 2 - 1,
-      -(e.clientY / window.innerHeight) * 2 + 1,
-    );
+    const fn = (e: MouseEvent) =>
+      mouseRef.current.set(
+        (e.clientX / window.innerWidth) * 2 - 1,
+        -(e.clientY / window.innerHeight) * 2 + 1
+      );
     window.addEventListener('mousemove', fn);
     return () => window.removeEventListener('mousemove', fn);
   }, []);
 
-  useEffect(() => { matRef.current = mat; }, [mat]);
+  useEffect(() => {
+    matRef.current = mat;
+  }, [mat]);
 
   useFrame(({ clock }) => {
     if (!matRef.current) return;
     const p = progressRef.current ?? 0;
     const [s, e] = CHAPTERS[0].range;
     const local = Math.max(0, Math.min(1, (p - s) / (e - s)));
-    matRef.current.uniforms.uTime.value  = clock.elapsedTime;
+    matRef.current.uniforms.uTime.value = clock.elapsedTime;
     matRef.current.uniforms.uMorph.value = THREE.MathUtils.lerp(
-      matRef.current.uniforms.uMorph.value, local * 1.2, 0.025,
+      matRef.current.uniforms.uMorph.value,
+      local * 1.2,
+      0.025
     );
     matRef.current.uniforms.uMouse.value.lerp(mouseRef.current, 0.06);
   });
@@ -385,18 +450,30 @@ function ParticleGalaxy({ progressRef }: { progressRef: React.RefObject<number> 
 }
 
 // ── Chapter 1: Neural Cortex ──────────────────────────────
-function NeuralCortex({ progressRef }: { progressRef: React.RefObject<number> }) {
+function NeuralCortex({
+  progressRef,
+}: {
+  progressRef: MutableRefObject<number>;
+}) {
   const groupRef = useRef<THREE.Group>(null);
   const N = 38;
+  const visibilityRef = useRef(0);
 
   const { nodePos, lineGeo, lineMat } = useMemo(() => {
-    const nodePos: THREE.Vector3[] = Array.from({ length: N }, () =>
-      new THREE.Vector3((Math.random()-0.5)*8, (Math.random()-0.5)*5, (Math.random()-0.5)*3.5)
+    const nodePos: THREE.Vector3[] = Array.from(
+      { length: N },
+      () =>
+        new THREE.Vector3(
+          (Math.random() - 0.5) * 8,
+          (Math.random() - 0.5) * 5,
+          (Math.random() - 0.5) * 3.5
+        )
     );
 
-    const verts: number[] = [], progs: number[] = [];
+    const verts: number[] = [],
+      progs: number[] = [];
     for (let a = 0; a < N; a++)
-      for (let b = a+1; b < N; b++) {
+      for (let b = a + 1; b < N; b++) {
         if (nodePos[a].distanceTo(nodePos[b]) > 3.8) continue;
         for (let s = 0; s <= 10; s++) {
           const t = s / 10;
@@ -407,36 +484,51 @@ function NeuralCortex({ progressRef }: { progressRef: React.RefObject<number> })
       }
 
     const g = new THREE.BufferGeometry();
-    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(verts), 3));
-    g.setAttribute('aP',       new THREE.BufferAttribute(new Float32Array(progs), 1));
+    g.setAttribute(
+      'position',
+      new THREE.BufferAttribute(new Float32Array(verts), 3)
+    );
+    g.setAttribute('aP', new THREE.BufferAttribute(new Float32Array(progs), 1));
 
     const m = new THREE.ShaderMaterial({
-      vertexShader: NEURAL_VERT, fragmentShader: NEURAL_FRAG,
-      uniforms: { uTime: { value: 0 }, uColor: { value: new THREE.Color('#00d4ff') } },
-      transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+      vertexShader: NEURAL_VERT,
+      fragmentShader: NEURAL_FRAG,
+      uniforms: {
+        uTime: { value: 0 },
+        uColor: { value: new THREE.Color('#00d4ff') },
+      },
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
     });
 
     return { nodePos, lineGeo: g, lineMat: m };
   }, []);
 
   const nodeGeo = useMemo(() => new THREE.SphereGeometry(0.055, 8, 8), []);
-  const nodeMat = useMemo(() => new THREE.MeshStandardMaterial({
-    color: '#00d4ff', emissive: '#00d4ff', emissiveIntensity: 2.5,
-    transparent: true,
-  }), []);
+  const nodeMat = useMemo(
+    () =>
+      new THREE.MeshStandardMaterial({
+        color: '#00d4ff',
+        emissive: '#00d4ff',
+        emissiveIntensity: 2.5,
+        transparent: true,
+      }),
+    []
+  );
 
   useFrame(({ clock }) => {
     if (!groupRef.current) return;
     const p = progressRef.current ?? 0;
     const [s, e] = CHAPTERS[1].range;
     const vis = p >= s - 0.08 && p <= e + 0.08;
-    const alpha = THREE.MathUtils.lerp(
-      (groupRef.current.children[0] as any)?.material?.opacity ?? 0,
-      vis ? 1 : 0, 0.04,
+    visibilityRef.current = THREE.MathUtils.lerp(
+      visibilityRef.current,
+      vis ? 1 : 0,
+      0.04
     );
-    groupRef.current.traverse(o => {
-      if ((o as THREE.Mesh).material) (o as THREE.Mesh).material.opacity = alpha;
-    });
+    lineMat.opacity = visibilityRef.current * 0.82;
+    nodeMat.opacity = visibilityRef.current;
     lineMat.uniforms.uTime.value = clock.elapsedTime;
     groupRef.current.rotation.y = clock.elapsedTime * 0.045;
   });
@@ -453,29 +545,69 @@ function NeuralCortex({ progressRef }: { progressRef: React.RefObject<number> })
 }
 
 // ── Chapter 2: Crystal Fortress ───────────────────────────
-function CrystalFortress({ progressRef }: { progressRef: React.RefObject<number> }) {
+function CrystalFortress({
+  progressRef,
+}: {
+  progressRef: MutableRefObject<number>;
+}) {
   const groupRef = useRef<THREE.Group>(null);
 
-  const shieldMat = useMemo(() => new THREE.ShaderMaterial({
-    vertexShader: SHIELD_VERT, fragmentShader: SHIELD_FRAG,
-    uniforms: { uTime: { value: 0 }, uColor: { value: new THREE.Color('#a855f7') } },
-    transparent: true, depthWrite: false, side: THREE.DoubleSide,
-    blending: THREE.AdditiveBlending,
-  }), []);
+  const shieldMat = useMemo(
+    () =>
+      new THREE.ShaderMaterial({
+        vertexShader: SHIELD_VERT,
+        fragmentShader: SHIELD_FRAG,
+        uniforms: {
+          uTime: { value: 0 },
+          uColor: { value: new THREE.Color('#a855f7') },
+        },
+        transparent: true,
+        depthWrite: false,
+        side: THREE.DoubleSide,
+        blending: THREE.AdditiveBlending,
+      }),
+    []
+  );
 
-  const crystalMat = useMemo(() => new THREE.MeshPhysicalMaterial({
-    color: '#6d28d9', emissive: '#a855f7', emissiveIntensity: 0.6,
-    roughness: 0.05, metalness: 0.1, transmission: 0.55, thickness: 1.2,
-    transparent: true, opacity: 0,
-  }), []);
+  const crystalMat = useMemo(
+    () =>
+      new THREE.MeshPhysicalMaterial({
+        color: '#6d28d9',
+        emissive: '#a855f7',
+        emissiveIntensity: 0.6,
+        roughness: 0.05,
+        metalness: 0.1,
+        transmission: 0.55,
+        thickness: 1.2,
+        transparent: true,
+        opacity: 0,
+      }),
+    []
+  );
 
-  const wireMat = useMemo(() => new THREE.MeshBasicMaterial({
-    color: '#c084fc', wireframe: true, transparent: true, opacity: 0,
-  }), []);
+  const wireMat = useMemo(
+    () =>
+      new THREE.MeshBasicMaterial({
+        color: '#c084fc',
+        wireframe: true,
+        transparent: true,
+        opacity: 0,
+      }),
+    []
+  );
 
-  const ringMats = useMemo(() => [2.2, 2.8, 3.5].map(() => new THREE.MeshBasicMaterial({
-    color: '#a855f7', transparent: true, opacity: 0,
-  })), []);
+  const ringMats = useMemo(
+    () =>
+      [2.2, 2.8, 3.5].map(
+        () =>
+          new THREE.MeshBasicMaterial({
+            color: '#a855f7',
+            transparent: true,
+            opacity: 0,
+          })
+      ),
+    []
+  );
 
   useFrame(({ clock }) => {
     if (!groupRef.current) return;
@@ -483,10 +615,16 @@ function CrystalFortress({ progressRef }: { progressRef: React.RefObject<number>
     const [s, e] = CHAPTERS[2].range;
     const vis = p >= s - 0.08 && p <= e + 0.08;
     const t = clock.elapsedTime;
-    const alpha = THREE.MathUtils.lerp(crystalMat.opacity, vis ? 0.82 : 0, 0.04);
+    const alpha = THREE.MathUtils.lerp(
+      crystalMat.opacity,
+      vis ? 0.82 : 0,
+      0.04
+    );
     crystalMat.opacity = alpha;
     wireMat.opacity = alpha * 0.35;
-    ringMats.forEach((m, i) => { m.opacity = alpha * (0.45 - i * 0.08); });
+    ringMats.forEach((m, i) => {
+      m.opacity = alpha * (0.45 - i * 0.08);
+    });
     shieldMat.uniforms.uTime.value = t;
     shieldMat.opacity = alpha;
     groupRef.current.rotation.y = t * 0.11;
@@ -495,11 +633,21 @@ function CrystalFortress({ progressRef }: { progressRef: React.RefObject<number>
 
   return (
     <group ref={groupRef}>
-      <mesh material={crystalMat}><icosahedronGeometry args={[1.5, 1]} /></mesh>
-      <mesh material={wireMat}><icosahedronGeometry args={[1.52, 1]} /></mesh>
-      <mesh material={shieldMat}><sphereGeometry args={[3.2, 32, 32]} /></mesh>
+      <mesh material={crystalMat}>
+        <icosahedronGeometry args={[1.5, 1]} />
+      </mesh>
+      <mesh material={wireMat}>
+        <icosahedronGeometry args={[1.52, 1]} />
+      </mesh>
+      <mesh material={shieldMat}>
+        <sphereGeometry args={[3.2, 32, 32]} />
+      </mesh>
       {[2.2, 2.8, 3.5].map((r, i) => (
-        <mesh key={i} rotation={[Math.PI/2 + i*0.55, i*0.9, 0]} material={ringMats[i]}>
+        <mesh
+          key={i}
+          rotation={[Math.PI / 2 + i * 0.55, i * 0.9, 0]}
+          material={ringMats[i]}
+        >
           <torusGeometry args={[r, 0.018, 8, 64]} />
         </mesh>
       ))}
@@ -509,39 +657,61 @@ function CrystalFortress({ progressRef }: { progressRef: React.RefObject<number>
 }
 
 // ── Chapter 3: Cloud Constellation ───────────────────────
-function CloudConstellation({ progressRef }: { progressRef: React.RefObject<number> }) {
+function CloudConstellation({
+  progressRef,
+}: {
+  progressRef: MutableRefObject<number>;
+}) {
   const groupRef = useRef<THREE.Group>(null);
-  const lineMat = useMemo(() => new THREE.LineBasicMaterial({
-    color: '#38bdf8', transparent: true, opacity: 0,
-  }), []);
-  const nodeMat = useMemo(() => new THREE.MeshStandardMaterial({
-    color: '#38bdf8', emissive: '#38bdf8', emissiveIntensity: 2,
-    transparent: true, opacity: 0,
-  }), []);
+  const lineMat = useMemo(
+    () =>
+      new THREE.LineBasicMaterial({
+        color: '#38bdf8',
+        transparent: true,
+        opacity: 0,
+      }),
+    []
+  );
+  const nodeMat = useMemo(
+    () =>
+      new THREE.MeshStandardMaterial({
+        color: '#38bdf8',
+        emissive: '#38bdf8',
+        emissiveIntensity: 2,
+        transparent: true,
+        opacity: 0,
+      }),
+    []
+  );
 
   const { nodes, edgeGeos } = useMemo(() => {
     const layers = [
       { count: 4, y: -2.2, r: 4.0 },
-      { count: 6, y: 0,    r: 3.5 },
-      { count: 4, y: 2.2,  r: 2.5 },
-      { count: 2, y: 3.8,  r: 1.0 },
+      { count: 6, y: 0, r: 3.5 },
+      { count: 4, y: 2.2, r: 2.5 },
+      { count: 2, y: 3.8, r: 1.0 },
     ];
     const nodes: THREE.Vector3[] = [];
     for (const { count, y, r } of layers)
       for (let i = 0; i < count; i++) {
         const a = (i / count) * Math.PI * 2;
-        nodes.push(new THREE.Vector3(Math.cos(a)*r, y, Math.sin(a)*r));
+        nodes.push(new THREE.Vector3(Math.cos(a) * r, y, Math.sin(a) * r));
       }
 
     const edgeGeos: THREE.BufferGeometry[] = [];
     let base = 0;
     for (let li = 0; li < layers.length - 1; li++) {
-      const nA = layers[li].count, nB = layers[li+1].count;
-      const bA = base, bB = base + nA;
+      const nA = layers[li].count,
+        nB = layers[li + 1].count;
+      const bA = base,
+        bB = base + nA;
       for (let a = 0; a < nA; a++)
         for (let b = 0; b < nB; b++)
           if (Math.random() > 0.35) {
-            const g = new THREE.BufferGeometry().setFromPoints([nodes[bA+a], nodes[bB+b]]);
+            const g = new THREE.BufferGeometry().setFromPoints([
+              nodes[bA + a],
+              nodes[bB + b],
+            ]);
             edgeGeos.push(g);
           }
       base += nA;
@@ -558,22 +728,41 @@ function CloudConstellation({ progressRef }: { progressRef: React.RefObject<numb
     const vis = p >= s - 0.08 && p <= e + 0.08;
     const alpha = THREE.MathUtils.lerp(lineMat.opacity, vis ? 0.45 : 0, 0.04);
     lineMat.opacity = alpha;
-    nodeMat.opacity = THREE.MathUtils.lerp(nodeMat.opacity, vis ? 0.9 : 0, 0.04);
+    nodeMat.opacity = THREE.MathUtils.lerp(
+      nodeMat.opacity,
+      vis ? 0.9 : 0,
+      0.04
+    );
     groupRef.current.rotation.y = clock.elapsedTime * 0.055;
   });
 
   return (
     <group ref={groupRef}>
-      {edgeGeos.map((g, i) => <line key={i} geometry={g} material={lineMat} />)}
-      {nodes.map((pos, i) => <mesh key={i} position={pos} geometry={nodeGeo} material={nodeMat} />)}
-      <Sparkles count={50} scale={8} size={2} speed={0.3} color="#38bdf8" opacity={0.5} />
+      {edgeGeos.map((g, i) => (
+        <lineSegments key={i} geometry={g} material={lineMat} />
+      ))}
+      {nodes.map((pos, i) => (
+        <mesh key={i} position={pos} geometry={nodeGeo} material={nodeMat} />
+      ))}
+      <Sparkles
+        count={50}
+        scale={8}
+        size={2}
+        speed={0.3}
+        color="#38bdf8"
+        opacity={0.5}
+      />
       <pointLight color="#38bdf8" intensity={2} distance={13} decay={2} />
     </group>
   );
 }
 
 // ── Chapter 4: Signal Matrix ──────────────────────────────
-function SignalMatrix({ progressRef }: { progressRef: React.RefObject<number> }) {
+function SignalMatrix({
+  progressRef,
+}: {
+  progressRef: MutableRefObject<number>;
+}) {
   const groupRef = useRef<THREE.Group>(null);
   const G = 12;
   const COUNT = G * G;
@@ -585,8 +774,12 @@ function SignalMatrix({ progressRef }: { progressRef: React.RefObject<number> })
     geo.setAttribute('aI', new THREE.BufferAttribute(barIdx, 1));
 
     const mat = new THREE.ShaderMaterial({
-      vertexShader: DATA_VERT, fragmentShader: DATA_FRAG,
-      uniforms: { uTime: { value: 0 }, uColor: { value: new THREE.Color('#22c55e') } },
+      vertexShader: DATA_VERT,
+      fragmentShader: DATA_FRAG,
+      uniforms: {
+        uTime: { value: 0 },
+        uColor: { value: new THREE.Color('#22c55e') },
+      },
       transparent: true,
     });
 
@@ -594,7 +787,11 @@ function SignalMatrix({ progressRef }: { progressRef: React.RefObject<number> })
     mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
     const dummy = new THREE.Object3D();
     for (let i = 0; i < COUNT; i++) {
-      dummy.position.set((i%G - G/2)*0.6, 0, (Math.floor(i/G) - G/2)*0.6);
+      dummy.position.set(
+        ((i % G) - G / 2) * 0.6,
+        0,
+        (Math.floor(i / G) - G / 2) * 0.6
+      );
       dummy.updateMatrix();
       mesh.setMatrixAt(i, dummy.matrix);
     }
@@ -612,10 +809,15 @@ function SignalMatrix({ progressRef }: { progressRef: React.RefObject<number> })
     mat.uniforms.uTime.value = clock.elapsedTime;
     mat.opacity = THREE.MathUtils.lerp(mat.opacity ?? 1, vis ? 0.88 : 0, 0.04);
     for (let i = 0; i < COUNT; i++) {
-      const col = i % G, row = Math.floor(i / G);
-      const h = (Math.sin(clock.elapsedTime*1.8 + col*0.6 + row*0.8)*0.5+0.5)
-              * (Math.cos(clock.elapsedTime*1.2 + col*0.4)*0.5+0.5)*2.8 + 0.12;
-      dummy.position.set((col-G/2)*0.6, h*0.5-1, (row-G/2)*0.6);
+      const col = i % G,
+        row = Math.floor(i / G);
+      const h =
+        (Math.sin(clock.elapsedTime * 1.8 + col * 0.6 + row * 0.8) * 0.5 +
+          0.5) *
+          (Math.cos(clock.elapsedTime * 1.2 + col * 0.4) * 0.5 + 0.5) *
+          2.8 +
+        0.12;
+      dummy.position.set((col - G / 2) * 0.6, h * 0.5 - 1, (row - G / 2) * 0.6);
       dummy.scale.set(1, h, 1);
       dummy.updateMatrix();
       barMesh.setMatrixAt(i, dummy.matrix);
@@ -627,23 +829,50 @@ function SignalMatrix({ progressRef }: { progressRef: React.RefObject<number> })
   return (
     <group ref={groupRef}>
       <primitive object={barMesh} />
-      <Sparkles count={35} scale={7} size={3} speed={0.35} color="#22c55e" opacity={0.5} />
+      <Sparkles
+        count={35}
+        scale={7}
+        size={3}
+        speed={0.35}
+        color="#22c55e"
+        opacity={0.5}
+      />
       <pointLight color="#22c55e" intensity={2.2} distance={14} decay={2} />
     </group>
   );
 }
 
 // ── Chapter 5: Singularity ────────────────────────────────
-function SingularityCore({ progressRef }: { progressRef: React.RefObject<number> }) {
+function SingularityCore({
+  progressRef,
+}: {
+  progressRef: MutableRefObject<number>;
+}) {
   const groupRef = useRef<THREE.Group>(null);
-  const coreRef  = useRef<THREE.Mesh>(null);
-  const coreMat  = useMemo(() => new THREE.MeshStandardMaterial({
-    color: '#ccff00', emissive: '#ccff00', emissiveIntensity: 0,
-    transparent: true, opacity: 0,
-  }), []);
-  const ringMats = useMemo(() => [1.6,2.1,2.7,3.4].map(() => new THREE.MeshBasicMaterial({
-    color: '#ccff00', transparent: true, opacity: 0,
-  })), []);
+  const coreRef = useRef<THREE.Mesh>(null);
+  const coreMat = useMemo(
+    () =>
+      new THREE.MeshStandardMaterial({
+        color: '#ccff00',
+        emissive: '#ccff00',
+        emissiveIntensity: 0,
+        transparent: true,
+        opacity: 0,
+      }),
+    []
+  );
+  const ringMats = useMemo(
+    () =>
+      [1.6, 2.1, 2.7, 3.4].map(
+        () =>
+          new THREE.MeshBasicMaterial({
+            color: '#ccff00',
+            transparent: true,
+            opacity: 0,
+          })
+      ),
+    []
+  );
 
   useFrame(({ clock }) => {
     if (!groupRef.current) return;
@@ -654,10 +883,14 @@ function SingularityCore({ progressRef }: { progressRef: React.RefObject<number>
     const alpha = THREE.MathUtils.lerp(coreMat.opacity, vis ? 0.95 : 0, 0.04);
     coreMat.opacity = alpha;
     coreMat.emissiveIntensity = 7 * alpha;
-    ringMats.forEach((m, i) => { m.opacity = alpha * (0.5 - i * 0.09); });
+    ringMats.forEach((m, i) => {
+      m.opacity = alpha * (0.5 - i * 0.09);
+    });
     if (coreRef.current) {
-      const scale = 1 + Math.sin(t*2.2)*0.12;
-      coreRef.current.scale.setScalar(THREE.MathUtils.lerp(coreRef.current.scale.x, scale, 0.1));
+      const scale = 1 + Math.sin(t * 2.2) * 0.12;
+      coreRef.current.scale.setScalar(
+        THREE.MathUtils.lerp(coreRef.current.scale.x, scale, 0.1)
+      );
     }
     groupRef.current.rotation.z = t * 0.18;
     groupRef.current.rotation.x = Math.sin(t * 0.12) * 0.1;
@@ -665,13 +898,22 @@ function SingularityCore({ progressRef }: { progressRef: React.RefObject<number>
 
   return (
     <group ref={groupRef}>
-      <mesh ref={coreRef} material={coreMat}><sphereGeometry args={[0.42, 32, 32]} /></mesh>
-      {[1.6,2.1,2.7,3.4].map((r, i) => (
-        <mesh key={i} rotation={[i*0.7, i*1.1, 0]} material={ringMats[i]}>
+      <mesh ref={coreRef} material={coreMat}>
+        <sphereGeometry args={[0.42, 32, 32]} />
+      </mesh>
+      {[1.6, 2.1, 2.7, 3.4].map((r, i) => (
+        <mesh key={i} rotation={[i * 0.7, i * 1.1, 0]} material={ringMats[i]}>
           <torusGeometry args={[r, 0.016, 8, 64]} />
         </mesh>
       ))}
-      <Sparkles count={120} scale={7} size={4.5} speed={0.9} color="#ccff00" opacity={0.85} />
+      <Sparkles
+        count={120}
+        scale={7}
+        size={4.5}
+        speed={0.9}
+        color="#ccff00"
+        opacity={0.85}
+      />
       <pointLight color="#ccff00" intensity={7} distance={18} decay={2} />
     </group>
   );
@@ -681,7 +923,15 @@ function SingularityCore({ progressRef }: { progressRef: React.RefObject<number>
 function Background() {
   return (
     <>
-      <Stars radius={90} depth={55} count={2500} factor={4} saturation={0} fade speed={0.4} />
+      <Stars
+        radius={90}
+        depth={55}
+        count={2500}
+        factor={4}
+        saturation={0}
+        fade
+        speed={0.4}
+      />
       <ambientLight intensity={0.08} />
       <fog attach="fog" color="#000000" near={35} far={85} />
     </>
@@ -689,7 +939,7 @@ function Background() {
 }
 
 // ── Master Scene ──────────────────────────────────────────
-function Scene({ progressRef }: { progressRef: React.RefObject<number> }) {
+function Scene({ progressRef }: { progressRef: MutableRefObject<number> }) {
   const { camera } = useThree();
   const camPos = useRef(new THREE.Vector3(0, 0, 9));
   const camLook = useRef(new THREE.Vector3(0, 0, 0));
@@ -708,11 +958,11 @@ function Scene({ progressRef }: { progressRef: React.RefObject<number> }) {
   return (
     <>
       <Background />
-      <ParticleGalaxy  progressRef={progressRef} />
-      <NeuralCortex    progressRef={progressRef} />
+      <ParticleGalaxy progressRef={progressRef} />
+      <NeuralCortex progressRef={progressRef} />
       <CrystalFortress progressRef={progressRef} />
       <CloudConstellation progressRef={progressRef} />
-      <SignalMatrix    progressRef={progressRef} />
+      <SignalMatrix progressRef={progressRef} />
       <SingularityCore progressRef={progressRef} />
     </>
   );
@@ -722,29 +972,61 @@ function Scene({ progressRef }: { progressRef: React.RefObject<number> }) {
 // HTML OVERLAY
 // ============================================================
 
-function ChapterOverlay({ ch, visible }: { ch: ChapterDef; visible: boolean }) {
+function ChapterOverlay({
+  ch,
+  visible,
+  isPrimary,
+}: {
+  ch: ChapterDef;
+  visible: boolean;
+  isPrimary?: boolean;
+}) {
+  const HeadingTag = isPrimary ? 'h1' : 'h2';
+
   return (
-    <div className={`universe-chapter ${visible ? 'is-visible' : 'is-hidden'}`}>
+    <section
+      className={`universe-chapter ${visible ? 'is-visible' : 'is-hidden'}`}
+      aria-hidden={!visible}
+      aria-labelledby={`${ch.id}-title`}
+    >
       <div className="universe-content">
-        <span className="universe-kicker" style={{ color: ch.accent }}>{ch.kicker}</span>
-        <h2 className="universe-title">
-          {ch.title.map((line, i) => <span key={i}>{line}<br /></span>)}
-        </h2>
+        <span className="universe-kicker" style={{ color: ch.accent }}>
+          {ch.kicker}
+        </span>
+        <HeadingTag id={`${ch.id}-title`} className="universe-title">
+          {ch.title.map((line, i) => (
+            <span key={i}>
+              {line}
+              <br />
+            </span>
+          ))}
+        </HeadingTag>
         <p className="universe-copy">{ch.copy}</p>
         {ch.metrics && (
           <div className="universe-metrics">
-            {ch.metrics.map(m => <span key={m} className="universe-metric-chip">{m}</span>)}
+            {ch.metrics.map(m => (
+              <span key={m} className="universe-metric-chip">
+                {m}
+              </span>
+            ))}
           </div>
         )}
         <div className="universe-ctas">
           {ch.ctas.map((cta, i) => (
-            <a key={i} href={cta.href} className={cta.primary ? 'universe-btn-primary' : 'universe-btn-secondary'}>
+            <a
+              key={i}
+              href={cta.href}
+              className={
+                cta.primary ? 'universe-btn-primary' : 'universe-btn-secondary'
+              }
+              tabIndex={visible ? undefined : -1}
+            >
               {cta.label}
             </a>
           ))}
         </div>
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -753,16 +1035,30 @@ function ChapterOverlay({ ch, visible }: { ch: ChapterDef; visible: boolean }) {
 // ============================================================
 
 export default function OliveUniverse() {
-  const wrapperRef    = useRef<HTMLDivElement>(null);
-  const progressRef   = useRef(0);
-  const [chapter, setChapter]   = useState(0);
-  const [quality, setQuality]   = useState<QualityTier>('medium');
-  const [mounted, setMounted]   = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const progressRef = useRef(0);
+  const [chapter, setChapter] = useState(0);
+  const [quality, setQuality] = useState<QualityTier>('medium');
+  const [mounted, setMounted] = useState(false);
 
   // Detect quality & mark mounted
   useEffect(() => {
     setQuality(detectQuality());
     setMounted(true);
+  }, []);
+
+  const scrollToChapter = useCallback((chapterIndex: number) => {
+    if (!wrapperRef.current || typeof window === 'undefined') return;
+
+    const wrapperTop =
+      window.scrollY + wrapperRef.current.getBoundingClientRect().top;
+    const total = wrapperRef.current.offsetHeight - window.innerHeight;
+    const targetTop = wrapperTop + total * CHAPTERS[chapterIndex].range[0];
+
+    window.scrollTo({
+      top: targetTop,
+      behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+    });
   }, []);
 
   // Scroll → progress ref (rAF, no state churn)
@@ -772,27 +1068,39 @@ export default function OliveUniverse() {
     let lastCh = -1;
     function tick() {
       if (wrapperRef.current) {
-        const rect  = wrapperRef.current.getBoundingClientRect();
+        const rect = wrapperRef.current.getBoundingClientRect();
         const total = rect.height - window.innerHeight;
-        if (total > 0) progressRef.current = Math.max(0, Math.min(1, -rect.top / total));
+        if (total > 0)
+          progressRef.current = Math.max(0, Math.min(1, -rect.top / total));
       }
       // Derive chapter only on change (avoids constant re-renders)
       const p = progressRef.current;
       let ch = 0;
       for (let i = CHAPTERS.length - 1; i >= 0; i--)
-        if (p >= CHAPTERS[i].range[0] - 0.04) { ch = i; break; }
-      if (ch !== lastCh) { setChapter(ch); lastCh = ch; }
+        if (p >= CHAPTERS[i].range[0] - 0.04) {
+          ch = i;
+          break;
+        }
+      if (ch !== lastCh) {
+        setChapter(ch);
+        lastCh = ch;
+      }
       id = requestAnimationFrame(tick);
     }
     id = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(id);
   }, [mounted]);
 
-  const dpr = quality === 'low' ? 1 : Math.min(window?.devicePixelRatio ?? 1, quality === 'high' ? 2 : 1.5);
+  const dpr =
+    typeof window === 'undefined'
+      ? 1
+      : quality === 'low'
+        ? 1
+        : Math.min(window.devicePixelRatio || 1, quality === 'high' ? 2 : 1.5);
 
   if (!mounted) {
     return (
-      <div className="universe-wrapper">
+      <div className="universe-wrapper" data-olive-universe="booting">
         <div className="universe-loading">
           <div className="universe-loading-inner">
             <div className="universe-loading-bar" />
@@ -804,54 +1112,80 @@ export default function OliveUniverse() {
   }
 
   return (
-    <div ref={wrapperRef} className="universe-wrapper">
+    <div
+      ref={wrapperRef}
+      className="universe-wrapper"
+      data-olive-universe="ready"
+      data-current-chapter={CHAPTERS[chapter]?.id}
+    >
       <div className="universe-sticky">
-
         {/* ── 3D Canvas ─────────────────────────────────── */}
-        <Canvas
-          camera={{ position: [0, 0, 9], fov: 60, near: 0.1, far: 200 }}
-          dpr={dpr}
-          gl={{
-            antialias: quality !== 'low',
-            alpha: false,
-            powerPreference: 'high-performance',
-            toneMapping: THREE.ACESFilmicToneMapping,
-            toneMappingExposure: 1.25,
-          }}
-          style={{ position: 'absolute', inset: 0, background: '#000' }}
-        >
-          <Scene progressRef={progressRef} />
-          <EffectComposer>
-            <Bloom
-              luminanceThreshold={0.18}
-              luminanceSmoothing={0.65}
-              intensity={1.6}
-              mipmapBlur
-            />
-            <ChromaticAberration
-              blendFunction={BlendFunction.NORMAL}
-              offset={new THREE.Vector2(0.0007, 0.0007)}
-              radialModulation={false}
-              modulationOffset={0}
-            />
-            <Vignette offset={0.32} darkness={0.62} />
-            <Noise premultiply blendFunction={BlendFunction.ADD} opacity={0.035} />
-          </EffectComposer>
-        </Canvas>
+        <div className="universe-canvas" aria-hidden="true">
+          <Canvas
+            camera={{ position: [0, 0, 9], fov: 60, near: 0.1, far: 200 }}
+            dpr={dpr}
+            gl={{
+              antialias: quality !== 'low',
+              alpha: false,
+              powerPreference: 'high-performance',
+              toneMapping: THREE.ACESFilmicToneMapping,
+              toneMappingExposure: 1.25,
+            }}
+            style={{ position: 'absolute', inset: 0, background: '#000' }}
+          >
+            <Scene progressRef={progressRef} />
+            <EffectComposer>
+              <Bloom
+                luminanceThreshold={0.18}
+                luminanceSmoothing={0.65}
+                intensity={1.6}
+                mipmapBlur
+              />
+              <ChromaticAberration
+                blendFunction={BlendFunction.NORMAL}
+                offset={new THREE.Vector2(0.0007, 0.0007)}
+                radialModulation={false}
+                modulationOffset={0}
+              />
+              <Vignette offset={0.32} darkness={0.62} />
+              <Noise
+                premultiply
+                blendFunction={BlendFunction.ADD}
+                opacity={0.035}
+              />
+            </EffectComposer>
+          </Canvas>
+        </div>
 
         {/* ── HTML Chapter Overlay ───────────────────────── */}
-        <div className="universe-overlay">
+        <div
+          className="universe-overlay"
+          role="region"
+          aria-label="Interactive studio introduction"
+        >
           {CHAPTERS.map((ch, i) => (
-            <ChapterOverlay key={ch.id} ch={ch} visible={chapter === i} />
+            <ChapterOverlay
+              key={ch.id}
+              ch={ch}
+              visible={chapter === i}
+              isPrimary={i === 0}
+            />
           ))}
         </div>
 
         {/* ── Chapter Progress Dots ─────────────────────── */}
-        <div className="universe-progress" aria-hidden="true">
+        <nav className="universe-progress" aria-label="Story chapters">
           {CHAPTERS.map((ch, i) => (
-            <div key={ch.id} className={`universe-dot ${chapter === i ? 'is-active' : ''}`} />
+            <button
+              key={ch.id}
+              type="button"
+              className={`universe-dot ${chapter === i ? 'is-active' : ''}`}
+              aria-label={`Jump to ${ch.kicker}`}
+              aria-pressed={chapter === i}
+              onClick={() => scrollToChapter(i)}
+            />
           ))}
-        </div>
+        </nav>
 
         {/* ── Scroll Hint ───────────────────────────────── */}
         {chapter === 0 && (

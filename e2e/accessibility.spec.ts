@@ -7,8 +7,13 @@ test.describe('Accessibility', () => {
   }) => {
     await page.goto('./');
     await page.waitForLoadState('domcontentloaded');
-    await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible();
-    await expect(page.locator('[data-hero-canvas]')).toBeVisible();
+    await expect(page.locator('[data-olive-universe="ready"]')).toBeVisible();
+    await expect(
+      page.getByRole('heading', {
+        level: 1,
+        name: /creative technology/i,
+      })
+    ).toBeVisible();
 
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])

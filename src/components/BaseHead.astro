@@ -26,6 +26,7 @@ interface Props {
   publishDate?: Date;
   keywords?: string[];
   noIndex?: boolean;
+  enableClientRouter?: boolean;
 }
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
@@ -39,6 +40,7 @@ const {
   publishDate,
   keywords,
   noIndex,
+  enableClientRouter = true,
 } = Astro.props;
 
 import { generateMetaTags } from '../utils/seo';
@@ -78,7 +80,7 @@ const metaTags = generateMetaTags({
   media="(prefers-color-scheme: light)"
 />
 <meta name="theme-color" content="#0A1F44" />
-<ClientRouter />
+{enableClientRouter ? <ClientRouter /> : null}
 <script>
   import '../scripts/ux-bootstrap';
   import '../scripts/navigation-progress';

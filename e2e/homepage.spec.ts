@@ -8,8 +8,16 @@ test.describe('Homepage', () => {
 
   test('should display hero section', async ({ page }) => {
     await page.goto('./');
-    await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible();
-    await expect(page.locator('[data-hero-canvas]')).toBeVisible();
+    await expect(page.locator('[data-olive-universe="ready"]')).toBeVisible();
+    await expect(
+      page.getByRole('heading', {
+        level: 1,
+        name: /creative technology/i,
+      })
+    ).toBeVisible();
+    await expect(
+      page.getByRole('navigation', { name: /story chapters/i })
+    ).toBeVisible();
   });
 
   test('should have working navigation', async ({ page, isMobile }) => {
@@ -66,24 +74,22 @@ test.describe('Homepage', () => {
       test.skip();
     }
 
-    const headerNav = page.getByRole('navigation', {
-      name: /main navigation/i,
-    });
+    const navigateFromHome = async (linkName: RegExp, target: RegExp) => {
+      await page.goto('./');
 
-    await Promise.all([
-      page.waitForURL(/.*\/services\/?$/, { timeout: 15000 }),
-      headerNav.getByRole('link', { name: /^services$/i }).click(),
-    ]);
+      const headerNav = page.getByRole('navigation', {
+        name: /main navigation/i,
+      });
 
-    await Promise.all([
-      page.waitForURL(/.*\/contact-hq\/?$/, { timeout: 15000 }),
-      headerNav.getByRole('link', { name: /^contact$/i }).click(),
-    ]);
+      const link = headerNav.getByRole('link', { name: linkName });
+      await expect(link).toBeVisible();
+      await link.click();
+      await expect(page).toHaveURL(target);
+    };
 
-    await Promise.all([
-      page.waitForURL(/.*\/about\/?$/, { timeout: 15000 }),
-      headerNav.getByRole('link', { name: /^portfolio$/i }).click(),
-    ]);
+    await navigateFromHome(/^services$/i, /.*\/services\/?$/);
+    await navigateFromHome(/^contact$/i, /.*\/contact-hq\/?$/);
+    await navigateFromHome(/^portfolio$/i, /.*\/about\/?$/);
   });
 
   test('primary CTA should jump to consultation form', async () => {

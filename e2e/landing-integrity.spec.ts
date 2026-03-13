@@ -8,15 +8,17 @@ test.describe('Landing Page Integrity', () => {
   test('should display the primary hero badge and service framing', async ({
     page,
   }) => {
+    const heroRegion = page.locator('[data-olive-universe="ready"]');
+
     await expect(
-      page
-        .locator('#main-content')
-        .getByText(/EXPERIENCE DESIGN • MOTION SYSTEMS • ENGINEERING/i)
+      heroRegion.getByText(/Creative Technology Studio/i)
     ).toBeVisible();
+    await expect(heroRegion.getByText(/AI Systems/i).first()).toBeVisible();
     await expect(
-      page
-        .locator('#main-content')
-        .getByText(/Creative technology without template energy\./i)
+      heroRegion.getByRole('heading', {
+        level: 1,
+        name: /Creative technology/i,
+      })
     ).toBeVisible();
   });
 

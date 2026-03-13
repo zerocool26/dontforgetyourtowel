@@ -23,6 +23,7 @@ interface Props {
   showHeader?: boolean;
   showMobileNav?: boolean;
   showLiveChat?: boolean;
+  enableClientRouter?: boolean;
 }
 
 const {
@@ -35,13 +36,18 @@ const {
   showHeader = true,
   showMobileNav = true,
   showLiveChat = true,
+  enableClientRouter = true,
 } = Astro.props as Props;
 ---
 
 <!doctype html>
 <html lang="en" data-base-path={BASE_PATH}>
   <head>
-    <BaseHead title={title} description={description} />
+    <BaseHead
+      title={title}
+      description={description}
+      enableClientRouter={enableClientRouter}
+    />
     <StructuredData type="website" />
 
     <!--
