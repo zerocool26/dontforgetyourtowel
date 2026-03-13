@@ -136,11 +136,20 @@ function getRequestedHeroChapter(): ChapterDef['id'] | null {
   return isChapterId(hashScene) ? hashScene : null;
 }
 
-function shouldIgnoreHeroInteractiveTarget(target: EventTarget | null) {
+function shouldIgnoreHeroInteractiveTarget(
+  target: EventTarget | null,
+  heroInteractiveRoot?: HTMLElement | null
+) {
   if (!(target instanceof HTMLElement)) return false;
 
   if (target.isContentEditable) {
     return true;
+  }
+
+  if (heroInteractiveRoot?.contains(target)) {
+    return Boolean(
+      target.closest('input, textarea, select, [contenteditable="true"]')
+    );
   }
 
   return Boolean(
@@ -612,7 +621,8 @@ export default function OliveUniverse() {
         event.ctrlKey ||
         event.metaKey ||
         shouldIgnoreHeroInteractiveTarget(
-          event.target ?? document.activeElement
+          event.target ?? document.activeElement,
+          wrapperRef.current
         )
       ) {
         return;
@@ -871,20 +881,26 @@ export default function OliveUniverse() {
       ? 'primed'
       : 'warming';
   const sceneCacheStatusLabel =
-    sceneCacheState === 'primed'
-      ? 'All scenes primed'
-      : `${sceneReadyCount}/${sceneReadyTotal} ready`;
+    sceneCacheState === 'idle'
+      ? 'Standby'
+      : sceneCacheState === 'primed'
+        ? 'All scenes primed'
+        : `${sceneReadyCount}/${sceneReadyTotal} ready`;
   const sceneCacheNote =
-    sceneCacheState === 'primed'
-      ? 'Every 3D chapter has been primed in the background for cleaner jumps and faster scene hand-offs.'
-      : 'Background priming is warming the remaining 3D chapters so later jumps land without cold-start flashes.';
+    sceneCacheState === 'idle'
+      ? 'Enable immersive scenes, or choose a cinematic or stable render profile, to warm every 3D chapter in the background before you jump.'
+      : sceneCacheState === 'primed'
+        ? 'Every 3D chapter has been primed in the background for cleaner jumps and faster scene hand-offs.'
+        : 'Background priming is warming the remaining 3D chapters so later jumps land without cold-start flashes.';
   const sceneHandoffStatus = sceneHandoffActive
     ? sceneCacheState === 'primed'
       ? `Scene handoff active · ${activeChapter.kicker} scene is primed and syncing into focus.`
       : `Scene handoff active · ${activeChapter.kicker} scene is syncing while the cache continues warming.`
-    : sceneCacheState === 'primed'
-      ? 'Scene handoff ready · every chapter is primed for smoother transitions.'
-      : 'Scene handoff standby · background priming is still warming the remaining chapters.';
+    : sceneCacheState === 'idle'
+      ? 'Scene handoff standby · enable immersive scenes to unlock cinematic transitions between chapters.'
+      : sceneCacheState === 'primed'
+        ? 'Scene handoff ready · every chapter is primed for smoother transitions.'
+        : 'Scene handoff standby · background priming is still warming the remaining chapters.';
   const nextSceneLabel = nextChapter
     ? `Up next: ${nextChapter.kicker}`
     : 'Final scene active';
@@ -1336,7 +1352,7 @@ export default function OliveUniverse() {
               </div>
             )}
 
-            {shouldRenderCanvas && (
+            {webglSupported && (
               <div
                 className="universe-story-atmosphere"
                 role="status"
@@ -1368,7 +1384,7 @@ export default function OliveUniverse() {
               </div>
             )}
 
-            {shouldRenderCanvas && (
+            {webglSupported && (
               <div
                 className={`universe-story-cache ${sceneCacheState === 'primed' ? 'is-primed' : 'is-warming'}`}
                 role="status"
@@ -1394,7 +1410,7 @@ export default function OliveUniverse() {
               </div>
             )}
 
-            {shouldRenderCanvas && (
+            {webglSupported && (
               <p
                 className={`universe-story-handoff ${sceneHandoffActive ? 'is-active' : ''}`}
                 role="status"

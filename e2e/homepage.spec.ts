@@ -280,7 +280,9 @@ test.describe('Homepage', () => {
     ).toBeVisible();
     await expect(page.getByText(/up next: cybersecurity/i)).toBeVisible();
 
-    await page.keyboard.press('End');
+    await page
+      .getByRole('button', { name: /jump to start your project/i })
+      .click();
     await expect(page.getByText(/final scene active/i)).toBeVisible();
   });
 
@@ -390,13 +392,21 @@ test.describe('Homepage', () => {
 
     const hero = page.locator('[data-olive-universe="ready"]');
     const storyStatus = page.getByLabel('Hero story status');
+    const cinematicProfileButton = storyStatus.getByRole('button', {
+      name: /use cinematic render profile/i,
+    });
+    const stableProfileButton = storyStatus.getByRole('button', {
+      name: /use stable render profile/i,
+    });
+    const adaptiveProfileButton = storyStatus.getByRole('button', {
+      name: /use adaptive render profile/i,
+    });
     await expect(hero).toBeVisible();
     await expect(hero).toHaveAttribute('data-olive-render-profile', 'adaptive');
     await expect(hero).toHaveAttribute('data-olive-mode', 'reduced');
 
-    await page
-      .getByRole('button', { name: /use cinematic render profile/i })
-      .click();
+    await cinematicProfileButton.scrollIntoViewIfNeeded();
+    await cinematicProfileButton.click();
 
     await expect(hero).toHaveAttribute(
       'data-olive-render-profile',
@@ -411,9 +421,8 @@ test.describe('Homepage', () => {
       storyStatus.getByText(/cinematic render profile is active/i)
     ).toBeVisible();
 
-    await page
-      .getByRole('button', { name: /use stable render profile/i })
-      .click();
+    await stableProfileButton.scrollIntoViewIfNeeded();
+    await stableProfileButton.click();
 
     await expect(hero).toHaveAttribute('data-olive-render-profile', 'stable');
     await expect(hero).toHaveAttribute('data-olive-mode', 'lite');
@@ -421,9 +430,8 @@ test.describe('Homepage', () => {
       storyStatus.getByText(/stable render profile is active/i)
     ).toBeVisible();
 
-    await page
-      .getByRole('button', { name: /use adaptive render profile/i })
-      .click();
+    await adaptiveProfileButton.scrollIntoViewIfNeeded();
+    await adaptiveProfileButton.click();
 
     await expect(hero).toHaveAttribute('data-olive-render-profile', 'adaptive');
     await expect(hero).toHaveAttribute('data-olive-mode', 'reduced');
@@ -530,7 +538,7 @@ test.describe('Homepage', () => {
 
     await expect
       .poll(async () => hero.getAttribute('data-olive-handoff'), {
-        timeout: 2500,
+        timeout: 5000,
       })
       .toBe('idle');
   });

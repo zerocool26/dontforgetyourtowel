@@ -960,13 +960,24 @@ function AtmosphereRig({
   const currentRimLightColor = useRef(
     new THREE.Color(atmosphere.rimLightColor)
   );
+  const targetFogColor = useMemo(
+    () => new THREE.Color(atmosphere.fogColor),
+    [atmosphere.fogColor]
+  );
+  const targetHazeColor = useMemo(
+    () => new THREE.Color(atmosphere.hazeColor),
+    [atmosphere.hazeColor]
+  );
+  const targetKeyLightColor = useMemo(
+    () => new THREE.Color(atmosphere.keyLightColor),
+    [atmosphere.keyLightColor]
+  );
+  const targetRimLightColor = useMemo(
+    () => new THREE.Color(atmosphere.rimLightColor),
+    [atmosphere.rimLightColor]
+  );
 
   useFrame(({ clock, scene }) => {
-    const targetFogColor = new THREE.Color(atmosphere.fogColor);
-    const targetHazeColor = new THREE.Color(atmosphere.hazeColor);
-    const targetKeyLightColor = new THREE.Color(atmosphere.keyLightColor);
-    const targetRimLightColor = new THREE.Color(atmosphere.rimLightColor);
-
     currentFogColor.current.lerp(targetFogColor, 0.04);
     currentHazeColor.current.lerp(targetHazeColor, 0.04);
     currentKeyLightColor.current.lerp(targetKeyLightColor, 0.05);

@@ -502,6 +502,7 @@
   right: 204px;
   bottom: 34px;
   width: min(360px, calc(100vw - 260px));
+  max-height: calc(100vh - 132px);
   padding: 18px 18px 16px;
   border-radius: 24px;
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -515,8 +516,27 @@
     0 0 0 1px rgba(var(--universe-accent-rgb), 0.08);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(var(--universe-atmosphere-secondary-rgb), 0.32)
+    transparent;
   pointer-events: auto;
   z-index: 21;
+}
+
+.universe-story-panel::-webkit-scrollbar {
+  width: 8px;
+}
+
+.universe-story-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.universe-story-panel::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(var(--universe-atmosphere-secondary-rgb), 0.24);
 }
 
 .universe-story-panel-top {
