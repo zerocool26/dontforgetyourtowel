@@ -100,6 +100,9 @@ test.describe('Homepage', () => {
     );
     await expect(hero).toHaveAttribute('data-olive-mode', /(immersive|lite)/);
     await expect(hero).toHaveAttribute('data-current-chapter', 'cloud');
+    await expect(
+      hero.getByRole('heading', { name: /infrastructure/i })
+    ).toBeVisible();
 
     await page.evaluate(() => {
       const heroElement = document.querySelector<HTMLElement>(
@@ -133,6 +136,9 @@ test.describe('Homepage', () => {
 
     await page.getByRole('button', { name: /jump to ai systems/i }).click();
     await expect(hero).toHaveAttribute('data-current-chapter', 'neural');
+    await expect(
+      hero.getByRole('heading', { name: /ai orchestration/i })
+    ).toBeVisible();
 
     const transitions = await page.evaluate(() => {
       const audit = (
@@ -170,6 +176,9 @@ test.describe('Homepage', () => {
       'immersive'
     );
     await expect(hero).toHaveAttribute('data-olive-mode', /(immersive|lite)/);
+    await expect(
+      hero.getByRole('heading', { name: /infrastructure/i })
+    ).toBeVisible();
   });
 
   test('keyboard shortcuts should navigate hero chapters', async ({

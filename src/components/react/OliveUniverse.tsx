@@ -474,11 +474,13 @@ export default function OliveUniverse() {
     deepLinkHandledRef.current = true;
 
     if (requestedIndex === 0) {
+      progressRef.current = CHAPTERS[0].range[0];
       setSceneProgressPercent(0);
       setChapter(0);
       return;
     }
 
+    progressRef.current = CHAPTERS[requestedIndex]?.range[0] ?? 0;
     setSceneProgressPercent(0);
     setChapter(requestedIndex);
 

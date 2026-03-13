@@ -66,14 +66,15 @@ const PARTICLE_VERT = /* glsl */ `
 const PARTICLE_FRAG = /* glsl */ `
   uniform vec3  uColor;
   uniform float uMorph;
+  uniform float uVisibility;
   void main() {
     vec2  uv = gl_PointCoord - 0.5;
     float d  = length(uv);
     if (d > 0.5) discard;
     float soft  = 1.0 - smoothstep(0.22, 0.5, d);
     float glow  = (1.0 - d * 2.0) * uMorph * 0.8;
-    float alpha = soft * (0.45 + uMorph * 0.55);
-    gl_FragColor = vec4(uColor + vec3(glow * 0.6), alpha);
+    float alpha = soft * (0.45 + uMorph * 0.55) * uVisibility;
+    gl_FragColor = vec4(uColor + vec3(glow * 0.6 * uVisibility), alpha);
   }
 `;
 
@@ -222,6 +223,7 @@ function ParticleGalaxy({
 }) {
   const matRef = useRef<THREE.ShaderMaterial | null>(null);
   const mouseRef = useRef(new THREE.Vector2());
+  const visibilityRef = useRef(0);
   const count = profile.particleCount;
 
   const geo = useMemo(() => {
@@ -252,6 +254,7 @@ function ParticleGalaxy({
         uniforms: {
           uTime: { value: 0 },
           uMorph: { value: 0 },
+          uVisibility: { value: 0 },
           uMouse: { value: new THREE.Vector2() },
           uColor: { value: new THREE.Color('#ccff00') },
         },
@@ -284,13 +287,24 @@ function ParticleGalaxy({
     if (!matRef.current) return;
     const progress = progressRef.current ?? 0;
     const [start, end] = CHAPTERS[0].range;
-    const local = Math.max(0, Math.min(1, (progress - start) / (end - start)));
+    const visible = progress >= start - 0.08 && progress <= end + 0.08;
+    const local = visible
+      ? Math.max(0, Math.min(1, (progress - start) / (end - start)))
+      : 0;
+
+    visibilityRef.current = THREE.MathUtils.lerp(
+      visibilityRef.current,
+      visible ? 1 : 0,
+      0.05
+    );
+
     matRef.current.uniforms.uTime.value = clock.elapsedTime;
     matRef.current.uniforms.uMorph.value = THREE.MathUtils.lerp(
       matRef.current.uniforms.uMorph.value,
       local * 1.2,
       0.025
     );
+    matRef.current.uniforms.uVisibility.value = visibilityRef.current;
     matRef.current.uniforms.uMouse.value.lerp(mouseRef.current, 0.06);
   });
 
@@ -655,6 +669,7 @@ function SignalMatrix({
         uColor: { value: new THREE.Color('#22c55e') },
       },
       transparent: true,
+      opacity: 0,
     });
 
     const mesh = new THREE.InstancedMesh(geometry, material, count);
