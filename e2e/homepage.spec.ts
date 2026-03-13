@@ -469,6 +469,47 @@ test.describe('Homepage', () => {
     await expect(storyStatus.getByText(/carrier grid/i)).toBeVisible();
   });
 
+  test('hero should preload 3D and let users trigger a live scene burst', async ({
+    page,
+    isMobile,
+  }) => {
+    if (isMobile) {
+      test.skip();
+    }
+
+    await page.goto('./');
+
+    const hero = page.locator('[data-olive-universe="ready"]');
+    const storyStatus = page.getByLabel('Hero story status');
+    await expect(hero).toBeVisible();
+
+    await expect
+      .poll(async () => hero.getAttribute('data-olive-preload'), {
+        timeout: 5000,
+      })
+      .toBe('ready');
+
+    await page
+      .getByRole('button', { name: /enable immersive scenes/i })
+      .click();
+    await expect(hero).toHaveAttribute('data-olive-mode', /(immersive|lite)/);
+
+    await storyStatus
+      .getByRole('button', { name: /trigger scene burst/i })
+      .click();
+
+    await expect(hero).toHaveAttribute('data-olive-interaction', 'burst');
+    await expect(
+      storyStatus.getByText(/scene burst active · creative technology studio/i)
+    ).toBeVisible();
+
+    await expect
+      .poll(async () => hero.getAttribute('data-olive-interaction'), {
+        timeout: 4000,
+      })
+      .toBe('idle');
+  });
+
   test('scene cache should prime every hero chapter for cleaner scene jumps', async ({
     page,
     isMobile,
@@ -820,12 +861,36 @@ test.describe('Homepage', () => {
     await expect(hero).toHaveAttribute('data-olive-mobile-panel', 'closed');
     await expect(hero).toHaveAttribute('data-olive-mobile-3d', 'optimized');
     await expect(mobileToggle).toBeVisible();
+    await expect
+      .poll(async () => hero.getAttribute('data-olive-preload'), {
+        timeout: 5000,
+      })
+      .toBe('ready');
 
     await mobileToggle.click();
 
     const storyStatus = page.getByLabel('Hero story status');
     await expect(hero).toHaveAttribute('data-olive-mobile-panel', 'open');
     await expect(storyStatus).toBeVisible();
+
+    await storyStatus
+      .getByRole('button', { name: /enable immersive scenes/i })
+      .click();
+
+    await expect(hero).toHaveAttribute('data-olive-mode', /(immersive|lite)/);
+    await expect(hero).toHaveAttribute('data-olive-mobile-panel', 'closed');
+
+    await page
+      .getByRole('button', {
+        name: /show hero controls for creative technology studio/i,
+      })
+      .click();
+
+    await storyStatus
+      .getByRole('button', { name: /trigger scene burst/i })
+      .click();
+
+    await expect(hero).toHaveAttribute('data-olive-interaction', 'burst');
 
     await storyStatus
       .getByRole('button', { name: /jump to cloud engineering/i })

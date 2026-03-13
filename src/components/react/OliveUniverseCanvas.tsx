@@ -1728,22 +1728,303 @@ function SceneSignatureLayer({
   }
 }
 
+function InteractionBurstLayer({
+  activeChapterIndex,
+  profile,
+  interactionBurstActive,
+}: {
+  activeChapterIndex: number;
+  profile: SceneProfile;
+  interactionBurstActive: boolean;
+}) {
+  const chapterId = CHAPTERS[activeChapterIndex]?.id ?? CHAPTERS[0].id;
+  const atmosphere = CHAPTER_ATMOSPHERES[chapterId];
+  const groupRef = useRef<THREE.Group>(null);
+  const pulseRef = useRef<THREE.Mesh>(null);
+  const sweepRef = useRef<THREE.Mesh>(null);
+  const burstLevelRef = useRef(0);
+  const primaryMat = useMemo(
+    () =>
+      new THREE.MeshBasicMaterial({
+        color: atmosphere.keyLightColor,
+        transparent: true,
+        opacity: 0,
+        side: THREE.DoubleSide,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      }),
+    [atmosphere.keyLightColor]
+  );
+  const secondaryMat = useMemo(
+    () =>
+      new THREE.MeshBasicMaterial({
+        color: atmosphere.rimLightColor,
+        transparent: true,
+        opacity: 0,
+        side: THREE.DoubleSide,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      }),
+    [atmosphere.rimLightColor]
+  );
+  const coreMat = useMemo(
+    () =>
+      new THREE.MeshStandardMaterial({
+        color: atmosphere.hazeColor,
+        emissive: atmosphere.keyLightColor,
+        emissiveIntensity: 0,
+        roughness: 0.14,
+        metalness: 0.22,
+        transparent: true,
+        opacity: 0,
+      }),
+    [atmosphere.hazeColor, atmosphere.keyLightColor]
+  );
+  const sparkleCount = useMemo(
+    () =>
+      Math.max(
+        12,
+        Math.round((profile.cloudSparkles + profile.signalSparkles) * 0.65)
+      ),
+    [profile.cloudSparkles, profile.signalSparkles]
+  );
+
+  useFrame(({ clock }) => {
+    burstLevelRef.current = THREE.MathUtils.lerp(
+      burstLevelRef.current,
+      interactionBurstActive ? 1 : 0,
+      interactionBurstActive ? 0.18 : 0.11
+    );
+
+    const burst = burstLevelRef.current;
+
+    primaryMat.opacity = burst * 0.38;
+    secondaryMat.opacity = burst * 0.28;
+    coreMat.opacity = burst * 0.18;
+    coreMat.emissiveIntensity = burst * 3.2;
+
+    if (groupRef.current) {
+      groupRef.current.visible = burst > 0.02;
+      if (!groupRef.current.visible) {
+        return;
+      }
+
+      groupRef.current.rotation.y +=
+        (0.008 + atmosphere.starDriftSpeed * 0.01) * burst;
+      groupRef.current.rotation.x =
+        Math.sin(clock.elapsedTime * (0.8 + atmosphere.starDriftSpeed * 0.4)) *
+        0.08 *
+        burst;
+    }
+
+    if (pulseRef.current) {
+      const scale =
+        1 +
+        burst * 0.42 +
+        Math.sin(clock.elapsedTime * (4 + atmosphere.starDriftSpeed * 2)) *
+          0.06 *
+          burst;
+      pulseRef.current.scale.setScalar(scale);
+    }
+
+    if (sweepRef.current) {
+      sweepRef.current.rotation.z =
+        clock.elapsedTime * (0.3 + atmosphere.starDriftSpeed * 0.2);
+      sweepRef.current.position.y =
+        Math.sin(clock.elapsedTime * 1.2) * 0.4 * burst;
+    }
+  });
+
+  switch (chapterId) {
+    case 'genesis':
+      return (
+        <group ref={groupRef} visible={false}>
+          <mesh ref={pulseRef} material={coreMat} position={[0, 0, -1.1]}>
+            <sphereGeometry args={[1.36, 28, 28]} />
+          </mesh>
+          {[4.4, 5.8].map((radius, index) => (
+            <mesh
+              key={radius}
+              rotation={[Math.PI / 2 + index * 0.2, index * 0.55, 0]}
+              material={index === 0 ? primaryMat : secondaryMat}
+            >
+              <torusGeometry args={[radius, 0.05, 12, 96]} />
+            </mesh>
+          ))}
+          <Sparkles
+            count={sparkleCount}
+            scale={11}
+            size={2.8}
+            speed={0.65}
+            color={atmosphere.keyLightColor}
+            opacity={0.7}
+          />
+        </group>
+      );
+    case 'neural':
+      return (
+        <group ref={groupRef} visible={false}>
+          <mesh ref={pulseRef} material={primaryMat}>
+            <torusKnotGeometry args={[2.4, 0.18, 150, 22]} />
+          </mesh>
+          {[-2.2, -0.7, 0.7, 2.2].map(positionX => (
+            <mesh
+              key={positionX}
+              position={[positionX, 0, 0]}
+              rotation={[0.2, Math.PI / 4, Math.PI / 2]}
+              material={secondaryMat}
+            >
+              <boxGeometry args={[0.08, 4.6, 0.08]} />
+            </mesh>
+          ))}
+          <Sparkles
+            count={sparkleCount}
+            scale={9}
+            size={2.4}
+            speed={0.82}
+            color={atmosphere.keyLightColor}
+            opacity={0.74}
+          />
+        </group>
+      );
+    case 'vault':
+      return (
+        <group ref={groupRef} visible={false}>
+          <mesh ref={pulseRef} material={primaryMat}>
+            <sphereGeometry args={[3.4, 28, 28]} />
+          </mesh>
+          <mesh material={coreMat}>
+            <octahedronGeometry args={[1.6, 1]} />
+          </mesh>
+          {Array.from({ length: 8 }, (_, index) => {
+            const angle = (index / 8) * Math.PI * 2;
+
+            return (
+              <mesh
+                key={index}
+                position={[
+                  Math.cos(angle) * 3.1,
+                  Math.sin(angle * 1.5) * 0.6,
+                  Math.sin(angle) * 3.1,
+                ]}
+                rotation={[angle, angle, Math.PI / 4]}
+                material={secondaryMat}
+              >
+                <octahedronGeometry args={[0.22, 0]} />
+              </mesh>
+            );
+          })}
+        </group>
+      );
+    case 'cloud':
+      return (
+        <group ref={groupRef} visible={false}>
+          {[2.2, 3.3, 4.5].map((radius, index) => (
+            <mesh
+              key={radius}
+              position={[0, (index - 1) * 0.7, -0.8]}
+              rotation={[Math.PI / 2, index * 0.35, 0]}
+              material={index === 1 ? primaryMat : secondaryMat}
+            >
+              <torusGeometry args={[radius, 0.045, 12, 84]} />
+            </mesh>
+          ))}
+          <mesh
+            ref={pulseRef}
+            material={coreMat}
+            rotation={[Math.PI / 2, 0, 0]}
+          >
+            <torusGeometry args={[1.2, 0.26, 18, 64]} />
+          </mesh>
+          <Sparkles
+            count={sparkleCount}
+            scale={10}
+            size={2.5}
+            speed={0.58}
+            color={atmosphere.hazeColor}
+            opacity={0.68}
+          />
+        </group>
+      );
+    case 'signal':
+      return (
+        <group ref={groupRef} visible={false}>
+          <mesh
+            ref={sweepRef}
+            position={[0, -0.85, 0]}
+            rotation={[Math.PI / 2, 0, 0]}
+            material={primaryMat}
+          >
+            <ringGeometry args={[1.8, 4.9, 96]} />
+          </mesh>
+          {[-2.4, -0.8, 0.8, 2.4].map(positionX => (
+            <mesh
+              key={positionX}
+              position={[positionX, 0.2, 0]}
+              material={secondaryMat}
+            >
+              <boxGeometry args={[0.16, 3.9, 0.16]} />
+            </mesh>
+          ))}
+          <mesh ref={pulseRef} material={coreMat} position={[0, -0.3, 0]}>
+            <boxGeometry args={[0.4, 1.8, 0.4]} />
+          </mesh>
+        </group>
+      );
+    case 'singularity':
+      return (
+        <group ref={groupRef} visible={false}>
+          <mesh ref={sweepRef} material={primaryMat}>
+            <cylinderGeometry args={[0.28, 0.82, 8.2, 28, 1, true]} />
+          </mesh>
+          {Array.from({ length: 8 }, (_, index) => (
+            <mesh
+              key={index}
+              rotation={[0, 0, (index / 8) * Math.PI * 2]}
+              material={secondaryMat}
+            >
+              <boxGeometry args={[0.06, 7.2, 0.06]} />
+            </mesh>
+          ))}
+          <mesh ref={pulseRef} material={coreMat}>
+            <icosahedronGeometry args={[0.98, 1]} />
+          </mesh>
+          <Sparkles
+            count={Math.max(22, Math.round(profile.singularitySparkles * 0.35))}
+            scale={9.8}
+            size={2.8}
+            speed={0.9}
+            color={atmosphere.keyLightColor}
+            opacity={0.78}
+          />
+        </group>
+      );
+    default:
+      return null;
+  }
+}
+
 function Scene({
   activeChapterIndex,
   progressRef,
   profile,
   warmedSceneIndices,
+  interactionBurstActive,
+  interactionBurstCycle,
 }: {
   activeChapterIndex: number;
   progressRef: MutableRefObject<number>;
   profile: SceneProfile;
   warmedSceneIndices: number[];
+  interactionBurstActive: boolean;
+  interactionBurstCycle: number;
 }) {
   const { camera } = useThree();
   const camPos = useRef(new THREE.Vector3(0, 0, 9));
   const camLook = useRef(new THREE.Vector3(0, 0, 0));
   const nextPos = useRef(new THREE.Vector3(0, 0, 9));
   const nextLook = useRef(new THREE.Vector3(0, 0, 0));
+  const burstLevelRef = useRef(0);
   const warmedSceneSet = useMemo(
     () => new Set(warmedSceneIndices),
     [warmedSceneIndices]
@@ -1765,7 +2046,14 @@ function Scene({
   useFrame(({ clock }) => {
     const progress = progressRef.current ?? 0;
     const keyframe = camAtT(progress);
-    const driftStrength = 0.06 + activeAtmosphere.haloOpacity * 0.32;
+    burstLevelRef.current = THREE.MathUtils.lerp(
+      burstLevelRef.current,
+      interactionBurstActive ? 1 : 0,
+      interactionBurstActive ? 0.16 : 0.1
+    );
+    const burst = burstLevelRef.current;
+    const driftStrength =
+      0.06 + activeAtmosphere.haloOpacity * 0.32 + burst * 0.08;
     const driftTime =
       clock.elapsedTime * (0.22 + activeAtmosphere.starDriftSpeed * 0.16);
     const driftX =
@@ -1780,12 +2068,12 @@ function Scene({
     nextPos.current.set(
       keyframe.pos[0] + driftX,
       keyframe.pos[1] + driftY,
-      keyframe.pos[2] + driftZ
+      keyframe.pos[2] + driftZ - burst * 0.26
     );
     nextLook.current.set(
       keyframe.look[0] + driftX * 0.22,
       keyframe.look[1] + driftY * 0.28,
-      keyframe.look[2]
+      keyframe.look[2] + burst * 0.12
     );
     camPos.current.lerp(nextPos.current, 0.038);
     camLook.current.lerp(nextLook.current, 0.038);
@@ -1800,6 +2088,12 @@ function Scene({
         key={`signature-${CHAPTERS[activeChapterIndex]?.id ?? CHAPTERS[0].id}`}
         activeChapterIndex={activeChapterIndex}
         profile={profile}
+      />
+      <InteractionBurstLayer
+        key={`burst-${interactionBurstCycle}-${CHAPTERS[activeChapterIndex]?.id ?? CHAPTERS[0].id}`}
+        activeChapterIndex={activeChapterIndex}
+        profile={profile}
+        interactionBurstActive={interactionBurstActive}
       />
       {shouldPrimeScene(0) && (
         <ParticleGalaxy
@@ -1924,6 +2218,8 @@ export interface OliveUniverseCanvasProps {
   sceneProfile: SceneProfile;
   shouldAnimate: boolean;
   stabilityAssistActive: boolean;
+  interactionBurstActive: boolean;
+  interactionBurstCycle: number;
   onPerformanceBudgetExceeded?: () => void;
   onWarmCountChange?: (count: number) => void;
   onReady?: () => void;
@@ -1936,6 +2232,8 @@ export default function OliveUniverseCanvas({
   sceneProfile,
   shouldAnimate,
   stabilityAssistActive,
+  interactionBurstActive,
+  interactionBurstCycle,
   onPerformanceBudgetExceeded,
   onWarmCountChange,
   onReady,
@@ -2038,6 +2336,8 @@ export default function OliveUniverseCanvas({
           progressRef={progressRef}
           profile={sceneProfile}
           warmedSceneIndices={warmedSceneIndices}
+          interactionBurstActive={interactionBurstActive}
+          interactionBurstCycle={interactionBurstCycle}
         />
         {sceneProfile.enablePostFx && (
           <EffectComposer>

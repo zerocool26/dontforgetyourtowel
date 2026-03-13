@@ -77,26 +77,34 @@ const demoLaunches = [
       data-reveal
     >
       <div class="creative-hero-shell p-4 sm:p-5">
-        <div class="mb-4 flex flex-wrap items-center gap-2">
-          <span class="creative-kicker">Creative Lanes</span>
-          {
-            lanes.map(lane => (
-              <a class="creative-chip" href={lane.href}>
-                {lane.label}
-              </a>
-            ))
-          }
+        <div class="mb-4 flex items-center gap-2">
+          <span class="creative-kicker shrink-0">Creative Lanes</span>
+          <div
+            class="flex min-w-0 flex-1 gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible sm:pb-0"
+          >
+            {
+              lanes.map(lane => (
+                <a class="creative-chip shrink-0" href={lane.href}>
+                  {lane.label}
+                </a>
+              ))
+            }
+          </div>
         </div>
 
-        <div class="mb-6 flex flex-wrap items-center gap-2">
-          <span class="creative-kicker">Live Demo Launch</span>
-          {
-            demoLaunches.map(item => (
-              <a class="creative-chip" href={item.href}>
-                {item.label}
-              </a>
-            ))
-          }
+        <div class="mb-6 flex items-center gap-2">
+          <span class="creative-kicker shrink-0">Live Demo Launch</span>
+          <div
+            class="flex min-w-0 flex-1 gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible sm:pb-0"
+          >
+            {
+              demoLaunches.map(item => (
+                <a class="creative-chip shrink-0" href={item.href}>
+                  {item.label}
+                </a>
+              ))
+            }
+          </div>
         </div>
 
         <div class="grid gap-6 lg:grid-cols-2">

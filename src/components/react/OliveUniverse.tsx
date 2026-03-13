@@ -37,6 +37,11 @@ const MOBILE_PANEL_QUERY = '(max-width: 960px)';
 const MOTION_PREFERENCE_KEY = 'olive-universe-motion-preference';
 const RENDER_PROFILE_KEY = 'olive-universe-render-profile';
 const AUTO_TOUR_INTERVAL_MS = 2800;
+const INTERACTION_BURST_DURATION_MS = 1600;
+const SCENE_HANDOFF_DURATION_MS = {
+  primed: 1280,
+  warming: 1560,
+} as const;
 const HERO_SCENE_QUERY_KEYS = ['scene', 'hero', 'chapter'] as const;
 const HERO_SCENE_HASH_PREFIX = '#hero-';
 const GUIDED_TOUR_SPEED_ORDER = ['slow', 'standard', 'fast'] as const;
@@ -56,6 +61,8 @@ type SceneRuntimeState =
   | 'interactive'
   | 'ambient'
   | 'fallback';
+
+type ScenePreloadState = 'idle' | 'warming' | 'ready';
 
 type MotionPreference = 'auto' | 'immersive' | 'calm';
 
@@ -162,6 +169,16 @@ function shouldIgnoreHeroInteractiveTarget(
   );
 }
 
+function shouldIgnoreSceneInteractionTarget(target: EventTarget | null) {
+  if (!(target instanceof HTMLElement)) return false;
+
+  return Boolean(
+    target.closest(
+      '.universe-content, .universe-story-panel, .universe-progress, .universe-mobile-dock'
+    )
+  );
+}
+
 type StaticBackdropMode =
   | Extract<HeroVisualMode, 'reduced' | 'fallback'>
   | 'loading';
@@ -242,6 +259,8 @@ export default function OliveUniverse() {
   const deepLinkHandledRef = useRef(false);
   const previousChapterIdRef = useRef<ChapterDef['id']>(CHAPTERS[0].id);
   const handoffTimeoutRef = useRef<number | null>(null);
+  const interactionBurstTimeoutRef = useRef<number | null>(null);
+  const scenePreloadRequestedRef = useRef(false);
   const touchGestureRef = useRef<{
     pointerId: number;
     startX: number;
@@ -273,6 +292,10 @@ export default function OliveUniverse() {
   const [sceneHandoffCycle, setSceneHandoffCycle] = useState(0);
   const [sceneReadyCount, setSceneReadyCount] = useState(0);
   const [sceneProgressPercent, setSceneProgressPercent] = useState(0);
+  const [scenePreloadState, setScenePreloadState] =
+    useState<ScenePreloadState>('idle');
+  const [interactionBurstActive, setInteractionBurstActive] = useState(false);
+  const [interactionBurstCycle, setInteractionBurstCycle] = useState(0);
   const [shareState, setShareState] = useState<
     'idle' | 'copied' | 'shared' | 'error'
   >('idle');
@@ -477,8 +500,93 @@ export default function OliveUniverse() {
       if (handoffTimeoutRef.current !== null) {
         window.clearTimeout(handoffTimeoutRef.current);
       }
+
+      if (interactionBurstTimeoutRef.current !== null) {
+        window.clearTimeout(interactionBurstTimeoutRef.current);
+      }
     };
   }, []);
+
+  const requestScenePreload = useCallback(() => {
+    if (
+      typeof window === 'undefined' ||
+      !webglSupported ||
+      scenePreloadRequestedRef.current
+    ) {
+      return;
+    }
+
+    scenePreloadRequestedRef.current = true;
+    setScenePreloadState(currentState =>
+      currentState === 'ready' ? currentState : 'warming'
+    );
+
+    void preloadOliveUniverseCanvas()
+      .then(() => {
+        setScenePreloadState('ready');
+      })
+      .catch(() => {
+        scenePreloadRequestedRef.current = false;
+        setScenePreloadState('idle');
+      });
+  }, [webglSupported]);
+
+  useEffect(() => {
+    if (!sceneResolved) {
+      return;
+    }
+
+    setScenePreloadState('ready');
+  }, [sceneResolved]);
+
+  useEffect(() => {
+    if (
+      !mounted ||
+      typeof window === 'undefined' ||
+      !webglSupported ||
+      scenePreloadState === 'ready' ||
+      scenePreloadRequestedRef.current ||
+      (!sceneActive && !touchCapable && !isCompactViewport)
+    ) {
+      return;
+    }
+
+    let cancelled = false;
+    let timeoutId = 0;
+    let idleId = 0;
+    const idleWindow = window as IdleCapableWindow;
+    const delay = touchCapable || isCompactViewport ? 260 : 720;
+
+    const beginPreload = () => {
+      if (cancelled) {
+        return;
+      }
+
+      requestScenePreload();
+    };
+
+    if (idleWindow.requestIdleCallback) {
+      idleId = idleWindow.requestIdleCallback(beginPreload, {
+        timeout: touchCapable || isCompactViewport ? 420 : 900,
+      });
+    } else {
+      timeoutId = window.setTimeout(beginPreload, delay);
+    }
+
+    return () => {
+      cancelled = true;
+      idleWindow.cancelIdleCallback?.(idleId);
+      window.clearTimeout(timeoutId);
+    };
+  }, [
+    isCompactViewport,
+    mounted,
+    requestScenePreload,
+    sceneActive,
+    scenePreloadState,
+    touchCapable,
+    webglSupported,
+  ]);
 
   const scrollToChapter = useCallback(
     (chapterIndex: number, behaviorOverride?: ScrollBehavior) => {
@@ -512,6 +620,8 @@ export default function OliveUniverse() {
       behaviorOverride?: ScrollBehavior,
       source: ChapterNavigationSource = 'manual'
     ) => {
+      requestScenePreload();
+
       const chapterDef = CHAPTERS[chapterIndex] ?? CHAPTERS[0];
 
       if (source === 'manual' && guidedTourPlaying) {
@@ -527,7 +637,7 @@ export default function OliveUniverse() {
       setSceneProgressPercent(0);
       scrollToChapter(chapterIndex, behaviorOverride ?? 'auto');
     },
-    [guidedTourPlaying, isCompactViewport, scrollToChapter]
+    [guidedTourPlaying, isCompactViewport, requestScenePreload, scrollToChapter]
   );
 
   useEffect(() => {
@@ -721,10 +831,13 @@ export default function OliveUniverse() {
     const handlePointerDown = (event: PointerEvent) => {
       if (
         event.pointerType !== 'touch' ||
-        shouldIgnoreHeroInteractiveTarget(event.target)
+        shouldIgnoreHeroInteractiveTarget(event.target) ||
+        shouldIgnoreSceneInteractionTarget(event.target)
       ) {
         return;
       }
+
+      requestScenePreload();
 
       touchGestureRef.current = {
         pointerId: event.pointerId,
@@ -747,29 +860,51 @@ export default function OliveUniverse() {
 
       clearGesture();
 
-      if (shouldIgnoreHeroInteractiveTarget(event.target)) {
+      if (
+        shouldIgnoreHeroInteractiveTarget(event.target) ||
+        shouldIgnoreSceneInteractionTarget(event.target)
+      ) {
         return;
       }
 
       const deltaX = event.clientX - gesture.startX;
       const deltaY = event.clientY - gesture.startY;
       const elapsed = performance.now() - gesture.startTime;
+      const horizontalSwipe =
+        Math.abs(deltaX) >= swipeDistance &&
+        Math.abs(deltaX) > Math.abs(deltaY) * swipeDominanceRatio;
+      const tapGesture = Math.abs(deltaX) < 18 && Math.abs(deltaY) < 18;
 
-      if (
-        elapsed > swipeTimeout ||
-        Math.abs(deltaX) < swipeDistance ||
-        Math.abs(deltaX) <= Math.abs(deltaY) * swipeDominanceRatio
-      ) {
+      if (elapsed > swipeTimeout) {
         return;
       }
 
-      if (deltaX < 0 && hasNextChapter) {
-        navigateToChapter(chapter + 1);
+      if (horizontalSwipe) {
+        if (deltaX < 0 && hasNextChapter) {
+          navigateToChapter(chapter + 1);
+          return;
+        }
+
+        if (deltaX > 0 && hasPreviousChapter) {
+          navigateToChapter(chapter - 1);
+          return;
+        }
+
         return;
       }
 
-      if (deltaX > 0 && hasPreviousChapter) {
-        navigateToChapter(chapter - 1);
+      if (shouldRenderCanvas && tapGesture) {
+        setInteractionBurstCycle(currentCycle => currentCycle + 1);
+        setInteractionBurstActive(true);
+
+        if (interactionBurstTimeoutRef.current !== null) {
+          window.clearTimeout(interactionBurstTimeoutRef.current);
+        }
+
+        interactionBurstTimeoutRef.current = window.setTimeout(() => {
+          setInteractionBurstActive(false);
+          interactionBurstTimeoutRef.current = null;
+        }, INTERACTION_BURST_DURATION_MS);
       }
     };
 
@@ -782,7 +917,58 @@ export default function OliveUniverse() {
       window.removeEventListener('pointerup', handlePointerUp);
       window.removeEventListener('pointercancel', clearGesture);
     };
-  }, [chapter, mounted, navigateToChapter]);
+  }, [
+    chapter,
+    mounted,
+    navigateToChapter,
+    requestScenePreload,
+    shouldRenderCanvas,
+  ]);
+
+  const triggerInteractionBurst = useCallback(() => {
+    if (!shouldRenderCanvas || typeof window === 'undefined') {
+      return;
+    }
+
+    requestScenePreload();
+    setInteractionBurstCycle(currentCycle => currentCycle + 1);
+    setInteractionBurstActive(true);
+
+    if (interactionBurstTimeoutRef.current !== null) {
+      window.clearTimeout(interactionBurstTimeoutRef.current);
+    }
+
+    interactionBurstTimeoutRef.current = window.setTimeout(() => {
+      setInteractionBurstActive(false);
+      interactionBurstTimeoutRef.current = null;
+    }, INTERACTION_BURST_DURATION_MS);
+  }, [requestScenePreload, shouldRenderCanvas]);
+
+  useEffect(() => {
+    if (!mounted || typeof window === 'undefined' || !wrapperRef.current) {
+      return;
+    }
+
+    const node = wrapperRef.current;
+
+    const handleClick = (event: MouseEvent) => {
+      if (
+        !shouldRenderCanvas ||
+        shouldIgnoreHeroInteractiveTarget(event.target, wrapperRef.current) ||
+        shouldIgnoreSceneInteractionTarget(event.target)
+      ) {
+        return;
+      }
+
+      triggerInteractionBurst();
+    };
+
+    node.addEventListener('click', handleClick);
+
+    return () => {
+      node.removeEventListener('click', handleClick);
+    };
+  }, [mounted, shouldRenderCanvas, triggerInteractionBurst]);
 
   useEffect(() => {
     if (!mounted || typeof window === 'undefined') return;
@@ -920,6 +1106,15 @@ export default function OliveUniverse() {
     chapter < CHAPTERS.length - 1 ? CHAPTERS[chapter + 1] : null;
   const guidedTourSpeedConfig = GUIDED_TOUR_SPEEDS[guidedTourSpeed];
   const renderProfileConfig = RENDER_PROFILE_OPTIONS[renderProfile];
+  const sceneState = useMemo<SceneRuntimeState>(() => {
+    if (!shouldRenderCanvas) {
+      return effectiveVisualMode === 'fallback' ? 'fallback' : 'ambient';
+    }
+
+    if (!sceneBootReady) return 'staging';
+    if (!sceneResolved) return 'booting';
+    return 'interactive';
+  }, [effectiveVisualMode, sceneBootReady, sceneResolved, shouldRenderCanvas]);
   const sceneReadyTotal = CHAPTERS.length;
   const sceneCacheState = !shouldRenderCanvas
     ? 'idle'
@@ -938,7 +1133,12 @@ export default function OliveUniverse() {
       : sceneCacheState === 'primed'
         ? 'Every 3D chapter has been primed in the background for cleaner jumps and faster scene hand-offs.'
         : 'Background priming is warming the remaining 3D chapters so later jumps land without cold-start flashes.';
-  const sceneHandoffStatus = sceneHandoffActive
+  const isSceneBootSyncing =
+    sceneHandoffCycle > 0 &&
+    shouldRenderCanvas &&
+    (sceneState === 'staging' || sceneState === 'booting');
+  const isSceneHandoffSyncing = sceneHandoffActive || isSceneBootSyncing;
+  const sceneHandoffStatus = isSceneHandoffSyncing
     ? sceneCacheState === 'primed'
       ? `Scene handoff active · ${activeChapter.kicker} scene is primed and syncing into focus.`
       : `Scene handoff active · ${activeChapter.kicker} scene is syncing while the cache continues warming.`
@@ -961,16 +1161,17 @@ export default function OliveUniverse() {
   const chapterCounter = `${String(chapter + 1).padStart(2, '0')} / ${String(
     CHAPTERS.length
   ).padStart(2, '0')}`;
-
-  const sceneState = useMemo<SceneRuntimeState>(() => {
-    if (!shouldRenderCanvas) {
-      return effectiveVisualMode === 'fallback' ? 'fallback' : 'ambient';
-    }
-
-    if (!sceneBootReady) return 'staging';
-    if (!sceneResolved) return 'booting';
-    return 'interactive';
-  }, [effectiveVisualMode, sceneBootReady, sceneResolved, shouldRenderCanvas]);
+  const scenePreloadLabel =
+    scenePreloadState === 'ready'
+      ? '3D preloaded'
+      : scenePreloadState === 'warming'
+        ? 'Preloading 3D'
+        : 'Preload idle';
+  const interactionStatus = interactionBurstActive
+    ? `Scene burst active · ${activeChapter.kicker} is surging live.`
+    : touchCapable || isCompactViewport
+      ? 'Tap the 3D field or use the trigger to punch extra energy into the active chapter.'
+      : 'Click the 3D field or use the trigger to punch extra energy into the active chapter.';
 
   const userForcedImmersive =
     prefersReduced && motionPreference === 'immersive' && webglSupported;
@@ -1004,7 +1205,11 @@ export default function OliveUniverse() {
       : userForcedCalm
         ? 'Calm mode is enabled manually, so the hero is using the ambient presentation by choice until you jump directly to a story chapter.'
         : effectiveVisualMode === 'reduced' && prefersReduced
-          ? 'Reduced-motion preferences are active. Scroll deeper into the story, use any chapter button, or enable immersive scenes whenever you want to preview every 3D chapter.'
+          ? scenePreloadState === 'ready'
+            ? 'Reduced-motion preferences are active. The 3D chapter stack is already staged, so immersive scenes can launch faster the moment you opt in.'
+            : scenePreloadState === 'warming'
+              ? 'Reduced-motion preferences are active. The 3D chapter stack is quietly preloading now so scene activation lands cleaner when you opt in.'
+              : 'Reduced-motion preferences are active. Scroll deeper into the story, use any chapter button, or enable immersive scenes whenever you want to preview every 3D chapter.'
           : HERO_MODE_NOTES[effectiveVisualMode];
 
   const runtimeLabel =
@@ -1064,7 +1269,11 @@ export default function OliveUniverse() {
     : 'desktop';
   const mobilePanelMeta = shouldRenderCanvas
     ? activeAtmosphere.label
-    : runtimeLabel;
+    : scenePreloadState === 'ready'
+      ? '3D primed'
+      : scenePreloadState === 'warming'
+        ? 'Loading 3D'
+        : runtimeLabel;
   const mobileThreeDMode =
     touchCapable || isCompactViewport ? 'optimized' : 'standard';
   const mobilePanelToggleLabel = `${mobilePanelOpen ? 'Hide' : 'Show'} hero controls for ${activeChapter.kicker}`;
@@ -1122,12 +1331,14 @@ export default function OliveUniverse() {
     setShareState(didCopy ? 'copied' : 'error');
   }, [activeChapter.kicker, nativeShareSupported, sceneShareHref]);
   const enableImmersiveScenes = useCallback(() => {
+    requestScenePreload();
+
     if (isCompactViewport) {
       setMobilePanelOpen(false);
     }
 
     setMotionPreference('immersive');
-  }, [isCompactViewport]);
+  }, [isCompactViewport, requestScenePreload]);
   const retryCinematicRender = useCallback(() => {
     if (isCompactViewport) {
       setMobilePanelOpen(false);
@@ -1137,6 +1348,10 @@ export default function OliveUniverse() {
   }, [isCompactViewport]);
   const selectRenderProfile = useCallback(
     (nextProfile: RenderProfile) => {
+      if (nextProfile !== 'adaptive') {
+        requestScenePreload();
+      }
+
       if (isCompactViewport) {
         setMobilePanelOpen(false);
       }
@@ -1144,9 +1359,11 @@ export default function OliveUniverse() {
       setStabilityAssistActive(false);
       setRenderProfile(nextProfile);
     },
-    [isCompactViewport]
+    [isCompactViewport, requestScenePreload]
   );
   const startGuidedTour = useCallback(() => {
+    requestScenePreload();
+
     if (
       webglSupported &&
       effectiveVisualMode !== 'immersive' &&
@@ -1160,7 +1377,12 @@ export default function OliveUniverse() {
     }
 
     setGuidedTourPlaying(true);
-  }, [effectiveVisualMode, isCompactViewport, webglSupported]);
+  }, [
+    effectiveVisualMode,
+    isCompactViewport,
+    requestScenePreload,
+    webglSupported,
+  ]);
   const stopGuidedTour = useCallback(() => {
     setGuidedTourPlaying(false);
   }, []);
@@ -1225,7 +1447,9 @@ export default function OliveUniverse() {
         setSceneHandoffActive(false);
         handoffTimeoutRef.current = null;
       },
-      sceneCacheState === 'primed' ? 560 : 760
+      sceneCacheState === 'primed'
+        ? SCENE_HANDOFF_DURATION_MS.primed
+        : SCENE_HANDOFF_DURATION_MS.warming
     );
   }, [activeChapter.id, mounted, sceneCacheState, shouldRenderCanvas]);
 
@@ -1241,13 +1465,15 @@ export default function OliveUniverse() {
       data-olive-render-profile={renderProfile}
       data-olive-scene-cache={sceneCacheState}
       data-olive-scene-ready-count={String(sceneReadyCount)}
-      data-olive-handoff={sceneHandoffActive ? 'syncing' : 'idle'}
+      data-olive-handoff={isSceneHandoffSyncing ? 'syncing' : 'idle'}
       data-olive-atmosphere={activeChapter.id}
       data-olive-tour={guidedTourPlaying ? 'playing' : 'idle'}
       data-olive-tour-speed={guidedTourSpeed}
       data-olive-motion-preference={motionPreference}
       data-olive-mobile-panel={mobilePanelState}
       data-olive-mobile-3d={mobileThreeDMode}
+      data-olive-preload={scenePreloadState}
+      data-olive-interaction={interactionBurstActive ? 'burst' : 'idle'}
       style={
         {
           '--universe-accent': activeChapter.accent,
@@ -1268,6 +1494,8 @@ export default function OliveUniverse() {
                 sceneProfile={sceneProfile}
                 shouldAnimate={shouldAnimateCanvas}
                 stabilityAssistActive={stabilityAssistActive}
+                interactionBurstActive={interactionBurstActive}
+                interactionBurstCycle={interactionBurstCycle}
                 onPerformanceBudgetExceeded={enableStabilityAssist}
                 onWarmCountChange={handleSceneWarmCountChange}
                 onReady={handleSceneReady}
@@ -1290,7 +1518,7 @@ export default function OliveUniverse() {
         >
           {shouldRenderCanvas && (
             <div
-              className={`universe-handoff-layer ${sceneHandoffActive ? 'is-active' : ''}`}
+              className={`universe-handoff-layer ${isSceneHandoffSyncing ? 'is-active' : ''}`}
               aria-hidden="true"
             >
               <div
@@ -1420,6 +1648,11 @@ export default function OliveUniverse() {
 
             <p className="universe-story-kicker">{activeChapter.kicker}</p>
             <p className="universe-story-note">{runtimeNote}</p>
+            {!shouldRenderCanvas && webglSupported && (
+              <p className="universe-story-preload-status" role="status">
+                {scenePreloadLabel}
+              </p>
+            )}
 
             <div className="universe-story-progress-block">
               <div className="universe-story-progress-row">
@@ -1617,7 +1850,7 @@ export default function OliveUniverse() {
 
             {webglSupported && (
               <p
-                className={`universe-story-handoff ${sceneHandoffActive ? 'is-active' : ''}`}
+                className={`universe-story-handoff ${isSceneHandoffSyncing ? 'is-active' : ''}`}
                 role="status"
                 aria-live="polite"
               >
@@ -1668,6 +1901,39 @@ export default function OliveUniverse() {
                 <span aria-hidden="true">→</span>
               </button>
             </div>
+
+            {webglSupported && (
+              <div
+                className={`universe-story-interaction ${interactionBurstActive ? 'is-active' : ''}`}
+                role="status"
+                aria-live="polite"
+              >
+                <div className="universe-story-interaction-header">
+                  <p className="universe-story-interaction-label">
+                    Scene reaction
+                  </p>
+                  <p className="universe-story-interaction-value">
+                    {interactionBurstActive
+                      ? 'Burst live'
+                      : 'Tap / click ready'}
+                  </p>
+                </div>
+
+                <p className="universe-story-interaction-note">
+                  {interactionStatus}
+                </p>
+
+                {shouldRenderCanvas && (
+                  <button
+                    type="button"
+                    className="universe-story-toggle is-secondary universe-story-interaction-trigger"
+                    onClick={triggerInteractionBurst}
+                  >
+                    Trigger scene burst
+                  </button>
+                )}
+              </div>
+            )}
 
             {webglSupported && (
               <div className="universe-story-actions">
