@@ -34,6 +34,7 @@ const MOTION_PREFERENCE_KEY = 'olive-universe-motion-preference';
 const AUTO_TOUR_INTERVAL_MS = 2800;
 const HERO_SCENE_QUERY_KEYS = ['scene', 'hero', 'chapter'] as const;
 const HERO_SCENE_HASH_PREFIX = '#hero-';
+const GUIDED_TOUR_SPEED_ORDER = ['slow', 'standard', 'fast'] as const;
 
 type IdleCapableWindow = Window & {
   requestIdleCallback?: (
@@ -51,6 +52,23 @@ type SceneRuntimeState =
   | 'fallback';
 
 type MotionPreference = 'auto' | 'immersive' | 'calm';
+
+type GuidedTourSpeed = 'slow' | 'standard' | 'fast';
+
+type ChapterNavigationSource = 'manual' | 'tour';
+
+const GUIDED_TOUR_SPEEDS: Record<
+  GuidedTourSpeed,
+  { label: string; intervalMs: number; cadenceLabel: string }
+> = {
+  slow: { label: 'Slow', intervalMs: 4200, cadenceLabel: '4.2s per scene' },
+  standard: {
+    label: 'Standard',
+    intervalMs: AUTO_TOUR_INTERVAL_MS,
+    cadenceLabel: '2.8s per scene',
+  },
+  fast: { label: 'Fast', intervalMs: 1800, cadenceLabel: '1.8s per scene' },
+};
 
 function isMotionPreference(value: string | null): value is MotionPreference {
   return value === 'auto' || value === 'immersive' || value === 'calm';
@@ -191,6 +209,8 @@ export default function OliveUniverse() {
   const [nativeShareSupported, setNativeShareSupported] = useState(false);
   const [touchCapable, setTouchCapable] = useState(false);
   const [guidedTourPlaying, setGuidedTourPlaying] = useState(false);
+  const [guidedTourSpeed, setGuidedTourSpeed] =
+    useState<GuidedTourSpeed>('standard');
   const [sceneProgressPercent, setSceneProgressPercent] = useState(0);
   const [shareState, setShareState] = useState<
     'idle' | 'copied' | 'shared' | 'error'
@@ -337,12 +357,23 @@ export default function OliveUniverse() {
   );
 
   const navigateToChapter = useCallback(
-    (chapterIndex: number, behaviorOverride?: ScrollBehavior) => {
+    (
+      chapterIndex: number,
+      behaviorOverride?: ScrollBehavior,
+      source: ChapterNavigationSource = 'manual'
+    ) => {
+      const chapterDef = CHAPTERS[chapterIndex] ?? CHAPTERS[0];
+
+      if (source === 'manual' && guidedTourPlaying) {
+        setGuidedTourPlaying(false);
+      }
+
+      progressRef.current = chapterDef.range[0];
       setChapter(chapterIndex);
       setSceneProgressPercent(0);
-      scrollToChapter(chapterIndex, behaviorOverride);
+      scrollToChapter(chapterIndex, behaviorOverride ?? 'auto');
     },
-    [scrollToChapter]
+    [guidedTourPlaying, scrollToChapter]
   );
 
   useEffect(() => {
@@ -357,8 +388,12 @@ export default function OliveUniverse() {
     }
 
     const timeoutId = window.setTimeout(() => {
-      navigateToChapter(chapter >= CHAPTERS.length - 1 ? 0 : chapter + 1);
-    }, AUTO_TOUR_INTERVAL_MS);
+      navigateToChapter(
+        chapter >= CHAPTERS.length - 1 ? 0 : chapter + 1,
+        undefined,
+        'tour'
+      );
+    }, GUIDED_TOUR_SPEEDS[guidedTourSpeed].intervalMs);
 
     return () => {
       window.clearTimeout(timeoutId);
@@ -366,6 +401,7 @@ export default function OliveUniverse() {
   }, [
     chapter,
     guidedTourPlaying,
+    guidedTourSpeed,
     mounted,
     navigateToChapter,
     pageVisible,
@@ -696,14 +732,15 @@ export default function OliveUniverse() {
   const previousChapter = chapter > 0 ? CHAPTERS[chapter - 1] : null;
   const nextChapter =
     chapter < CHAPTERS.length - 1 ? CHAPTERS[chapter + 1] : null;
+  const guidedTourSpeedConfig = GUIDED_TOUR_SPEEDS[guidedTourSpeed];
   const nextSceneLabel = nextChapter
     ? `Up next: ${nextChapter.kicker}`
     : 'Final scene active';
   const guidedTourStatus = guidedTourPlaying
     ? nextChapter
-      ? `Guided tour active · Next auto-jump: ${nextChapter.kicker}`
-      : `Guided tour active · Looping back to ${CHAPTERS[0].kicker}`
-    : 'Guided tour paused · Play to auto-preview every hero chapter';
+      ? `Guided tour active · ${guidedTourSpeedConfig.label} pace · Next auto-jump: ${nextChapter.kicker}`
+      : `Guided tour active · ${guidedTourSpeedConfig.label} pace · Looping back to ${CHAPTERS[0].kicker}`
+    : `Guided tour paused · ${guidedTourSpeedConfig.label} pace ready · Play to auto-preview every hero chapter`;
   const guidedTourActionLabel = guidedTourPlaying
     ? 'Pause guided tour'
     : 'Play guided tour';
@@ -865,6 +902,7 @@ export default function OliveUniverse() {
       data-olive-mode={visualMode}
       data-olive-scene={sceneState}
       data-olive-tour={guidedTourPlaying ? 'playing' : 'idle'}
+      data-olive-tour-speed={guidedTourSpeed}
       data-olive-motion-preference={motionPreference}
       style={
         {
@@ -963,6 +1001,41 @@ export default function OliveUniverse() {
             >
               {guidedTourStatus}
             </p>
+
+            {webglSupported && (
+              <div
+                className="universe-story-tour-speed"
+                role="group"
+                aria-label="Guided tour speed"
+              >
+                <div className="universe-story-tour-speed-header">
+                  <p className="universe-story-tour-speed-label">Tour pace</p>
+                  <p className="universe-story-tour-speed-value">
+                    {guidedTourSpeedConfig.cadenceLabel}
+                  </p>
+                </div>
+
+                <div className="universe-story-tour-speed-buttons">
+                  {GUIDED_TOUR_SPEED_ORDER.map(speed => {
+                    const speedConfig = GUIDED_TOUR_SPEEDS[speed];
+
+                    return (
+                      <button
+                        key={speed}
+                        type="button"
+                        className={`universe-story-speed-button ${guidedTourSpeed === speed ? 'is-active' : ''}`}
+                        onClick={() => setGuidedTourSpeed(speed)}
+                        aria-pressed={guidedTourSpeed === speed}
+                        aria-label={`Use ${speedConfig.label} guided tour speed`}
+                      >
+                        <span>{speedConfig.label}</span>
+                        <span>{speedConfig.cadenceLabel}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             <div
               className="universe-story-nav"

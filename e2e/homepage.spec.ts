@@ -100,6 +100,56 @@ test.describe('Homepage', () => {
     );
     await expect(hero).toHaveAttribute('data-olive-mode', /(immersive|lite)/);
     await expect(hero).toHaveAttribute('data-current-chapter', 'cloud');
+
+    await page.evaluate(() => {
+      const heroElement = document.querySelector<HTMLElement>(
+        '[data-olive-universe="ready"]'
+      );
+
+      if (!heroElement) return;
+
+      const transitions: string[] = [];
+      const observer = new MutationObserver(() => {
+        const currentChapter = heroElement.getAttribute('data-current-chapter');
+
+        if (currentChapter) {
+          transitions.push(currentChapter);
+        }
+      });
+
+      observer.observe(heroElement, {
+        attributeFilter: ['data-current-chapter'],
+      });
+
+      (
+        window as Window & {
+          __heroChapterTransitionAudit?: {
+            transitions: string[];
+            observer: MutationObserver;
+          };
+        }
+      ).__heroChapterTransitionAudit = { transitions, observer };
+    });
+
+    await page.getByRole('button', { name: /jump to ai systems/i }).click();
+    await expect(hero).toHaveAttribute('data-current-chapter', 'neural');
+
+    const transitions = await page.evaluate(() => {
+      const audit = (
+        window as Window & {
+          __heroChapterTransitionAudit?: {
+            transitions: string[];
+            observer: MutationObserver;
+          };
+        }
+      ).__heroChapterTransitionAudit;
+
+      audit?.observer.disconnect();
+      return audit?.transitions ?? [];
+    });
+
+    expect(transitions).not.toContain('vault');
+    expect(transitions).not.toContain('cloud');
   });
 
   test('deep linked hero scenes should load directly', async ({
@@ -231,9 +281,10 @@ test.describe('Homepage', () => {
     const hero = page.locator('[data-olive-universe="ready"]');
     await expect(hero).toBeVisible();
     await expect(hero).toHaveAttribute('data-olive-tour', 'idle');
+    await expect(hero).toHaveAttribute('data-olive-tour-speed', 'standard');
     await expect(
       page.getByText(
-        /guided tour paused · play to auto-preview every hero chapter/i
+        /guided tour paused · standard pace ready · play to auto-preview every hero chapter/i
       )
     ).toBeVisible();
 
@@ -248,7 +299,9 @@ test.describe('Homepage', () => {
       page.getByRole('button', { name: /pause guided tour/i })
     ).toBeVisible();
     await expect(
-      page.getByText(/guided tour active · next auto-jump: ai systems/i)
+      page.getByText(
+        /guided tour active · standard pace · next auto-jump: ai systems/i
+      )
     ).toBeVisible();
 
     await expect
@@ -258,11 +311,60 @@ test.describe('Homepage', () => {
       .toBe('neural');
 
     await expect(
-      page.getByText(/guided tour active · next auto-jump: cybersecurity/i)
+      page.getByText(
+        /guided tour active · standard pace · next auto-jump: cybersecurity/i
+      )
     ).toBeVisible();
 
     await page.getByRole('button', { name: /pause guided tour/i }).click();
     await expect(hero).toHaveAttribute('data-olive-tour', 'idle');
+  });
+
+  test('manual chapter navigation should pause the guided tour and keep the selected speed', async ({
+    page,
+    isMobile,
+  }) => {
+    if (isMobile) {
+      test.skip();
+    }
+
+    await page.goto('./');
+
+    const hero = page.locator('[data-olive-universe="ready"]');
+    await expect(hero).toBeVisible();
+
+    await page
+      .getByRole('button', { name: /use fast guided tour speed/i })
+      .click();
+
+    await expect(hero).toHaveAttribute('data-olive-tour-speed', 'fast');
+    await expect(
+      page.getByText(
+        /guided tour paused · fast pace ready · play to auto-preview every hero chapter/i
+      )
+    ).toBeVisible();
+
+    await page.getByRole('button', { name: /play guided tour/i }).click();
+
+    await expect(hero).toHaveAttribute('data-olive-tour', 'playing');
+    await expect(
+      page.getByText(
+        /guided tour active · fast pace · next auto-jump: ai systems/i
+      )
+    ).toBeVisible();
+
+    await page
+      .getByRole('button', { name: /jump to cloud engineering/i })
+      .click();
+
+    await expect(hero).toHaveAttribute('data-current-chapter', 'cloud');
+    await expect(hero).toHaveAttribute('data-olive-tour', 'idle');
+    await expect(hero).toHaveAttribute('data-olive-tour-speed', 'fast');
+    await expect(
+      page.getByText(
+        /guided tour paused · fast pace ready · play to auto-preview every hero chapter/i
+      )
+    ).toBeVisible();
   });
 
   test('scene share controls should use native sharing when available', async ({

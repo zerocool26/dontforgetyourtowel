@@ -610,6 +610,88 @@
   color: rgba(var(--universe-accent-rgb), 0.92);
 }
 
+.universe-story-tour-speed {
+  margin-top: 14px;
+}
+
+.universe-story-tour-speed-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.universe-story-tour-speed-label,
+.universe-story-tour-speed-value {
+  margin: 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.universe-story-tour-speed-label {
+  color: rgba(255, 255, 255, 0.48);
+}
+
+.universe-story-tour-speed-value {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.universe-story-tour-speed-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.universe-story-speed-button {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  min-height: 56px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.88);
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.universe-story-speed-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.universe-story-speed-button span:first-child {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.universe-story-speed-button span:last-child {
+  font-size: 0.62rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.52);
+}
+
+.universe-story-speed-button.is-active {
+  border-color: rgba(var(--universe-accent-rgb), 0.34);
+  background: rgba(var(--universe-accent-rgb), 0.1);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.16);
+}
+
+.universe-story-speed-button.is-active span:last-child {
+  color: rgba(255, 255, 255, 0.8);
+}
+
 .universe-story-nav {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -651,6 +733,11 @@
   color: rgba(255, 255, 255, 0.34);
   border-color: rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.02);
+}
+
+.universe-story-speed-button:focus-visible {
+  outline: 2px solid rgba(204, 255, 0, 0.9);
+  outline-offset: 3px;
 }
 
 .universe-story-actions {
