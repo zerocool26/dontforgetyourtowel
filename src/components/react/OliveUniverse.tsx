@@ -44,6 +44,8 @@ type SceneRuntimeState =
   | 'ambient'
   | 'fallback';
 
+type MotionPreference = 'auto' | 'immersive' | 'calm';
+
 type StaticBackdropMode =
   | Extract<HeroVisualMode, 'reduced' | 'fallback'>
   | 'loading';
@@ -123,6 +125,8 @@ export default function OliveUniverse() {
   const progressRef = useRef(0);
   const [chapter, setChapter] = useState(0);
   const [quality, setQuality] = useState<QualityTier>('medium');
+  const [motionPreference, setMotionPreference] =
+    useState<MotionPreference>('auto');
   const [mounted, setMounted] = useState(false);
   const [prefersReduced, setPrefersReduced] = useState(false);
   const [webglSupported, setWebglSupported] = useState(true);
@@ -187,10 +191,15 @@ export default function OliveUniverse() {
 
   const visualMode = useMemo<HeroVisualMode>(() => {
     if (!webglSupported) return 'fallback';
-    if (prefersReduced) return 'reduced';
+
+    const prefersCalmPresentation =
+      motionPreference === 'calm' ||
+      (motionPreference === 'auto' && prefersReduced);
+
+    if (prefersCalmPresentation) return 'reduced';
     if (quality === 'low') return 'lite';
     return 'immersive';
-  }, [prefersReduced, quality, webglSupported]);
+  }, [motionPreference, prefersReduced, quality, webglSupported]);
 
   const shouldRenderCanvas =
     visualMode === 'immersive' || visualMode === 'lite';
@@ -319,8 +328,25 @@ export default function OliveUniverse() {
     return 'interactive';
   }, [sceneBootReady, sceneResolved, shouldRenderCanvas, visualMode]);
 
-  const heroModeLabel = HERO_MODE_LABELS[visualMode];
-  const heroModeNote = HERO_MODE_NOTES[visualMode];
+  const userForcedImmersive =
+    prefersReduced && motionPreference === 'immersive' && webglSupported;
+  const userForcedCalm =
+    !prefersReduced && motionPreference === 'calm' && webglSupported;
+  const canOverrideReducedMotion = webglSupported && visualMode === 'reduced';
+
+  const heroModeLabel = userForcedImmersive
+    ? `${HERO_MODE_LABELS[visualMode]} override`
+    : userForcedCalm
+      ? 'Calm mode'
+      : HERO_MODE_LABELS[visualMode];
+
+  const heroModeNote = userForcedImmersive
+    ? 'Immersive scenes are enabled manually, so every 3D chapter stays available even while reduced-motion preferences are active.'
+    : userForcedCalm
+      ? 'Calm mode is enabled manually, so the hero is using the ambient presentation by choice.'
+      : visualMode === 'reduced' && prefersReduced
+        ? 'Reduced-motion preferences are active. Enable immersive scenes whenever you want to preview every 3D chapter.'
+        : HERO_MODE_NOTES[visualMode];
 
   const runtimeLabel =
     sceneState === 'staging'
@@ -331,9 +357,13 @@ export default function OliveUniverse() {
 
   const runtimeNote =
     sceneState === 'staging'
-      ? 'Rendering the storytelling shell first, then preloading the immersive scene a beat later for a smoother startup.'
+      ? userForcedImmersive
+        ? 'Loading the immersive chapter stack now that you opted in, while the hero shell stays fully interactive.'
+        : 'Rendering the storytelling shell first, then preloading the immersive scene a beat later for a smoother startup.'
       : sceneState === 'booting'
-        ? 'The immersive layer is streaming in now; navigation, copy, and calls-to-action remain fully usable while it finishes loading.'
+        ? userForcedImmersive
+          ? 'The full 3D chapter sequence is streaming in now so you can explore every scene despite the system calm-mode preference.'
+          : 'The immersive layer is streaming in now; navigation, copy, and calls-to-action remain fully usable while it finishes loading.'
         : heroModeNote;
 
   const storyBadgeClass =
@@ -347,6 +377,15 @@ export default function OliveUniverse() {
   const handleSceneReady = useCallback(() => {
     setSceneResolved(true);
   }, []);
+  const enableImmersiveScenes = useCallback(() => {
+    setMotionPreference('immersive');
+  }, []);
+  const enableCalmMode = useCallback(() => {
+    setMotionPreference('calm');
+  }, []);
+  const resetMotionPreference = useCallback(() => {
+    setMotionPreference('auto');
+  }, []);
 
   return (
     <div
@@ -356,6 +395,7 @@ export default function OliveUniverse() {
       data-current-chapter={activeChapter.id}
       data-olive-mode={visualMode}
       data-olive-scene={sceneState}
+      data-olive-motion-preference={motionPreference}
       style={
         {
           '--universe-accent': activeChapter.accent,
@@ -419,6 +459,38 @@ export default function OliveUniverse() {
 
             <p className="universe-story-kicker">{activeChapter.kicker}</p>
             <p className="universe-story-note">{runtimeNote}</p>
+
+            {webglSupported && (
+              <div className="universe-story-actions">
+                {canOverrideReducedMotion ? (
+                  <button
+                    type="button"
+                    className="universe-story-toggle is-primary"
+                    onClick={enableImmersiveScenes}
+                  >
+                    Enable immersive scenes
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="universe-story-toggle is-secondary"
+                    onClick={enableCalmMode}
+                  >
+                    Use calm mode
+                  </button>
+                )}
+
+                {motionPreference !== 'auto' && (
+                  <button
+                    type="button"
+                    className="universe-story-toggle is-secondary"
+                    onClick={resetMotionPreference}
+                  >
+                    Use system setting
+                  </button>
+                )}
+              </div>
+            )}
 
             <div className="universe-story-track" aria-hidden="true">
               {CHAPTERS.map((item, index) => (

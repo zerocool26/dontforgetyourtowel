@@ -33,6 +33,74 @@ test.describe('Homepage', () => {
     ).toBeVisible();
   });
 
+  test('should let calm-mode users enable immersive scenes', async ({
+    page,
+    isMobile,
+  }) => {
+    if (isMobile) {
+      test.skip();
+    }
+
+    await page.goto('./');
+
+    const hero = page.locator('[data-olive-universe="ready"]');
+    await expect(hero).toBeVisible();
+    await expect(hero).toHaveAttribute('data-olive-mode', 'reduced');
+
+    const enableScenes = page.getByRole('button', {
+      name: /enable immersive scenes/i,
+    });
+    await expect(enableScenes).toBeVisible();
+    await enableScenes.click();
+
+    await expect(hero).toHaveAttribute('data-olive-mode', /(immersive|lite)/);
+    await expect(hero).toHaveAttribute(
+      'data-olive-scene',
+      /(staging|booting|interactive)/
+    );
+
+    await page
+      .getByRole('button', { name: /jump to managed operations/i })
+      .click();
+    await expect(hero).toHaveAttribute('data-current-chapter', 'signal');
+  });
+
+  test('should progress through immersive hero chapters', async ({
+    browser,
+    baseURL,
+    isMobile,
+  }) => {
+    if (isMobile) {
+      test.skip();
+    }
+
+    const context = await browser.newContext({
+      reducedMotion: 'no-preference',
+      viewport: { width: 1440, height: 900 },
+    });
+    const page = await context.newPage();
+
+    await page.goto(baseURL ?? 'http://localhost:4321/', {
+      waitUntil: 'networkidle',
+    });
+
+    const hero = page.locator('[data-olive-universe="ready"]');
+    await expect(hero).toBeVisible();
+    await expect(hero).toHaveAttribute('data-olive-mode', /(immersive|lite)/);
+
+    await page
+      .getByRole('button', { name: /jump to cloud engineering/i })
+      .click();
+    await expect(hero).toHaveAttribute('data-current-chapter', 'cloud');
+
+    await page
+      .getByRole('button', { name: /jump to start your project/i })
+      .click();
+    await expect(hero).toHaveAttribute('data-current-chapter', 'singularity');
+
+    await context.close();
+  });
+
   test('should have working navigation', async ({ page, isMobile }) => {
     await page.goto('./');
 
