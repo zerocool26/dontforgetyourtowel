@@ -1,6 +1,6 @@
 ---
 import Layout from '../layouts/MarketingLayout.astro';
-import HeroSection from '../components/landing/HeroSection.astro';
+import OliveUniverse from '../components/react/OliveUniverse';
 import SignalGrid from '../components/landing/SignalGrid.astro';
 import EngagementSection from '../components/landing/EngagementSection.astro';
 import InsightSection from '../components/landing/InsightSection.astro';
@@ -68,12 +68,7 @@ const demoLaunches = [
   showFooter={false}
 >
   <main class="creative-page overflow-x-hidden">
-    <HeroSection
-      badge="EXPERIENCE DESIGN • MOTION SYSTEMS • ENGINEERING"
-      headline="Creative technology without template energy."
-      subheading="We design and build product experiences that feel alive: cinematic visuals, intentional motion, and production-grade engineering under one roof."
-      secondaryCta={{ label: 'View portfolio', href: withBasePath('about/') }}
-    />
+    <OliveUniverse client:only="react" />
 
     <section
       class="mx-auto max-w-6xl px-6 pb-16 pt-8 sm:px-10 sm:pb-20 sm:pt-10"
