@@ -11,6 +11,8 @@ import {
   type CSSProperties,
 } from 'react';
 import '@/styles/olive-universe.css';
+import { copyText } from '@/utils/clipboard';
+import { isShareSupported, share as shareContent } from '@/utils/share';
 import { withBasePath } from '@/utils/helpers';
 import {
   CHAPTERS,
@@ -28,6 +30,9 @@ import {
 
 const preloadOliveUniverseCanvas = () => import('./OliveUniverseCanvas');
 const OliveUniverseCanvas = lazy(preloadOliveUniverseCanvas);
+const MOTION_PREFERENCE_KEY = 'olive-universe-motion-preference';
+const HERO_SCENE_QUERY_KEYS = ['scene', 'hero', 'chapter'] as const;
+const HERO_SCENE_HASH_PREFIX = '#hero-';
 
 type IdleCapableWindow = Window & {
   requestIdleCallback?: (
@@ -45,6 +50,46 @@ type SceneRuntimeState =
   | 'fallback';
 
 type MotionPreference = 'auto' | 'immersive' | 'calm';
+
+function isMotionPreference(value: string | null): value is MotionPreference {
+  return value === 'auto' || value === 'immersive' || value === 'calm';
+}
+
+function isChapterId(value: string | null): value is ChapterDef['id'] {
+  return Boolean(value && CHAPTERS.some(chapter => chapter.id === value));
+}
+
+function getRequestedHeroChapter(): ChapterDef['id'] | null {
+  if (typeof window === 'undefined') return null;
+
+  const url = new URL(window.location.href);
+  for (const key of HERO_SCENE_QUERY_KEYS) {
+    const value = url.searchParams.get(key);
+    if (isChapterId(value)) {
+      return value;
+    }
+  }
+
+  const hashScene = url.hash.startsWith(HERO_SCENE_HASH_PREFIX)
+    ? url.hash.slice(HERO_SCENE_HASH_PREFIX.length)
+    : null;
+
+  return isChapterId(hashScene) ? hashScene : null;
+}
+
+function shouldIgnoreHeroInteractiveTarget(target: EventTarget | null) {
+  if (!(target instanceof HTMLElement)) return false;
+
+  if (target.isContentEditable) {
+    return true;
+  }
+
+  return Boolean(
+    target.closest(
+      'input, textarea, select, button, a[href], [role="button"], [role="link"], [contenteditable="true"]'
+    )
+  );
+}
 
 type StaticBackdropMode =
   | Extract<HeroVisualMode, 'reduced' | 'fallback'>
@@ -122,6 +167,14 @@ function ChapterOverlay({
 
 export default function OliveUniverse() {
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const shareLinkRef = useRef<HTMLAnchorElement>(null);
+  const deepLinkHandledRef = useRef(false);
+  const touchGestureRef = useRef<{
+    pointerId: number;
+    startX: number;
+    startY: number;
+    startTime: number;
+  } | null>(null);
   const progressRef = useRef(0);
   const [chapter, setChapter] = useState(0);
   const [quality, setQuality] = useState<QualityTier>('medium');
@@ -134,6 +187,11 @@ export default function OliveUniverse() {
   const [pageVisible, setPageVisible] = useState(true);
   const [sceneBootReady, setSceneBootReady] = useState(false);
   const [sceneResolved, setSceneResolved] = useState(false);
+  const [nativeShareSupported, setNativeShareSupported] = useState(false);
+  const [touchCapable, setTouchCapable] = useState(false);
+  const [shareState, setShareState] = useState<
+    'idle' | 'copied' | 'shared' | 'error'
+  >('idle');
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -144,6 +202,23 @@ export default function OliveUniverse() {
     syncReducedMotion();
     setQuality(detectQuality());
     setWebglSupported(supportsWebGL());
+    setNativeShareSupported(isShareSupported());
+    setTouchCapable(
+      window.matchMedia('(pointer: coarse)').matches ||
+        (navigator.maxTouchPoints ?? 0) > 0
+    );
+
+    try {
+      const storedMotionPreference = window.localStorage.getItem(
+        MOTION_PREFERENCE_KEY
+      );
+      if (isMotionPreference(storedMotionPreference)) {
+        setMotionPreference(storedMotionPreference);
+      }
+    } catch {
+      // Ignore storage access failures; the hero can still run with in-memory state.
+    }
+
     setMounted(true);
 
     if ('addEventListener' in motionQuery) {
@@ -159,6 +234,34 @@ export default function OliveUniverse() {
     legacyMotionQuery.addListener?.(syncReducedMotion);
     return () => legacyMotionQuery.removeListener?.(syncReducedMotion);
   }, []);
+
+  useEffect(() => {
+    if (!mounted || typeof window === 'undefined') return;
+
+    try {
+      if (motionPreference === 'auto') {
+        window.localStorage.removeItem(MOTION_PREFERENCE_KEY);
+        return;
+      }
+
+      window.localStorage.setItem(MOTION_PREFERENCE_KEY, motionPreference);
+    } catch {
+      // Ignore storage access failures; the live session state is still enough.
+    }
+  }, [mounted, motionPreference]);
+
+  useEffect(() => {
+    if (shareState === 'idle' || typeof window === 'undefined') return;
+
+    const timeoutId = window.setTimeout(
+      () => setShareState('idle'),
+      shareState === 'copied' ? 2200 : 3200
+    );
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [shareState]);
 
   useEffect(() => {
     if (!mounted || typeof window === 'undefined' || !wrapperRef.current)
@@ -204,6 +307,40 @@ export default function OliveUniverse() {
   const shouldRenderCanvas =
     visualMode === 'immersive' || visualMode === 'lite';
 
+  const scrollToChapter = useCallback(
+    (chapterIndex: number, behaviorOverride?: ScrollBehavior) => {
+      if (!wrapperRef.current || typeof window === 'undefined') return;
+
+      if (
+        webglSupported &&
+        visualMode !== 'immersive' &&
+        visualMode !== 'lite'
+      ) {
+        setMotionPreference('immersive');
+      }
+
+      const wrapperTop =
+        window.scrollY + wrapperRef.current.getBoundingClientRect().top;
+      const total = wrapperRef.current.offsetHeight - window.innerHeight;
+      const targetTop = wrapperTop + total * CHAPTERS[chapterIndex].range[0];
+
+      window.scrollTo({
+        top: targetTop,
+        behavior:
+          behaviorOverride ?? (prefersReducedMotion() ? 'auto' : 'smooth'),
+      });
+    },
+    [visualMode, webglSupported]
+  );
+
+  const navigateToChapter = useCallback(
+    (chapterIndex: number, behaviorOverride?: ScrollBehavior) => {
+      setChapter(chapterIndex);
+      scrollToChapter(chapterIndex, behaviorOverride);
+    },
+    [scrollToChapter]
+  );
+
   useEffect(() => {
     if (!mounted || typeof window === 'undefined' || !shouldRenderCanvas) {
       setSceneBootReady(false);
@@ -243,19 +380,185 @@ export default function OliveUniverse() {
     };
   }, [mounted, shouldRenderCanvas]);
 
-  const scrollToChapter = useCallback((chapterIndex: number) => {
-    if (!wrapperRef.current || typeof window === 'undefined') return;
+  useEffect(() => {
+    if (
+      !mounted ||
+      typeof window === 'undefined' ||
+      deepLinkHandledRef.current
+    ) {
+      return;
+    }
 
-    const wrapperTop =
-      window.scrollY + wrapperRef.current.getBoundingClientRect().top;
-    const total = wrapperRef.current.offsetHeight - window.innerHeight;
-    const targetTop = wrapperTop + total * CHAPTERS[chapterIndex].range[0];
+    const requestedChapterId = getRequestedHeroChapter();
+    if (!requestedChapterId) {
+      deepLinkHandledRef.current = true;
+      return;
+    }
 
-    window.scrollTo({
-      top: targetTop,
-      behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+    const requestedIndex = CHAPTERS.findIndex(
+      chapterDef => chapterDef.id === requestedChapterId
+    );
+
+    if (requestedIndex < 0) {
+      deepLinkHandledRef.current = true;
+      return;
+    }
+
+    deepLinkHandledRef.current = true;
+
+    if (requestedIndex === 0) {
+      setChapter(0);
+      return;
+    }
+
+    setChapter(requestedIndex);
+
+    const rafId = window.requestAnimationFrame(() => {
+      scrollToChapter(requestedIndex, 'auto');
     });
-  }, []);
+
+    return () => {
+      window.cancelAnimationFrame(rafId);
+    };
+  }, [mounted, scrollToChapter]);
+
+  useEffect(() => {
+    if (!mounted || typeof window === 'undefined') return;
+
+    const lastChapterIndex = CHAPTERS.length - 1;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (
+        !sceneActive ||
+        event.defaultPrevented ||
+        event.altKey ||
+        event.ctrlKey ||
+        event.metaKey ||
+        shouldIgnoreHeroInteractiveTarget(
+          event.target ?? document.activeElement
+        )
+      ) {
+        return;
+      }
+
+      let targetChapter = chapter;
+
+      switch (event.key) {
+        case 'ArrowRight':
+        case 'ArrowDown':
+        case 'PageDown':
+          targetChapter = Math.min(lastChapterIndex, chapter + 1);
+          break;
+        case 'ArrowLeft':
+        case 'ArrowUp':
+        case 'PageUp':
+          targetChapter = Math.max(0, chapter - 1);
+          break;
+        case 'Home':
+          targetChapter = 0;
+          break;
+        case 'End':
+          targetChapter = lastChapterIndex;
+          break;
+        default:
+          return;
+      }
+
+      if (targetChapter === chapter) {
+        return;
+      }
+
+      event.preventDefault();
+      navigateToChapter(targetChapter);
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [chapter, mounted, navigateToChapter, sceneActive]);
+
+  useEffect(() => {
+    if (!mounted || typeof window === 'undefined' || !wrapperRef.current) {
+      return;
+    }
+
+    const node = wrapperRef.current;
+    const hasPreviousChapter = chapter > 0;
+    const hasNextChapter = chapter < CHAPTERS.length - 1;
+    const swipeDistance = 60;
+    const swipeDominanceRatio = 1.2;
+    const swipeTimeout = 900;
+
+    const clearGesture = () => {
+      touchGestureRef.current = null;
+    };
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (
+        event.pointerType !== 'touch' ||
+        shouldIgnoreHeroInteractiveTarget(event.target)
+      ) {
+        return;
+      }
+
+      touchGestureRef.current = {
+        pointerId: event.pointerId,
+        startX: event.clientX,
+        startY: event.clientY,
+        startTime: performance.now(),
+      };
+    };
+
+    const handlePointerUp = (event: PointerEvent) => {
+      const gesture = touchGestureRef.current;
+
+      if (
+        !gesture ||
+        event.pointerType !== 'touch' ||
+        event.pointerId !== gesture.pointerId
+      ) {
+        return;
+      }
+
+      clearGesture();
+
+      if (shouldIgnoreHeroInteractiveTarget(event.target)) {
+        return;
+      }
+
+      const deltaX = event.clientX - gesture.startX;
+      const deltaY = event.clientY - gesture.startY;
+      const elapsed = performance.now() - gesture.startTime;
+
+      if (
+        elapsed > swipeTimeout ||
+        Math.abs(deltaX) < swipeDistance ||
+        Math.abs(deltaX) <= Math.abs(deltaY) * swipeDominanceRatio
+      ) {
+        return;
+      }
+
+      if (deltaX < 0 && hasNextChapter) {
+        navigateToChapter(chapter + 1);
+        return;
+      }
+
+      if (deltaX > 0 && hasPreviousChapter) {
+        navigateToChapter(chapter - 1);
+      }
+    };
+
+    node.addEventListener('pointerdown', handlePointerDown, { passive: true });
+    window.addEventListener('pointerup', handlePointerUp, { passive: true });
+    window.addEventListener('pointercancel', clearGesture);
+
+    return () => {
+      node.removeEventListener('pointerdown', handlePointerDown);
+      window.removeEventListener('pointerup', handlePointerUp);
+      window.removeEventListener('pointercancel', clearGesture);
+    };
+  }, [chapter, mounted, navigateToChapter]);
 
   useEffect(() => {
     if (!mounted || typeof window === 'undefined') return;
@@ -278,6 +581,15 @@ export default function OliveUniverse() {
           nextChapter = i;
           break;
         }
+
+      if (
+        nextChapter > 0 &&
+        webglSupported &&
+        prefersReduced &&
+        motionPreference === 'auto'
+      ) {
+        setMotionPreference('immersive');
+      }
 
       setChapter(currentChapter =>
         currentChapter === nextChapter ? currentChapter : nextChapter
@@ -303,17 +615,31 @@ export default function OliveUniverse() {
       window.removeEventListener('resize', queueHeroProgressSync);
       window.removeEventListener('orientationchange', queueHeroProgressSync);
     };
-  }, [mounted]);
+  }, [mounted, motionPreference, prefersReduced, webglSupported]);
 
   const activeChapter = CHAPTERS[chapter] ?? CHAPTERS[0];
   const sceneProfile = useMemo(
     () => getSceneProfile(quality, visualMode),
     [quality, visualMode]
   );
+  const sceneSharePath = useMemo(
+    () =>
+      withBasePath(
+        `/?scene=${activeChapter.id}${HERO_SCENE_HASH_PREFIX}${activeChapter.id}`
+      ),
+    [activeChapter.id]
+  );
+  const sceneShareHref = useMemo(() => {
+    if (typeof window === 'undefined') return sceneSharePath;
+    return new URL(sceneSharePath, window.location.origin).toString();
+  }, [sceneSharePath]);
   const accentRgb = useMemo(
     () => hexToRgbString(activeChapter.accent),
     [activeChapter.accent]
   );
+  const previousChapter = chapter > 0 ? CHAPTERS[chapter - 1] : null;
+  const nextChapter =
+    chapter < CHAPTERS.length - 1 ? CHAPTERS[chapter + 1] : null;
   const chapterCounter = `${String(chapter + 1).padStart(2, '0')} / ${String(
     CHAPTERS.length
   ).padStart(2, '0')}`;
@@ -343,9 +669,9 @@ export default function OliveUniverse() {
   const heroModeNote = userForcedImmersive
     ? 'Immersive scenes are enabled manually, so every 3D chapter stays available even while reduced-motion preferences are active.'
     : userForcedCalm
-      ? 'Calm mode is enabled manually, so the hero is using the ambient presentation by choice.'
+      ? 'Calm mode is enabled manually, so the hero is using the ambient presentation by choice until you jump directly to a story chapter.'
       : visualMode === 'reduced' && prefersReduced
-        ? 'Reduced-motion preferences are active. Enable immersive scenes whenever you want to preview every 3D chapter.'
+        ? 'Reduced-motion preferences are active. Scroll deeper into the story, use any chapter button, or enable immersive scenes whenever you want to preview every 3D chapter.'
         : HERO_MODE_NOTES[visualMode];
 
   const runtimeLabel =
@@ -374,9 +700,61 @@ export default function OliveUniverse() {
   const shouldAnimateCanvas =
     shouldRenderCanvas && sceneActive && pageVisible && sceneResolved;
   const isSceneBusy = sceneState === 'staging' || sceneState === 'booting';
+  const shareActionLabel =
+    shareState === 'shared'
+      ? 'Scene shared'
+      : shareState === 'copied'
+        ? 'Scene link copied'
+        : nativeShareSupported
+          ? 'Share scene'
+          : 'Copy scene link';
+  const shareStatusMessage =
+    shareState === 'shared'
+      ? `${activeChapter.kicker} scene shared.`
+      : shareState === 'copied'
+        ? `${activeChapter.kicker} scene link copied.`
+        : shareState === 'error'
+          ? nativeShareSupported
+            ? 'Sharing was blocked. Use the direct scene link to open this chapter or copy it from the address bar.'
+            : 'Copy was blocked. Use the direct scene link to open this chapter and copy it from the address bar.'
+          : null;
   const handleSceneReady = useCallback(() => {
     setSceneResolved(true);
   }, []);
+  const shareSceneLink = useCallback(async () => {
+    const sceneUrl = shareLinkRef.current?.href ?? sceneShareHref;
+
+    if (nativeShareSupported) {
+      let cancelled = false;
+
+      const didShare = await shareContent(
+        {
+          title: `${activeChapter.kicker} · Olive Universe`,
+          text: `Explore the ${activeChapter.kicker} scene in Olive Global Systems' homepage 3D experience.`,
+          url: sceneUrl,
+        },
+        {
+          copyFallback: false,
+          onCancel: () => {
+            cancelled = true;
+            setShareState('idle');
+          },
+        }
+      );
+
+      if (didShare) {
+        setShareState('shared');
+        return;
+      }
+
+      if (cancelled) {
+        return;
+      }
+    }
+
+    const didCopy = await copyText(sceneUrl);
+    setShareState(didCopy ? 'copied' : 'error');
+  }, [activeChapter.kicker, nativeShareSupported, sceneShareHref]);
   const enableImmersiveScenes = useCallback(() => {
     setMotionPreference('immersive');
   }, []);
@@ -386,6 +764,10 @@ export default function OliveUniverse() {
   const resetMotionPreference = useCallback(() => {
     setMotionPreference('auto');
   }, []);
+
+  useEffect(() => {
+    setShareState('idle');
+  }, [activeChapter.id]);
 
   return (
     <div
@@ -460,6 +842,50 @@ export default function OliveUniverse() {
             <p className="universe-story-kicker">{activeChapter.kicker}</p>
             <p className="universe-story-note">{runtimeNote}</p>
 
+            <div
+              className="universe-story-nav"
+              role="group"
+              aria-label="Scene step controls"
+            >
+              <button
+                type="button"
+                className="universe-story-nav-button"
+                onClick={() => {
+                  if (previousChapter) {
+                    navigateToChapter(chapter - 1);
+                  }
+                }}
+                disabled={!previousChapter}
+                aria-label={
+                  previousChapter
+                    ? `Go to previous scene: ${previousChapter.kicker}`
+                    : 'Previous scene unavailable'
+                }
+              >
+                <span aria-hidden="true">←</span>
+                <span>Previous scene</span>
+              </button>
+
+              <button
+                type="button"
+                className="universe-story-nav-button"
+                onClick={() => {
+                  if (nextChapter) {
+                    navigateToChapter(chapter + 1);
+                  }
+                }}
+                disabled={!nextChapter}
+                aria-label={
+                  nextChapter
+                    ? `Go to next scene: ${nextChapter.kicker}`
+                    : 'Next scene unavailable'
+                }
+              >
+                <span>Next scene</span>
+                <span aria-hidden="true">→</span>
+              </button>
+            </div>
+
             {webglSupported && (
               <div className="universe-story-actions">
                 {canOverrideReducedMotion ? (
@@ -489,7 +915,44 @@ export default function OliveUniverse() {
                     Use system setting
                   </button>
                 )}
+
+                <button
+                  type="button"
+                  className="universe-story-toggle is-secondary"
+                  onClick={() => {
+                    void shareSceneLink();
+                  }}
+                >
+                  {shareActionLabel}
+                </button>
+
+                <a
+                  ref={shareLinkRef}
+                  href={sceneSharePath}
+                  className="universe-story-toggle is-secondary"
+                  aria-label={`Open scene link for ${activeChapter.kicker}`}
+                >
+                  Open scene link
+                </a>
               </div>
+            )}
+
+            {shareStatusMessage && (
+              <p
+                className={`universe-story-share-status ${shareState === 'error' ? 'is-error' : ''}`}
+                role="status"
+                aria-live="polite"
+              >
+                {shareStatusMessage}
+              </p>
+            )}
+
+            <p className="universe-story-shortcuts">
+              Shortcuts: ← → chapters · Home start · End finale
+            </p>
+
+            {touchCapable && (
+              <p className="universe-story-gestures">Touch: swipe ← → scenes</p>
             )}
 
             <div className="universe-story-track" aria-hidden="true">
@@ -510,7 +973,11 @@ export default function OliveUniverse() {
           </aside>
         </div>
 
-        <nav className="universe-progress" aria-label="Story chapters">
+        <nav
+          className="universe-progress"
+          aria-label="Story chapters"
+          aria-keyshortcuts="ArrowLeft ArrowRight ArrowUp ArrowDown Home End PageUp PageDown"
+        >
           {CHAPTERS.map((ch, i) => (
             <button
               key={ch.id}
@@ -519,7 +986,7 @@ export default function OliveUniverse() {
               aria-label={`Jump to ${ch.kicker}`}
               aria-pressed={chapter === i}
               aria-current={chapter === i ? 'step' : undefined}
-              onClick={() => scrollToChapter(i)}
+              onClick={() => navigateToChapter(i)}
             >
               <span className="universe-dot-index">
                 {String(i + 1).padStart(2, '0')}

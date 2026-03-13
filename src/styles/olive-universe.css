@@ -7,6 +7,7 @@
   --universe-accent-rgb: 204, 255, 0;
   position: relative;
   height: 700vh;
+  touch-action: pan-y;
   background:
     radial-gradient(
       circle at 18% 10%,
@@ -323,6 +324,7 @@
 .universe-btn-primary:focus-visible,
 .universe-btn-secondary:focus-visible,
 .universe-dot:focus-visible,
+.universe-story-nav-button:focus-visible,
 .universe-story-toggle:focus-visible,
 .universe-story-skip:focus-visible {
   outline: 2px solid rgba(204, 255, 0, 0.9);
@@ -434,9 +436,9 @@
 
 .universe-story-panel {
   position: absolute;
-  right: 28px;
+  right: 204px;
   bottom: 34px;
-  width: min(360px, calc(100vw - 56px));
+  width: min(360px, calc(100vw - 260px));
   padding: 18px 18px 16px;
   border-radius: 24px;
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -451,6 +453,7 @@
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   pointer-events: auto;
+  z-index: 21;
 }
 
 .universe-story-panel-top {
@@ -534,6 +537,49 @@
   color: rgba(255, 255, 255, 0.66);
 }
 
+.universe-story-nav {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.universe-story-nav-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 44px;
+  padding: 11px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.universe-story-nav-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: rgba(var(--universe-accent-rgb), 0.32);
+  background: rgba(var(--universe-accent-rgb), 0.08);
+}
+
+.universe-story-nav-button:disabled {
+  cursor: not-allowed;
+  color: rgba(255, 255, 255, 0.34);
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+}
+
 .universe-story-actions {
   display: flex;
   flex-wrap: wrap;
@@ -542,6 +588,9 @@
 }
 
 .universe-story-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   appearance: none;
   -webkit-appearance: none;
   border-radius: 999px;
@@ -560,6 +609,7 @@
     border-color 0.2s ease,
     background 0.2s ease,
     box-shadow 0.2s ease;
+  text-decoration: none;
 }
 
 .universe-story-toggle:hover {
@@ -575,6 +625,35 @@
 
 .universe-story-toggle.is-secondary {
   background: rgba(255, 255, 255, 0.04);
+}
+
+.universe-story-shortcuts {
+  margin: 14px 0 0;
+  color: rgba(255, 255, 255, 0.48);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.universe-story-gestures {
+  margin: 8px 0 0;
+  color: rgba(255, 255, 255, 0.38);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.universe-story-share-status {
+  margin: 12px 0 0;
+  color: rgba(255, 255, 255, 0.66);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+.universe-story-share-status.is-error {
+  color: #fca5a5;
 }
 
 .universe-story-track {
@@ -782,6 +861,11 @@
 
   .universe-progress {
     right: 20px;
+  }
+
+  .universe-story-panel {
+    right: 170px;
+    width: min(340px, calc(100vw - 220px));
   }
 
   .universe-dot {

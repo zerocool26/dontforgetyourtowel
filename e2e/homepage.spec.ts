@@ -58,11 +58,369 @@ test.describe('Homepage', () => {
       'data-olive-scene',
       /(staging|booting|interactive)/
     );
+    await expect(hero).toHaveAttribute(
+      'data-olive-motion-preference',
+      'immersive'
+    );
 
     await page
       .getByRole('button', { name: /jump to managed operations/i })
       .click();
     await expect(hero).toHaveAttribute('data-current-chapter', 'signal');
+
+    await page.reload({ waitUntil: 'networkidle' });
+    await expect(hero).toHaveAttribute(
+      'data-olive-motion-preference',
+      'immersive'
+    );
+    await expect(hero).toHaveAttribute('data-olive-mode', /(immersive|lite)/);
+  });
+
+  test('chapter navigation should auto-enable immersive scenes', async ({
+    page,
+    isMobile,
+  }) => {
+    if (isMobile) {
+      test.skip();
+    }
+
+    await page.goto('./');
+
+    const hero = page.locator('[data-olive-universe="ready"]');
+    await expect(hero).toBeVisible();
+    await expect(hero).toHaveAttribute('data-olive-mode', 'reduced');
+
+    await page
+      .getByRole('button', { name: /jump to cloud engineering/i })
+      .click();
+
+    await expect(hero).toHaveAttribute(
+      'data-olive-motion-preference',
+      'immersive'
+    );
+    await expect(hero).toHaveAttribute('data-olive-mode', /(immersive|lite)/);
+    await expect(hero).toHaveAttribute('data-current-chapter', 'cloud');
+  });
+
+  test('deep linked hero scenes should load directly', async ({
+    page,
+    isMobile,
+  }) => {
+    if (isMobile) {
+      test.skip();
+    }
+
+    await page.goto('./?scene=cloud');
+
+    const hero = page.locator('[data-olive-universe="ready"]');
+    await expect(hero).toBeVisible();
+    await expect(hero).toHaveAttribute('data-current-chapter', 'cloud');
+    await expect(hero).toHaveAttribute(
+      'data-olive-motion-preference',
+      'immersive'
+    );
+    await expect(hero).toHaveAttribute('data-olive-mode', /(immersive|lite)/);
+  });
+
+  test('keyboard shortcuts should navigate hero chapters', async ({
+    page,
+    isMobile,
+  }) => {
+    if (isMobile) {
+      test.skip();
+    }
+
+    await page.goto('./');
+
+    const hero = page.locator('[data-olive-universe="ready"]');
+    await expect(hero).toBeVisible();
+    await expect(
+      page.getByText(/shortcuts: ← → chapters · home start · end finale/i)
+    ).toBeVisible();
+    await expect(hero).toHaveAttribute('data-olive-mode', 'reduced');
+
+    await page.keyboard.press('ArrowRight');
+    await expect(hero).toHaveAttribute(
+      'data-olive-motion-preference',
+      'immersive'
+    );
+    await expect(hero).toHaveAttribute('data-current-chapter', 'neural');
+
+    await page.keyboard.press('End');
+    await expect(hero).toHaveAttribute('data-current-chapter', 'singularity');
+
+    await page.keyboard.press('Home');
+    await expect(hero).toHaveAttribute('data-current-chapter', 'genesis');
+  });
+
+  test('story panel scene controls should step through hero chapters', async ({
+    page,
+  }) => {
+    await page.goto('./');
+
+    const hero = page.locator('[data-olive-universe="ready"]');
+    await expect(hero).toBeVisible();
+    await expect(hero).toHaveAttribute('data-olive-mode', 'reduced');
+
+    const previousScene = page.getByRole('button', {
+      name: /previous scene unavailable/i,
+    });
+    await expect(previousScene).toBeDisabled();
+
+    await page
+      .getByRole('button', {
+        name: /go to next scene: ai systems/i,
+      })
+      .click();
+
+    await expect(hero).toHaveAttribute(
+      'data-olive-motion-preference',
+      'immersive'
+    );
+    await expect(hero).toHaveAttribute('data-current-chapter', 'neural');
+
+    await page
+      .getByRole('button', {
+        name: /go to previous scene: creative technology studio/i,
+      })
+      .click();
+
+    await expect(hero).toHaveAttribute('data-current-chapter', 'genesis');
+  });
+
+  test('scene share controls should use native sharing when available', async ({
+    page,
+  }) => {
+    await page.addInitScript(() => {
+      Object.defineProperty(window.navigator, 'share', {
+        configurable: true,
+        value: async (data: {
+          title?: string;
+          text?: string;
+          url?: string;
+        }) => {
+          (
+            window as Window & {
+              __sharedScene?: { title?: string; text?: string; url?: string };
+            }
+          ).__sharedScene = data;
+        },
+      });
+
+      Object.defineProperty(window.navigator, 'canShare', {
+        configurable: true,
+        value: () => true,
+      });
+    });
+
+    await page.goto('./');
+
+    const hero = page.locator('[data-olive-universe="ready"]');
+    await expect(hero).toBeVisible();
+    await expect(hero).toHaveAttribute('data-current-chapter', 'genesis');
+
+    const shareScene = page.getByRole('button', {
+      name: /share scene/i,
+    });
+    await shareScene.click();
+
+    await expect(
+      page.getByRole('button', { name: /scene shared/i })
+    ).toBeVisible();
+
+    const sharedScene = await page.evaluate(() => {
+      return (
+        (
+          window as Window & {
+            __sharedScene?: { title?: string; text?: string; url?: string };
+          }
+        ).__sharedScene ?? null
+      );
+    });
+
+    expect(sharedScene).not.toBeNull();
+    expect(sharedScene?.title).toMatch(/creative technology studio/i);
+    expect(sharedScene?.text).toMatch(/creative technology studio/i);
+    expect(sharedScene?.url).toContain('?scene=genesis');
+    expect(sharedScene?.url).toContain('#hero-genesis');
+  });
+
+  test('scene share controls should expose the active chapter link', async ({
+    page,
+    isMobile,
+  }) => {
+    if (isMobile) {
+      test.skip();
+    }
+
+    await page.addInitScript(() => {
+      Object.defineProperty(window.navigator, 'share', {
+        configurable: true,
+        value: undefined,
+      });
+
+      Object.defineProperty(window.navigator, 'canShare', {
+        configurable: true,
+        value: undefined,
+      });
+
+      const clipboard = {
+        writeText: async (text: string) => {
+          (
+            window as Window & { __copiedSceneLink?: string }
+          ).__copiedSceneLink = text;
+        },
+      };
+
+      Object.defineProperty(window.navigator, 'clipboard', {
+        configurable: true,
+        value: clipboard,
+      });
+    });
+
+    await page.goto('./');
+
+    const hero = page.locator('[data-olive-universe="ready"]');
+    await expect(hero).toBeVisible();
+    await expect(hero).toHaveAttribute('data-current-chapter', 'genesis');
+    await expect(
+      page.getByRole('link', {
+        name: /open scene link for creative technology studio/i,
+      })
+    ).toHaveAttribute('href', /\?scene=genesis#hero-genesis$/);
+
+    await page.evaluate(() => {
+      (
+        window as Window & { __copiedSceneLink?: string | null }
+      ).__copiedSceneLink = null;
+    });
+
+    const copySceneLink = page.getByRole('button', {
+      name: /copy scene link/i,
+    });
+    await copySceneLink.click();
+    await expect(
+      page.getByRole('button', { name: /scene link copied/i })
+    ).toBeVisible();
+
+    const copiedSceneLink = await page.evaluate(() => {
+      return (
+        (window as Window & { __copiedSceneLink?: string }).__copiedSceneLink ??
+        null
+      );
+    });
+
+    expect(copiedSceneLink).toContain('?scene=genesis');
+    expect(copiedSceneLink).toContain('#hero-genesis');
+
+    await expect(
+      page.getByRole('link', {
+        name: /open scene link for creative technology studio/i,
+      })
+    ).toHaveAttribute('href', /\?scene=genesis#hero-genesis$/);
+  });
+
+  test('touch swipe should step through hero chapters', async ({
+    browser,
+    baseURL,
+  }) => {
+    const context = await browser.newContext({
+      hasTouch: true,
+      isMobile: true,
+      viewport: { width: 430, height: 932 },
+      reducedMotion: 'reduce',
+    });
+    const page = await context.newPage();
+
+    await page.goto(baseURL ?? 'http://localhost:4321/', {
+      waitUntil: 'networkidle',
+    });
+
+    const hero = page.locator('[data-olive-universe="ready"]');
+    await expect(hero).toBeVisible();
+    await expect(hero).toHaveAttribute('data-olive-mode', 'reduced');
+    await expect(page.getByText(/touch: swipe ← → scenes/i)).toBeVisible();
+
+    await hero.dispatchEvent('pointerdown', {
+      pointerType: 'touch',
+      pointerId: 1,
+      clientX: 340,
+      clientY: 360,
+      isPrimary: true,
+      bubbles: true,
+    });
+    await hero.dispatchEvent('pointerup', {
+      pointerType: 'touch',
+      pointerId: 1,
+      clientX: 120,
+      clientY: 376,
+      isPrimary: true,
+      bubbles: true,
+    });
+
+    await expect(hero).toHaveAttribute(
+      'data-olive-motion-preference',
+      'immersive'
+    );
+    await expect(hero).toHaveAttribute('data-current-chapter', 'neural');
+
+    await hero.dispatchEvent('pointerdown', {
+      pointerType: 'touch',
+      pointerId: 2,
+      clientX: 110,
+      clientY: 360,
+      isPrimary: true,
+      bubbles: true,
+    });
+    await hero.dispatchEvent('pointerup', {
+      pointerType: 'touch',
+      pointerId: 2,
+      clientX: 330,
+      clientY: 372,
+      isPrimary: true,
+      bubbles: true,
+    });
+
+    await expect(hero).toHaveAttribute('data-current-chapter', 'genesis');
+
+    await context.close();
+  });
+
+  test('scrolling deeper should auto-enable immersive scenes', async ({
+    page,
+    isMobile,
+  }) => {
+    if (isMobile) {
+      test.skip();
+    }
+
+    await page.goto('./');
+
+    const hero = page.locator('[data-olive-universe="ready"]');
+    await expect(hero).toBeVisible();
+    await expect(hero).toHaveAttribute('data-olive-mode', 'reduced');
+
+    await page.evaluate(() => {
+      const heroElement = document.querySelector<HTMLElement>(
+        '[data-olive-universe="ready"]'
+      );
+
+      if (!heroElement) return;
+
+      const heroTop = window.scrollY + heroElement.getBoundingClientRect().top;
+      const total = heroElement.offsetHeight - window.innerHeight;
+      window.scrollTo({
+        top: heroTop + total * 0.46,
+        behavior: 'auto',
+      });
+    });
+
+    await expect(hero).toHaveAttribute(
+      'data-olive-motion-preference',
+      'immersive'
+    );
+    await expect(hero).toHaveAttribute('data-olive-mode', /(immersive|lite)/);
+    await expect(hero).toHaveAttribute('data-current-chapter', 'vault');
   });
 
   test('should progress through immersive hero chapters', async ({

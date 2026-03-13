@@ -135,14 +135,14 @@ export type SocialPlatform = keyof typeof socialPlatforms;
  * Check if Web Share API is supported
  */
 export function isShareSupported(): boolean {
-  return isBrowser() && 'share' in navigator;
+  return isBrowser() && typeof navigator.share === 'function';
 }
 
 /**
  * Check if file sharing is supported
  */
 export function isFileShareSupported(): boolean {
-  return isBrowser() && 'canShare' in navigator;
+  return isBrowser() && typeof navigator.canShare === 'function';
 }
 
 /**
