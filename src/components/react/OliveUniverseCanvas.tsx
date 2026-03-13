@@ -5,6 +5,7 @@ import {
   useEffect,
   useMemo,
   useRef,
+  useState,
   type MutableRefObject,
 } from 'react';
 import * as THREE from 'three';
@@ -24,6 +25,10 @@ import {
   type QualityTier,
   type SceneProfile,
 } from './olive-universe-config';
+
+type OliveDebugWindow = Window & {
+  __OLIVE_FORCE_STABILITY_ASSIST__?: boolean;
+};
 
 const PARTICLE_VERT = /* glsl */ `
   uniform float uTime;
@@ -220,13 +225,57 @@ function camAtT(t: number) {
   return { pos: kf[0].pos, look: kf[0].look };
 }
 
+function mergeSceneIndices(
+  current: number[],
+  candidates: number[],
+  totalCount: number
+) {
+  const next = new Set(current);
+
+  for (const candidate of candidates) {
+    if (candidate >= 0 && candidate < totalCount) {
+      next.add(candidate);
+    }
+  }
+
+  return Array.from(next).sort((a, b) => a - b);
+}
+
+function getSceneWarmPriority(centerIndex: number, totalCount: number) {
+  const order: number[] = [];
+  const seen = new Set<number>();
+
+  const push = (index: number) => {
+    if (index < 0 || index >= totalCount || seen.has(index)) {
+      return;
+    }
+
+    seen.add(index);
+    order.push(index);
+  };
+
+  push(centerIndex);
+  push(centerIndex - 1);
+  push(centerIndex + 1);
+
+  for (let offset = 2; offset < totalCount; offset += 1) {
+    push(centerIndex + offset);
+    push(centerIndex - offset);
+  }
+
+  return order;
+}
+
 function ParticleGalaxy({
+  isLive,
   progressRef,
   profile,
 }: {
+  isLive: boolean;
   progressRef: MutableRefObject<number>;
   profile: SceneProfile;
 }) {
+  const pointsRef = useRef<THREE.Points>(null);
   const matRef = useRef<THREE.ShaderMaterial | null>(null);
   const mouseRef = useRef(new THREE.Vector2());
   const visibilityRef = useRef(0);
@@ -293,7 +342,8 @@ function ParticleGalaxy({
     if (!matRef.current) return;
     const progress = progressRef.current ?? 0;
     const [start, end] = CHAPTERS[0].range;
-    const visible = progress >= start - 0.08 && progress <= end + 0.08;
+    const visible =
+      isLive && progress >= start - 0.08 && progress <= end + 0.08;
     const local = visible
       ? Math.max(0, Math.min(1, (progress - start) / (end - start)))
       : 0;
@@ -312,15 +362,21 @@ function ParticleGalaxy({
     );
     matRef.current.uniforms.uVisibility.value = visibilityRef.current;
     matRef.current.uniforms.uMouse.value.lerp(mouseRef.current, 0.06);
+
+    if (pointsRef.current) {
+      pointsRef.current.visible = visible || visibilityRef.current > 0.02;
+    }
   });
 
-  return <points geometry={geo} material={material} />;
+  return <points ref={pointsRef} geometry={geo} material={material} />;
 }
 
 function NeuralCortex({
+  isLive,
   progressRef,
   profile,
 }: {
+  isLive: boolean;
   progressRef: MutableRefObject<number>;
   profile: SceneProfile;
 }) {
@@ -400,7 +456,8 @@ function NeuralCortex({
     if (!groupRef.current) return;
     const progress = progressRef.current ?? 0;
     const [start, end] = CHAPTERS[1].range;
-    const visible = progress >= start - 0.08 && progress <= end + 0.08;
+    const visible =
+      isLive && progress >= start - 0.08 && progress <= end + 0.08;
     visibilityRef.current = THREE.MathUtils.lerp(
       visibilityRef.current,
       visible ? 1 : 0,
@@ -408,6 +465,12 @@ function NeuralCortex({
     );
     lineMat.opacity = visibilityRef.current * 0.82;
     nodeMat.opacity = visibilityRef.current;
+
+    groupRef.current.visible = visibilityRef.current > 0.02;
+    if (!groupRef.current.visible) {
+      return;
+    }
+
     lineMat.uniforms.uTime.value = clock.elapsedTime;
     groupRef.current.rotation.y = clock.elapsedTime * 0.045;
   });
@@ -429,8 +492,10 @@ function NeuralCortex({
 }
 
 function CrystalFortress({
+  isLive,
   progressRef,
 }: {
+  isLive: boolean;
   progressRef: MutableRefObject<number>;
 }) {
   const groupRef = useRef<THREE.Group>(null);
@@ -497,7 +562,8 @@ function CrystalFortress({
     if (!groupRef.current) return;
     const progress = progressRef.current ?? 0;
     const [start, end] = CHAPTERS[2].range;
-    const visible = progress >= start - 0.08 && progress <= end + 0.08;
+    const visible =
+      isLive && progress >= start - 0.08 && progress <= end + 0.08;
     const elapsed = clock.elapsedTime;
     const alpha = THREE.MathUtils.lerp(
       crystalMat.opacity,
@@ -511,6 +577,12 @@ function CrystalFortress({
     });
     shieldMat.uniforms.uTime.value = elapsed;
     shieldMat.opacity = alpha;
+
+    groupRef.current.visible = alpha > 0.02;
+    if (!groupRef.current.visible) {
+      return;
+    }
+
     groupRef.current.rotation.y = elapsed * 0.11;
     groupRef.current.rotation.x = Math.sin(elapsed * 0.07) * 0.14;
   });
@@ -541,9 +613,11 @@ function CrystalFortress({
 }
 
 function CloudConstellation({
+  isLive,
   progressRef,
   profile,
 }: {
+  isLive: boolean;
   progressRef: MutableRefObject<number>;
   profile: SceneProfile;
 }) {
@@ -612,7 +686,8 @@ function CloudConstellation({
     if (!groupRef.current) return;
     const progress = progressRef.current ?? 0;
     const [start, end] = CHAPTERS[3].range;
-    const visible = progress >= start - 0.08 && progress <= end + 0.08;
+    const visible =
+      isLive && progress >= start - 0.08 && progress <= end + 0.08;
     const alpha = THREE.MathUtils.lerp(
       lineMat.opacity,
       visible ? 0.45 : 0,
@@ -624,6 +699,13 @@ function CloudConstellation({
       visible ? 0.9 : 0,
       0.04
     );
+
+    groupRef.current.visible =
+      alpha > 0.02 || (nodeMat.opacity ?? 0) > 0.02;
+    if (!groupRef.current.visible) {
+      return;
+    }
+
     groupRef.current.rotation.y = clock.elapsedTime * 0.055;
   });
 
@@ -654,9 +736,11 @@ function CloudConstellation({
 }
 
 function SignalMatrix({
+  isLive,
   progressRef,
   profile,
 }: {
+  isLive: boolean;
   progressRef: MutableRefObject<number>;
   profile: SceneProfile;
 }) {
@@ -703,13 +787,20 @@ function SignalMatrix({
     if (!groupRef.current) return;
     const progress = progressRef.current ?? 0;
     const [start, end] = CHAPTERS[4].range;
-    const visible = progress >= start - 0.08 && progress <= end + 0.08;
-    mat.uniforms.uTime.value = clock.elapsedTime;
+    const visible =
+      isLive && progress >= start - 0.08 && progress <= end + 0.08;
     mat.opacity = THREE.MathUtils.lerp(
       mat.opacity ?? 1,
       visible ? 0.88 : 0,
       0.04
     );
+
+    groupRef.current.visible = (mat.opacity ?? 0) > 0.02;
+    if (!groupRef.current.visible) {
+      return;
+    }
+
+    mat.uniforms.uTime.value = clock.elapsedTime;
     for (let i = 0; i < count; i++) {
       const col = i % gridSize;
       const row = Math.floor(i / gridSize);
@@ -749,9 +840,11 @@ function SignalMatrix({
 }
 
 function SingularityCore({
+  isLive,
   progressRef,
   profile,
 }: {
+  isLive: boolean;
   progressRef: MutableRefObject<number>;
   profile: SceneProfile;
 }) {
@@ -785,7 +878,7 @@ function SingularityCore({
     if (!groupRef.current) return;
     const progress = progressRef.current ?? 0;
     const [start] = CHAPTERS[5].range;
-    const visible = progress >= start - 0.06;
+    const visible = isLive && progress >= start - 0.06;
     const elapsed = clock.elapsedTime;
     const alpha = THREE.MathUtils.lerp(
       coreMat.opacity,
@@ -797,6 +890,12 @@ function SingularityCore({
     ringMats.forEach((material, index) => {
       material.opacity = alpha * (0.5 - index * 0.09);
     });
+
+    groupRef.current.visible = alpha > 0.02;
+    if (!groupRef.current.visible) {
+      return;
+    }
+
     if (coreRef.current) {
       const scale = 1 + Math.sin(elapsed * 2.2) * 0.12;
       coreRef.current.scale.setScalar(
@@ -856,16 +955,26 @@ function Scene({
   activeChapterIndex,
   progressRef,
   profile,
+  warmedSceneIndices,
 }: {
   activeChapterIndex: number;
   progressRef: MutableRefObject<number>;
   profile: SceneProfile;
+  warmedSceneIndices: number[];
 }) {
   const { camera } = useThree();
   const camPos = useRef(new THREE.Vector3(0, 0, 9));
   const camLook = useRef(new THREE.Vector3(0, 0, 0));
   const nextPos = useRef(new THREE.Vector3(0, 0, 9));
   const nextLook = useRef(new THREE.Vector3(0, 0, 0));
+  const warmedSceneSet = useMemo(
+    () => new Set(warmedSceneIndices),
+    [warmedSceneIndices]
+  );
+  const shouldPrimeScene = useCallback(
+    (sceneIndex: number) => warmedSceneSet.has(sceneIndex),
+    [warmedSceneSet]
+  );
   const shouldRenderScene = useCallback(
     (sceneIndex: number) => Math.abs(activeChapterIndex - sceneIndex) <= 1,
     [activeChapterIndex]
@@ -885,24 +994,120 @@ function Scene({
   return (
     <>
       <Background profile={profile} />
-      {shouldRenderScene(0) && (
-        <ParticleGalaxy progressRef={progressRef} profile={profile} />
+      {shouldPrimeScene(0) && (
+        <ParticleGalaxy
+          isLive={shouldRenderScene(0)}
+          progressRef={progressRef}
+          profile={profile}
+        />
       )}
-      {shouldRenderScene(1) && (
-        <NeuralCortex progressRef={progressRef} profile={profile} />
+      {shouldPrimeScene(1) && (
+        <NeuralCortex
+          isLive={shouldRenderScene(1)}
+          progressRef={progressRef}
+          profile={profile}
+        />
       )}
-      {shouldRenderScene(2) && <CrystalFortress progressRef={progressRef} />}
-      {shouldRenderScene(3) && (
-        <CloudConstellation progressRef={progressRef} profile={profile} />
+      {shouldPrimeScene(2) && (
+        <CrystalFortress
+          isLive={shouldRenderScene(2)}
+          progressRef={progressRef}
+        />
       )}
-      {shouldRenderScene(4) && (
-        <SignalMatrix progressRef={progressRef} profile={profile} />
+      {shouldPrimeScene(3) && (
+        <CloudConstellation
+          isLive={shouldRenderScene(3)}
+          progressRef={progressRef}
+          profile={profile}
+        />
       )}
-      {shouldRenderScene(5) && (
-        <SingularityCore progressRef={progressRef} profile={profile} />
+      {shouldPrimeScene(4) && (
+        <SignalMatrix
+          isLive={shouldRenderScene(4)}
+          progressRef={progressRef}
+          profile={profile}
+        />
+      )}
+      {shouldPrimeScene(5) && (
+        <SingularityCore
+          isLive={shouldRenderScene(5)}
+          progressRef={progressRef}
+          profile={profile}
+        />
       )}
     </>
   );
+}
+
+function PerformanceBudgetGuard({
+  enabled,
+  stabilityAssistActive,
+  onBudgetExceeded,
+}: {
+  enabled: boolean;
+  stabilityAssistActive: boolean;
+  onBudgetExceeded?: () => void;
+}) {
+  const lowFpsScoreRef = useRef(0);
+  const notifiedRef = useRef(false);
+
+  useEffect(() => {
+    if (!enabled || stabilityAssistActive) {
+      lowFpsScoreRef.current = 0;
+    }
+  }, [enabled, stabilityAssistActive]);
+
+  useEffect(() => {
+    if (!stabilityAssistActive) {
+      notifiedRef.current = false;
+    }
+  }, [stabilityAssistActive]);
+
+  useEffect(() => {
+    if (
+      !enabled ||
+      stabilityAssistActive ||
+      notifiedRef.current ||
+      typeof window === 'undefined'
+    ) {
+      return;
+    }
+
+    const debugWindow = window as OliveDebugWindow;
+    if (!debugWindow.__OLIVE_FORCE_STABILITY_ASSIST__) {
+      return;
+    }
+
+    debugWindow.__OLIVE_FORCE_STABILITY_ASSIST__ = false;
+    notifiedRef.current = true;
+    onBudgetExceeded?.();
+  }, [enabled, onBudgetExceeded, stabilityAssistActive]);
+
+  useFrame(({ clock }, delta) => {
+    if (
+      !enabled ||
+      stabilityAssistActive ||
+      notifiedRef.current ||
+      clock.elapsedTime < 1.5
+    ) {
+      return;
+    }
+
+    lowFpsScoreRef.current =
+      delta > 1 / 26
+        ? lowFpsScoreRef.current + 1
+        : Math.max(0, lowFpsScoreRef.current - 0.5);
+
+    if (lowFpsScoreRef.current < 18) {
+      return;
+    }
+
+    notifiedRef.current = true;
+    lowFpsScoreRef.current = 0;
+    onBudgetExceeded?.();
+  });
+
+  return null;
 }
 
 export interface OliveUniverseCanvasProps {
@@ -911,6 +1116,9 @@ export interface OliveUniverseCanvasProps {
   quality: QualityTier;
   sceneProfile: SceneProfile;
   shouldAnimate: boolean;
+  stabilityAssistActive: boolean;
+  onPerformanceBudgetExceeded?: () => void;
+  onWarmCountChange?: (count: number) => void;
   onReady?: () => void;
 }
 
@@ -920,8 +1128,18 @@ export default function OliveUniverseCanvas({
   quality,
   sceneProfile,
   shouldAnimate,
+  stabilityAssistActive,
+  onPerformanceBudgetExceeded,
+  onWarmCountChange,
   onReady,
 }: OliveUniverseCanvasProps) {
+  const [warmedSceneIndices, setWarmedSceneIndices] = useState<number[]>(() =>
+    mergeSceneIndices(
+      [],
+      [activeChapterIndex - 1, activeChapterIndex, activeChapterIndex + 1],
+      CHAPTERS.length
+    )
+  );
   const aberrationOffset = useMemo(
     () =>
       new THREE.Vector2(
@@ -934,6 +1152,49 @@ export default function OliveUniverseCanvas({
   useEffect(() => {
     onReady?.();
   }, [onReady]);
+
+  useEffect(() => {
+    setWarmedSceneIndices(current =>
+      mergeSceneIndices(
+        current,
+        [activeChapterIndex - 1, activeChapterIndex, activeChapterIndex + 1],
+        CHAPTERS.length
+      )
+    );
+  }, [activeChapterIndex]);
+
+  useEffect(() => {
+    onWarmCountChange?.(warmedSceneIndices.length);
+  }, [onWarmCountChange, warmedSceneIndices]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    if (warmedSceneIndices.length >= CHAPTERS.length) {
+      return;
+    }
+
+    const warmPriority = getSceneWarmPriority(activeChapterIndex, CHAPTERS.length);
+    const nextSceneIndex = warmPriority.find(
+      sceneIndex => !warmedSceneIndices.includes(sceneIndex)
+    );
+
+    if (nextSceneIndex === undefined) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setWarmedSceneIndices(current =>
+        mergeSceneIndices(current, [nextSceneIndex], CHAPTERS.length)
+      );
+    }, shouldAnimate ? 260 : 180);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [activeChapterIndex, shouldAnimate, warmedSceneIndices]);
 
   return (
     <div className="universe-canvas" aria-hidden="true">
@@ -959,10 +1220,16 @@ export default function OliveUniverseCanvas({
         }}
         style={{ position: 'absolute', inset: 0, background: '#000' }}
       >
+        <PerformanceBudgetGuard
+          enabled={shouldAnimate}
+          stabilityAssistActive={stabilityAssistActive}
+          onBudgetExceeded={onPerformanceBudgetExceeded}
+        />
         <Scene
           activeChapterIndex={activeChapterIndex}
           progressRef={progressRef}
           profile={sceneProfile}
+          warmedSceneIndices={warmedSceneIndices}
         />
         {sceneProfile.enablePostFx && (
           <EffectComposer>

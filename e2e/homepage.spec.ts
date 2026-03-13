@@ -11,6 +11,10 @@ test.describe('Homepage', () => {
     const hero = page.locator('[data-olive-universe="ready"]');
     await expect(hero).toBeVisible();
     await expect(hero).toHaveAttribute(
+      'data-olive-runtime',
+      /(default|stability)/
+    );
+    await expect(hero).toHaveAttribute(
       'data-olive-scene',
       /(staging|booting|interactive|ambient|fallback)/
     );
@@ -330,6 +334,173 @@ test.describe('Homepage', () => {
 
     await page.getByRole('button', { name: /pause guided tour/i }).click();
     await expect(hero).toHaveAttribute('data-olive-tour', 'idle');
+  });
+
+  test('runtime stability assist should trim the hero render profile when performance pressure is detected', async ({
+    browser,
+    baseURL,
+    isMobile,
+  }) => {
+    if (isMobile) {
+      test.skip();
+    }
+
+    const context = await browser.newContext({
+      reducedMotion: 'no-preference',
+      viewport: { width: 1440, height: 900 },
+    });
+    const page = await context.newPage();
+
+    await page.addInitScript(() => {
+      (
+        window as Window & {
+          __OLIVE_FORCE_STABILITY_ASSIST__?: boolean;
+        }
+      ).__OLIVE_FORCE_STABILITY_ASSIST__ = true;
+    });
+
+    await page.goto(baseURL ?? 'http://localhost:4321/', {
+      waitUntil: 'networkidle',
+    });
+
+    const hero = page.locator('[data-olive-universe="ready"]');
+    await expect(hero).toBeVisible();
+    await expect(hero).toHaveAttribute('data-olive-runtime', 'stability');
+    await expect(
+      page
+        .getByLabel('Hero story status')
+        .getByText(/performance pressure was detected/i)
+    ).toBeVisible();
+    await expect(
+      hero.getByRole('button', { name: /retry cinematic render/i })
+    ).toBeVisible();
+
+    await context.close();
+  });
+
+  test('render profile controls should let users lock cinematic or stable 3D playback', async ({
+    page,
+    isMobile,
+  }) => {
+    if (isMobile) {
+      test.skip();
+    }
+
+    await page.goto('./');
+
+    const hero = page.locator('[data-olive-universe="ready"]');
+    const storyStatus = page.getByLabel('Hero story status');
+    await expect(hero).toBeVisible();
+    await expect(hero).toHaveAttribute('data-olive-render-profile', 'adaptive');
+    await expect(hero).toHaveAttribute('data-olive-mode', 'reduced');
+
+    await page
+      .getByRole('button', { name: /use cinematic render profile/i })
+      .click();
+
+    await expect(hero).toHaveAttribute(
+      'data-olive-render-profile',
+      'cinematic'
+    );
+    await expect(hero).toHaveAttribute('data-olive-mode', 'immersive');
+    await expect(hero).toHaveAttribute(
+      'data-olive-scene',
+      /(staging|booting|interactive)/
+    );
+    await expect(
+      storyStatus.getByText(/cinematic render profile is active/i)
+    ).toBeVisible();
+
+    await page
+      .getByRole('button', { name: /use stable render profile/i })
+      .click();
+
+    await expect(hero).toHaveAttribute('data-olive-render-profile', 'stable');
+    await expect(hero).toHaveAttribute('data-olive-mode', 'lite');
+    await expect(
+      storyStatus.getByText(/stable render profile is active/i)
+    ).toBeVisible();
+
+    await page
+      .getByRole('button', { name: /use adaptive render profile/i })
+      .click();
+
+    await expect(hero).toHaveAttribute('data-olive-render-profile', 'adaptive');
+    await expect(hero).toHaveAttribute('data-olive-mode', 'reduced');
+  });
+
+  test('scene cache should prime every hero chapter for cleaner scene jumps', async ({
+    page,
+    isMobile,
+  }) => {
+    if (isMobile) {
+      test.skip();
+    }
+
+    await page.goto('./');
+
+    const hero = page.locator('[data-olive-universe="ready"]');
+    const storyStatus = page.getByLabel('Hero story status');
+    await expect(hero).toBeVisible();
+
+    await page
+      .getByRole('button', { name: /use cinematic render profile/i })
+      .click();
+
+    await expect(hero).toHaveAttribute(
+      'data-olive-scene-cache',
+      /(warming|primed)/
+    );
+
+    await expect
+      .poll(async () => hero.getAttribute('data-olive-scene-ready-count'), {
+        timeout: 5000,
+      })
+      .toBe('6');
+
+    await expect(hero).toHaveAttribute('data-olive-scene-cache', 'primed');
+    await expect(
+      storyStatus.getByText(/every 3d chapter has been primed/i)
+    ).toBeVisible();
+
+    await page
+      .getByRole('button', { name: /jump to start your project/i })
+      .click();
+
+    await expect(hero).toHaveAttribute('data-current-chapter', 'singularity');
+    await expect(hero.getByRole('heading', { name: /enter/i })).toBeVisible();
+  });
+
+  test('chapter jumps should surface a cinematic handoff state while the next scene syncs in', async ({
+    page,
+    isMobile,
+  }) => {
+    if (isMobile) {
+      test.skip();
+    }
+
+    await page.goto('./');
+
+    const hero = page.locator('[data-olive-universe="ready"]');
+    const storyStatus = page.getByLabel('Hero story status');
+    await expect(hero).toBeVisible();
+    await expect(hero).toHaveAttribute('data-olive-handoff', 'idle');
+
+    await page
+      .getByRole('button', { name: /jump to cloud engineering/i })
+      .click();
+
+    await expect(hero).toHaveAttribute('data-current-chapter', 'cloud');
+    await expect(hero).toHaveAttribute('data-olive-handoff', 'syncing');
+    await expect(
+      storyStatus.getByText(/scene handoff active · cloud engineering scene/i)
+    ).toBeVisible();
+
+    await expect
+      .poll(async () => hero.getAttribute('data-olive-handoff'), {
+        timeout: 2500,
+      })
+      .toBe('idle');
   });
 
   test('manual chapter navigation should pause the guided tour and keep the selected speed', async ({

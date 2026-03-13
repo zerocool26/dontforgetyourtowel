@@ -31,10 +31,12 @@ import {
 const preloadOliveUniverseCanvas = () => import('./OliveUniverseCanvas');
 const OliveUniverseCanvas = lazy(preloadOliveUniverseCanvas);
 const MOTION_PREFERENCE_KEY = 'olive-universe-motion-preference';
+const RENDER_PROFILE_KEY = 'olive-universe-render-profile';
 const AUTO_TOUR_INTERVAL_MS = 2800;
 const HERO_SCENE_QUERY_KEYS = ['scene', 'hero', 'chapter'] as const;
 const HERO_SCENE_HASH_PREFIX = '#hero-';
 const GUIDED_TOUR_SPEED_ORDER = ['slow', 'standard', 'fast'] as const;
+const RENDER_PROFILE_ORDER = ['adaptive', 'cinematic', 'stable'] as const;
 
 type IdleCapableWindow = Window & {
   requestIdleCallback?: (
@@ -55,6 +57,8 @@ type MotionPreference = 'auto' | 'immersive' | 'calm';
 
 type GuidedTourSpeed = 'slow' | 'standard' | 'fast';
 
+type RenderProfile = (typeof RENDER_PROFILE_ORDER)[number];
+
 type ChapterNavigationSource = 'manual' | 'tour';
 
 const GUIDED_TOUR_SPEEDS: Record<
@@ -70,8 +74,43 @@ const GUIDED_TOUR_SPEEDS: Record<
   fast: { label: 'Fast', intervalMs: 1800, cadenceLabel: '1.8s per scene' },
 };
 
+const RENDER_PROFILE_OPTIONS: Record<
+  RenderProfile,
+  {
+    label: string;
+    statusLabel: string;
+    description: string;
+    note: string;
+  }
+> = {
+  adaptive: {
+    label: 'Adaptive',
+    statusLabel: 'Device-aware auto',
+    description: 'Follow device telemetry',
+    note: 'Adaptive render profile is active, so the hero is balancing fidelity and responsiveness around your device.',
+  },
+  cinematic: {
+    label: 'Cinematic',
+    statusLabel: 'High detail focus',
+    description: 'Favor bloom and particle depth',
+    note: 'Cinematic render profile is active, favoring high-detail particles, bloom, and parallax for the most dramatic chapter transitions.',
+  },
+  stable: {
+    label: 'Stable',
+    statusLabel: 'Smooth playback',
+    description: 'Keep the lighter 3D stack',
+    note: 'Stable render profile is active, keeping the hero on the lighter 3D scene stack for smoother playback while preserving every chapter.',
+  },
+};
+
 function isMotionPreference(value: string | null): value is MotionPreference {
   return value === 'auto' || value === 'immersive' || value === 'calm';
+}
+
+function isRenderProfile(value: string | null): value is RenderProfile {
+  return Boolean(
+    value && RENDER_PROFILE_ORDER.some(profile => profile === value)
+  );
 }
 
 function isChapterId(value: string | null): value is ChapterDef['id'] {
@@ -188,6 +227,8 @@ export default function OliveUniverse() {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const shareLinkRef = useRef<HTMLAnchorElement>(null);
   const deepLinkHandledRef = useRef(false);
+  const previousChapterIdRef = useRef<ChapterDef['id']>(CHAPTERS[0].id);
+  const handoffTimeoutRef = useRef<number | null>(null);
   const touchGestureRef = useRef<{
     pointerId: number;
     startX: number;
@@ -199,6 +240,7 @@ export default function OliveUniverse() {
   const [quality, setQuality] = useState<QualityTier>('medium');
   const [motionPreference, setMotionPreference] =
     useState<MotionPreference>('auto');
+  const [renderProfile, setRenderProfile] = useState<RenderProfile>('adaptive');
   const [mounted, setMounted] = useState(false);
   const [prefersReduced, setPrefersReduced] = useState(false);
   const [webglSupported, setWebglSupported] = useState(true);
@@ -208,9 +250,13 @@ export default function OliveUniverse() {
   const [sceneResolved, setSceneResolved] = useState(false);
   const [nativeShareSupported, setNativeShareSupported] = useState(false);
   const [touchCapable, setTouchCapable] = useState(false);
+  const [stabilityAssistActive, setStabilityAssistActive] = useState(false);
   const [guidedTourPlaying, setGuidedTourPlaying] = useState(false);
   const [guidedTourSpeed, setGuidedTourSpeed] =
     useState<GuidedTourSpeed>('standard');
+  const [sceneHandoffActive, setSceneHandoffActive] = useState(false);
+  const [sceneHandoffCycle, setSceneHandoffCycle] = useState(0);
+  const [sceneReadyCount, setSceneReadyCount] = useState(0);
   const [sceneProgressPercent, setSceneProgressPercent] = useState(0);
   const [shareState, setShareState] = useState<
     'idle' | 'copied' | 'shared' | 'error'
@@ -237,6 +283,12 @@ export default function OliveUniverse() {
       );
       if (isMotionPreference(storedMotionPreference)) {
         setMotionPreference(storedMotionPreference);
+      }
+
+      const storedRenderProfile =
+        window.localStorage.getItem(RENDER_PROFILE_KEY);
+      if (isRenderProfile(storedRenderProfile)) {
+        setRenderProfile(storedRenderProfile);
       }
     } catch {
       // Ignore storage access failures; the hero can still run with in-memory state.
@@ -272,6 +324,21 @@ export default function OliveUniverse() {
       // Ignore storage access failures; the live session state is still enough.
     }
   }, [mounted, motionPreference]);
+
+  useEffect(() => {
+    if (!mounted || typeof window === 'undefined') return;
+
+    try {
+      if (renderProfile === 'adaptive') {
+        window.localStorage.removeItem(RENDER_PROFILE_KEY);
+        return;
+      }
+
+      window.localStorage.setItem(RENDER_PROFILE_KEY, renderProfile);
+    } catch {
+      // Ignore storage access failures; the live session state is still enough.
+    }
+  }, [mounted, renderProfile]);
 
   useEffect(() => {
     if (shareState === 'idle' || typeof window === 'undefined') return;
@@ -327,8 +394,46 @@ export default function OliveUniverse() {
     return 'immersive';
   }, [motionPreference, prefersReduced, quality, webglSupported]);
 
+  const effectiveVisualMode = useMemo<HeroVisualMode>(() => {
+    if (!webglSupported) return 'fallback';
+    if (renderProfile === 'cinematic') return 'immersive';
+    if (renderProfile === 'stable') return 'lite';
+    return visualMode;
+  }, [renderProfile, visualMode, webglSupported]);
+
   const shouldRenderCanvas =
-    visualMode === 'immersive' || visualMode === 'lite';
+    effectiveVisualMode === 'immersive' || effectiveVisualMode === 'lite';
+
+  useEffect(() => {
+    if (!shouldRenderCanvas && stabilityAssistActive) {
+      setStabilityAssistActive(false);
+    }
+  }, [shouldRenderCanvas, stabilityAssistActive]);
+
+  useEffect(() => {
+    if (!shouldRenderCanvas) {
+      if (handoffTimeoutRef.current !== null && typeof window !== 'undefined') {
+        window.clearTimeout(handoffTimeoutRef.current);
+        handoffTimeoutRef.current = null;
+      }
+
+      previousChapterIdRef.current = CHAPTERS[chapter]?.id ?? CHAPTERS[0].id;
+      setSceneHandoffActive(false);
+      setSceneReadyCount(0);
+    }
+  }, [chapter, shouldRenderCanvas]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    return () => {
+      if (handoffTimeoutRef.current !== null) {
+        window.clearTimeout(handoffTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const scrollToChapter = useCallback(
     (chapterIndex: number, behaviorOverride?: ScrollBehavior) => {
@@ -336,8 +441,8 @@ export default function OliveUniverse() {
 
       if (
         webglSupported &&
-        visualMode !== 'immersive' &&
-        visualMode !== 'lite'
+        effectiveVisualMode !== 'immersive' &&
+        effectiveVisualMode !== 'lite'
       ) {
         setMotionPreference('immersive');
       }
@@ -353,7 +458,7 @@ export default function OliveUniverse() {
           behaviorOverride ?? (prefersReducedMotion() ? 'auto' : 'smooth'),
       });
     },
-    [visualMode, webglSupported]
+    [effectiveVisualMode, webglSupported]
   );
 
   const navigateToChapter = useCallback(
@@ -711,10 +816,23 @@ export default function OliveUniverse() {
     };
   }, [mounted, motionPreference, prefersReduced, webglSupported]);
 
+  const profileQuality: QualityTier =
+    renderProfile === 'cinematic'
+      ? 'high'
+      : renderProfile === 'stable'
+        ? 'low'
+        : quality;
+  const runtimeQuality: QualityTier = stabilityAssistActive
+    ? 'low'
+    : profileQuality;
+  const runtimeSceneMode: HeroVisualMode =
+    stabilityAssistActive && effectiveVisualMode === 'immersive'
+      ? 'lite'
+      : effectiveVisualMode;
   const activeChapter = CHAPTERS[chapter] ?? CHAPTERS[0];
   const sceneProfile = useMemo(
-    () => getSceneProfile(quality, visualMode),
-    [quality, visualMode]
+    () => getSceneProfile(runtimeQuality, runtimeSceneMode),
+    [runtimeQuality, runtimeSceneMode]
   );
   const sceneSharePath = useMemo(
     () =>
@@ -735,6 +853,28 @@ export default function OliveUniverse() {
   const nextChapter =
     chapter < CHAPTERS.length - 1 ? CHAPTERS[chapter + 1] : null;
   const guidedTourSpeedConfig = GUIDED_TOUR_SPEEDS[guidedTourSpeed];
+  const renderProfileConfig = RENDER_PROFILE_OPTIONS[renderProfile];
+  const sceneReadyTotal = CHAPTERS.length;
+  const sceneCacheState = !shouldRenderCanvas
+    ? 'idle'
+    : sceneReadyCount >= sceneReadyTotal
+      ? 'primed'
+      : 'warming';
+  const sceneCacheStatusLabel =
+    sceneCacheState === 'primed'
+      ? 'All scenes primed'
+      : `${sceneReadyCount}/${sceneReadyTotal} ready`;
+  const sceneCacheNote =
+    sceneCacheState === 'primed'
+      ? 'Every 3D chapter has been primed in the background for cleaner jumps and faster scene hand-offs.'
+      : 'Background priming is warming the remaining 3D chapters so later jumps land without cold-start flashes.';
+  const sceneHandoffStatus = sceneHandoffActive
+    ? sceneCacheState === 'primed'
+      ? `Scene handoff active · ${activeChapter.kicker} scene is primed and syncing into focus.`
+      : `Scene handoff active · ${activeChapter.kicker} scene is syncing while the cache continues warming.`
+    : sceneCacheState === 'primed'
+      ? 'Scene handoff ready · every chapter is primed for smoother transitions.'
+      : 'Scene handoff standby · background priming is still warming the remaining chapters.';
   const nextSceneLabel = nextChapter
     ? `Up next: ${nextChapter.kicker}`
     : 'Final scene active';
@@ -752,40 +892,57 @@ export default function OliveUniverse() {
 
   const sceneState = useMemo<SceneRuntimeState>(() => {
     if (!shouldRenderCanvas) {
-      return visualMode === 'fallback' ? 'fallback' : 'ambient';
+      return effectiveVisualMode === 'fallback' ? 'fallback' : 'ambient';
     }
 
     if (!sceneBootReady) return 'staging';
     if (!sceneResolved) return 'booting';
     return 'interactive';
-  }, [sceneBootReady, sceneResolved, shouldRenderCanvas, visualMode]);
+  }, [effectiveVisualMode, sceneBootReady, sceneResolved, shouldRenderCanvas]);
 
   const userForcedImmersive =
     prefersReduced && motionPreference === 'immersive' && webglSupported;
   const userForcedCalm =
-    !prefersReduced && motionPreference === 'calm' && webglSupported;
-  const canOverrideReducedMotion = webglSupported && visualMode === 'reduced';
+    !prefersReduced &&
+    motionPreference === 'calm' &&
+    webglSupported &&
+    renderProfile === 'adaptive';
+  const manualRenderProfileActive =
+    webglSupported && renderProfile !== 'adaptive' && sceneState !== 'fallback';
+  const manualRenderProfileNote = manualRenderProfileActive
+    ? visualMode === 'reduced'
+      ? `${renderProfileConfig.note} This manual 3D profile is temporarily overriding the calm presentation.`
+      : renderProfileConfig.note
+    : null;
+  const canOverrideReducedMotion =
+    webglSupported && effectiveVisualMode === 'reduced';
 
-  const heroModeLabel = userForcedImmersive
-    ? `${HERO_MODE_LABELS[visualMode]} override`
-    : userForcedCalm
-      ? 'Calm mode'
-      : HERO_MODE_LABELS[visualMode];
+  const heroModeLabel = manualRenderProfileActive
+    ? `${renderProfileConfig.label} 3D`
+    : userForcedImmersive
+      ? `${HERO_MODE_LABELS[effectiveVisualMode]} override`
+      : userForcedCalm
+        ? 'Calm mode'
+        : HERO_MODE_LABELS[effectiveVisualMode];
 
-  const heroModeNote = userForcedImmersive
-    ? 'Immersive scenes are enabled manually, so every 3D chapter stays available even while reduced-motion preferences are active.'
-    : userForcedCalm
-      ? 'Calm mode is enabled manually, so the hero is using the ambient presentation by choice until you jump directly to a story chapter.'
-      : visualMode === 'reduced' && prefersReduced
-        ? 'Reduced-motion preferences are active. Scroll deeper into the story, use any chapter button, or enable immersive scenes whenever you want to preview every 3D chapter.'
-        : HERO_MODE_NOTES[visualMode];
+  const heroModeNote = manualRenderProfileNote
+    ? manualRenderProfileNote
+    : userForcedImmersive
+      ? 'Immersive scenes are enabled manually, so every 3D chapter stays available even while reduced-motion preferences are active.'
+      : userForcedCalm
+        ? 'Calm mode is enabled manually, so the hero is using the ambient presentation by choice until you jump directly to a story chapter.'
+        : effectiveVisualMode === 'reduced' && prefersReduced
+          ? 'Reduced-motion preferences are active. Scroll deeper into the story, use any chapter button, or enable immersive scenes whenever you want to preview every 3D chapter.'
+          : HERO_MODE_NOTES[effectiveVisualMode];
 
   const runtimeLabel =
     sceneState === 'staging'
       ? 'Staging 3D'
       : sceneState === 'booting'
         ? 'Booting 3D'
-        : heroModeLabel;
+        : stabilityAssistActive
+          ? 'Stability assist'
+          : heroModeLabel;
 
   const runtimeNote =
     sceneState === 'staging'
@@ -796,12 +953,16 @@ export default function OliveUniverse() {
         ? userForcedImmersive
           ? 'The full 3D chapter sequence is streaming in now so you can explore every scene despite the system calm-mode preference.'
           : 'The immersive layer is streaming in now; navigation, copy, and calls-to-action remain fully usable while it finishes loading.'
-        : heroModeNote;
+        : stabilityAssistActive
+          ? 'Performance pressure was detected, so the hero trimmed scene density, device pixel ratio, and post-processing to keep chapter rendering responsive.'
+          : heroModeNote;
 
   const storyBadgeClass =
     sceneState === 'staging' || sceneState === 'booting'
       ? 'is-loading'
-      : `is-${visualMode}`;
+      : stabilityAssistActive
+        ? 'is-lite'
+        : `is-${effectiveVisualMode}`;
 
   const shouldAnimateCanvas =
     shouldRenderCanvas && sceneActive && pageVisible && sceneResolved;
@@ -827,6 +988,16 @@ export default function OliveUniverse() {
   const handleSceneReady = useCallback(() => {
     setSceneResolved(true);
   }, []);
+  const handleSceneWarmCountChange = useCallback((nextCount: number) => {
+    setSceneReadyCount(currentCount =>
+      currentCount === nextCount ? currentCount : nextCount
+    );
+  }, []);
+  const enableStabilityAssist = useCallback(() => {
+    if (shouldRenderCanvas && renderProfile !== 'stable') {
+      setStabilityAssistActive(true);
+    }
+  }, [renderProfile, shouldRenderCanvas]);
   const shareSceneLink = useCallback(async () => {
     const sceneUrl = shareLinkRef.current?.href ?? sceneShareHref;
 
@@ -864,13 +1035,24 @@ export default function OliveUniverse() {
   const enableImmersiveScenes = useCallback(() => {
     setMotionPreference('immersive');
   }, []);
+  const retryCinematicRender = useCallback(() => {
+    setStabilityAssistActive(false);
+  }, []);
+  const selectRenderProfile = useCallback((nextProfile: RenderProfile) => {
+    setStabilityAssistActive(false);
+    setRenderProfile(nextProfile);
+  }, []);
   const startGuidedTour = useCallback(() => {
-    if (webglSupported && visualMode !== 'immersive' && visualMode !== 'lite') {
+    if (
+      webglSupported &&
+      effectiveVisualMode !== 'immersive' &&
+      effectiveVisualMode !== 'lite'
+    ) {
       setMotionPreference('immersive');
     }
 
     setGuidedTourPlaying(true);
-  }, [visualMode, webglSupported]);
+  }, [effectiveVisualMode, webglSupported]);
   const stopGuidedTour = useCallback(() => {
     setGuidedTourPlaying(false);
   }, []);
@@ -883,10 +1065,14 @@ export default function OliveUniverse() {
     startGuidedTour();
   }, [guidedTourPlaying, startGuidedTour, stopGuidedTour]);
   const enableCalmMode = useCallback(() => {
+    setRenderProfile('adaptive');
+    setStabilityAssistActive(false);
     setGuidedTourPlaying(false);
     setMotionPreference('calm');
   }, []);
   const resetMotionPreference = useCallback(() => {
+    setRenderProfile('adaptive');
+    setStabilityAssistActive(false);
     setGuidedTourPlaying(false);
     setMotionPreference('auto');
   }, []);
@@ -895,14 +1081,48 @@ export default function OliveUniverse() {
     setShareState('idle');
   }, [activeChapter.id]);
 
+  useEffect(() => {
+    if (!mounted || typeof window === 'undefined') {
+      return;
+    }
+
+    if (!shouldRenderCanvas) {
+      previousChapterIdRef.current = activeChapter.id;
+      return;
+    }
+
+    const previousChapterId = previousChapterIdRef.current;
+    previousChapterIdRef.current = activeChapter.id;
+
+    if (previousChapterId === activeChapter.id) {
+      return;
+    }
+
+    if (handoffTimeoutRef.current !== null) {
+      window.clearTimeout(handoffTimeoutRef.current);
+    }
+
+    setSceneHandoffCycle(currentCycle => currentCycle + 1);
+    setSceneHandoffActive(true);
+    handoffTimeoutRef.current = window.setTimeout(() => {
+      setSceneHandoffActive(false);
+      handoffTimeoutRef.current = null;
+    }, sceneCacheState === 'primed' ? 560 : 760);
+  }, [activeChapter.id, mounted, sceneCacheState, shouldRenderCanvas]);
+
   return (
     <div
       ref={wrapperRef}
       className="universe-wrapper"
       data-olive-universe={mounted ? 'ready' : 'booting'}
       data-current-chapter={activeChapter.id}
-      data-olive-mode={visualMode}
+      data-olive-mode={effectiveVisualMode}
       data-olive-scene={sceneState}
+      data-olive-runtime={stabilityAssistActive ? 'stability' : 'default'}
+      data-olive-render-profile={renderProfile}
+      data-olive-scene-cache={sceneCacheState}
+      data-olive-scene-ready-count={String(sceneReadyCount)}
+      data-olive-handoff={sceneHandoffActive ? 'syncing' : 'idle'}
       data-olive-tour={guidedTourPlaying ? 'playing' : 'idle'}
       data-olive-tour-speed={guidedTourSpeed}
       data-olive-motion-preference={motionPreference}
@@ -920,9 +1140,12 @@ export default function OliveUniverse() {
               <OliveUniverseCanvas
                 activeChapterIndex={chapter}
                 progressRef={progressRef}
-                quality={quality}
+                quality={runtimeQuality}
                 sceneProfile={sceneProfile}
                 shouldAnimate={shouldAnimateCanvas}
+                stabilityAssistActive={stabilityAssistActive}
+                onPerformanceBudgetExceeded={enableStabilityAssist}
+                onWarmCountChange={handleSceneWarmCountChange}
                 onReady={handleSceneReady}
               />
             </Suspense>
@@ -931,7 +1154,7 @@ export default function OliveUniverse() {
           )
         ) : (
           <StaticBackdrop
-            mode={visualMode === 'fallback' ? 'fallback' : 'reduced'}
+            mode={effectiveVisualMode === 'fallback' ? 'fallback' : 'reduced'}
           />
         )}
 
@@ -941,6 +1164,26 @@ export default function OliveUniverse() {
           aria-label="Interactive studio introduction"
           aria-busy={isSceneBusy}
         >
+          {shouldRenderCanvas && (
+            <div
+              className={`universe-handoff-layer ${sceneHandoffActive ? 'is-active' : ''}`}
+              aria-hidden="true"
+            >
+              <div
+                key={`handoff-wash-${sceneHandoffCycle}`}
+                className="universe-handoff-wash"
+              />
+              <div
+                key={`handoff-beam-${sceneHandoffCycle}`}
+                className="universe-handoff-beam"
+              />
+              <div
+                key={`handoff-ring-${sceneHandoffCycle}`}
+                className="universe-handoff-ring"
+              />
+            </div>
+          )}
+
           <p className="sr-only" aria-live="polite" aria-atomic="true">
             {`Chapter ${chapter + 1} of ${CHAPTERS.length}: ${activeChapter.kicker}. ${runtimeNote}${guidedTourPlaying ? ' Guided tour active.' : ''}`}
           </p>
@@ -1040,6 +1283,79 @@ export default function OliveUniverse() {
               </div>
             )}
 
+            {webglSupported && (
+              <div
+                className="universe-story-render-profile"
+                role="group"
+                aria-label="3D render profile"
+              >
+                <div className="universe-story-render-profile-header">
+                  <p className="universe-story-render-profile-label">
+                    Render profile
+                  </p>
+                  <p className="universe-story-render-profile-value">
+                    {renderProfileConfig.statusLabel}
+                  </p>
+                </div>
+
+                <div className="universe-story-render-profile-buttons">
+                  {RENDER_PROFILE_ORDER.map(profile => {
+                    const profileOption = RENDER_PROFILE_OPTIONS[profile];
+
+                    return (
+                      <button
+                        key={profile}
+                        type="button"
+                        className={`universe-story-render-profile-button ${renderProfile === profile ? 'is-active' : ''}`}
+                        onClick={() => selectRenderProfile(profile)}
+                        aria-pressed={renderProfile === profile}
+                        aria-label={`Use ${profileOption.label} render profile`}
+                      >
+                        <span>{profileOption.label}</span>
+                        <span>{profileOption.description}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {shouldRenderCanvas && (
+              <div
+                className={`universe-story-cache ${sceneCacheState === 'primed' ? 'is-primed' : 'is-warming'}`}
+                role="status"
+                aria-live="polite"
+              >
+                <div className="universe-story-cache-header">
+                  <p className="universe-story-cache-label">Scene cache</p>
+                  <p className="universe-story-cache-value">
+                    {sceneCacheStatusLabel}
+                  </p>
+                </div>
+
+                <div className="universe-story-cache-track" aria-hidden="true">
+                  {CHAPTERS.map((item, index) => (
+                    <span
+                      key={item.id}
+                      className={`universe-story-cache-segment ${index < sceneReadyCount ? 'is-ready' : ''} ${index === chapter ? 'is-current' : ''}`}
+                    />
+                  ))}
+                </div>
+
+                <p className="universe-story-cache-note">{sceneCacheNote}</p>
+              </div>
+            )}
+
+            {shouldRenderCanvas && (
+              <p
+                className={`universe-story-handoff ${sceneHandoffActive ? 'is-active' : ''}`}
+                role="status"
+                aria-live="polite"
+              >
+                {sceneHandoffStatus}
+              </p>
+            )}
+
             <div
               className="universe-story-nav"
               role="group"
@@ -1086,6 +1402,16 @@ export default function OliveUniverse() {
 
             {webglSupported && (
               <div className="universe-story-actions">
+                {stabilityAssistActive && (
+                  <button
+                    type="button"
+                    className="universe-story-toggle is-secondary"
+                    onClick={retryCinematicRender}
+                  >
+                    Retry cinematic render
+                  </button>
+                )}
+
                 <button
                   type="button"
                   className={`universe-story-toggle ${guidedTourPlaying ? 'is-primary' : 'is-secondary'}`}
