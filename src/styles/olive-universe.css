@@ -537,6 +537,79 @@
   color: rgba(255, 255, 255, 0.66);
 }
 
+.universe-story-progress-block {
+  margin-top: 16px;
+}
+
+.universe-story-progress-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.universe-story-progress-label,
+.universe-story-progress-value,
+.universe-story-next {
+  margin: 0;
+}
+
+.universe-story-progress-label,
+.universe-story-progress-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.universe-story-progress-label {
+  color: rgba(255, 255, 255, 0.48);
+}
+
+.universe-story-progress-value {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.universe-story-progress-meter {
+  position: relative;
+  height: 8px;
+  margin-top: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.universe-story-progress-fill {
+  position: absolute;
+  inset: 0;
+  transform-origin: left center;
+  background: linear-gradient(
+    90deg,
+    rgba(var(--universe-accent-rgb), 0.88) 0%,
+    rgba(255, 255, 255, 0.92) 100%
+  );
+  box-shadow: 0 0 18px rgba(var(--universe-accent-rgb), 0.35);
+}
+
+.universe-story-next {
+  margin-top: 10px;
+  color: rgba(255, 255, 255, 0.66);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.universe-story-tour-status {
+  margin: 12px 0 0;
+  color: rgba(255, 255, 255, 0.56);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+.universe-story-tour-status.is-playing {
+  color: rgba(var(--universe-accent-rgb), 0.92);
+}
+
 .universe-story-nav {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

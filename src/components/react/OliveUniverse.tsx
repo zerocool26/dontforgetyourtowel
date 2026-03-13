@@ -31,6 +31,7 @@ import {
 const preloadOliveUniverseCanvas = () => import('./OliveUniverseCanvas');
 const OliveUniverseCanvas = lazy(preloadOliveUniverseCanvas);
 const MOTION_PREFERENCE_KEY = 'olive-universe-motion-preference';
+const AUTO_TOUR_INTERVAL_MS = 2800;
 const HERO_SCENE_QUERY_KEYS = ['scene', 'hero', 'chapter'] as const;
 const HERO_SCENE_HASH_PREFIX = '#hero-';
 
@@ -189,6 +190,8 @@ export default function OliveUniverse() {
   const [sceneResolved, setSceneResolved] = useState(false);
   const [nativeShareSupported, setNativeShareSupported] = useState(false);
   const [touchCapable, setTouchCapable] = useState(false);
+  const [guidedTourPlaying, setGuidedTourPlaying] = useState(false);
+  const [sceneProgressPercent, setSceneProgressPercent] = useState(0);
   const [shareState, setShareState] = useState<
     'idle' | 'copied' | 'shared' | 'error'
   >('idle');
@@ -336,10 +339,38 @@ export default function OliveUniverse() {
   const navigateToChapter = useCallback(
     (chapterIndex: number, behaviorOverride?: ScrollBehavior) => {
       setChapter(chapterIndex);
+      setSceneProgressPercent(0);
       scrollToChapter(chapterIndex, behaviorOverride);
     },
     [scrollToChapter]
   );
+
+  useEffect(() => {
+    if (
+      !mounted ||
+      typeof window === 'undefined' ||
+      !guidedTourPlaying ||
+      !sceneActive ||
+      !pageVisible
+    ) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      navigateToChapter(chapter >= CHAPTERS.length - 1 ? 0 : chapter + 1);
+    }, AUTO_TOUR_INTERVAL_MS);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [
+    chapter,
+    guidedTourPlaying,
+    mounted,
+    navigateToChapter,
+    pageVisible,
+    sceneActive,
+  ]);
 
   useEffect(() => {
     if (!mounted || typeof window === 'undefined' || !shouldRenderCanvas) {
@@ -407,10 +438,12 @@ export default function OliveUniverse() {
     deepLinkHandledRef.current = true;
 
     if (requestedIndex === 0) {
+      setSceneProgressPercent(0);
       setChapter(0);
       return;
     }
 
+    setSceneProgressPercent(0);
     setChapter(requestedIndex);
 
     const rafId = window.requestAnimationFrame(() => {
@@ -575,15 +608,32 @@ export default function OliveUniverse() {
       progressRef.current =
         total > 0 ? Math.max(0, Math.min(1, -rect.top / total)) : 0;
 
-      let nextChapter = 0;
+      let nextChapterIndex = 0;
       for (let i = CHAPTERS.length - 1; i >= 0; i--)
         if (progressRef.current >= CHAPTERS[i].range[0] - 0.04) {
-          nextChapter = i;
+          nextChapterIndex = i;
           break;
         }
 
+      const currentChapterDef = CHAPTERS[nextChapterIndex] ?? CHAPTERS[0];
+      const [chapterStart, chapterEnd] = currentChapterDef.range;
+      const sceneProgress =
+        chapterEnd > chapterStart
+          ? Math.max(
+              0,
+              Math.min(
+                1,
+                (progressRef.current - chapterStart) /
+                  (chapterEnd - chapterStart)
+              )
+            )
+          : progressRef.current >= chapterStart
+            ? 1
+            : 0;
+      const nextSceneProgressPercent = Math.round(sceneProgress * 100);
+
       if (
-        nextChapter > 0 &&
+        nextChapterIndex > 0 &&
         webglSupported &&
         prefersReduced &&
         motionPreference === 'auto'
@@ -591,8 +641,14 @@ export default function OliveUniverse() {
         setMotionPreference('immersive');
       }
 
+      setSceneProgressPercent(currentProgress =>
+        currentProgress === nextSceneProgressPercent
+          ? currentProgress
+          : nextSceneProgressPercent
+      );
+
       setChapter(currentChapter =>
-        currentChapter === nextChapter ? currentChapter : nextChapter
+        currentChapter === nextChapterIndex ? currentChapter : nextChapterIndex
       );
     };
 
@@ -640,6 +696,17 @@ export default function OliveUniverse() {
   const previousChapter = chapter > 0 ? CHAPTERS[chapter - 1] : null;
   const nextChapter =
     chapter < CHAPTERS.length - 1 ? CHAPTERS[chapter + 1] : null;
+  const nextSceneLabel = nextChapter
+    ? `Up next: ${nextChapter.kicker}`
+    : 'Final scene active';
+  const guidedTourStatus = guidedTourPlaying
+    ? nextChapter
+      ? `Guided tour active · Next auto-jump: ${nextChapter.kicker}`
+      : `Guided tour active · Looping back to ${CHAPTERS[0].kicker}`
+    : 'Guided tour paused · Play to auto-preview every hero chapter';
+  const guidedTourActionLabel = guidedTourPlaying
+    ? 'Pause guided tour'
+    : 'Play guided tour';
   const chapterCounter = `${String(chapter + 1).padStart(2, '0')} / ${String(
     CHAPTERS.length
   ).padStart(2, '0')}`;
@@ -758,10 +825,30 @@ export default function OliveUniverse() {
   const enableImmersiveScenes = useCallback(() => {
     setMotionPreference('immersive');
   }, []);
+  const startGuidedTour = useCallback(() => {
+    if (webglSupported && visualMode !== 'immersive' && visualMode !== 'lite') {
+      setMotionPreference('immersive');
+    }
+
+    setGuidedTourPlaying(true);
+  }, [visualMode, webglSupported]);
+  const stopGuidedTour = useCallback(() => {
+    setGuidedTourPlaying(false);
+  }, []);
+  const toggleGuidedTour = useCallback(() => {
+    if (guidedTourPlaying) {
+      stopGuidedTour();
+      return;
+    }
+
+    startGuidedTour();
+  }, [guidedTourPlaying, startGuidedTour, stopGuidedTour]);
   const enableCalmMode = useCallback(() => {
+    setGuidedTourPlaying(false);
     setMotionPreference('calm');
   }, []);
   const resetMotionPreference = useCallback(() => {
+    setGuidedTourPlaying(false);
     setMotionPreference('auto');
   }, []);
 
@@ -777,6 +864,7 @@ export default function OliveUniverse() {
       data-current-chapter={activeChapter.id}
       data-olive-mode={visualMode}
       data-olive-scene={sceneState}
+      data-olive-tour={guidedTourPlaying ? 'playing' : 'idle'}
       data-olive-motion-preference={motionPreference}
       style={
         {
@@ -813,7 +901,7 @@ export default function OliveUniverse() {
           aria-busy={isSceneBusy}
         >
           <p className="sr-only" aria-live="polite" aria-atomic="true">
-            {`Chapter ${chapter + 1} of ${CHAPTERS.length}: ${activeChapter.kicker}. ${runtimeNote}`}
+            {`Chapter ${chapter + 1} of ${CHAPTERS.length}: ${activeChapter.kicker}. ${runtimeNote}${guidedTourPlaying ? ' Guided tour active.' : ''}`}
           </p>
 
           {CHAPTERS.map((ch, i) => (
@@ -841,6 +929,40 @@ export default function OliveUniverse() {
 
             <p className="universe-story-kicker">{activeChapter.kicker}</p>
             <p className="universe-story-note">{runtimeNote}</p>
+
+            <div className="universe-story-progress-block">
+              <div className="universe-story-progress-row">
+                <p className="universe-story-progress-label">Scene progress</p>
+                <p className="universe-story-progress-value">
+                  {sceneProgressPercent}%
+                </p>
+              </div>
+              <div
+                className="universe-story-progress-meter"
+                role="progressbar"
+                aria-label={`${activeChapter.kicker} scene progress`}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={sceneProgressPercent}
+                aria-valuetext={`${sceneProgressPercent}% complete`}
+              >
+                <span
+                  className="universe-story-progress-fill"
+                  style={{
+                    transform: `scaleX(${sceneProgressPercent / 100})`,
+                  }}
+                />
+              </div>
+              <p className="universe-story-next">{nextSceneLabel}</p>
+            </div>
+
+            <p
+              className={`universe-story-tour-status ${guidedTourPlaying ? 'is-playing' : ''}`}
+              role="status"
+              aria-live="polite"
+            >
+              {guidedTourStatus}
+            </p>
 
             <div
               className="universe-story-nav"
@@ -888,6 +1010,15 @@ export default function OliveUniverse() {
 
             {webglSupported && (
               <div className="universe-story-actions">
+                <button
+                  type="button"
+                  className={`universe-story-toggle ${guidedTourPlaying ? 'is-primary' : 'is-secondary'}`}
+                  onClick={toggleGuidedTour}
+                  aria-pressed={guidedTourPlaying}
+                >
+                  {guidedTourActionLabel}
+                </button>
+
                 {canOverrideReducedMotion ? (
                   <button
                     type="button"
