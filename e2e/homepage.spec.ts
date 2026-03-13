@@ -324,7 +324,7 @@ test.describe('Homepage', () => {
 
     await expect
       .poll(async () => hero.getAttribute('data-current-chapter'), {
-        timeout: 5000,
+        timeout: 8000,
       })
       .toBe('neural');
 

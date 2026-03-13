@@ -534,7 +534,6 @@ export default function OliveUniverse() {
       !mounted ||
       typeof window === 'undefined' ||
       !guidedTourPlaying ||
-      !sceneActive ||
       !pageVisible
     ) {
       return;
@@ -558,7 +557,6 @@ export default function OliveUniverse() {
     mounted,
     navigateToChapter,
     pageVisible,
-    sceneActive,
   ]);
 
   useEffect(() => {
@@ -1049,15 +1047,15 @@ export default function OliveUniverse() {
             ? 'Sharing was blocked. Use the direct scene link to open this chapter or copy it from the address bar.'
             : 'Copy was blocked. Use the direct scene link to open this chapter and copy it from the address bar.'
           : null;
-    const mobilePanelState = isCompactViewport
-      ? mobilePanelOpen
-        ? 'open'
-        : 'closed'
-      : 'desktop';
-    const mobilePanelMeta = shouldRenderCanvas
-      ? activeAtmosphere.label
-      : runtimeLabel;
-    const mobilePanelToggleLabel = `${mobilePanelOpen ? 'Hide' : 'Show'} hero controls for ${activeChapter.kicker}`;
+  const mobilePanelState = isCompactViewport
+    ? mobilePanelOpen
+      ? 'open'
+      : 'closed'
+    : 'desktop';
+  const mobilePanelMeta = shouldRenderCanvas
+    ? activeAtmosphere.label
+    : runtimeLabel;
+  const mobilePanelToggleLabel = `${mobilePanelOpen ? 'Hide' : 'Show'} hero controls for ${activeChapter.kicker}`;
   const handleSceneReady = useCallback(() => {
     setSceneResolved(true);
   }, []);
@@ -1125,14 +1123,17 @@ export default function OliveUniverse() {
 
     setStabilityAssistActive(false);
   }, [isCompactViewport]);
-  const selectRenderProfile = useCallback((nextProfile: RenderProfile) => {
-    if (isCompactViewport) {
-      setMobilePanelOpen(false);
-    }
+  const selectRenderProfile = useCallback(
+    (nextProfile: RenderProfile) => {
+      if (isCompactViewport) {
+        setMobilePanelOpen(false);
+      }
 
-    setStabilityAssistActive(false);
-    setRenderProfile(nextProfile);
-  }, [isCompactViewport]);
+      setStabilityAssistActive(false);
+      setRenderProfile(nextProfile);
+    },
+    [isCompactViewport]
+  );
   const startGuidedTour = useCallback(() => {
     if (
       webglSupported &&

@@ -452,6 +452,36 @@ function NeuralCortex({
       }),
     []
   );
+  const coreMat = useMemo(
+    () =>
+      new THREE.MeshPhysicalMaterial({
+        color: '#0f172a',
+        emissive: '#67e8f9',
+        emissiveIntensity: 0,
+        roughness: 0.08,
+        metalness: 0.26,
+        transmission: 0.42,
+        thickness: 0.8,
+        transparent: true,
+        opacity: 0,
+      }),
+    []
+  );
+  const orbitMats = useMemo(
+    () =>
+      [2.05, 2.8].map(
+        () =>
+          new THREE.MeshBasicMaterial({
+            color: '#67e8f9',
+            transparent: true,
+            opacity: 0,
+            side: THREE.DoubleSide,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false,
+          })
+      ),
+    []
+  );
 
   useFrame(({ clock }) => {
     if (!groupRef.current) return;
@@ -466,6 +496,15 @@ function NeuralCortex({
     );
     lineMat.opacity = visibilityRef.current * 0.82;
     nodeMat.opacity = visibilityRef.current;
+    coreMat.opacity = visibilityRef.current * 0.42;
+    coreMat.emissiveIntensity = THREE.MathUtils.lerp(
+      coreMat.emissiveIntensity,
+      visible ? 1.8 : 0,
+      0.06
+    );
+    orbitMats.forEach((material, index) => {
+      material.opacity = visibilityRef.current * (0.32 - index * 0.08);
+    });
 
     groupRef.current.visible = visibilityRef.current > 0.02;
     if (!groupRef.current.visible) {
@@ -478,6 +517,18 @@ function NeuralCortex({
 
   return (
     <group ref={groupRef}>
+      <mesh material={coreMat} rotation={[Math.PI / 2, 0, 0]}>
+        <torusKnotGeometry args={[0.94, 0.16, 150, 18]} />
+      </mesh>
+      {[2.05, 2.8].map((radius, index) => (
+        <mesh
+          key={radius}
+          rotation={[Math.PI / 2 + index * 0.44, index * 0.72, 0]}
+          material={orbitMats[index]}
+        >
+          <torusGeometry args={[radius, 0.028, 10, 72]} />
+        </mesh>
+      ))}
       <lineSegments geometry={lineGeo} material={lineMat} />
       {nodePos.map((pos, index) => (
         <mesh
@@ -487,6 +538,14 @@ function NeuralCortex({
           material={nodeMat}
         />
       ))}
+      <Sparkles
+        count={Math.max(12, Math.round(profile.cloudSparkles * 0.4))}
+        scale={6.8}
+        size={1.8}
+        speed={0.45}
+        color="#67e8f9"
+        opacity={0.34}
+      />
       <pointLight color="#00d4ff" intensity={2.5} distance={14} decay={2} />
     </group>
   );
@@ -558,6 +617,30 @@ function CrystalFortress({
       ),
     []
   );
+  const scanRef = useRef<THREE.Mesh>(null);
+  const scanMat = useMemo(
+    () =>
+      new THREE.MeshBasicMaterial({
+        color: '#d8b4fe',
+        transparent: true,
+        opacity: 0,
+        side: THREE.DoubleSide,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      }),
+    []
+  );
+  const sentinelMat = useMemo(
+    () =>
+      new THREE.MeshBasicMaterial({
+        color: '#e9d5ff',
+        transparent: true,
+        opacity: 0,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      }),
+    []
+  );
 
   useFrame(({ clock }) => {
     if (!groupRef.current) return;
@@ -578,6 +661,8 @@ function CrystalFortress({
     });
     shieldMat.uniforms.uTime.value = elapsed;
     shieldMat.opacity = alpha;
+    scanMat.opacity = alpha * 0.22;
+    sentinelMat.opacity = alpha * 0.34;
 
     groupRef.current.visible = alpha > 0.02;
     if (!groupRef.current.visible) {
@@ -586,6 +671,11 @@ function CrystalFortress({
 
     groupRef.current.rotation.y = elapsed * 0.11;
     groupRef.current.rotation.x = Math.sin(elapsed * 0.07) * 0.14;
+
+    if (scanRef.current) {
+      scanRef.current.rotation.z = elapsed * 0.36;
+      scanRef.current.scale.setScalar(1 + Math.sin(elapsed * 1.1) * 0.04);
+    }
   });
 
   return (
@@ -608,6 +698,27 @@ function CrystalFortress({
           <torusGeometry args={[radius, 0.018, 8, 64]} />
         </mesh>
       ))}
+      <mesh ref={scanRef} material={scanMat} rotation={[Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[1.85, 3.15, 72]} />
+      </mesh>
+      {Array.from({ length: 6 }, (_, index) => {
+        const angle = (index / 6) * Math.PI * 2;
+
+        return (
+          <mesh
+            key={`sentinel-${index}`}
+            position={[
+              Math.cos(angle) * 2.7,
+              Math.sin(angle * 1.6) * 0.72,
+              Math.sin(angle) * 2.7,
+            ]}
+            rotation={[angle, angle, Math.PI / 4]}
+            material={sentinelMat}
+          >
+            <octahedronGeometry args={[0.2, 0]} />
+          </mesh>
+        );
+      })}
       <pointLight color="#a855f7" intensity={3} distance={11} decay={2} />
     </group>
   );
@@ -638,6 +749,36 @@ function CloudConstellation({
         color: '#38bdf8',
         emissive: '#38bdf8',
         emissiveIntensity: 2,
+        transparent: true,
+        opacity: 0,
+      }),
+    []
+  );
+  const orbitMats = useMemo(
+    () =>
+      [2.3, 3.5, 4.7].map(
+        () =>
+          new THREE.MeshBasicMaterial({
+            color: '#7dd3fc',
+            transparent: true,
+            opacity: 0,
+            side: THREE.DoubleSide,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false,
+          })
+      ),
+    []
+  );
+  const gatewayMat = useMemo(
+    () =>
+      new THREE.MeshPhysicalMaterial({
+        color: '#0f172a',
+        emissive: '#38bdf8',
+        emissiveIntensity: 0,
+        roughness: 0.12,
+        metalness: 0.18,
+        transmission: 0.5,
+        thickness: 0.9,
         transparent: true,
         opacity: 0,
       }),
@@ -700,6 +841,23 @@ function CloudConstellation({
       visible ? 0.9 : 0,
       0.04
     );
+    gatewayMat.opacity = THREE.MathUtils.lerp(
+      gatewayMat.opacity,
+      visible ? 0.34 : 0,
+      0.04
+    );
+    gatewayMat.emissiveIntensity = THREE.MathUtils.lerp(
+      gatewayMat.emissiveIntensity,
+      visible ? 1.4 : 0,
+      0.06
+    );
+    orbitMats.forEach((material, index) => {
+      material.opacity = THREE.MathUtils.lerp(
+        material.opacity,
+        visible ? 0.24 - index * 0.04 : 0,
+        0.04
+      );
+    });
 
     groupRef.current.visible = alpha > 0.02 || (nodeMat.opacity ?? 0) > 0.02;
     if (!groupRef.current.visible) {
@@ -711,6 +869,19 @@ function CloudConstellation({
 
   return (
     <group ref={groupRef}>
+      {[2.3, 3.5, 4.7].map((radius, index) => (
+        <mesh
+          key={radius}
+          rotation={[Math.PI / 2 + index * 0.22, index * 0.5, 0]}
+          position={[0, (index - 1) * 0.75, -0.5]}
+          material={orbitMats[index]}
+        >
+          <torusGeometry args={[radius, 0.026, 10, 72]} />
+        </mesh>
+      ))}
+      <mesh material={gatewayMat} rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[1.15, 0.18, 16, 48]} />
+      </mesh>
       {edgeGeos.map((geometry, index) => (
         <lineSegments key={index} geometry={geometry} material={lineMat} />
       ))}
@@ -782,6 +953,31 @@ function SignalMatrix({
   }, [count, gridSize]);
 
   const dummy = useMemo(() => new THREE.Object3D(), []);
+  const scanDiscRef = useRef<THREE.Mesh>(null);
+  const scanMat = useMemo(
+    () =>
+      new THREE.MeshBasicMaterial({
+        color: '#4ade80',
+        transparent: true,
+        opacity: 0,
+        side: THREE.DoubleSide,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      }),
+    []
+  );
+  const ringMat = useMemo(
+    () =>
+      new THREE.MeshBasicMaterial({
+        color: '#bef264',
+        transparent: true,
+        opacity: 0,
+        side: THREE.DoubleSide,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      }),
+    []
+  );
 
   useFrame(({ clock }) => {
     if (!groupRef.current) return;
@@ -792,6 +988,16 @@ function SignalMatrix({
     mat.opacity = THREE.MathUtils.lerp(
       mat.opacity ?? 1,
       visible ? 0.88 : 0,
+      0.04
+    );
+    scanMat.opacity = THREE.MathUtils.lerp(
+      scanMat.opacity,
+      visible ? 0.13 : 0,
+      0.04
+    );
+    ringMat.opacity = THREE.MathUtils.lerp(
+      ringMat.opacity,
+      visible ? 0.24 : 0,
       0.04
     );
 
@@ -821,10 +1027,30 @@ function SignalMatrix({
     }
     barMesh.instanceMatrix.needsUpdate = true;
     groupRef.current.rotation.y = Math.sin(clock.elapsedTime * 0.05) * 0.25;
+
+    if (scanDiscRef.current) {
+      scanDiscRef.current.position.y = Math.sin(clock.elapsedTime * 0.8) * 0.55;
+      scanDiscRef.current.rotation.z = clock.elapsedTime * 0.2;
+    }
   });
 
   return (
     <group ref={groupRef}>
+      <mesh
+        ref={scanDiscRef}
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={[0, -0.8, 0]}
+        material={scanMat}
+      >
+        <circleGeometry args={[3.25, 48]} />
+      </mesh>
+      <mesh
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={[0, -0.95, 0]}
+        material={ringMat}
+      >
+        <ringGeometry args={[3.05, 3.24, 64]} />
+      </mesh>
       <primitive object={barMesh} />
       <Sparkles
         count={profile.signalSparkles}
@@ -873,6 +1099,30 @@ function SingularityCore({
       ),
     []
   );
+  const beamRef = useRef<THREE.Mesh>(null);
+  const beamMat = useMemo(
+    () =>
+      new THREE.MeshBasicMaterial({
+        color: '#fef08a',
+        transparent: true,
+        opacity: 0,
+        side: THREE.DoubleSide,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      }),
+    []
+  );
+  const spokeMat = useMemo(
+    () =>
+      new THREE.MeshBasicMaterial({
+        color: '#ccff00',
+        transparent: true,
+        opacity: 0,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      }),
+    []
+  );
 
   useFrame(({ clock }) => {
     if (!groupRef.current) return;
@@ -890,6 +1140,8 @@ function SingularityCore({
     ringMats.forEach((material, index) => {
       material.opacity = alpha * (0.5 - index * 0.09);
     });
+    beamMat.opacity = alpha * 0.18;
+    spokeMat.opacity = alpha * 0.34;
 
     groupRef.current.visible = alpha > 0.02;
     if (!groupRef.current.visible) {
@@ -902,12 +1154,31 @@ function SingularityCore({
         THREE.MathUtils.lerp(coreRef.current.scale.x, scale, 0.1)
       );
     }
+    if (beamRef.current) {
+      beamRef.current.scale.y = THREE.MathUtils.lerp(
+        beamRef.current.scale.y,
+        1 + Math.sin(elapsed * 1.4) * 0.08,
+        0.08
+      );
+    }
     groupRef.current.rotation.z = elapsed * 0.18;
     groupRef.current.rotation.x = Math.sin(elapsed * 0.12) * 0.1;
   });
 
   return (
     <group ref={groupRef}>
+      <mesh ref={beamRef} material={beamMat}>
+        <cylinderGeometry args={[0.18, 0.66, 7.2, 24, 1, true]} />
+      </mesh>
+      {Array.from({ length: 6 }, (_, index) => (
+        <mesh
+          key={`spoke-${index}`}
+          rotation={[0, 0, (index / 6) * Math.PI * 2]}
+          material={spokeMat}
+        >
+          <boxGeometry args={[0.05, 6.2, 0.05]} />
+        </mesh>
+      ))}
       <mesh ref={coreRef} material={coreMat}>
         <sphereGeometry args={[0.42, 32, 32]} />
       </mesh>
@@ -1229,15 +1500,13 @@ function SceneSignatureLayer({
     if (groupRef.current) {
       groupRef.current.rotation.y =
         clock.elapsedTime * (0.05 + atmosphere.starDriftSpeed * 0.09);
-      groupRef.current.rotation.x =
-        Math.sin(clock.elapsedTime * 0.14) * 0.06;
+      groupRef.current.rotation.x = Math.sin(clock.elapsedTime * 0.14) * 0.06;
     }
 
     if (pulseRef.current) {
       const targetScale =
         1 +
-        Math.sin(clock.elapsedTime * (0.65 + atmosphere.starDriftSpeed)) *
-          0.05;
+        Math.sin(clock.elapsedTime * (0.65 + atmosphere.starDriftSpeed)) * 0.05;
       pulseRef.current.scale.setScalar(
         THREE.MathUtils.lerp(pulseRef.current.scale.x, targetScale, 0.08)
       );
@@ -1455,6 +1724,11 @@ function Scene({
     () => new Set(warmedSceneIndices),
     [warmedSceneIndices]
   );
+  const activeAtmosphere = useMemo(
+    () =>
+      CHAPTER_ATMOSPHERES[CHAPTERS[activeChapterIndex]?.id ?? CHAPTERS[0].id],
+    [activeChapterIndex]
+  );
   const shouldPrimeScene = useCallback(
     (sceneIndex: number) => warmedSceneSet.has(sceneIndex),
     [warmedSceneSet]
@@ -1464,11 +1738,31 @@ function Scene({
     [activeChapterIndex]
   );
 
-  useFrame(() => {
+  useFrame(({ clock }) => {
     const progress = progressRef.current ?? 0;
     const keyframe = camAtT(progress);
-    nextPos.current.set(keyframe.pos[0], keyframe.pos[1], keyframe.pos[2]);
-    nextLook.current.set(keyframe.look[0], keyframe.look[1], keyframe.look[2]);
+    const driftStrength = 0.06 + activeAtmosphere.haloOpacity * 0.32;
+    const driftTime =
+      clock.elapsedTime * (0.22 + activeAtmosphere.starDriftSpeed * 0.16);
+    const driftX =
+      Math.sin(driftTime + activeChapterIndex * 0.9) * driftStrength;
+    const driftY =
+      Math.cos(driftTime * 1.1 + activeChapterIndex * 0.45) *
+      driftStrength *
+      0.52;
+    const driftZ =
+      Math.sin(driftTime * 0.7 + activeChapterIndex) * driftStrength * 0.2;
+
+    nextPos.current.set(
+      keyframe.pos[0] + driftX,
+      keyframe.pos[1] + driftY,
+      keyframe.pos[2] + driftZ
+    );
+    nextLook.current.set(
+      keyframe.look[0] + driftX * 0.22,
+      keyframe.look[1] + driftY * 0.28,
+      keyframe.look[2]
+    );
     camPos.current.lerp(nextPos.current, 0.038);
     camLook.current.lerp(nextLook.current, 0.038);
     camera.position.copy(camPos.current);
@@ -1665,15 +1959,18 @@ export default function OliveUniverseCanvas({
       return;
     }
 
-    const timeoutId = window.setTimeout(() => {
-      setWarmedSceneIndices(current =>
-        mergeSceneIndices(
-          current,
-          getSceneWarmPriority(activeChapterIndex, CHAPTERS.length),
-          CHAPTERS.length
-        )
-      );
-    }, shouldAnimate ? 640 : 480);
+    const timeoutId = window.setTimeout(
+      () => {
+        setWarmedSceneIndices(current =>
+          mergeSceneIndices(
+            current,
+            getSceneWarmPriority(activeChapterIndex, CHAPTERS.length),
+            CHAPTERS.length
+          )
+        );
+      },
+      shouldAnimate ? 640 : 480
+    );
 
     return () => {
       window.clearTimeout(timeoutId);
