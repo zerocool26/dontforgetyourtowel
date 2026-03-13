@@ -19,6 +19,11 @@ export default defineConfig({
   base: basePath,
   site: siteUrl,
   output: 'static',
+  vite: {
+    build: {
+      chunkSizeWarningLimit: 800,
+    },
+  },
   integrations: [
     mdx(),
     sitemap({

@@ -29,6 +29,14 @@ import {
 const preloadOliveUniverseCanvas = () => import('./OliveUniverseCanvas');
 const OliveUniverseCanvas = lazy(preloadOliveUniverseCanvas);
 
+type IdleCapableWindow = Window & {
+  requestIdleCallback?: (
+    callback: IdleRequestCallback,
+    options?: IdleRequestOptions
+  ) => number;
+  cancelIdleCallback?: (handle: number) => void;
+};
+
 type SceneRuntimeState =
   | 'staging'
   | 'booting'
@@ -197,19 +205,31 @@ export default function OliveUniverse() {
     let cancelled = false;
     let rafId = 0;
     let timeoutId = 0;
+    let idleId = 0;
+    const idleWindow = window as IdleCapableWindow;
 
     setSceneResolved(false);
 
     rafId = window.requestAnimationFrame(() => {
-      timeoutId = window.setTimeout(() => {
+      const beginSceneBoot = () => {
         void preloadOliveUniverseCanvas();
         if (!cancelled) setSceneBootReady(true);
-      }, 96);
+      };
+
+      if (idleWindow.requestIdleCallback) {
+        idleId = idleWindow.requestIdleCallback(beginSceneBoot, {
+          timeout: 480,
+        });
+        return;
+      }
+
+      timeoutId = window.setTimeout(beginSceneBoot, 96);
     });
 
     return () => {
       cancelled = true;
       window.cancelAnimationFrame(rafId);
+      idleWindow.cancelIdleCallback?.(idleId);
       window.clearTimeout(timeoutId);
     };
   }, [mounted, shouldRenderCanvas]);
@@ -229,38 +249,51 @@ export default function OliveUniverse() {
   }, []);
 
   useEffect(() => {
-    if (!mounted) return;
+    if (!mounted || typeof window === 'undefined') return;
 
-    let frameId: number;
-    let lastChapter = -1;
+    let frameId = 0;
 
-    const tick = () => {
-      if (wrapperRef.current) {
-        const rect = wrapperRef.current.getBoundingClientRect();
-        const total = rect.height - window.innerHeight;
-        if (total > 0) {
-          progressRef.current = Math.max(0, Math.min(1, -rect.top / total));
-        }
-      }
+    const syncHeroProgress = () => {
+      frameId = 0;
 
-      const progress = progressRef.current;
+      if (!wrapperRef.current) return;
+
+      const rect = wrapperRef.current.getBoundingClientRect();
+      const total = rect.height - window.innerHeight;
+      progressRef.current =
+        total > 0 ? Math.max(0, Math.min(1, -rect.top / total)) : 0;
+
       let nextChapter = 0;
       for (let i = CHAPTERS.length - 1; i >= 0; i--)
-        if (progress >= CHAPTERS[i].range[0] - 0.04) {
+        if (progressRef.current >= CHAPTERS[i].range[0] - 0.04) {
           nextChapter = i;
           break;
         }
 
-      if (nextChapter !== lastChapter) {
-        setChapter(nextChapter);
-        lastChapter = nextChapter;
-      }
-
-      frameId = window.requestAnimationFrame(tick);
+      setChapter(currentChapter =>
+        currentChapter === nextChapter ? currentChapter : nextChapter
+      );
     };
 
-    frameId = window.requestAnimationFrame(tick);
-    return () => window.cancelAnimationFrame(frameId);
+    const queueHeroProgressSync = () => {
+      if (frameId) return;
+      frameId = window.requestAnimationFrame(syncHeroProgress);
+    };
+
+    queueHeroProgressSync();
+
+    window.addEventListener('scroll', queueHeroProgressSync, {
+      passive: true,
+    });
+    window.addEventListener('resize', queueHeroProgressSync);
+    window.addEventListener('orientationchange', queueHeroProgressSync);
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+      window.removeEventListener('scroll', queueHeroProgressSync);
+      window.removeEventListener('resize', queueHeroProgressSync);
+      window.removeEventListener('orientationchange', queueHeroProgressSync);
+    };
   }, [mounted]);
 
   const activeChapter = CHAPTERS[chapter] ?? CHAPTERS[0];
@@ -315,24 +348,11 @@ export default function OliveUniverse() {
     setSceneResolved(true);
   }, []);
 
-  if (!mounted) {
-    return (
-      <div className="universe-wrapper" data-olive-universe="booting">
-        <div className="universe-loading">
-          <div className="universe-loading-inner">
-            <div className="universe-loading-bar" />
-            <p className="universe-loading-text">Initializing universe</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div
       ref={wrapperRef}
       className="universe-wrapper"
-      data-olive-universe="ready"
+      data-olive-universe={mounted ? 'ready' : 'booting'}
       data-current-chapter={activeChapter.id}
       data-olive-mode={visualMode}
       data-olive-scene={sceneState}
