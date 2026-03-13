@@ -8,7 +8,12 @@ test.describe('Homepage', () => {
 
   test('should display hero section', async ({ page }) => {
     await page.goto('./');
-    await expect(page.locator('[data-olive-universe="ready"]')).toBeVisible();
+    const hero = page.locator('[data-olive-universe="ready"]');
+    await expect(hero).toBeVisible();
+    await expect(hero).toHaveAttribute(
+      'data-olive-scene',
+      /(staging|booting|interactive|ambient|fallback)/
+    );
     await expect(
       page.getByRole('heading', {
         level: 1,
@@ -17,6 +22,14 @@ test.describe('Homepage', () => {
     ).toBeVisible();
     await expect(
       page.getByRole('navigation', { name: /story chapters/i })
+    ).toBeVisible();
+    await expect(
+      page.getByRole('button', {
+        name: /jump to creative technology studio/i,
+      })
+    ).toBeVisible();
+    await expect(
+      page.getByRole('link', { name: /skip immersive intro/i })
     ).toBeVisible();
   });
 

@@ -1,0 +1,271 @@
+import { withBasePath } from '@/utils/helpers';
+
+export type QualityTier = 'high' | 'medium' | 'low';
+
+export type HeroVisualMode = 'immersive' | 'lite' | 'reduced' | 'fallback';
+
+export interface SceneProfile {
+  particleCount: number;
+  neuralNodeCount: number;
+  signalGridSize: number;
+  starCount: number;
+  starFactor: number;
+  cloudSparkles: number;
+  signalSparkles: number;
+  singularitySparkles: number;
+  singularitySparkleSize: number;
+  enablePostFx: boolean;
+  bloomIntensity: number;
+  noiseOpacity: number;
+  aberrationOffset: number;
+  ambientLight: number;
+  fogFar: number;
+  pointerParallax: boolean;
+}
+
+export interface ChapterDef {
+  id: string;
+  kicker: string;
+  title: string[];
+  copy: string;
+  accent: string;
+  ctas: Array<{ label: string; href: string; primary?: boolean }>;
+  metrics?: string[];
+  range: [number, number];
+}
+
+export const CHAPTERS: ChapterDef[] = [
+  {
+    id: 'genesis',
+    kicker: 'Creative Technology Studio',
+    title: ['Creative technology', 'without template energy.'],
+    copy: 'We design and build product experiences that feel alive — cinematic visuals, intentional motion, and production-grade engineering under one roof.',
+    accent: '#ccff00',
+    metrics: ['AI Systems', 'Cybersecurity', 'Cloud Eng', 'Managed Ops'],
+    ctas: [
+      {
+        label: 'Explore Services',
+        href: withBasePath('services/'),
+        primary: true,
+      },
+      { label: 'View Portfolio', href: withBasePath('about/') },
+    ],
+    range: [0, 0.18],
+  },
+  {
+    id: 'neural',
+    kicker: 'AI Systems',
+    title: ['AI Orchestration', '& Advanced Dev'],
+    copy: 'Multi-agent products, decision systems, and AI-native workflows crafted for clarity, speed, and measurable impact.',
+    accent: '#00d4ff',
+    ctas: [
+      {
+        label: 'Explore AI Services',
+        href: withBasePath('services/#ai'),
+        primary: true,
+      },
+      { label: 'Start a Project', href: withBasePath('contact-hq/') },
+    ],
+    range: [0.22, 0.38],
+  },
+  {
+    id: 'vault',
+    kicker: 'Cybersecurity',
+    title: ['Digital Resilience', 'at Scale'],
+    copy: 'Security and reliability programs built to support ambitious product velocity — not slow it down. Threat modeling tied directly to product roadmaps.',
+    accent: '#a855f7',
+    ctas: [
+      {
+        label: 'Security Services',
+        href: withBasePath('services/#cybersecurity'),
+        primary: true,
+      },
+      { label: 'View Portfolio', href: withBasePath('about/') },
+    ],
+    range: [0.42, 0.58],
+  },
+  {
+    id: 'cloud',
+    kicker: 'Cloud Engineering',
+    title: ['Infrastructure', 'That Thinks'],
+    copy: 'Cloud architecture designed for scale, resilience, and zero-surprise delivery. Every node purposeful. Every path optimized.',
+    accent: '#38bdf8',
+    ctas: [
+      {
+        label: 'Cloud Services',
+        href: withBasePath('services/#cloud'),
+        primary: true,
+      },
+      { label: 'Build Studio', href: withBasePath('build-studio/') },
+    ],
+    range: [0.62, 0.78],
+  },
+  {
+    id: 'signal',
+    kicker: 'Managed Operations',
+    title: ['Signal Zero.', 'Noise Eliminated.'],
+    copy: 'Operational runbooks that keep launches calm. Monitoring, incident response, and continuous improvement as a fully embedded service.',
+    accent: '#22c55e',
+    ctas: [
+      {
+        label: 'Ops Services',
+        href: withBasePath('services/#managed-it'),
+        primary: true,
+      },
+      { label: 'Compare Plans', href: withBasePath('pricing/') },
+    ],
+    range: [0.82, 0.92],
+  },
+  {
+    id: 'singularity',
+    kicker: 'Start Your Project',
+    title: ['Enter', 'the System.'],
+    copy: "One creative engineering partner instead of five disconnected vendors. Let's build something unforgettable together.",
+    accent: '#ccff00',
+    ctas: [
+      { label: 'Contact HQ', href: withBasePath('contact-hq/'), primary: true },
+      { label: 'Open Build Studio', href: withBasePath('build-studio/') },
+    ],
+    range: [0.94, 1.0],
+  },
+];
+
+export const CAMERA_KF = [
+  { t: 0.0, pos: [0, 0, 9] as const, look: [0, 0, 0] as const },
+  { t: 0.2, pos: [-1, 1.5, 12] as const, look: [-1, 0.5, 0] as const },
+  { t: 0.38, pos: [-2, 0.5, 7] as const, look: [0, 0, 0] as const },
+  { t: 0.58, pos: [2, -0.5, 6] as const, look: [0, 0, 0] as const },
+  { t: 0.78, pos: [0, 2.5, 8] as const, look: [0, 0, 0] as const },
+  { t: 0.92, pos: [-1, 0.5, 7] as const, look: [0, 0, 0] as const },
+  { t: 1.0, pos: [0, 0, 4.5] as const, look: [0, 0, 0] as const },
+];
+
+export function detectQuality(): QualityTier {
+  if (typeof window === 'undefined') return 'medium';
+  const cores = navigator.hardwareConcurrency ?? 4;
+  const dpr = window.devicePixelRatio ?? 1;
+  const mobile = /Mobi|Android/i.test(navigator.userAgent);
+  if (mobile || cores <= 2) return 'low';
+  if (cores >= 6 && dpr >= 1.5) return 'high';
+  return 'medium';
+}
+
+export function prefersReducedMotion() {
+  return (
+    typeof window !== 'undefined' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  );
+}
+
+export function supportsWebGL() {
+  if (typeof document === 'undefined') return true;
+
+  try {
+    const canvas = document.createElement('canvas');
+    return Boolean(
+      canvas.getContext('webgl2') ||
+      canvas.getContext('webgl') ||
+      canvas.getContext('experimental-webgl')
+    );
+  } catch {
+    return false;
+  }
+}
+
+export function hexToRgbString(hex: string) {
+  const normalized = hex.replace('#', '').trim();
+
+  if (normalized.length !== 6) {
+    return '204, 255, 0';
+  }
+
+  const value = Number.parseInt(normalized, 16);
+
+  if (Number.isNaN(value)) {
+    return '204, 255, 0';
+  }
+
+  return `${(value >> 16) & 255}, ${(value >> 8) & 255}, ${value & 255}`;
+}
+
+export function getSceneProfile(
+  quality: QualityTier,
+  mode: HeroVisualMode
+): SceneProfile {
+  if (mode === 'lite' || mode === 'reduced' || mode === 'fallback') {
+    return {
+      particleCount: 7200,
+      neuralNodeCount: 24,
+      signalGridSize: 9,
+      starCount: 900,
+      starFactor: 2.4,
+      cloudSparkles: 18,
+      signalSparkles: 12,
+      singularitySparkles: 52,
+      singularitySparkleSize: 3.6,
+      enablePostFx: false,
+      bloomIntensity: 0.85,
+      noiseOpacity: 0.015,
+      aberrationOffset: 0.00025,
+      ambientLight: 0.12,
+      fogFar: 68,
+      pointerParallax: false,
+    };
+  }
+
+  if (quality === 'high') {
+    return {
+      particleCount: 16000,
+      neuralNodeCount: 38,
+      signalGridSize: 12,
+      starCount: 2500,
+      starFactor: 4,
+      cloudSparkles: 50,
+      signalSparkles: 35,
+      singularitySparkles: 120,
+      singularitySparkleSize: 4.5,
+      enablePostFx: true,
+      bloomIntensity: 1.6,
+      noiseOpacity: 0.035,
+      aberrationOffset: 0.0007,
+      ambientLight: 0.08,
+      fogFar: 85,
+      pointerParallax: true,
+    };
+  }
+
+  return {
+    particleCount: 11800,
+    neuralNodeCount: 32,
+    signalGridSize: 10,
+    starCount: 1700,
+    starFactor: 3.2,
+    cloudSparkles: 34,
+    signalSparkles: 24,
+    singularitySparkles: 84,
+    singularitySparkleSize: 4.1,
+    enablePostFx: true,
+    bloomIntensity: 1.2,
+    noiseOpacity: 0.025,
+    aberrationOffset: 0.00045,
+    ambientLight: 0.1,
+    fogFar: 78,
+    pointerParallax: true,
+  };
+}
+
+export const HERO_MODE_LABELS: Record<HeroVisualMode, string> = {
+  immersive: 'Immersive 3D',
+  lite: 'Adaptive 3D',
+  reduced: 'Reduced motion',
+  fallback: 'Ambient fallback',
+};
+
+export const HERO_MODE_NOTES: Record<HeroVisualMode, string> = {
+  immersive: 'Full cinematic rendering is active for capable devices.',
+  lite: 'The hero has shifted into a lighter scene profile for smoother playback.',
+  reduced:
+    'Reduced-motion preferences are active, so the hero is using a calm ambient presentation.',
+  fallback:
+    'WebGL is unavailable, so the hero is using a resilient layered fallback instead.',
+};
