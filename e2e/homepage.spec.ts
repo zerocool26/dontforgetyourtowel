@@ -437,6 +437,49 @@ test.describe('Homepage', () => {
     await expect(hero).toHaveAttribute('data-olive-mode', 'reduced');
   });
 
+  test('scene lens controls should keep the selected camera personality across chapter jumps', async ({
+    page,
+    isMobile,
+  }) => {
+    if (isMobile) {
+      test.skip();
+    }
+
+    await page.goto('./');
+
+    const hero = page.locator('[data-olive-universe="ready"]');
+    const storyStatus = page.getByLabel('Hero story status');
+    await expect(hero).toBeVisible();
+    await expect(hero).toHaveAttribute('data-olive-lens', 'glide');
+
+    await storyStatus
+      .getByRole('button', { name: /use surge scene lens/i })
+      .click();
+
+    await expect(hero).toHaveAttribute('data-olive-lens', 'surge');
+    await expect(storyStatus.getByText(/surge lens is active/i)).toBeVisible();
+
+    await page
+      .getByRole('button', { name: /enable immersive scenes/i })
+      .click();
+
+    await expect(hero).toHaveAttribute('data-olive-mode', /(immersive|lite)/);
+
+    await page
+      .getByRole('button', { name: /jump to managed operations/i })
+      .click();
+
+    await expect(hero).toHaveAttribute('data-current-chapter', 'signal');
+    await expect(hero).toHaveAttribute('data-olive-lens', 'surge');
+
+    await storyStatus
+      .getByRole('button', { name: /use orbit scene lens/i })
+      .click();
+
+    await expect(hero).toHaveAttribute('data-olive-lens', 'orbit');
+    await expect(storyStatus.getByText(/orbit lens is active/i)).toBeVisible();
+  });
+
   test('story panel should surface the active atmosphere signature for each chapter', async ({
     page,
     isMobile,
@@ -874,6 +917,12 @@ test.describe('Homepage', () => {
     await expect(storyStatus).toBeVisible();
 
     await storyStatus
+      .getByRole('button', { name: /use orbit scene lens/i })
+      .click();
+
+    await expect(hero).toHaveAttribute('data-olive-lens', 'orbit');
+
+    await storyStatus
       .getByRole('button', { name: /enable immersive scenes/i })
       .click();
 
@@ -898,6 +947,7 @@ test.describe('Homepage', () => {
 
     await expect(hero).toHaveAttribute('data-current-chapter', 'cloud');
     await expect(hero).toHaveAttribute('data-olive-atmosphere', 'cloud');
+    await expect(hero).toHaveAttribute('data-olive-lens', 'orbit');
     await expect(hero).toHaveAttribute('data-olive-mobile-panel', 'closed');
     await expect(hero).toHaveAttribute('data-olive-mode', /(immersive|lite)/);
     await expect(hero).toHaveAttribute(

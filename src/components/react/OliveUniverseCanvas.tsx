@@ -24,6 +24,7 @@ import {
   CAMERA_KF,
   CHAPTERS,
   type QualityTier,
+  type SceneLensMode,
   type SceneProfile,
 } from './olive-universe-config';
 
@@ -290,6 +291,51 @@ function getWarmDelayMs(profile: SceneProfile, shouldAnimate: boolean) {
 
   return shouldAnimate ? 640 : 480;
 }
+
+const SCENE_LENS_CAMERA_SETTINGS: Record<
+  SceneLensMode,
+  {
+    driftMultiplier: number;
+    orbitRadius: number;
+    orbitSpeed: number;
+    lookBias: number;
+    pushIn: number;
+    lerp: number;
+    signatureGain: number;
+    burstGain: number;
+  }
+> = {
+  glide: {
+    driftMultiplier: 0.82,
+    orbitRadius: 0.12,
+    orbitSpeed: 0.14,
+    lookBias: 0.16,
+    pushIn: 0.08,
+    lerp: 0.034,
+    signatureGain: 0.88,
+    burstGain: 0.92,
+  },
+  orbit: {
+    driftMultiplier: 1,
+    orbitRadius: 0.34,
+    orbitSpeed: 0.2,
+    lookBias: 0.22,
+    pushIn: 0.16,
+    lerp: 0.04,
+    signatureGain: 1.02,
+    burstGain: 1,
+  },
+  surge: {
+    driftMultiplier: 1.22,
+    orbitRadius: 0.2,
+    orbitSpeed: 0.28,
+    lookBias: 0.28,
+    pushIn: 0.28,
+    lerp: 0.048,
+    signatureGain: 1.18,
+    burstGain: 1.22,
+  },
+};
 
 function ParticleGalaxy({
   isLive,
@@ -1443,12 +1489,15 @@ function Background({
 function SceneSignatureLayer({
   activeChapterIndex,
   profile,
+  sceneLens,
 }: {
   activeChapterIndex: number;
   profile: SceneProfile;
+  sceneLens: SceneLensMode;
 }) {
   const chapterId = CHAPTERS[activeChapterIndex]?.id ?? CHAPTERS[0].id;
   const atmosphere = CHAPTER_ATMOSPHERES[chapterId];
+  const lensConfig = SCENE_LENS_CAMERA_SETTINGS[sceneLens];
   const groupRef = useRef<THREE.Group>(null);
   const pulseRef = useRef<THREE.Mesh>(null);
   const sweepRef = useRef<THREE.Mesh>(null);
@@ -1496,9 +1545,19 @@ function SceneSignatureLayer({
   );
 
   useFrame(({ clock }) => {
-    const primaryOpacityTarget = chapterId === 'signal' ? 0.18 : 0.24;
-    const secondaryOpacityTarget = chapterId === 'singularity' ? 0.34 : 0.22;
-    const coreOpacityTarget = chapterId === 'signal' ? 0.1 : 0.16;
+    const primaryOpacityTarget = Math.min(
+      0.38,
+      (chapterId === 'signal' ? 0.18 : 0.24) * lensConfig.signatureGain
+    );
+    const secondaryOpacityTarget = Math.min(
+      0.42,
+      (chapterId === 'singularity' ? 0.34 : 0.22) * lensConfig.signatureGain
+    );
+    const coreOpacityTarget = Math.min(
+      0.26,
+      (chapterId === 'signal' ? 0.1 : 0.16) *
+        (0.9 + lensConfig.signatureGain * 0.18)
+    );
 
     primaryMat.opacity = THREE.MathUtils.lerp(
       primaryMat.opacity,
@@ -1530,7 +1589,9 @@ function SceneSignatureLayer({
     if (pulseRef.current) {
       const targetScale =
         1 +
-        Math.sin(clock.elapsedTime * (0.65 + atmosphere.starDriftSpeed)) * 0.05;
+        Math.sin(clock.elapsedTime * (0.65 + atmosphere.starDriftSpeed)) *
+          0.05 +
+        lensConfig.orbitRadius * 0.18;
       pulseRef.current.scale.setScalar(
         THREE.MathUtils.lerp(pulseRef.current.scale.x, targetScale, 0.08)
       );
@@ -1538,7 +1599,8 @@ function SceneSignatureLayer({
 
     if (sweepRef.current) {
       sweepRef.current.position.y = Math.sin(clock.elapsedTime * 0.8) * 0.55;
-      sweepRef.current.rotation.z = clock.elapsedTime * 0.16;
+      sweepRef.current.rotation.z =
+        clock.elapsedTime * (0.16 + lensConfig.orbitSpeed * 0.2);
     }
   });
 
@@ -1731,14 +1793,17 @@ function SceneSignatureLayer({
 function InteractionBurstLayer({
   activeChapterIndex,
   profile,
+  sceneLens,
   interactionBurstActive,
 }: {
   activeChapterIndex: number;
   profile: SceneProfile;
+  sceneLens: SceneLensMode;
   interactionBurstActive: boolean;
 }) {
   const chapterId = CHAPTERS[activeChapterIndex]?.id ?? CHAPTERS[0].id;
   const atmosphere = CHAPTER_ATMOSPHERES[chapterId];
+  const lensConfig = SCENE_LENS_CAMERA_SETTINGS[sceneLens];
   const groupRef = useRef<THREE.Group>(null);
   const pulseRef = useRef<THREE.Mesh>(null);
   const sweepRef = useRef<THREE.Mesh>(null);
@@ -1793,10 +1858,10 @@ function InteractionBurstLayer({
     burstLevelRef.current = THREE.MathUtils.lerp(
       burstLevelRef.current,
       interactionBurstActive ? 1 : 0,
-      interactionBurstActive ? 0.18 : 0.11
+      interactionBurstActive ? 0.18 * lensConfig.burstGain : 0.11
     );
 
-    const burst = burstLevelRef.current;
+    const burst = Math.min(1.35, burstLevelRef.current * lensConfig.burstGain);
 
     primaryMat.opacity = burst * 0.38;
     secondaryMat.opacity = burst * 0.28;
@@ -1810,7 +1875,10 @@ function InteractionBurstLayer({
       }
 
       groupRef.current.rotation.y +=
-        (0.008 + atmosphere.starDriftSpeed * 0.01) * burst;
+        (0.008 +
+          atmosphere.starDriftSpeed * 0.01 +
+          lensConfig.orbitSpeed * 0.01) *
+        burst;
       groupRef.current.rotation.x =
         Math.sin(clock.elapsedTime * (0.8 + atmosphere.starDriftSpeed * 0.4)) *
         0.08 *
@@ -1823,13 +1891,15 @@ function InteractionBurstLayer({
         burst * 0.42 +
         Math.sin(clock.elapsedTime * (4 + atmosphere.starDriftSpeed * 2)) *
           0.06 *
-          burst;
+          burst +
+        lensConfig.pushIn * 0.16;
       pulseRef.current.scale.setScalar(scale);
     }
 
     if (sweepRef.current) {
       sweepRef.current.rotation.z =
-        clock.elapsedTime * (0.3 + atmosphere.starDriftSpeed * 0.2);
+        clock.elapsedTime *
+        (0.3 + atmosphere.starDriftSpeed * 0.2 + lensConfig.orbitSpeed * 0.3);
       sweepRef.current.position.y =
         Math.sin(clock.elapsedTime * 1.2) * 0.4 * burst;
     }
@@ -2008,6 +2078,7 @@ function Scene({
   activeChapterIndex,
   progressRef,
   profile,
+  sceneLens,
   warmedSceneIndices,
   interactionBurstActive,
   interactionBurstCycle,
@@ -2015,6 +2086,7 @@ function Scene({
   activeChapterIndex: number;
   progressRef: MutableRefObject<number>;
   profile: SceneProfile;
+  sceneLens: SceneLensMode;
   warmedSceneIndices: number[];
   interactionBurstActive: boolean;
   interactionBurstCycle: number;
@@ -2033,6 +2105,10 @@ function Scene({
     () =>
       CHAPTER_ATMOSPHERES[CHAPTERS[activeChapterIndex]?.id ?? CHAPTERS[0].id],
     [activeChapterIndex]
+  );
+  const lensConfig = useMemo(
+    () => SCENE_LENS_CAMERA_SETTINGS[sceneLens],
+    [sceneLens]
   );
   const shouldPrimeScene = useCallback(
     (sceneIndex: number) => warmedSceneSet.has(sceneIndex),
@@ -2053,7 +2129,8 @@ function Scene({
     );
     const burst = burstLevelRef.current;
     const driftStrength =
-      0.06 + activeAtmosphere.haloOpacity * 0.32 + burst * 0.08;
+      (0.06 + activeAtmosphere.haloOpacity * 0.32 + burst * 0.08) *
+      lensConfig.driftMultiplier;
     const driftTime =
       clock.elapsedTime * (0.22 + activeAtmosphere.starDriftSpeed * 0.16);
     const driftX =
@@ -2064,19 +2141,26 @@ function Scene({
       0.52;
     const driftZ =
       Math.sin(driftTime * 0.7 + activeChapterIndex) * driftStrength * 0.2;
+    const orbitPhase =
+      clock.elapsedTime * lensConfig.orbitSpeed + activeChapterIndex * 0.72;
+    const orbitRadius =
+      lensConfig.orbitRadius * (0.8 + activeAtmosphere.haloOpacity * 1.4);
+    const orbitX = Math.cos(orbitPhase) * orbitRadius;
+    const orbitY = Math.sin(orbitPhase * 0.82) * orbitRadius * 0.34;
+    const orbitZ = Math.sin(orbitPhase * 0.58) * orbitRadius * 0.18;
 
     nextPos.current.set(
-      keyframe.pos[0] + driftX,
-      keyframe.pos[1] + driftY,
-      keyframe.pos[2] + driftZ - burst * 0.26
+      keyframe.pos[0] + driftX + orbitX,
+      keyframe.pos[1] + driftY + orbitY,
+      keyframe.pos[2] + driftZ + orbitZ - burst * lensConfig.pushIn
     );
     nextLook.current.set(
-      keyframe.look[0] + driftX * 0.22,
-      keyframe.look[1] + driftY * 0.28,
-      keyframe.look[2] + burst * 0.12
+      keyframe.look[0] + driftX * lensConfig.lookBias + orbitX * 0.22,
+      keyframe.look[1] + driftY * (lensConfig.lookBias + 0.06) + orbitY * 0.28,
+      keyframe.look[2] + burst * (0.08 + lensConfig.pushIn * 0.32)
     );
-    camPos.current.lerp(nextPos.current, 0.038);
-    camLook.current.lerp(nextLook.current, 0.038);
+    camPos.current.lerp(nextPos.current, lensConfig.lerp);
+    camLook.current.lerp(nextLook.current, lensConfig.lerp);
     camera.position.copy(camPos.current);
     camera.lookAt(camLook.current);
   });
@@ -2088,11 +2172,13 @@ function Scene({
         key={`signature-${CHAPTERS[activeChapterIndex]?.id ?? CHAPTERS[0].id}`}
         activeChapterIndex={activeChapterIndex}
         profile={profile}
+        sceneLens={sceneLens}
       />
       <InteractionBurstLayer
         key={`burst-${interactionBurstCycle}-${CHAPTERS[activeChapterIndex]?.id ?? CHAPTERS[0].id}`}
         activeChapterIndex={activeChapterIndex}
         profile={profile}
+        sceneLens={sceneLens}
         interactionBurstActive={interactionBurstActive}
       />
       {shouldPrimeScene(0) && (
@@ -2218,6 +2304,7 @@ export interface OliveUniverseCanvasProps {
   sceneProfile: SceneProfile;
   shouldAnimate: boolean;
   stabilityAssistActive: boolean;
+  sceneLens: SceneLensMode;
   interactionBurstActive: boolean;
   interactionBurstCycle: number;
   onPerformanceBudgetExceeded?: () => void;
@@ -2232,6 +2319,7 @@ export default function OliveUniverseCanvas({
   sceneProfile,
   shouldAnimate,
   stabilityAssistActive,
+  sceneLens,
   interactionBurstActive,
   interactionBurstCycle,
   onPerformanceBudgetExceeded,
@@ -2335,6 +2423,7 @@ export default function OliveUniverseCanvas({
           activeChapterIndex={activeChapterIndex}
           progressRef={progressRef}
           profile={sceneProfile}
+          sceneLens={sceneLens}
           warmedSceneIndices={warmedSceneIndices}
           interactionBurstActive={interactionBurstActive}
           interactionBurstCycle={interactionBurstCycle}

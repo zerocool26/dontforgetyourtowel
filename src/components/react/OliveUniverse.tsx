@@ -24,10 +24,12 @@ import {
   hexToRgbString,
   optimizeSceneProfileForMobile,
   prefersReducedMotion,
+  SCENE_LENS_ORDER,
   supportsWebGL,
   type ChapterDef,
   type HeroVisualMode,
   type QualityTier,
+  type SceneLensMode,
 } from './olive-universe-config';
 
 const preloadOliveUniverseCanvas = () => import('./OliveUniverseCanvas');
@@ -36,6 +38,7 @@ const MOBILE_PANEL_ID = 'olive-universe-mobile-panel';
 const MOBILE_PANEL_QUERY = '(max-width: 960px)';
 const MOTION_PREFERENCE_KEY = 'olive-universe-motion-preference';
 const RENDER_PROFILE_KEY = 'olive-universe-render-profile';
+const SCENE_LENS_KEY = 'olive-universe-scene-lens';
 const AUTO_TOUR_INTERVAL_MS = 2800;
 const INTERACTION_BURST_DURATION_MS = 1600;
 const SCENE_HANDOFF_DURATION_MS = {
@@ -114,6 +117,42 @@ const RENDER_PROFILE_OPTIONS: Record<
   },
 };
 
+const SCENE_LENS_OPTIONS: Record<
+  SceneLensMode,
+  {
+    label: string;
+    statusLabel: string;
+    description: string;
+    note: string;
+    queuedNote: string;
+  }
+> = {
+  glide: {
+    label: 'Glide',
+    statusLabel: 'Wide cinematic drift',
+    description: 'Softer camera movement',
+    note: 'Glide lens is active, keeping the camera wide and polished so each chapter can breathe before the next hit lands.',
+    queuedNote:
+      'Glide lens is armed and will steer the camera the moment immersive scenes are live.',
+  },
+  orbit: {
+    label: 'Orbit',
+    statusLabel: 'Layered orbit focus',
+    description: 'Circle the chapter core',
+    note: 'Orbit lens is active, giving the camera a broader orbital sweep around the active chapter for a more exploratory feel.',
+    queuedNote:
+      'Orbit lens is armed and will add more lateral camera motion once immersive scenes are live.',
+  },
+  surge: {
+    label: 'Surge',
+    statusLabel: 'Tight aggressive push',
+    description: 'Punch into transitions',
+    note: 'Surge lens is active, pushing the camera harder through bursts, handoffs, and chapter jumps for a more aggressive cinematic pace.',
+    queuedNote:
+      'Surge lens is armed and will tighten the camera as soon as immersive scenes are live.',
+  },
+};
+
 function isMotionPreference(value: string | null): value is MotionPreference {
   return value === 'auto' || value === 'immersive' || value === 'calm';
 }
@@ -122,6 +161,10 @@ function isRenderProfile(value: string | null): value is RenderProfile {
   return Boolean(
     value && RENDER_PROFILE_ORDER.some(profile => profile === value)
   );
+}
+
+function isSceneLensMode(value: string | null): value is SceneLensMode {
+  return Boolean(value && SCENE_LENS_ORDER.some(lens => lens === value));
 }
 
 function isChapterId(value: string | null): value is ChapterDef['id'] {
@@ -273,6 +316,7 @@ export default function OliveUniverse() {
   const [motionPreference, setMotionPreference] =
     useState<MotionPreference>('auto');
   const [renderProfile, setRenderProfile] = useState<RenderProfile>('adaptive');
+  const [sceneLens, setSceneLens] = useState<SceneLensMode>('glide');
   const [mounted, setMounted] = useState(false);
   const [prefersReduced, setPrefersReduced] = useState(false);
   const [webglSupported, setWebglSupported] = useState(true);
@@ -327,6 +371,11 @@ export default function OliveUniverse() {
         window.localStorage.getItem(RENDER_PROFILE_KEY);
       if (isRenderProfile(storedRenderProfile)) {
         setRenderProfile(storedRenderProfile);
+      }
+
+      const storedSceneLens = window.localStorage.getItem(SCENE_LENS_KEY);
+      if (isSceneLensMode(storedSceneLens)) {
+        setSceneLens(storedSceneLens);
       }
     } catch {
       // Ignore storage access failures; the hero can still run with in-memory state.
@@ -407,6 +456,21 @@ export default function OliveUniverse() {
       // Ignore storage access failures; the live session state is still enough.
     }
   }, [mounted, renderProfile]);
+
+  useEffect(() => {
+    if (!mounted || typeof window === 'undefined') return;
+
+    try {
+      if (sceneLens === 'glide') {
+        window.localStorage.removeItem(SCENE_LENS_KEY);
+        return;
+      }
+
+      window.localStorage.setItem(SCENE_LENS_KEY, sceneLens);
+    } catch {
+      // Ignore storage access failures; the live session state is still enough.
+    }
+  }, [mounted, sceneLens]);
 
   useEffect(() => {
     if (shareState === 'idle' || typeof window === 'undefined') return;
@@ -1106,6 +1170,7 @@ export default function OliveUniverse() {
     chapter < CHAPTERS.length - 1 ? CHAPTERS[chapter + 1] : null;
   const guidedTourSpeedConfig = GUIDED_TOUR_SPEEDS[guidedTourSpeed];
   const renderProfileConfig = RENDER_PROFILE_OPTIONS[renderProfile];
+  const sceneLensConfig = SCENE_LENS_OPTIONS[sceneLens];
   const sceneState = useMemo<SceneRuntimeState>(() => {
     if (!shouldRenderCanvas) {
       return effectiveVisualMode === 'fallback' ? 'fallback' : 'ambient';
@@ -1167,6 +1232,9 @@ export default function OliveUniverse() {
       : scenePreloadState === 'warming'
         ? 'Preloading 3D'
         : 'Preload idle';
+  const sceneLensStatus = shouldRenderCanvas
+    ? sceneLensConfig.note
+    : sceneLensConfig.queuedNote;
   const interactionStatus = interactionBurstActive
     ? `Scene burst active · ${activeChapter.kicker} is surging live.`
     : touchCapable || isCompactViewport
@@ -1268,11 +1336,11 @@ export default function OliveUniverse() {
       : 'closed'
     : 'desktop';
   const mobilePanelMeta = shouldRenderCanvas
-    ? activeAtmosphere.label
+    ? `${sceneLensConfig.label} lens · ${activeAtmosphere.label}`
     : scenePreloadState === 'ready'
-      ? '3D primed'
+      ? `${sceneLensConfig.label} lens primed`
       : scenePreloadState === 'warming'
-        ? 'Loading 3D'
+        ? `Loading 3D · ${sceneLensConfig.label}`
         : runtimeLabel;
   const mobileThreeDMode =
     touchCapable || isCompactViewport ? 'optimized' : 'standard';
@@ -1360,6 +1428,13 @@ export default function OliveUniverse() {
       setRenderProfile(nextProfile);
     },
     [isCompactViewport, requestScenePreload]
+  );
+  const selectSceneLens = useCallback(
+    (nextLens: SceneLensMode) => {
+      requestScenePreload();
+      setSceneLens(nextLens);
+    },
+    [requestScenePreload]
   );
   const startGuidedTour = useCallback(() => {
     requestScenePreload();
@@ -1470,6 +1545,7 @@ export default function OliveUniverse() {
       data-olive-tour={guidedTourPlaying ? 'playing' : 'idle'}
       data-olive-tour-speed={guidedTourSpeed}
       data-olive-motion-preference={motionPreference}
+      data-olive-lens={sceneLens}
       data-olive-mobile-panel={mobilePanelState}
       data-olive-mobile-3d={mobileThreeDMode}
       data-olive-preload={scenePreloadState}
@@ -1494,6 +1570,7 @@ export default function OliveUniverse() {
                 sceneProfile={sceneProfile}
                 shouldAnimate={shouldAnimateCanvas}
                 stabilityAssistActive={stabilityAssistActive}
+                sceneLens={sceneLens}
                 interactionBurstActive={interactionBurstActive}
                 interactionBurstCycle={interactionBurstCycle}
                 onPerformanceBudgetExceeded={enableStabilityAssist}
@@ -1786,6 +1863,47 @@ export default function OliveUniverse() {
 
                 <p className="universe-story-render-profile-note">
                   {renderProfileConfig.note}
+                </p>
+              </div>
+            )}
+
+            {webglSupported && (
+              <div
+                className="universe-story-render-profile"
+                role="group"
+                aria-label="Scene lens"
+              >
+                <div className="universe-story-render-profile-header">
+                  <p className="universe-story-render-profile-label">
+                    Scene lens
+                  </p>
+                  <p className="universe-story-render-profile-value">
+                    {sceneLensConfig.statusLabel}
+                  </p>
+                </div>
+
+                <div className="universe-story-render-profile-buttons">
+                  {SCENE_LENS_ORDER.map(lens => {
+                    const lensOption = SCENE_LENS_OPTIONS[lens];
+
+                    return (
+                      <button
+                        key={lens}
+                        type="button"
+                        className={`universe-story-render-profile-button ${sceneLens === lens ? 'is-active' : ''}`}
+                        onClick={() => selectSceneLens(lens)}
+                        aria-pressed={sceneLens === lens}
+                        aria-label={`Use ${lensOption.label} scene lens`}
+                      >
+                        <span>{lensOption.label}</span>
+                        <span>{lensOption.description}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <p className="universe-story-render-profile-note">
+                  {sceneLensStatus}
                 </p>
               </div>
             )}

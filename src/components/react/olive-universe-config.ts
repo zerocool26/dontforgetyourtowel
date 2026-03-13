@@ -4,6 +4,10 @@ export type QualityTier = 'high' | 'medium' | 'low';
 
 export type HeroVisualMode = 'immersive' | 'lite' | 'reduced' | 'fallback';
 
+export const SCENE_LENS_ORDER = ['glide', 'orbit', 'surge'] as const;
+
+export type SceneLensMode = (typeof SCENE_LENS_ORDER)[number];
+
 export interface SceneProfile {
   particleCount: number;
   neuralNodeCount: number;
