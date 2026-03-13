@@ -429,6 +429,38 @@ test.describe('Homepage', () => {
     await expect(hero).toHaveAttribute('data-olive-mode', 'reduced');
   });
 
+  test('story panel should surface the active atmosphere signature for each chapter', async ({
+    page,
+    isMobile,
+  }) => {
+    if (isMobile) {
+      test.skip();
+    }
+
+    await page.goto('./');
+
+    const hero = page.locator('[data-olive-universe="ready"]');
+    const storyStatus = page.getByLabel('Hero story status');
+    await expect(hero).toBeVisible();
+    await expect(hero).toHaveAttribute('data-olive-atmosphere', 'genesis');
+    await expect(storyStatus.getByText(/atmosphere signature/i)).toBeVisible();
+    await expect(storyStatus.getByText(/solar bloom/i)).toBeVisible();
+
+    await page.getByRole('button', { name: /jump to cybersecurity/i }).click();
+
+    await expect(hero).toHaveAttribute('data-current-chapter', 'vault');
+    await expect(hero).toHaveAttribute('data-olive-atmosphere', 'vault');
+    await expect(storyStatus.getByText(/zero-trust prism/i)).toBeVisible();
+
+    await page
+      .getByRole('button', { name: /jump to managed operations/i })
+      .click();
+
+    await expect(hero).toHaveAttribute('data-current-chapter', 'signal');
+    await expect(hero).toHaveAttribute('data-olive-atmosphere', 'signal');
+    await expect(storyStatus.getByText(/carrier grid/i)).toBeVisible();
+  });
+
   test('scene cache should prime every hero chapter for cleaner scene jumps', async ({
     page,
     isMobile,

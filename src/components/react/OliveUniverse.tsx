@@ -15,6 +15,7 @@ import { copyText } from '@/utils/clipboard';
 import { isShareSupported, share as shareContent } from '@/utils/share';
 import { withBasePath } from '@/utils/helpers';
 import {
+  CHAPTER_ATMOSPHERES,
   CHAPTERS,
   detectQuality,
   getSceneProfile,
@@ -830,6 +831,7 @@ export default function OliveUniverse() {
       ? 'lite'
       : effectiveVisualMode;
   const activeChapter = CHAPTERS[chapter] ?? CHAPTERS[0];
+  const activeAtmosphere = CHAPTER_ATMOSPHERES[activeChapter.id];
   const sceneProfile = useMemo(
     () => getSceneProfile(runtimeQuality, runtimeSceneMode),
     [runtimeQuality, runtimeSceneMode]
@@ -848,6 +850,14 @@ export default function OliveUniverse() {
   const accentRgb = useMemo(
     () => hexToRgbString(activeChapter.accent),
     [activeChapter.accent]
+  );
+  const atmosphereRgb = useMemo(
+    () => hexToRgbString(activeAtmosphere.hazeColor),
+    [activeAtmosphere.hazeColor]
+  );
+  const atmosphereSecondaryRgb = useMemo(
+    () => hexToRgbString(activeAtmosphere.keyLightColor),
+    [activeAtmosphere.keyLightColor]
   );
   const previousChapter = chapter > 0 ? CHAPTERS[chapter - 1] : null;
   const nextChapter =
@@ -1104,10 +1114,13 @@ export default function OliveUniverse() {
 
     setSceneHandoffCycle(currentCycle => currentCycle + 1);
     setSceneHandoffActive(true);
-    handoffTimeoutRef.current = window.setTimeout(() => {
-      setSceneHandoffActive(false);
-      handoffTimeoutRef.current = null;
-    }, sceneCacheState === 'primed' ? 560 : 760);
+    handoffTimeoutRef.current = window.setTimeout(
+      () => {
+        setSceneHandoffActive(false);
+        handoffTimeoutRef.current = null;
+      },
+      sceneCacheState === 'primed' ? 560 : 760
+    );
   }, [activeChapter.id, mounted, sceneCacheState, shouldRenderCanvas]);
 
   return (
@@ -1123,6 +1136,7 @@ export default function OliveUniverse() {
       data-olive-scene-cache={sceneCacheState}
       data-olive-scene-ready-count={String(sceneReadyCount)}
       data-olive-handoff={sceneHandoffActive ? 'syncing' : 'idle'}
+      data-olive-atmosphere={activeChapter.id}
       data-olive-tour={guidedTourPlaying ? 'playing' : 'idle'}
       data-olive-tour-speed={guidedTourSpeed}
       data-olive-motion-preference={motionPreference}
@@ -1130,6 +1144,8 @@ export default function OliveUniverse() {
         {
           '--universe-accent': activeChapter.accent,
           '--universe-accent-rgb': accentRgb,
+          '--universe-atmosphere-rgb': atmosphereRgb,
+          '--universe-atmosphere-secondary-rgb': atmosphereSecondaryRgb,
         } as CSSProperties
       }
     >
@@ -1316,6 +1332,38 @@ export default function OliveUniverse() {
                       </button>
                     );
                   })}
+                </div>
+              </div>
+            )}
+
+            {shouldRenderCanvas && (
+              <div
+                className="universe-story-atmosphere"
+                role="status"
+                aria-live="polite"
+              >
+                <div className="universe-story-atmosphere-header">
+                  <p className="universe-story-atmosphere-label">
+                    Atmosphere signature
+                  </p>
+                  <p className="universe-story-atmosphere-value">
+                    {activeAtmosphere.label}
+                  </p>
+                </div>
+
+                <p className="universe-story-atmosphere-note">
+                  {activeAtmosphere.note}
+                </p>
+
+                <div className="universe-story-atmosphere-traits">
+                  {activeAtmosphere.traits.map(trait => (
+                    <span
+                      key={trait}
+                      className="universe-story-atmosphere-trait"
+                    >
+                      {trait}
+                    </span>
+                  ))}
                 </div>
               </div>
             )}

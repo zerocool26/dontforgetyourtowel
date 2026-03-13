@@ -20,6 +20,7 @@ import {
 } from '@react-three/postprocessing';
 import { BlendFunction } from 'postprocessing';
 import {
+  CHAPTER_ATMOSPHERES,
   CAMERA_KF,
   CHAPTERS,
   type QualityTier,
@@ -700,8 +701,7 @@ function CloudConstellation({
       0.04
     );
 
-    groupRef.current.visible =
-      alpha > 0.02 || (nodeMat.opacity ?? 0) > 0.02;
+    groupRef.current.visible = alpha > 0.02 || (nodeMat.opacity ?? 0) > 0.02;
     if (!groupRef.current.visible) {
       return;
     }
@@ -933,7 +933,182 @@ function SingularityCore({
   );
 }
 
-function Background({ profile }: { profile: SceneProfile }) {
+function AtmosphereRig({
+  activeChapterIndex,
+  profile,
+}: {
+  activeChapterIndex: number;
+  profile: SceneProfile;
+}) {
+  const shellRef = useRef<THREE.Mesh>(null);
+  const haloRef = useRef<THREE.Mesh>(null);
+  const shellMaterialRef = useRef<THREE.MeshBasicMaterial>(null);
+  const haloMaterialRef = useRef<THREE.MeshBasicMaterial>(null);
+  const hemiLightRef = useRef<THREE.HemisphereLight>(null);
+  const keyLightRef = useRef<THREE.PointLight>(null);
+  const rimLightRef = useRef<THREE.PointLight>(null);
+  const atmosphere = useMemo(
+    () =>
+      CHAPTER_ATMOSPHERES[CHAPTERS[activeChapterIndex]?.id ?? CHAPTERS[0].id],
+    [activeChapterIndex]
+  );
+  const currentFogColor = useRef(new THREE.Color(atmosphere.fogColor));
+  const currentHazeColor = useRef(new THREE.Color(atmosphere.hazeColor));
+  const currentKeyLightColor = useRef(
+    new THREE.Color(atmosphere.keyLightColor)
+  );
+  const currentRimLightColor = useRef(
+    new THREE.Color(atmosphere.rimLightColor)
+  );
+
+  useFrame(({ clock, scene }) => {
+    const targetFogColor = new THREE.Color(atmosphere.fogColor);
+    const targetHazeColor = new THREE.Color(atmosphere.hazeColor);
+    const targetKeyLightColor = new THREE.Color(atmosphere.keyLightColor);
+    const targetRimLightColor = new THREE.Color(atmosphere.rimLightColor);
+
+    currentFogColor.current.lerp(targetFogColor, 0.04);
+    currentHazeColor.current.lerp(targetHazeColor, 0.04);
+    currentKeyLightColor.current.lerp(targetKeyLightColor, 0.05);
+    currentRimLightColor.current.lerp(targetRimLightColor, 0.05);
+
+    if (scene.fog instanceof THREE.Fog) {
+      scene.fog.color.copy(currentFogColor.current);
+    }
+
+    if (shellMaterialRef.current) {
+      shellMaterialRef.current.color.copy(currentHazeColor.current);
+      shellMaterialRef.current.opacity = THREE.MathUtils.lerp(
+        shellMaterialRef.current.opacity,
+        atmosphere.hazeOpacity,
+        0.06
+      );
+    }
+
+    if (haloMaterialRef.current) {
+      haloMaterialRef.current.color.copy(currentKeyLightColor.current);
+      haloMaterialRef.current.opacity = THREE.MathUtils.lerp(
+        haloMaterialRef.current.opacity,
+        atmosphere.haloOpacity +
+          Math.sin(clock.elapsedTime * (0.55 + atmosphere.starDriftSpeed)) *
+            0.025,
+        0.08
+      );
+    }
+
+    if (shellRef.current) {
+      shellRef.current.rotation.y += 0.0009;
+      shellRef.current.rotation.x = Math.sin(clock.elapsedTime * 0.08) * 0.04;
+    }
+
+    if (haloRef.current) {
+      const targetScale =
+        atmosphere.haloScale +
+        Math.sin(clock.elapsedTime * (0.42 + atmosphere.starDriftSpeed * 0.4)) *
+          0.03;
+      haloRef.current.scale.setScalar(
+        THREE.MathUtils.lerp(haloRef.current.scale.x, targetScale, 0.08)
+      );
+      haloRef.current.rotation.z =
+        clock.elapsedTime * (0.03 + atmosphere.starDriftSpeed * 0.08);
+    }
+
+    if (hemiLightRef.current) {
+      hemiLightRef.current.color.copy(currentKeyLightColor.current);
+      hemiLightRef.current.groundColor.copy(currentFogColor.current);
+      hemiLightRef.current.intensity = THREE.MathUtils.lerp(
+        hemiLightRef.current.intensity,
+        Math.min(1.4, profile.ambientLight + atmosphere.ambientBoost),
+        0.06
+      );
+    }
+
+    if (keyLightRef.current) {
+      keyLightRef.current.color.copy(currentKeyLightColor.current);
+      keyLightRef.current.intensity = THREE.MathUtils.lerp(
+        keyLightRef.current.intensity,
+        atmosphere.keyLightIntensity,
+        0.06
+      );
+    }
+
+    if (rimLightRef.current) {
+      rimLightRef.current.color.copy(currentRimLightColor.current);
+      rimLightRef.current.intensity = THREE.MathUtils.lerp(
+        rimLightRef.current.intensity,
+        atmosphere.rimLightIntensity,
+        0.06
+      );
+    }
+  });
+
+  return (
+    <>
+      <mesh ref={shellRef} renderOrder={-3}>
+        <sphereGeometry args={[34, 40, 40]} />
+        <meshBasicMaterial
+          ref={shellMaterialRef}
+          transparent
+          opacity={0}
+          side={THREE.BackSide}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+        />
+      </mesh>
+
+      <mesh
+        ref={haloRef}
+        position={[0, 0, -10]}
+        rotation={[Math.PI / 2, 0, 0]}
+        renderOrder={-2}
+      >
+        <ringGeometry args={[4.8, 18, 96]} />
+        <meshBasicMaterial
+          ref={haloMaterialRef}
+          transparent
+          opacity={0}
+          side={THREE.DoubleSide}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+        />
+      </mesh>
+
+      <hemisphereLight
+        ref={hemiLightRef}
+        color={atmosphere.keyLightColor}
+        groundColor={atmosphere.fogColor}
+        intensity={profile.ambientLight}
+      />
+      <pointLight
+        ref={keyLightRef}
+        color={atmosphere.keyLightColor}
+        position={[4, 5, 11]}
+        intensity={atmosphere.keyLightIntensity}
+        distance={28}
+        decay={2}
+      />
+      <pointLight
+        ref={rimLightRef}
+        color={atmosphere.rimLightColor}
+        position={[-8, -1.5, -14]}
+        intensity={atmosphere.rimLightIntensity}
+        distance={28}
+        decay={2}
+      />
+    </>
+  );
+}
+
+function Background({
+  activeChapterIndex,
+  profile,
+}: {
+  activeChapterIndex: number;
+  profile: SceneProfile;
+}) {
+  const atmosphere =
+    CHAPTER_ATMOSPHERES[CHAPTERS[activeChapterIndex]?.id ?? CHAPTERS[0].id];
+
   return (
     <>
       <Stars
@@ -943,10 +1118,18 @@ function Background({ profile }: { profile: SceneProfile }) {
         factor={profile.starFactor}
         saturation={0}
         fade
-        speed={0.4}
+        speed={atmosphere.starDriftSpeed}
       />
-      <ambientLight intensity={profile.ambientLight} />
-      <fog attach="fog" color="#000000" near={35} far={profile.fogFar} />
+      <fog
+        attach="fog"
+        color={atmosphere.fogColor}
+        near={35}
+        far={profile.fogFar}
+      />
+      <AtmosphereRig
+        activeChapterIndex={activeChapterIndex}
+        profile={profile}
+      />
     </>
   );
 }
@@ -993,7 +1176,7 @@ function Scene({
 
   return (
     <>
-      <Background profile={profile} />
+      <Background activeChapterIndex={activeChapterIndex} profile={profile} />
       {shouldPrimeScene(0) && (
         <ParticleGalaxy
           isLive={shouldRenderScene(0)}
@@ -1176,25 +1359,32 @@ export default function OliveUniverseCanvas({
       return;
     }
 
-    const warmPriority = getSceneWarmPriority(activeChapterIndex, CHAPTERS.length);
-    const nextSceneIndex = warmPriority.find(
-      sceneIndex => !warmedSceneIndices.includes(sceneIndex)
+    const intervalId = window.setInterval(
+      () => {
+        setWarmedSceneIndices(current => {
+          const warmPriority = getSceneWarmPriority(
+            activeChapterIndex,
+            CHAPTERS.length
+          );
+          const nextSceneIndex = warmPriority.find(
+            sceneIndex => !current.includes(sceneIndex)
+          );
+
+          if (nextSceneIndex === undefined) {
+            window.clearInterval(intervalId);
+            return current;
+          }
+
+          return mergeSceneIndices(current, [nextSceneIndex], CHAPTERS.length);
+        });
+      },
+      shouldAnimate ? 220 : 160
     );
 
-    if (nextSceneIndex === undefined) {
-      return;
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      setWarmedSceneIndices(current =>
-        mergeSceneIndices(current, [nextSceneIndex], CHAPTERS.length)
-      );
-    }, shouldAnimate ? 260 : 180);
-
     return () => {
-      window.clearTimeout(timeoutId);
+      window.clearInterval(intervalId);
     };
-  }, [activeChapterIndex, shouldAnimate, warmedSceneIndices]);
+  }, [activeChapterIndex, shouldAnimate, warmedSceneIndices.length]);
 
   return (
     <div className="universe-canvas" aria-hidden="true">

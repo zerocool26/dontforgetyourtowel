@@ -34,6 +34,23 @@ export interface ChapterDef {
   range: [number, number];
 }
 
+export interface ChapterAtmosphereDef {
+  label: string;
+  note: string;
+  traits: [string, string, string];
+  fogColor: string;
+  hazeColor: string;
+  keyLightColor: string;
+  rimLightColor: string;
+  ambientBoost: number;
+  keyLightIntensity: number;
+  rimLightIntensity: number;
+  hazeOpacity: number;
+  haloOpacity: number;
+  haloScale: number;
+  starDriftSpeed: number;
+}
+
 export const CHAPTERS: ChapterDef[] = [
   {
     id: 'genesis',
@@ -129,6 +146,108 @@ export const CHAPTERS: ChapterDef[] = [
     range: [0.94, 1.0],
   },
 ];
+
+export const CHAPTER_ATMOSPHERES: Record<
+  ChapterDef['id'],
+  ChapterAtmosphereDef
+> = {
+  genesis: {
+    label: 'Solar bloom',
+    note: 'Warm chartreuse haze, soft launch glow, and wide cinematic drift keep the opening scene feeling expansive instead of static.',
+    traits: ['Wide field', 'Warm flare', 'Slow drift'],
+    fogColor: '#05070d',
+    hazeColor: '#ccff00',
+    keyLightColor: '#f8ff9f',
+    rimLightColor: '#7dd3fc',
+    ambientBoost: 0.07,
+    keyLightIntensity: 1.7,
+    rimLightIntensity: 0.9,
+    hazeOpacity: 0.11,
+    haloOpacity: 0.16,
+    haloScale: 1.08,
+    starDriftSpeed: 0.45,
+  },
+  neural: {
+    label: 'Cyan lattice',
+    note: 'The AI chapter shifts into cooler lattice lighting with a tighter halo and more active drift, so the network feels awake and analytical.',
+    traits: ['Cool mesh', 'Fast pulse', 'Focused light'],
+    fogColor: '#030812',
+    hazeColor: '#00d4ff',
+    keyLightColor: '#67e8f9',
+    rimLightColor: '#ccff00',
+    ambientBoost: 0.05,
+    keyLightIntensity: 1.95,
+    rimLightIntensity: 1.05,
+    hazeOpacity: 0.13,
+    haloOpacity: 0.2,
+    haloScale: 0.96,
+    starDriftSpeed: 0.62,
+  },
+  vault: {
+    label: 'Zero-trust prism',
+    note: 'Security scenes now pull in amethyst fog, harder rim lighting, and a denser halo to make the fortress chapter feel sealed and fortified.',
+    traits: ['Prism shield', 'Dense halo', 'Hard rim'],
+    fogColor: '#080512',
+    hazeColor: '#a855f7',
+    keyLightColor: '#d8b4fe',
+    rimLightColor: '#7c3aed',
+    ambientBoost: 0.04,
+    keyLightIntensity: 1.75,
+    rimLightIntensity: 1.2,
+    hazeOpacity: 0.16,
+    haloOpacity: 0.22,
+    haloScale: 0.9,
+    starDriftSpeed: 0.36,
+  },
+  cloud: {
+    label: 'Orbital skyline',
+    note: 'Cloud Engineering gets a brighter skyline wash and broader blue orbit, helping the network scene read as elevated infrastructure rather than deep space only.',
+    traits: ['Blue orbit', 'Sky wash', 'Lifted focus'],
+    fogColor: '#02111c',
+    hazeColor: '#38bdf8',
+    keyLightColor: '#bae6fd',
+    rimLightColor: '#22d3ee',
+    ambientBoost: 0.08,
+    keyLightIntensity: 1.85,
+    rimLightIntensity: 1.0,
+    hazeOpacity: 0.12,
+    haloOpacity: 0.18,
+    haloScale: 1.14,
+    starDriftSpeed: 0.54,
+  },
+  signal: {
+    label: 'Carrier grid',
+    note: 'Managed Operations runs on an emerald carrier field with disciplined fog and tight bands, giving the telemetry chapter more operational tension.',
+    traits: ['Grid pulse', 'Emerald haze', 'Tight sync'],
+    fogColor: '#04110a',
+    hazeColor: '#22c55e',
+    keyLightColor: '#86efac',
+    rimLightColor: '#bef264',
+    ambientBoost: 0.06,
+    keyLightIntensity: 1.7,
+    rimLightIntensity: 1.08,
+    hazeOpacity: 0.12,
+    haloOpacity: 0.18,
+    haloScale: 0.98,
+    starDriftSpeed: 0.58,
+  },
+  singularity: {
+    label: 'Launch horizon',
+    note: 'The finale expands into a brighter launch horizon with a larger halo and warmer rim light so the closing CTA feels like ignition, not shutdown.',
+    traits: ['Bright horizon', 'Wide halo', 'Launch flare'],
+    fogColor: '#05070b',
+    hazeColor: '#ccff00',
+    keyLightColor: '#fef08a',
+    rimLightColor: '#facc15',
+    ambientBoost: 0.1,
+    keyLightIntensity: 2.1,
+    rimLightIntensity: 1.3,
+    hazeOpacity: 0.14,
+    haloOpacity: 0.24,
+    haloScale: 1.2,
+    starDriftSpeed: 0.7,
+  },
+};
 
 export const CAMERA_KF = [
   { t: 0.0, pos: [0, 0, 9] as const, look: [0, 0, 0] as const },
