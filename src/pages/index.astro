@@ -8,6 +8,7 @@ import ServicesQuiz from '../components/business/ServicesQuiz.tsx';
 import ModernCard from '../components/ui/ModernCard.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
 import { CONTACT_EMAIL } from '../consts';
+import { studioPresets } from '../data/build-studio';
 import { withBasePath } from '../utils/helpers';
 
 const startProjectHref = `mailto:${encodeURIComponent(
@@ -34,6 +35,10 @@ const lanes = [
 ];
 
 const demoLaunches = [
+  {
+    label: 'Build Studio',
+    href: withBasePath('build-studio/#studio'),
+  },
   {
     label: 'Cart flow',
     href: withBasePath('about/?demo=cart#shop-experience'),
@@ -202,6 +207,78 @@ const demoLaunches = [
               </ModernButton>
             </div>
           </ModernCard>
+        </div>
+      </div>
+    </section>
+
+    <section class="tone-border tone-surface border-y" data-reveal>
+      <div class="mx-auto max-w-6xl px-6 py-16 sm:px-10 sm:py-20">
+        <div class="grid gap-8 lg:grid-cols-[0.92fr_1.08fr] lg:items-start">
+          <div class="space-y-5">
+            <span class="creative-kicker">Flagship showcase</span>
+            <h2
+              class="creative-title tone-title text-3xl font-semibold sm:text-4xl"
+            >
+              Build Studio turns the site into a live strategy room.
+            </h2>
+            <p class="creative-copy text-sm sm:text-base">
+              Configure a premium product system in real time—preset direction,
+              launch tempo, modular capabilities, investment range, delivery
+              arc, and a contact-ready build brief that travels with the link.
+            </p>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+              <ModernCard variant="minimal" className="creative-panel p-5">
+                <p class="tone-title text-sm font-semibold">Shareable state</p>
+                <p class="tone-body mt-2 text-sm">
+                  Every preset, module, and urgency choice syncs into the URL so
+                  a premium brief can be reviewed or handed off instantly.
+                </p>
+              </ModernCard>
+              <ModernCard variant="minimal" className="creative-panel p-5">
+                <p class="tone-title text-sm font-semibold">Intake handoff</p>
+                <p class="tone-body mt-2 text-sm">
+                  The route feeds a structured project brief into Contact HQ so
+                  the discovery flow feels like a real product, not a dead end.
+                </p>
+              </ModernCard>
+            </div>
+
+            <div class="flex flex-wrap gap-3">
+              <ModernButton
+                href={withBasePath('build-studio/#studio')}
+                variant="primary"
+                className="min-h-[48px]"
+              >
+                Open Build Studio
+              </ModernButton>
+              <ModernButton
+                href={withBasePath('contact-hq/')}
+                variant="secondary"
+                className="min-h-[48px]"
+              >
+                Start from a live brief
+              </ModernButton>
+            </div>
+          </div>
+
+          <div class="grid gap-4 sm:grid-cols-2">
+            {
+              studioPresets.slice(0, 4).map(preset => (
+                <ModernCard variant="minimal" className="creative-panel p-5">
+                  <p class="tone-muted text-xs uppercase tracking-[0.22em]">
+                    {preset.kicker}
+                  </p>
+                  <p class="tone-title mt-3 text-lg font-semibold">
+                    {preset.name}
+                  </p>
+                  <p class="tone-body mt-2 text-sm leading-relaxed">
+                    {preset.summary}
+                  </p>
+                </ModernCard>
+              ))
+            }
+          </div>
         </div>
       </div>
     </section>

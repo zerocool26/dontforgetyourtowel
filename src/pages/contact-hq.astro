@@ -5,8 +5,11 @@ import ModernCard from '../components/ui/ModernCard.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
 import { withBasePath } from '../utils/helpers';
 import { CONTACT_EMAIL } from '../consts';
+import { studioPresets } from '../data/build-studio';
 
 const serviceIntent = Astro.url.searchParams.get('service')?.trim() ?? '';
+const solutionIntent = Astro.url.searchParams.get('solution')?.trim() ?? '';
+const briefIntent = Astro.url.searchParams.get('brief')?.trim() ?? '';
 
 const recommendedServiceLabel: Record<string, string> = {
   msp: 'Managed IT Services',
@@ -15,12 +18,38 @@ const recommendedServiceLabel: Record<string, string> = {
   ai: 'AI Consulting & Integration',
 };
 
+const recommendedSolutionLabel = Object.fromEntries(
+  studioPresets.map(preset => [preset.id, preset.name])
+) as Record<string, string>;
+
 const serviceIntentLabel =
   recommendedServiceLabel[serviceIntent.toLowerCase()] ?? serviceIntent;
+const solutionIntentLabel =
+  recommendedSolutionLabel[solutionIntent] ?? solutionIntent;
 
 const kickoffSubject = serviceIntentLabel
   ? `New project inquiry — ${serviceIntentLabel}`
-  : 'New project inquiry';
+  : solutionIntentLabel
+    ? `New project inquiry — ${solutionIntentLabel}`
+    : 'New project inquiry';
+
+const kickoffBodyLines = [
+  solutionIntentLabel ? `Build path: ${solutionIntentLabel}` : '',
+  briefIntent ? `Build brief: ${briefIntent}` : '',
+].filter(Boolean);
+
+const kickoffMailtoParams = new URLSearchParams({
+  subject: kickoffSubject,
+});
+
+if (kickoffBodyLines.length) {
+  kickoffMailtoParams.set('body', kickoffBodyLines.join('\n\n'));
+}
+
+const kickoffHref = `mailto:${encodeURIComponent(CONTACT_EMAIL)}?${kickoffMailtoParams.toString()}`;
+const hasIntakeContext = Boolean(
+  serviceIntentLabel || solutionIntentLabel || briefIntent
+);
 
 const contactChannels = [
   {
@@ -176,7 +205,8 @@ const faqSchema = {
           </p>
           <div class="flex flex-col gap-3 sm:flex-row">
             <ModernButton
-              href={`mailto:${encodeURIComponent(CONTACT_EMAIL)}?subject=${encodeURIComponent(kickoffSubject)}`}
+              href={kickoffHref}
+              data-kickoff-mailto
               variant="primary"
               className="min-h-[48px]"
             >
@@ -190,20 +220,63 @@ const faqSchema = {
               Review services
             </ModernButton>
           </div>
-        </div>
 
-        {
-          serviceIntentLabel && (
-            <div class="tone-border tone-surface mt-6 rounded-xl border px-4 py-3">
-              <p class="tone-muted text-xs uppercase tracking-[0.22em]">
-                Recommended starting point
-              </p>
-              <p class="tone-title mt-1 text-sm font-semibold">
-                {serviceIntentLabel}
-              </p>
+          <div
+            id="intake-context"
+            class:list={[
+              'tone-border tone-surface mt-6 rounded-xl border px-4 py-4',
+              !hasIntakeContext && 'hidden',
+            ]}
+          >
+            <p class="tone-muted text-xs uppercase tracking-[0.22em]">
+              Live intake context
+            </p>
+            <div class="mt-3 grid gap-3">
+              <div
+                id="intake-context-service-row"
+                class:list={[!serviceIntentLabel && 'hidden']}
+              >
+                <p class="tone-muted text-[11px] uppercase tracking-[0.18em]">
+                  Recommended service
+                </p>
+                <p
+                  id="intake-context-service"
+                  class="tone-title mt-1 text-sm font-semibold"
+                >
+                  {serviceIntentLabel}
+                </p>
+              </div>
+              <div
+                id="intake-context-solution-row"
+                class:list={[!solutionIntentLabel && 'hidden']}
+              >
+                <p class="tone-muted text-[11px] uppercase tracking-[0.18em]">
+                  Selected build path
+                </p>
+                <p
+                  id="intake-context-solution"
+                  class="tone-title mt-1 text-sm font-semibold"
+                >
+                  {solutionIntentLabel}
+                </p>
+              </div>
+              <div
+                id="intake-context-brief-row"
+                class:list={[!briefIntent && 'hidden']}
+              >
+                <p class="tone-muted text-[11px] uppercase tracking-[0.18em]">
+                  Build brief
+                </p>
+                <p
+                  id="intake-context-brief"
+                  class="tone-body mt-1 text-sm leading-relaxed"
+                >
+                  {briefIntent}
+                </p>
+              </div>
             </div>
-          )
-        }
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -365,7 +438,8 @@ const faqSchema = {
           </div>
           <div class="flex flex-col gap-3 sm:flex-row">
             <ModernButton
-              href={`mailto:${encodeURIComponent(CONTACT_EMAIL)}?subject=${encodeURIComponent('New project inquiry')}`}
+              href={kickoffHref}
+              data-kickoff-mailto
               variant="primary"
               className="min-h-[48px]"
             >
@@ -383,4 +457,79 @@ const faqSchema = {
       </div>
     </div>
   </section>
+
+  <script
+    is:inline
+    define:vars={{
+      contactEmail: CONTACT_EMAIL,
+      serviceLabels: recommendedServiceLabel,
+      solutionLabels: recommendedSolutionLabel,
+    }}
+  >
+    (() => {
+      const params = new URLSearchParams(window.location.search);
+      const serviceKey = (params.get('service') || '').trim();
+      const solutionKey = (params.get('solution') || '').trim();
+      const briefValue = (params.get('brief') || '').trim();
+
+      const serviceLabel =
+        serviceLabels[serviceKey.toLowerCase()] || serviceKey;
+      const solutionLabel = solutionLabels[solutionKey] || solutionKey;
+      const hasContext = Boolean(serviceLabel || solutionLabel || briefValue);
+
+      const panel = document.getElementById('intake-context');
+      const serviceRow = document.getElementById('intake-context-service-row');
+      const solutionRow = document.getElementById(
+        'intake-context-solution-row'
+      );
+      const briefRow = document.getElementById('intake-context-brief-row');
+      const serviceValue = document.getElementById('intake-context-service');
+      const solutionValue = document.getElementById('intake-context-solution');
+      const briefValueNode = document.getElementById('intake-context-brief');
+
+      const applyField = (row, node, value) => {
+        if (!(row instanceof HTMLElement) || !(node instanceof HTMLElement)) {
+          return;
+        }
+
+        row.classList.toggle('hidden', !value);
+        node.textContent = value;
+      };
+
+      if (panel instanceof HTMLElement) {
+        panel.classList.toggle('hidden', !hasContext);
+      }
+
+      applyField(serviceRow, serviceValue, serviceLabel);
+      applyField(solutionRow, solutionValue, solutionLabel);
+      applyField(briefRow, briefValueNode, briefValue);
+
+      const kickoffSubject = serviceLabel
+        ? `New project inquiry — ${serviceLabel}`
+        : solutionLabel
+          ? `New project inquiry — ${solutionLabel}`
+          : 'New project inquiry';
+
+      const bodyLines = [];
+      if (solutionLabel) {
+        bodyLines.push(`Build path: ${solutionLabel}`);
+      }
+      if (briefValue) {
+        bodyLines.push(`Build brief: ${briefValue}`);
+      }
+
+      const mailtoParams = new URLSearchParams({ subject: kickoffSubject });
+      if (bodyLines.length) {
+        mailtoParams.set('body', bodyLines.join('\n\n'));
+      }
+
+      const kickoffHref = `mailto:${encodeURIComponent(contactEmail)}?${mailtoParams.toString()}`;
+
+      document.querySelectorAll('[data-kickoff-mailto]').forEach(link => {
+        if (link instanceof HTMLAnchorElement) {
+          link.href = kickoffHref;
+        }
+      });
+    })();
+  </script>
 </MarketingLayout>

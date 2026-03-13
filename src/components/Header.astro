@@ -9,6 +9,7 @@ const homeHref = withBasePath('/');
 const links = [
   { label: 'Services', href: withBasePath('services/') },
   { label: 'Pricing', href: withBasePath('pricing/') },
+  { label: 'Build Studio', href: withBasePath('build-studio/') },
   { label: 'Portfolio', href: withBasePath('about/') },
   { label: 'Contact', href: withBasePath('contact-hq/') },
 ];
@@ -237,10 +238,10 @@ const isActiveHref = (href: string) => {
       }
       <a
         class="tone-title min-h-touch flex touch-manipulation items-center rounded-lg px-3 py-3 font-semibold transition hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ccff00]"
-        href={withBasePath('services/')}
+        href={withBasePath('build-studio/')}
         data-astro-prefetch
       >
-        View services
+        Launch Build Studio
       </a>
       <a
         class="min-h-touch flex touch-manipulation items-center rounded-lg bg-[rgba(99,102,241,0.15)] px-3 py-3 font-semibold text-white transition hover:bg-[rgba(99,102,241,0.25)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ccff00]"

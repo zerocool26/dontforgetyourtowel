@@ -110,6 +110,27 @@ const BASE_COMMANDS: CommandItem[] = [
     category: 'Navigation',
   },
   {
+    id: 'nav-build-studio',
+    label: 'Open Build Studio',
+    icon: Layout,
+    action: () => navigate(withBasePath('build-studio/#studio')),
+    category: 'Navigation',
+    keywords: ['build', 'studio', 'flagship', 'showcase', 'planner', 'brief'],
+  },
+  {
+    id: 'nav-build-studio-ai',
+    label: 'Build Studio: AI Operations Room',
+    icon: Layout,
+    action: () =>
+      navigate(
+        withBasePath(
+          'build-studio/?preset=ai-operations-room&urgency=flagship#studio'
+        )
+      ),
+    category: 'Navigation',
+    keywords: ['build studio', 'ai', 'automation', 'ops', 'flagship'],
+  },
+  {
     id: 'nav-portfolio-demo',
     label: 'Open Portfolio Demo',
     icon: Layout,

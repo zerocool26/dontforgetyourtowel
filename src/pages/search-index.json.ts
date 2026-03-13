@@ -113,6 +113,33 @@ export async function GET() {
       tags: ['pricing', 'estimate', 'roi', 'calculator', 'budget'],
     },
     {
+      id: 'page-build-studio',
+      title: 'Build Studio',
+      description:
+        'Flagship interactive showroom for configuring premium digital systems with live planning, investment, and launch logic',
+      category: 'Page',
+      url: 'build-studio/#studio',
+      tags: ['build-studio', 'flagship', 'showcase', 'planner', 'brief'],
+    },
+    {
+      id: 'page-build-studio-ai',
+      title: 'Build Studio — AI Operations Room',
+      description:
+        'Open the Build Studio with the AI operations preset and flagship urgency already applied',
+      category: 'Page',
+      url: 'build-studio/?preset=ai-operations-room&urgency=flagship#studio',
+      tags: ['build-studio', 'ai', 'automation', 'operations', 'flagship'],
+    },
+    {
+      id: 'page-build-studio-commerce',
+      title: 'Build Studio — Commerce Cinematic',
+      description:
+        'Open the premium commerce preset with launch planning and interactive showroom positioning',
+      category: 'Page',
+      url: 'build-studio/?preset=commerce-cinematic#studio',
+      tags: ['build-studio', 'commerce', 'showroom', 'pricing', 'conversion'],
+    },
+    {
       id: 'page-contact-hq',
       title: 'Contact',
       description: 'Project intake, support channels, and engagement kickoff',
