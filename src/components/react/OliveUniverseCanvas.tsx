@@ -1145,6 +1145,296 @@ function Background({
   );
 }
 
+function SceneSignatureLayer({
+  activeChapterIndex,
+  profile,
+}: {
+  activeChapterIndex: number;
+  profile: SceneProfile;
+}) {
+  const chapterId = CHAPTERS[activeChapterIndex]?.id ?? CHAPTERS[0].id;
+  const atmosphere = CHAPTER_ATMOSPHERES[chapterId];
+  const groupRef = useRef<THREE.Group>(null);
+  const pulseRef = useRef<THREE.Mesh>(null);
+  const sweepRef = useRef<THREE.Mesh>(null);
+  const primaryMat = useMemo(
+    () =>
+      new THREE.MeshBasicMaterial({
+        color: atmosphere.keyLightColor,
+        transparent: true,
+        opacity: 0,
+        wireframe: chapterId === 'neural' || chapterId === 'vault',
+        side: THREE.DoubleSide,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      }),
+    [atmosphere.keyLightColor, chapterId]
+  );
+  const secondaryMat = useMemo(
+    () =>
+      new THREE.MeshBasicMaterial({
+        color: atmosphere.rimLightColor,
+        transparent: true,
+        opacity: 0,
+        side: THREE.DoubleSide,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      }),
+    [atmosphere.rimLightColor]
+  );
+  const coreMat = useMemo(
+    () =>
+      new THREE.MeshStandardMaterial({
+        color: atmosphere.hazeColor,
+        emissive: atmosphere.keyLightColor,
+        emissiveIntensity: 0.9,
+        roughness: 0.16,
+        metalness: 0.2,
+        transparent: true,
+        opacity: 0,
+      }),
+    [atmosphere.hazeColor, atmosphere.keyLightColor]
+  );
+  const sparkleCount = useMemo(
+    () => Math.max(18, Math.round(profile.cloudSparkles * 0.85)),
+    [profile.cloudSparkles]
+  );
+
+  useFrame(({ clock }) => {
+    const primaryOpacityTarget = chapterId === 'signal' ? 0.18 : 0.24;
+    const secondaryOpacityTarget = chapterId === 'singularity' ? 0.34 : 0.22;
+    const coreOpacityTarget = chapterId === 'signal' ? 0.1 : 0.16;
+
+    primaryMat.opacity = THREE.MathUtils.lerp(
+      primaryMat.opacity,
+      primaryOpacityTarget,
+      0.08
+    );
+    secondaryMat.opacity = THREE.MathUtils.lerp(
+      secondaryMat.opacity,
+      secondaryOpacityTarget,
+      0.08
+    );
+    coreMat.opacity = THREE.MathUtils.lerp(
+      coreMat.opacity,
+      coreOpacityTarget,
+      0.08
+    );
+    coreMat.emissiveIntensity = THREE.MathUtils.lerp(
+      coreMat.emissiveIntensity,
+      1.2 + atmosphere.haloOpacity * 3,
+      0.08
+    );
+
+    if (groupRef.current) {
+      groupRef.current.rotation.y =
+        clock.elapsedTime * (0.05 + atmosphere.starDriftSpeed * 0.09);
+      groupRef.current.rotation.x =
+        Math.sin(clock.elapsedTime * 0.14) * 0.06;
+    }
+
+    if (pulseRef.current) {
+      const targetScale =
+        1 +
+        Math.sin(clock.elapsedTime * (0.65 + atmosphere.starDriftSpeed)) *
+          0.05;
+      pulseRef.current.scale.setScalar(
+        THREE.MathUtils.lerp(pulseRef.current.scale.x, targetScale, 0.08)
+      );
+    }
+
+    if (sweepRef.current) {
+      sweepRef.current.position.y = Math.sin(clock.elapsedTime * 0.8) * 0.55;
+      sweepRef.current.rotation.z = clock.elapsedTime * 0.16;
+    }
+  });
+
+  switch (chapterId) {
+    case 'genesis':
+      return (
+        <group ref={groupRef}>
+          <mesh ref={pulseRef} material={coreMat} position={[0, 0, -1.2]}>
+            <sphereGeometry args={[1.18, 28, 28]} />
+          </mesh>
+          {[4.6, 6.1, 7.4].map((radius, index) => (
+            <mesh
+              key={radius}
+              rotation={[Math.PI / 2 + index * 0.35, index * 0.55, 0]}
+              material={index === 1 ? secondaryMat : primaryMat}
+            >
+              <torusGeometry args={[radius, 0.024, 10, 72]} />
+            </mesh>
+          ))}
+          <Sparkles
+            count={sparkleCount}
+            scale={10}
+            size={2.3}
+            speed={0.32}
+            color={atmosphere.hazeColor}
+            opacity={0.52}
+          />
+        </group>
+      );
+    case 'neural':
+      return (
+        <group ref={groupRef}>
+          <mesh ref={pulseRef} material={primaryMat}>
+            <torusKnotGeometry args={[2.15, 0.24, 132, 18]} />
+          </mesh>
+          <mesh
+            rotation={[Math.PI / 2, 0, 0]}
+            material={secondaryMat}
+            position={[0, 0, -0.8]}
+          >
+            <torusGeometry args={[4.3, 0.028, 10, 90]} />
+          </mesh>
+          <Sparkles
+            count={sparkleCount}
+            scale={8.5}
+            size={2.1}
+            speed={0.5}
+            color={atmosphere.keyLightColor}
+            opacity={0.42}
+          />
+        </group>
+      );
+    case 'vault':
+      return (
+        <group ref={groupRef}>
+          <mesh ref={pulseRef} material={coreMat}>
+            <octahedronGeometry args={[1.45, 1]} />
+          </mesh>
+          <mesh material={primaryMat}>
+            <octahedronGeometry args={[2.55, 1]} />
+          </mesh>
+          {Array.from({ length: 6 }, (_, index) => {
+            const angle = (index / 6) * Math.PI * 2;
+
+            return (
+              <mesh
+                key={index}
+                position={[
+                  Math.cos(angle) * 2.5,
+                  Math.sin(index * 1.7) * 0.35,
+                  Math.sin(angle) * 2.5,
+                ]}
+                rotation={[0, angle, Math.PI / 4]}
+                material={secondaryMat}
+              >
+                <octahedronGeometry args={[0.34, 0]} />
+              </mesh>
+            );
+          })}
+        </group>
+      );
+    case 'cloud':
+      return (
+        <group ref={groupRef}>
+          {[2.4, 3.4, 4.6].map((radius, index) => (
+            <mesh
+              key={radius}
+              position={[0, (index - 1) * 1.25, -0.8]}
+              rotation={[Math.PI / 2, 0, 0]}
+              material={index === 1 ? secondaryMat : primaryMat}
+            >
+              <torusGeometry args={[radius, 0.028, 10, 72]} />
+            </mesh>
+          ))}
+          {Array.from({ length: 4 }, (_, index) => {
+            const angle = (index / 4) * Math.PI * 2;
+
+            return (
+              <mesh
+                key={index}
+                position={[
+                  Math.cos(angle) * 3.3,
+                  Math.sin(angle * 1.4) * 0.9,
+                  Math.sin(angle) * 3.3,
+                ]}
+                material={coreMat}
+              >
+                <sphereGeometry args={[0.26, 20, 20]} />
+              </mesh>
+            );
+          })}
+          <Sparkles
+            count={sparkleCount}
+            scale={9.5}
+            size={2.1}
+            speed={0.34}
+            color={atmosphere.hazeColor}
+            opacity={0.45}
+          />
+        </group>
+      );
+    case 'signal':
+      return (
+        <group ref={groupRef}>
+          <mesh
+            ref={sweepRef}
+            position={[0, -0.8, 0]}
+            rotation={[Math.PI / 2, 0, 0]}
+            material={primaryMat}
+          >
+            <circleGeometry args={[4.8, 64]} />
+          </mesh>
+          {[2.8, 4.6].map(radius => (
+            <mesh
+              key={radius}
+              rotation={[Math.PI / 2, 0, 0]}
+              material={secondaryMat}
+            >
+              <ringGeometry args={[radius - 0.16, radius, 64]} />
+            </mesh>
+          ))}
+          {[-1.8, 0, 1.8].map(positionX => (
+            <mesh
+              key={positionX}
+              position={[positionX, 0.2, 0]}
+              material={coreMat}
+            >
+              <boxGeometry args={[0.22, 3.4, 0.22]} />
+            </mesh>
+          ))}
+        </group>
+      );
+    case 'singularity':
+      return (
+        <group ref={groupRef}>
+          <mesh ref={pulseRef} material={coreMat}>
+            <icosahedronGeometry args={[0.86, 1]} />
+          </mesh>
+          {Array.from({ length: 12 }, (_, index) => {
+            const angle = (index / 12) * Math.PI * 2;
+
+            return (
+              <mesh
+                key={index}
+                rotation={[0, 0, angle]}
+                material={secondaryMat}
+              >
+                <boxGeometry args={[0.05, 6.5, 0.05]} />
+              </mesh>
+            );
+          })}
+          <mesh material={primaryMat} rotation={[Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[3.8, 0.032, 10, 84]} />
+          </mesh>
+          <Sparkles
+            count={Math.max(24, Math.round(profile.singularitySparkles * 0.45))}
+            scale={9.5}
+            size={2.5}
+            speed={0.7}
+            color={atmosphere.keyLightColor}
+            opacity={0.56}
+          />
+        </group>
+      );
+    default:
+      return null;
+  }
+}
+
 function Scene({
   activeChapterIndex,
   progressRef,
@@ -1188,6 +1478,11 @@ function Scene({
   return (
     <>
       <Background activeChapterIndex={activeChapterIndex} profile={profile} />
+      <SceneSignatureLayer
+        key={`signature-${CHAPTERS[activeChapterIndex]?.id ?? CHAPTERS[0].id}`}
+        activeChapterIndex={activeChapterIndex}
+        profile={profile}
+      />
       {shouldPrimeScene(0) && (
         <ParticleGalaxy
           isLive={shouldRenderScene(0)}
@@ -1370,30 +1665,18 @@ export default function OliveUniverseCanvas({
       return;
     }
 
-    const intervalId = window.setInterval(
-      () => {
-        setWarmedSceneIndices(current => {
-          const warmPriority = getSceneWarmPriority(
-            activeChapterIndex,
-            CHAPTERS.length
-          );
-          const nextSceneIndex = warmPriority.find(
-            sceneIndex => !current.includes(sceneIndex)
-          );
-
-          if (nextSceneIndex === undefined) {
-            window.clearInterval(intervalId);
-            return current;
-          }
-
-          return mergeSceneIndices(current, [nextSceneIndex], CHAPTERS.length);
-        });
-      },
-      shouldAnimate ? 220 : 160
-    );
+    const timeoutId = window.setTimeout(() => {
+      setWarmedSceneIndices(current =>
+        mergeSceneIndices(
+          current,
+          getSceneWarmPriority(activeChapterIndex, CHAPTERS.length),
+          CHAPTERS.length
+        )
+      );
+    }, shouldAnimate ? 640 : 480);
 
     return () => {
-      window.clearInterval(intervalId);
+      window.clearTimeout(timeoutId);
     };
   }, [activeChapterIndex, shouldAnimate, warmedSceneIndices.length]);
 

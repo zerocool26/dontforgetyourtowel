@@ -546,6 +546,29 @@
   gap: 16px;
 }
 
+.universe-story-panel-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.universe-story-close {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.78);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
 .universe-story-eyebrow,
 .universe-story-counter {
   margin: 0;
@@ -622,6 +645,62 @@
 
 .universe-story-progress-block {
   margin-top: 16px;
+}
+
+.universe-story-jump-grid {
+  display: none;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.universe-story-jump-button {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  min-height: 54px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.82);
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.universe-story-jump-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.universe-story-jump-button.is-active {
+  border-color: rgba(var(--universe-accent-rgb), 0.34);
+  background: rgba(var(--universe-accent-rgb), 0.1);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.16);
+}
+
+.universe-story-jump-index,
+.universe-story-jump-label {
+  font-family: 'JetBrains Mono', monospace;
+  text-transform: uppercase;
+}
+
+.universe-story-jump-index {
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  color: rgba(255, 255, 255, 0.46);
+}
+
+.universe-story-jump-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.84);
 }
 
 .universe-story-progress-row {
@@ -736,6 +815,13 @@
 
 .universe-story-render-profile {
   margin-top: 14px;
+}
+
+.universe-story-render-profile-note {
+  margin: 10px 0 0;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.76rem;
+  line-height: 1.55;
 }
 
 .universe-story-atmosphere {
@@ -1111,6 +1197,95 @@
   transform: translateX(4px);
 }
 
+.universe-mobile-dock {
+  display: none;
+}
+
+.universe-mobile-dock-button,
+.universe-mobile-panel-toggle {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(7, 10, 18, 0.76);
+  color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.24);
+}
+
+.universe-mobile-dock-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  min-height: 52px;
+  border-radius: 18px;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.universe-mobile-dock-button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.universe-mobile-panel-toggle {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 10px 12px;
+  border-radius: 18px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.universe-mobile-panel-counter,
+.universe-mobile-panel-kicker,
+.universe-mobile-panel-meta,
+.universe-mobile-panel-icon {
+  font-family: 'JetBrains Mono', monospace;
+  text-transform: uppercase;
+}
+
+.universe-mobile-panel-counter {
+  font-size: 0.64rem;
+  letter-spacing: 0.12em;
+  color: rgba(255, 255, 255, 0.54);
+}
+
+.universe-mobile-panel-copy {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.universe-mobile-panel-kicker {
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.88);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.universe-mobile-panel-meta {
+  margin-top: 2px;
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  color: rgba(var(--universe-atmosphere-secondary-rgb), 0.86);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.universe-mobile-panel-icon {
+  font-size: 0.95rem;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.72);
+}
+
 /* ── Scroll Hint ─────────────────────────────────────────── */
 
 .universe-scroll-hint {
@@ -1337,35 +1512,58 @@
   }
 
   .universe-progress {
-    left: 16px;
-    right: 16px;
-    top: auto;
-    bottom: 18px;
-    transform: none;
-    flex-direction: row;
-    overflow-x: auto;
-    padding-bottom: 4px;
-  }
-
-  .universe-progress::-webkit-scrollbar {
     display: none;
-  }
-
-  .universe-dot {
-    min-width: 136px;
-    flex: 0 0 auto;
   }
 
   .universe-story-panel {
     left: 16px;
     right: 16px;
-    top: 82px;
-    bottom: auto;
+    top: auto;
+    bottom: 86px;
     width: auto;
+    max-height: min(68vh, 560px);
+    padding: 14px;
+    border-radius: 22px;
+    transition:
+      opacity 0.24s ease,
+      transform 0.24s ease;
+  }
+
+  .universe-story-panel.is-mobile-collapsed,
+  .universe-story-panel:not(.is-mobile-open) {
+    opacity: 0;
+    transform: translateY(calc(100% + 18px));
+    pointer-events: none;
+  }
+
+  .universe-story-panel.is-mobile-open {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .universe-story-close {
+    display: inline-flex;
+  }
+
+  .universe-story-jump-grid {
+    display: grid;
+  }
+
+  .universe-mobile-dock {
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    bottom: 18px;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 10px;
+    z-index: 22;
+    pointer-events: auto;
   }
 
   .universe-scroll-hint {
-    bottom: 92px;
+    bottom: 94px;
   }
 }
 
@@ -1385,9 +1583,14 @@
   }
 
   .universe-story-panel {
-    top: 74px;
-    padding: 14px;
+    bottom: 82px;
+    padding: 13px;
     border-radius: 20px;
+  }
+
+  .universe-story-panel-status {
+    align-items: flex-end;
+    flex-direction: column;
   }
 
   .universe-ctas {
@@ -1399,17 +1602,8 @@
     width: 100%;
   }
 
-  .universe-dot {
-    min-width: 118px;
-    padding: 8px 10px;
-  }
-
-  .universe-dot-label {
-    font-size: 11px;
-  }
-
   .universe-scroll-hint {
-    bottom: 90px;
+    bottom: 96px;
   }
 }
 

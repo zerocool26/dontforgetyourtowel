@@ -741,7 +741,12 @@ test.describe('Homepage', () => {
     const hero = page.locator('[data-olive-universe="ready"]');
     await expect(hero).toBeVisible();
     await expect(hero).toHaveAttribute('data-olive-mode', 'reduced');
-    await expect(page.getByText(/touch: swipe ← → scenes/i)).toBeVisible();
+    await expect(hero).toHaveAttribute('data-olive-mobile-panel', 'closed');
+    await expect(
+      page.getByRole('button', {
+        name: /show hero controls for creative technology studio/i,
+      })
+    ).toBeVisible();
 
     await hero.dispatchEvent('pointerdown', {
       pointerType: 'touch',
@@ -765,6 +770,7 @@ test.describe('Homepage', () => {
       'immersive'
     );
     await expect(hero).toHaveAttribute('data-current-chapter', 'neural');
+    await expect(hero).toHaveAttribute('data-olive-atmosphere', 'neural');
 
     await hero.dispatchEvent('pointerdown', {
       pointerType: 'touch',
@@ -784,6 +790,54 @@ test.describe('Homepage', () => {
     });
 
     await expect(hero).toHaveAttribute('data-current-chapter', 'genesis');
+    await expect(hero).toHaveAttribute('data-olive-atmosphere', 'genesis');
+
+    await context.close();
+  });
+
+  test('mobile hero controls should collapse into a compact dock without losing scene jumps', async ({
+    browser,
+    baseURL,
+  }) => {
+    const context = await browser.newContext({
+      hasTouch: true,
+      isMobile: true,
+      viewport: { width: 430, height: 932 },
+      reducedMotion: 'reduce',
+    });
+    const page = await context.newPage();
+
+    await page.goto(baseURL ?? 'http://localhost:4321/', {
+      waitUntil: 'networkidle',
+    });
+
+    const hero = page.locator('[data-olive-universe="ready"]');
+    const mobileToggle = page.getByRole('button', {
+      name: /show hero controls for creative technology studio/i,
+    });
+    await expect(hero).toBeVisible();
+    await expect(hero).toHaveAttribute('data-olive-mobile-panel', 'closed');
+    await expect(mobileToggle).toBeVisible();
+
+    await mobileToggle.click();
+
+    const storyStatus = page.getByLabel('Hero story status');
+    await expect(hero).toHaveAttribute('data-olive-mobile-panel', 'open');
+    await expect(storyStatus).toBeVisible();
+
+    await storyStatus
+      .getByRole('button', { name: /jump to cloud engineering/i })
+      .click();
+
+    await expect(hero).toHaveAttribute('data-current-chapter', 'cloud');
+    await expect(hero).toHaveAttribute('data-olive-atmosphere', 'cloud');
+    await expect(hero).toHaveAttribute('data-olive-mobile-panel', 'closed');
+    await expect(hero).toHaveAttribute('data-olive-mode', /(immersive|lite)/);
+    await expect(
+      page.getByRole('button', {
+        name: /show hero controls for cloud engineering/i,
+      })
+    ).toBeVisible();
 
     await context.close();
   });

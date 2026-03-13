@@ -31,6 +31,8 @@ import {
 
 const preloadOliveUniverseCanvas = () => import('./OliveUniverseCanvas');
 const OliveUniverseCanvas = lazy(preloadOliveUniverseCanvas);
+const MOBILE_PANEL_ID = 'olive-universe-mobile-panel';
+const MOBILE_PANEL_QUERY = '(max-width: 960px)';
 const MOTION_PREFERENCE_KEY = 'olive-universe-motion-preference';
 const RENDER_PROFILE_KEY = 'olive-universe-render-profile';
 const AUTO_TOUR_INTERVAL_MS = 2800;
@@ -260,6 +262,8 @@ export default function OliveUniverse() {
   const [sceneResolved, setSceneResolved] = useState(false);
   const [nativeShareSupported, setNativeShareSupported] = useState(false);
   const [touchCapable, setTouchCapable] = useState(false);
+  const [isCompactViewport, setIsCompactViewport] = useState(false);
+  const [mobilePanelOpen, setMobilePanelOpen] = useState(false);
   const [stabilityAssistActive, setStabilityAssistActive] = useState(false);
   const [guidedTourPlaying, setGuidedTourPlaying] = useState(false);
   const [guidedTourSpeed, setGuidedTourSpeed] =
@@ -318,6 +322,36 @@ export default function OliveUniverse() {
 
     legacyMotionQuery.addListener?.(syncReducedMotion);
     return () => legacyMotionQuery.removeListener?.(syncReducedMotion);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const viewportQuery = window.matchMedia(MOBILE_PANEL_QUERY);
+    const syncCompactViewport = () => {
+      const compactViewport = viewportQuery.matches;
+
+      setIsCompactViewport(compactViewport);
+      if (!compactViewport) {
+        setMobilePanelOpen(false);
+      }
+    };
+
+    syncCompactViewport();
+
+    if ('addEventListener' in viewportQuery) {
+      viewportQuery.addEventListener('change', syncCompactViewport);
+      return () =>
+        viewportQuery.removeEventListener('change', syncCompactViewport);
+    }
+
+    const legacyViewportQuery = viewportQuery as MediaQueryList & {
+      addListener?: (listener: () => void) => void;
+      removeListener?: (listener: () => void) => void;
+    };
+
+    legacyViewportQuery.addListener?.(syncCompactViewport);
+    return () => legacyViewportQuery.removeListener?.(syncCompactViewport);
   }, []);
 
   useEffect(() => {
@@ -483,12 +517,16 @@ export default function OliveUniverse() {
         setGuidedTourPlaying(false);
       }
 
+      if (source === 'manual' && isCompactViewport) {
+        setMobilePanelOpen(false);
+      }
+
       progressRef.current = chapterDef.range[0];
       setChapter(chapterIndex);
       setSceneProgressPercent(0);
       scrollToChapter(chapterIndex, behaviorOverride ?? 'auto');
     },
-    [guidedTourPlaying, scrollToChapter]
+    [guidedTourPlaying, isCompactViewport, scrollToChapter]
   );
 
   useEffect(() => {
@@ -1011,6 +1049,15 @@ export default function OliveUniverse() {
             ? 'Sharing was blocked. Use the direct scene link to open this chapter or copy it from the address bar.'
             : 'Copy was blocked. Use the direct scene link to open this chapter and copy it from the address bar.'
           : null;
+    const mobilePanelState = isCompactViewport
+      ? mobilePanelOpen
+        ? 'open'
+        : 'closed'
+      : 'desktop';
+    const mobilePanelMeta = shouldRenderCanvas
+      ? activeAtmosphere.label
+      : runtimeLabel;
+    const mobilePanelToggleLabel = `${mobilePanelOpen ? 'Hide' : 'Show'} hero controls for ${activeChapter.kicker}`;
   const handleSceneReady = useCallback(() => {
     setSceneResolved(true);
   }, []);
@@ -1024,6 +1071,12 @@ export default function OliveUniverse() {
       setStabilityAssistActive(true);
     }
   }, [renderProfile, shouldRenderCanvas]);
+  const closeMobilePanel = useCallback(() => {
+    setMobilePanelOpen(false);
+  }, []);
+  const toggleMobilePanel = useCallback(() => {
+    setMobilePanelOpen(currentOpen => !currentOpen);
+  }, []);
   const shareSceneLink = useCallback(async () => {
     const sceneUrl = shareLinkRef.current?.href ?? sceneShareHref;
 
@@ -1059,15 +1112,27 @@ export default function OliveUniverse() {
     setShareState(didCopy ? 'copied' : 'error');
   }, [activeChapter.kicker, nativeShareSupported, sceneShareHref]);
   const enableImmersiveScenes = useCallback(() => {
+    if (isCompactViewport) {
+      setMobilePanelOpen(false);
+    }
+
     setMotionPreference('immersive');
-  }, []);
+  }, [isCompactViewport]);
   const retryCinematicRender = useCallback(() => {
+    if (isCompactViewport) {
+      setMobilePanelOpen(false);
+    }
+
     setStabilityAssistActive(false);
-  }, []);
+  }, [isCompactViewport]);
   const selectRenderProfile = useCallback((nextProfile: RenderProfile) => {
+    if (isCompactViewport) {
+      setMobilePanelOpen(false);
+    }
+
     setStabilityAssistActive(false);
     setRenderProfile(nextProfile);
-  }, []);
+  }, [isCompactViewport]);
   const startGuidedTour = useCallback(() => {
     if (
       webglSupported &&
@@ -1077,8 +1142,12 @@ export default function OliveUniverse() {
       setMotionPreference('immersive');
     }
 
+    if (isCompactViewport) {
+      setMobilePanelOpen(false);
+    }
+
     setGuidedTourPlaying(true);
-  }, [effectiveVisualMode, webglSupported]);
+  }, [effectiveVisualMode, isCompactViewport, webglSupported]);
   const stopGuidedTour = useCallback(() => {
     setGuidedTourPlaying(false);
   }, []);
@@ -1091,17 +1160,25 @@ export default function OliveUniverse() {
     startGuidedTour();
   }, [guidedTourPlaying, startGuidedTour, stopGuidedTour]);
   const enableCalmMode = useCallback(() => {
+    if (isCompactViewport) {
+      setMobilePanelOpen(false);
+    }
+
     setRenderProfile('adaptive');
     setStabilityAssistActive(false);
     setGuidedTourPlaying(false);
     setMotionPreference('calm');
-  }, []);
+  }, [isCompactViewport]);
   const resetMotionPreference = useCallback(() => {
+    if (isCompactViewport) {
+      setMobilePanelOpen(false);
+    }
+
     setRenderProfile('adaptive');
     setStabilityAssistActive(false);
     setGuidedTourPlaying(false);
     setMotionPreference('auto');
-  }, []);
+  }, [isCompactViewport]);
 
   useEffect(() => {
     setShareState('idle');
@@ -1156,6 +1233,7 @@ export default function OliveUniverse() {
       data-olive-tour={guidedTourPlaying ? 'playing' : 'idle'}
       data-olive-tour-speed={guidedTourSpeed}
       data-olive-motion-preference={motionPreference}
+      data-olive-mobile-panel={mobilePanelState}
       style={
         {
           '--universe-accent': activeChapter.accent,
@@ -1229,8 +1307,77 @@ export default function OliveUniverse() {
             />
           ))}
 
+          {isCompactViewport && (
+            <div
+              className="universe-mobile-dock"
+              role="group"
+              aria-label="Compact hero controls"
+            >
+              <button
+                type="button"
+                className="universe-mobile-dock-button"
+                onClick={() => {
+                  if (previousChapter) {
+                    navigateToChapter(chapter - 1);
+                  }
+                }}
+                disabled={!previousChapter}
+                aria-label={
+                  previousChapter
+                    ? `Go to previous scene: ${previousChapter.kicker}`
+                    : 'Previous scene unavailable'
+                }
+              >
+                <span aria-hidden="true">←</span>
+              </button>
+
+              <button
+                type="button"
+                className={`universe-mobile-panel-toggle ${mobilePanelOpen ? 'is-open' : ''}`}
+                onClick={toggleMobilePanel}
+                aria-expanded={mobilePanelOpen}
+                aria-controls={MOBILE_PANEL_ID}
+                aria-label={mobilePanelToggleLabel}
+              >
+                <span className="universe-mobile-panel-counter">
+                  {chapterCounter}
+                </span>
+                <span className="universe-mobile-panel-copy">
+                  <span className="universe-mobile-panel-kicker">
+                    {activeChapter.kicker}
+                  </span>
+                  <span className="universe-mobile-panel-meta">
+                    {mobilePanelMeta}
+                  </span>
+                </span>
+                <span className="universe-mobile-panel-icon" aria-hidden="true">
+                  {mobilePanelOpen ? '×' : '⋯'}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                className="universe-mobile-dock-button"
+                onClick={() => {
+                  if (nextChapter) {
+                    navigateToChapter(chapter + 1);
+                  }
+                }}
+                disabled={!nextChapter}
+                aria-label={
+                  nextChapter
+                    ? `Go to next scene: ${nextChapter.kicker}`
+                    : 'Next scene unavailable'
+                }
+              >
+                <span aria-hidden="true">→</span>
+              </button>
+            </div>
+          )}
+
           <aside
-            className="universe-story-panel"
+            id={MOBILE_PANEL_ID}
+            className={`universe-story-panel ${isCompactViewport ? (mobilePanelOpen ? 'is-mobile-open' : 'is-mobile-collapsed') : ''}`}
             aria-label="Hero story status"
           >
             <div className="universe-story-panel-top">
@@ -1238,9 +1385,23 @@ export default function OliveUniverse() {
                 <p className="universe-story-eyebrow">Story mode</p>
                 <p className="universe-story-counter">{chapterCounter}</p>
               </div>
-              <span className={`universe-story-badge ${storyBadgeClass}`}>
-                {runtimeLabel}
-              </span>
+
+              <div className="universe-story-panel-status">
+                <span className={`universe-story-badge ${storyBadgeClass}`}>
+                  {runtimeLabel}
+                </span>
+
+                {isCompactViewport && (
+                  <button
+                    type="button"
+                    className="universe-story-close"
+                    onClick={closeMobilePanel}
+                    aria-label="Close hero controls"
+                  >
+                    Close
+                  </button>
+                )}
+              </div>
             </div>
 
             <p className="universe-story-kicker">{activeChapter.kicker}</p>
@@ -1271,6 +1432,32 @@ export default function OliveUniverse() {
               </div>
               <p className="universe-story-next">{nextSceneLabel}</p>
             </div>
+
+            {isCompactViewport && (
+              <div
+                className="universe-story-jump-grid"
+                role="group"
+                aria-label="Chapter jump controls"
+              >
+                {CHAPTERS.map((item, index) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    className={`universe-story-jump-button ${index === chapter ? 'is-active' : ''}`}
+                    onClick={() => navigateToChapter(index)}
+                    aria-pressed={index === chapter}
+                    aria-label={`Jump to ${item.kicker}`}
+                  >
+                    <span className="universe-story-jump-index">
+                      {String(index + 1).padStart(2, '0')}
+                    </span>
+                    <span className="universe-story-jump-label">
+                      {item.kicker}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
 
             <p
               className={`universe-story-tour-status ${guidedTourPlaying ? 'is-playing' : ''}`}
@@ -1349,6 +1536,10 @@ export default function OliveUniverse() {
                     );
                   })}
                 </div>
+
+                <p className="universe-story-render-profile-note">
+                  {renderProfileConfig.note}
+                </p>
               </div>
             )}
 
