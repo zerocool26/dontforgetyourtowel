@@ -1,11 +1,33 @@
 import { useEffect, useMemo, useState } from 'preact/hooks';
 import { withBasePath } from '../../utils/helpers';
 
-export default function ROICalculator() {
+interface Props {
+  ctaHref?: string;
+  ctaLabel?: string;
+  title?: string;
+  description?: string;
+  defaultMonthlyCost?: number;
+  defaultSavingsPct?: number;
+  defaultTransitionCost?: number;
+}
+
+export default function ROICalculator({
+  ctaHref = `${withBasePath('services/')}#contact`,
+  ctaLabel = 'Request ROI review',
+  title = 'ROI calculator',
+  description = 'A simple planning tool. We’ll validate assumptions during discovery.',
+  defaultMonthlyCost = 12000,
+  defaultSavingsPct = 20,
+  defaultTransitionCost = 10000,
+}: Props) {
   const [hydrated, setHydrated] = useState(false);
-  const [currentMonthlyCost, setCurrentMonthlyCost] = useState(12000);
-  const [estimatedSavingsPct, setEstimatedSavingsPct] = useState(20);
-  const [oneTimeTransitionCost, setOneTimeTransitionCost] = useState(10000);
+  const [currentMonthlyCost, setCurrentMonthlyCost] =
+    useState(defaultMonthlyCost);
+  const [estimatedSavingsPct, setEstimatedSavingsPct] =
+    useState(defaultSavingsPct);
+  const [oneTimeTransitionCost, setOneTimeTransitionCost] = useState(
+    defaultTransitionCost
+  );
 
   useEffect(() => {
     setHydrated(true);
@@ -29,10 +51,8 @@ export default function ROICalculator() {
       class="rounded-2xl border border-white/10 bg-white/5 p-6"
       data-hydrated={hydrated ? 'true' : 'false'}
     >
-      <h3 class="text-xl font-semibold text-white">ROI calculator</h3>
-      <p class="mt-2 text-sm text-zinc-300">
-        A simple planning tool. We’ll validate assumptions during discovery.
-      </p>
+      <h3 class="text-xl font-semibold text-white">{title}</h3>
+      <p class="mt-2 text-sm text-zinc-300">{description}</p>
 
       <div class="mt-6 grid gap-6 lg:grid-cols-2">
         <div class="space-y-4">
@@ -131,9 +151,9 @@ export default function ROICalculator() {
 
           <a
             class="mt-6 inline-flex min-h-[48px] w-full items-center justify-center rounded-xl bg-accent-500 px-4 text-sm font-semibold text-white"
-            href={`${withBasePath('services/')}#contact`}
+            href={ctaHref}
           >
-            Request ROI review
+            {ctaLabel}
           </a>
         </div>
       </div>

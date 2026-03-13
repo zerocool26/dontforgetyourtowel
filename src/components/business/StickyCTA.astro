@@ -1,6 +1,7 @@
 ---
 import ModernButton from '../ui/ModernButton.astro';
 import { CONTACT_EMAIL } from '../../consts';
+import { withBasePath } from '../../utils/helpers';
 
 const href = `mailto:${encodeURIComponent(
   CONTACT_EMAIL
@@ -17,6 +18,10 @@ const href = `mailto:${encodeURIComponent(
     <p class="tone-body text-sm">
       Want a clear IT plan in 30 minutes?
       <span class="tone-muted">No obligation.</span>
+      <a
+        class="ml-2 text-[#ccff00] hover:underline"
+        href={withBasePath('pricing/')}>View plans</a
+      >
     </p>
     <ModernButton
       href={href}

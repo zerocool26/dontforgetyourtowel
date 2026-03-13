@@ -415,11 +415,45 @@ export default function CommandPalette() {
         announce('Command palette closed', 'polite');
       }
     };
+    const toggleHandler = () => {
+      setIsOpen(prev => {
+        const next = !prev;
+        announce(
+          next ? 'Command palette opened' : 'Command palette closed',
+          'polite'
+        );
+        return next;
+      });
+    };
+    const openHandler = () => {
+      setIsOpen(prev => {
+        if (prev) return prev;
+        announce('Command palette opened', 'polite');
+        return true;
+      });
+    };
+
     window.addEventListener('keydown', escapeHandler);
+    window.addEventListener(
+      'command-palette:toggle',
+      toggleHandler as EventListener
+    );
+    window.addEventListener(
+      'command-palette:open',
+      openHandler as EventListener
+    );
 
     return () => {
       cleanup();
       window.removeEventListener('keydown', escapeHandler);
+      window.removeEventListener(
+        'command-palette:toggle',
+        toggleHandler as EventListener
+      );
+      window.removeEventListener(
+        'command-palette:open',
+        openHandler as EventListener
+      );
     };
   }, [isOpen]);
 

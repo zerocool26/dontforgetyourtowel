@@ -3,11 +3,27 @@ import { withBasePath } from '../../utils/helpers';
 
 type Tier = 'bronze' | 'silver' | 'gold' | 'platinum';
 
+interface Props {
+  ctaHref?: string;
+  ctaLabel?: string;
+  title?: string;
+  description?: string;
+  defaultUsers?: number;
+  defaultTier?: Tier;
+}
+
 const PRICES_PER_USER: Record<Tier, number> = {
   bronze: 100,
   silver: 150,
   gold: 200,
   platinum: 250,
+};
+
+const TIER_LABELS: Record<Tier, string> = {
+  bronze: 'Essentials',
+  silver: 'Growth',
+  gold: 'Secure+',
+  platinum: 'Custom',
 };
 
 const ADD_ONS = [
@@ -18,10 +34,17 @@ const ADD_ONS = [
 
 type AddOnId = (typeof ADD_ONS)[number]['id'];
 
-export default function PricingCalculator() {
+export default function PricingCalculator({
+  ctaHref = `${withBasePath('services/')}#contact`,
+  ctaLabel = 'Request a quote',
+  title = 'Pricing calculator',
+  description = 'Estimate monthly spend for managed services. Final quotes vary by device counts, compliance scope, and SLA.',
+  defaultUsers = 25,
+  defaultTier = 'silver',
+}: Props) {
   const [hydrated, setHydrated] = useState(false);
-  const [users, setUsers] = useState(25);
-  const [tier, setTier] = useState<Tier>('silver');
+  const [users, setUsers] = useState(defaultUsers);
+  const [tier, setTier] = useState<Tier>(defaultTier);
   const [addons, setAddons] = useState<Set<AddOnId>>(new Set());
 
   useEffect(() => {
@@ -44,11 +67,8 @@ export default function PricingCalculator() {
       class="rounded-2xl border border-white/10 bg-white/5 p-6"
       data-hydrated={hydrated ? 'true' : 'false'}
     >
-      <h3 class="text-xl font-semibold text-white">Pricing calculator</h3>
-      <p class="mt-2 text-sm text-zinc-300">
-        Estimate monthly spend for managed services. Final quotes vary by device
-        counts, compliance scope, and SLA.
-      </p>
+      <h3 class="text-xl font-semibold text-white">{title}</h3>
+      <p class="mt-2 text-sm text-zinc-300">{description}</p>
 
       <div class="mt-6 grid gap-6 lg:grid-cols-2">
         <div class="space-y-5">
@@ -95,7 +115,7 @@ export default function PricingCalculator() {
                   }
                   onClick={() => setTier(t)}
                 >
-                  {t.toUpperCase()}
+                  {TIER_LABELS[t]}
                 </button>
               ))}
             </div>
@@ -162,9 +182,9 @@ export default function PricingCalculator() {
 
           <a
             class="mt-6 inline-flex min-h-[48px] w-full items-center justify-center rounded-xl bg-accent-500 px-4 text-sm font-semibold text-white"
-            href={`${withBasePath('services/')}#contact`}
+            href={ctaHref}
           >
-            Request a quote
+            {ctaLabel}
           </a>
 
           <p class="mt-3 text-xs text-zinc-500">

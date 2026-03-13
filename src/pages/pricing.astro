@@ -1,9 +1,329 @@
 ---
-import LegacyRedirect from '../components/LegacyRedirect.astro';
+/* eslint-disable astro/no-set-html-directive */
+import MarketingLayout from '../layouts/MarketingLayout.astro';
+import ModernButton from '../components/ui/ModernButton.astro';
+import ModernCard from '../components/ui/ModernCard.astro';
+import PricingCalculator from '../components/business/PricingCalculator.tsx';
+import ROICalculator from '../components/business/ROICalculator.tsx';
+import FAQAccordion from '../components/ui/FAQAccordion.tsx';
+import TrustBadge from '../components/business/TrustBadge.astro';
+import {
+  pricingFaqs,
+  pricingSignals,
+  pricingTiers,
+  slaComparisonRows,
+} from '../data/pricing';
+import { CONTACT_EMAIL } from '../consts';
+import { withBasePath } from '../utils/helpers';
+
+const requestQuoteHref = `mailto:${encodeURIComponent(
+  CONTACT_EMAIL
+)}?subject=${encodeURIComponent('Request pricing / quote')}`;
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'Home',
+      item: new URL(withBasePath('/'), Astro.site).toString(),
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: 'Pricing',
+      item: new URL(withBasePath('pricing/'), Astro.site).toString(),
+    },
+  ],
+};
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: pricingFaqs.map(item => ({
+    '@type': 'Question',
+    name: item.title,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: item.content,
+    },
+  })),
+};
 ---
 
-<LegacyRedirect
-  destination="/contact-hq"
-  reason="Pricing now routes to the Contact HQ intake experience."
-  statusText="Redirecting to contact"
-/>
+<MarketingLayout
+  title="Pricing | Olive Global Systems"
+  description="Live plan comparison, SLA guidance, pricing calculators, and ROI planning tools for managed operations, security, cloud, and AI delivery."
+>
+  <script
+    type="application/ld+json"
+    set:html={JSON.stringify(breadcrumbSchema)}
+  />
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+
+  <section
+    class="tone-surface relative overflow-hidden pb-16 pt-28"
+    data-reveal
+  >
+    <div
+      class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(204,255,0,0.12),_transparent_58%)]"
+    >
+    </div>
+    <div class="mx-auto max-w-[1220px] px-6">
+      <div
+        class="creative-hero-shell grid gap-10 p-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center"
+      >
+        <div class="space-y-6">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="creative-kicker">Pricing</span>
+            <a class="creative-chip" href="#plans">Live plans</a>
+            <a class="creative-chip" href="#sla">SLA matrix</a>
+            <a class="creative-chip" href="#estimate">Cost model</a>
+          </div>
+
+          <h1
+            class="creative-title tone-title text-4xl !leading-[1.05] tracking-tighter sm:text-6xl lg:text-7xl"
+          >
+            Plans that scale with your business—
+            <span class="text-[#ccff00]">without mystery math.</span>
+          </h1>
+          <p
+            class="creative-copy max-w-2xl text-pretty text-lg font-light leading-relaxed text-neutral-400 sm:text-xl"
+          >
+            See the operating lanes, compare response models, then run both a
+            monthly cost estimate and ROI scenario before you ever send an
+            email.
+          </p>
+
+          <div class="flex flex-col gap-3 sm:flex-row">
+            <ModernButton
+              href="#plans"
+              variant="primary"
+              className="min-h-[48px]"
+            >
+              Compare plans
+            </ModernButton>
+            <ModernButton
+              href={requestQuoteHref}
+              variant="secondary"
+              className="min-h-[48px]"
+            >
+              Email for a quote
+            </ModernButton>
+          </div>
+
+          <p class="tone-muted text-xs uppercase tracking-[0.22em]">
+            Illustrative pricing • final scope validated in discovery
+          </p>
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-2">
+          {
+            pricingSignals.map(signal => (
+              <TrustBadge label={signal.label} sublabel={signal.sublabel} />
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="tone-border tone-surface border-y" id="plans" data-reveal>
+    <div class="mx-auto max-w-[1220px] px-6 py-20">
+      <div
+        class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between"
+      >
+        <div class="max-w-3xl space-y-3">
+          <h2 class="tone-title text-3xl font-semibold">
+            Choose your operating lane
+          </h2>
+          <p class="tone-body text-sm">
+            Start with the level of support and security depth you actually
+            need, then tailor the engagement once the environment and business
+            goals are clear.
+          </p>
+        </div>
+        <ModernButton
+          href={withBasePath('services/#service-planner')}
+          variant="secondary"
+          className="min-h-[48px]"
+        >
+          Open service planner
+        </ModernButton>
+      </div>
+
+      <div class="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+        {
+          pricingTiers.map(tier => (
+            <ModernCard
+              variant="minimal"
+              className={`creative-panel p-6 ${tier.highlight ? 'tone-elevated border-[#ccff00]/30 bg-[#ccff00]/5' : ''}`}
+            >
+              <p class="tone-title text-sm font-semibold">{tier.name}</p>
+              <p class="tone-title mt-2 text-3xl font-semibold">{tier.price}</p>
+              <p class="tone-body mt-3 text-sm">{tier.description}</p>
+              <p class="tone-muted mt-4 text-[0.72rem] uppercase tracking-[0.22em]">
+                Best for
+              </p>
+              <p class="tone-title mt-2 text-sm font-medium">{tier.bestFor}</p>
+              <p class="tone-muted mt-4 text-[0.72rem] uppercase tracking-[0.22em]">
+                Response model
+              </p>
+              <p class="tone-body mt-2 text-sm">{tier.responseSla}</p>
+              <ul class="tone-body mt-5 space-y-2 text-sm">
+                {tier.perks.map(perk => (
+                  <li class="flex items-start gap-2">
+                    <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[#ccff00]" />
+                    <span>{perk}</span>
+                  </li>
+                ))}
+              </ul>
+              <div class="mt-6">
+                <ModernButton
+                  href={requestQuoteHref}
+                  variant={tier.highlight ? 'primary' : 'secondary'}
+                  className="min-h-[48px] w-full"
+                >
+                  {tier.ctaLabel}
+                </ModernButton>
+              </div>
+            </ModernCard>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="tone-surface" id="sla" data-reveal>
+    <div class="mx-auto max-w-[1220px] px-6 py-20">
+      <div class="max-w-3xl space-y-4">
+        <h2 class="tone-title text-3xl font-semibold">
+          SLA and capability comparison
+        </h2>
+        <p class="tone-body text-sm">
+          Use this matrix to understand how support depth, security posture, and
+          strategic involvement change as you move up the stack.
+        </p>
+      </div>
+
+      <div
+        class="tone-border tone-surface mt-10 overflow-x-auto rounded-2xl border"
+      >
+        <table class="w-full min-w-[760px] border-collapse text-left">
+          <thead>
+            <tr
+              class="border-b border-white/10 text-xs uppercase tracking-[0.22em] text-zinc-400"
+            >
+              <th class="px-5 py-4 font-semibold">Capability</th>
+              <th class="px-5 py-4 font-semibold">Essentials</th>
+              <th class="px-5 py-4 font-semibold">Growth</th>
+              <th class="px-5 py-4 font-semibold">Secure+</th>
+              <th class="px-5 py-4 font-semibold">Custom</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              slaComparisonRows.map((row, index) => (
+                <tr class={index % 2 === 0 ? 'bg-white/[0.02]' : ''}>
+                  <th class="px-5 py-4 align-top text-sm font-semibold text-white">
+                    {row.capability}
+                  </th>
+                  <td class="px-5 py-4 text-sm text-zinc-300">
+                    {row.essentials}
+                  </td>
+                  <td class="px-5 py-4 text-sm text-zinc-300">{row.growth}</td>
+                  <td class="px-5 py-4 text-sm text-zinc-300">
+                    {row.securePlus}
+                  </td>
+                  <td class="px-5 py-4 text-sm text-zinc-300">{row.custom}</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="tone-border tone-surface border-y" id="estimate" data-reveal>
+    <div class="mx-auto max-w-[1220px] px-6 py-20">
+      <div class="grid gap-8 xl:grid-cols-2 xl:items-start">
+        <PricingCalculator
+          client:visible
+          ctaHref={requestQuoteHref}
+          ctaLabel="Email for a quote"
+          title="Estimate monthly cost"
+          description="Use the model to sanity-check budget before discovery. We’ll validate assumptions and produce a tighter scope once we understand your environment."
+        />
+        <ROICalculator
+          client:visible
+          ctaHref={requestQuoteHref}
+          ctaLabel="Request ROI review"
+          title="Model business impact"
+          description="Translate reduced downtime, stronger security controls, and fewer emergency projects into a rough payback story for leadership."
+        />
+      </div>
+    </div>
+  </section>
+
+  <section class="tone-surface" id="faq" data-reveal>
+    <div class="mx-auto max-w-[1220px] px-6 py-20">
+      <div class="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
+        <div class="space-y-4">
+          <h2 class="tone-title text-3xl font-semibold">Pricing FAQs</h2>
+          <p class="tone-body text-sm">
+            The most common questions around scope, timelines, and audit-ready
+            delivery—answered before you need a meeting.
+          </p>
+          <ModernButton
+            href={withBasePath('services/#faq')}
+            variant="secondary"
+            className="min-h-[48px]"
+          >
+            View services FAQ
+          </ModernButton>
+        </div>
+        <div>
+          <FAQAccordion client:visible items={pricingFaqs} />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="tone-border tone-surface border-t" id="contact" data-reveal>
+    <div class="mx-auto max-w-[1220px] px-6 py-20">
+      <div class="tone-border tone-surface rounded-2xl border p-8">
+        <div class="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+          <div class="space-y-3">
+            <h2 class="tone-title text-2xl font-semibold">
+              Want a best-fit quote instead?
+            </h2>
+            <p class="tone-body text-sm">
+              Send over user counts, critical apps, compliance needs, and any
+              current pain points. We’ll reply with the right plan and the
+              likely rollout shape.
+            </p>
+          </div>
+          <div class="flex flex-col gap-3 sm:flex-row lg:justify-end">
+            <ModernButton
+              href={requestQuoteHref}
+              variant="primary"
+              className="min-h-[48px]"
+            >
+              Email project details
+            </ModernButton>
+            <ModernButton
+              href={withBasePath('contact-hq/')}
+              variant="secondary"
+              className="min-h-[48px]"
+            >
+              Open intake form
+            </ModernButton>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</MarketingLayout>

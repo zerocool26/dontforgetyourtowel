@@ -8,10 +8,14 @@ import CaseStudyCard from '../components/business/CaseStudyCard.astro';
 import TestimonialSlider from '../components/business/TestimonialSlider.astro';
 import ServicesQuiz from '../components/business/ServicesQuiz.tsx';
 import ServiceCatalog from '../components/business/ServiceCatalog.tsx';
+import ClientLogoCloud from '../components/business/ClientLogoCloud.astro';
+import ServiceComparisonMatrix from '../components/business/ServiceComparisonMatrix.tsx';
+import FAQAccordion from '../components/ui/FAQAccordion.tsx';
 import { getCollection } from 'astro:content';
 import { withBasePath } from '../utils/helpers';
 import { CONTACT_EMAIL } from '../consts';
 import { servicesExtended } from '../data/services-extended';
+import { pricingTiers, servicesFaqs } from '../data/pricing';
 
 const startProjectHref = `mailto:${encodeURIComponent(
   CONTACT_EMAIL
@@ -230,6 +234,8 @@ const servicesBreadcrumbSchema = {
     </div>
   </section>
 
+  <ClientLogoCloud />
+
   <section class="tone-border tone-surface border-y" data-reveal>
     <div class="mx-auto max-w-[1220px] px-6 py-16">
       <div class="mb-5 flex flex-wrap items-center gap-2">
@@ -267,9 +273,16 @@ const servicesBreadcrumbSchema = {
         >
         <a class="creative-chip" data-jump-link href="#cloud">Cloud & DevOps</a>
         <a class="creative-chip" data-jump-link href="#ai">AI Enablement</a>
+        <a class="creative-chip" data-jump-link href="#service-planner"
+          >Planner</a
+        >
         <a class="creative-chip" data-jump-link href="#engagement-model"
           >Engagement Model</a
         >
+        <a class="creative-chip" data-jump-link href="#pricing-snapshot"
+          >Pricing</a
+        >
+        <a class="creative-chip" data-jump-link href="#faq">FAQ</a>
         <a class="creative-chip" data-jump-link href="#contact">Contact</a>
       </div>
     </div>
@@ -454,6 +467,22 @@ const servicesBreadcrumbSchema = {
     </div>
   </section>
 
+  <section class="tone-surface scroll-mt-32" id="service-planner" data-reveal>
+    <div class="mx-auto max-w-[1220px] px-6 py-20">
+      <div class="max-w-3xl space-y-4">
+        <h2 class="tone-title text-3xl font-semibold">Plan your stack</h2>
+        <p class="tone-body text-sm">
+          Match the current business pressure to the right delivery lane, then
+          jump straight into plan comparison or a tailored discovery request.
+        </p>
+      </div>
+
+      <div class="mt-10">
+        <ServiceComparisonMatrix client:visible services={servicesExtended} />
+      </div>
+    </div>
+  </section>
+
   <section class="tone-surface" data-reveal>
     <div class="mx-auto max-w-[1220px] px-6 py-24">
       <div class="grid gap-16 lg:grid-cols-2 lg:items-center">
@@ -633,6 +662,54 @@ const servicesBreadcrumbSchema = {
 
   <section
     class="tone-border tone-surface border-y"
+    id="pricing-snapshot"
+    data-reveal
+  >
+    <div class="mx-auto max-w-[1220px] px-6 py-20">
+      <div
+        class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between"
+      >
+        <div class="max-w-3xl space-y-3">
+          <h2 class="tone-title text-3xl font-semibold">
+            See the pricing path
+          </h2>
+          <p class="tone-body text-sm">
+            Buyers should not have to guess where to start. These are the four
+            operating lanes we use most often before tailoring scope in
+            discovery.
+          </p>
+        </div>
+        <ModernButton
+          href={withBasePath('pricing/#plans')}
+          variant="secondary"
+          className="min-h-[48px]"
+        >
+          Open live pricing
+        </ModernButton>
+      </div>
+
+      <div class="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+        {
+          pricingTiers.map(tier => (
+            <ModernCard
+              variant="minimal"
+              className={`creative-panel p-6 ${tier.highlight ? 'tone-elevated border-[#ccff00]/30 bg-[#ccff00]/5' : ''}`}
+            >
+              <p class="tone-title text-sm font-semibold">{tier.name}</p>
+              <p class="tone-title mt-2 text-2xl font-semibold">{tier.price}</p>
+              <p class="tone-body mt-2 text-sm">{tier.description}</p>
+              <p class="tone-muted mt-4 text-xs uppercase tracking-[0.22em]">
+                {tier.bestFor}
+              </p>
+            </ModernCard>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section
+    class="tone-border tone-surface border-y"
     id="case-studies"
     data-reveal
   >
@@ -682,16 +759,25 @@ const servicesBreadcrumbSchema = {
           <p class="tone-body text-sm">
             Take a 60-second quiz and we’ll recommend a starting package.
           </p>
-          <ModernButton
-            href={startProjectHref}
-            variant="secondary"
-            className="min-h-[48px]"
-          >
-            Or talk to an expert
-          </ModernButton>
+          <div class="flex flex-wrap gap-3">
+            <ModernButton
+              href={startProjectHref}
+              variant="secondary"
+              className="min-h-[48px]"
+            >
+              Or talk to an expert
+            </ModernButton>
+            <ModernButton
+              href={withBasePath('pricing/#plans')}
+              variant="primary"
+              className="min-h-[48px]"
+            >
+              Compare plans
+            </ModernButton>
+          </div>
         </div>
         <div class="tone-border tone-surface rounded-2xl border p-6">
-          <ServicesQuiz client:load />
+          <ServicesQuiz client:visible />
         </div>
       </div>
     </div>
@@ -713,6 +799,31 @@ const servicesBreadcrumbSchema = {
 
       <div class="mt-10">
         <TestimonialSlider testimonials={featuredTestimonials} />
+      </div>
+    </div>
+  </section>
+
+  <section class="tone-border tone-surface border-y" id="faq" data-reveal>
+    <div class="mx-auto max-w-[1220px] px-6 py-20">
+      <div class="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
+        <div class="space-y-4">
+          <h2 class="tone-title text-3xl font-semibold">Common questions</h2>
+          <p class="tone-body text-sm">
+            The usual objections around scope, cadence, and fit—answered before
+            you have to schedule a call.
+          </p>
+          <ModernButton
+            href={withBasePath('pricing/#faq')}
+            variant="secondary"
+            className="min-h-[48px]"
+          >
+            View pricing FAQ
+          </ModernButton>
+        </div>
+
+        <div>
+          <FAQAccordion client:visible items={servicesFaqs} />
+        </div>
       </div>
     </div>
   </section>

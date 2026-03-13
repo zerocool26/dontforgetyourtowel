@@ -8,6 +8,12 @@ type Question = {
   options: { label: string; value: Answer }[];
 };
 
+interface Props {
+  kicker?: string;
+  title?: string;
+  ctaLabel?: string;
+}
+
 const QUESTIONS: Question[] = [
   {
     id: 'goal',
@@ -44,17 +50,34 @@ const QUESTIONS: Question[] = [
 function recommendationLabel(answer: Answer): string {
   switch (answer) {
     case 'msp':
-      return 'Managed IT Services (Bronze → Platinum)';
+      return 'Managed IT Services (Bronze) — Essentials → Growth';
     case 'security':
-      return 'Cybersecurity & Compliance (assessment + managed security)';
+      return 'Cybersecurity & Compliance (Silver) — Growth → Secure+';
     case 'cloud':
-      return 'Cloud & Infrastructure (migration + optimization)';
+      return 'Cloud & Infrastructure (Gold) — Growth → Custom';
     case 'ai':
-      return 'AI Consulting & Integration (readiness → pilot → scale)';
+      return 'AI Consulting & Integration (Platinum) — Secure+ → Custom';
   }
 }
 
-export default function ServicesQuiz() {
+function recommendationDescription(answer: Answer): string {
+  switch (answer) {
+    case 'msp':
+      return 'Best when your team needs operational calm, consistent support coverage, and stronger endpoint hygiene before piling on new initiatives.';
+    case 'security':
+      return 'Best when risk, compliance, access control, or incident readiness is the current bottleneck to growth.';
+    case 'cloud':
+      return 'Best when modernization, reliability, or spend visibility matters more than adding one more standalone tool.';
+    case 'ai':
+      return 'Best when you already know where manual work is slowing the team and want an AI roadmap with guardrails.';
+  }
+}
+
+export default function ServicesQuiz({
+  kicker = 'Find your perfect IT solution',
+  title = '60-second services quiz',
+  ctaLabel = 'Start intake',
+}: Props) {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Answer[]>([]);
 
@@ -87,13 +110,13 @@ export default function ServicesQuiz() {
       <div class="flex items-center justify-between gap-4">
         <div>
           <p class="tone-muted text-xs font-semibold uppercase tracking-[0.3em]">
-            Find your perfect IT solution
+            {kicker}
           </p>
           <h3
             class="tone-title mt-2 text-xl font-semibold"
             data-testid="services-quiz-title"
           >
-            60-second services quiz
+            {title}
           </h3>
         </div>
         <div class="text-right">
@@ -152,24 +175,33 @@ export default function ServicesQuiz() {
           <p class="tone-title mt-2 text-lg font-semibold" aria-live="polite">
             {result ? recommendationLabel(result) : '—'}
           </p>
-          <div class="mt-5 flex flex-col gap-3 sm:flex-row">
+          <p class="tone-body mt-3 text-sm leading-relaxed">
+            {result ? recommendationDescription(result) : null}
+          </p>
+          <div class="mt-5 grid gap-3 sm:grid-cols-2">
             <a
               class="inline-flex min-h-[48px] flex-1 items-center justify-center rounded-xl bg-accent-500 px-4 text-sm font-semibold text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-300 motion-reduce:transition-none [@media(hover:hover)]:hover:bg-accent-400"
               href={contactHref}
             >
-              Contact
+              {ctaLabel}
             </a>
-            <button
-              type="button"
+            <a
               class="tone-border tone-title tone-surface inline-flex min-h-[48px] flex-1 items-center justify-center rounded-xl border px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400/60 motion-reduce:transition-none [@media(hover:hover)]:hover:border-accent-400/40 [@media(hover:hover)]:hover:text-accent-200"
-              onClick={() => {
-                setStep(0);
-                setAnswers([]);
-              }}
+              href={withBasePath('pricing/#plans')}
             >
-              Retake
-            </button>
+              Compare plans
+            </a>
           </div>
+          <button
+            type="button"
+            class="tone-muted mt-3 inline-flex min-h-[44px] items-center justify-center rounded-xl px-3 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400/60 [@media(hover:hover)]:hover:text-white"
+            onClick={() => {
+              setStep(0);
+              setAnswers([]);
+            }}
+          >
+            Retake quiz
+          </button>
         </div>
       )}
     </section>

@@ -8,8 +8,9 @@ const homeHref = withBasePath('/');
 
 const links = [
   { label: 'Services', href: withBasePath('services/') },
-  { label: 'Contact', href: withBasePath('contact-hq/') },
+  { label: 'Pricing', href: withBasePath('pricing/') },
   { label: 'Portfolio', href: withBasePath('about/') },
+  { label: 'Contact', href: withBasePath('contact-hq/') },
 ];
 
 const startProjectHref = `mailto:${encodeURIComponent(
@@ -24,6 +25,9 @@ const normalizePath = (value: string) => {
 };
 
 const currentPath = normalizePath(Astro.url.pathname);
+
+const searchTriggerClasses =
+  'tone-border tone-surface tone-muted inline-flex min-h-[44px] items-center gap-2 rounded-lg border px-3 text-xs font-mono uppercase tracking-[0.22em] transition hover:border-white/20 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ccff00]';
 
 const isActiveHref = (href: string) => {
   try {
@@ -111,6 +115,31 @@ const isActiveHref = (href: string) => {
     </div>
 
     <div class="hidden items-center gap-4 pl-6 md:flex">
+      <button
+        type="button"
+        data-command-palette-trigger
+        class={searchTriggerClasses}
+        aria-label="Open site search"
+      >
+        <svg
+          class="h-4 w-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 100-15 7.5 7.5 0 000 15z"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.5"></path>
+        </svg>
+        <span>Search</span>
+        <kbd
+          class="rounded border border-white/10 px-1.5 py-0.5 text-[10px] text-zinc-400"
+        >
+          Ctrl/⌘ K
+        </kbd>
+      </button>
       <ThemeSelector />
       <div class="tone-border h-6 w-px"></div>
       <ModernButton
@@ -123,7 +152,26 @@ const isActiveHref = (href: string) => {
       </ModernButton>
     </div>
 
-    <div class="md:hidden">
+    <div class="flex items-center gap-2 md:hidden">
+      <button
+        type="button"
+        data-command-palette-trigger
+        class={`${searchTriggerClasses} h-12 w-12 justify-center px-0`}
+        aria-label="Open site search"
+      >
+        <svg
+          class="h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 100-15 7.5 7.5 0 000 15z"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.5"></path>
+        </svg>
+      </button>
       <ModernButton
         variant="outline"
         className="tone-border tone-surface tone-muted min-h-touch min-w-touch flex h-12 w-12 touch-manipulation items-center justify-center p-0 hover:border-white/20 hover:text-white"
@@ -154,6 +202,14 @@ const isActiveHref = (href: string) => {
     <div
       class="tone-border tone-surface tone-body space-y-2 border-t px-4 py-5 text-sm"
     >
+      <button
+        type="button"
+        data-command-palette-trigger
+        class="tone-border tone-surface tone-title min-h-touch flex w-full touch-manipulation items-center justify-between rounded-lg border px-3 py-3 font-medium transition hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ccff00]"
+      >
+        <span>Search the site</span>
+        <span class="text-xs text-zinc-400">Ctrl/⌘ K</span>
+      </button>
       <a
         class="tone-body min-h-touch flex touch-manipulation items-center rounded-lg px-3 py-3 font-medium transition hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ccff00]"
         href={homeHref}
@@ -195,6 +251,44 @@ const isActiveHref = (href: string) => {
     </div>
   </div>
 </header>
+
+<script is:inline>
+  (() => {
+    const bindPaletteTriggers = () => {
+      document
+        .querySelectorAll('[data-command-palette-trigger]')
+        .forEach(el => {
+          const trigger = el;
+          if (!(trigger instanceof HTMLElement)) return;
+          if (trigger.dataset.paletteBound === '1') return;
+
+          trigger.dataset.paletteBound = '1';
+          trigger.addEventListener('click', () => {
+            const mobileMenu = document.getElementById('mobile-menu');
+            const mobileMenuButton =
+              document.getElementById('mobile-menu-button');
+
+            if (mobileMenu && !mobileMenu.hasAttribute('hidden')) {
+              mobileMenu.setAttribute('hidden', '');
+              mobileMenuButton?.setAttribute('aria-expanded', 'false');
+            }
+
+            window.dispatchEvent(new CustomEvent('command-palette:toggle'));
+          });
+        });
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', bindPaletteTriggers, {
+        once: true,
+      });
+    } else {
+      bindPaletteTriggers();
+    }
+
+    document.addEventListener('astro:page-load', bindPaletteTriggers);
+  })();
+</script>
 
 <script>
   // Import the enhanced header script that uses our utilities

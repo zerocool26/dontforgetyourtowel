@@ -1,6 +1,10 @@
 ---
 import Layout from '../layouts/MarketingLayout.astro';
 import HeroSection from '../components/landing/HeroSection.astro';
+import SignalGrid from '../components/landing/SignalGrid.astro';
+import EngagementSection from '../components/landing/EngagementSection.astro';
+import InsightSection from '../components/landing/InsightSection.astro';
+import ServicesQuiz from '../components/business/ServicesQuiz.tsx';
 import ModernCard from '../components/ui/ModernCard.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
 import { CONTACT_EMAIL } from '../consts';
@@ -57,7 +61,6 @@ const demoLaunches = [
   title="Olive Global Systems — Creative Technology Studio"
   description="Story-driven digital systems: creative direction, engineering, security, and operations unified in one delivery model."
   showFooter={false}
-  showStickyCTA={false}
 >
   <main class="creative-page overflow-x-hidden">
     <HeroSection
@@ -249,6 +252,10 @@ const demoLaunches = [
     </section>
 
     <section class="mx-auto max-w-6xl px-6 py-14 sm:px-10 sm:py-20" data-reveal>
+      <SignalGrid />
+    </section>
+
+    <section class="mx-auto max-w-6xl px-6 py-14 sm:px-10 sm:py-20" data-reveal>
       <div class="grid gap-8 lg:grid-cols-[1fr_1.1fr] lg:items-start">
         <div class="space-y-5">
           <span class="creative-kicker">Why teams switch</span>
@@ -313,5 +320,75 @@ const demoLaunches = [
         </div>
       </div>
     </section>
+
+    <section class="tone-border tone-surface border-y" data-reveal>
+      <div class="mx-auto max-w-6xl px-6 py-16 sm:px-10 sm:py-20">
+        <div class="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
+          <div class="space-y-5">
+            <span class="creative-kicker">Guided discovery</span>
+            <h2
+              class="creative-title tone-title text-3xl font-semibold sm:text-4xl"
+            >
+              Route the right engagement before the backlog gets noisy.
+            </h2>
+            <p class="creative-copy text-sm sm:text-base">
+              Use the interactive planner to identify the best first move,
+              compare plans without leaving the site, and launch a tailored
+              intake from mobile or desktop in a few taps.
+            </p>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+              <ModernCard variant="minimal" className="creative-panel p-5">
+                <p class="tone-title text-sm font-semibold">
+                  Operate without chaos
+                </p>
+                <p class="tone-body mt-2 text-sm">
+                  Start with managed operations, support, and reporting if the
+                  current problem is noise, downtime, or support sprawl.
+                </p>
+              </ModernCard>
+              <ModernCard variant="minimal" className="creative-panel p-5">
+                <p class="tone-title text-sm font-semibold">
+                  Scale with intent
+                </p>
+                <p class="tone-body mt-2 text-sm">
+                  Move into cloud, security, or AI delivery once the baseline is
+                  stable and the team is ready to compound gains.
+                </p>
+              </ModernCard>
+            </div>
+
+            <div class="flex flex-wrap gap-3">
+              <ModernButton
+                href={withBasePath('pricing/')}
+                variant="primary"
+                className="min-h-[48px]"
+              >
+                Compare plans
+              </ModernButton>
+              <ModernButton
+                href={withBasePath('services/')}
+                variant="secondary"
+                className="min-h-[48px]"
+              >
+                Explore service lanes
+              </ModernButton>
+            </div>
+          </div>
+
+          <div class="tone-border tone-surface rounded-2xl border p-6">
+            <ServicesQuiz
+              client:visible
+              kicker="Route your next move"
+              title="Interactive service planner"
+              ctaLabel="Start tailored intake"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <EngagementSection />
+    <InsightSection />
   </main>
 </Layout>

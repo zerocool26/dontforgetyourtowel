@@ -88,6 +88,31 @@ export async function GET() {
       tags: ['services', 'msp', 'security', 'cloud', 'ai'],
     },
     {
+      id: 'page-services-planner',
+      title: 'Services Planner',
+      description: 'Interactive matrix for choosing the best service lane',
+      category: 'Page',
+      url: 'services/#service-planner',
+      tags: ['services', 'planner', 'comparison', 'matrix', 'roadmap'],
+    },
+    {
+      id: 'page-pricing',
+      title: 'Pricing',
+      description:
+        'Live plans, SLA comparison, pricing calculator, and ROI model',
+      category: 'Page',
+      url: 'pricing/',
+      tags: ['pricing', 'plans', 'quote', 'sla', 'calculator'],
+    },
+    {
+      id: 'page-pricing-estimate',
+      title: 'Pricing Estimate Tools',
+      description: 'Jump directly to the pricing calculator and ROI model',
+      category: 'Page',
+      url: 'pricing/#estimate',
+      tags: ['pricing', 'estimate', 'roi', 'calculator', 'budget'],
+    },
+    {
       id: 'page-contact-hq',
       title: 'Contact',
       description: 'Project intake, support channels, and engagement kickoff',
