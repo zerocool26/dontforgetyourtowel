@@ -918,6 +918,7 @@ export default function OliveUniverse() {
           sceneBootReady ? (
             <Suspense fallback={<StaticBackdrop mode="loading" />}>
               <OliveUniverseCanvas
+                activeChapterIndex={chapter}
                 progressRef={progressRef}
                 quality={quality}
                 sceneProfile={sceneProfile}

@@ -103,6 +103,9 @@ test.describe('Homepage', () => {
     await expect(
       hero.getByRole('heading', { name: /infrastructure/i })
     ).toBeVisible();
+    await expect(
+      hero.getByRole('heading', { name: /creative technology/i })
+    ).not.toBeVisible();
 
     await page.evaluate(() => {
       const heroElement = document.querySelector<HTMLElement>(

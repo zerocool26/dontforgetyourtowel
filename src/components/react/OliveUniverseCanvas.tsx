@@ -1,6 +1,12 @@
 /** @jsxImportSource react */
 /** @jsxRuntime automatic */
-import { useEffect, useMemo, useRef, type MutableRefObject } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  type MutableRefObject,
+} from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Stars, Sparkles } from '@react-three/drei';
@@ -369,6 +375,7 @@ function NeuralCortex({
         uColor: { value: new THREE.Color('#00d4ff') },
       },
       transparent: true,
+      opacity: 0,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
     });
@@ -384,6 +391,7 @@ function NeuralCortex({
         emissive: '#00d4ff',
         emissiveIntensity: 2.5,
         transparent: true,
+        opacity: 0,
       }),
     []
   );
@@ -437,6 +445,7 @@ function CrystalFortress({
           uColor: { value: new THREE.Color('#a855f7') },
         },
         transparent: true,
+        opacity: 0,
         depthWrite: false,
         side: THREE.DoubleSide,
         blending: THREE.AdditiveBlending,
@@ -844,9 +853,11 @@ function Background({ profile }: { profile: SceneProfile }) {
 }
 
 function Scene({
+  activeChapterIndex,
   progressRef,
   profile,
 }: {
+  activeChapterIndex: number;
   progressRef: MutableRefObject<number>;
   profile: SceneProfile;
 }) {
@@ -855,6 +866,10 @@ function Scene({
   const camLook = useRef(new THREE.Vector3(0, 0, 0));
   const nextPos = useRef(new THREE.Vector3(0, 0, 9));
   const nextLook = useRef(new THREE.Vector3(0, 0, 0));
+  const shouldRenderScene = useCallback(
+    (sceneIndex: number) => Math.abs(activeChapterIndex - sceneIndex) <= 1,
+    [activeChapterIndex]
+  );
 
   useFrame(() => {
     const progress = progressRef.current ?? 0;
@@ -870,17 +885,28 @@ function Scene({
   return (
     <>
       <Background profile={profile} />
-      <ParticleGalaxy progressRef={progressRef} profile={profile} />
-      <NeuralCortex progressRef={progressRef} profile={profile} />
-      <CrystalFortress progressRef={progressRef} />
-      <CloudConstellation progressRef={progressRef} profile={profile} />
-      <SignalMatrix progressRef={progressRef} profile={profile} />
-      <SingularityCore progressRef={progressRef} profile={profile} />
+      {shouldRenderScene(0) && (
+        <ParticleGalaxy progressRef={progressRef} profile={profile} />
+      )}
+      {shouldRenderScene(1) && (
+        <NeuralCortex progressRef={progressRef} profile={profile} />
+      )}
+      {shouldRenderScene(2) && <CrystalFortress progressRef={progressRef} />}
+      {shouldRenderScene(3) && (
+        <CloudConstellation progressRef={progressRef} profile={profile} />
+      )}
+      {shouldRenderScene(4) && (
+        <SignalMatrix progressRef={progressRef} profile={profile} />
+      )}
+      {shouldRenderScene(5) && (
+        <SingularityCore progressRef={progressRef} profile={profile} />
+      )}
     </>
   );
 }
 
 export interface OliveUniverseCanvasProps {
+  activeChapterIndex: number;
   progressRef: MutableRefObject<number>;
   quality: QualityTier;
   sceneProfile: SceneProfile;
@@ -889,6 +915,7 @@ export interface OliveUniverseCanvasProps {
 }
 
 export default function OliveUniverseCanvas({
+  activeChapterIndex,
   progressRef,
   quality,
   sceneProfile,
@@ -932,7 +959,11 @@ export default function OliveUniverseCanvas({
         }}
         style={{ position: 'absolute', inset: 0, background: '#000' }}
       >
-        <Scene progressRef={progressRef} profile={sceneProfile} />
+        <Scene
+          activeChapterIndex={activeChapterIndex}
+          progressRef={progressRef}
+          profile={sceneProfile}
+        />
         {sceneProfile.enablePostFx && (
           <EffectComposer>
             <Bloom
