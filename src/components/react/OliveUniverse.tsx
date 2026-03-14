@@ -348,6 +348,19 @@ export default function OliveUniverse() {
     'idle' | 'copied' | 'shared' | 'error'
   >('idle');
 
+  const syncDeviceCapabilities = useCallback(() => {
+    if (typeof window === 'undefined') return;
+
+    const coarseTouchSession =
+      window.matchMedia('(pointer: coarse)').matches ||
+      (navigator.maxTouchPoints ?? 0) > 0;
+
+    setQuality(detectQuality());
+    setTouchCapable(coarseTouchSession);
+    setDeviceMemory(getDeviceMemory());
+    setMobileLikeDevice(isMobileLikeDevice());
+  }, []);
+
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -355,16 +368,9 @@ export default function OliveUniverse() {
     const syncReducedMotion = () => setPrefersReduced(motionQuery.matches);
 
     syncReducedMotion();
-    setQuality(detectQuality());
+    syncDeviceCapabilities();
     setWebglSupported(supportsWebGL());
     setNativeShareSupported(isShareSupported());
-    const coarseTouchSession =
-      window.matchMedia('(pointer: coarse)').matches ||
-      (navigator.maxTouchPoints ?? 0) > 0;
-
-    setTouchCapable(coarseTouchSession);
-    setDeviceMemory(getDeviceMemory());
-    setMobileLikeDevice(isMobileLikeDevice());
 
     try {
       const storedMotionPreference = window.localStorage.getItem(
@@ -402,7 +408,7 @@ export default function OliveUniverse() {
 
     legacyMotionQuery.addListener?.(syncReducedMotion);
     return () => legacyMotionQuery.removeListener?.(syncReducedMotion);
-  }, []);
+  }, [syncDeviceCapabilities]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -433,6 +439,42 @@ export default function OliveUniverse() {
     legacyViewportQuery.addListener?.(syncCompactViewport);
     return () => legacyViewportQuery.removeListener?.(syncCompactViewport);
   }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const coarsePointerQuery = window.matchMedia('(pointer: coarse)');
+
+    syncDeviceCapabilities();
+    window.addEventListener('resize', syncDeviceCapabilities);
+    window.addEventListener('orientationchange', syncDeviceCapabilities);
+
+    if ('addEventListener' in coarsePointerQuery) {
+      coarsePointerQuery.addEventListener('change', syncDeviceCapabilities);
+
+      return () => {
+        window.removeEventListener('resize', syncDeviceCapabilities);
+        window.removeEventListener('orientationchange', syncDeviceCapabilities);
+        coarsePointerQuery.removeEventListener(
+          'change',
+          syncDeviceCapabilities
+        );
+      };
+    }
+
+    const legacyCoarsePointerQuery = coarsePointerQuery as MediaQueryList & {
+      addListener?: (listener: () => void) => void;
+      removeListener?: (listener: () => void) => void;
+    };
+
+    legacyCoarsePointerQuery.addListener?.(syncDeviceCapabilities);
+
+    return () => {
+      window.removeEventListener('resize', syncDeviceCapabilities);
+      window.removeEventListener('orientationchange', syncDeviceCapabilities);
+      legacyCoarsePointerQuery.removeListener?.(syncDeviceCapabilities);
+    };
+  }, [syncDeviceCapabilities]);
 
   useEffect(() => {
     if (!mounted || typeof window === 'undefined') return;

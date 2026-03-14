@@ -80,6 +80,32 @@ test.describe('Homepage', () => {
     await expect(hero).toHaveAttribute('data-olive-mode', /(immersive|lite)/);
   });
 
+  test('immersive mode should report interactive after the first 3D frame resolves', async ({
+    page,
+    isMobile,
+  }) => {
+    if (isMobile) {
+      test.skip();
+    }
+
+    await page.goto('./');
+
+    const hero = page.locator('[data-olive-universe="ready"]');
+    await expect(hero).toBeVisible();
+    await expect(hero).toHaveAttribute('data-olive-mode', 'reduced');
+
+    await page
+      .getByRole('button', { name: /enable immersive scenes/i })
+      .click();
+
+    await expect(hero).toHaveAttribute('data-olive-mode', /(immersive|lite)/);
+    await expect
+      .poll(async () => hero.getAttribute('data-olive-scene'), {
+        timeout: 6000,
+      })
+      .toBe('interactive');
+  });
+
   test('chapter navigation should auto-enable immersive scenes', async ({
     page,
     isMobile,

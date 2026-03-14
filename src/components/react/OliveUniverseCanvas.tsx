@@ -23,6 +23,7 @@ import {
   CHAPTER_ATMOSPHERES,
   CAMERA_KF,
   CHAPTERS,
+  getDeviceMemory,
   type QualityTier,
   type SceneLensMode,
   type SceneProfile,
@@ -316,7 +317,15 @@ function getImmediateSceneWindow(
   );
 }
 
-function getCanvasDprCap(quality: QualityTier, profile: SceneProfile) {
+function getCanvasDprCap(
+  quality: QualityTier,
+  profile: SceneProfile,
+  lowMemoryDevice: boolean
+) {
+  if (lowMemoryDevice) {
+    return profile.enablePostFx ? 1.08 : 1;
+  }
+
   if (quality === 'low') {
     return 1;
   }
@@ -330,6 +339,21 @@ function getCanvasDprCap(quality: QualityTier, profile: SceneProfile) {
   }
 
   return quality === 'high' ? 1.85 : 1.45;
+}
+
+function FirstFrameReadyReporter({ onReady }: { onReady?: () => void }) {
+  const readyReportedRef = useRef(false);
+
+  useFrame(() => {
+    if (readyReportedRef.current) {
+      return;
+    }
+
+    readyReportedRef.current = true;
+    onReady?.();
+  });
+
+  return null;
 }
 
 function getWarmStepMs(enablePostFx: boolean, shouldAnimate: boolean) {
@@ -2307,10 +2331,16 @@ function Scene({
 function PerformanceBudgetGuard({
   enabled,
   stabilityAssistActive,
+  quality,
+  postFxEnabled,
+  lowMemoryDevice,
   onBudgetExceeded,
 }: {
   enabled: boolean;
   stabilityAssistActive: boolean;
+  quality: QualityTier;
+  postFxEnabled: boolean;
+  lowMemoryDevice: boolean;
   onBudgetExceeded?: () => void;
 }) {
   const lowFpsScoreRef = useRef(0);
@@ -2349,21 +2379,33 @@ function PerformanceBudgetGuard({
   }, [enabled, onBudgetExceeded, stabilityAssistActive]);
 
   useFrame(({ clock }, delta) => {
+    const gracePeriod = lowMemoryDevice ? 0.72 : postFxEnabled ? 0.92 : 1.08;
+    const badFrameThreshold = lowMemoryDevice
+      ? 1 / 30
+      : postFxEnabled
+        ? 1 / 28
+        : 1 / 26;
+    const budgetThreshold = lowMemoryDevice
+      ? 11
+      : postFxEnabled || quality === 'high'
+        ? 14
+        : 17;
+
     if (
       !enabled ||
       stabilityAssistActive ||
       notifiedRef.current ||
-      clock.elapsedTime < 1.5
+      clock.elapsedTime < gracePeriod
     ) {
       return;
     }
 
     lowFpsScoreRef.current =
-      delta > 1 / 26
-        ? lowFpsScoreRef.current + 1
-        : Math.max(0, lowFpsScoreRef.current - 0.5);
+      delta > badFrameThreshold
+        ? lowFpsScoreRef.current + (delta > 1 / 22 ? 1.5 : 1)
+        : Math.max(0, lowFpsScoreRef.current - 0.75);
 
-    if (lowFpsScoreRef.current < 18) {
+    if (lowFpsScoreRef.current < budgetThreshold) {
       return;
     }
 
@@ -2404,6 +2446,9 @@ export default function OliveUniverseCanvas({
   onWarmCountChange,
   onReady,
 }: OliveUniverseCanvasProps) {
+  const deviceMemory = useMemo(() => getDeviceMemory(), []);
+  const lowMemoryDevice =
+    typeof deviceMemory === 'number' && deviceMemory > 0 && deviceMemory <= 4;
   const previousActiveChapterIndexRef = useRef(activeChapterIndex);
   const [warmedSceneIndices, setWarmedSceneIndices] = useState<number[]>(() =>
     getSceneNeighborhood(activeChapterIndex, CHAPTERS.length)
@@ -2441,10 +2486,16 @@ export default function OliveUniverseCanvas({
     [sceneProfile.aberrationOffset]
   );
   const canvasDprCap = useMemo(
-    () => getCanvasDprCap(quality, sceneProfile),
-    [quality, sceneProfile]
+    () => getCanvasDprCap(quality, sceneProfile, lowMemoryDevice),
+    [lowMemoryDevice, quality, sceneProfile]
   );
-  const antialiasEnabled = quality !== 'low' && sceneProfile.enablePostFx;
+  const antialiasEnabled =
+    quality !== 'low' && sceneProfile.enablePostFx && !lowMemoryDevice;
+  const powerPreference = lowMemoryDevice
+    ? 'low-power'
+    : sceneProfile.enablePostFx
+      ? 'high-performance'
+      : 'default';
   const warmStepMs = useMemo(
     () => getWarmStepMs(sceneProfile.enablePostFx, shouldAnimate),
     [sceneProfile.enablePostFx, shouldAnimate]
@@ -2453,10 +2504,6 @@ export default function OliveUniverseCanvas({
     () => getWarmBatchSize(sceneProfile.enablePostFx, shouldAnimate),
     [sceneProfile.enablePostFx, shouldAnimate]
   );
-
-  useEffect(() => {
-    onReady?.();
-  }, [onReady]);
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -2553,17 +2600,19 @@ export default function OliveUniverseCanvas({
         gl={{
           antialias: antialiasEnabled,
           alpha: false,
-          powerPreference: sceneProfile.enablePostFx
-            ? 'high-performance'
-            : 'default',
+          powerPreference,
           toneMapping: THREE.ACESFilmicToneMapping,
           toneMappingExposure: 1.25,
         }}
         style={{ position: 'absolute', inset: 0, background: '#000' }}
       >
+        <FirstFrameReadyReporter onReady={onReady} />
         <PerformanceBudgetGuard
           enabled={shouldAnimate}
           stabilityAssistActive={stabilityAssistActive}
+          quality={quality}
+          postFxEnabled={sceneProfile.enablePostFx}
+          lowMemoryDevice={lowMemoryDevice}
           onBudgetExceeded={onPerformanceBudgetExceeded}
         />
         <Scene
