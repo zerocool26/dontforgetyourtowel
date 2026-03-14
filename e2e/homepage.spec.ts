@@ -1014,6 +1014,12 @@ test.describe('Homepage', () => {
     });
 
     const hero = page.locator('[data-olive-universe="ready"]');
+    const compactBurstTrigger = page.getByRole('button', {
+      name: /trigger scene burst from compact controls/i,
+    });
+    const mobileTouchIndicator = hero.locator(
+      '.universe-mobile-touch-indicator'
+    );
     const mobileToggle = page.getByRole('button', {
       name: /show hero controls for creative technology studio/i,
     });
@@ -1024,6 +1030,7 @@ test.describe('Homepage', () => {
     await expect(hero).toHaveAttribute('data-olive-touch-interaction', 'idle');
     await expect(hero).toHaveAttribute('data-olive-touch-field', 'idle');
     await expect(hero).toHaveAttribute('data-olive-touch-momentum', 'idle');
+    await expect(mobileTouchIndicator).toBeHidden();
     await expect(
       hero.locator('.universe-chapter.is-visible .universe-copy')
     ).toHaveCount(0);
@@ -1087,6 +1094,8 @@ test.describe('Homepage', () => {
       })
       .toBe('interactive');
     await expect(hero).toHaveAttribute('data-olive-touch-field', 'idle');
+    await expect(compactBurstTrigger).toBeVisible();
+    await expect(mobileTouchIndicator).toBeHidden();
 
     const canvasField = hero.locator('.universe-canvas');
     await expect(canvasField).toBeVisible();
@@ -1114,6 +1123,10 @@ test.describe('Homepage', () => {
     await expect
       .poll(async () => hero.getAttribute('data-olive-touch-momentum'))
       .toMatch(/gliding|surging/);
+    await expect(mobileTouchIndicator).toBeVisible();
+    await expect(mobileTouchIndicator).toContainText(
+      /field tracking|momentum glide|momentum surge/i
+    );
 
     await canvasField.dispatchEvent('pointercancel', {
       pointerType: 'touch',
@@ -1121,23 +1134,23 @@ test.describe('Homepage', () => {
       bubbles: true,
     });
 
-    await page
-      .getByRole('button', {
-        name: /show hero controls for creative technology studio/i,
-      })
-      .click();
-
-    await storyStatus
-      .getByRole('button', { name: /trigger scene burst/i })
-      .click();
+    await compactBurstTrigger.click();
 
     await expect(hero).toHaveAttribute('data-olive-interaction', 'burst');
+    await expect(compactBurstTrigger).toContainText(/bursting/i);
     await expect
       .poll(async () => hero.getAttribute('data-olive-touch-field'))
       .toBe('surging');
     await expect
       .poll(async () => hero.getAttribute('data-olive-touch-momentum'))
       .toBe('surging');
+
+    await page
+      .getByRole('button', {
+        name: /show hero controls for creative technology studio/i,
+      })
+      .click();
+    await expect(compactBurstTrigger).toBeHidden();
 
     await storyStatus
       .getByRole('button', { name: /jump to cloud engineering/i })
@@ -1167,6 +1180,7 @@ test.describe('Homepage', () => {
         timeout: 5000,
       })
       .toBe('idle');
+    await expect(mobileTouchIndicator).toBeHidden();
 
     await context.close();
   });

@@ -71,7 +71,7 @@ function shouldIgnoreCanvasPointerTarget(target: EventTarget | null) {
 
   return Boolean(
     target.closest(
-      '.universe-story-panel, .universe-progress, .universe-mobile-dock, .universe-content'
+      '.universe-story-panel, .universe-progress, .universe-mobile-dock, .universe-mobile-feedback-rail, .universe-content'
     )
   );
 }
@@ -621,13 +621,13 @@ function CanvasRuntimeTelemetryReporter({
     velocityTargetRef.current.set(
       THREE.MathUtils.clamp(
         ((pointerSignal.position.x - previousPositionX) / frameDelta) *
-          (pointerSignal.coarse ? 0.22 : 0.16),
+          (pointerSignal.coarse ? 0.3 : 0.18),
         -1.35,
         1.35
       ),
       THREE.MathUtils.clamp(
         ((pointerSignal.position.y - previousPositionY) / frameDelta) *
-          (pointerSignal.coarse ? 0.18 : 0.14),
+          (pointerSignal.coarse ? 0.24 : 0.16),
         -1.15,
         1.15
       )
@@ -636,7 +636,7 @@ function CanvasRuntimeTelemetryReporter({
 
     pointerSignal.velocity.lerp(
       velocityTargetRef.current,
-      enabled ? (pointerActive ? 0.28 : 0.14) : 0.18
+      enabled ? (pointerActive ? 0.32 : 0.16) : 0.18
     );
     pointerSignal.energy = THREE.MathUtils.lerp(
       pointerSignal.energy,
@@ -880,6 +880,20 @@ function ParticleGalaxy({
     const performanceBudget = getScenePerformanceBudget(
       pointerSignal.performanceFactor
     );
+    const pointerVelocityX =
+      pointerSignal.velocity.x *
+      (pointerSignal.coarse ? 0.42 : 0.28) *
+      performanceBudget.motion;
+    const pointerVelocityY =
+      pointerSignal.velocity.y *
+      (pointerSignal.coarse ? 0.3 : 0.22) *
+      performanceBudget.motion;
+    const momentumPush =
+      pointerSignal.momentum *
+      (pointerSignal.coarse ? 0.32 : 0.2) *
+      performanceBudget.motion;
+    const mouseTargetX = pointerSignal.position.x + pointerVelocityX * 0.72;
+    const mouseTargetY = pointerSignal.position.y + pointerVelocityY * 0.58;
     const [start, end] = CHAPTERS[0].range;
     const visible =
       isLive && progress >= start - 0.08 && progress <= end + 0.08;
@@ -897,18 +911,47 @@ function ParticleGalaxy({
     matRef.current.uniforms.uMorph.value = THREE.MathUtils.lerp(
       matRef.current.uniforms.uMorph.value,
       local * (1.04 + performanceBudget.density * 0.16) +
-        pointerSignal.energy * 0.08 * performanceBudget.motion,
+        pointerSignal.energy * 0.08 * performanceBudget.motion +
+        momentumPush * 0.12,
       0.025
     );
     matRef.current.uniforms.uVisibility.value =
-      visibilityRef.current * performanceBudget.glow;
-    matRef.current.uniforms.uMouse.value.lerp(
-      pointerSignal.position,
-      pointerSignal.coarse ? 0.16 : 0.08
+      visibilityRef.current *
+      THREE.MathUtils.clamp(
+        performanceBudget.glow + momentumPush * 0.08,
+        0.72,
+        1.22
+      );
+    matRef.current.uniforms.uMouse.value.set(
+      THREE.MathUtils.lerp(
+        matRef.current.uniforms.uMouse.value.x,
+        mouseTargetX,
+        pointerSignal.coarse ? 0.2 : 0.1
+      ),
+      THREE.MathUtils.lerp(
+        matRef.current.uniforms.uMouse.value.y,
+        mouseTargetY,
+        pointerSignal.coarse ? 0.2 : 0.1
+      )
     );
 
     if (pointsRef.current) {
       pointsRef.current.visible = visible || visibilityRef.current > 0.02;
+      pointsRef.current.position.x = THREE.MathUtils.lerp(
+        pointsRef.current.position.x,
+        pointerVelocityX * 0.34,
+        0.06
+      );
+      pointsRef.current.position.y = THREE.MathUtils.lerp(
+        pointsRef.current.position.y,
+        pointerVelocityY * 0.26,
+        0.06
+      );
+      pointsRef.current.rotation.z = THREE.MathUtils.lerp(
+        pointsRef.current.rotation.z,
+        pointerVelocityX * 0.18 + momentumPush * 0.12,
+        0.06
+      );
     }
   });
 
@@ -1044,7 +1087,24 @@ function NeuralCortex({
       pointerSignal.position.y *
       (pointerSignal.coarse ? 0.28 : 0.18) *
       performanceBudget.motion;
+    const pointerVelocityX =
+      pointerSignal.velocity.x *
+      (pointerSignal.coarse ? 0.36 : 0.24) *
+      performanceBudget.motion;
+    const pointerVelocityY =
+      pointerSignal.velocity.y *
+      (pointerSignal.coarse ? 0.26 : 0.18) *
+      performanceBudget.motion;
     const pointerEnergy = pointerSignal.energy;
+    const momentumPush =
+      pointerSignal.momentum *
+      (pointerSignal.coarse ? 0.3 : 0.18) *
+      performanceBudget.motion;
+    const interactionEnergy = THREE.MathUtils.clamp(
+      pointerEnergy + momentumPush * 0.28,
+      0,
+      1.35
+    );
     const [start, end] = CHAPTERS[1].range;
     const visible =
       isLive && progress >= start - 0.08 && progress <= end + 0.08;
@@ -1055,27 +1115,27 @@ function NeuralCortex({
     );
     lineMat.opacity =
       visibilityRef.current *
-      (0.82 + pointerEnergy * 0.12) *
+      (0.82 + interactionEnergy * 0.12) *
       performanceBudget.glow;
     nodeMat.opacity = Math.min(
       1,
       visibilityRef.current *
-        (0.96 + pointerEnergy * 0.1) *
+        (0.96 + interactionEnergy * 0.1) *
         performanceBudget.glow
     );
     coreMat.opacity =
       visibilityRef.current *
-      (0.42 + pointerEnergy * 0.08) *
+      (0.42 + interactionEnergy * 0.08) *
       performanceBudget.glow;
     coreMat.emissiveIntensity = THREE.MathUtils.lerp(
       coreMat.emissiveIntensity,
-      visible ? (1.8 + pointerEnergy * 1.25) * performanceBudget.glow : 0,
+      visible ? (1.8 + interactionEnergy * 1.25) * performanceBudget.glow : 0,
       0.06
     );
     orbitMats.forEach((material, index) => {
       material.opacity =
         visibilityRef.current *
-        (0.32 - index * 0.08 + pointerEnergy * 0.03) *
+        (0.32 - index * 0.08 + interactionEnergy * 0.03) *
         performanceBudget.glow;
     });
 
@@ -1087,29 +1147,37 @@ function NeuralCortex({
     lineMat.uniforms.uTime.value = clock.elapsedTime;
     groupRef.current.position.x = THREE.MathUtils.lerp(
       groupRef.current.position.x,
-      pointerX * 0.85,
+      pointerX * 0.85 + pointerVelocityX * 0.36,
       0.06
     );
     groupRef.current.position.y = THREE.MathUtils.lerp(
       groupRef.current.position.y,
-      pointerY * 0.6,
+      pointerY * 0.6 + pointerVelocityY * 0.28,
       0.06
+    );
+    groupRef.current.scale.setScalar(
+      THREE.MathUtils.lerp(
+        groupRef.current.scale.x,
+        1 + momentumPush * 0.05,
+        0.08
+      )
     );
     groupRef.current.rotation.y =
       clock.elapsedTime *
-        (0.045 + pointerEnergy * 0.024) *
+        (0.045 + interactionEnergy * 0.024) *
         performanceBudget.motion +
-      pointerX * 0.18;
+      pointerX * 0.18 +
+      pointerVelocityX * 0.1;
     groupRef.current.rotation.x = THREE.MathUtils.lerp(
       groupRef.current.rotation.x,
-      pointerY * 0.22,
+      pointerY * 0.22 + pointerVelocityY * 0.08,
       0.08
     );
 
     if (keyLightRef.current) {
       keyLightRef.current.intensity = THREE.MathUtils.lerp(
         keyLightRef.current.intensity,
-        visible ? (2.5 + pointerEnergy * 1.2) * performanceBudget.glow : 0,
+        visible ? (2.5 + interactionEnergy * 1.2) * performanceBudget.glow : 0,
         0.06
       );
     }
@@ -1266,7 +1334,24 @@ function CrystalFortress({
       pointerSignal.position.y *
       (pointerSignal.coarse ? 0.34 : 0.2) *
       performanceBudget.motion;
+    const pointerVelocityX =
+      pointerSignal.velocity.x *
+      (pointerSignal.coarse ? 0.4 : 0.28) *
+      performanceBudget.motion;
+    const pointerVelocityY =
+      pointerSignal.velocity.y *
+      (pointerSignal.coarse ? 0.28 : 0.2) *
+      performanceBudget.motion;
     const pointerEnergy = pointerSignal.energy;
+    const momentumPush =
+      pointerSignal.momentum *
+      (pointerSignal.coarse ? 0.34 : 0.22) *
+      performanceBudget.motion;
+    const interactionEnergy = THREE.MathUtils.clamp(
+      pointerEnergy + momentumPush * 0.3,
+      0,
+      1.4
+    );
     const [start, end] = CHAPTERS[2].range;
     const visible =
       isLive && progress >= start - 0.08 && progress <= end + 0.08;
@@ -1279,22 +1364,22 @@ function CrystalFortress({
     crystalMat.opacity = alpha;
     crystalMat.emissiveIntensity = THREE.MathUtils.lerp(
       crystalMat.emissiveIntensity,
-      visible ? (0.6 + pointerEnergy * 0.8) * performanceBudget.glow : 0,
+      visible ? (0.6 + interactionEnergy * 0.8) * performanceBudget.glow : 0,
       0.06
     );
     wireMat.opacity = alpha * 0.35;
     ringMats.forEach((material, index) => {
       material.opacity =
         alpha *
-        (0.45 - index * 0.08 + pointerEnergy * 0.04) *
+        (0.45 - index * 0.08 + interactionEnergy * 0.04) *
         performanceBudget.glow;
     });
     shieldMat.uniforms.uTime.value = elapsed * performanceBudget.motion;
-    shieldMat.opacity = alpha * (1 + pointerEnergy * 0.12);
+    shieldMat.opacity = alpha * (1 + interactionEnergy * 0.12);
     scanMat.opacity =
-      alpha * (0.22 + pointerEnergy * 0.1) * performanceBudget.glow;
+      alpha * (0.22 + interactionEnergy * 0.1) * performanceBudget.glow;
     sentinelMat.opacity =
-      alpha * (0.34 + pointerEnergy * 0.08) * performanceBudget.glow;
+      alpha * (0.34 + interactionEnergy * 0.08) * performanceBudget.glow;
 
     groupRef.current.visible = alpha > 0.02;
     if (!groupRef.current.visible) {
@@ -1303,39 +1388,45 @@ function CrystalFortress({
 
     groupRef.current.position.x = THREE.MathUtils.lerp(
       groupRef.current.position.x,
-      pointerX * 0.92,
+      pointerX * 0.92 + pointerVelocityX * 0.44,
       0.06
     );
     groupRef.current.position.y = THREE.MathUtils.lerp(
       groupRef.current.position.y,
-      pointerY * 0.46,
+      pointerY * 0.46 + pointerVelocityY * 0.28,
       0.06
     );
     groupRef.current.scale.setScalar(
       THREE.MathUtils.lerp(
         groupRef.current.scale.x,
-        1 + pointerEnergy * 0.05 * performanceBudget.motion,
+        1 +
+          interactionEnergy * 0.05 * performanceBudget.motion +
+          momentumPush * 0.06,
         0.08
       )
     );
     groupRef.current.rotation.y =
-      elapsed * (0.11 + pointerEnergy * 0.03) * performanceBudget.motion +
-      pointerX * 0.22;
+      elapsed * (0.11 + interactionEnergy * 0.03) * performanceBudget.motion +
+      pointerX * 0.22 +
+      pointerVelocityX * 0.12;
     groupRef.current.rotation.x =
       Math.sin(elapsed * 0.07 * performanceBudget.motion) * 0.14 +
-      pointerY * 0.16;
+      pointerY * 0.16 +
+      pointerVelocityY * 0.1;
 
     if (scanRef.current) {
       scanRef.current.rotation.z = elapsed * 0.36;
-      scanRef.current.scale.setScalar(1 + Math.sin(elapsed * 1.1) * 0.04);
+      scanRef.current.scale.setScalar(
+        1 + Math.sin(elapsed * 1.1) * 0.04 + momentumPush * 0.08
+      );
       scanRef.current.position.x = THREE.MathUtils.lerp(
         scanRef.current.position.x,
-        pointerX * 0.5,
+        pointerX * 0.5 + pointerVelocityX * 0.24,
         0.08
       );
       scanRef.current.position.y = THREE.MathUtils.lerp(
         scanRef.current.position.y,
-        pointerY * 0.35,
+        pointerY * 0.35 + pointerVelocityY * 0.22,
         0.08
       );
     }
@@ -1343,7 +1434,7 @@ function CrystalFortress({
     if (keyLightRef.current) {
       keyLightRef.current.intensity = THREE.MathUtils.lerp(
         keyLightRef.current.intensity,
-        visible ? (3 + pointerEnergy * 1.1) * performanceBudget.glow : 0,
+        visible ? (3 + interactionEnergy * 1.1) * performanceBudget.glow : 0,
         0.06
       );
     }
@@ -1519,13 +1610,30 @@ function CloudConstellation({
       pointerSignal.position.y *
       (pointerSignal.coarse ? 0.28 : 0.18) *
       performanceBudget.motion;
+    const pointerVelocityX =
+      pointerSignal.velocity.x *
+      (pointerSignal.coarse ? 0.38 : 0.26) *
+      performanceBudget.motion;
+    const pointerVelocityY =
+      pointerSignal.velocity.y *
+      (pointerSignal.coarse ? 0.24 : 0.16) *
+      performanceBudget.motion;
     const pointerEnergy = pointerSignal.energy;
+    const momentumPush =
+      pointerSignal.momentum *
+      (pointerSignal.coarse ? 0.3 : 0.18) *
+      performanceBudget.motion;
+    const interactionEnergy = THREE.MathUtils.clamp(
+      pointerEnergy + momentumPush * 0.28,
+      0,
+      1.3
+    );
     const [start, end] = CHAPTERS[3].range;
     const visible =
       isLive && progress >= start - 0.08 && progress <= end + 0.08;
     const alpha = THREE.MathUtils.lerp(
       lineMat.opacity,
-      visible ? (0.45 + pointerEnergy * 0.08) * performanceBudget.glow : 0,
+      visible ? (0.45 + interactionEnergy * 0.08) * performanceBudget.glow : 0,
       0.04
     );
     lineMat.opacity = alpha;
@@ -1536,24 +1644,24 @@ function CloudConstellation({
     );
     nodeMat.emissiveIntensity = THREE.MathUtils.lerp(
       nodeMat.emissiveIntensity,
-      visible ? (2 + pointerEnergy * 1.2) * performanceBudget.glow : 0,
+      visible ? (2 + interactionEnergy * 1.2) * performanceBudget.glow : 0,
       0.06
     );
     gatewayMat.opacity = THREE.MathUtils.lerp(
       gatewayMat.opacity,
-      visible ? (0.34 + pointerEnergy * 0.06) * performanceBudget.glow : 0,
+      visible ? (0.34 + interactionEnergy * 0.06) * performanceBudget.glow : 0,
       0.04
     );
     gatewayMat.emissiveIntensity = THREE.MathUtils.lerp(
       gatewayMat.emissiveIntensity,
-      visible ? (1.4 + pointerEnergy * 0.85) * performanceBudget.glow : 0,
+      visible ? (1.4 + interactionEnergy * 0.85) * performanceBudget.glow : 0,
       0.06
     );
     orbitMats.forEach((material, index) => {
       material.opacity = THREE.MathUtils.lerp(
         material.opacity,
         visible
-          ? (0.24 - index * 0.04 + pointerEnergy * 0.04) *
+          ? (0.24 - index * 0.04 + interactionEnergy * 0.04) *
               performanceBudget.glow
           : 0,
         0.04
@@ -1567,29 +1675,37 @@ function CloudConstellation({
 
     groupRef.current.position.x = THREE.MathUtils.lerp(
       groupRef.current.position.x,
-      pointerX * 0.9,
+      pointerX * 0.9 + pointerVelocityX * 0.38,
       0.06
     );
     groupRef.current.position.y = THREE.MathUtils.lerp(
       groupRef.current.position.y,
-      pointerY * 0.55,
+      pointerY * 0.55 + pointerVelocityY * 0.24,
       0.06
+    );
+    groupRef.current.scale.setScalar(
+      THREE.MathUtils.lerp(
+        groupRef.current.scale.x,
+        1 + momentumPush * 0.04,
+        0.08
+      )
     );
     groupRef.current.rotation.y =
       clock.elapsedTime *
-        (0.055 + pointerEnergy * 0.02) *
+        (0.055 + interactionEnergy * 0.02) *
         performanceBudget.motion +
-      pointerX * 0.16;
+      pointerX * 0.16 +
+      pointerVelocityX * 0.08;
     groupRef.current.rotation.x = THREE.MathUtils.lerp(
       groupRef.current.rotation.x,
-      pointerY * 0.18,
+      pointerY * 0.18 + pointerVelocityY * 0.08,
       0.08
     );
 
     if (keyLightRef.current) {
       keyLightRef.current.intensity = THREE.MathUtils.lerp(
         keyLightRef.current.intensity,
-        visible ? (2 + pointerEnergy * 0.9) * performanceBudget.glow : 0,
+        visible ? (2 + interactionEnergy * 0.9) * performanceBudget.glow : 0,
         0.06
       );
     }
@@ -1731,9 +1847,42 @@ function SignalMatrix({
       pointerSignal.position.y *
       (pointerSignal.coarse ? 0.75 : 0.46) *
       performanceBudget.motion;
+    const pointerVelocityX =
+      pointerSignal.velocity.x *
+      (pointerSignal.coarse ? 0.46 : 0.3) *
+      performanceBudget.motion;
+    const pointerVelocityY =
+      pointerSignal.velocity.y *
+      (pointerSignal.coarse ? 0.42 : 0.28) *
+      performanceBudget.motion;
     const pointerEnergy = pointerSignal.energy;
-    const pointerGridX = (pointerSignal.position.x + 1) * 0.5 * (gridSize - 1);
-    const pointerGridZ = (-pointerSignal.position.y + 1) * 0.5 * (gridSize - 1);
+    const momentumPush =
+      pointerSignal.momentum *
+      (pointerSignal.coarse ? 0.4 : 0.24) *
+      performanceBudget.motion;
+    const interactionEnergy = THREE.MathUtils.clamp(
+      pointerEnergy + momentumPush * 0.32,
+      0,
+      1.4
+    );
+    const pointerGridX =
+      (THREE.MathUtils.clamp(
+        pointerSignal.position.x + pointerVelocityX * 0.56,
+        -1.25,
+        1.25
+      ) +
+        1) *
+      0.5 *
+      (gridSize - 1);
+    const pointerGridZ =
+      (-THREE.MathUtils.clamp(
+        pointerSignal.position.y + pointerVelocityY * 0.46,
+        -1.25,
+        1.25
+      ) +
+        1) *
+      0.5 *
+      (gridSize - 1);
     const [start, end] = CHAPTERS[4].range;
     const visible =
       isLive && progress >= start - 0.08 && progress <= end + 0.08;
@@ -1744,12 +1893,12 @@ function SignalMatrix({
     );
     scanMat.opacity = THREE.MathUtils.lerp(
       scanMat.opacity,
-      visible ? (0.13 + pointerEnergy * 0.08) * performanceBudget.glow : 0,
+      visible ? (0.13 + interactionEnergy * 0.08) * performanceBudget.glow : 0,
       0.04
     );
     ringMat.opacity = THREE.MathUtils.lerp(
       ringMat.opacity,
-      visible ? (0.24 + pointerEnergy * 0.08) * performanceBudget.glow : 0,
+      visible ? (0.24 + interactionEnergy * 0.08) * performanceBudget.glow : 0,
       0.04
     );
 
@@ -1775,7 +1924,10 @@ function SignalMatrix({
       );
       const boostedHeight =
         height +
-        touchWave * (0.48 + pointerEnergy * (pointerSignal.coarse ? 1.8 : 1.1));
+        touchWave *
+          (0.48 +
+            interactionEnergy * (pointerSignal.coarse ? 1.95 : 1.2) +
+            momentumPush * (pointerSignal.coarse ? 1.25 : 0.85));
       const performanceHeight =
         height + (boostedHeight - height) * performanceBudget.motion;
       dummy.position.set(
@@ -1790,47 +1942,52 @@ function SignalMatrix({
     barMesh.instanceMatrix.needsUpdate = true;
     groupRef.current.position.x = THREE.MathUtils.lerp(
       groupRef.current.position.x,
-      pointerX * 0.8,
+      pointerX * 0.8 + pointerVelocityX * 0.42,
       0.05
     );
     groupRef.current.position.y = THREE.MathUtils.lerp(
       groupRef.current.position.y,
-      pointerEnergy * 0.14 * performanceBudget.motion,
+      interactionEnergy * 0.14 * performanceBudget.motion + momentumPush * 0.08,
       0.05
     );
     groupRef.current.position.z = THREE.MathUtils.lerp(
       groupRef.current.position.z,
-      -pointerY * 0.8,
+      -pointerY * 0.8 - pointerVelocityY * 0.34,
       0.05
     );
     groupRef.current.rotation.y =
       Math.sin(clock.elapsedTime * 0.05 * performanceBudget.motion) * 0.25 +
-      pointerX * 0.18;
+      pointerX * 0.18 +
+      pointerVelocityX * 0.1;
 
     if (scanDiscRef.current) {
       scanDiscRef.current.position.x = THREE.MathUtils.lerp(
         scanDiscRef.current.position.x,
-        pointerX * 1.4,
+        pointerX * 1.4 + pointerVelocityX * 0.52,
         0.08
       );
       scanDiscRef.current.position.y =
-        Math.sin(clock.elapsedTime * 0.8) * 0.55 + pointerEnergy * 0.12;
+        Math.sin(clock.elapsedTime * 0.8) * 0.55 +
+        interactionEnergy * 0.12 +
+        momentumPush * 0.12;
       scanDiscRef.current.position.z = THREE.MathUtils.lerp(
         scanDiscRef.current.position.z,
-        -pointerY * 1.4,
+        -pointerY * 1.4 - pointerVelocityY * 0.48,
         0.08
       );
       scanDiscRef.current.rotation.z =
         clock.elapsedTime * 0.2 * performanceBudget.motion;
       scanDiscRef.current.scale.setScalar(
-        1 + pointerEnergy * 0.12 * performanceBudget.motion
+        1 +
+          interactionEnergy * 0.12 * performanceBudget.motion +
+          momentumPush * 0.12
       );
     }
 
     if (keyLightRef.current) {
       keyLightRef.current.intensity = THREE.MathUtils.lerp(
         keyLightRef.current.intensity,
-        visible ? (2.2 + pointerEnergy * 1.1) * performanceBudget.glow : 0,
+        visible ? (2.2 + interactionEnergy * 1.1) * performanceBudget.glow : 0,
         0.06
       );
     }

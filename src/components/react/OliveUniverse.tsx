@@ -12,6 +12,7 @@ import {
 } from 'react';
 import '@/styles/olive-universe.css';
 import { copyText } from '@/utils/clipboard';
+import { getHaptic, type HapticPattern } from '@/utils/haptic';
 import { isShareSupported, share as shareContent } from '@/utils/share';
 import { withBasePath } from '@/utils/helpers';
 import {
@@ -224,7 +225,7 @@ function shouldIgnoreSceneInteractionTarget(target: EventTarget | null) {
 
   return Boolean(
     target.closest(
-      '.universe-content, .universe-story-panel, .universe-progress, .universe-mobile-dock'
+      '.universe-content, .universe-story-panel, .universe-progress, .universe-mobile-dock, .universe-mobile-feedback-rail'
     )
   );
 }
@@ -340,6 +341,8 @@ export default function OliveUniverse() {
   const sceneBootSyncTimeoutRef = useRef<number | null>(null);
   const interactionBurstTimeoutRef = useRef<number | null>(null);
   const scenePreloadRequestedRef = useRef(false);
+  const previousTouchMomentumStateRef =
+    useRef<CanvasTouchMomentumState>('idle');
   const touchGestureRef = useRef<{
     pointerId: number;
     startX: number;
@@ -765,6 +768,24 @@ export default function OliveUniverse() {
     }
   }, [effectiveVisualMode, webglSupported]);
 
+  const triggerMobileHaptic = useCallback(
+    (pattern: HapticPattern) => {
+      if (
+        typeof window === 'undefined' ||
+        (!touchCapable && !isCompactViewport)
+      ) {
+        return;
+      }
+
+      try {
+        getHaptic().trigger(pattern);
+      } catch {
+        // Ignore haptic failures; visual feedback still carries the interaction.
+      }
+    },
+    [isCompactViewport, touchCapable]
+  );
+
   const scrollToChapter = useCallback(
     (chapterIndex: number, behaviorOverride?: ScrollBehavior) => {
       if (!wrapperRef.current || typeof window === 'undefined') return null;
@@ -805,6 +826,10 @@ export default function OliveUniverse() {
         setGuidedTourPlaying(false);
       }
 
+      if (source === 'manual') {
+        triggerMobileHaptic('selection');
+      }
+
       if (source === 'manual' && isCompactViewport) {
         setMobilePanelOpen(false);
       }
@@ -821,6 +846,7 @@ export default function OliveUniverse() {
       isCompactViewport,
       requestScenePreload,
       scrollToChapter,
+      triggerMobileHaptic,
     ]
   );
 
@@ -1141,6 +1167,7 @@ export default function OliveUniverse() {
     }
 
     requestScenePreload();
+    triggerMobileHaptic(interactionBurstActive ? 'selection' : 'medium');
     setInteractionBurstCycle(currentCycle => currentCycle + 1);
     setInteractionBurstActive(true);
 
@@ -1152,7 +1179,12 @@ export default function OliveUniverse() {
       setInteractionBurstActive(false);
       interactionBurstTimeoutRef.current = null;
     }, INTERACTION_BURST_DURATION_MS);
-  }, [requestScenePreload, shouldRenderCanvas]);
+  }, [
+    interactionBurstActive,
+    requestScenePreload,
+    shouldRenderCanvas,
+    triggerMobileHaptic,
+  ]);
 
   useEffect(() => {
     if (!mounted || typeof window === 'undefined' || !wrapperRef.current) {
@@ -1416,24 +1448,41 @@ export default function OliveUniverse() {
     : sceneLensConfig.queuedNote;
   const touchFieldStatusLabel = interactionBurstActive
     ? 'Burst live'
-    : touchFieldState === 'surging'
-      ? 'Field surge'
-      : touchFieldState === 'tracking'
-        ? 'Field tracking'
-        : touchFieldState === 'cooling'
-          ? 'Field settling'
-          : 'Tap / click ready';
+    : touchMomentumState === 'surging'
+      ? 'Momentum surge'
+      : touchFieldState === 'surging'
+        ? 'Field surge'
+        : touchMomentumState === 'gliding'
+          ? 'Momentum glide'
+          : touchFieldState === 'tracking'
+            ? 'Field tracking'
+            : touchFieldState === 'cooling'
+              ? 'Field settling'
+              : 'Tap / click ready';
+  const mobileTouchIndicatorNote = interactionBurstActive
+    ? 'Tap output boosted'
+    : touchMomentumState === 'surging'
+      ? 'Fast drag carrying the scene'
+      : touchMomentumState === 'gliding'
+        ? 'Momentum still steering'
+        : touchFieldState === 'tracking'
+          ? 'Drag steering live'
+          : 'Scene easing back';
   const interactionStatus = interactionBurstActive
     ? `Scene burst active · ${activeChapter.kicker} is surging live.`
-    : touchFieldState === 'tracking' || touchFieldState === 'surging'
-      ? touchCapable || isCompactViewport
-        ? 'Touch field engaged · steering and bending the active scene live while every layer follows your drag path.'
-        : 'Pointer field engaged · steering the active scene live while the layered camera drift stays locked to your movement.'
-      : touchFieldState === 'cooling'
-        ? 'Touch field cooling · the active scene is easing back into its ambient cinematic drift after the latest input burst.'
-        : touchCapable || isCompactViewport
-          ? 'Drag the 3D field to steer and bend every live scene layer, then tap or use the trigger to punch extra energy into the active chapter.'
-          : 'Click the 3D field or use the trigger to punch extra energy into the active chapter.';
+    : touchMomentumState === 'surging'
+      ? 'Momentum surge active · fast drag energy is carrying camera, overlays, and post-FX deeper into the active scene.'
+      : touchMomentumState === 'gliding'
+        ? 'Momentum glide active · the active scene is still steering from your last drag, even after your finger lifts.'
+        : touchFieldState === 'tracking' || touchFieldState === 'surging'
+          ? touchCapable || isCompactViewport
+            ? 'Touch field engaged · steering and bending the active scene live while every layer follows your drag path.'
+            : 'Pointer field engaged · steering the active scene live while the layered camera drift stays locked to your movement.'
+          : touchFieldState === 'cooling'
+            ? 'Touch field cooling · the active scene is easing back into its ambient cinematic drift after the latest input burst.'
+            : touchCapable || isCompactViewport
+              ? 'Drag the 3D field to steer and bend every live scene layer, then tap or use the trigger to punch extra energy into the active chapter.'
+              : 'Click the 3D field or use the trigger to punch extra energy into the active chapter.';
 
   const userForcedImmersive =
     prefersReduced && motionPreference === 'immersive' && webglSupported;
@@ -1529,9 +1578,18 @@ export default function OliveUniverse() {
       ? 'open'
       : 'closed'
     : 'desktop';
+  const mobileInteractionMeta = interactionBurstActive
+    ? 'burst live'
+    : touchMomentumState === 'surging'
+      ? 'momentum surge'
+      : touchMomentumState === 'gliding'
+        ? 'momentum glide'
+        : touchFieldState === 'tracking'
+          ? 'drag live'
+          : 'drag 3D';
   const mobilePanelMeta = shouldRenderCanvas
     ? touchCapable || isCompactViewport
-      ? `${activeAtmosphere.label} · drag 3D`
+      ? `${activeAtmosphere.label} · ${mobileInteractionMeta}`
       : `${sceneLensConfig.label} lens · ${activeAtmosphere.label}`
     : scenePreloadState === 'ready'
       ? `${sceneLensConfig.label} lens primed`
@@ -1546,6 +1604,15 @@ export default function OliveUniverse() {
       ? 'drag-reactive'
       : 'pointer-reactive'
     : 'idle';
+  const showMobileTouchIndicator =
+    isCompactViewport &&
+    shouldRenderCanvas &&
+    !mobilePanelOpen &&
+    (interactionBurstActive ||
+      touchFieldState !== 'idle' ||
+      touchMomentumState !== 'idle');
+  const showMobileFeedbackRail =
+    isCompactViewport && shouldRenderCanvas && !mobilePanelOpen;
   const mobilePanelToggleLabel = `${mobilePanelOpen ? 'Hide' : 'Show'} hero controls for ${activeChapter.kicker}`;
   const handleSceneReady = useCallback(() => {
     setSceneResolved(true);
@@ -1577,11 +1644,16 @@ export default function OliveUniverse() {
     }
   }, [renderProfile, shouldRenderCanvas]);
   const closeMobilePanel = useCallback(() => {
+    if (mobilePanelOpen) {
+      triggerMobileHaptic('selection');
+    }
+
     setMobilePanelOpen(false);
-  }, []);
+  }, [mobilePanelOpen, triggerMobileHaptic]);
   const toggleMobilePanel = useCallback(() => {
+    triggerMobileHaptic(mobilePanelOpen ? 'selection' : 'light');
     setMobilePanelOpen(currentOpen => !currentOpen);
-  }, []);
+  }, [mobilePanelOpen, triggerMobileHaptic]);
   const shareSceneLink = useCallback(async () => {
     const sceneUrl = shareLinkRef.current?.href ?? sceneShareHref;
 
@@ -1756,6 +1828,23 @@ export default function OliveUniverse() {
     );
   }, [shouldRenderCanvas]);
 
+  useEffect(() => {
+    if (previousTouchMomentumStateRef.current === touchMomentumState) {
+      return;
+    }
+
+    const previousState = previousTouchMomentumStateRef.current;
+    previousTouchMomentumStateRef.current = touchMomentumState;
+
+    if (
+      !interactionBurstActive &&
+      previousState !== 'surging' &&
+      touchMomentumState === 'surging'
+    ) {
+      triggerMobileHaptic('selection');
+    }
+  }, [interactionBurstActive, touchMomentumState, triggerMobileHaptic]);
+
   return (
     <div
       ref={wrapperRef}
@@ -1862,6 +1951,50 @@ export default function OliveUniverse() {
               compact={isCompactViewport}
             />
           ))}
+
+          {showMobileFeedbackRail && (
+            <div
+              className={`universe-mobile-feedback-rail ${showMobileTouchIndicator ? 'has-indicator' : 'is-quiet'}`}
+              role="group"
+              aria-label="Live mobile scene controls"
+            >
+              {showMobileTouchIndicator && (
+                <div
+                  className="universe-mobile-touch-indicator"
+                  role="status"
+                  aria-live="polite"
+                >
+                  <span
+                    className="universe-mobile-touch-indicator-pulse"
+                    aria-hidden="true"
+                  />
+                  <div className="universe-mobile-touch-indicator-copy">
+                    <p className="universe-mobile-touch-indicator-title">
+                      {touchFieldStatusLabel}
+                    </p>
+                    <p className="universe-mobile-touch-indicator-note">
+                      {mobileTouchIndicatorNote}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              <button
+                type="button"
+                className={`universe-mobile-burst-button ${interactionBurstActive ? 'is-active' : ''}`}
+                onClick={triggerInteractionBurst}
+                aria-label="Trigger scene burst from compact controls"
+                aria-pressed={interactionBurstActive}
+              >
+                <span className="universe-mobile-burst-icon" aria-hidden="true">
+                  {interactionBurstActive ? '✦' : '✧'}
+                </span>
+                <span className="universe-mobile-burst-label">
+                  {interactionBurstActive ? 'Bursting' : 'Burst'}
+                </span>
+              </button>
+            </div>
+          )}
 
           {isCompactViewport && (
             <div
