@@ -74,8 +74,12 @@ export default function OliveUniversePostFx({
   useFrame((_, delta) => {
     const pointerSignal = pointerSignalRef.current;
     const budget = getPostFxBudget(pointerSignal);
+    const momentum = pointerSignal.momentum;
+    const velocityX = pointerSignal.velocity.x;
+    const velocityY = pointerSignal.velocity.y;
     const interactionEnergy = THREE.MathUtils.clamp(
       Math.max(pointerSignal.energy, pointerSignal.fieldEnergy) +
+        momentum * 0.16 +
         (interactionBurstActive ? 0.18 : 0),
       0,
       1.15
@@ -86,7 +90,7 @@ export default function OliveUniversePostFx({
       const targetBloomIntensity =
         bloomIntensity *
         THREE.MathUtils.clamp(
-          budget.glow * (0.84 + interactionEnergy * 0.18),
+          budget.glow * (0.82 + interactionEnergy * 0.2 + momentum * 0.06),
           0.74,
           1.3
         );
@@ -109,10 +113,12 @@ export default function OliveUniversePostFx({
         0.00014 * motionBias * (0.45 + interactionEnergy * 0.55) * budget.drift;
       const targetOffsetX =
         baseAberrationOffset.x * targetAberrationScale +
-        pointerSignal.position.x * driftStrength;
+        pointerSignal.position.x * driftStrength +
+        velocityX * 0.00008 * budget.drift;
       const targetOffsetY =
         baseAberrationOffset.y * targetAberrationScale +
-        pointerSignal.position.y * driftStrength;
+        pointerSignal.position.y * driftStrength +
+        velocityY * 0.00008 * budget.drift;
 
       aberrationRef.current.offset.set(
         THREE.MathUtils.damp(
@@ -129,10 +135,14 @@ export default function OliveUniversePostFx({
         )
       );
       aberrationRef.current.radialModulation =
-        interactionBurstActive || interactionEnergy > 0.12;
+        interactionBurstActive || interactionEnergy > 0.12 || momentum > 0.18;
       aberrationRef.current.modulationOffset = THREE.MathUtils.damp(
         aberrationRef.current.modulationOffset,
-        interactionBurstActive ? 0.2 : pointerSignal.coarse ? 0.17 : 0.14,
+        interactionBurstActive
+          ? 0.2
+          : pointerSignal.coarse
+            ? 0.17 + momentum * 0.02
+            : 0.14 + momentum * 0.02,
         4.5,
         delta
       );
@@ -142,7 +152,10 @@ export default function OliveUniversePostFx({
       vignetteRef.current.darkness = THREE.MathUtils.damp(
         vignetteRef.current.darkness,
         THREE.MathUtils.clamp(
-          0.58 + (1 - budget.clarity) * 0.08 - interactionEnergy * 0.05,
+          0.58 +
+            (1 - budget.clarity) * 0.08 -
+            interactionEnergy * 0.05 -
+            momentum * 0.02,
           0.49,
           0.65
         ),
@@ -152,7 +165,10 @@ export default function OliveUniversePostFx({
       vignetteRef.current.offset = THREE.MathUtils.damp(
         vignetteRef.current.offset,
         THREE.MathUtils.clamp(
-          0.31 + interactionEnergy * 0.04 + (pointerSignal.coarse ? 0.018 : 0),
+          0.31 +
+            interactionEnergy * 0.04 +
+            momentum * 0.02 +
+            (pointerSignal.coarse ? 0.018 : 0),
           0.28,
           0.38
         ),
@@ -165,7 +181,10 @@ export default function OliveUniversePostFx({
       const targetNoiseOpacity = THREE.MathUtils.clamp(
         noiseOpacity *
           THREE.MathUtils.clamp(
-            0.82 + budget.clarity * 0.18 - interactionEnergy * 0.14,
+            0.82 +
+              budget.clarity * 0.18 -
+              interactionEnergy * 0.14 -
+              momentum * 0.04,
             0.52,
             1
           ),

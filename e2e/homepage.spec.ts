@@ -1023,6 +1023,7 @@ test.describe('Homepage', () => {
     await expect(hero).toHaveAttribute('data-olive-scene-copy', 'minimal');
     await expect(hero).toHaveAttribute('data-olive-touch-interaction', 'idle');
     await expect(hero).toHaveAttribute('data-olive-touch-field', 'idle');
+    await expect(hero).toHaveAttribute('data-olive-touch-momentum', 'idle');
     await expect(
       hero.locator('.universe-chapter.is-visible .universe-copy')
     ).toHaveCount(0);
@@ -1110,6 +1111,9 @@ test.describe('Homepage', () => {
     await expect
       .poll(async () => hero.getAttribute('data-olive-touch-field'))
       .toBe('tracking');
+    await expect
+      .poll(async () => hero.getAttribute('data-olive-touch-momentum'))
+      .toMatch(/gliding|surging/);
 
     await canvasField.dispatchEvent('pointercancel', {
       pointerType: 'touch',
@@ -1130,6 +1134,9 @@ test.describe('Homepage', () => {
     await expect(hero).toHaveAttribute('data-olive-interaction', 'burst');
     await expect
       .poll(async () => hero.getAttribute('data-olive-touch-field'))
+      .toBe('surging');
+    await expect
+      .poll(async () => hero.getAttribute('data-olive-touch-momentum'))
       .toBe('surging');
 
     await storyStatus
@@ -1152,6 +1159,11 @@ test.describe('Homepage', () => {
     ).toBeVisible();
     await expect
       .poll(async () => hero.getAttribute('data-olive-touch-field'), {
+        timeout: 5000,
+      })
+      .toBe('idle');
+    await expect
+      .poll(async () => hero.getAttribute('data-olive-touch-momentum'), {
         timeout: 5000,
       })
       .toBe('idle');

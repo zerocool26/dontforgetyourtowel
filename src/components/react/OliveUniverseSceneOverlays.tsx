@@ -93,6 +93,15 @@ function SceneSignatureLayer({
   useFrame(({ clock }) => {
     const pointerSignal = pointerSignalRef.current;
     const performanceBudget = getOverlayPerformanceBudget(pointerSignal);
+    const pointerMomentum = pointerSignal.momentum;
+    const pointerVelocityX =
+      pointerSignal.velocity.x *
+      (pointerSignal.coarse ? 0.32 : 0.22) *
+      performanceBudget.motion;
+    const pointerVelocityY =
+      pointerSignal.velocity.y *
+      (pointerSignal.coarse ? 0.24 : 0.16) *
+      performanceBudget.motion;
     const pointerX =
       pointerSignal.position.x *
       (pointerSignal.coarse ? 0.52 : 0.3) *
@@ -107,21 +116,24 @@ function SceneSignatureLayer({
       (chapterId === 'signal' ? 0.18 : 0.24) *
         lensConfig.signatureGain *
         performanceBudget.glow +
-        fieldEnergy * 0.04
+        fieldEnergy * 0.04 +
+        pointerMomentum * 0.04
     );
     const secondaryOpacityTarget = Math.min(
       0.42,
       (chapterId === 'singularity' ? 0.34 : 0.22) *
         lensConfig.signatureGain *
         performanceBudget.glow +
-        fieldEnergy * 0.05
+        fieldEnergy * 0.05 +
+        pointerMomentum * 0.05
     );
     const coreOpacityTarget = Math.min(
       0.26,
       (chapterId === 'signal' ? 0.1 : 0.16) *
         (0.9 + lensConfig.signatureGain * 0.18) *
         performanceBudget.glow +
-        fieldEnergy * 0.03
+        fieldEnergy * 0.03 +
+        pointerMomentum * 0.03
     );
 
     primaryMat.opacity = THREE.MathUtils.lerp(
@@ -148,22 +160,24 @@ function SceneSignatureLayer({
     if (groupRef.current) {
       groupRef.current.position.x = THREE.MathUtils.lerp(
         groupRef.current.position.x,
-        pointerX * 0.9,
+        pointerX * 0.9 + pointerVelocityX * 0.34,
         0.06
       );
       groupRef.current.position.y = THREE.MathUtils.lerp(
         groupRef.current.position.y,
-        pointerY * 0.68,
+        pointerY * 0.68 + pointerVelocityY * 0.28,
         0.06
       );
       groupRef.current.rotation.y =
         clock.elapsedTime *
           (0.05 + atmosphere.starDriftSpeed * 0.09) *
           performanceBudget.motion +
-        pointerX * 0.16;
+        pointerX * 0.16 +
+        pointerVelocityX * 0.08;
       groupRef.current.rotation.x =
         Math.sin(clock.elapsedTime * 0.14 * performanceBudget.motion) * 0.06 +
-        pointerY * 0.12;
+        pointerY * 0.12 +
+        pointerVelocityY * 0.08;
     }
 
     if (pulseRef.current) {
@@ -176,7 +190,8 @@ function SceneSignatureLayer({
         ) *
           0.05 +
         lensConfig.orbitRadius * 0.18 +
-        fieldEnergy * 0.08 * performanceBudget.motion;
+        fieldEnergy * 0.08 * performanceBudget.motion +
+        pointerMomentum * 0.12 * performanceBudget.motion;
       pulseRef.current.scale.setScalar(
         THREE.MathUtils.lerp(pulseRef.current.scale.x, targetScale, 0.08)
       );
@@ -185,17 +200,19 @@ function SceneSignatureLayer({
     if (sweepRef.current) {
       sweepRef.current.position.x = THREE.MathUtils.lerp(
         sweepRef.current.position.x,
-        pointerX * 0.42,
+        pointerX * 0.42 + pointerVelocityX * 0.24,
         0.08
       );
       sweepRef.current.position.y =
         Math.sin(clock.elapsedTime * 0.8 * performanceBudget.motion) * 0.55 +
-        pointerY * 0.44;
+        pointerY * 0.44 +
+        pointerVelocityY * 0.22;
       sweepRef.current.rotation.z =
         clock.elapsedTime *
           (0.16 + lensConfig.orbitSpeed * 0.2) *
           performanceBudget.motion +
-        pointerX * 0.18;
+        pointerX * 0.18 +
+        pointerVelocityX * 0.12;
     }
   });
 
@@ -454,6 +471,15 @@ function InteractionBurstLayer({
   useFrame(({ clock }) => {
     const pointerSignal = pointerSignalRef.current;
     const performanceBudget = getOverlayPerformanceBudget(pointerSignal);
+    const pointerMomentum = pointerSignal.momentum;
+    const pointerVelocityX =
+      pointerSignal.velocity.x *
+      (pointerSignal.coarse ? 0.34 : 0.24) *
+      performanceBudget.motion;
+    const pointerVelocityY =
+      pointerSignal.velocity.y *
+      (pointerSignal.coarse ? 0.26 : 0.18) *
+      performanceBudget.motion;
     const pointerX =
       pointerSignal.position.x *
       (pointerSignal.coarse ? 0.54 : 0.32) *
@@ -474,7 +500,8 @@ function InteractionBurstLayer({
       1.35,
       (burstLevelRef.current + fieldSupport) *
         lensConfig.burstGain *
-        performanceBudget.glow
+        performanceBudget.glow +
+        pointerMomentum * 0.12
     );
 
     primaryMat.opacity = burst * 0.38;
@@ -490,12 +517,12 @@ function InteractionBurstLayer({
 
       groupRef.current.position.x = THREE.MathUtils.lerp(
         groupRef.current.position.x,
-        pointerX * 0.82,
+        pointerX * 0.82 + pointerVelocityX * 0.32,
         0.08
       );
       groupRef.current.position.y = THREE.MathUtils.lerp(
         groupRef.current.position.y,
-        pointerY * 0.58,
+        pointerY * 0.58 + pointerVelocityY * 0.24,
         0.08
       );
       groupRef.current.rotation.y +=
@@ -512,10 +539,11 @@ function InteractionBurstLayer({
         ) *
           0.08 *
           burst +
-        pointerY * 0.14;
+        pointerY * 0.14 +
+        pointerVelocityY * 0.08;
       groupRef.current.rotation.z = THREE.MathUtils.lerp(
         groupRef.current.rotation.z,
-        pointerX * 0.2,
+        pointerX * 0.2 + pointerVelocityX * 0.12,
         0.08
       );
     }
@@ -532,14 +560,15 @@ function InteractionBurstLayer({
           0.06 *
           burst +
         lensConfig.pushIn * 0.16 +
-        pointerSignal.fieldEnergy * 0.08;
+        pointerSignal.fieldEnergy * 0.08 +
+        pointerMomentum * 0.12;
       pulseRef.current.scale.setScalar(scale);
     }
 
     if (sweepRef.current) {
       sweepRef.current.position.x = THREE.MathUtils.lerp(
         sweepRef.current.position.x,
-        pointerX * 0.52,
+        pointerX * 0.52 + pointerVelocityX * 0.26,
         0.08
       );
       sweepRef.current.rotation.z =
@@ -550,7 +579,8 @@ function InteractionBurstLayer({
         Math.sin(clock.elapsedTime * 1.2 * performanceBudget.motion) *
           0.4 *
           burst +
-        pointerY * 0.36;
+        pointerY * 0.36 +
+        pointerVelocityY * 0.2;
     }
   });
 
@@ -779,6 +809,7 @@ function TouchPulseField({
 
   useFrame(({ clock }) => {
     const pointerSignal = pointerSignalRef.current;
+    const pointerMomentum = pointerSignal.momentum;
     const performanceFactor = THREE.MathUtils.clamp(
       Number.isFinite(pointerSignal.performanceFactor)
         ? pointerSignal.performanceFactor
@@ -797,7 +828,10 @@ function TouchPulseField({
 
     const glow = Math.min(
       1.18,
-      (pointerSignal.fieldEnergy * 0.92 + burstRef.current * 0.38) * glowBudget
+      (pointerSignal.fieldEnergy * 0.92 +
+        burstRef.current * 0.38 +
+        pointerMomentum * 0.26) *
+        glowBudget
     );
 
     ringMat.opacity = THREE.MathUtils.lerp(ringMat.opacity, glow * 0.24, 0.12);
@@ -822,10 +856,12 @@ function TouchPulseField({
     targetPosition.set(
       pointerSignal.position.x *
         (pointerSignal.coarse ? 4.6 : 3.4) *
-        motionBudget,
+        motionBudget +
+        pointerSignal.velocity.x * 0.85,
       pointerSignal.position.y *
         (pointerSignal.coarse ? 2.8 : 2.1) *
-        motionBudget,
+        motionBudget +
+        pointerSignal.velocity.y * 0.55,
       -1.8
     );
     groupRef.current.position.lerp(
@@ -838,6 +874,7 @@ function TouchPulseField({
       const scale =
         0.82 +
         glow * 0.55 +
+        pointerMomentum * 0.18 +
         Math.sin(clock.elapsedTime * 4.2 * motionBudget) * 0.05 * glow;
       ringRef.current.scale.setScalar(scale);
     }

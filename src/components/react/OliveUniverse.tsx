@@ -33,7 +33,10 @@ import {
   type QualityTier,
   type SceneLensMode,
 } from './olive-universe-config';
-import type { CanvasTouchFieldState } from './OliveUniverseCanvas';
+import type {
+  CanvasTouchFieldState,
+  CanvasTouchMomentumState,
+} from './OliveUniverseCanvas';
 
 const preloadOliveUniverseCanvas = () => import('./OliveUniverseCanvas');
 const OliveUniverseCanvas = lazy(preloadOliveUniverseCanvas);
@@ -380,6 +383,8 @@ export default function OliveUniverse() {
   const [interactionBurstCycle, setInteractionBurstCycle] = useState(0);
   const [touchFieldState, setTouchFieldState] =
     useState<CanvasTouchFieldState>('idle');
+  const [touchMomentumState, setTouchMomentumState] =
+    useState<CanvasTouchMomentumState>('idle');
   const [shareState, setShareState] = useState<
     'idle' | 'copied' | 'shared' | 'error'
   >('idle');
@@ -1553,6 +1558,14 @@ export default function OliveUniverse() {
     },
     []
   );
+  const handleTouchMomentumStateChange = useCallback(
+    (nextState: CanvasTouchMomentumState) => {
+      setTouchMomentumState(currentState =>
+        currentState === nextState ? currentState : nextState
+      );
+    },
+    []
+  );
   const handleSceneWarmCountChange = useCallback((nextCount: number) => {
     setSceneReadyCount(currentCount =>
       currentCount === nextCount ? currentCount : nextCount
@@ -1738,6 +1751,9 @@ export default function OliveUniverse() {
     setTouchFieldState(currentState =>
       currentState === 'idle' ? currentState : 'idle'
     );
+    setTouchMomentumState(currentState =>
+      currentState === 'idle' ? currentState : 'idle'
+    );
   }, [shouldRenderCanvas]);
 
   return (
@@ -1763,6 +1779,7 @@ export default function OliveUniverse() {
       data-olive-scene-copy={isCompactViewport ? 'minimal' : 'full'}
       data-olive-touch-interaction={touchInteractionMode}
       data-olive-touch-field={touchFieldState}
+      data-olive-touch-momentum={touchMomentumState}
       data-olive-preload={scenePreloadState}
       data-olive-interaction={interactionBurstActive ? 'burst' : 'idle'}
       style={
@@ -1792,6 +1809,7 @@ export default function OliveUniverse() {
                 mobileOptimized={shouldUseOptimizedMobile3D}
                 onPerformanceBudgetExceeded={enableStabilityAssist}
                 onTouchFieldStateChange={handleTouchFieldStateChange}
+                onTouchMomentumStateChange={handleTouchMomentumStateChange}
                 onWarmCountChange={handleSceneWarmCountChange}
                 onReady={handleSceneReady}
               />

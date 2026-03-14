@@ -42,11 +42,15 @@ type OliveUniverseSceneOverlaysComponent =
 
 export type CanvasTouchFieldState = 'idle' | 'tracking' | 'surging' | 'cooling';
 
+export type CanvasTouchMomentumState = 'idle' | 'gliding' | 'surging';
+
 export type CanvasPointerSignal = {
   target: THREE.Vector2;
   position: THREE.Vector2;
+  velocity: THREE.Vector2;
   energy: number;
   fieldEnergy: number;
+  momentum: number;
   performanceFactor: number;
   active: boolean;
   coarse: boolean;
@@ -474,6 +478,29 @@ function getCanvasTouchFieldState(
   return 'idle';
 }
 
+function getCanvasTouchMomentumState(
+  enabled: boolean,
+  pointerSignal: CanvasPointerSignal,
+  interactionBurstActive: boolean
+): CanvasTouchMomentumState {
+  if (!enabled) {
+    return 'idle';
+  }
+
+  if (interactionBurstActive || pointerSignal.momentum >= 0.88) {
+    return 'surging';
+  }
+
+  if (
+    pointerSignal.momentum >= 0.18 ||
+    pointerSignal.velocity.lengthSq() >= 0.04
+  ) {
+    return 'gliding';
+  }
+
+  return 'idle';
+}
+
 function FirstFrameReadyReporter({ onReady }: { onReady?: () => void }) {
   const readyReportedRef = useRef(false);
 
@@ -536,14 +563,19 @@ function CanvasRuntimeTelemetryReporter({
   interactionBurstActive,
   pointerSignalRef,
   onTouchFieldStateChange,
+  onTouchMomentumStateChange,
 }: {
   enabled: boolean;
   interactionBurstActive: boolean;
   pointerSignalRef: MutableRefObject<CanvasPointerSignal>;
   onTouchFieldStateChange?: (state: CanvasTouchFieldState) => void;
+  onTouchMomentumStateChange?: (state: CanvasTouchMomentumState) => void;
 }) {
   const currentPerformanceFactor = useThree(state => state.performance.current);
   const lastTouchFieldStateRef = useRef<CanvasTouchFieldState>('idle');
+  const lastTouchMomentumStateRef = useRef<CanvasTouchMomentumState>('idle');
+  const lastPositionRef = useRef(new THREE.Vector2());
+  const velocityTargetRef = useRef(new THREE.Vector2());
 
   useEffect(() => {
     if (enabled) {
@@ -553,22 +585,58 @@ function CanvasRuntimeTelemetryReporter({
     const pointerSignal = pointerSignalRef.current;
     pointerSignal.energy = 0;
     pointerSignal.fieldEnergy = 0;
+    pointerSignal.velocity.set(0, 0);
+    pointerSignal.momentum = 0;
     pointerSignal.performanceFactor = 1;
     pointerSignal.fieldState = 'idle';
+    lastPositionRef.current.copy(pointerSignal.position);
 
     if (lastTouchFieldStateRef.current !== 'idle') {
       lastTouchFieldStateRef.current = 'idle';
       onTouchFieldStateChange?.('idle');
     }
-  }, [enabled, onTouchFieldStateChange, pointerSignalRef]);
 
-  useFrame(() => {
+    if (lastTouchMomentumStateRef.current !== 'idle') {
+      lastTouchMomentumStateRef.current = 'idle';
+      onTouchMomentumStateChange?.('idle');
+    }
+  }, [
+    enabled,
+    onTouchFieldStateChange,
+    onTouchMomentumStateChange,
+    pointerSignalRef,
+  ]);
+
+  useFrame((_, delta) => {
     const pointerSignal = pointerSignalRef.current;
     const pointerActive = enabled && pointerSignal.active;
+    const previousPositionX = lastPositionRef.current.x;
+    const previousPositionY = lastPositionRef.current.y;
+    const frameDelta = Math.max(delta, 1 / 120);
 
     pointerSignal.position.lerp(
       pointerSignal.target,
       pointerSignal.coarse ? 0.14 : 0.08
+    );
+    velocityTargetRef.current.set(
+      THREE.MathUtils.clamp(
+        ((pointerSignal.position.x - previousPositionX) / frameDelta) *
+          (pointerSignal.coarse ? 0.22 : 0.16),
+        -1.35,
+        1.35
+      ),
+      THREE.MathUtils.clamp(
+        ((pointerSignal.position.y - previousPositionY) / frameDelta) *
+          (pointerSignal.coarse ? 0.18 : 0.14),
+        -1.15,
+        1.15
+      )
+    );
+    lastPositionRef.current.copy(pointerSignal.position);
+
+    pointerSignal.velocity.lerp(
+      velocityTargetRef.current,
+      enabled ? (pointerActive ? 0.28 : 0.14) : 0.18
     );
     pointerSignal.energy = THREE.MathUtils.lerp(
       pointerSignal.energy,
@@ -597,6 +665,21 @@ function CanvasRuntimeTelemetryReporter({
       targetFieldEnergy,
       enabled ? 0.16 : 0.12
     );
+    pointerSignal.momentum = THREE.MathUtils.lerp(
+      pointerSignal.momentum,
+      enabled
+        ? THREE.MathUtils.clamp(
+            pointerSignal.energy * 0.34 +
+              pointerSignal.fieldEnergy * 0.42 +
+              pointerSignal.velocity.length() * 0.28 +
+              (interactionBurstActive ? 0.24 : 0) +
+              (1 - pointerSignal.performanceFactor) * 0.08,
+            0,
+            1.3
+          )
+        : 0,
+      enabled ? (pointerActive ? 0.2 : 0.12) : 0.18
+    );
 
     const nextTouchFieldState = getCanvasTouchFieldState(
       enabled,
@@ -606,12 +689,21 @@ function CanvasRuntimeTelemetryReporter({
 
     pointerSignal.fieldState = nextTouchFieldState;
 
-    if (lastTouchFieldStateRef.current === nextTouchFieldState) {
-      return;
+    if (lastTouchFieldStateRef.current !== nextTouchFieldState) {
+      lastTouchFieldStateRef.current = nextTouchFieldState;
+      onTouchFieldStateChange?.(nextTouchFieldState);
     }
 
-    lastTouchFieldStateRef.current = nextTouchFieldState;
-    onTouchFieldStateChange?.(nextTouchFieldState);
+    const nextTouchMomentumState = getCanvasTouchMomentumState(
+      enabled,
+      pointerSignal,
+      interactionBurstActive
+    );
+
+    if (lastTouchMomentumStateRef.current !== nextTouchMomentumState) {
+      lastTouchMomentumStateRef.current = nextTouchMomentumState;
+      onTouchMomentumStateChange?.(nextTouchMomentumState);
+    }
   });
 
   return null;
@@ -1850,6 +1942,18 @@ function SingularityCore({
     const performanceBudget = getScenePerformanceBudget(
       pointerSignal.performanceFactor
     );
+    const pointerVelocityX =
+      pointerSignal.velocity.x *
+      (pointerSignal.coarse ? 0.3 : 0.2) *
+      performanceBudget.motion;
+    const pointerVelocityY =
+      pointerSignal.velocity.y *
+      (pointerSignal.coarse ? 0.22 : 0.16) *
+      performanceBudget.motion;
+    const momentumPush =
+      pointerSignal.momentum *
+      (pointerSignal.coarse ? 0.28 : 0.18) *
+      performanceBudget.motion;
     const pointerX =
       pointerSignal.position.x *
       (pointerSignal.coarse ? 0.42 : 0.24) *
@@ -1890,7 +1994,8 @@ function SingularityCore({
       const scale =
         1 +
         Math.sin(elapsed * 2.2 * performanceBudget.motion) * 0.12 +
-        pointerEnergy * 0.08 * performanceBudget.motion;
+        pointerEnergy * 0.08 * performanceBudget.motion +
+        momentumPush * 0.08;
       coreRef.current.scale.setScalar(
         THREE.MathUtils.lerp(coreRef.current.scale.x, scale, 0.1)
       );
@@ -1900,41 +2005,51 @@ function SingularityCore({
         beamRef.current.scale.y,
         1 +
           Math.sin(elapsed * 1.4 * performanceBudget.motion) * 0.08 +
-          pointerEnergy * 0.22 * performanceBudget.motion,
+          pointerEnergy * 0.22 * performanceBudget.motion +
+          momentumPush * 0.14,
         0.08
       );
       beamRef.current.scale.x = THREE.MathUtils.lerp(
         beamRef.current.scale.x,
-        1 + pointerEnergy * 0.12 * performanceBudget.motion,
+        1 +
+          pointerEnergy * 0.12 * performanceBudget.motion +
+          momentumPush * 0.08,
         0.08
       );
       beamRef.current.scale.z = THREE.MathUtils.lerp(
         beamRef.current.scale.z,
-        1 + pointerEnergy * 0.12 * performanceBudget.motion,
+        1 +
+          pointerEnergy * 0.12 * performanceBudget.motion +
+          momentumPush * 0.08,
         0.08
       );
     }
     groupRef.current.position.x = THREE.MathUtils.lerp(
       groupRef.current.position.x,
-      pointerX * 0.7,
+      pointerX * 0.7 + pointerVelocityX * 0.34,
       0.06
     );
     groupRef.current.position.y = THREE.MathUtils.lerp(
       groupRef.current.position.y,
-      pointerY * 0.46,
+      pointerY * 0.46 + pointerVelocityY * 0.24,
       0.06
     );
     groupRef.current.rotation.z =
       elapsed * (0.18 + pointerEnergy * 0.08) * performanceBudget.motion +
-      pointerX * 0.24;
+      pointerX * 0.24 +
+      pointerVelocityX * 0.1;
     groupRef.current.rotation.x =
       Math.sin(elapsed * 0.12 * performanceBudget.motion) * 0.1 +
-      pointerY * 0.18;
+      pointerY * 0.18 +
+      pointerVelocityY * 0.08;
 
     if (keyLightRef.current) {
       keyLightRef.current.intensity = THREE.MathUtils.lerp(
         keyLightRef.current.intensity,
-        visible ? (7 + pointerEnergy * 2.4) * performanceBudget.glow : 0,
+        visible
+          ? (7 + pointerEnergy * 2.4 + momentumPush * 2) *
+              performanceBudget.glow
+          : 0,
         0.08
       );
     }
@@ -2036,6 +2151,18 @@ function AtmosphereRig({
     const performanceBudget = getScenePerformanceBudget(
       pointerSignal.performanceFactor
     );
+    const pointerVelocityX =
+      pointerSignal.velocity.x *
+      (pointerSignal.coarse ? 0.3 : 0.2) *
+      performanceBudget.motion;
+    const pointerVelocityY =
+      pointerSignal.velocity.y *
+      (pointerSignal.coarse ? 0.22 : 0.16) *
+      performanceBudget.motion;
+    const momentumPush =
+      pointerSignal.momentum *
+      (pointerSignal.coarse ? 0.24 : 0.16) *
+      performanceBudget.motion;
     const pointerX =
       pointerSignal.position.x *
       (pointerSignal.coarse ? 0.42 : 0.24) *
@@ -2044,7 +2171,7 @@ function AtmosphereRig({
       pointerSignal.position.y *
       (pointerSignal.coarse ? 0.28 : 0.18) *
       performanceBudget.motion;
-    const fieldGlow = pointerSignal.fieldEnergy * 0.12;
+    const fieldGlow = pointerSignal.fieldEnergy * 0.12 + momentumPush * 0.08;
 
     currentFogColor.current.lerp(targetFogColor, 0.04);
     currentHazeColor.current.lerp(targetHazeColor, 0.04);
@@ -2084,18 +2211,19 @@ function AtmosphereRig({
     if (shellRef.current) {
       shellRef.current.position.x = THREE.MathUtils.lerp(
         shellRef.current.position.x,
-        pointerX * 0.36,
+        pointerX * 0.36 + pointerVelocityX * 0.14,
         0.04
       );
       shellRef.current.position.y = THREE.MathUtils.lerp(
         shellRef.current.position.y,
-        pointerY * 0.26,
+        pointerY * 0.26 + pointerVelocityY * 0.12,
         0.04
       );
       shellRef.current.rotation.y += 0.0009 * performanceBudget.motion;
       shellRef.current.rotation.x =
         Math.sin(clock.elapsedTime * 0.08 * performanceBudget.motion) * 0.04 +
-        pointerY * 0.08;
+        pointerY * 0.08 +
+        pointerVelocityY * 0.06;
     }
 
     if (haloRef.current) {
@@ -2107,15 +2235,16 @@ function AtmosphereRig({
             performanceBudget.motion
         ) *
           0.03 +
-        fieldGlow * 0.18;
+        fieldGlow * 0.18 +
+        momentumPush * 0.14;
       haloRef.current.position.x = THREE.MathUtils.lerp(
         haloRef.current.position.x,
-        pointerX * 0.28,
+        pointerX * 0.28 + pointerVelocityX * 0.12,
         0.05
       );
       haloRef.current.position.y = THREE.MathUtils.lerp(
         haloRef.current.position.y,
-        pointerY * 0.2,
+        pointerY * 0.2 + pointerVelocityY * 0.1,
         0.05
       );
       haloRef.current.scale.setScalar(
@@ -2144,12 +2273,12 @@ function AtmosphereRig({
       keyLightRef.current.color.copy(currentKeyLightColor.current);
       keyLightRef.current.position.x = THREE.MathUtils.lerp(
         keyLightRef.current.position.x,
-        4 + pointerX * 3.4,
+        4 + pointerX * 3.4 + pointerVelocityX * 1.6,
         0.06
       );
       keyLightRef.current.position.y = THREE.MathUtils.lerp(
         keyLightRef.current.position.y,
-        5 + pointerY * 2.2,
+        5 + pointerY * 2.2 + pointerVelocityY * 1.2,
         0.06
       );
       keyLightRef.current.intensity = THREE.MathUtils.lerp(
@@ -2164,12 +2293,12 @@ function AtmosphereRig({
       rimLightRef.current.color.copy(currentRimLightColor.current);
       rimLightRef.current.position.x = THREE.MathUtils.lerp(
         rimLightRef.current.position.x,
-        -8 - pointerX * 2.8,
+        -8 - pointerX * 2.8 - pointerVelocityX * 1.35,
         0.06
       );
       rimLightRef.current.position.y = THREE.MathUtils.lerp(
         rimLightRef.current.position.y,
-        -1.5 + pointerY * 1.8,
+        -1.5 + pointerY * 1.8 + pointerVelocityY * 0.95,
         0.06
       );
       rimLightRef.current.intensity = THREE.MathUtils.lerp(
@@ -2338,6 +2467,18 @@ function Scene({
     const performanceBudget = getScenePerformanceBudget(
       pointerSignal.performanceFactor
     );
+    const pointerVelocityX =
+      pointerSignal.velocity.x *
+      (pointerSignal.coarse ? 0.3 : 0.2) *
+      performanceBudget.motion;
+    const pointerVelocityY =
+      pointerSignal.velocity.y *
+      (pointerSignal.coarse ? 0.22 : 0.16) *
+      performanceBudget.motion;
+    const momentumPush =
+      pointerSignal.momentum *
+      (pointerSignal.coarse ? 0.26 : 0.16) *
+      performanceBudget.motion;
 
     burstLevelRef.current = THREE.MathUtils.lerp(
       burstLevelRef.current,
@@ -2381,26 +2522,38 @@ function Scene({
     const orbitZ = Math.sin(orbitPhase * 0.58) * orbitRadius * 0.18;
 
     nextPos.current.set(
-      keyframe.pos[0] + driftX + orbitX + pointerX * 0.58,
-      keyframe.pos[1] + driftY + orbitY + pointerY * 0.44,
+      keyframe.pos[0] +
+        driftX +
+        orbitX +
+        pointerX * 0.58 +
+        pointerVelocityX * 0.34,
+      keyframe.pos[1] +
+        driftY +
+        orbitY +
+        pointerY * 0.44 +
+        pointerVelocityY * 0.28,
       keyframe.pos[2] +
         driftZ +
         orbitZ -
         burst * lensConfig.pushIn -
-        pointerPush * 0.22
+        pointerPush * 0.22 -
+        momentumPush * 0.2
     );
     nextLook.current.set(
       keyframe.look[0] +
         driftX * lensConfig.lookBias +
         orbitX * 0.22 +
-        pointerX,
+        pointerX +
+        pointerVelocityX * 0.2,
       keyframe.look[1] +
         driftY * (lensConfig.lookBias + 0.06) +
         orbitY * 0.28 +
-        pointerY,
+        pointerY +
+        pointerVelocityY * 0.16,
       keyframe.look[2] +
         burst * (0.08 + lensConfig.pushIn * 0.32) +
-        pointerPush * 0.18
+        pointerPush * 0.18 +
+        momentumPush * 0.12
     );
     camPos.current.lerp(nextPos.current, lensConfig.lerp);
     camLook.current.lerp(nextLook.current, lensConfig.lerp);
@@ -2579,6 +2732,7 @@ export interface OliveUniverseCanvasProps {
   mobileOptimized: boolean;
   onPerformanceBudgetExceeded?: () => void;
   onTouchFieldStateChange?: (state: CanvasTouchFieldState) => void;
+  onTouchMomentumStateChange?: (state: CanvasTouchMomentumState) => void;
   onWarmCountChange?: (count: number) => void;
   onReady?: () => void;
 }
@@ -2597,6 +2751,7 @@ export default function OliveUniverseCanvas({
   mobileOptimized,
   onPerformanceBudgetExceeded,
   onTouchFieldStateChange,
+  onTouchMomentumStateChange,
   onWarmCountChange,
   onReady,
 }: OliveUniverseCanvasProps) {
@@ -2614,8 +2769,10 @@ export default function OliveUniverseCanvas({
   const pointerSignalRef = useRef<CanvasPointerSignal>({
     target: new THREE.Vector2(),
     position: new THREE.Vector2(),
+    velocity: new THREE.Vector2(),
     energy: 0,
     fieldEnergy: 0,
+    momentum: 0,
     performanceFactor: 1,
     active: false,
     coarse: false,
@@ -3052,6 +3209,7 @@ export default function OliveUniverseCanvas({
           interactionBurstActive={interactionBurstActive}
           pointerSignalRef={pointerSignalRef}
           onTouchFieldStateChange={onTouchFieldStateChange}
+          onTouchMomentumStateChange={onTouchMomentumStateChange}
         />
         <InteractionPerformanceRegressor
           enabled={
