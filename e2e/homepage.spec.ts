@@ -438,10 +438,14 @@ test.describe('Homepage', () => {
       .toBe('neural');
 
     await expect(
-      page.getByText(
-        /guided tour active · standard pace · next auto-jump: cybersecurity/i
-      )
+      page.getByText(/guided tour active · standard pace/i)
     ).toBeVisible();
+
+    await expect
+      .poll(async () => hero.getAttribute('data-current-chapter'), {
+        timeout: 8000,
+      })
+      .toBe('vault');
 
     await page.getByRole('button', { name: /pause guided tour/i }).click();
     await expect(hero).toHaveAttribute('data-olive-tour', 'idle');
