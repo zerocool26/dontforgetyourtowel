@@ -1,5 +1,9 @@
 import { withBasePath } from '@/utils/helpers';
 
+type NavigatorWithDeviceMemory = Navigator & {
+  deviceMemory?: number;
+};
+
 export type QualityTier = 'high' | 'medium' | 'low';
 
 export type HeroVisualMode = 'immersive' | 'lite' | 'reduced' | 'fallback';
@@ -263,13 +267,58 @@ export const CAMERA_KF = [
   { t: 1.0, pos: [0, 0, 4.5] as const, look: [0, 0, 0] as const },
 ];
 
+export function getDeviceMemory() {
+  if (typeof navigator === 'undefined') return null;
+
+  const memory = (navigator as NavigatorWithDeviceMemory).deviceMemory;
+
+  return typeof memory === 'number' && Number.isFinite(memory) && memory > 0
+    ? memory
+    : null;
+}
+
+export function isMobileLikeDevice() {
+  if (typeof window === 'undefined' || typeof navigator === 'undefined') {
+    return false;
+  }
+
+  const coarsePointer =
+    window.matchMedia?.('(pointer: coarse)').matches ?? false;
+  const touchCapable = (navigator.maxTouchPoints ?? 0) > 0;
+  const userAgent = navigator.userAgent ?? '';
+  const platform = navigator.platform ?? '';
+  const shortEdge = Math.min(
+    window.innerWidth || window.screen?.width || 0,
+    window.innerHeight || window.screen?.height || 0
+  );
+  const mobileUserAgent = /Mobi|Android|iPhone|iPad|iPod/i.test(userAgent);
+  const ipadOsSession = /Mac/i.test(platform) && touchCapable;
+
+  return (
+    mobileUserAgent ||
+    ipadOsSession ||
+    (coarsePointer && shortEdge > 0 && shortEdge <= 1180)
+  );
+}
+
 export function detectQuality(): QualityTier {
   if (typeof window === 'undefined') return 'medium';
+
   const cores = navigator.hardwareConcurrency ?? 4;
   const dpr = window.devicePixelRatio ?? 1;
-  const mobile = /Mobi|Android/i.test(navigator.userAgent);
-  if (mobile || cores <= 2) return 'low';
-  if (cores >= 6 && dpr >= 1.5) return 'high';
+  const deviceMemory = getDeviceMemory();
+  const coarsePointer =
+    window.matchMedia?.('(pointer: coarse)').matches ?? false;
+  const mobileLike = isMobileLikeDevice();
+  const constrainedMemory = deviceMemory !== null && deviceMemory <= 4;
+  const ampleMemory = deviceMemory === null || deviceMemory >= 8;
+
+  if (cores <= 2) return 'low';
+  if (mobileLike || (coarsePointer && (constrainedMemory || cores <= 4))) {
+    return 'low';
+  }
+  if (constrainedMemory || cores <= 4) return 'medium';
+  if (cores >= 8 && dpr >= 1.5 && ampleMemory) return 'high';
   return 'medium';
 }
 
@@ -379,57 +428,116 @@ export function getSceneProfile(
 
 export function optimizeSceneProfileForMobile(
   sceneProfile: SceneProfile,
-  options?: { preservePostFx?: boolean }
+  options?: {
+    preservePostFx?: boolean;
+    lowMemory?: boolean;
+    compactViewport?: boolean;
+  }
 ): SceneProfile {
   const preservePostFx = options?.preservePostFx ?? false;
+  const lowMemory = options?.lowMemory ?? false;
+  const compactViewport = options?.compactViewport ?? false;
+  const aggressiveReduction = lowMemory || compactViewport;
+  const keepPostFx = preservePostFx && sceneProfile.enablePostFx && !lowMemory;
 
   return {
     ...sceneProfile,
     particleCount: Math.min(
       sceneProfile.particleCount,
-      preservePostFx ? 9800 : 7600
+      keepPostFx
+        ? aggressiveReduction
+          ? 7600
+          : 8800
+        : aggressiveReduction
+          ? 5600
+          : 6800
     ),
     neuralNodeCount: Math.min(
       sceneProfile.neuralNodeCount,
-      preservePostFx ? 28 : 24
+      keepPostFx
+        ? aggressiveReduction
+          ? 24
+          : 26
+        : aggressiveReduction
+          ? 18
+          : 22
     ),
     signalGridSize: Math.min(
       sceneProfile.signalGridSize,
-      preservePostFx ? 9 : 8
+      keepPostFx ? (aggressiveReduction ? 8 : 9) : aggressiveReduction ? 7 : 8
     ),
-    starCount: Math.min(sceneProfile.starCount, preservePostFx ? 1450 : 900),
-    starFactor: Math.min(sceneProfile.starFactor, preservePostFx ? 2.9 : 2.4),
+    starCount: Math.min(
+      sceneProfile.starCount,
+      keepPostFx
+        ? aggressiveReduction
+          ? 980
+          : 1180
+        : aggressiveReduction
+          ? 620
+          : 780
+    ),
+    starFactor: Math.min(sceneProfile.starFactor, keepPostFx ? 2.6 : 2.1),
     cloudSparkles: Math.min(
       sceneProfile.cloudSparkles,
-      preservePostFx ? 28 : 18
+      keepPostFx
+        ? aggressiveReduction
+          ? 20
+          : 24
+        : aggressiveReduction
+          ? 12
+          : 16
     ),
     signalSparkles: Math.min(
       sceneProfile.signalSparkles,
-      preservePostFx ? 20 : 12
+      keepPostFx
+        ? aggressiveReduction
+          ? 14
+          : 18
+        : aggressiveReduction
+          ? 8
+          : 10
     ),
     singularitySparkles: Math.min(
       sceneProfile.singularitySparkles,
-      preservePostFx ? 78 : 52
+      keepPostFx
+        ? aggressiveReduction
+          ? 56
+          : 68
+        : aggressiveReduction
+          ? 34
+          : 46
     ),
     singularitySparkleSize: Math.min(
       sceneProfile.singularitySparkleSize,
-      preservePostFx ? 4 : 3.6
+      keepPostFx ? 3.8 : 3.3
     ),
-    enablePostFx: preservePostFx && sceneProfile.enablePostFx,
+    enablePostFx: keepPostFx,
     bloomIntensity: Math.min(
       sceneProfile.bloomIntensity,
-      preservePostFx ? 1.05 : 0.85
+      keepPostFx ? 0.95 : 0.82
     ),
     noiseOpacity: Math.min(
       sceneProfile.noiseOpacity,
-      preservePostFx ? 0.018 : 0.012
+      keepPostFx ? 0.016 : 0.01
     ),
     aberrationOffset: Math.min(
       sceneProfile.aberrationOffset,
-      preservePostFx ? 0.0003 : 0.0002
+      keepPostFx ? 0.00028 : 0.00018
     ),
-    ambientLight: Math.max(sceneProfile.ambientLight, 0.12),
-    fogFar: Math.min(sceneProfile.fogFar, preservePostFx ? 74 : 68),
+    ambientLight: Math.max(
+      sceneProfile.ambientLight,
+      aggressiveReduction ? 0.14 : 0.12
+    ),
+    fogFar: Math.min(
+      sceneProfile.fogFar,
+      keepPostFx
+        ? aggressiveReduction
+          ? 60
+          : 66
+        : aggressiveReduction
+          ? 48
+          : 56
+    ),
     pointerParallax: false,
   };
 }

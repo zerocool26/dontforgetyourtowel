@@ -188,6 +188,50 @@ test.describe('Homepage', () => {
     ).toBeVisible();
   });
 
+  test('rapid chapter jumps should keep destination scenes warm across non-adjacent chapters', async ({
+    page,
+    isMobile,
+  }) => {
+    if (isMobile) {
+      test.skip();
+    }
+
+    await page.goto('./');
+
+    const hero = page.locator('[data-olive-universe="ready"]');
+    await expect(hero).toBeVisible();
+
+    await page
+      .getByRole('button', { name: /use cinematic render profile/i })
+      .click();
+
+    await expect(hero).toHaveAttribute('data-olive-mode', 'immersive');
+    await expect(hero).toHaveAttribute(
+      'data-olive-scene',
+      /(staging|booting|interactive)/
+    );
+
+    await page
+      .getByRole('button', { name: /jump to start your project/i })
+      .click();
+
+    await expect(hero).toHaveAttribute('data-current-chapter', 'singularity');
+    await expect(hero.getByRole('heading', { name: /enter/i })).toBeVisible();
+    await expect(
+      hero.getByRole('heading', { name: /creative technology/i })
+    ).not.toBeVisible();
+
+    await page.getByRole('button', { name: /jump to cybersecurity/i }).click();
+
+    await expect(hero).toHaveAttribute('data-current-chapter', 'vault');
+    await expect(
+      hero.getByRole('heading', { name: /digital resilience/i })
+    ).toBeVisible();
+    await expect(
+      hero.getByRole('heading', { name: /enter/i })
+    ).not.toBeVisible();
+  });
+
   test('keyboard shortcuts should navigate hero chapters', async ({
     page,
     isMobile,

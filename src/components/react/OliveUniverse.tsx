@@ -18,10 +18,12 @@ import {
   CHAPTER_ATMOSPHERES,
   CHAPTERS,
   detectQuality,
+  getDeviceMemory,
   getSceneProfile,
   HERO_MODE_LABELS,
   HERO_MODE_NOTES,
   hexToRgbString,
+  isMobileLikeDevice,
   optimizeSceneProfileForMobile,
   prefersReducedMotion,
   SCENE_LENS_ORDER,
@@ -133,7 +135,7 @@ const SCENE_LENS_OPTIONS: Record<
     description: 'Softer camera movement',
     note: 'Glide lens is active, keeping the camera wide and polished so each chapter can breathe before the next hit lands.',
     queuedNote:
-      'Glide lens is armed and will steer the camera the moment immersive scenes are live.',
+      'Glide lens is active and will steer the camera the moment immersive scenes are live.',
   },
   orbit: {
     label: 'Orbit',
@@ -141,7 +143,7 @@ const SCENE_LENS_OPTIONS: Record<
     description: 'Circle the chapter core',
     note: 'Orbit lens is active, giving the camera a broader orbital sweep around the active chapter for a more exploratory feel.',
     queuedNote:
-      'Orbit lens is armed and will add more lateral camera motion once immersive scenes are live.',
+      'Orbit lens is active and will add more lateral camera motion once immersive scenes are live.',
   },
   surge: {
     label: 'Surge',
@@ -149,7 +151,7 @@ const SCENE_LENS_OPTIONS: Record<
     description: 'Punch into transitions',
     note: 'Surge lens is active, pushing the camera harder through bursts, handoffs, and chapter jumps for a more aggressive cinematic pace.',
     queuedNote:
-      'Surge lens is armed and will tighten the camera as soon as immersive scenes are live.',
+      'Surge lens is active and will tighten the camera as soon as immersive scenes are live.',
   },
 };
 
@@ -325,6 +327,8 @@ export default function OliveUniverse() {
   const [sceneBootReady, setSceneBootReady] = useState(false);
   const [sceneResolved, setSceneResolved] = useState(false);
   const [nativeShareSupported, setNativeShareSupported] = useState(false);
+  const [deviceMemory, setDeviceMemory] = useState<number | null>(null);
+  const [mobileLikeDevice, setMobileLikeDevice] = useState(false);
   const [touchCapable, setTouchCapable] = useState(false);
   const [isCompactViewport, setIsCompactViewport] = useState(false);
   const [mobilePanelOpen, setMobilePanelOpen] = useState(false);
@@ -354,10 +358,13 @@ export default function OliveUniverse() {
     setQuality(detectQuality());
     setWebglSupported(supportsWebGL());
     setNativeShareSupported(isShareSupported());
-    setTouchCapable(
+    const coarseTouchSession =
       window.matchMedia('(pointer: coarse)').matches ||
-        (navigator.maxTouchPoints ?? 0) > 0
-    );
+      (navigator.maxTouchPoints ?? 0) > 0;
+
+    setTouchCapable(coarseTouchSession);
+    setDeviceMemory(getDeviceMemory());
+    setMobileLikeDevice(isMobileLikeDevice());
 
     try {
       const storedMotionPreference = window.localStorage.getItem(
@@ -652,17 +659,19 @@ export default function OliveUniverse() {
     webglSupported,
   ]);
 
+  const ensureImmersiveSceneAccess = useCallback(() => {
+    if (
+      webglSupported &&
+      effectiveVisualMode !== 'immersive' &&
+      effectiveVisualMode !== 'lite'
+    ) {
+      setMotionPreference('immersive');
+    }
+  }, [effectiveVisualMode, webglSupported]);
+
   const scrollToChapter = useCallback(
     (chapterIndex: number, behaviorOverride?: ScrollBehavior) => {
       if (!wrapperRef.current || typeof window === 'undefined') return;
-
-      if (
-        webglSupported &&
-        effectiveVisualMode !== 'immersive' &&
-        effectiveVisualMode !== 'lite'
-      ) {
-        setMotionPreference('immersive');
-      }
 
       const wrapperTop =
         window.scrollY + wrapperRef.current.getBoundingClientRect().top;
@@ -675,7 +684,7 @@ export default function OliveUniverse() {
           behaviorOverride ?? (prefersReducedMotion() ? 'auto' : 'smooth'),
       });
     },
-    [effectiveVisualMode, webglSupported]
+    []
   );
 
   const navigateToChapter = useCallback(
@@ -685,6 +694,7 @@ export default function OliveUniverse() {
       source: ChapterNavigationSource = 'manual'
     ) => {
       requestScenePreload();
+      ensureImmersiveSceneAccess();
 
       const chapterDef = CHAPTERS[chapterIndex] ?? CHAPTERS[0];
 
@@ -701,7 +711,13 @@ export default function OliveUniverse() {
       setSceneProgressPercent(0);
       scrollToChapter(chapterIndex, behaviorOverride ?? 'auto');
     },
-    [guidedTourPlaying, isCompactViewport, requestScenePreload, scrollToChapter]
+    [
+      ensureImmersiveSceneAccess,
+      guidedTourPlaying,
+      isCompactViewport,
+      requestScenePreload,
+      scrollToChapter,
+    ]
   );
 
   useEffect(() => {
@@ -806,6 +822,8 @@ export default function OliveUniverse() {
       return;
     }
 
+    requestScenePreload();
+    ensureImmersiveSceneAccess();
     progressRef.current = CHAPTERS[requestedIndex]?.range[0] ?? 0;
     setSceneProgressPercent(0);
     setChapter(requestedIndex);
@@ -817,7 +835,12 @@ export default function OliveUniverse() {
     return () => {
       window.cancelAnimationFrame(rafId);
     };
-  }, [mounted, scrollToChapter]);
+  }, [
+    ensureImmersiveSceneAccess,
+    mounted,
+    requestScenePreload,
+    scrollToChapter,
+  ]);
 
   useEffect(() => {
     if (!mounted || typeof window === 'undefined') return;
@@ -1133,15 +1156,29 @@ export default function OliveUniverse() {
     () => getSceneProfile(runtimeQuality, runtimeSceneMode),
     [runtimeQuality, runtimeSceneMode]
   );
+  const lowMemoryDevice =
+    deviceMemory !== null
+      ? deviceMemory <= 4
+      : mobileLikeDevice && quality === 'low';
+  const shouldUseOptimizedMobile3D =
+    touchCapable || isCompactViewport || mobileLikeDevice || lowMemoryDevice;
   const sceneProfile = useMemo(() => {
-    if (!touchCapable && !isCompactViewport) {
+    if (!shouldUseOptimizedMobile3D) {
       return baseSceneProfile;
     }
 
     return optimizeSceneProfileForMobile(baseSceneProfile, {
-      preservePostFx: renderProfile === 'cinematic',
+      preservePostFx: renderProfile === 'cinematic' && !lowMemoryDevice,
+      lowMemory: lowMemoryDevice,
+      compactViewport: isCompactViewport,
     });
-  }, [baseSceneProfile, isCompactViewport, renderProfile, touchCapable]);
+  }, [
+    baseSceneProfile,
+    isCompactViewport,
+    lowMemoryDevice,
+    renderProfile,
+    shouldUseOptimizedMobile3D,
+  ]);
   const sceneSharePath = useMemo(
     () =>
       withBasePath(
@@ -1342,8 +1379,9 @@ export default function OliveUniverse() {
       : scenePreloadState === 'warming'
         ? `Loading 3D · ${sceneLensConfig.label}`
         : runtimeLabel;
-  const mobileThreeDMode =
-    touchCapable || isCompactViewport ? 'optimized' : 'standard';
+  const mobileThreeDMode = shouldUseOptimizedMobile3D
+    ? 'optimized'
+    : 'standard';
   const mobilePanelToggleLabel = `${mobilePanelOpen ? 'Hide' : 'Show'} hero controls for ${activeChapter.kicker}`;
   const handleSceneReady = useCallback(() => {
     setSceneResolved(true);
@@ -1438,26 +1476,14 @@ export default function OliveUniverse() {
   );
   const startGuidedTour = useCallback(() => {
     requestScenePreload();
-
-    if (
-      webglSupported &&
-      effectiveVisualMode !== 'immersive' &&
-      effectiveVisualMode !== 'lite'
-    ) {
-      setMotionPreference('immersive');
-    }
+    ensureImmersiveSceneAccess();
 
     if (isCompactViewport) {
       setMobilePanelOpen(false);
     }
 
     setGuidedTourPlaying(true);
-  }, [
-    effectiveVisualMode,
-    isCompactViewport,
-    requestScenePreload,
-    webglSupported,
-  ]);
+  }, [ensureImmersiveSceneAccess, isCompactViewport, requestScenePreload]);
   const stopGuidedTour = useCallback(() => {
     setGuidedTourPlaying(false);
   }, []);

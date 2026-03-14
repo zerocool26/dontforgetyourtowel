@@ -268,6 +268,54 @@ function getSceneWarmPriority(centerIndex: number, totalCount: number) {
   return order;
 }
 
+function getSceneNeighborhood(
+  centerIndex: number,
+  totalCount: number,
+  radius = 1
+) {
+  const indices: number[] = [];
+
+  for (let offset = -radius; offset <= radius; offset += 1) {
+    const sceneIndex = centerIndex + offset;
+
+    if (sceneIndex >= 0 && sceneIndex < totalCount) {
+      indices.push(sceneIndex);
+    }
+  }
+
+  return indices;
+}
+
+function getSceneJumpCorridor(
+  fromIndex: number,
+  toIndex: number,
+  totalCount: number
+) {
+  const indices: number[] = [];
+  const start = Math.min(fromIndex, toIndex);
+  const end = Math.max(fromIndex, toIndex);
+
+  for (let sceneIndex = start; sceneIndex <= end; sceneIndex += 1) {
+    if (sceneIndex >= 0 && sceneIndex < totalCount) {
+      indices.push(sceneIndex);
+    }
+  }
+
+  return indices;
+}
+
+function getImmediateSceneWindow(
+  activeChapterIndex: number,
+  previousChapterIndex: number,
+  totalCount: number
+) {
+  return mergeSceneIndices(
+    getSceneNeighborhood(previousChapterIndex, totalCount),
+    getSceneNeighborhood(activeChapterIndex, totalCount),
+    totalCount
+  );
+}
+
 function getCanvasDprCap(quality: QualityTier, profile: SceneProfile) {
   if (quality === 'low') {
     return 1;
@@ -284,12 +332,36 @@ function getCanvasDprCap(quality: QualityTier, profile: SceneProfile) {
   return quality === 'high' ? 1.85 : 1.45;
 }
 
-function getWarmDelayMs(profile: SceneProfile, shouldAnimate: boolean) {
-  if (!profile.enablePostFx) {
-    return shouldAnimate ? 360 : 240;
+function getWarmStepMs(enablePostFx: boolean, shouldAnimate: boolean) {
+  if (!shouldAnimate) {
+    return enablePostFx ? 180 : 120;
   }
 
-  return shouldAnimate ? 640 : 480;
+  return enablePostFx ? 240 : 160;
+}
+
+function getWarmBatchSize(enablePostFx: boolean, shouldAnimate: boolean) {
+  if (!shouldAnimate) {
+    return 3;
+  }
+
+  return enablePostFx ? 1 : 2;
+}
+
+function getTransitionCarryMs(
+  enablePostFx: boolean,
+  jumpDistance: number,
+  shouldAnimate: boolean
+) {
+  if (!shouldAnimate) {
+    return jumpDistance > 1 ? 320 : 220;
+  }
+
+  if (!enablePostFx) {
+    return jumpDistance > 1 ? 520 : 320;
+  }
+
+  return jumpDistance > 1 ? 780 : 460;
 }
 
 const SCENE_LENS_CAMERA_SETTINGS: Record<
@@ -2079,7 +2151,8 @@ function Scene({
   progressRef,
   profile,
   sceneLens,
-  warmedSceneIndices,
+  primeSceneIndices,
+  renderSceneIndices,
   interactionBurstActive,
   interactionBurstCycle,
 }: {
@@ -2087,7 +2160,8 @@ function Scene({
   progressRef: MutableRefObject<number>;
   profile: SceneProfile;
   sceneLens: SceneLensMode;
-  warmedSceneIndices: number[];
+  primeSceneIndices: number[];
+  renderSceneIndices: number[];
   interactionBurstActive: boolean;
   interactionBurstCycle: number;
 }) {
@@ -2097,9 +2171,13 @@ function Scene({
   const nextPos = useRef(new THREE.Vector3(0, 0, 9));
   const nextLook = useRef(new THREE.Vector3(0, 0, 0));
   const burstLevelRef = useRef(0);
-  const warmedSceneSet = useMemo(
-    () => new Set(warmedSceneIndices),
-    [warmedSceneIndices]
+  const primeSceneSet = useMemo(
+    () => new Set(primeSceneIndices),
+    [primeSceneIndices]
+  );
+  const renderSceneSet = useMemo(
+    () => new Set(renderSceneIndices),
+    [renderSceneIndices]
   );
   const activeAtmosphere = useMemo(
     () =>
@@ -2111,12 +2189,12 @@ function Scene({
     [sceneLens]
   );
   const shouldPrimeScene = useCallback(
-    (sceneIndex: number) => warmedSceneSet.has(sceneIndex),
-    [warmedSceneSet]
+    (sceneIndex: number) => primeSceneSet.has(sceneIndex),
+    [primeSceneSet]
   );
   const shouldRenderScene = useCallback(
-    (sceneIndex: number) => Math.abs(activeChapterIndex - sceneIndex) <= 1,
-    [activeChapterIndex]
+    (sceneIndex: number) => renderSceneSet.has(sceneIndex),
+    [renderSceneSet]
   );
 
   useFrame(({ clock }) => {
@@ -2326,13 +2404,34 @@ export default function OliveUniverseCanvas({
   onWarmCountChange,
   onReady,
 }: OliveUniverseCanvasProps) {
+  const previousActiveChapterIndexRef = useRef(activeChapterIndex);
   const [warmedSceneIndices, setWarmedSceneIndices] = useState<number[]>(() =>
-    mergeSceneIndices(
-      [],
-      [activeChapterIndex - 1, activeChapterIndex, activeChapterIndex + 1],
-      CHAPTERS.length
-    )
+    getSceneNeighborhood(activeChapterIndex, CHAPTERS.length)
   );
+  const [transitionRenderSceneIndices, setTransitionRenderSceneIndices] =
+    useState<number[]>(() =>
+      getSceneNeighborhood(activeChapterIndex, CHAPTERS.length)
+    );
+  const immediateSceneWindow = getImmediateSceneWindow(
+    activeChapterIndex,
+    previousActiveChapterIndexRef.current,
+    CHAPTERS.length
+  );
+  const primeSceneIndices = mergeSceneIndices(
+    warmedSceneIndices,
+    immediateSceneWindow,
+    CHAPTERS.length
+  );
+  const renderSceneIndices = mergeSceneIndices(
+    transitionRenderSceneIndices,
+    immediateSceneWindow,
+    CHAPTERS.length
+  );
+  const pendingWarmSceneIndices = getSceneWarmPriority(
+    activeChapterIndex,
+    CHAPTERS.length
+  ).filter(sceneIndex => !primeSceneIndices.includes(sceneIndex));
+  const pendingWarmSceneKey = pendingWarmSceneIndices.join(',');
   const aberrationOffset = useMemo(
     () =>
       new THREE.Vector2(
@@ -2346,9 +2445,13 @@ export default function OliveUniverseCanvas({
     [quality, sceneProfile]
   );
   const antialiasEnabled = quality !== 'low' && sceneProfile.enablePostFx;
-  const warmDelayMs = useMemo(
-    () => getWarmDelayMs(sceneProfile, shouldAnimate),
-    [sceneProfile, shouldAnimate]
+  const warmStepMs = useMemo(
+    () => getWarmStepMs(sceneProfile.enablePostFx, shouldAnimate),
+    [sceneProfile.enablePostFx, shouldAnimate]
+  );
+  const warmBatchSize = useMemo(
+    () => getWarmBatchSize(sceneProfile.enablePostFx, shouldAnimate),
+    [sceneProfile.enablePostFx, shouldAnimate]
   );
 
   useEffect(() => {
@@ -2356,42 +2459,86 @@ export default function OliveUniverseCanvas({
   }, [onReady]);
 
   useEffect(() => {
+    if (typeof window === 'undefined') {
+      previousActiveChapterIndexRef.current = activeChapterIndex;
+      return;
+    }
+
+    const previousActiveChapterIndex = previousActiveChapterIndexRef.current;
+    const jumpDistance = Math.abs(
+      activeChapterIndex - previousActiveChapterIndex
+    );
+    const nextSceneWindow = getImmediateSceneWindow(
+      activeChapterIndex,
+      previousActiveChapterIndex,
+      CHAPTERS.length
+    );
+    const jumpCorridor =
+      jumpDistance > 1
+        ? getSceneJumpCorridor(
+            previousActiveChapterIndex,
+            activeChapterIndex,
+            CHAPTERS.length
+          )
+        : [];
+
     setWarmedSceneIndices(current =>
       mergeSceneIndices(
         current,
-        [activeChapterIndex - 1, activeChapterIndex, activeChapterIndex + 1],
+        [...nextSceneWindow, ...jumpCorridor],
         CHAPTERS.length
       )
     );
-  }, [activeChapterIndex]);
+    setTransitionRenderSceneIndices(nextSceneWindow);
+    previousActiveChapterIndexRef.current = activeChapterIndex;
 
-  useEffect(() => {
-    onWarmCountChange?.(warmedSceneIndices.length);
-  }, [onWarmCountChange, warmedSceneIndices]);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') {
+    if (jumpDistance === 0) {
       return;
     }
 
-    if (warmedSceneIndices.length >= CHAPTERS.length) {
-      return;
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      setWarmedSceneIndices(current =>
-        mergeSceneIndices(
-          current,
-          getSceneWarmPriority(activeChapterIndex, CHAPTERS.length),
-          CHAPTERS.length
-        )
-      );
-    }, warmDelayMs);
+    const timeoutId = window.setTimeout(
+      () => {
+        setTransitionRenderSceneIndices(
+          getSceneNeighborhood(activeChapterIndex, CHAPTERS.length)
+        );
+      },
+      getTransitionCarryMs(
+        sceneProfile.enablePostFx,
+        jumpDistance,
+        shouldAnimate
+      )
+    );
 
     return () => {
       window.clearTimeout(timeoutId);
     };
-  }, [activeChapterIndex, warmDelayMs, warmedSceneIndices.length]);
+  }, [activeChapterIndex, sceneProfile.enablePostFx, shouldAnimate]);
+
+  useEffect(() => {
+    onWarmCountChange?.(primeSceneIndices.length);
+  }, [onWarmCountChange, primeSceneIndices.length]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || pendingWarmSceneKey.length === 0) {
+      return;
+    }
+
+    const nextBatch = pendingWarmSceneKey
+      .split(',')
+      .filter(Boolean)
+      .slice(0, warmBatchSize)
+      .map(sceneIndex => Number(sceneIndex));
+
+    const timeoutId = window.setTimeout(() => {
+      setWarmedSceneIndices(current =>
+        mergeSceneIndices(current, nextBatch, CHAPTERS.length)
+      );
+    }, warmStepMs);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [pendingWarmSceneKey, warmBatchSize, warmStepMs]);
 
   return (
     <div className="universe-canvas" aria-hidden="true">
@@ -2424,7 +2571,8 @@ export default function OliveUniverseCanvas({
           progressRef={progressRef}
           profile={sceneProfile}
           sceneLens={sceneLens}
-          warmedSceneIndices={warmedSceneIndices}
+          primeSceneIndices={primeSceneIndices}
+          renderSceneIndices={renderSceneIndices}
           interactionBurstActive={interactionBurstActive}
           interactionBurstCycle={interactionBurstCycle}
         />
