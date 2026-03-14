@@ -47,6 +47,7 @@ const SCENE_HANDOFF_DURATION_MS = {
   primed: 1280,
   warming: 1560,
 } as const;
+const SCENE_BOOT_SYNC_MAX_MS = 2400;
 const HERO_SCENE_QUERY_KEYS = ['scene', 'hero', 'chapter'] as const;
 const HERO_SCENE_HASH_PREFIX = '#hero-';
 const GUIDED_TOUR_SPEED_ORDER = ['slow', 'standard', 'fast'] as const;
@@ -304,6 +305,7 @@ export default function OliveUniverse() {
   const deepLinkHandledRef = useRef(false);
   const previousChapterIdRef = useRef<ChapterDef['id']>(CHAPTERS[0].id);
   const handoffTimeoutRef = useRef<number | null>(null);
+  const sceneBootSyncTimeoutRef = useRef<number | null>(null);
   const interactionBurstTimeoutRef = useRef<number | null>(null);
   const scenePreloadRequestedRef = useRef(false);
   const touchGestureRef = useRef<{
@@ -312,6 +314,7 @@ export default function OliveUniverse() {
     startY: number;
     startTime: number;
   } | null>(null);
+  const pendingChapterSyncRef = useRef<number | null>(null);
   const progressRef = useRef(0);
   const [chapter, setChapter] = useState(0);
   const [quality, setQuality] = useState<QualityTier>('medium');
@@ -337,6 +340,8 @@ export default function OliveUniverse() {
   const [guidedTourSpeed, setGuidedTourSpeed] =
     useState<GuidedTourSpeed>('standard');
   const [sceneHandoffActive, setSceneHandoffActive] = useState(false);
+  const [sceneBootSyncWindowActive, setSceneBootSyncWindowActive] =
+    useState(false);
   const [sceneHandoffCycle, setSceneHandoffCycle] = useState(0);
   const [sceneReadyCount, setSceneReadyCount] = useState(0);
   const [sceneProgressPercent, setSceneProgressPercent] = useState(0);
@@ -598,8 +603,17 @@ export default function OliveUniverse() {
         handoffTimeoutRef.current = null;
       }
 
+      if (
+        sceneBootSyncTimeoutRef.current !== null &&
+        typeof window !== 'undefined'
+      ) {
+        window.clearTimeout(sceneBootSyncTimeoutRef.current);
+        sceneBootSyncTimeoutRef.current = null;
+      }
+
       previousChapterIdRef.current = CHAPTERS[chapter]?.id ?? CHAPTERS[0].id;
       setSceneHandoffActive(false);
+      setSceneBootSyncWindowActive(false);
       setSceneReadyCount(0);
     }
   }, [chapter, shouldRenderCanvas]);
@@ -612,6 +626,10 @@ export default function OliveUniverse() {
     return () => {
       if (handoffTimeoutRef.current !== null) {
         window.clearTimeout(handoffTimeoutRef.current);
+      }
+
+      if (sceneBootSyncTimeoutRef.current !== null) {
+        window.clearTimeout(sceneBootSyncTimeoutRef.current);
       }
 
       if (interactionBurstTimeoutRef.current !== null) {
@@ -713,11 +731,16 @@ export default function OliveUniverse() {
 
   const scrollToChapter = useCallback(
     (chapterIndex: number, behaviorOverride?: ScrollBehavior) => {
-      if (!wrapperRef.current || typeof window === 'undefined') return;
+      if (!wrapperRef.current || typeof window === 'undefined') return null;
 
       const wrapperTop =
         window.scrollY + wrapperRef.current.getBoundingClientRect().top;
       const total = wrapperRef.current.offsetHeight - window.innerHeight;
+
+      if (total <= 0) {
+        return null;
+      }
+
       const targetTop = wrapperTop + total * CHAPTERS[chapterIndex].range[0];
 
       window.scrollTo({
@@ -725,6 +748,8 @@ export default function OliveUniverse() {
         behavior:
           behaviorOverride ?? (prefersReducedMotion() ? 'auto' : 'smooth'),
       });
+
+      return targetTop;
     },
     []
   );
@@ -748,6 +773,7 @@ export default function OliveUniverse() {
         setMobilePanelOpen(false);
       }
 
+      pendingChapterSyncRef.current = chapterIndex;
       progressRef.current = chapterDef.range[0];
       setChapter(chapterIndex);
       setSceneProgressPercent(0);
@@ -858,6 +884,7 @@ export default function OliveUniverse() {
     deepLinkHandledRef.current = true;
 
     if (requestedIndex === 0) {
+      pendingChapterSyncRef.current = null;
       progressRef.current = CHAPTERS[0].range[0];
       setSceneProgressPercent(0);
       setChapter(0);
@@ -866,13 +893,31 @@ export default function OliveUniverse() {
 
     requestScenePreload();
     ensureImmersiveSceneAccess();
+    pendingChapterSyncRef.current = requestedIndex;
     progressRef.current = CHAPTERS[requestedIndex]?.range[0] ?? 0;
     setSceneProgressPercent(0);
     setChapter(requestedIndex);
 
-    const rafId = window.requestAnimationFrame(() => {
-      scrollToChapter(requestedIndex, 'auto');
-    });
+    let rafId = 0;
+    let attempts = 0;
+    const maxAttempts = 60;
+
+    const syncDeepLinkedChapter = () => {
+      attempts += 1;
+      progressRef.current = CHAPTERS[requestedIndex]?.range[0] ?? 0;
+      setChapter(requestedIndex);
+
+      const targetTop = scrollToChapter(requestedIndex, 'auto');
+
+      const landedOnTarget =
+        targetTop !== null && Math.abs(window.scrollY - targetTop) <= 2;
+
+      if (!landedOnTarget && attempts < maxAttempts) {
+        rafId = window.requestAnimationFrame(syncDeepLinkedChapter);
+      }
+    };
+
+    rafId = window.requestAnimationFrame(syncDeepLinkedChapter);
 
     return () => {
       window.cancelAnimationFrame(rafId);
@@ -1111,15 +1156,34 @@ export default function OliveUniverse() {
 
       const rect = wrapperRef.current.getBoundingClientRect();
       const total = rect.height - window.innerHeight;
-      progressRef.current =
+      const actualProgress =
         total > 0 ? Math.max(0, Math.min(1, -rect.top / total)) : 0;
+      let effectiveProgress = actualProgress;
 
       let nextChapterIndex = 0;
       for (let i = CHAPTERS.length - 1; i >= 0; i--)
-        if (progressRef.current >= CHAPTERS[i].range[0] - 0.04) {
+        if (actualProgress >= CHAPTERS[i].range[0] - 0.04) {
           nextChapterIndex = i;
           break;
         }
+
+      const pendingChapterIndex = pendingChapterSyncRef.current;
+      if (pendingChapterIndex !== null) {
+        const pendingChapter = CHAPTERS[pendingChapterIndex] ?? CHAPTERS[0];
+        const [pendingStart, pendingEnd] = pendingChapter.range;
+        const actualProgressWithinPendingChapter =
+          actualProgress >= pendingStart - 0.02 &&
+          actualProgress <= pendingEnd + 0.02;
+
+        if (actualProgressWithinPendingChapter) {
+          pendingChapterSyncRef.current = null;
+        } else {
+          nextChapterIndex = pendingChapterIndex;
+          effectiveProgress = pendingStart;
+        }
+      }
+
+      progressRef.current = effectiveProgress;
 
       const currentChapterDef = CHAPTERS[nextChapterIndex] ?? CHAPTERS[0];
       const [chapterStart, chapterEnd] = currentChapterDef.range;
@@ -1129,11 +1193,10 @@ export default function OliveUniverse() {
               0,
               Math.min(
                 1,
-                (progressRef.current - chapterStart) /
-                  (chapterEnd - chapterStart)
+                (effectiveProgress - chapterStart) / (chapterEnd - chapterStart)
               )
             )
-          : progressRef.current >= chapterStart
+          : effectiveProgress >= chapterStart
             ? 1
             : 0;
       const nextSceneProgressPercent = Math.round(sceneProgress * 100);
@@ -1278,7 +1341,7 @@ export default function OliveUniverse() {
         ? 'Every 3D chapter has been primed in the background for cleaner jumps and faster scene hand-offs.'
         : 'Background priming is warming the remaining 3D chapters so later jumps land without cold-start flashes.';
   const isSceneBootSyncing =
-    sceneHandoffCycle > 0 &&
+    sceneBootSyncWindowActive &&
     shouldRenderCanvas &&
     (sceneState === 'staging' || sceneState === 'booting');
   const isSceneHandoffSyncing = sceneHandoffActive || isSceneBootSyncing;
@@ -1583,8 +1646,13 @@ export default function OliveUniverse() {
       window.clearTimeout(handoffTimeoutRef.current);
     }
 
+    if (sceneBootSyncTimeoutRef.current !== null) {
+      window.clearTimeout(sceneBootSyncTimeoutRef.current);
+    }
+
     setSceneHandoffCycle(currentCycle => currentCycle + 1);
     setSceneHandoffActive(true);
+    setSceneBootSyncWindowActive(true);
     handoffTimeoutRef.current = window.setTimeout(
       () => {
         setSceneHandoffActive(false);
@@ -1594,6 +1662,10 @@ export default function OliveUniverse() {
         ? SCENE_HANDOFF_DURATION_MS.primed
         : SCENE_HANDOFF_DURATION_MS.warming
     );
+    sceneBootSyncTimeoutRef.current = window.setTimeout(() => {
+      setSceneBootSyncWindowActive(false);
+      sceneBootSyncTimeoutRef.current = null;
+    }, SCENE_BOOT_SYNC_MAX_MS);
   }, [activeChapter.id, mounted, sceneCacheState, shouldRenderCanvas]);
 
   return (

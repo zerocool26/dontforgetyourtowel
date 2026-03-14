@@ -106,6 +106,45 @@ test.describe('Homepage', () => {
       .toBe('interactive');
   });
 
+  test('low-memory desktop sessions should switch the hero into optimized 3D mode', async ({
+    browser,
+    baseURL,
+    isMobile,
+  }) => {
+    if (isMobile) {
+      test.skip();
+    }
+
+    const context = await browser.newContext({
+      reducedMotion: 'no-preference',
+      viewport: { width: 1440, height: 900 },
+    });
+    const page = await context.newPage();
+
+    await page.addInitScript(() => {
+      Object.defineProperty(window.navigator, 'deviceMemory', {
+        configurable: true,
+        get: () => 2,
+      });
+    });
+
+    await page.goto(baseURL ?? 'http://localhost:4321/', {
+      waitUntil: 'networkidle',
+    });
+
+    const hero = page.locator('[data-olive-universe="ready"]');
+    await expect(hero).toBeVisible();
+    await expect(hero).toHaveAttribute('data-olive-mobile-3d', 'optimized');
+    await expect(hero).toHaveAttribute('data-olive-mode', /(immersive|lite)/);
+    await expect
+      .poll(async () => hero.getAttribute('data-olive-scene'), {
+        timeout: 6000,
+      })
+      .toBe('interactive');
+
+    await context.close();
+  });
+
   test('chapter navigation should auto-enable immersive scenes', async ({
     page,
     isMobile,
@@ -488,7 +527,9 @@ test.describe('Homepage', () => {
       /(staging|booting|interactive)/
     );
     await expect(
-      storyStatus.getByText(/cinematic render profile is active/i)
+      storyStatus
+        .locator('.universe-story-render-profile-note')
+        .filter({ hasText: /cinematic render profile is active/i })
     ).toBeVisible();
 
     await stableProfileButton.scrollIntoViewIfNeeded();
@@ -497,7 +538,9 @@ test.describe('Homepage', () => {
     await expect(hero).toHaveAttribute('data-olive-render-profile', 'stable');
     await expect(hero).toHaveAttribute('data-olive-mode', 'lite');
     await expect(
-      storyStatus.getByText(/stable render profile is active/i)
+      storyStatus
+        .locator('.universe-story-render-profile-note')
+        .filter({ hasText: /stable render profile is active/i })
     ).toBeVisible();
 
     await adaptiveProfileButton.scrollIntoViewIfNeeded();

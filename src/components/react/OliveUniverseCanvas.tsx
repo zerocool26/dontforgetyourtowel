@@ -12,14 +12,6 @@ import * as THREE from 'three';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Stars, Sparkles } from '@react-three/drei';
 import {
-  EffectComposer,
-  Bloom,
-  ChromaticAberration,
-  Noise,
-  Vignette,
-} from '@react-three/postprocessing';
-import { BlendFunction } from 'postprocessing';
-import {
   CHAPTER_ATMOSPHERES,
   CAMERA_KF,
   CHAPTERS,
@@ -32,6 +24,17 @@ import {
 type OliveDebugWindow = Window & {
   __OLIVE_FORCE_STABILITY_ASSIST__?: boolean;
 };
+
+type IdleCapableWindow = Window & {
+  requestIdleCallback?: (
+    callback: IdleRequestCallback,
+    options?: IdleRequestOptions
+  ) => number;
+  cancelIdleCallback?: (handle: number) => void;
+};
+
+type OliveUniversePostFxComponent =
+  typeof import('./OliveUniversePostFx').default;
 
 const PARTICLE_VERT = /* glsl */ `
   uniform float uTime;
@@ -356,20 +359,44 @@ function FirstFrameReadyReporter({ onReady }: { onReady?: () => void }) {
   return null;
 }
 
-function getWarmStepMs(enablePostFx: boolean, shouldAnimate: boolean) {
-  if (!shouldAnimate) {
-    return enablePostFx ? 180 : 120;
+function getWarmStepMs(
+  enablePostFx: boolean,
+  shouldAnimate: boolean,
+  lowMemoryDevice: boolean
+) {
+  if (lowMemoryDevice) {
+    if (!shouldAnimate) {
+      return enablePostFx ? 180 : 120;
+    }
+
+    return enablePostFx ? 240 : 160;
   }
 
-  return enablePostFx ? 240 : 160;
+  if (!shouldAnimate) {
+    return enablePostFx ? 120 : 90;
+  }
+
+  return enablePostFx ? 180 : 120;
 }
 
-function getWarmBatchSize(enablePostFx: boolean, shouldAnimate: boolean) {
-  if (!shouldAnimate) {
-    return 3;
+function getWarmBatchSize(
+  enablePostFx: boolean,
+  shouldAnimate: boolean,
+  lowMemoryDevice: boolean
+) {
+  if (lowMemoryDevice) {
+    if (!shouldAnimate) {
+      return 3;
+    }
+
+    return enablePostFx ? 1 : 2;
   }
 
-  return enablePostFx ? 1 : 2;
+  if (!shouldAnimate) {
+    return enablePostFx ? 4 : 5;
+  }
+
+  return enablePostFx ? 2 : 3;
 }
 
 function getTransitionCarryMs(
@@ -2449,6 +2476,8 @@ export default function OliveUniverseCanvas({
   const deviceMemory = useMemo(() => getDeviceMemory(), []);
   const lowMemoryDevice =
     typeof deviceMemory === 'number' && deviceMemory > 0 && deviceMemory <= 4;
+  const [PostFxComponent, setPostFxComponent] =
+    useState<OliveUniversePostFxComponent | null>(null);
   const previousActiveChapterIndexRef = useRef(activeChapterIndex);
   const [warmedSceneIndices, setWarmedSceneIndices] = useState<number[]>(() =>
     getSceneNeighborhood(activeChapterIndex, CHAPTERS.length)
@@ -2497,13 +2526,77 @@ export default function OliveUniverseCanvas({
       ? 'high-performance'
       : 'default';
   const warmStepMs = useMemo(
-    () => getWarmStepMs(sceneProfile.enablePostFx, shouldAnimate),
-    [sceneProfile.enablePostFx, shouldAnimate]
+    () =>
+      getWarmStepMs(sceneProfile.enablePostFx, shouldAnimate, lowMemoryDevice),
+    [lowMemoryDevice, sceneProfile.enablePostFx, shouldAnimate]
   );
   const warmBatchSize = useMemo(
-    () => getWarmBatchSize(sceneProfile.enablePostFx, shouldAnimate),
-    [sceneProfile.enablePostFx, shouldAnimate]
+    () =>
+      getWarmBatchSize(
+        sceneProfile.enablePostFx,
+        shouldAnimate,
+        lowMemoryDevice
+      ),
+    [lowMemoryDevice, sceneProfile.enablePostFx, shouldAnimate]
   );
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || PostFxComponent) {
+      return;
+    }
+
+    const shouldPreloadPostFx =
+      sceneProfile.enablePostFx || (quality !== 'low' && !lowMemoryDevice);
+
+    if (!shouldPreloadPostFx) {
+      return;
+    }
+
+    let cancelled = false;
+    let timeoutId = 0;
+    let idleId = 0;
+    const idleWindow = window as IdleCapableWindow;
+
+    const loadPostFx = () => {
+      void import('./OliveUniversePostFx')
+        .then(module => {
+          if (!cancelled) {
+            setPostFxComponent(() => module.default);
+          }
+        })
+        .catch(() => {
+          // Ignore transient chunk loading failures; the core scene stays usable.
+        });
+    };
+
+    if (sceneProfile.enablePostFx) {
+      loadPostFx();
+
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    if (idleWindow.requestIdleCallback) {
+      idleId = idleWindow.requestIdleCallback(loadPostFx, {
+        timeout: shouldAnimate ? 960 : 1400,
+      });
+    } else {
+      timeoutId = window.setTimeout(loadPostFx, shouldAnimate ? 880 : 1280);
+    }
+
+    return () => {
+      cancelled = true;
+      idleWindow.cancelIdleCallback?.(idleId);
+      window.clearTimeout(timeoutId);
+    };
+  }, [
+    PostFxComponent,
+    lowMemoryDevice,
+    quality,
+    sceneProfile.enablePostFx,
+    shouldAnimate,
+  ]);
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -2625,27 +2718,12 @@ export default function OliveUniverseCanvas({
           interactionBurstActive={interactionBurstActive}
           interactionBurstCycle={interactionBurstCycle}
         />
-        {sceneProfile.enablePostFx && (
-          <EffectComposer>
-            <Bloom
-              luminanceThreshold={0.18}
-              luminanceSmoothing={0.65}
-              intensity={sceneProfile.bloomIntensity}
-              mipmapBlur
-            />
-            <ChromaticAberration
-              blendFunction={BlendFunction.NORMAL}
-              offset={aberrationOffset}
-              radialModulation={false}
-              modulationOffset={0}
-            />
-            <Vignette offset={0.32} darkness={0.62} />
-            <Noise
-              premultiply
-              blendFunction={BlendFunction.ADD}
-              opacity={sceneProfile.noiseOpacity}
-            />
-          </EffectComposer>
+        {sceneProfile.enablePostFx && PostFxComponent && (
+          <PostFxComponent
+            aberrationOffset={aberrationOffset}
+            bloomIntensity={sceneProfile.bloomIntensity}
+            noiseOpacity={sceneProfile.noiseOpacity}
+          />
         )}
       </Canvas>
     </div>
