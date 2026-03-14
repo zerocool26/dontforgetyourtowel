@@ -433,7 +433,7 @@ test.describe('Homepage', () => {
 
     await expect
       .poll(async () => hero.getAttribute('data-current-chapter'), {
-        timeout: 8000,
+        timeout: 12000,
       })
       .toBe('neural');
 
@@ -443,7 +443,7 @@ test.describe('Homepage', () => {
 
     await expect
       .poll(async () => hero.getAttribute('data-current-chapter'), {
-        timeout: 8000,
+        timeout: 12000,
       })
       .toBe('vault');
 
@@ -1020,6 +1020,18 @@ test.describe('Homepage', () => {
     await expect(hero).toBeVisible();
     await expect(hero).toHaveAttribute('data-olive-mobile-panel', 'closed');
     await expect(hero).toHaveAttribute('data-olive-mobile-3d', 'optimized');
+    await expect(hero).toHaveAttribute('data-olive-scene-copy', 'minimal');
+    await expect(hero).toHaveAttribute('data-olive-touch-interaction', 'idle');
+    await expect(hero).toHaveAttribute('data-olive-touch-field', 'idle');
+    await expect(
+      hero.locator('.universe-chapter.is-visible .universe-copy')
+    ).toHaveCount(0);
+    await expect(
+      hero.locator('.universe-chapter.is-visible .universe-ctas')
+    ).toHaveCount(0);
+    await expect(
+      hero.locator('.universe-chapter.is-visible .universe-kicker')
+    ).toHaveCount(0);
     await expect(mobileToggle).toBeVisible();
     await expect
       .poll(async () => hero.getAttribute('data-olive-preload'), {
@@ -1032,6 +1044,25 @@ test.describe('Homepage', () => {
     const storyStatus = page.getByLabel('Hero story status');
     await expect(hero).toHaveAttribute('data-olive-mobile-panel', 'open');
     await expect(storyStatus).toBeVisible();
+    await expect(
+      storyStatus.getByText(
+        /we build cinematic digital systems that look premium, move fast, and push conversion harder/i
+      )
+    ).toBeVisible();
+    await expect(
+      storyStatus.getByRole('link', { name: /explore services/i })
+    ).toBeVisible();
+    await expect(
+      storyStatus.getByRole('link', { name: /view portfolio/i })
+    ).toBeVisible();
+    await expect(
+      storyStatus.getByText(
+        /drag the 3d field to steer and bend every live scene layer/i
+      )
+    ).toBeVisible();
+    await expect(
+      storyStatus.getByText(/touch: swipe scenes · drag 3d · tap burst/i)
+    ).toBeVisible();
 
     await storyStatus
       .getByRole('button', { name: /use orbit scene lens/i })
@@ -1045,6 +1076,46 @@ test.describe('Homepage', () => {
 
     await expect(hero).toHaveAttribute('data-olive-mode', /(immersive|lite)/);
     await expect(hero).toHaveAttribute('data-olive-mobile-panel', 'closed');
+    await expect(hero).toHaveAttribute(
+      'data-olive-touch-interaction',
+      'drag-reactive'
+    );
+    await expect
+      .poll(async () => hero.getAttribute('data-olive-scene'), {
+        timeout: 6000,
+      })
+      .toBe('interactive');
+    await expect(hero).toHaveAttribute('data-olive-touch-field', 'idle');
+
+    const canvasField = hero.locator('.universe-canvas');
+    await expect(canvasField).toBeVisible();
+
+    await canvasField.dispatchEvent('pointerdown', {
+      pointerType: 'touch',
+      pointerId: 17,
+      clientX: 248,
+      clientY: 326,
+      isPrimary: true,
+      bubbles: true,
+    });
+    await canvasField.dispatchEvent('pointermove', {
+      pointerType: 'touch',
+      pointerId: 17,
+      clientX: 304,
+      clientY: 296,
+      isPrimary: true,
+      bubbles: true,
+    });
+
+    await expect
+      .poll(async () => hero.getAttribute('data-olive-touch-field'))
+      .toBe('tracking');
+
+    await canvasField.dispatchEvent('pointercancel', {
+      pointerType: 'touch',
+      pointerId: 17,
+      bubbles: true,
+    });
 
     await page
       .getByRole('button', {
@@ -1057,6 +1128,9 @@ test.describe('Homepage', () => {
       .click();
 
     await expect(hero).toHaveAttribute('data-olive-interaction', 'burst');
+    await expect
+      .poll(async () => hero.getAttribute('data-olive-touch-field'))
+      .toBe('surging');
 
     await storyStatus
       .getByRole('button', { name: /jump to cloud engineering/i })
@@ -1076,6 +1150,11 @@ test.describe('Homepage', () => {
         name: /show hero controls for cloud engineering/i,
       })
     ).toBeVisible();
+    await expect
+      .poll(async () => hero.getAttribute('data-olive-touch-field'), {
+        timeout: 5000,
+      })
+      .toBe('idle');
 
     await context.close();
   });

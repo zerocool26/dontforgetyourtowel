@@ -33,6 +33,7 @@ import {
   type QualityTier,
   type SceneLensMode,
 } from './olive-universe-config';
+import type { CanvasTouchFieldState } from './OliveUniverseCanvas';
 
 const preloadOliveUniverseCanvas = () => import('./OliveUniverseCanvas');
 const OliveUniverseCanvas = lazy(preloadOliveUniverseCanvas);
@@ -245,54 +246,82 @@ function ChapterOverlay({
   ch,
   visible,
   isPrimary,
+  compact = false,
 }: {
   ch: ChapterDef;
   visible: boolean;
   isPrimary?: boolean;
+  compact?: boolean;
 }) {
   const HeadingTag = isPrimary ? 'h1' : 'h2';
 
   return (
     <section
-      className={`universe-chapter ${visible ? 'is-visible' : 'is-hidden'}`}
+      className={`universe-chapter ${compact ? 'is-compact' : ''} ${visible ? 'is-visible' : 'is-hidden'}`}
       aria-hidden={!visible}
       aria-labelledby={`${ch.id}-title`}
     >
-      <div className="universe-content">
-        <span className="universe-kicker" style={{ color: ch.accent }}>
-          {ch.kicker}
-        </span>
-        <HeadingTag id={`${ch.id}-title`} className="universe-title">
-          {ch.title.map((line, i) => (
-            <span key={i}>
-              {line}
-              <br />
-            </span>
-          ))}
-        </HeadingTag>
-        <p className="universe-copy">{ch.copy}</p>
-        {ch.metrics && (
-          <div className="universe-metrics">
-            {ch.metrics.map(metric => (
-              <span key={metric} className="universe-metric-chip">
-                {metric}
-              </span>
-            ))}
-          </div>
-        )}
-        <div className="universe-ctas">
-          {ch.ctas.map((cta, i) => (
-            <a
-              key={i}
-              href={cta.href}
-              className={
-                cta.primary ? 'universe-btn-primary' : 'universe-btn-secondary'
+      <div className={`universe-content ${compact ? 'is-compact' : ''}`}>
+        <div
+          className={`universe-chapter-frame ${compact ? 'is-compact' : 'is-full'}`}
+        >
+          {compact ? (
+            <span
+              className="universe-chapter-accent"
+              aria-hidden="true"
+              style={
+                { '--universe-chapter-accent': ch.accent } as CSSProperties
               }
-              tabIndex={visible ? undefined : -1}
-            >
-              {cta.label}
-            </a>
-          ))}
+            />
+          ) : (
+            <span className="universe-kicker" style={{ color: ch.accent }}>
+              {ch.kicker}
+            </span>
+          )}
+          <HeadingTag
+            id={`${ch.id}-title`}
+            className={`universe-title ${compact ? 'is-compact' : ''}`}
+          >
+            {compact
+              ? ch.title.join(' ')
+              : ch.title.map((line, i) => (
+                  <span key={i}>
+                    {line}
+                    <br />
+                  </span>
+                ))}
+          </HeadingTag>
+
+          {!compact && (
+            <>
+              <p className="universe-copy">{ch.copy}</p>
+              {ch.metrics && (
+                <div className="universe-metrics">
+                  {ch.metrics.map(metric => (
+                    <span key={metric} className="universe-metric-chip">
+                      {metric}
+                    </span>
+                  ))}
+                </div>
+              )}
+              <div className="universe-ctas">
+                {ch.ctas.map((cta, i) => (
+                  <a
+                    key={i}
+                    href={cta.href}
+                    className={
+                      cta.primary
+                        ? 'universe-btn-primary'
+                        : 'universe-btn-secondary'
+                    }
+                    tabIndex={visible ? undefined : -1}
+                  >
+                    {cta.label}
+                  </a>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       </div>
     </section>
@@ -349,6 +378,8 @@ export default function OliveUniverse() {
     useState<ScenePreloadState>('idle');
   const [interactionBurstActive, setInteractionBurstActive] = useState(false);
   const [interactionBurstCycle, setInteractionBurstCycle] = useState(0);
+  const [touchFieldState, setTouchFieldState] =
+    useState<CanvasTouchFieldState>('idle');
   const [shareState, setShareState] = useState<
     'idle' | 'copied' | 'shared' | 'error'
   >('idle');
@@ -1256,6 +1287,7 @@ export default function OliveUniverse() {
       ? 'lite'
       : effectiveVisualMode;
   const activeChapter = CHAPTERS[chapter] ?? CHAPTERS[0];
+  const activeChapterTitle = activeChapter.title.join(' ');
   const activeAtmosphere = CHAPTER_ATMOSPHERES[activeChapter.id];
   const baseSceneProfile = useMemo(
     () => getSceneProfile(runtimeQuality, runtimeSceneMode),
@@ -1377,11 +1409,26 @@ export default function OliveUniverse() {
   const sceneLensStatus = shouldRenderCanvas
     ? sceneLensConfig.note
     : sceneLensConfig.queuedNote;
+  const touchFieldStatusLabel = interactionBurstActive
+    ? 'Burst live'
+    : touchFieldState === 'surging'
+      ? 'Field surge'
+      : touchFieldState === 'tracking'
+        ? 'Field tracking'
+        : touchFieldState === 'cooling'
+          ? 'Field settling'
+          : 'Tap / click ready';
   const interactionStatus = interactionBurstActive
     ? `Scene burst active · ${activeChapter.kicker} is surging live.`
-    : touchCapable || isCompactViewport
-      ? 'Tap the 3D field or use the trigger to punch extra energy into the active chapter.'
-      : 'Click the 3D field or use the trigger to punch extra energy into the active chapter.';
+    : touchFieldState === 'tracking' || touchFieldState === 'surging'
+      ? touchCapable || isCompactViewport
+        ? 'Touch field engaged · steering and bending the active scene live while every layer follows your drag path.'
+        : 'Pointer field engaged · steering the active scene live while the layered camera drift stays locked to your movement.'
+      : touchFieldState === 'cooling'
+        ? 'Touch field cooling · the active scene is easing back into its ambient cinematic drift after the latest input burst.'
+        : touchCapable || isCompactViewport
+          ? 'Drag the 3D field to steer and bend every live scene layer, then tap or use the trigger to punch extra energy into the active chapter.'
+          : 'Click the 3D field or use the trigger to punch extra energy into the active chapter.';
 
   const userForcedImmersive =
     prefersReduced && motionPreference === 'immersive' && webglSupported;
@@ -1478,7 +1525,9 @@ export default function OliveUniverse() {
       : 'closed'
     : 'desktop';
   const mobilePanelMeta = shouldRenderCanvas
-    ? `${sceneLensConfig.label} lens · ${activeAtmosphere.label}`
+    ? touchCapable || isCompactViewport
+      ? `${activeAtmosphere.label} · drag 3D`
+      : `${sceneLensConfig.label} lens · ${activeAtmosphere.label}`
     : scenePreloadState === 'ready'
       ? `${sceneLensConfig.label} lens primed`
       : scenePreloadState === 'warming'
@@ -1487,10 +1536,23 @@ export default function OliveUniverse() {
   const mobileThreeDMode = shouldUseOptimizedMobile3D
     ? 'optimized'
     : 'standard';
+  const touchInteractionMode = shouldRenderCanvas
+    ? touchCapable || isCompactViewport
+      ? 'drag-reactive'
+      : 'pointer-reactive'
+    : 'idle';
   const mobilePanelToggleLabel = `${mobilePanelOpen ? 'Hide' : 'Show'} hero controls for ${activeChapter.kicker}`;
   const handleSceneReady = useCallback(() => {
     setSceneResolved(true);
   }, []);
+  const handleTouchFieldStateChange = useCallback(
+    (nextState: CanvasTouchFieldState) => {
+      setTouchFieldState(currentState =>
+        currentState === nextState ? currentState : nextState
+      );
+    },
+    []
+  );
   const handleSceneWarmCountChange = useCallback((nextCount: number) => {
     setSceneReadyCount(currentCount =>
       currentCount === nextCount ? currentCount : nextCount
@@ -1668,6 +1730,16 @@ export default function OliveUniverse() {
     }, SCENE_BOOT_SYNC_MAX_MS);
   }, [activeChapter.id, mounted, sceneCacheState, shouldRenderCanvas]);
 
+  useEffect(() => {
+    if (shouldRenderCanvas) {
+      return;
+    }
+
+    setTouchFieldState(currentState =>
+      currentState === 'idle' ? currentState : 'idle'
+    );
+  }, [shouldRenderCanvas]);
+
   return (
     <div
       ref={wrapperRef}
@@ -1688,6 +1760,9 @@ export default function OliveUniverse() {
       data-olive-lens={sceneLens}
       data-olive-mobile-panel={mobilePanelState}
       data-olive-mobile-3d={mobileThreeDMode}
+      data-olive-scene-copy={isCompactViewport ? 'minimal' : 'full'}
+      data-olive-touch-interaction={touchInteractionMode}
+      data-olive-touch-field={touchFieldState}
       data-olive-preload={scenePreloadState}
       data-olive-interaction={interactionBurstActive ? 'burst' : 'idle'}
       style={
@@ -1711,9 +1786,12 @@ export default function OliveUniverse() {
                 shouldAnimate={shouldAnimateCanvas}
                 stabilityAssistActive={stabilityAssistActive}
                 sceneLens={sceneLens}
+                compactViewport={isCompactViewport}
                 interactionBurstActive={interactionBurstActive}
                 interactionBurstCycle={interactionBurstCycle}
+                mobileOptimized={shouldUseOptimizedMobile3D}
                 onPerformanceBudgetExceeded={enableStabilityAssist}
+                onTouchFieldStateChange={handleTouchFieldStateChange}
                 onWarmCountChange={handleSceneWarmCountChange}
                 onReady={handleSceneReady}
               />
@@ -1763,6 +1841,7 @@ export default function OliveUniverse() {
               ch={ch}
               visible={chapter === i}
               isPrimary={i === 0}
+              compact={isCompactViewport}
             />
           ))}
 
@@ -1865,6 +1944,48 @@ export default function OliveUniverse() {
 
             <p className="universe-story-kicker">{activeChapter.kicker}</p>
             <p className="universe-story-note">{runtimeNote}</p>
+            {isCompactViewport && (
+              <div
+                className="universe-story-scene-summary"
+                role="group"
+                aria-label={`${activeChapter.kicker} scene details`}
+              >
+                <p className="universe-story-scene-title">
+                  {activeChapterTitle}
+                </p>
+                <p className="universe-story-scene-copy">
+                  {activeChapter.copy}
+                </p>
+
+                {activeChapter.metrics && (
+                  <div
+                    className="universe-story-scene-metrics"
+                    aria-label="Chapter highlights"
+                  >
+                    {activeChapter.metrics.map(metric => (
+                      <span
+                        key={metric}
+                        className="universe-story-scene-metric"
+                      >
+                        {metric}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <div className="universe-story-scene-actions">
+                  {activeChapter.ctas.map(cta => (
+                    <a
+                      key={cta.label}
+                      href={cta.href}
+                      className={`universe-story-toggle ${cta.primary ? 'is-primary' : 'is-secondary'}`}
+                    >
+                      {cta.label}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
             {!shouldRenderCanvas && webglSupported && (
               <p className="universe-story-preload-status" role="status">
                 {scenePreloadLabel}
@@ -2171,9 +2292,7 @@ export default function OliveUniverse() {
                     Scene reaction
                   </p>
                   <p className="universe-story-interaction-value">
-                    {interactionBurstActive
-                      ? 'Burst live'
-                      : 'Tap / click ready'}
+                    {touchFieldStatusLabel}
                   </p>
                 </div>
 
@@ -2278,7 +2397,9 @@ export default function OliveUniverse() {
             </p>
 
             {touchCapable && (
-              <p className="universe-story-gestures">Touch: swipe ← → scenes</p>
+              <p className="universe-story-gestures">
+                Touch: swipe scenes · drag 3D · tap burst
+              </p>
             )}
 
             <div className="universe-story-track" aria-hidden="true">

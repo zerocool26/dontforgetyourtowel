@@ -40,6 +40,94 @@ type OliveUniversePostFxComponent =
 type OliveUniverseSceneOverlaysComponent =
   typeof import('./OliveUniverseSceneOverlays').default;
 
+export type CanvasTouchFieldState = 'idle' | 'tracking' | 'surging' | 'cooling';
+
+export type CanvasPointerSignal = {
+  target: THREE.Vector2;
+  position: THREE.Vector2;
+  energy: number;
+  fieldEnergy: number;
+  performanceFactor: number;
+  active: boolean;
+  coarse: boolean;
+  fieldState: CanvasTouchFieldState;
+};
+
+type ViewportSize = {
+  width: number;
+  height: number;
+};
+
+const MOBILE_CANVAS_BREAKPOINT = 960;
+
+function shouldIgnoreCanvasPointerTarget(target: EventTarget | null) {
+  if (!(target instanceof HTMLElement)) {
+    return false;
+  }
+
+  return Boolean(
+    target.closest(
+      '.universe-story-panel, .universe-progress, .universe-mobile-dock, .universe-content'
+    )
+  );
+}
+
+function getViewportSize(): ViewportSize {
+  if (typeof window === 'undefined') {
+    return { width: 1, height: 1 };
+  }
+
+  return {
+    width: Math.max(1, window.innerWidth || 1),
+    height: Math.max(1, window.innerHeight || 1),
+  };
+}
+
+function getCanvasPixelBudget(
+  quality: QualityTier,
+  profile: SceneProfile,
+  lowMemoryDevice: boolean,
+  mobileOptimized: boolean,
+  compactViewport: boolean
+) {
+  if (lowMemoryDevice) {
+    return compactViewport ? 820_000 : 960_000;
+  }
+
+  if (mobileOptimized) {
+    if (!profile.enablePostFx) {
+      return compactViewport ? 980_000 : 1_120_000;
+    }
+
+    return quality === 'high'
+      ? compactViewport
+        ? 1_320_000
+        : 1_480_000
+      : compactViewport
+        ? 1_160_000
+        : 1_320_000;
+  }
+
+  if (!profile.enablePostFx) {
+    return quality === 'high' ? 2_200_000 : 1_900_000;
+  }
+
+  return quality === 'high' ? 3_200_000 : 2_600_000;
+}
+
+function getViewportAwareDpr(
+  devicePixelRatio: number,
+  canvasDprCap: number,
+  viewportSize: ViewportSize,
+  pixelBudget: number
+) {
+  const cappedDevicePixelRatio = Math.max(1, devicePixelRatio || 1);
+  const viewportPixels = Math.max(1, viewportSize.width * viewportSize.height);
+  const budgetDpr = Math.sqrt(pixelBudget / viewportPixels);
+
+  return Math.max(1, Math.min(cappedDevicePixelRatio, canvasDprCap, budgetDpr));
+}
+
 const PARTICLE_VERT = /* glsl */ `
   uniform float uTime;
   uniform float uMorph;
@@ -348,6 +436,44 @@ function getCanvasDprCap(
   return quality === 'high' ? 1.85 : 1.45;
 }
 
+function getScenePerformanceBudget(performanceFactor: number) {
+  const clampedPerformanceFactor = THREE.MathUtils.clamp(
+    Number.isFinite(performanceFactor) ? performanceFactor : 1,
+    0.62,
+    1
+  );
+
+  return {
+    motion: 0.72 + clampedPerformanceFactor * 0.28,
+    glow: 0.68 + clampedPerformanceFactor * 0.32,
+    density: 0.64 + clampedPerformanceFactor * 0.36,
+  };
+}
+
+function getCanvasTouchFieldState(
+  enabled: boolean,
+  pointerSignal: CanvasPointerSignal,
+  interactionBurstActive: boolean
+): CanvasTouchFieldState {
+  if (!enabled) {
+    return 'idle';
+  }
+
+  if (interactionBurstActive || pointerSignal.fieldEnergy >= 0.82) {
+    return 'surging';
+  }
+
+  if (pointerSignal.active || pointerSignal.fieldEnergy >= 0.34) {
+    return 'tracking';
+  }
+
+  if (pointerSignal.fieldEnergy >= 0.08) {
+    return 'cooling';
+  }
+
+  return 'idle';
+}
+
 function FirstFrameReadyReporter({ onReady }: { onReady?: () => void }) {
   const readyReportedRef = useRef(false);
 
@@ -359,6 +485,183 @@ function FirstFrameReadyReporter({ onReady }: { onReady?: () => void }) {
     readyReportedRef.current = true;
     onReady?.();
   });
+
+  return null;
+}
+
+function InteractionPerformanceRegressor({
+  enabled,
+  interactionBurstActive,
+  pointerSignalRef,
+}: {
+  enabled: boolean;
+  interactionBurstActive: boolean;
+  pointerSignalRef: MutableRefObject<CanvasPointerSignal>;
+}) {
+  const regress = useThree(state => state.performance.regress);
+  const lastRegressAtRef = useRef(0);
+
+  useFrame(({ clock }) => {
+    if (!enabled) {
+      return;
+    }
+
+    const pointerSignal = pointerSignalRef.current;
+    const interactionActive =
+      interactionBurstActive ||
+      pointerSignal.active ||
+      pointerSignal.fieldEnergy > 0.28;
+
+    if (!interactionActive) {
+      return;
+    }
+
+    const regressWindow =
+      (pointerSignal.coarse ? 0.18 : 0.12) *
+      (pointerSignal.performanceFactor < 0.82 ? 0.82 : 1);
+
+    if (clock.elapsedTime - lastRegressAtRef.current < regressWindow) {
+      return;
+    }
+
+    lastRegressAtRef.current = clock.elapsedTime;
+    regress();
+  });
+
+  return null;
+}
+
+function CanvasRuntimeTelemetryReporter({
+  enabled,
+  interactionBurstActive,
+  pointerSignalRef,
+  onTouchFieldStateChange,
+}: {
+  enabled: boolean;
+  interactionBurstActive: boolean;
+  pointerSignalRef: MutableRefObject<CanvasPointerSignal>;
+  onTouchFieldStateChange?: (state: CanvasTouchFieldState) => void;
+}) {
+  const currentPerformanceFactor = useThree(state => state.performance.current);
+  const lastTouchFieldStateRef = useRef<CanvasTouchFieldState>('idle');
+
+  useEffect(() => {
+    if (enabled) {
+      return;
+    }
+
+    const pointerSignal = pointerSignalRef.current;
+    pointerSignal.energy = 0;
+    pointerSignal.fieldEnergy = 0;
+    pointerSignal.performanceFactor = 1;
+    pointerSignal.fieldState = 'idle';
+
+    if (lastTouchFieldStateRef.current !== 'idle') {
+      lastTouchFieldStateRef.current = 'idle';
+      onTouchFieldStateChange?.('idle');
+    }
+  }, [enabled, onTouchFieldStateChange, pointerSignalRef]);
+
+  useFrame(() => {
+    const pointerSignal = pointerSignalRef.current;
+    const pointerActive = enabled && pointerSignal.active;
+
+    pointerSignal.position.lerp(
+      pointerSignal.target,
+      pointerSignal.coarse ? 0.14 : 0.08
+    );
+    pointerSignal.energy = THREE.MathUtils.lerp(
+      pointerSignal.energy,
+      pointerActive ? 1 : 0,
+      pointerActive ? 0.18 : 0.07
+    );
+    pointerSignal.performanceFactor = THREE.MathUtils.lerp(
+      pointerSignal.performanceFactor,
+      enabled ? currentPerformanceFactor : 1,
+      enabled ? 0.12 : 0.18
+    );
+
+    const targetFieldEnergy = enabled
+      ? THREE.MathUtils.clamp(
+          pointerSignal.energy * (pointerSignal.coarse ? 0.92 : 0.78) +
+            (pointerSignal.active ? 0.18 : 0) +
+            (interactionBurstActive ? 0.42 : 0) +
+            (1 - pointerSignal.performanceFactor) * 0.12,
+          0,
+          1.25
+        )
+      : 0;
+
+    pointerSignal.fieldEnergy = THREE.MathUtils.lerp(
+      pointerSignal.fieldEnergy,
+      targetFieldEnergy,
+      enabled ? 0.16 : 0.12
+    );
+
+    const nextTouchFieldState = getCanvasTouchFieldState(
+      enabled,
+      pointerSignal,
+      interactionBurstActive
+    );
+
+    pointerSignal.fieldState = nextTouchFieldState;
+
+    if (lastTouchFieldStateRef.current === nextTouchFieldState) {
+      return;
+    }
+
+    lastTouchFieldStateRef.current = nextTouchFieldState;
+    onTouchFieldStateChange?.(nextTouchFieldState);
+  });
+
+  return null;
+}
+
+function AdaptivePerformanceDpr({
+  baseDpr,
+  enabled,
+  lowMemoryDevice,
+  compactViewport,
+  mobileOptimized,
+}: {
+  baseDpr: number;
+  enabled: boolean;
+  lowMemoryDevice: boolean;
+  compactViewport: boolean;
+  mobileOptimized: boolean;
+}) {
+  const current = useThree(state => state.performance.current);
+  const setDpr = useThree(state => state.setDpr);
+  const appliedDprRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const floor = lowMemoryDevice
+      ? 0.72
+      : compactViewport
+        ? 0.8
+        : mobileOptimized
+          ? 0.88
+          : 0.94;
+    const dprFactor = enabled ? floor + (1 - floor) * current : 1;
+    const nextDpr = Number(
+      Math.max(1, Math.min(baseDpr, baseDpr * dprFactor)).toFixed(2)
+    );
+
+    if (appliedDprRef.current === nextDpr) {
+      return;
+    }
+
+    appliedDprRef.current = nextDpr;
+    setDpr(nextDpr);
+  }, [
+    baseDpr,
+    compactViewport,
+    current,
+    enabled,
+    lowMemoryDevice,
+    mobileOptimized,
+    setDpr,
+  ]);
 
   return null;
 }
@@ -423,14 +726,15 @@ function ParticleGalaxy({
   isLive,
   progressRef,
   profile,
+  pointerSignalRef,
 }: {
   isLive: boolean;
   progressRef: MutableRefObject<number>;
   profile: SceneProfile;
+  pointerSignalRef: MutableRefObject<CanvasPointerSignal>;
 }) {
   const pointsRef = useRef<THREE.Points>(null);
   const matRef = useRef<THREE.ShaderMaterial | null>(null);
-  const mouseRef = useRef(new THREE.Vector2());
   const visibilityRef = useRef(0);
   const count = profile.particleCount;
 
@@ -474,26 +778,16 @@ function ParticleGalaxy({
   );
 
   useEffect(() => {
-    if (!profile.pointerParallax) return;
-
-    const handleMouseMove = (event: MouseEvent) => {
-      mouseRef.current.set(
-        (event.clientX / window.innerWidth) * 2 - 1,
-        -(event.clientY / window.innerHeight) * 2 + 1
-      );
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, [profile.pointerParallax]);
-
-  useEffect(() => {
     matRef.current = material;
   }, [material]);
 
   useFrame(({ clock }) => {
     if (!matRef.current) return;
     const progress = progressRef.current ?? 0;
+    const pointerSignal = pointerSignalRef.current;
+    const performanceBudget = getScenePerformanceBudget(
+      pointerSignal.performanceFactor
+    );
     const [start, end] = CHAPTERS[0].range;
     const visible =
       isLive && progress >= start - 0.08 && progress <= end + 0.08;
@@ -510,11 +804,16 @@ function ParticleGalaxy({
     matRef.current.uniforms.uTime.value = clock.elapsedTime;
     matRef.current.uniforms.uMorph.value = THREE.MathUtils.lerp(
       matRef.current.uniforms.uMorph.value,
-      local * 1.2,
+      local * (1.04 + performanceBudget.density * 0.16) +
+        pointerSignal.energy * 0.08 * performanceBudget.motion,
       0.025
     );
-    matRef.current.uniforms.uVisibility.value = visibilityRef.current;
-    matRef.current.uniforms.uMouse.value.lerp(mouseRef.current, 0.06);
+    matRef.current.uniforms.uVisibility.value =
+      visibilityRef.current * performanceBudget.glow;
+    matRef.current.uniforms.uMouse.value.lerp(
+      pointerSignal.position,
+      pointerSignal.coarse ? 0.16 : 0.08
+    );
 
     if (pointsRef.current) {
       pointsRef.current.visible = visible || visibilityRef.current > 0.02;
@@ -528,12 +827,15 @@ function NeuralCortex({
   isLive,
   progressRef,
   profile,
+  pointerSignalRef,
 }: {
   isLive: boolean;
   progressRef: MutableRefObject<number>;
   profile: SceneProfile;
+  pointerSignalRef: MutableRefObject<CanvasPointerSignal>;
 }) {
   const groupRef = useRef<THREE.Group>(null);
+  const keyLightRef = useRef<THREE.PointLight>(null);
   const visibilityRef = useRef(0);
   const nodeCount = profile.neuralNodeCount;
 
@@ -638,6 +940,19 @@ function NeuralCortex({
   useFrame(({ clock }) => {
     if (!groupRef.current) return;
     const progress = progressRef.current ?? 0;
+    const pointerSignal = pointerSignalRef.current;
+    const performanceBudget = getScenePerformanceBudget(
+      pointerSignal.performanceFactor
+    );
+    const pointerX =
+      pointerSignal.position.x *
+      (pointerSignal.coarse ? 0.42 : 0.26) *
+      performanceBudget.motion;
+    const pointerY =
+      pointerSignal.position.y *
+      (pointerSignal.coarse ? 0.28 : 0.18) *
+      performanceBudget.motion;
+    const pointerEnergy = pointerSignal.energy;
     const [start, end] = CHAPTERS[1].range;
     const visible =
       isLive && progress >= start - 0.08 && progress <= end + 0.08;
@@ -646,16 +961,30 @@ function NeuralCortex({
       visible ? 1 : 0,
       0.04
     );
-    lineMat.opacity = visibilityRef.current * 0.82;
-    nodeMat.opacity = visibilityRef.current;
-    coreMat.opacity = visibilityRef.current * 0.42;
+    lineMat.opacity =
+      visibilityRef.current *
+      (0.82 + pointerEnergy * 0.12) *
+      performanceBudget.glow;
+    nodeMat.opacity = Math.min(
+      1,
+      visibilityRef.current *
+        (0.96 + pointerEnergy * 0.1) *
+        performanceBudget.glow
+    );
+    coreMat.opacity =
+      visibilityRef.current *
+      (0.42 + pointerEnergy * 0.08) *
+      performanceBudget.glow;
     coreMat.emissiveIntensity = THREE.MathUtils.lerp(
       coreMat.emissiveIntensity,
-      visible ? 1.8 : 0,
+      visible ? (1.8 + pointerEnergy * 1.25) * performanceBudget.glow : 0,
       0.06
     );
     orbitMats.forEach((material, index) => {
-      material.opacity = visibilityRef.current * (0.32 - index * 0.08);
+      material.opacity =
+        visibilityRef.current *
+        (0.32 - index * 0.08 + pointerEnergy * 0.03) *
+        performanceBudget.glow;
     });
 
     groupRef.current.visible = visibilityRef.current > 0.02;
@@ -664,7 +993,34 @@ function NeuralCortex({
     }
 
     lineMat.uniforms.uTime.value = clock.elapsedTime;
-    groupRef.current.rotation.y = clock.elapsedTime * 0.045;
+    groupRef.current.position.x = THREE.MathUtils.lerp(
+      groupRef.current.position.x,
+      pointerX * 0.85,
+      0.06
+    );
+    groupRef.current.position.y = THREE.MathUtils.lerp(
+      groupRef.current.position.y,
+      pointerY * 0.6,
+      0.06
+    );
+    groupRef.current.rotation.y =
+      clock.elapsedTime *
+        (0.045 + pointerEnergy * 0.024) *
+        performanceBudget.motion +
+      pointerX * 0.18;
+    groupRef.current.rotation.x = THREE.MathUtils.lerp(
+      groupRef.current.rotation.x,
+      pointerY * 0.22,
+      0.08
+    );
+
+    if (keyLightRef.current) {
+      keyLightRef.current.intensity = THREE.MathUtils.lerp(
+        keyLightRef.current.intensity,
+        visible ? (2.5 + pointerEnergy * 1.2) * performanceBudget.glow : 0,
+        0.06
+      );
+    }
   });
 
   return (
@@ -698,7 +1054,13 @@ function NeuralCortex({
         color="#67e8f9"
         opacity={0.34}
       />
-      <pointLight color="#00d4ff" intensity={2.5} distance={14} decay={2} />
+      <pointLight
+        ref={keyLightRef}
+        color="#00d4ff"
+        intensity={2.5}
+        distance={14}
+        decay={2}
+      />
     </group>
   );
 }
@@ -706,11 +1068,14 @@ function NeuralCortex({
 function CrystalFortress({
   isLive,
   progressRef,
+  pointerSignalRef,
 }: {
   isLive: boolean;
   progressRef: MutableRefObject<number>;
+  pointerSignalRef: MutableRefObject<CanvasPointerSignal>;
 }) {
   const groupRef = useRef<THREE.Group>(null);
+  const keyLightRef = useRef<THREE.PointLight>(null);
 
   const shieldMat = useMemo(
     () =>
@@ -797,36 +1162,98 @@ function CrystalFortress({
   useFrame(({ clock }) => {
     if (!groupRef.current) return;
     const progress = progressRef.current ?? 0;
+    const pointerSignal = pointerSignalRef.current;
+    const performanceBudget = getScenePerformanceBudget(
+      pointerSignal.performanceFactor
+    );
+    const pointerX =
+      pointerSignal.position.x *
+      (pointerSignal.coarse ? 0.46 : 0.28) *
+      performanceBudget.motion;
+    const pointerY =
+      pointerSignal.position.y *
+      (pointerSignal.coarse ? 0.34 : 0.2) *
+      performanceBudget.motion;
+    const pointerEnergy = pointerSignal.energy;
     const [start, end] = CHAPTERS[2].range;
     const visible =
       isLive && progress >= start - 0.08 && progress <= end + 0.08;
     const elapsed = clock.elapsedTime;
     const alpha = THREE.MathUtils.lerp(
       crystalMat.opacity,
-      visible ? 0.82 : 0,
+      visible ? 0.82 * performanceBudget.glow : 0,
       0.04
     );
     crystalMat.opacity = alpha;
+    crystalMat.emissiveIntensity = THREE.MathUtils.lerp(
+      crystalMat.emissiveIntensity,
+      visible ? (0.6 + pointerEnergy * 0.8) * performanceBudget.glow : 0,
+      0.06
+    );
     wireMat.opacity = alpha * 0.35;
     ringMats.forEach((material, index) => {
-      material.opacity = alpha * (0.45 - index * 0.08);
+      material.opacity =
+        alpha *
+        (0.45 - index * 0.08 + pointerEnergy * 0.04) *
+        performanceBudget.glow;
     });
-    shieldMat.uniforms.uTime.value = elapsed;
-    shieldMat.opacity = alpha;
-    scanMat.opacity = alpha * 0.22;
-    sentinelMat.opacity = alpha * 0.34;
+    shieldMat.uniforms.uTime.value = elapsed * performanceBudget.motion;
+    shieldMat.opacity = alpha * (1 + pointerEnergy * 0.12);
+    scanMat.opacity =
+      alpha * (0.22 + pointerEnergy * 0.1) * performanceBudget.glow;
+    sentinelMat.opacity =
+      alpha * (0.34 + pointerEnergy * 0.08) * performanceBudget.glow;
 
     groupRef.current.visible = alpha > 0.02;
     if (!groupRef.current.visible) {
       return;
     }
 
-    groupRef.current.rotation.y = elapsed * 0.11;
-    groupRef.current.rotation.x = Math.sin(elapsed * 0.07) * 0.14;
+    groupRef.current.position.x = THREE.MathUtils.lerp(
+      groupRef.current.position.x,
+      pointerX * 0.92,
+      0.06
+    );
+    groupRef.current.position.y = THREE.MathUtils.lerp(
+      groupRef.current.position.y,
+      pointerY * 0.46,
+      0.06
+    );
+    groupRef.current.scale.setScalar(
+      THREE.MathUtils.lerp(
+        groupRef.current.scale.x,
+        1 + pointerEnergy * 0.05 * performanceBudget.motion,
+        0.08
+      )
+    );
+    groupRef.current.rotation.y =
+      elapsed * (0.11 + pointerEnergy * 0.03) * performanceBudget.motion +
+      pointerX * 0.22;
+    groupRef.current.rotation.x =
+      Math.sin(elapsed * 0.07 * performanceBudget.motion) * 0.14 +
+      pointerY * 0.16;
 
     if (scanRef.current) {
       scanRef.current.rotation.z = elapsed * 0.36;
       scanRef.current.scale.setScalar(1 + Math.sin(elapsed * 1.1) * 0.04);
+      scanRef.current.position.x = THREE.MathUtils.lerp(
+        scanRef.current.position.x,
+        pointerX * 0.5,
+        0.08
+      );
+      scanRef.current.position.y = THREE.MathUtils.lerp(
+        scanRef.current.position.y,
+        pointerY * 0.35,
+        0.08
+      );
+    }
+
+    if (keyLightRef.current) {
+      keyLightRef.current.intensity = THREE.MathUtils.lerp(
+        keyLightRef.current.intensity,
+        visible ? (3 + pointerEnergy * 1.1) * performanceBudget.glow : 0,
+        0.06
+      );
     }
   });
 
@@ -871,7 +1298,13 @@ function CrystalFortress({
           </mesh>
         );
       })}
-      <pointLight color="#a855f7" intensity={3} distance={11} decay={2} />
+      <pointLight
+        ref={keyLightRef}
+        color="#a855f7"
+        intensity={3}
+        distance={11}
+        decay={2}
+      />
     </group>
   );
 }
@@ -880,12 +1313,15 @@ function CloudConstellation({
   isLive,
   progressRef,
   profile,
+  pointerSignalRef,
 }: {
   isLive: boolean;
   progressRef: MutableRefObject<number>;
   profile: SceneProfile;
+  pointerSignalRef: MutableRefObject<CanvasPointerSignal>;
 }) {
   const groupRef = useRef<THREE.Group>(null);
+  const keyLightRef = useRef<THREE.PointLight>(null);
   const lineMat = useMemo(
     () =>
       new THREE.LineBasicMaterial({
@@ -979,34 +1415,55 @@ function CloudConstellation({
   useFrame(({ clock }) => {
     if (!groupRef.current) return;
     const progress = progressRef.current ?? 0;
+    const pointerSignal = pointerSignalRef.current;
+    const performanceBudget = getScenePerformanceBudget(
+      pointerSignal.performanceFactor
+    );
+    const pointerX =
+      pointerSignal.position.x *
+      (pointerSignal.coarse ? 0.48 : 0.28) *
+      performanceBudget.motion;
+    const pointerY =
+      pointerSignal.position.y *
+      (pointerSignal.coarse ? 0.28 : 0.18) *
+      performanceBudget.motion;
+    const pointerEnergy = pointerSignal.energy;
     const [start, end] = CHAPTERS[3].range;
     const visible =
       isLive && progress >= start - 0.08 && progress <= end + 0.08;
     const alpha = THREE.MathUtils.lerp(
       lineMat.opacity,
-      visible ? 0.45 : 0,
+      visible ? (0.45 + pointerEnergy * 0.08) * performanceBudget.glow : 0,
       0.04
     );
     lineMat.opacity = alpha;
     nodeMat.opacity = THREE.MathUtils.lerp(
       nodeMat.opacity,
-      visible ? 0.9 : 0,
+      visible ? 0.9 * performanceBudget.glow : 0,
       0.04
+    );
+    nodeMat.emissiveIntensity = THREE.MathUtils.lerp(
+      nodeMat.emissiveIntensity,
+      visible ? (2 + pointerEnergy * 1.2) * performanceBudget.glow : 0,
+      0.06
     );
     gatewayMat.opacity = THREE.MathUtils.lerp(
       gatewayMat.opacity,
-      visible ? 0.34 : 0,
+      visible ? (0.34 + pointerEnergy * 0.06) * performanceBudget.glow : 0,
       0.04
     );
     gatewayMat.emissiveIntensity = THREE.MathUtils.lerp(
       gatewayMat.emissiveIntensity,
-      visible ? 1.4 : 0,
+      visible ? (1.4 + pointerEnergy * 0.85) * performanceBudget.glow : 0,
       0.06
     );
     orbitMats.forEach((material, index) => {
       material.opacity = THREE.MathUtils.lerp(
         material.opacity,
-        visible ? 0.24 - index * 0.04 : 0,
+        visible
+          ? (0.24 - index * 0.04 + pointerEnergy * 0.04) *
+              performanceBudget.glow
+          : 0,
         0.04
       );
     });
@@ -1016,7 +1473,34 @@ function CloudConstellation({
       return;
     }
 
-    groupRef.current.rotation.y = clock.elapsedTime * 0.055;
+    groupRef.current.position.x = THREE.MathUtils.lerp(
+      groupRef.current.position.x,
+      pointerX * 0.9,
+      0.06
+    );
+    groupRef.current.position.y = THREE.MathUtils.lerp(
+      groupRef.current.position.y,
+      pointerY * 0.55,
+      0.06
+    );
+    groupRef.current.rotation.y =
+      clock.elapsedTime *
+        (0.055 + pointerEnergy * 0.02) *
+        performanceBudget.motion +
+      pointerX * 0.16;
+    groupRef.current.rotation.x = THREE.MathUtils.lerp(
+      groupRef.current.rotation.x,
+      pointerY * 0.18,
+      0.08
+    );
+
+    if (keyLightRef.current) {
+      keyLightRef.current.intensity = THREE.MathUtils.lerp(
+        keyLightRef.current.intensity,
+        visible ? (2 + pointerEnergy * 0.9) * performanceBudget.glow : 0,
+        0.06
+      );
+    }
   });
 
   return (
@@ -1053,7 +1537,13 @@ function CloudConstellation({
         color="#38bdf8"
         opacity={0.5}
       />
-      <pointLight color="#38bdf8" intensity={2} distance={13} decay={2} />
+      <pointLight
+        ref={keyLightRef}
+        color="#38bdf8"
+        intensity={2}
+        distance={13}
+        decay={2}
+      />
     </group>
   );
 }
@@ -1062,12 +1552,15 @@ function SignalMatrix({
   isLive,
   progressRef,
   profile,
+  pointerSignalRef,
 }: {
   isLive: boolean;
   progressRef: MutableRefObject<number>;
   profile: SceneProfile;
+  pointerSignalRef: MutableRefObject<CanvasPointerSignal>;
 }) {
   const groupRef = useRef<THREE.Group>(null);
+  const keyLightRef = useRef<THREE.PointLight>(null);
   const gridSize = profile.signalGridSize;
   const count = gridSize * gridSize;
 
@@ -1134,22 +1627,37 @@ function SignalMatrix({
   useFrame(({ clock }) => {
     if (!groupRef.current) return;
     const progress = progressRef.current ?? 0;
+    const pointerSignal = pointerSignalRef.current;
+    const performanceBudget = getScenePerformanceBudget(
+      pointerSignal.performanceFactor
+    );
+    const pointerX =
+      pointerSignal.position.x *
+      (pointerSignal.coarse ? 0.75 : 0.46) *
+      performanceBudget.motion;
+    const pointerY =
+      pointerSignal.position.y *
+      (pointerSignal.coarse ? 0.75 : 0.46) *
+      performanceBudget.motion;
+    const pointerEnergy = pointerSignal.energy;
+    const pointerGridX = (pointerSignal.position.x + 1) * 0.5 * (gridSize - 1);
+    const pointerGridZ = (-pointerSignal.position.y + 1) * 0.5 * (gridSize - 1);
     const [start, end] = CHAPTERS[4].range;
     const visible =
       isLive && progress >= start - 0.08 && progress <= end + 0.08;
     mat.opacity = THREE.MathUtils.lerp(
       mat.opacity ?? 1,
-      visible ? 0.88 : 0,
+      visible ? 0.88 * performanceBudget.density : 0,
       0.04
     );
     scanMat.opacity = THREE.MathUtils.lerp(
       scanMat.opacity,
-      visible ? 0.13 : 0,
+      visible ? (0.13 + pointerEnergy * 0.08) * performanceBudget.glow : 0,
       0.04
     );
     ringMat.opacity = THREE.MathUtils.lerp(
       ringMat.opacity,
-      visible ? 0.24 : 0,
+      visible ? (0.24 + pointerEnergy * 0.08) * performanceBudget.glow : 0,
       0.04
     );
 
@@ -1168,21 +1676,71 @@ function SignalMatrix({
           (Math.cos(clock.elapsedTime * 1.2 + col * 0.4) * 0.5 + 0.5) *
           2.8 +
         0.12;
+      const touchDistance = Math.hypot(col - pointerGridX, row - pointerGridZ);
+      const touchWave = Math.max(
+        0,
+        1 - touchDistance / Math.max(1.4, gridSize * 0.32)
+      );
+      const boostedHeight =
+        height +
+        touchWave * (0.48 + pointerEnergy * (pointerSignal.coarse ? 1.8 : 1.1));
+      const performanceHeight =
+        height + (boostedHeight - height) * performanceBudget.motion;
       dummy.position.set(
         (col - gridSize / 2) * 0.6,
-        height * 0.5 - 1,
+        performanceHeight * 0.5 - 1,
         (row - gridSize / 2) * 0.6
       );
-      dummy.scale.set(1, height, 1);
+      dummy.scale.set(1, performanceHeight, 1);
       dummy.updateMatrix();
       barMesh.setMatrixAt(i, dummy.matrix);
     }
     barMesh.instanceMatrix.needsUpdate = true;
-    groupRef.current.rotation.y = Math.sin(clock.elapsedTime * 0.05) * 0.25;
+    groupRef.current.position.x = THREE.MathUtils.lerp(
+      groupRef.current.position.x,
+      pointerX * 0.8,
+      0.05
+    );
+    groupRef.current.position.y = THREE.MathUtils.lerp(
+      groupRef.current.position.y,
+      pointerEnergy * 0.14 * performanceBudget.motion,
+      0.05
+    );
+    groupRef.current.position.z = THREE.MathUtils.lerp(
+      groupRef.current.position.z,
+      -pointerY * 0.8,
+      0.05
+    );
+    groupRef.current.rotation.y =
+      Math.sin(clock.elapsedTime * 0.05 * performanceBudget.motion) * 0.25 +
+      pointerX * 0.18;
 
     if (scanDiscRef.current) {
-      scanDiscRef.current.position.y = Math.sin(clock.elapsedTime * 0.8) * 0.55;
-      scanDiscRef.current.rotation.z = clock.elapsedTime * 0.2;
+      scanDiscRef.current.position.x = THREE.MathUtils.lerp(
+        scanDiscRef.current.position.x,
+        pointerX * 1.4,
+        0.08
+      );
+      scanDiscRef.current.position.y =
+        Math.sin(clock.elapsedTime * 0.8) * 0.55 + pointerEnergy * 0.12;
+      scanDiscRef.current.position.z = THREE.MathUtils.lerp(
+        scanDiscRef.current.position.z,
+        -pointerY * 1.4,
+        0.08
+      );
+      scanDiscRef.current.rotation.z =
+        clock.elapsedTime * 0.2 * performanceBudget.motion;
+      scanDiscRef.current.scale.setScalar(
+        1 + pointerEnergy * 0.12 * performanceBudget.motion
+      );
+    }
+
+    if (keyLightRef.current) {
+      keyLightRef.current.intensity = THREE.MathUtils.lerp(
+        keyLightRef.current.intensity,
+        visible ? (2.2 + pointerEnergy * 1.1) * performanceBudget.glow : 0,
+        0.06
+      );
     }
   });
 
@@ -1212,7 +1770,13 @@ function SignalMatrix({
         color="#22c55e"
         opacity={0.5}
       />
-      <pointLight color="#22c55e" intensity={2.2} distance={14} decay={2} />
+      <pointLight
+        ref={keyLightRef}
+        color="#22c55e"
+        intensity={2.2}
+        distance={14}
+        decay={2}
+      />
     </group>
   );
 }
@@ -1221,13 +1785,16 @@ function SingularityCore({
   isLive,
   progressRef,
   profile,
+  pointerSignalRef,
 }: {
   isLive: boolean;
   progressRef: MutableRefObject<number>;
   profile: SceneProfile;
+  pointerSignalRef: MutableRefObject<CanvasPointerSignal>;
 }) {
   const groupRef = useRef<THREE.Group>(null);
   const coreRef = useRef<THREE.Mesh>(null);
+  const keyLightRef = useRef<THREE.PointLight>(null);
   const coreMat = useMemo(
     () =>
       new THREE.MeshStandardMaterial({
@@ -1279,21 +1846,40 @@ function SingularityCore({
   useFrame(({ clock }) => {
     if (!groupRef.current) return;
     const progress = progressRef.current ?? 0;
+    const pointerSignal = pointerSignalRef.current;
+    const performanceBudget = getScenePerformanceBudget(
+      pointerSignal.performanceFactor
+    );
+    const pointerX =
+      pointerSignal.position.x *
+      (pointerSignal.coarse ? 0.42 : 0.24) *
+      performanceBudget.motion;
+    const pointerY =
+      pointerSignal.position.y *
+      (pointerSignal.coarse ? 0.32 : 0.18) *
+      performanceBudget.motion;
+    const pointerEnergy = pointerSignal.energy;
     const [start] = CHAPTERS[5].range;
     const visible = isLive && progress >= start - 0.06;
     const elapsed = clock.elapsedTime;
     const alpha = THREE.MathUtils.lerp(
       coreMat.opacity,
-      visible ? 0.95 : 0,
+      visible ? 0.95 * performanceBudget.glow : 0,
       0.04
     );
     coreMat.opacity = alpha;
-    coreMat.emissiveIntensity = 7 * alpha;
+    coreMat.emissiveIntensity =
+      (7 + pointerEnergy * 3.4) * alpha * performanceBudget.glow;
     ringMats.forEach((material, index) => {
-      material.opacity = alpha * (0.5 - index * 0.09);
+      material.opacity =
+        alpha *
+        (0.5 - index * 0.09 + pointerEnergy * 0.08) *
+        performanceBudget.glow;
     });
-    beamMat.opacity = alpha * 0.18;
-    spokeMat.opacity = alpha * 0.34;
+    beamMat.opacity =
+      alpha * (0.18 + pointerEnergy * 0.12) * performanceBudget.glow;
+    spokeMat.opacity =
+      alpha * (0.34 + pointerEnergy * 0.08) * performanceBudget.glow;
 
     groupRef.current.visible = alpha > 0.02;
     if (!groupRef.current.visible) {
@@ -1301,7 +1887,10 @@ function SingularityCore({
     }
 
     if (coreRef.current) {
-      const scale = 1 + Math.sin(elapsed * 2.2) * 0.12;
+      const scale =
+        1 +
+        Math.sin(elapsed * 2.2 * performanceBudget.motion) * 0.12 +
+        pointerEnergy * 0.08 * performanceBudget.motion;
       coreRef.current.scale.setScalar(
         THREE.MathUtils.lerp(coreRef.current.scale.x, scale, 0.1)
       );
@@ -1309,12 +1898,46 @@ function SingularityCore({
     if (beamRef.current) {
       beamRef.current.scale.y = THREE.MathUtils.lerp(
         beamRef.current.scale.y,
-        1 + Math.sin(elapsed * 1.4) * 0.08,
+        1 +
+          Math.sin(elapsed * 1.4 * performanceBudget.motion) * 0.08 +
+          pointerEnergy * 0.22 * performanceBudget.motion,
+        0.08
+      );
+      beamRef.current.scale.x = THREE.MathUtils.lerp(
+        beamRef.current.scale.x,
+        1 + pointerEnergy * 0.12 * performanceBudget.motion,
+        0.08
+      );
+      beamRef.current.scale.z = THREE.MathUtils.lerp(
+        beamRef.current.scale.z,
+        1 + pointerEnergy * 0.12 * performanceBudget.motion,
         0.08
       );
     }
-    groupRef.current.rotation.z = elapsed * 0.18;
-    groupRef.current.rotation.x = Math.sin(elapsed * 0.12) * 0.1;
+    groupRef.current.position.x = THREE.MathUtils.lerp(
+      groupRef.current.position.x,
+      pointerX * 0.7,
+      0.06
+    );
+    groupRef.current.position.y = THREE.MathUtils.lerp(
+      groupRef.current.position.y,
+      pointerY * 0.46,
+      0.06
+    );
+    groupRef.current.rotation.z =
+      elapsed * (0.18 + pointerEnergy * 0.08) * performanceBudget.motion +
+      pointerX * 0.24;
+    groupRef.current.rotation.x =
+      Math.sin(elapsed * 0.12 * performanceBudget.motion) * 0.1 +
+      pointerY * 0.18;
+
+    if (keyLightRef.current) {
+      keyLightRef.current.intensity = THREE.MathUtils.lerp(
+        keyLightRef.current.intensity,
+        visible ? (7 + pointerEnergy * 2.4) * performanceBudget.glow : 0,
+        0.08
+      );
+    }
   });
 
   return (
@@ -1351,7 +1974,13 @@ function SingularityCore({
         color="#ccff00"
         opacity={0.85}
       />
-      <pointLight color="#ccff00" intensity={7} distance={18} decay={2} />
+      <pointLight
+        ref={keyLightRef}
+        color="#ccff00"
+        intensity={7}
+        distance={18}
+        decay={2}
+      />
     </group>
   );
 }
@@ -1359,9 +1988,11 @@ function SingularityCore({
 function AtmosphereRig({
   activeChapterIndex,
   profile,
+  pointerSignalRef,
 }: {
   activeChapterIndex: number;
   profile: SceneProfile;
+  pointerSignalRef: MutableRefObject<CanvasPointerSignal>;
 }) {
   const shellRef = useRef<THREE.Mesh>(null);
   const haloRef = useRef<THREE.Mesh>(null);
@@ -1401,6 +2032,20 @@ function AtmosphereRig({
   );
 
   useFrame(({ clock, scene }) => {
+    const pointerSignal = pointerSignalRef.current;
+    const performanceBudget = getScenePerformanceBudget(
+      pointerSignal.performanceFactor
+    );
+    const pointerX =
+      pointerSignal.position.x *
+      (pointerSignal.coarse ? 0.42 : 0.24) *
+      performanceBudget.motion;
+    const pointerY =
+      pointerSignal.position.y *
+      (pointerSignal.coarse ? 0.28 : 0.18) *
+      performanceBudget.motion;
+    const fieldGlow = pointerSignal.fieldEnergy * 0.12;
+
     currentFogColor.current.lerp(targetFogColor, 0.04);
     currentHazeColor.current.lerp(targetHazeColor, 0.04);
     currentKeyLightColor.current.lerp(targetKeyLightColor, 0.05);
@@ -1414,7 +2059,7 @@ function AtmosphereRig({
       shellMaterialRef.current.color.copy(currentHazeColor.current);
       shellMaterialRef.current.opacity = THREE.MathUtils.lerp(
         shellMaterialRef.current.opacity,
-        atmosphere.hazeOpacity,
+        atmosphere.hazeOpacity * (0.92 + fieldGlow) * performanceBudget.glow,
         0.06
       );
     }
@@ -1423,28 +2068,63 @@ function AtmosphereRig({
       haloMaterialRef.current.color.copy(currentKeyLightColor.current);
       haloMaterialRef.current.opacity = THREE.MathUtils.lerp(
         haloMaterialRef.current.opacity,
-        atmosphere.haloOpacity +
-          Math.sin(clock.elapsedTime * (0.55 + atmosphere.starDriftSpeed)) *
-            0.025,
+        (atmosphere.haloOpacity +
+          Math.sin(
+            clock.elapsedTime *
+              (0.55 + atmosphere.starDriftSpeed) *
+              performanceBudget.motion
+          ) *
+            0.025) *
+          (0.94 + fieldGlow) *
+          performanceBudget.glow,
         0.08
       );
     }
 
     if (shellRef.current) {
-      shellRef.current.rotation.y += 0.0009;
-      shellRef.current.rotation.x = Math.sin(clock.elapsedTime * 0.08) * 0.04;
+      shellRef.current.position.x = THREE.MathUtils.lerp(
+        shellRef.current.position.x,
+        pointerX * 0.36,
+        0.04
+      );
+      shellRef.current.position.y = THREE.MathUtils.lerp(
+        shellRef.current.position.y,
+        pointerY * 0.26,
+        0.04
+      );
+      shellRef.current.rotation.y += 0.0009 * performanceBudget.motion;
+      shellRef.current.rotation.x =
+        Math.sin(clock.elapsedTime * 0.08 * performanceBudget.motion) * 0.04 +
+        pointerY * 0.08;
     }
 
     if (haloRef.current) {
       const targetScale =
         atmosphere.haloScale +
-        Math.sin(clock.elapsedTime * (0.42 + atmosphere.starDriftSpeed * 0.4)) *
-          0.03;
+        Math.sin(
+          clock.elapsedTime *
+            (0.42 + atmosphere.starDriftSpeed * 0.4) *
+            performanceBudget.motion
+        ) *
+          0.03 +
+        fieldGlow * 0.18;
+      haloRef.current.position.x = THREE.MathUtils.lerp(
+        haloRef.current.position.x,
+        pointerX * 0.28,
+        0.05
+      );
+      haloRef.current.position.y = THREE.MathUtils.lerp(
+        haloRef.current.position.y,
+        pointerY * 0.2,
+        0.05
+      );
       haloRef.current.scale.setScalar(
         THREE.MathUtils.lerp(haloRef.current.scale.x, targetScale, 0.08)
       );
       haloRef.current.rotation.z =
-        clock.elapsedTime * (0.03 + atmosphere.starDriftSpeed * 0.08);
+        clock.elapsedTime *
+        (0.03 + atmosphere.starDriftSpeed * 0.08) *
+        performanceBudget.motion;
     }
 
     if (hemiLightRef.current) {
@@ -1452,25 +2132,50 @@ function AtmosphereRig({
       hemiLightRef.current.groundColor.copy(currentFogColor.current);
       hemiLightRef.current.intensity = THREE.MathUtils.lerp(
         hemiLightRef.current.intensity,
-        Math.min(1.4, profile.ambientLight + atmosphere.ambientBoost),
+        Math.min(
+          1.4,
+          profile.ambientLight + atmosphere.ambientBoost + fieldGlow
+        ) * performanceBudget.glow,
         0.06
       );
     }
 
     if (keyLightRef.current) {
       keyLightRef.current.color.copy(currentKeyLightColor.current);
+      keyLightRef.current.position.x = THREE.MathUtils.lerp(
+        keyLightRef.current.position.x,
+        4 + pointerX * 3.4,
+        0.06
+      );
+      keyLightRef.current.position.y = THREE.MathUtils.lerp(
+        keyLightRef.current.position.y,
+        5 + pointerY * 2.2,
+        0.06
+      );
       keyLightRef.current.intensity = THREE.MathUtils.lerp(
         keyLightRef.current.intensity,
-        atmosphere.keyLightIntensity,
+        (atmosphere.keyLightIntensity + fieldGlow * 4.5) *
+          performanceBudget.glow,
         0.06
       );
     }
 
     if (rimLightRef.current) {
       rimLightRef.current.color.copy(currentRimLightColor.current);
+      rimLightRef.current.position.x = THREE.MathUtils.lerp(
+        rimLightRef.current.position.x,
+        -8 - pointerX * 2.8,
+        0.06
+      );
+      rimLightRef.current.position.y = THREE.MathUtils.lerp(
+        rimLightRef.current.position.y,
+        -1.5 + pointerY * 1.8,
+        0.06
+      );
       rimLightRef.current.intensity = THREE.MathUtils.lerp(
         rimLightRef.current.intensity,
-        atmosphere.rimLightIntensity,
+        (atmosphere.rimLightIntensity + fieldGlow * 3.2) *
+          performanceBudget.glow,
         0.06
       );
     }
@@ -1536,9 +2241,11 @@ function AtmosphereRig({
 function Background({
   activeChapterIndex,
   profile,
+  pointerSignalRef,
 }: {
   activeChapterIndex: number;
   profile: SceneProfile;
+  pointerSignalRef: MutableRefObject<CanvasPointerSignal>;
 }) {
   const atmosphere =
     CHAPTER_ATMOSPHERES[CHAPTERS[activeChapterIndex]?.id ?? CHAPTERS[0].id];
@@ -1563,6 +2270,7 @@ function Background({
       <AtmosphereRig
         activeChapterIndex={activeChapterIndex}
         profile={profile}
+        pointerSignalRef={pointerSignalRef}
       />
     </>
   );
@@ -1578,6 +2286,7 @@ function Scene({
   SceneOverlaysComponent,
   interactionBurstActive,
   interactionBurstCycle,
+  pointerSignalRef,
 }: {
   activeChapterIndex: number;
   progressRef: MutableRefObject<number>;
@@ -1588,6 +2297,7 @@ function Scene({
   SceneOverlaysComponent: OliveUniverseSceneOverlaysComponent | null;
   interactionBurstActive: boolean;
   interactionBurstCycle: number;
+  pointerSignalRef: MutableRefObject<CanvasPointerSignal>;
 }) {
   const { camera } = useThree();
   const camPos = useRef(new THREE.Vector3(0, 0, 9));
@@ -1624,15 +2334,32 @@ function Scene({
   useFrame(({ clock }) => {
     const progress = progressRef.current ?? 0;
     const keyframe = camAtT(progress);
+    const pointerSignal = pointerSignalRef.current;
+    const performanceBudget = getScenePerformanceBudget(
+      pointerSignal.performanceFactor
+    );
+
     burstLevelRef.current = THREE.MathUtils.lerp(
       burstLevelRef.current,
       interactionBurstActive ? 1 : 0,
       interactionBurstActive ? 0.16 : 0.1
     );
     const burst = burstLevelRef.current;
+    const pointerDriftStrength = pointerSignal.coarse
+      ? 0.38 * performanceBudget.motion
+      : profile.pointerParallax
+        ? 0.26 * performanceBudget.motion
+        : 0.18 * performanceBudget.motion;
+    const pointerX = pointerSignal.position.x * pointerDriftStrength;
+    const pointerY = pointerSignal.position.y * pointerDriftStrength * 0.72;
+    const pointerPush =
+      pointerSignal.energy *
+      (pointerSignal.coarse ? 0.24 : 0.14) *
+      performanceBudget.motion;
     const driftStrength =
       (0.06 + activeAtmosphere.haloOpacity * 0.32 + burst * 0.08) *
-      lensConfig.driftMultiplier;
+      lensConfig.driftMultiplier *
+      performanceBudget.motion;
     const driftTime =
       clock.elapsedTime * (0.22 + activeAtmosphere.starDriftSpeed * 0.16);
     const driftX =
@@ -1646,20 +2373,34 @@ function Scene({
     const orbitPhase =
       clock.elapsedTime * lensConfig.orbitSpeed + activeChapterIndex * 0.72;
     const orbitRadius =
-      lensConfig.orbitRadius * (0.8 + activeAtmosphere.haloOpacity * 1.4);
+      lensConfig.orbitRadius *
+      (0.8 + activeAtmosphere.haloOpacity * 1.4) *
+      performanceBudget.motion;
     const orbitX = Math.cos(orbitPhase) * orbitRadius;
     const orbitY = Math.sin(orbitPhase * 0.82) * orbitRadius * 0.34;
     const orbitZ = Math.sin(orbitPhase * 0.58) * orbitRadius * 0.18;
 
     nextPos.current.set(
-      keyframe.pos[0] + driftX + orbitX,
-      keyframe.pos[1] + driftY + orbitY,
-      keyframe.pos[2] + driftZ + orbitZ - burst * lensConfig.pushIn
+      keyframe.pos[0] + driftX + orbitX + pointerX * 0.58,
+      keyframe.pos[1] + driftY + orbitY + pointerY * 0.44,
+      keyframe.pos[2] +
+        driftZ +
+        orbitZ -
+        burst * lensConfig.pushIn -
+        pointerPush * 0.22
     );
     nextLook.current.set(
-      keyframe.look[0] + driftX * lensConfig.lookBias + orbitX * 0.22,
-      keyframe.look[1] + driftY * (lensConfig.lookBias + 0.06) + orbitY * 0.28,
-      keyframe.look[2] + burst * (0.08 + lensConfig.pushIn * 0.32)
+      keyframe.look[0] +
+        driftX * lensConfig.lookBias +
+        orbitX * 0.22 +
+        pointerX,
+      keyframe.look[1] +
+        driftY * (lensConfig.lookBias + 0.06) +
+        orbitY * 0.28 +
+        pointerY,
+      keyframe.look[2] +
+        burst * (0.08 + lensConfig.pushIn * 0.32) +
+        pointerPush * 0.18
     );
     camPos.current.lerp(nextPos.current, lensConfig.lerp);
     camLook.current.lerp(nextLook.current, lensConfig.lerp);
@@ -1669,7 +2410,11 @@ function Scene({
 
   return (
     <>
-      <Background activeChapterIndex={activeChapterIndex} profile={profile} />
+      <Background
+        activeChapterIndex={activeChapterIndex}
+        profile={profile}
+        pointerSignalRef={pointerSignalRef}
+      />
       {SceneOverlaysComponent && (
         <SceneOverlaysComponent
           activeChapterIndex={activeChapterIndex}
@@ -1677,6 +2422,7 @@ function Scene({
           sceneLens={sceneLens}
           interactionBurstActive={interactionBurstActive}
           interactionBurstCycle={interactionBurstCycle}
+          pointerSignalRef={pointerSignalRef}
         />
       )}
       {shouldPrimeScene(0) && (
@@ -1684,6 +2430,7 @@ function Scene({
           isLive={shouldRenderScene(0)}
           progressRef={progressRef}
           profile={profile}
+          pointerSignalRef={pointerSignalRef}
         />
       )}
       {shouldPrimeScene(1) && (
@@ -1691,12 +2438,14 @@ function Scene({
           isLive={shouldRenderScene(1)}
           progressRef={progressRef}
           profile={profile}
+          pointerSignalRef={pointerSignalRef}
         />
       )}
       {shouldPrimeScene(2) && (
         <CrystalFortress
           isLive={shouldRenderScene(2)}
           progressRef={progressRef}
+          pointerSignalRef={pointerSignalRef}
         />
       )}
       {shouldPrimeScene(3) && (
@@ -1704,6 +2453,7 @@ function Scene({
           isLive={shouldRenderScene(3)}
           progressRef={progressRef}
           profile={profile}
+          pointerSignalRef={pointerSignalRef}
         />
       )}
       {shouldPrimeScene(4) && (
@@ -1711,6 +2461,7 @@ function Scene({
           isLive={shouldRenderScene(4)}
           progressRef={progressRef}
           profile={profile}
+          pointerSignalRef={pointerSignalRef}
         />
       )}
       {shouldPrimeScene(5) && (
@@ -1718,6 +2469,7 @@ function Scene({
           isLive={shouldRenderScene(5)}
           progressRef={progressRef}
           profile={profile}
+          pointerSignalRef={pointerSignalRef}
         />
       )}
     </>
@@ -1821,9 +2573,12 @@ export interface OliveUniverseCanvasProps {
   shouldAnimate: boolean;
   stabilityAssistActive: boolean;
   sceneLens: SceneLensMode;
+  compactViewport: boolean;
   interactionBurstActive: boolean;
   interactionBurstCycle: number;
+  mobileOptimized: boolean;
   onPerformanceBudgetExceeded?: () => void;
+  onTouchFieldStateChange?: (state: CanvasTouchFieldState) => void;
   onWarmCountChange?: (count: number) => void;
   onReady?: () => void;
 }
@@ -1836,9 +2591,12 @@ export default function OliveUniverseCanvas({
   shouldAnimate,
   stabilityAssistActive,
   sceneLens,
+  compactViewport,
   interactionBurstActive,
   interactionBurstCycle,
+  mobileOptimized,
   onPerformanceBudgetExceeded,
+  onTouchFieldStateChange,
   onWarmCountChange,
   onReady,
 }: OliveUniverseCanvasProps) {
@@ -1849,7 +2607,20 @@ export default function OliveUniverseCanvas({
     useState<OliveUniversePostFxComponent | null>(null);
   const [SceneOverlaysComponent, setSceneOverlaysComponent] =
     useState<OliveUniverseSceneOverlaysComponent | null>(null);
+  const [viewportSize, setViewportSize] = useState<ViewportSize>(() =>
+    getViewportSize()
+  );
   const previousActiveChapterIndexRef = useRef(activeChapterIndex);
+  const pointerSignalRef = useRef<CanvasPointerSignal>({
+    target: new THREE.Vector2(),
+    position: new THREE.Vector2(),
+    energy: 0,
+    fieldEnergy: 0,
+    performanceFactor: 1,
+    active: false,
+    coarse: false,
+    fieldState: 'idle',
+  });
   const [warmedSceneIndices, setWarmedSceneIndices] = useState<number[]>(() =>
     getSceneNeighborhood(activeChapterIndex, CHAPTERS.length)
   );
@@ -1889,13 +2660,38 @@ export default function OliveUniverseCanvas({
     () => getCanvasDprCap(quality, sceneProfile, lowMemoryDevice),
     [lowMemoryDevice, quality, sceneProfile]
   );
+  const canvasPixelBudget = useMemo(
+    () =>
+      getCanvasPixelBudget(
+        quality,
+        sceneProfile,
+        lowMemoryDevice,
+        mobileOptimized,
+        compactViewport
+      ),
+    [compactViewport, lowMemoryDevice, mobileOptimized, quality, sceneProfile]
+  );
+  const canvasDpr = useMemo(
+    () =>
+      getViewportAwareDpr(
+        typeof window === 'undefined' ? 1 : window.devicePixelRatio || 1,
+        canvasDprCap,
+        viewportSize,
+        canvasPixelBudget
+      ),
+    [canvasDprCap, canvasPixelBudget, viewportSize]
+  );
   const antialiasEnabled =
-    quality !== 'low' && sceneProfile.enablePostFx && !lowMemoryDevice;
-  const powerPreference = lowMemoryDevice
-    ? 'low-power'
-    : sceneProfile.enablePostFx
-      ? 'high-performance'
-      : 'default';
+    quality !== 'low' &&
+    sceneProfile.enablePostFx &&
+    !lowMemoryDevice &&
+    !compactViewport;
+  const powerPreference =
+    lowMemoryDevice || compactViewport
+      ? 'low-power'
+      : sceneProfile.enablePostFx
+        ? 'high-performance'
+        : 'default';
   const warmStepMs = useMemo(
     () =>
       getWarmStepMs(sceneProfile.enablePostFx, shouldAnimate, lowMemoryDevice),
@@ -1910,6 +2706,110 @@ export default function OliveUniverseCanvas({
       ),
     [lowMemoryDevice, sceneProfile.enablePostFx, shouldAnimate]
   );
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const updateViewportSize = () => {
+      const nextViewportSize = getViewportSize();
+
+      setViewportSize(currentViewportSize =>
+        currentViewportSize.width === nextViewportSize.width &&
+        currentViewportSize.height === nextViewportSize.height
+          ? currentViewportSize
+          : nextViewportSize
+      );
+    };
+
+    updateViewportSize();
+
+    window.addEventListener('resize', updateViewportSize);
+    window.addEventListener('orientationchange', updateViewportSize);
+    window.visualViewport?.addEventListener('resize', updateViewportSize);
+
+    return () => {
+      window.removeEventListener('resize', updateViewportSize);
+      window.removeEventListener('orientationchange', updateViewportSize);
+      window.visualViewport?.removeEventListener('resize', updateViewportSize);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const syncPointerMode = () => {
+      pointerSignalRef.current.coarse =
+        (window.matchMedia?.('(pointer: coarse)').matches ?? false) ||
+        window.innerWidth <= MOBILE_CANVAS_BREAKPOINT;
+    };
+
+    const updatePointerTarget = (clientX: number, clientY: number) => {
+      const nextViewportSize = getViewportSize();
+
+      pointerSignalRef.current.target.set(
+        (clientX / nextViewportSize.width) * 2 - 1,
+        -(clientY / nextViewportSize.height) * 2 + 1
+      );
+    };
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (shouldIgnoreCanvasPointerTarget(event.target)) {
+        return;
+      }
+
+      syncPointerMode();
+      updatePointerTarget(event.clientX, event.clientY);
+      pointerSignalRef.current.active = true;
+    };
+
+    const handlePointerMove = (event: PointerEvent) => {
+      if (shouldIgnoreCanvasPointerTarget(event.target)) {
+        return;
+      }
+
+      syncPointerMode();
+      updatePointerTarget(event.clientX, event.clientY);
+
+      if (
+        event.pointerType === 'touch' ||
+        event.pressure > 0 ||
+        event.buttons > 0
+      ) {
+        pointerSignalRef.current.active = true;
+      }
+    };
+
+    const clearPointer = () => {
+      pointerSignalRef.current.active = false;
+      pointerSignalRef.current.target.multiplyScalar(
+        pointerSignalRef.current.coarse ? 0.35 : 0.6
+      );
+    };
+
+    syncPointerMode();
+
+    window.addEventListener('pointerdown', handlePointerDown, {
+      passive: true,
+    });
+    window.addEventListener('pointermove', handlePointerMove, {
+      passive: true,
+    });
+    window.addEventListener('pointerup', clearPointer, { passive: true });
+    window.addEventListener('pointercancel', clearPointer);
+    window.addEventListener('blur', clearPointer);
+
+    return () => {
+      window.removeEventListener('pointerdown', handlePointerDown);
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', clearPointer);
+      window.removeEventListener('pointercancel', clearPointer);
+      window.removeEventListener('blur', clearPointer);
+    };
+  }, []);
 
   useEffect(() => {
     if (typeof window === 'undefined' || PostFxComponent) {
@@ -2117,11 +3017,18 @@ export default function OliveUniverseCanvas({
       <Canvas
         frameloop={shouldAnimate ? 'always' : 'demand'}
         camera={{ position: [0, 0, 9], fov: 60, near: 0.1, far: 200 }}
-        dpr={
-          typeof window === 'undefined'
-            ? 1
-            : Math.min(window.devicePixelRatio || 1, canvasDprCap)
-        }
+        dpr={canvasDpr}
+        performance={{
+          min: lowMemoryDevice
+            ? 0.68
+            : compactViewport
+              ? 0.76
+              : mobileOptimized
+                ? 0.84
+                : 0.9,
+          max: 1,
+          debounce: compactViewport ? 340 : 220,
+        }}
         gl={{
           antialias: antialiasEnabled,
           alpha: false,
@@ -2140,6 +3047,28 @@ export default function OliveUniverseCanvas({
           lowMemoryDevice={lowMemoryDevice}
           onBudgetExceeded={onPerformanceBudgetExceeded}
         />
+        <CanvasRuntimeTelemetryReporter
+          enabled={shouldAnimate}
+          interactionBurstActive={interactionBurstActive}
+          pointerSignalRef={pointerSignalRef}
+          onTouchFieldStateChange={onTouchFieldStateChange}
+        />
+        <InteractionPerformanceRegressor
+          enabled={
+            shouldAnimate && (mobileOptimized || sceneProfile.enablePostFx)
+          }
+          interactionBurstActive={interactionBurstActive}
+          pointerSignalRef={pointerSignalRef}
+        />
+        <AdaptivePerformanceDpr
+          baseDpr={canvasDpr}
+          enabled={
+            shouldAnimate && (mobileOptimized || sceneProfile.enablePostFx)
+          }
+          lowMemoryDevice={lowMemoryDevice}
+          compactViewport={compactViewport}
+          mobileOptimized={mobileOptimized}
+        />
         <Scene
           activeChapterIndex={activeChapterIndex}
           progressRef={progressRef}
@@ -2150,12 +3079,15 @@ export default function OliveUniverseCanvas({
           SceneOverlaysComponent={SceneOverlaysComponent}
           interactionBurstActive={interactionBurstActive}
           interactionBurstCycle={interactionBurstCycle}
+          pointerSignalRef={pointerSignalRef}
         />
         {sceneProfile.enablePostFx && PostFxComponent && (
           <PostFxComponent
             aberrationOffset={aberrationOffset}
             bloomIntensity={sceneProfile.bloomIntensity}
             noiseOpacity={sceneProfile.noiseOpacity}
+            pointerSignalRef={pointerSignalRef}
+            interactionBurstActive={interactionBurstActive}
           />
         )}
       </Canvas>
