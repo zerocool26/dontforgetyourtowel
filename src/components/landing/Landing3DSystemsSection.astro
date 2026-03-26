@@ -1,0 +1,362 @@
+---
+import HeroCanvas from '../ui/HeroCanvas.astro';
+import ModernButton from '../ui/ModernButton.astro';
+import ModernCard from '../ui/ModernCard.astro';
+import { withBasePath } from '../../utils/helpers';
+
+const defaultSceneVariant = 'nexus';
+const defaultSceneSpeed = '1';
+const defaultSceneZoom = '0';
+
+const sceneSignals = [
+  {
+    label: '3D continuity',
+    value: 'Beyond hero',
+    detail:
+      'The landing page now keeps a live scene surface active deeper in the scroll instead of front-loading all motion into the first chapter.',
+  },
+  {
+    label: 'Runtime posture',
+    value: 'Safer boot',
+    detail:
+      'Shared canvas boot logic now supports multiple scene mounts cleanly so additional 3D sections do not silently piggyback on the first one.',
+  },
+  {
+    label: 'Interaction feel',
+    value: 'Localized',
+    detail:
+      'Pointer-reactive hero behavior now listens on the scene surface itself, keeping the 3D field tighter and more predictable.',
+  },
+];
+
+const runwayCards = [
+  {
+    title: 'Scene runway',
+    copy: 'A second cinematic field gives the page another visual payoff after the opener, so the middle of the landing flow still feels alive.',
+  },
+  {
+    title: 'Boot diagnostics',
+    copy: 'Each 3D surface keeps its own boot watchdog, making failures easier to isolate instead of hiding behind whichever canvas mounted first.',
+  },
+  {
+    title: 'Lighter payload',
+    copy: 'This section reuses the existing canvas pipeline rather than introducing an entirely separate engine, keeping ambition high without going feral.',
+  },
+];
+
+const sceneOptions = [
+  {
+    value: 'nexus',
+    label: 'Creative Nexus',
+    shortLabel: 'Nexus',
+    note: 'Dense, premium signal choreography for the strongest flagship feel.',
+  },
+  {
+    value: 'neural',
+    label: 'Neural Lattice',
+    shortLabel: 'Neural',
+    note: 'Sharper network energy with a more analytical pulse and cooler motion.',
+  },
+  {
+    value: 'skyline',
+    label: 'Skyline Pulse',
+    shortLabel: 'Skyline',
+    note: 'A broader city-light rhythm that reads more architectural and expansive.',
+  },
+  {
+    value: 'storm',
+    label: 'Storm Field',
+    shortLabel: 'Storm',
+    note: 'Higher-voltage turbulence when you want the section to feel more volatile.',
+  },
+] as const;
+
+const tempoOptions = [
+  {
+    value: '0.8',
+    label: 'Calm',
+    note: 'Slower camera drift and a more ambient pacing.',
+  },
+  {
+    value: '1',
+    label: 'Live',
+    note: 'Balanced runtime tuned for everyday landing-page playback.',
+  },
+  {
+    value: '1.35',
+    label: 'Surge',
+    note: 'Push the scene harder for a more charged, cinematic motion profile.',
+  },
+] as const;
+
+const cameraOptions = [
+  {
+    value: '0',
+    label: 'Wide',
+    note: 'Keep the broader scene silhouette and ambient drift.',
+  },
+  {
+    value: '0.38',
+    label: 'Focused',
+    note: 'Tighten the framing to bring more detail forward.',
+  },
+] as const;
+---
+
+<section
+  class="mx-auto max-w-6xl px-6 py-14 sm:px-10 sm:py-20"
+  data-reveal
+  aria-labelledby="landing-3d-systems-title"
+>
+  <div
+    class="creative-section-shell creative-grid-backdrop creative-section-shell--spotlit p-6 sm:p-8 lg:p-10"
+  >
+    <div class="grid gap-8 lg:grid-cols-[0.92fr_1.08fr] lg:items-start">
+      <div class="space-y-5">
+        <span class="creative-kicker">3D systems runway</span>
+        <h2
+          id="landing-3d-systems-title"
+          class="creative-title tone-title text-3xl font-semibold sm:text-4xl"
+        >
+          The immersive system now keeps working after the hero instead of
+          ghosting the rest of the landing page.
+        </h2>
+        <p class="creative-copy text-sm sm:text-base">
+          This section carries the cinematic energy deeper into the landing flow
+          with a dedicated scene surface, clearer runtime posture, and a
+          stronger handoff between spectacle and actual product proof.
+        </p>
+
+        <div class="grid gap-3">
+          {
+            sceneSignals.map(signal => (
+              <div class="creative-spectrum-card">
+                <div>
+                  <p class="creative-spectrum-card__label">{signal.label}</p>
+                  <p class="creative-spectrum-card__value">{signal.value}</p>
+                </div>
+                <p class="creative-spectrum-card__detail">{signal.detail}</p>
+              </div>
+            ))
+          }
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+          <ModernButton
+            href={withBasePath('services/')}
+            variant="primary"
+            className="min-h-[48px]"
+          >
+            Explore 3D-backed services
+          </ModernButton>
+          <ModernButton
+            href={withBasePath('debug-webgl/')}
+            variant="secondary"
+            className="min-h-[48px]"
+          >
+            Open 3D diagnostics
+          </ModernButton>
+        </div>
+      </div>
+
+      <div class="grid gap-4" data-landing-3d-runway>
+        <div
+          class="relative min-h-[320px] overflow-hidden rounded-[1.75rem] border border-white/[0.08] bg-[#03060c] shadow-[0_32px_80px_-36px_rgba(0,0,0,0.92)]"
+          data-hero-canvas-shell
+          data-landing-3d-preview-shell
+          data-landing-3d-preview
+        >
+          <HeroCanvas className="opacity-90" variant={defaultSceneVariant} />
+
+          <div class="pointer-events-none absolute inset-0">
+            <div
+              class="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/75"
+            >
+            </div>
+            <div
+              class="absolute inset-0 bg-[radial-gradient(circle_at_50%_42%,transparent_26%,rgba(2,4,10,0.94)_100%)]"
+            >
+            </div>
+            <div
+              class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#ccff00]/30 to-transparent"
+            >
+            </div>
+          </div>
+
+          <div class="absolute inset-x-0 bottom-0 p-5 sm:p-6">
+            <div
+              class="rounded-[1.35rem] border border-white/[0.08] bg-black/35 p-4 backdrop-blur-xl"
+            >
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p class="creative-stack-eyebrow">
+                    Live scene follow-through
+                  </p>
+                  <p
+                    class="tone-title mt-2 text-lg font-semibold text-white"
+                    data-landing-3d-scene-label
+                  >
+                    {sceneOptions[0].label}
+                  </p>
+                  <p
+                    class="tone-body mt-2 max-w-xl text-sm text-white/60"
+                    data-landing-3d-scene-note
+                  >
+                    {sceneOptions[0].note}
+                  </p>
+                </div>
+                <div class="landing-3d-status-stack">
+                  <span class="creative-pill" data-landing-3d-tempo-label>
+                    Tempo · Live
+                  </span>
+                  <span class="creative-pill" data-landing-3d-camera-label>
+                    Camera · Wide
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="landing-3d-control-panel creative-panel p-5"
+          data-landing-3d-controls
+        >
+          <div class="landing-3d-control-group">
+            <div class="landing-3d-control-copy">
+              <p class="creative-stack-eyebrow">Scene personality</p>
+              <p class="tone-body text-white/62 text-sm">
+                Switch the active scene to pressure-test how the landing page
+                feels with different 3D moods.
+              </p>
+            </div>
+            <div
+              class="landing-3d-control-grid"
+              role="group"
+              aria-label="Choose a mid-page 3D scene"
+            >
+              {
+                sceneOptions.map(option => (
+                  <button
+                    type="button"
+                    class={`landing-3d-control-button ${option.value === defaultSceneVariant ? 'is-active' : ''}`}
+                    data-landing-3d-control="scene"
+                    data-scene-value={option.value}
+                    data-scene-label={option.label}
+                    data-scene-note={option.note}
+                    aria-pressed={
+                      option.value === defaultSceneVariant ? 'true' : 'false'
+                    }
+                  >
+                    <span>{option.shortLabel}</span>
+                  </button>
+                ))
+              }
+            </div>
+          </div>
+
+          <div class="landing-3d-control-group">
+            <div class="landing-3d-control-copy">
+              <p class="creative-stack-eyebrow">Runtime tempo</p>
+              <p class="tone-body text-white/62 text-sm">
+                Tune the pacing without remounting the section so you can find
+                the right motion energy for the page rhythm.
+              </p>
+            </div>
+            <div
+              class="landing-3d-control-grid landing-3d-control-grid--compact"
+              role="group"
+              aria-label="Choose a mid-page 3D tempo"
+            >
+              {
+                tempoOptions.map(option => (
+                  <button
+                    type="button"
+                    class={`landing-3d-control-button ${option.value === defaultSceneSpeed ? 'is-active' : ''}`}
+                    data-landing-3d-control="speed"
+                    data-speed-value={option.value}
+                    data-speed-label={option.label}
+                    aria-pressed={
+                      option.value === defaultSceneSpeed ? 'true' : 'false'
+                    }
+                  >
+                    <span>{option.label}</span>
+                  </button>
+                ))
+              }
+            </div>
+          </div>
+
+          <div class="landing-3d-control-group">
+            <div class="landing-3d-control-copy">
+              <p class="creative-stack-eyebrow">Camera framing</p>
+              <p class="tone-body text-white/62 text-sm">
+                Toggle between wide context and tighter focus to see how much
+                visual weight the mid-page 3D should carry.
+              </p>
+            </div>
+            <div
+              class="landing-3d-control-grid landing-3d-control-grid--compact"
+              role="group"
+              aria-label="Choose a mid-page 3D camera mode"
+            >
+              {
+                cameraOptions.map(option => (
+                  <button
+                    type="button"
+                    class={`landing-3d-control-button ${option.value === defaultSceneZoom ? 'is-active' : ''}`}
+                    data-landing-3d-control="zoom"
+                    data-zoom-value={option.value}
+                    data-zoom-label={option.label}
+                    aria-pressed={
+                      option.value === defaultSceneZoom ? 'true' : 'false'
+                    }
+                  >
+                    <span>{option.label}</span>
+                  </button>
+                ))
+              }
+            </div>
+          </div>
+
+          <div class="landing-3d-control-footer">
+            <p
+              class="landing-3d-control-status"
+              role="status"
+              aria-live="polite"
+              data-landing-3d-status
+            >
+              Creative Nexus scene active · Live tempo · Wide framing.
+            </p>
+
+            <button
+              type="button"
+              class="landing-3d-reset-button"
+              data-landing-3d-control="reset"
+            >
+              Reset preview
+            </button>
+          </div>
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-3">
+          {
+            runwayCards.map((card, index) => (
+              <ModernCard variant="minimal" className="creative-panel p-5">
+                <div class="creative-panel-index">0{index + 1}</div>
+                <p class="tone-title mt-3 text-sm font-semibold">
+                  {card.title}
+                </p>
+                <p class="tone-body mt-2 text-sm">{card.copy}</p>
+              </ModernCard>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import '../../scripts/landing-3d-preview-controls';
+</script>

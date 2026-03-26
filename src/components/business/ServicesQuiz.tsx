@@ -103,30 +103,45 @@ export default function ServicesQuiz({
 
   return (
     <section
-      class="tone-border tone-surface rounded-2xl border p-6"
+      class="tone-border tone-surface relative overflow-hidden rounded-[1.4rem] border p-6"
       data-testid="services-quiz"
       data-step={step}
     >
+      <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(204,255,0,0.12),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(56,189,248,0.12),transparent_30%)] opacity-80" />
+
       <div class="flex items-center justify-between gap-4">
-        <div>
-          <p class="tone-muted text-xs font-semibold uppercase tracking-[0.3em]">
-            {kicker}
-          </p>
+        <div class="relative z-10">
+          <p class="creative-kicker !text-[0.62rem]">{kicker}</p>
           <h3
-            class="tone-title mt-2 text-xl font-semibold"
+            class="tone-title mt-3 text-xl font-semibold sm:text-2xl"
             data-testid="services-quiz-title"
           >
             {title}
           </h3>
         </div>
-        <div class="text-right">
+        <div class="relative z-10 text-right">
           <p class="tone-muted text-xs">Progress</p>
-          <p class="tone-title text-sm font-semibold">{progress}%</p>
+          <p class="tone-title text-lg font-semibold">{progress}%</p>
         </div>
       </div>
 
+      <div class="relative z-10 mt-5 flex flex-wrap gap-2" aria-hidden="true">
+        {QUESTIONS.map((question, index) => {
+          const isActive = index === step && !isComplete;
+          const isDone = index < answers.length;
+
+          return (
+            <span
+              class={`creative-pill ${isDone ? 'bg-[#ccff00]/12 border-[#ccff00]/35 text-[#f3ffb4]' : ''} ${isActive ? 'border-cyan-400/35 bg-cyan-400/10 text-cyan-100' : ''}`}
+            >
+              {question.id}
+            </span>
+          );
+        })}
+      </div>
+
       <div
-        class="tone-border tone-surface mt-4 h-2 w-full rounded-full border"
+        class="tone-border tone-surface relative z-10 mt-5 h-2 w-full overflow-hidden rounded-full border"
         role="progressbar"
         aria-label="Quiz completion"
         aria-valuemin={0}
@@ -134,13 +149,13 @@ export default function ServicesQuiz({
         aria-valuenow={Math.min(progress, 100)}
       >
         <div
-          class="h-2 rounded-full bg-gradient-to-r from-accent-500 to-cyan-300 transition-all motion-reduce:transition-none"
+          class="h-2 rounded-full bg-[linear-gradient(90deg,#ccff00_0%,#9ae6ff_100%)] shadow-[0_0_18px_rgba(204,255,0,0.35)] transition-all motion-reduce:transition-none"
           style={{ width: `${Math.min(progress, 100)}%` }}
         />
       </div>
 
       {!isComplete ? (
-        <div class="mt-6">
+        <div class="relative z-10 mt-6">
           <p
             class="tone-title text-sm font-semibold"
             data-testid="services-quiz-question"
@@ -153,7 +168,7 @@ export default function ServicesQuiz({
               <button
                 type="button"
                 data-testid="services-quiz-option"
-                class="tone-border tone-body tone-surface min-h-[48px] rounded-xl border px-4 py-3 text-left text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400/60 motion-reduce:transition-none [@media(hover:hover)]:hover:border-accent-400/40 [@media(hover:hover)]:hover:text-accent-200"
+                class="tone-border tone-body tone-surface [@media(hover:hover)]:hover:bg-white/8 min-h-[54px] rounded-2xl border px-4 py-3 text-left text-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400/60 motion-reduce:transition-none [@media(hover:hover)]:hover:-translate-y-0.5 [@media(hover:hover)]:hover:border-[#ccff00]/35 [@media(hover:hover)]:hover:text-white"
                 onClick={() => {
                   setAnswers(prev => [...prev, opt.value]);
                   setStep(prev => prev + 1);
@@ -165,28 +180,30 @@ export default function ServicesQuiz({
           </div>
         </div>
       ) : (
-        <div class="mt-6">
+        <div class="relative z-10 mt-6">
           <p
             class="tone-body text-sm"
             data-testid="services-quiz-recommendation-label"
           >
             Recommended starting point
           </p>
-          <p class="tone-title mt-2 text-lg font-semibold" aria-live="polite">
-            {result ? recommendationLabel(result) : '—'}
-          </p>
-          <p class="tone-body mt-3 text-sm leading-relaxed">
-            {result ? recommendationDescription(result) : null}
-          </p>
+          <div class="creative-panel mt-4 rounded-[1.25rem] p-5">
+            <p class="tone-title text-lg font-semibold" aria-live="polite">
+              {result ? recommendationLabel(result) : '—'}
+            </p>
+            <p class="tone-body mt-3 text-sm leading-relaxed">
+              {result ? recommendationDescription(result) : null}
+            </p>
+          </div>
           <div class="mt-5 grid gap-3 sm:grid-cols-2">
             <a
-              class="inline-flex min-h-[48px] flex-1 items-center justify-center rounded-xl bg-accent-500 px-4 text-sm font-semibold text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-300 motion-reduce:transition-none [@media(hover:hover)]:hover:bg-accent-400"
+              class="inline-flex min-h-[52px] flex-1 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#ccff00_0%,#d8ff72_100%)] px-4 text-sm font-semibold text-black shadow-[0_18px_40px_rgba(204,255,0,0.18)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-300 motion-reduce:transition-none [@media(hover:hover)]:hover:brightness-105"
               href={contactHref}
             >
               {ctaLabel}
             </a>
             <a
-              class="tone-border tone-title tone-surface inline-flex min-h-[48px] flex-1 items-center justify-center rounded-xl border px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400/60 motion-reduce:transition-none [@media(hover:hover)]:hover:border-accent-400/40 [@media(hover:hover)]:hover:text-accent-200"
+              class="tone-border tone-title tone-surface inline-flex min-h-[52px] flex-1 items-center justify-center rounded-2xl border px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400/60 motion-reduce:transition-none [@media(hover:hover)]:hover:border-accent-400/40 [@media(hover:hover)]:hover:text-accent-200"
               href={withBasePath('pricing/#plans')}
             >
               Compare plans

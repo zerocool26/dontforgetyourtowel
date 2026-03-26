@@ -332,6 +332,14 @@ function ChapterOverlay({
   );
 }
 
+function getChapterRailLabel(chapter: ChapterDef) {
+  if (chapter.id === 'genesis') {
+    return 'Creative Technology';
+  }
+
+  return chapter.kicker;
+}
+
 export default function OliveUniverse() {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const shareLinkRef = useRef<HTMLAnchorElement>(null);
@@ -1939,7 +1947,7 @@ export default function OliveUniverse() {
           )}
 
           <p className="sr-only" aria-live="polite" aria-atomic="true">
-            {`Chapter ${chapter + 1} of ${CHAPTERS.length}: ${activeChapter.kicker}. ${runtimeNote}${guidedTourPlaying ? ' Guided tour active.' : ''}`}
+            {`Chapter ${chapter + 1} of ${CHAPTERS.length}: ${activeChapterTitle}. ${runtimeNote}${guidedTourPlaying ? ' Guided tour active.' : ''}`}
           </p>
 
           {CHAPTERS.map((ch, i) => (
@@ -2093,7 +2101,7 @@ export default function OliveUniverse() {
               </div>
             </div>
 
-            <p className="universe-story-kicker">{activeChapter.kicker}</p>
+            <p className="universe-story-kicker">Scene {chapterCounter}</p>
             <p className="universe-story-note">{runtimeNote}</p>
             {isCompactViewport && (
               <div
@@ -2589,7 +2597,9 @@ export default function OliveUniverse() {
               <span className="universe-dot-index">
                 {String(i + 1).padStart(2, '0')}
               </span>
-              <span className="universe-dot-label">{ch.kicker}</span>
+              <span className="universe-dot-label">
+                {getChapterRailLabel(ch)}
+              </span>
             </button>
           ))}
         </nav>

@@ -4,6 +4,7 @@ import OliveUniverse from '../components/react/OliveUniverse';
 import SignalGrid from '../components/landing/SignalGrid.astro';
 import EngagementSection from '../components/landing/EngagementSection.astro';
 import InsightSection from '../components/landing/InsightSection.astro';
+import Landing3DSystemsSection from '../components/landing/Landing3DSystemsSection.astro';
 import ServicesQuiz from '../components/business/ServicesQuiz.tsx';
 import ModernCard from '../components/ui/ModernCard.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
@@ -60,6 +61,229 @@ const demoLaunches = [
     ),
   },
 ];
+
+const commandDeckStats = [
+  {
+    label: 'Immersive surfaces',
+    value: '07',
+    detail:
+      'Hero scenes, live demos, and planner routes sequenced like a launch experience.',
+  },
+  {
+    label: 'Cross-discipline delivery',
+    value: '4D',
+    detail:
+      'Creative, engineering, security, and operations move together instead of handing off friction.',
+  },
+  {
+    label: 'Decision velocity',
+    value: '1 link',
+    detail:
+      'Briefs, demos, and next-step CTAs stay connected so momentum survives stakeholder review.',
+  },
+];
+
+const commandDeckSignals = [
+  {
+    eyebrow: '01 / Story architecture',
+    title: 'Design systems with a pulse',
+    copy: 'Every section is tuned to feel like a product console: strong contrast, cinematic spacing, and navigation that keeps moving the story forward.',
+    accents: ['Narrative framing', 'Cinematic gradients', 'Intentional pacing'],
+  },
+  {
+    eyebrow: '02 / Operating confidence',
+    title: 'Interfaces that look premium under pressure',
+    copy: 'The visual language stays sharp while carrying serious signals—roadmaps, handoffs, investment guidance, and launch readiness.',
+    accents: [
+      'Executive-ready clarity',
+      'Low-friction discovery',
+      'Launch-grade polish',
+    ],
+  },
+  {
+    eyebrow: '03 / Conversion energy',
+    title: 'Calls-to-action that feel inevitable',
+    copy: 'Instead of tossing users into dead-end forms, the landing page keeps building context until the next move feels obvious and valuable.',
+    accents: ['Guided next steps', 'Linkable state', 'Productized intake'],
+  },
+];
+
+const showcaseSignals = [
+  {
+    label: 'Preset choreography',
+    title: 'Strategy archetypes with a visual point of view',
+    detail:
+      'Each preset packages positioning, scope, and production posture so teams can align on a direction instantly.',
+  },
+  {
+    label: 'Stateful links',
+    title: 'Every configuration becomes shareable evidence',
+    detail:
+      'Live route state makes internal review smoother and turns demos into reusable launch artifacts.',
+  },
+  {
+    label: 'Follow-through',
+    title: 'Discovery keeps its context all the way to intake',
+    detail:
+      'The contact path inherits the brief, which means fewer repeated questions and faster conversations.',
+  },
+];
+
+const operatingPillars = [
+  {
+    title: 'Creative Systems',
+    value: 'Story → System',
+    summary:
+      'Brand language, interface direction, and UX sequencing move as one operating layer.',
+  },
+  {
+    title: 'Launch Engineering',
+    value: 'Speed + Control',
+    summary:
+      'Builds stay elegant under the hood, with architecture that protects performance while keeping ambition high.',
+  },
+  {
+    title: 'Security Design',
+    value: 'Trust baked in',
+    summary:
+      'Risk posture, governance, and operational calm are treated like design inputs—not afterthoughts.',
+  },
+  {
+    title: 'Managed Momentum',
+    value: 'Runway retained',
+    summary:
+      'After launch, the system still feels owned, measured, and actively improved instead of slowly decaying.',
+  },
+];
+
+const executionTimeline = [
+  {
+    step: '01',
+    title: 'Frame the signal',
+    copy: 'Compress the market story into something people can understand fast: what matters, why now, and where the leverage is.',
+  },
+  {
+    step: '02',
+    title: 'Ship the experience',
+    copy: 'Build visual systems, product flows, and interaction moments that feel custom-made—not assembled from generic templates.',
+  },
+  {
+    step: '03',
+    title: 'Keep the machine sharp',
+    copy: 'Security, reporting, and operating support stay connected so launch quality survives real-world usage.',
+  },
+];
+
+const discoveryLanes = [
+  {
+    name: 'Immediate clarity',
+    detail:
+      'Use the planner when you need the cleanest first step without turning the site visit into a homework assignment.',
+  },
+  {
+    name: 'Investment framing',
+    detail:
+      'Compare service and pricing pathways while the narrative context is still fresh, not buried three pages later.',
+  },
+  {
+    name: 'High-context intake',
+    detail:
+      'Launch a conversation with enough strategic signal already attached to make the first meeting materially better.',
+  },
+];
+
+const commandDeckModes = [
+  {
+    label: 'Story engine',
+    value: 'Cinematic',
+    detail:
+      'Hero, panels, and CTAs read like a launch sequence instead of a brochure.',
+  },
+  {
+    label: 'Decision layer',
+    value: 'Live',
+    detail:
+      'Visitors can compare routes, pricing, demos, and contact paths without losing context.',
+  },
+  {
+    label: 'Trust feel',
+    value: 'Executive',
+    detail:
+      'The tone stays premium even when the page is carrying serious operational detail.',
+  },
+  {
+    label: 'Momentum',
+    value: 'Compounding',
+    detail:
+      'Every section points to a next move, so curiosity keeps turning into forward motion.',
+  },
+];
+
+const commandDeckProof = [
+  {
+    label: 'Narrative sequencing',
+    copy: 'Each lane adds context before asking for commitment, which makes the CTA feel earned.',
+  },
+  {
+    label: 'Premium credibility',
+    copy: 'The visual language can carry audits, pricing, demos, and strategy without looking utilitarian.',
+  },
+  {
+    label: 'Reusable launch assets',
+    copy: 'Stateful experiences turn the site into a practical sales and alignment tool after the first visit.',
+  },
+  {
+    label: 'Clear next moves',
+    copy: 'Routes into services, briefs, and contact keep intent attached all the way to intake.',
+  },
+];
+
+const signalCorridorCards = [
+  {
+    code: 'A1',
+    title: 'Immersive first contact',
+    copy: 'The top of the page behaves like a flagship product moment, not a static hero with decorative gradients.',
+    accent: '3D chapters · guided motion · deep links',
+  },
+  {
+    code: 'B2',
+    title: 'Signal-rich proof surfaces',
+    copy: 'Metrics, presets, and route cards work like a strategic dashboard—fast to scan, easy to trust, and hard to forget.',
+    accent: 'Proof cards · launch framing · confidence signals',
+  },
+  {
+    code: 'C3',
+    title: 'Creative commerce energy',
+    copy: 'The page sells the capability through interaction quality, pacing, and a stronger sense of polish under pressure.',
+    accent: 'Demo routes · motion intent · premium contrast',
+  },
+  {
+    code: 'D4',
+    title: 'Operational depth without clutter',
+    copy: 'Complex offerings still feel clear because the system turns architecture, pricing, and intake into one coherent story.',
+    accent: 'Structured discovery · executive clarity · mobile-safe flow',
+  },
+];
+
+const signalCorridorMetrics = [
+  {
+    label: 'Visual intensity',
+    value: 'High-control',
+    detail:
+      'More depth, more contrast, and more intentional hierarchy without losing legibility.',
+  },
+  {
+    label: 'Conversion posture',
+    value: 'Guided',
+    detail: 'The site teaches, proves, and closes in one continuous rhythm.',
+  },
+  {
+    label: 'Experience memory',
+    value: 'Sticky',
+    detail:
+      'Each section feels distinct enough to be recallable after one pass.',
+  },
+];
 ---
 
 <Layout
@@ -76,8 +300,13 @@ const demoLaunches = [
       class="mx-auto max-w-6xl px-6 pb-16 pt-8 sm:px-10 sm:pb-20 sm:pt-10"
       data-reveal
     >
-      <div class="creative-hero-shell p-4 sm:p-5">
-        <div class="mb-4 flex items-center gap-2">
+      <div
+        class="creative-section-shell creative-grid-backdrop p-5 sm:p-6 lg:p-8"
+      >
+        <div class="creative-orb creative-orb--one"></div>
+        <div class="creative-orb creative-orb--two"></div>
+
+        <div class="mb-5 flex items-center gap-2">
           <span class="creative-kicker shrink-0">Creative Lanes</span>
           <div
             class="flex min-w-0 flex-1 gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible sm:pb-0"
@@ -92,7 +321,7 @@ const demoLaunches = [
           </div>
         </div>
 
-        <div class="mb-6 flex items-center gap-2">
+        <div class="mb-8 flex items-center gap-2">
           <span class="creative-kicker shrink-0">Live Demo Launch</span>
           <div
             class="flex min-w-0 flex-1 gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible sm:pb-0"
@@ -107,179 +336,335 @@ const demoLaunches = [
           </div>
         </div>
 
-        <div class="grid gap-6 lg:grid-cols-2">
-          <ModernCard variant="minimal" className="creative-panel p-6">
-            <p
-              class="tone-muted text-xs font-semibold uppercase tracking-[0.32em]"
-            >
-              Cognitive Systems
-            </p>
-            <h2 class="creative-title tone-title mt-3 text-3xl">
-              AI Orchestration & Advanced Dev
-            </h2>
-            <p class="creative-copy mt-4 text-[15px]">
-              Multi-agent products, decision systems, and AI-native workflows
-              crafted for clarity, speed, and measurable impact.
-            </p>
-            <ul class="tone-body mt-6 space-y-3 text-sm">
-              <li class="flex items-start gap-3">
-                <span
-                  class="mt-2 h-1 w-1 flex-shrink-0 rounded-full bg-[#ccff00] shadow-[0_0_8px_rgba(204,255,0,0.8)]"
-                ></span>
-                <span class="text-neutral-300"
-                  >Autonomous workflow architecture and orchestration</span
-                >
-              </li>
-              <li class="flex items-start gap-3">
-                <span
-                  class="mt-2 h-1 w-1 flex-shrink-0 rounded-full bg-[#ccff00] shadow-[0_0_8px_rgba(204,255,0,0.8)]"
-                ></span>
-                <span class="text-neutral-300"
-                  >Custom copilots with guardrails and governance</span
-                >
-              </li>
-              <li class="flex items-start gap-2">
-                <span
-                  class="mt-2 h-1 w-1 flex-shrink-0 rounded-full bg-[#ccff00] shadow-[0_0_8px_rgba(204,255,0,0.8)]"
-                ></span>
-                <span
-                  >Realtime data interfaces for operational storytelling</span
-                >
-              </li>
-            </ul>
-            <div class="mt-6 flex flex-wrap gap-3">
+        <div
+          class="creative-status-rail"
+          role="list"
+          aria-label="Landing page visual system status"
+        >
+          {
+            commandDeckModes.map(mode => (
+              <div class="creative-status-chip" role="listitem">
+                <p class="creative-status-chip__label">{mode.label}</p>
+                <p class="creative-status-chip__value">{mode.value}</p>
+                <p class="creative-status-chip__detail">{mode.detail}</p>
+              </div>
+            ))
+          }
+        </div>
+
+        <div class="grid gap-8 lg:grid-cols-[1.08fr_0.92fr] lg:items-start">
+          <div class="space-y-6">
+            <div class="space-y-4">
+              <p class="creative-kicker">Command deck</p>
+              <h2
+                class="creative-title tone-title max-w-4xl text-4xl sm:text-5xl lg:text-6xl"
+              >
+                A landing page engineered to feel like a premium operating
+                system.
+              </h2>
+              <p class="creative-copy max-w-2xl text-base sm:text-lg">
+                The homepage now acts like a creative command center: cinematic
+                hero, strategic pathways, rich proof signals, and linked demos
+                that turn curiosity into momentum with almost suspicious
+                efficiency.
+              </p>
+            </div>
+
+            <div class="creative-mini-metrics grid gap-4 md:grid-cols-3">
+              {
+                commandDeckStats.map(stat => (
+                  <div class="creative-stat-card">
+                    <p class="creative-stat-label">{stat.label}</p>
+                    <p class="creative-stat-value">{stat.value}</p>
+                    <p class="creative-stat-copy">{stat.detail}</p>
+                  </div>
+                ))
+              }
+            </div>
+
+            <div class="flex flex-wrap gap-3">
               <ModernButton
                 href={withBasePath('services/')}
-                variant="primary"
+                variant="gradient"
                 className="min-h-[48px]"
               >
                 Explore services
               </ModernButton>
               <ModernButton
-                href={startProjectHref}
+                href={withBasePath('build-studio/#studio')}
                 variant="secondary"
+                className="min-h-[48px]"
+              >
+                Open Build Studio
+              </ModernButton>
+              <ModernButton
+                href={startProjectHref}
+                variant="outline"
                 className="min-h-[48px]"
               >
                 Start a project
               </ModernButton>
             </div>
-          </ModernCard>
+          </div>
 
-          <ModernCard variant="minimal" className="creative-panel p-6">
-            <p
-              class="tone-muted text-xs font-semibold uppercase tracking-[0.32em]"
-            >
-              Digital Resilience
-            </p>
-            <h2 class="creative-title tone-title mt-3 text-2xl font-semibold">
-              Cybersecurity & Platform Reliability
-            </h2>
-            <p class="creative-copy mt-3 text-sm">
-              Security and reliability programs built to support ambitious
-              product velocity, not slow it down.
-            </p>
-            <ul class="tone-body mt-5 space-y-2 text-sm">
-              <li class="flex items-start gap-2">
-                <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 bg-violet-400"
-                ></span>
-                <span>Threat modeling tied directly to product roadmaps</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 bg-violet-400"
-                ></span>
-                <span>Identity and access systems with resilient defaults</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 bg-violet-400"
-                ></span>
-                <span>Operational runbooks that keep launches calm</span>
-              </li>
-            </ul>
-            <div class="mt-6 flex flex-wrap gap-3">
-              <ModernButton
-                href={withBasePath('about/')}
-                variant="secondary"
-                className="min-h-[48px]"
-              >
-                View portfolio
-              </ModernButton>
-              <ModernButton
-                href={withBasePath('contact-hq/')}
-                variant="primary"
-                className="min-h-[48px]"
-              >
-                Contact HQ
-              </ModernButton>
+          <div class="grid gap-4">
+            <div class="grid gap-4 xl:grid-cols-2">
+              {
+                commandDeckSignals.map(signal => (
+                  <ModernCard
+                    variant="minimal"
+                    className="creative-panel creative-stack-card p-6"
+                  >
+                    <p class="creative-stack-eyebrow">{signal.eyebrow}</p>
+                    <h3 class="creative-stack-title mt-3">{signal.title}</h3>
+                    <p class="creative-stack-copy mt-3">{signal.copy}</p>
+                    <div class="mt-4 flex flex-wrap gap-2">
+                      {signal.accents.map(accent => (
+                        <span class="creative-pill">{accent}</span>
+                      ))}
+                    </div>
+                  </ModernCard>
+                ))
+              }
             </div>
-          </ModernCard>
+
+            <div class="creative-command-stage">
+              <div class="creative-command-stage__glow" aria-hidden="true">
+              </div>
+              <div class="creative-command-stage__surface">
+                <div class="flex flex-wrap items-start justify-between gap-4">
+                  <div class="space-y-3">
+                    <p class="creative-stack-eyebrow">Experience stack</p>
+                    <h3 class="creative-stack-title text-2xl sm:text-[1.65rem]">
+                      Every route feels like a stronger version of the brand.
+                    </h3>
+                    <p class="creative-stack-copy max-w-2xl">
+                      The homepage now behaves like a visual operating layer:
+                      strategy up front, proof in the middle, and action paths
+                      that keep the energy high all the way to contact.
+                    </p>
+                  </div>
+
+                  <span class="creative-pill">Advanced landing system</span>
+                </div>
+
+                <div class="creative-divider my-5"></div>
+
+                <div class="grid gap-3 sm:grid-cols-2">
+                  {
+                    commandDeckProof.map(item => (
+                      <div class="creative-proof-tile">
+                        <p class="creative-proof-tile__label">{item.label}</p>
+                        <p class="creative-proof-tile__copy">{item.copy}</p>
+                      </div>
+                    ))
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
     <section class="tone-border tone-surface border-y" data-reveal>
       <div class="mx-auto max-w-6xl px-6 py-16 sm:px-10 sm:py-20">
+        <div class="creative-section-shell p-6 sm:p-8 lg:p-10">
+          <div class="grid gap-8 lg:grid-cols-[0.92fr_1.08fr] lg:items-start">
+            <div class="space-y-5">
+              <span class="creative-kicker">Flagship showcase</span>
+              <h2
+                class="creative-title tone-title text-3xl font-semibold sm:text-4xl"
+              >
+                Build Studio turns the site into a live strategy room.
+              </h2>
+              <p class="creative-copy text-sm sm:text-base">
+                Configure a premium product system in real time—preset
+                direction, launch tempo, modular capabilities, investment range,
+                delivery arc, and a contact-ready build brief that travels with
+                the link.
+              </p>
+
+              <div class="grid gap-4 sm:grid-cols-3">
+                {
+                  showcaseSignals.map(item => (
+                    <ModernCard
+                      variant="minimal"
+                      className="creative-panel p-5"
+                    >
+                      <p class="creative-stack-eyebrow">{item.label}</p>
+                      <p class="tone-title mt-3 text-base font-semibold">
+                        {item.title}
+                      </p>
+                      <p class="tone-body mt-2 text-sm">{item.detail}</p>
+                    </ModernCard>
+                  ))
+                }
+              </div>
+
+              <div class="flex flex-wrap gap-3">
+                <ModernButton
+                  href={withBasePath('build-studio/#studio')}
+                  variant="primary"
+                  className="min-h-[48px]"
+                >
+                  Open Build Studio
+                </ModernButton>
+                <ModernButton
+                  href={withBasePath('contact-hq/')}
+                  variant="secondary"
+                  className="min-h-[48px]"
+                >
+                  Start from a live brief
+                </ModernButton>
+              </div>
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+              {
+                studioPresets.slice(0, 4).map((preset, index) => (
+                  <ModernCard variant="minimal" className="creative-panel p-5">
+                    <div class="flex items-center justify-between gap-3">
+                      <p class="tone-muted text-xs uppercase tracking-[0.22em]">
+                        {preset.kicker}
+                      </p>
+                      <span class="creative-pill">0{index + 1}</span>
+                    </div>
+                    <p class="tone-title mt-3 text-lg font-semibold">
+                      {preset.name}
+                    </p>
+                    <p class="tone-body mt-2 text-sm leading-relaxed">
+                      {preset.summary}
+                    </p>
+                  </ModernCard>
+                ))
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="mx-auto max-w-6xl px-6 py-14 sm:px-10 sm:py-20" data-reveal>
+      <div
+        class="creative-section-shell creative-grid-backdrop creative-section-shell--spotlit p-6 sm:p-8 lg:p-10"
+      >
         <div class="grid gap-8 lg:grid-cols-[0.92fr_1.08fr] lg:items-start">
           <div class="space-y-5">
-            <span class="creative-kicker">Flagship showcase</span>
+            <span class="creative-kicker">Signal corridor</span>
             <h2
               class="creative-title tone-title text-3xl font-semibold sm:text-4xl"
             >
-              Build Studio turns the site into a live strategy room.
+              The page now escalates from wow-factor to strategic certainty
+              without flattening out in the middle.
             </h2>
             <p class="creative-copy text-sm sm:text-base">
-              Configure a premium product system in real time—preset direction,
-              launch tempo, modular capabilities, investment range, delivery
-              arc, and a contact-ready build brief that travels with the link.
+              This middle corridor is built to keep attention hot: bolder visual
+              segmentation, stronger thematic cards, and a cleaner feeling of
+              progression from inspiration to decision.
             </p>
 
-            <div class="grid gap-4 sm:grid-cols-2">
-              <ModernCard variant="minimal" className="creative-panel p-5">
-                <p class="tone-title text-sm font-semibold">Shareable state</p>
-                <p class="tone-body mt-2 text-sm">
-                  Every preset, module, and urgency choice syncs into the URL so
-                  a premium brief can be reviewed or handed off instantly.
-                </p>
-              </ModernCard>
-              <ModernCard variant="minimal" className="creative-panel p-5">
-                <p class="tone-title text-sm font-semibold">Intake handoff</p>
-                <p class="tone-body mt-2 text-sm">
-                  The route feeds a structured project brief into Contact HQ so
-                  the discovery flow feels like a real product, not a dead end.
-                </p>
-              </ModernCard>
+            <div class="grid gap-3">
+              {
+                signalCorridorMetrics.map(item => (
+                  <div class="creative-spectrum-card">
+                    <div>
+                      <p class="creative-spectrum-card__label">{item.label}</p>
+                      <p class="creative-spectrum-card__value">{item.value}</p>
+                    </div>
+                    <p class="creative-spectrum-card__detail">{item.detail}</p>
+                  </div>
+                ))
+              }
             </div>
 
             <div class="flex flex-wrap gap-3">
               <ModernButton
-                href={withBasePath('build-studio/#studio')}
-                variant="primary"
-                className="min-h-[48px]"
-              >
-                Open Build Studio
-              </ModernButton>
-              <ModernButton
-                href={withBasePath('contact-hq/')}
+                href={withBasePath('about/')}
                 variant="secondary"
                 className="min-h-[48px]"
               >
-                Start from a live brief
+                View portfolio energy
+              </ModernButton>
+              <ModernButton
+                href={withBasePath('pricing/')}
+                variant="outline"
+                className="min-h-[48px]"
+              >
+                Inspect pricing clarity
               </ModernButton>
             </div>
           </div>
 
-          <div class="grid gap-4 sm:grid-cols-2">
+          <div class="creative-mosaic-grid">
             {
-              studioPresets.slice(0, 4).map(preset => (
+              signalCorridorCards.map(card => (
+                <ModernCard
+                  variant="minimal"
+                  className="creative-panel creative-route-card p-5"
+                >
+                  <div class="creative-route-card__topline">
+                    <span class="creative-route-card__code">{card.code}</span>
+                    <span class="creative-pill">{card.accent}</span>
+                  </div>
+                  <h3 class="creative-stack-title mt-4">{card.title}</h3>
+                  <p class="creative-stack-copy mt-3">{card.copy}</p>
+                </ModernCard>
+              ))
+            }
+
+            <div class="creative-route-card creative-route-card--feature">
+              <p class="creative-stack-eyebrow">Landing page attitude</p>
+              <h3 class="creative-stack-title mt-3 text-2xl">
+                Cooler, sharper, and much more unmistakably custom.
+              </h3>
+              <p class="creative-stack-copy mt-3 max-w-2xl">
+                Instead of feeling like a polished template, the site now leans
+                harder into distinct identity: stronger atmospherics, denser
+                proof, and a more deliberate visual climb from the first scroll
+                to the final CTA.
+              </p>
+
+              <div class="mt-5 flex flex-wrap gap-2">
+                <span class="creative-pill">Custom-feeling motion</span>
+                <span class="creative-pill">Sharper visual hierarchy</span>
+                <span class="creative-pill">Higher-end storytelling</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="tone-border tone-surface border-y" data-reveal>
+      <div class="mx-auto max-w-6xl px-6 py-10 sm:px-10">
+        <div class="creative-section-shell p-5 sm:p-6">
+          <div class="mb-6 flex items-center justify-between gap-4">
+            <div>
+              <span class="creative-kicker">Operating model</span>
+              <h2
+                class="creative-title tone-title mt-4 text-3xl font-semibold sm:text-4xl"
+              >
+                Four dimensions keep the experience sharp from concept to
+                ongoing delivery.
+              </h2>
+            </div>
+            <span class="creative-pill hidden lg:inline-flex"
+              >Built to compound</span
+            >
+          </div>
+
+          <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {
+              operatingPillars.map(pillar => (
                 <ModernCard variant="minimal" className="creative-panel p-5">
                   <p class="tone-muted text-xs uppercase tracking-[0.22em]">
-                    {preset.kicker}
+                    {pillar.title}
                   </p>
-                  <p class="tone-title mt-3 text-lg font-semibold">
-                    {preset.name}
+                  <p class="tone-title mt-3 text-2xl font-semibold">
+                    {pillar.value}
                   </p>
-                  <p class="tone-body mt-2 text-sm leading-relaxed">
-                    {preset.summary}
-                  </p>
+                  <p class="tone-body mt-2 text-sm">{pillar.summary}</p>
                 </ModernCard>
               ))
             }
@@ -288,183 +673,150 @@ const demoLaunches = [
       </div>
     </section>
 
-    <section class="tone-border tone-surface border-y" data-reveal>
-      <div
-        class="mx-auto grid max-w-6xl gap-4 px-6 py-10 sm:grid-cols-2 sm:px-10 lg:grid-cols-4"
-      >
-        <ModernCard variant="minimal" className="creative-panel p-5">
-          <p class="tone-muted text-xs uppercase tracking-[0.22em]">
-            Delivery Rhythm
-          </p>
-          <p class="tone-title mt-2 text-2xl font-semibold">
-            Rapid + Structured
-          </p>
-          <p class="tone-body mt-1 text-xs">
-            Creative exploration with clear production checkpoints.
-          </p>
-        </ModernCard>
-        <ModernCard variant="minimal" className="creative-panel p-5">
-          <p class="tone-muted text-xs uppercase tracking-[0.22em]">
-            Specialties
-          </p>
-          <p class="tone-title mt-2 text-2xl font-semibold">6 Practice Lanes</p>
-          <p class="tone-body mt-1 text-xs">
-            AI, security, cloud, product, ops, and platform systems.
-          </p>
-        </ModernCard>
-        <ModernCard variant="minimal" className="creative-panel p-5">
-          <p class="tone-muted text-xs uppercase tracking-[0.22em]">
-            Engagements
-          </p>
-          <p class="tone-title mt-2 text-2xl font-semibold">Sprint → Program</p>
-          <p class="tone-body mt-1 text-xs">
-            Start focused, then scale into long-term operating support.
-          </p>
-        </ModernCard>
-        <ModernCard variant="minimal" className="creative-panel p-5">
-          <p class="tone-muted text-xs uppercase tracking-[0.22em]">
-            Collaboration
-          </p>
-          <p class="tone-title mt-2 text-2xl font-semibold">Embedded Teams</p>
-          <p class="tone-body mt-1 text-xs">
-            We work inside your velocity, not in parallel to it.
-          </p>
-        </ModernCard>
-      </div>
-    </section>
-
     <section class="mx-auto max-w-6xl px-6 py-14 sm:px-10 sm:py-20" data-reveal>
       <SignalGrid />
     </section>
 
-    <section class="mx-auto max-w-6xl px-6 py-14 sm:px-10 sm:py-20" data-reveal>
-      <div class="grid gap-8 lg:grid-cols-[1fr_1.1fr] lg:items-start">
-        <div class="space-y-5">
-          <span class="creative-kicker">Why teams switch</span>
-          <h2
-            class="creative-title tone-title text-3xl font-semibold sm:text-4xl"
-          >
-            One creative engineering partner instead of five disconnected
-            vendors.
-          </h2>
-          <p class="creative-copy text-sm">
-            The biggest product drag comes from fragmented ownership. We unify
-            strategy, execution, and operations so your roadmap keeps momentum
-            from concept to release.
-          </p>
-          <div class="flex flex-wrap gap-3">
-            <ModernButton
-              href={withBasePath('services/')}
-              variant="primary"
-              className="min-h-[48px]"
-            >
-              Explore all capabilities
-            </ModernButton>
-            <ModernButton
-              href={withBasePath('contact-hq/')}
-              variant="secondary"
-              className="min-h-[48px]"
-            >
-              Compare delivery paths
-            </ModernButton>
-          </div>
-        </div>
+    <Landing3DSystemsSection />
 
-        <div class="grid gap-4 sm:grid-cols-2">
-          <ModernCard variant="minimal" className="creative-panel p-5">
-            <p class="tone-title text-sm font-semibold">
-              Narrative-first design
+    <section class="mx-auto max-w-6xl px-6 py-14 sm:px-10 sm:py-20" data-reveal>
+      <div
+        class="creative-section-shell creative-grid-backdrop p-6 sm:p-8 lg:p-10"
+      >
+        <div class="grid gap-8 lg:grid-cols-[1fr_1.1fr] lg:items-start">
+          <div class="space-y-5">
+            <span class="creative-kicker">Why teams switch</span>
+            <h2
+              class="creative-title tone-title text-3xl font-semibold sm:text-4xl"
+            >
+              One creative engineering partner instead of five disconnected
+              vendors.
+            </h2>
+            <p class="creative-copy text-sm sm:text-base">
+              The biggest product drag comes from fragmented ownership. We unify
+              strategy, execution, and operations so your roadmap keeps momentum
+              from concept to release—and still looks world-class while doing
+              it.
             </p>
-            <p class="tone-body mt-2 text-sm">
-              Interfaces are sequenced like stories, not random blocks.
-            </p>
-          </ModernCard>
-          <ModernCard variant="minimal" className="creative-panel p-5">
-            <p class="tone-title text-sm font-semibold">Engineered motion</p>
-            <p class="tone-body mt-2 text-sm">
-              Animation supports comprehension instead of visual noise.
-            </p>
-          </ModernCard>
-          <ModernCard variant="minimal" className="creative-panel p-5">
-            <p class="tone-title text-sm font-semibold">Security in the loop</p>
-            <p class="tone-body mt-2 text-sm">
-              Governance and controls are designed in from day one.
-            </p>
-          </ModernCard>
-          <ModernCard variant="minimal" className="creative-panel p-5">
-            <p class="tone-title text-sm font-semibold">
-              Outcome accountability
-            </p>
-            <p class="tone-body mt-2 text-sm">
-              Every phase maps to measurable business movement.
-            </p>
-          </ModernCard>
+            <div class="flex flex-wrap gap-3">
+              <ModernButton
+                href={withBasePath('services/')}
+                variant="primary"
+                className="min-h-[48px]"
+              >
+                Explore all capabilities
+              </ModernButton>
+              <ModernButton
+                href={withBasePath('contact-hq/')}
+                variant="secondary"
+                className="min-h-[48px]"
+              >
+                Compare delivery paths
+              </ModernButton>
+            </div>
+          </div>
+
+          <div class="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
+            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+              <ModernCard variant="minimal" className="creative-panel p-5">
+                <p class="tone-title text-sm font-semibold">
+                  Narrative-first design
+                </p>
+                <p class="tone-body mt-2 text-sm">
+                  Interfaces are sequenced like stories, not random blocks of
+                  UI.
+                </p>
+              </ModernCard>
+              <ModernCard variant="minimal" className="creative-panel p-5">
+                <p class="tone-title text-sm font-semibold">
+                  Engineered motion
+                </p>
+                <p class="tone-body mt-2 text-sm">
+                  Animation supports comprehension instead of becoming
+                  decorative chaos.
+                </p>
+              </ModernCard>
+            </div>
+
+            <div class="creative-timeline">
+              {
+                executionTimeline.map(item => (
+                  <div class="creative-timeline-step">
+                    <div class="creative-timeline-marker">{item.step}</div>
+                    <div class="creative-timeline-content">
+                      <p class="creative-stack-title">{item.title}</p>
+                      <p class="creative-stack-copy mt-2">{item.copy}</p>
+                    </div>
+                  </div>
+                ))
+              }
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
     <section class="tone-border tone-surface border-y" data-reveal>
       <div class="mx-auto max-w-6xl px-6 py-16 sm:px-10 sm:py-20">
-        <div class="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
-          <div class="space-y-5">
-            <span class="creative-kicker">Guided discovery</span>
-            <h2
-              class="creative-title tone-title text-3xl font-semibold sm:text-4xl"
+        <div class="creative-section-shell p-6 sm:p-8 lg:p-10">
+          <div class="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
+            <div class="space-y-5">
+              <span class="creative-kicker">Guided discovery</span>
+              <h2
+                class="creative-title tone-title text-3xl font-semibold sm:text-4xl"
+              >
+                Route the right engagement before the backlog gets noisy.
+              </h2>
+              <p class="creative-copy text-sm sm:text-base">
+                Use the interactive planner to identify the best first move,
+                compare plans without leaving the site, and launch a tailored
+                intake from mobile or desktop in a few taps.
+              </p>
+
+              <div class="grid gap-4 sm:grid-cols-3">
+                {
+                  discoveryLanes.map(item => (
+                    <ModernCard
+                      variant="minimal"
+                      className="creative-panel p-5"
+                    >
+                      <p class="tone-title text-sm font-semibold">
+                        {item.name}
+                      </p>
+                      <p class="tone-body mt-2 text-sm">{item.detail}</p>
+                    </ModernCard>
+                  ))
+                }
+              </div>
+
+              <div class="flex flex-wrap gap-3">
+                <ModernButton
+                  href={withBasePath('pricing/')}
+                  variant="primary"
+                  className="min-h-[48px]"
+                >
+                  Compare plans
+                </ModernButton>
+                <ModernButton
+                  href={withBasePath('services/')}
+                  variant="secondary"
+                  className="min-h-[48px]"
+                >
+                  Explore service lanes
+                </ModernButton>
+              </div>
+            </div>
+
+            <div
+              class="creative-panel tone-border tone-surface rounded-[1.75rem] border p-3 sm:p-4"
             >
-              Route the right engagement before the backlog gets noisy.
-            </h2>
-            <p class="creative-copy text-sm sm:text-base">
-              Use the interactive planner to identify the best first move,
-              compare plans without leaving the site, and launch a tailored
-              intake from mobile or desktop in a few taps.
-            </p>
-
-            <div class="grid gap-4 sm:grid-cols-2">
-              <ModernCard variant="minimal" className="creative-panel p-5">
-                <p class="tone-title text-sm font-semibold">
-                  Operate without chaos
-                </p>
-                <p class="tone-body mt-2 text-sm">
-                  Start with managed operations, support, and reporting if the
-                  current problem is noise, downtime, or support sprawl.
-                </p>
-              </ModernCard>
-              <ModernCard variant="minimal" className="creative-panel p-5">
-                <p class="tone-title text-sm font-semibold">
-                  Scale with intent
-                </p>
-                <p class="tone-body mt-2 text-sm">
-                  Move into cloud, security, or AI delivery once the baseline is
-                  stable and the team is ready to compound gains.
-                </p>
-              </ModernCard>
+              <ServicesQuiz
+                client:visible
+                kicker="Route your next move"
+                title="Interactive service planner"
+                ctaLabel="Start tailored intake"
+              />
             </div>
-
-            <div class="flex flex-wrap gap-3">
-              <ModernButton
-                href={withBasePath('pricing/')}
-                variant="primary"
-                className="min-h-[48px]"
-              >
-                Compare plans
-              </ModernButton>
-              <ModernButton
-                href={withBasePath('services/')}
-                variant="secondary"
-                className="min-h-[48px]"
-              >
-                Explore service lanes
-              </ModernButton>
-            </div>
-          </div>
-
-          <div class="tone-border tone-surface rounded-2xl border p-6">
-            <ServicesQuiz
-              client:visible
-              kicker="Route your next move"
-              title="Interactive service planner"
-              ctaLabel="Start tailored intake"
-            />
           </div>
         </div>
       </div>

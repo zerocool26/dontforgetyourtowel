@@ -135,3 +135,5 @@ if (document.readyState === 'loading') {
 }
 
 window.addEventListener('astro:page-load', mountAll);
+
+export {};

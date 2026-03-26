@@ -48,22 +48,22 @@ const baseClasses =
 
 const variants = {
   primary:
-    'bg-[#fafafa] text-black font-semibold hover:bg-white hover:scale-[1.02] focus:ring-white/50 shadow-[0_0_24px_rgba(255,255,255,0.15)] hover:shadow-[0_0_32px_rgba(255,255,255,0.25)] transition-all duration-300 border border-white/20',
+    'bg-gradient-to-b from-white to-white/90 text-black font-semibold hover:from-white hover:to-white hover:scale-[1.02] focus:ring-white/50 shadow-[0_0_24px_rgba(255,255,255,0.12),_0_2px_8px_rgba(255,255,255,0.1)] hover:shadow-[0_0_36px_rgba(255,255,255,0.22),_0_4px_16px_rgba(255,255,255,0.15)] transition-all duration-300 border border-white/30',
   secondary:
-    'bg-white/5 text-white border border-white/10 hover:bg-white/10 hover:border-white/20 backdrop-blur-md focus:ring-white/20 shadow-lg transition-all duration-300',
+    'bg-white/[0.04] text-white/90 border border-white/[0.08] hover:bg-white/[0.08] hover:border-white/15 backdrop-blur-xl focus:ring-white/20 shadow-[0_2px_16px_rgba(0,0,0,0.4)] hover:shadow-[0_4px_24px_rgba(0,0,0,0.5)] transition-all duration-300',
   outline:
-    'border border-white/10 text-white/80 bg-transparent hover:bg-white/5 hover:text-white focus:ring-white/20 backdrop-blur-sm transition-all duration-300',
+    'border border-white/[0.08] text-white/70 bg-transparent hover:bg-white/[0.04] hover:border-white/15 hover:text-white focus:ring-white/20 backdrop-blur-sm transition-all duration-300',
   ghost:
-    'text-white/60 bg-transparent hover:bg-white/5 hover:text-white focus:ring-white/10 transition-all duration-300',
+    'text-white/50 bg-transparent hover:bg-white/[0.04] hover:text-white/80 focus:ring-white/10 transition-all duration-300',
   destructive:
     'bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 hover:text-red-300 focus:ring-red-500/50 transition-all duration-300',
   success:
-    'bg-[#ccff00]/10 text-[#ccff00] border border-[#ccff00]/20 hover:bg-[#ccff00]/20 hover:shadow-[0_0_16px_rgba(204,255,0,0.15)] focus:ring-[#ccff00]/50 transition-all duration-300',
+    'bg-[#ccff00]/[0.08] text-[#ccff00] border border-[#ccff00]/20 hover:bg-[#ccff00]/15 hover:shadow-[0_0_24px_rgba(204,255,0,0.12)] hover:border-[#ccff00]/40 focus:ring-[#ccff00]/50 transition-all duration-300',
   warning:
     'bg-orange-500/10 text-orange-400 border border-orange-500/20 hover:bg-orange-500/20 hover:text-orange-300 focus:ring-orange-500/50 transition-all duration-300',
   gradient:
-    'bg-gradient-to-r from-[#ccff00] via-[#99cc00] to-[#669900] text-black font-bold hover:opacity-90 active:scale-95 focus:ring-[#ccff00]/50 shadow-[0_0_24px_rgba(204,255,0,0.25)] border border-white/10 transition-all duration-300',
-  neon: 'bg-[#ccff00]/10 border border-[#ccff00] text-[#ccff00] shadow-[0_0_20px_rgba(204,255,0,0.2)] hover:shadow-[0_0_30px_rgba(204,255,0,0.4)] hover:bg-[#ccff00]/20 transition-all duration-300',
+    'bg-gradient-to-r from-[#ccff00] via-[#b8e600] to-[#99cc00] text-black font-bold hover:opacity-95 active:scale-95 focus:ring-[#ccff00]/50 shadow-[0_0_32px_rgba(204,255,0,0.2),_0_2px_8px_rgba(204,255,0,0.3)] hover:shadow-[0_0_48px_rgba(204,255,0,0.3),_0_4px_16px_rgba(204,255,0,0.4)] border border-[#ccff00]/40 transition-all duration-300',
+  neon: 'bg-[#ccff00]/[0.06] border border-[#ccff00]/40 text-[#ccff00] shadow-[0_0_24px_rgba(204,255,0,0.15),_inset_0_0_12px_rgba(204,255,0,0.06)] hover:shadow-[0_0_40px_rgba(204,255,0,0.3),_inset_0_0_20px_rgba(204,255,0,0.1)] hover:bg-[#ccff00]/10 hover:border-[#ccff00]/60 transition-all duration-300',
   light:
     'bg-zinc-100 text-zinc-900 hover:bg-white border border-zinc-200 focus:ring-zinc-300 shadow-md transition-all duration-300',
 };

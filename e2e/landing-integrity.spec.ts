@@ -28,6 +28,54 @@ test.describe('Landing Page Integrity', () => {
     await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible();
   });
 
+  test('should continue the 3D experience beyond the hero section', async ({
+    page,
+  }) => {
+    const section = page.locator('[data-landing-3d-preview]');
+
+    await section.scrollIntoViewIfNeeded();
+    await expect(section).toBeVisible();
+    await expect(section.locator('canvas[data-hero-canvas]')).toBeVisible();
+    await expect(
+      page.getByRole('heading', {
+        level: 2,
+        name: /immersive system now keeps working after the hero/i,
+      })
+    ).toBeVisible();
+  });
+
+  test('should let users tune the mid-page 3D runway scene controls', async ({
+    page,
+  }) => {
+    const runway = page.locator('[data-landing-3d-runway]');
+    const previewShell = runway.locator('[data-landing-3d-preview-shell]');
+    const controls = runway.locator('[data-landing-3d-controls]');
+
+    await runway.scrollIntoViewIfNeeded();
+
+    const previewRoot = previewShell.locator('[data-hero-root]');
+    await expect(previewRoot).toHaveAttribute('data-hero-variant', 'nexus');
+
+    await controls.getByRole('button', { name: /neural/i }).click();
+
+    await expect(previewRoot).toHaveAttribute('data-hero-variant', 'neural');
+    await expect(
+      previewShell.locator('[data-landing-3d-status]')
+    ).toContainText(/neural lattice scene active/i);
+
+    await controls.getByRole('button', { name: /surge/i }).click();
+    await expect(previewRoot).toHaveAttribute('data-hero-speed', '1.35');
+
+    await controls.getByRole('button', { name: /focused/i }).click();
+    await expect(previewRoot).toHaveAttribute('data-hero-zoom', '0.38');
+
+    await controls.getByRole('button', { name: /reset preview/i }).click();
+
+    await expect(previewRoot).toHaveAttribute('data-hero-variant', 'nexus');
+    await expect(previewRoot).toHaveAttribute('data-hero-speed', '1');
+    await expect(previewRoot).toHaveAttribute('data-hero-zoom', '0');
+  });
+
   test('should stack layout on mobile viewports', async ({ page }) => {
     // Set viewport to mobile size
     await page.setViewportSize({ width: 375, height: 667 });

@@ -1,79 +1,145 @@
 ---
 import { engagementTracks } from '../../data/marketing';
+import { withBasePath } from '../../utils/helpers';
 
 const sectionId = 'engagement-section';
+
+const engagementSignals = [
+  {
+    label: 'Best for',
+    value: 'Fast decisions',
+  },
+  {
+    label: 'Format',
+    value: 'Flexible engagement',
+  },
+  {
+    label: 'Outcome',
+    value: 'Clear next move',
+  },
+];
 ---
 
 <section class="relative" aria-labelledby={`${sectionId}-title`}>
   <div
-    class="absolute inset-0 -z-10 bg-[rgba(15,23,42,0.72)]"
+    class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,rgba(56,189,248,0.12),transparent_34%),linear-gradient(180deg,rgba(6,11,22,0.92),rgba(4,8,16,0.88))]"
     aria-hidden="true"
   >
   </div>
   <div class="relative mx-auto max-w-[1220px] px-6 py-24">
-    <div class="grid gap-12 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
-      <header class="space-y-4">
-        <p
-          class="text-xs font-semibold uppercase tracking-[0.32em] text-slate-400"
-          aria-hidden="true"
-        >
-          Engagement options
-        </p>
-        <h2
-          id={`${sectionId}-title`}
-          class="text-3xl font-semibold text-white sm:text-4xl"
-        >
-          Choose the partnership cadence that matches your velocity
-        </h2>
-        <p class="text-sm text-slate-300">
-          Start with a focused sprint, a leadership blueprint, or a standing
-          operating partnership—without losing sight of measurable outcomes.
-        </p>
-      </header>
-      <div
-        class="grid gap-6 lg:grid-cols-3"
-        role="list"
-        aria-label="Engagement track options"
-      >
-        {
-          engagementTracks.map((option, index) => (
-            <article
-              class="glass-panel flex h-full flex-col gap-5 border border-white/10 p-6 transition-all duration-300 focus-within:ring-2 focus-within:ring-indigo-500/50 hover:border-indigo-500/30 hover:shadow-lg"
-              role="listitem"
-              aria-labelledby={`track-${index}-title`}
+    <div
+      class="creative-section-shell creative-grid-backdrop p-6 sm:p-8 lg:p-10"
+    >
+      <div class="grid gap-12 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
+        <div class="space-y-6">
+          <header class="space-y-4">
+            <p class="creative-kicker" aria-hidden="true">Engagement options</p>
+            <h2
+              id={`${sectionId}-title`}
+              class="creative-title text-3xl font-semibold text-white sm:text-4xl"
             >
-              <div class="flex items-baseline justify-between text-slate-200">
-                <h3
-                  id={`track-${index}-title`}
-                  class="text-lg font-semibold text-white"
-                >
-                  {option.name}
-                </h3>
-                <span
-                  class="text-xs uppercase tracking-[0.3em] text-slate-400"
-                  aria-label={`Timeline: ${option.timeline}`}
-                >
-                  {option.timeline}
-                </span>
-              </div>
-              <p class="text-sm text-slate-300">{option.summary}</p>
-              <ul
-                class="space-y-2 text-sm text-slate-300/90"
-                aria-label={`Deliverables for ${option.name}`}
+              Choose the partnership cadence that matches your velocity
+            </h2>
+            <p class="creative-copy text-sm">
+              Start with a focused sprint, a leadership blueprint, or a standing
+              operating partnership—without losing sight of measurable outcomes.
+            </p>
+          </header>
+
+          <div
+            class="creative-signal-band"
+            role="list"
+            aria-label="Engagement model attributes"
+          >
+            {
+              engagementSignals.map(signal => (
+                <div class="creative-signal-band__item" role="listitem">
+                  <p class="creative-signal-band__label">{signal.label}</p>
+                  <p class="creative-signal-band__value">{signal.value}</p>
+                </div>
+              ))
+            }
+          </div>
+
+          <div
+            class="creative-feature-list"
+            aria-label="Engagement section benefits"
+          >
+            <div class="creative-feature-bullet">
+              <span aria-hidden="true"></span>
+              <p>Shorter routes into executive alignment and scope clarity.</p>
+            </div>
+            <div class="creative-feature-bullet">
+              <span aria-hidden="true"></span>
+              <p>Clear packaging for teams that need momentum without chaos.</p>
+            </div>
+            <div class="creative-feature-bullet">
+              <span aria-hidden="true"></span>
+              <p>Flexible depth without turning the site visit into a maze.</p>
+            </div>
+          </div>
+        </div>
+        <div
+          class="grid gap-6 lg:grid-cols-3"
+          role="list"
+          aria-label="Engagement track options"
+        >
+          {
+            engagementTracks.map((option, index) => (
+              <article
+                class="creative-panel flex h-full flex-col gap-5 p-6 transition-all duration-300 focus-within:ring-2 focus-within:ring-indigo-500/50"
+                role="listitem"
+                aria-labelledby={`track-${index}-title`}
               >
-                {option.deliverables.map(item => (
-                  <li class="flex items-start gap-2">
-                    <span
-                      class="mt-1 inline-flex h-2 w-2 flex-shrink-0 rounded-full bg-[rgba(99,102,241,0.55)]"
-                      aria-hidden="true"
-                    />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </article>
-          ))
-        }
+                <div class="creative-panel-index">0{index + 1}</div>
+                <div class="flex items-baseline justify-between text-slate-200">
+                  <h3
+                    id={`track-${index}-title`}
+                    class="text-lg font-semibold text-white"
+                  >
+                    {option.name}
+                  </h3>
+                  <span
+                    class="creative-pill"
+                    aria-label={`Timeline: ${option.timeline}`}
+                  >
+                    {option.timeline}
+                  </span>
+                </div>
+                <p class="text-sm text-slate-300">{option.summary}</p>
+                <ul
+                  class="space-y-2 text-sm text-slate-300/90"
+                  aria-label={`Deliverables for ${option.name}`}
+                >
+                  {option.deliverables.map(item => (
+                    <li class="flex items-start gap-2">
+                      <span
+                        class="mt-1 inline-flex h-2 w-2 flex-shrink-0 rounded-full bg-[rgba(204,255,0,0.7)] shadow-[0_0_12px_rgba(204,255,0,0.35)]"
+                        aria-hidden="true"
+                      />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </article>
+            ))
+          }
+        </div>
+      </div>
+
+      <div class="creative-section-footer mt-10">
+        <p class="creative-section-footer__copy">
+          Need the fastest route? Start with a scoped engagement and expand only
+          when the signal is undeniable.
+        </p>
+        <div class="flex flex-wrap gap-3">
+          <a class="creative-chip" href={withBasePath('contact-hq/')}
+            >Open contact HQ</a
+          >
+          <a class="creative-chip" href={withBasePath('services/')}
+            >Compare service lanes</a
+          >
+        </div>
       </div>
     </div>
   </div>

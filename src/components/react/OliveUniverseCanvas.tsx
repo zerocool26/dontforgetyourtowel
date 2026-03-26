@@ -2912,6 +2912,8 @@ export default function OliveUniverseCanvas({
   onWarmCountChange,
   onReady,
 }: OliveUniverseCanvasProps) {
+  const canvasRootRef = useRef<HTMLDivElement>(null);
+  const activePointerIdRef = useRef<number | null>(null);
   const deviceMemory = useMemo(() => getDeviceMemory(), []);
   const lowMemoryDevice =
     typeof deviceMemory === 'number' && deviceMemory > 0 && deviceMemory <= 4;
@@ -3051,7 +3053,9 @@ export default function OliveUniverseCanvas({
   }, []);
 
   useEffect(() => {
-    if (typeof window === 'undefined') {
+    const node = canvasRootRef.current;
+
+    if (typeof window === 'undefined' || !node) {
       return;
     }
 
@@ -3078,9 +3082,23 @@ export default function OliveUniverseCanvas({
       syncPointerMode();
       updatePointerTarget(event.clientX, event.clientY);
       pointerSignalRef.current.active = true;
+      activePointerIdRef.current = event.pointerId;
+
+      try {
+        node.setPointerCapture(event.pointerId);
+      } catch {
+        // Pointer capture can fail on some browsers/devices; the scene still works without it.
+      }
     };
 
     const handlePointerMove = (event: PointerEvent) => {
+      if (
+        activePointerIdRef.current !== null &&
+        event.pointerId !== activePointerIdRef.current
+      ) {
+        return;
+      }
+
       if (shouldIgnoreCanvasPointerTarget(event.target)) {
         return;
       }
@@ -3097,31 +3115,64 @@ export default function OliveUniverseCanvas({
       }
     };
 
-    const clearPointer = () => {
+    const clearPointer = (event?: PointerEvent) => {
       pointerSignalRef.current.active = false;
       pointerSignalRef.current.target.multiplyScalar(
         pointerSignalRef.current.coarse ? 0.35 : 0.6
       );
+
+      if (
+        event &&
+        activePointerIdRef.current !== null &&
+        event.pointerId !== activePointerIdRef.current
+      ) {
+        return;
+      }
+
+      const pointerId = activePointerIdRef.current;
+      activePointerIdRef.current = null;
+
+      if (pointerId !== null && node.hasPointerCapture(pointerId)) {
+        try {
+          node.releasePointerCapture(pointerId);
+        } catch {
+          // Ignore release failures; capture state is best-effort.
+        }
+      }
+    };
+
+    const handlePointerLeave = () => {
+      if (activePointerIdRef.current !== null) {
+        return;
+      }
+
+      clearPointer();
+    };
+
+    const handleBlur = () => {
+      clearPointer();
     };
 
     syncPointerMode();
 
-    window.addEventListener('pointerdown', handlePointerDown, {
+    node.addEventListener('pointerdown', handlePointerDown, {
       passive: true,
     });
-    window.addEventListener('pointermove', handlePointerMove, {
+    node.addEventListener('pointermove', handlePointerMove, {
       passive: true,
     });
+    node.addEventListener('pointerleave', handlePointerLeave);
     window.addEventListener('pointerup', clearPointer, { passive: true });
     window.addEventListener('pointercancel', clearPointer);
-    window.addEventListener('blur', clearPointer);
+    window.addEventListener('blur', handleBlur);
 
     return () => {
-      window.removeEventListener('pointerdown', handlePointerDown);
-      window.removeEventListener('pointermove', handlePointerMove);
+      node.removeEventListener('pointerdown', handlePointerDown);
+      node.removeEventListener('pointermove', handlePointerMove);
+      node.removeEventListener('pointerleave', handlePointerLeave);
       window.removeEventListener('pointerup', clearPointer);
       window.removeEventListener('pointercancel', clearPointer);
-      window.removeEventListener('blur', clearPointer);
+      window.removeEventListener('blur', handleBlur);
     };
   }, []);
 
@@ -3327,7 +3378,7 @@ export default function OliveUniverseCanvas({
   }, [pendingWarmSceneKey, warmBatchSize, warmStepMs]);
 
   return (
-    <div className="universe-canvas" aria-hidden="true">
+    <div ref={canvasRootRef} className="universe-canvas" aria-hidden="true">
       <Canvas
         frameloop={shouldAnimate ? 'always' : 'demand'}
         camera={{ position: [0, 0, 9], fov: 60, near: 0.1, far: 200 }}

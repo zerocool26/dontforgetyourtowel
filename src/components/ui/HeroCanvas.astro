@@ -30,7 +30,12 @@ const { className = '', variant = 'auto' } = Astro.props;
     const ROOT_SELECTOR = '[data-hero-root]';
     const BOOT_FLAG = 'heroBoot';
 
-    const root = document.querySelector(ROOT_SELECTOR);
+    const script = document.currentScript;
+    const root =
+      script?.previousElementSibling instanceof HTMLElement &&
+      script.previousElementSibling.matches(ROOT_SELECTOR)
+        ? script.previousElementSibling
+        : null;
     if (!root) return;
 
     const host = root.closest('[data-hero-canvas-shell]') || root;
@@ -118,11 +123,7 @@ const { className = '', variant = 'auto' } = Astro.props;
     window.setTimeout(() => {
       var booted = false;
       try {
-        booted =
-          (document.documentElement &&
-            document.documentElement.dataset &&
-            document.documentElement.dataset[BOOT_FLAG] === '1') ||
-          (root.dataset && root.dataset[BOOT_FLAG] === '1');
+        booted = root.dataset && root.dataset[BOOT_FLAG] === '1';
       } catch {
         booted = false;
       }

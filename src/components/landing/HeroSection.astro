@@ -45,18 +45,20 @@ const resolvedSecondaryCta =
   <div
     class="mx-auto w-full max-w-6xl px-6 pb-12 pt-20 sm:px-10 sm:pb-16 sm:pt-24"
   >
+    <!-- Top accent rule -->
     <div
-      class="pointer-events-none mb-6 rounded-2xl border border-white/5 bg-white/[0.02] p-3 backdrop-blur-xl sm:mb-10"
+      class="pointer-events-none mb-6 rounded-2xl border border-white/[0.04] bg-white/[0.01] p-3 backdrop-blur-xl sm:mb-10"
       aria-hidden="true"
     >
       <div
-        class="h-px w-full rounded-full bg-gradient-to-r from-transparent via-white/40 to-transparent"
+        class="h-px w-full rounded-full bg-gradient-to-r from-transparent via-[#ccff00]/30 to-transparent"
       >
       </div>
     </div>
 
+    <!-- Canvas viewport -->
     <div
-      class="relative overflow-hidden rounded-2xl border border-white/10 bg-[#050505]/60 shadow-[0_0_80px_rgba(0,0,0,0.8)]"
+      class="relative overflow-hidden rounded-2xl border border-white/[0.06] bg-[#030303]/80 shadow-[0_0_80px_rgba(0,0,0,0.8),_0_0_0_1px_rgba(255,255,255,0.03)]"
       data-hero-canvas-shell
     >
       <div
@@ -68,11 +70,16 @@ const resolvedSecondaryCta =
         />
         <div class="pointer-events-none absolute inset-0">
           <div
-            class="absolute inset-0 bg-gradient-to-b from-[#000000]/80 via-transparent to-[#000000]/80"
+            class="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-black/80"
           >
           </div>
           <div
-            class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_30%,#000000_100%)] opacity-80"
+            class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_30%,#000000_100%)] opacity-70"
+          >
+          </div>
+          <!-- Subtle accent glow at bottom -->
+          <div
+            class="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#ccff00]/20 to-transparent"
           >
           </div>
         </div>
@@ -81,28 +88,34 @@ const resolvedSecondaryCta =
 
     <div class="mt-6 grid gap-6 sm:mt-8">
       <div
-        class="pointer-events-auto relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] p-6 shadow-2xl backdrop-blur-3xl sm:p-10"
+        class="pointer-events-auto relative overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.015] p-6 shadow-[0_8px_40px_rgba(0,0,0,0.6)] backdrop-blur-3xl sm:p-10"
       >
+        <!-- Glass highlight -->
         <div
-          class="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/[0.04] to-transparent"
+          class="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/[0.04] via-transparent to-[#ccff00]/[0.02]"
+        >
+        </div>
+        <!-- Top inner accent -->
+        <div
+          class="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.08] to-transparent"
         >
         </div>
         <p
-          class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-white"
+          class="creative-kicker inline-flex items-center gap-2 rounded-full border border-[#ccff00]/20 bg-[#ccff00]/[0.06] px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-[#ccff00]/80"
         >
           <span
-            class="h-1.5 w-1.5 rounded-full bg-[#ccff00] shadow-[0_0_12px_rgba(204,255,0,0.8)]"
+            class="h-1.5 w-1.5 animate-pulse rounded-full bg-[#ccff00] shadow-[0_0_8px_rgba(204,255,0,0.6),_0_0_16px_rgba(204,255,0,0.3)]"
             aria-hidden="true"></span>
           {badge}
         </p>
 
         <h1
-          class="mt-8 text-balance font-display text-5xl font-medium !leading-[1.05] tracking-tighter text-white sm:text-6xl lg:text-7xl"
+          class="mt-8 text-balance bg-gradient-to-b from-white via-white to-white/60 bg-clip-text font-display text-5xl font-medium !leading-[1.05] tracking-tighter text-transparent sm:text-6xl lg:text-7xl"
         >
           {headline}
         </h1>
         <p
-          class="mt-6 max-w-2xl text-pretty text-lg font-light leading-relaxed text-neutral-400 sm:text-xl"
+          class="mt-6 max-w-2xl text-pretty text-lg font-light leading-relaxed text-white/40 sm:text-xl"
         >
           {subheading}
         </p>
@@ -118,7 +131,7 @@ const resolvedSecondaryCta =
           </ModernButton>
           <a
             href={withBasePath('contact-hq/')}
-            class="inline-flex min-h-[48px] items-center justify-center rounded-lg border border-white/10 bg-transparent px-5 text-sm font-medium tracking-wide text-neutral-400 transition-all duration-300 hover:border-white/30 hover:text-white"
+            class="inline-flex min-h-[48px] items-center justify-center rounded-full border border-white/[0.08] bg-transparent px-6 text-sm font-medium tracking-wide text-white/40 transition-all duration-300 hover:border-white/20 hover:bg-white/[0.03] hover:text-white"
           >
             CONTACT HQ
           </a>
@@ -139,17 +152,17 @@ const resolvedSecondaryCta =
 
         <div class="mt-6 flex flex-wrap gap-2">
           <span
-            class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-wide text-neutral-300"
+            class="creative-pill rounded-full border border-[#ccff00]/15 bg-[#ccff00]/[0.04] px-3 py-1 text-[11px] uppercase tracking-wide text-[#ccff00]/60"
           >
             Story-driven UI
           </span>
           <span
-            class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-wide text-neutral-300"
+            class="creative-pill rounded-full border border-white/[0.08] bg-white/[0.03] px-3 py-1 text-[11px] uppercase tracking-wide text-white/40"
           >
             Motion with intention
           </span>
           <span
-            class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-wide text-neutral-300"
+            class="creative-pill rounded-full border border-white/[0.08] bg-white/[0.03] px-3 py-1 text-[11px] uppercase tracking-wide text-white/40"
           >
             Static-first speed
           </span>
