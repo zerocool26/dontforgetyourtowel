@@ -10,3667 +10,970 @@ import {
 } from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Stars, Sparkles } from '@react-three/drei';
+import { Sparkles, Stars } from '@react-three/drei';
 import {
-  CHAPTER_ATMOSPHERES,
-  CAMERA_KF,
-  CHAPTERS,
-  getDeviceMemory,
+  Bloom,
+  ChromaticAberration,
+  EffectComposer,
+  Noise,
+  Vignette,
+} from '@react-three/postprocessing';
+import { BlendFunction } from 'postprocessing';
+import {
+  SCENE_PALETTE,
   type QualityTier,
-  type SceneLensMode,
   type SceneProfile,
 } from './olive-universe-config';
-import { SCENE_LENS_CAMERA_SETTINGS } from './olive-universe-scene-lens';
 
 type OliveDebugWindow = Window & {
   __OLIVE_FORCE_STABILITY_ASSIST__?: boolean;
 };
 
-type IdleCapableWindow = Window & {
-  requestIdleCallback?: (
-    callback: IdleRequestCallback,
-    options?: IdleRequestOptions
-  ) => number;
-  cancelIdleCallback?: (handle: number) => void;
-};
-
-type OliveUniversePostFxComponent =
-  typeof import('./OliveUniversePostFx').default;
-
-type OliveUniverseSceneOverlaysComponent =
-  typeof import('./OliveUniverseSceneOverlays').default;
-
-export type CanvasTouchFieldState = 'idle' | 'tracking' | 'surging' | 'cooling';
-
-export type CanvasTouchMomentumState = 'idle' | 'gliding' | 'surging';
-
-export type CanvasPointerSignal = {
+type PointerField = {
   target: THREE.Vector2;
-  position: THREE.Vector2;
-  velocity: THREE.Vector2;
-  energy: number;
-  fieldEnergy: number;
-  momentum: number;
-  performanceFactor: number;
-  active: boolean;
-  coarse: boolean;
-  fieldState: CanvasTouchFieldState;
+  current: THREE.Vector2;
+  down: boolean;
+  burst: number;
+  engagement: number;
 };
 
-type ViewportSize = {
-  width: number;
-  height: number;
-};
-
-const MOBILE_CANVAS_BREAKPOINT = 960;
-
-function shouldIgnoreCanvasPointerTarget(target: EventTarget | null) {
-  if (!(target instanceof HTMLElement)) {
-    return false;
-  }
-
-  return Boolean(
-    target.closest(
-      '.universe-story-panel, .universe-progress, .universe-mobile-dock, .universe-mobile-feedback-rail, .universe-content'
-    )
-  );
-}
-
-function getViewportSize(): ViewportSize {
-  if (typeof window === 'undefined') {
-    return { width: 1, height: 1 };
-  }
-
-  return {
-    width: Math.max(1, window.innerWidth || 1),
-    height: Math.max(1, window.innerHeight || 1),
-  };
-}
-
-function getCanvasPixelBudget(
-  quality: QualityTier,
-  profile: SceneProfile,
-  lowMemoryDevice: boolean,
-  mobileOptimized: boolean,
-  compactViewport: boolean
-) {
-  if (lowMemoryDevice) {
-    return compactViewport ? 820_000 : 960_000;
-  }
-
-  if (mobileOptimized) {
-    if (!profile.enablePostFx) {
-      return compactViewport ? 980_000 : 1_120_000;
-    }
-
-    return quality === 'high'
-      ? compactViewport
-        ? 1_320_000
-        : 1_480_000
-      : compactViewport
-        ? 1_160_000
-        : 1_320_000;
-  }
-
-  if (!profile.enablePostFx) {
-    return quality === 'high' ? 2_200_000 : 1_900_000;
-  }
-
-  return quality === 'high' ? 3_200_000 : 2_600_000;
-}
-
-function getViewportAwareDpr(
-  devicePixelRatio: number,
-  canvasDprCap: number,
-  viewportSize: ViewportSize,
-  pixelBudget: number
-) {
-  const cappedDevicePixelRatio = Math.max(1, devicePixelRatio || 1);
-  const viewportPixels = Math.max(1, viewportSize.width * viewportSize.height);
-  const budgetDpr = Math.sqrt(pixelBudget / viewportPixels);
-
-  return Math.max(1, Math.min(cappedDevicePixelRatio, canvasDprCap, budgetDpr));
-}
-
-// Simplex noise (Ashima Arts / Stefan Gustavson — public domain)
-const SIMPLEX_GLSL = /* glsl */ `
-  vec3 _s_mod289v3(vec3 x){return x-floor(x*(1.0/289.0))*289.0;}
-  vec4 _s_mod289v4(vec4 x){return x-floor(x*(1.0/289.0))*289.0;}
-  vec4 _s_permute(vec4 x){return _s_mod289v4(((x*34.0)+10.0)*x);}
-  vec4 _s_taylorInvSqrt(vec4 r){return 1.79284291400159-0.85373472095314*r;}
-  float snoise(vec3 v){
-    const vec2 C=vec2(1.0/6.0,1.0/3.0);
-    const vec4 D=vec4(0.0,0.5,1.0,2.0);
-    vec3 i=floor(v+dot(v,C.yyy));
-    vec3 x0=v-i+dot(i,C.xxx);
-    vec3 g=step(x0.yzx,x0.xyz);
-    vec3 l=1.0-g;
-    vec3 i1=min(g.xyz,l.zxy);
-    vec3 i2=max(g.xyz,l.zxy);
-    vec3 x1=x0-i1+C.xxx;
-    vec3 x2=x0-i2+C.yyy;
-    vec3 x3=x0-D.yyy;
-    i=_s_mod289v3(i);
-    vec4 p=_s_permute(_s_permute(_s_permute(i.z+vec4(0.0,i1.z,i2.z,1.0))+i.y+vec4(0.0,i1.y,i2.y,1.0))+i.x+vec4(0.0,i1.x,i2.x,1.0));
-    float n_=0.142857142857;
-    vec3 ns=n_*D.wyz-D.xzx;
-    vec4 j=p-49.0*floor(p*ns.z*ns.z);
-    vec4 x_=floor(j*ns.z);
-    vec4 y_=floor(j-7.0*x_);
-    vec4 x=x_*ns.x+ns.yyyy;
-    vec4 y=y_*ns.x+ns.yyyy;
-    vec4 h=1.0-abs(x)-abs(y);
-    vec4 b0=vec4(x.xy,y.xy);
-    vec4 b1=vec4(x.zw,y.zw);
-    vec4 s0=floor(b0)*2.0+1.0;
-    vec4 s1=floor(b1)*2.0+1.0;
-    vec4 sh=-step(h,vec4(0.0));
-    vec4 a0=b0.xzyw+s0.xzyw*sh.xxyy;
-    vec4 a1=b1.xzyw+s1.xzyw*sh.zzww;
-    vec3 p0=vec3(a0.xy,h.x);
-    vec3 p1=vec3(a0.zw,h.y);
-    vec3 p2=vec3(a1.xy,h.z);
-    vec3 p3=vec3(a1.zw,h.w);
-    vec4 norm=_s_taylorInvSqrt(vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3)));
-    p0*=norm.x;p1*=norm.y;p2*=norm.z;p3*=norm.w;
-    vec4 m=max(0.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.0);
-    m=m*m;
-    return 42.0*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));
-  }
-`;
-
-const PARTICLE_VERT = /* glsl */ `
-  ${SIMPLEX_GLSL}
-
-  uniform float uTime;
-  uniform float uMorph;
-  uniform vec2  uMouse;
-  uniform float uEnergy;
-  attribute vec3  aTarget;
-  attribute float aSeed;
-
-  void main() {
-    // Fibonacci sphere distribution — better coverage than random
-    float phi   = aSeed * 6.28318 * 137.50776;
-    float cosT  = 1.0 - 2.0 * fract(aSeed * 0.61803398);
-    float sinT  = sqrt(max(0.0, 1.0 - cosT * cosT));
-    float r     = 4.2 + snoise(vec3(aSeed * 2.3, uTime * 0.055, 0.0)) * 2.1;
-
-    vec3 chaos = vec3(
-      cos(phi) * sinT * r,
-      cosT * 2.4,
-      sin(phi) * sinT * r
-    );
-
-    // Layered simplex turbulence for organic galaxy drift
-    float tScale = 0.32;
-    float tTime  = uTime * 0.052;
-    vec3 turb = vec3(
-      snoise(vec3(chaos.xy * tScale, tTime)),
-      snoise(vec3(chaos.yz * tScale, tTime + 1.7)),
-      snoise(vec3(chaos.xz * tScale, tTime + 3.1))
-    ) * (1.0 - smoothstep(0.55, 1.0, uMorph)) * 2.2;
-
-    vec3 pos = mix(chaos + turb, aTarget, smoothstep(0.0, 1.0, uMorph));
-
-    // Mouse repulsion with energy-boosted radius
-    float repulseR = 2.6 + uEnergy * 1.2;
-    vec2 mw = uMouse * 5.8;
-    vec2 d2 = pos.xy - mw;
-    float md = length(d2);
-    if (md < repulseR && md > 0.01) {
-      float strength = (repulseR - md) / repulseR;
-      pos.xy += normalize(d2) * strength * strength * repulseR * (1.0 - uMorph * 0.35) * (1.0 + uEnergy);
-    }
-
-    // Organic breathing on formed text
-    float breathAmt = uMorph * 0.055;
-    float bx = snoise(vec3(aSeed * 1.1, uTime * 0.62, 0.5));
-    float by = snoise(vec3(aSeed * 1.4, uTime * 0.48, 1.3));
-    float bz = snoise(vec3(aSeed * 1.7, uTime * 0.54, 2.6));
-    pos += vec3(bx, by, bz) * breathAmt;
-
-    vec4 mvPos = modelViewMatrix * vec4(pos, 1.0);
-    gl_Position = projectionMatrix * mvPos;
-
-    // Point size: depth-attenuated, pulse-animated, energy-boosted
-    float pulse = 1.0 + snoise(vec3(aSeed * 3.2, uTime * 1.6, 0.0)) * 0.28;
-    float energyBoost = 1.0 + uEnergy * 0.55;
-    gl_PointSize = clamp(pulse * energyBoost * 310.0 / -mvPos.z, 1.0, 9.0);
-  }
-`;
-
-const PARTICLE_FRAG = /* glsl */ `
-  uniform vec3  uColor;
-  uniform float uMorph;
-  uniform float uVisibility;
-  uniform float uEnergy;
-  void main() {
-    vec2  uv = gl_PointCoord - 0.5;
-    float d  = length(uv);
-    if (d > 0.5) discard;
-
-    // Layered disc: hard core + soft halo
-    float core = 1.0 - smoothstep(0.0, 0.18, d);
-    float soft = 1.0 - smoothstep(0.14, 0.50, d);
-    float glow = (1.0 - d * 1.9) * uMorph;
-
-    // Energy pulse brightens core
-    float energyPulse = 1.0 + uEnergy * 0.7 * core;
-
-    float alpha = (soft * (0.42 + uMorph * 0.58) + glow * 0.55 + uEnergy * core * 0.28)
-                  * uVisibility * energyPulse;
-
-    // Color: base + additive glow + energy shift
-    vec3 col = uColor
-             + vec3(glow * 0.55 * uVisibility)
-             + uColor * uEnergy * core * 0.5;
-
-    gl_FragColor = vec4(col, clamp(alpha, 0.0, 1.0));
-  }
-`;
-
-const NEURAL_VERT = /* glsl */ `
-  attribute float aP;
-  varying float vP;
-  void main() {
-    vP = aP;
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-  }
-`;
-
-const NEURAL_FRAG = /* glsl */ `
-  uniform float uTime;
-  uniform vec3  uColor;
-  uniform float uEnergy;
-  varying float vP;
-  void main() {
-    // Dual traveling pulse waves — primary fast, secondary slower offset
-    float p1 = fract(vP - uTime * 0.42);
-    float p2 = fract(vP - uTime * 0.26 + 0.5);
-
-    float i1 = exp(-p1 * 6.2) * 0.88;
-    float i2 = exp(-p2 * 9.0) * 0.38;
-
-    // Base line glow
-    float base = 0.06 + uEnergy * 0.08;
-    float i = clamp(i1 + i2 + base, 0.0, 1.0);
-
-    // Hot core at pulse head
-    vec3 hotColor = mix(uColor, vec3(1.0), i1 * 0.45 + uEnergy * 0.2);
-
-    gl_FragColor = vec4(hotColor * i, i * 0.92);
-  }
-`;
-
-const SHIELD_VERT = /* glsl */ `
-  varying vec3 vW;
-  varying vec3 vN;
-  void main() {
-    vec4 wp = modelMatrix * vec4(position, 1.0);
-    vW = wp.xyz;
-    vN = normalize(normalMatrix * normal);
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-  }
-`;
-
-const SHIELD_FRAG = /* glsl */ `
-  uniform float uTime;
-  uniform vec3  uColor;
-  uniform float uEnergy;
-  varying vec3  vW;
-  varying vec3  vN;
-  void main() {
-    float dist = length(vW);
-
-    // Multi-frequency interference rings
-    float r1 = sin(dist * 3.8 - uTime * 1.55) * 0.5 + 0.5;
-    float r2 = sin(dist * 7.4 - uTime * 2.4  + 1.1) * 0.5 + 0.5;
-    float r3 = sin(dist * 14.0 - uTime * 3.8 + 2.6) * 0.5 + 0.5;
-    float rings = r1 * 0.5 + r2 * 0.32 + r3 * 0.18;
-
-    // Proper view-dependent Fresnel (Schlick approximation)
-    vec3  vd      = normalize(cameraPosition - vW);
-    float NdotV   = clamp(dot(normalize(vN), vd), 0.0, 1.0);
-    float fresnel = 1.0 - NdotV;
-    fresnel = fresnel * fresnel * fresnel * fresnel; // pow4 — sharper rim
-
-    // Energy-reactive pulse from interaction
-    float energyRing = sin(dist * 5.2 - uTime * 4.0) * 0.5 + 0.5;
-    float energyContrib = energyRing * uEnergy * 0.55;
-
-    float c = rings * 0.3 + fresnel * 0.6 + energyContrib;
-
-    // Chromatic rim — slight blue-shift at grazing angles
-    vec3 rimColor  = mix(uColor, vec3(0.6, 0.9, 1.0), fresnel * 0.5);
-    vec3 coreColor = mix(uColor, vec3(1.0), energyContrib * 0.6);
-    vec3 col = mix(coreColor, rimColor, fresnel);
-
-    gl_FragColor = vec4(col, clamp(c * 0.68 + uEnergy * 0.08, 0.0, 1.0));
-  }
-`;
-
-const DATA_VERT = /* glsl */ `
-  attribute float aI;
-  uniform float uTime;
-  uniform float uEnergy;
-  varying float vH;
-  varying float vY;
-  void main() {
-    float col = mod(aI, 12.0);
-    float row = floor(aI / 12.0);
-
-    // Layered wave animation — primary + harmonic + energy burst
-    float wave1 = sin(uTime * 1.75 + col * 0.62 + row * 0.78) * 0.5 + 0.5;
-    float wave2 = cos(uTime * 1.15 + col * 0.41) * 0.5 + 0.5;
-    float wave3 = sin(uTime * 3.20 + col * 1.10 + row * 0.44) * 0.5 + 0.5;
-
-    float h = wave1 * wave2 * 2.6 + wave3 * 0.28 * uEnergy + 0.1;
-
-    vec3 pos = position;
-    pos.y = pos.y * h + h * 0.5 - 1.0;
-
-    vH = h;
-    vY = pos.y;  // pass world-space Y for gradient
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
-  }
-`;
-
-const DATA_FRAG = /* glsl */ `
-  uniform vec3  uColor;
-  uniform float uEnergy;
-  varying float vH;
-  varying float vY;
-  void main() {
-    // Vertical gradient: dim base → bright top
-    float gradient = clamp(vH * 0.42 + 0.12, 0.0, 1.0);
-    vec3  col      = mix(uColor * 0.18, uColor, gradient);
-
-    // White-hot cap at peak bars
-    float cap = smoothstep(0.7, 1.0, vH / 2.6);
-    col = mix(col, vec3(1.0), cap * 0.55);
-
-    // Energy flare
-    col += uColor * uEnergy * cap * 0.6;
-
-    // Thin edge glow on top faces
-    float edge = smoothstep(0.82, 1.0, vH / 2.6);
-    float alpha = 0.82 + edge * 0.15;
-
-    gl_FragColor = vec4(col, alpha);
-  }
-`;
-
-function sampleText(text: string, count: number): Float32Array {
-  if (typeof document === 'undefined') return new Float32Array(count * 3);
-  const W = 640;
-  const H = 160;
-  const cvs = document.createElement('canvas');
-  cvs.width = W;
-  cvs.height = H;
-  const ctx = cvs.getContext('2d');
-  if (!ctx) return new Float32Array(count * 3);
-
-  // Anti-aliased render for cleaner letter outlines
-  ctx.clearRect(0, 0, W, H);
-  ctx.fillStyle = '#fff';
-  ctx.font = 'bold 78px "Space Grotesk", "Inter", system-ui, sans-serif';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(text, W / 2, H / 2);
-
-  const { data } = ctx.getImageData(0, 0, W, H);
-  const pts: [number, number][] = [];
-  for (let y = 0; y < H; y += 2)
-    for (let x = 0; x < W; x += 2)
-      if (data[(y * W + x) * 4 + 3] > 80) pts.push([x, y]);
-
-  const out = new Float32Array(count * 3);
-  if (pts.length === 0) return out;
-
-  // Stratified random sampling — avoids clustering, covers shape evenly
-  const stride = pts.length / count;
-  for (let i = 0; i < count; i++) {
-    const base = Math.floor(i * stride);
-    const offset = Math.floor(Math.random() * Math.min(stride, 4));
-    const p = pts[Math.min(base + offset, pts.length - 1)];
-    if (p) {
-      out[i * 3] = (p[0] / W - 0.5) * 12.0;
-      out[i * 3 + 1] = -(p[1] / H - 0.5) * 3.0;
-      out[i * 3 + 2] = (Math.random() - 0.5) * 0.5;
-    }
-  }
-  return out;
-}
-
-function catmullRom(
-  v0: number,
-  v1: number,
-  v2: number,
-  v3: number,
-  t: number
-): number {
-  const t2 = t * t;
-  const t3 = t2 * t;
-  return (
-    0.5 *
-    (2 * v1 +
-      (-v0 + v2) * t +
-      (2 * v0 - 5 * v1 + 4 * v2 - v3) * t2 +
-      (-v0 + 3 * v1 - 3 * v2 + v3) * t3)
-  );
-}
-
-function catmullRom3(
-  p0: readonly [number, number, number],
-  p1: readonly [number, number, number],
-  p2: readonly [number, number, number],
-  p3: readonly [number, number, number],
-  t: number
-): [number, number, number] {
-  return [
-    catmullRom(p0[0], p1[0], p2[0], p3[0], t),
-    catmullRom(p0[1], p1[1], p2[1], p3[1], t),
-    catmullRom(p0[2], p1[2], p2[2], p3[2], t),
-  ];
-}
-
-function camAtT(t: number) {
-  const kf = CAMERA_KF;
-  if (t <= kf[0].t) return { pos: kf[0].pos, look: kf[0].look };
-  const last = kf[kf.length - 1];
-  if (t >= last.t) return { pos: last.pos, look: last.look };
-
-  for (let i = 0; i < kf.length - 1; i++) {
-    if (t >= kf[i].t && t <= kf[i + 1].t) {
-      const local = (t - kf[i].t) / (kf[i + 1].t - kf[i].t);
-
-      // Catmull-Rom control points — clamp ghost points at ends
-      const p0 = kf[Math.max(0, i - 1)];
-      const p1 = kf[i];
-      const p2 = kf[i + 1];
-      const p3 = kf[Math.min(kf.length - 1, i + 2)];
-
-      return {
-        pos: catmullRom3(p0.pos, p1.pos, p2.pos, p3.pos, local),
-        look: catmullRom3(p0.look, p1.look, p2.look, p3.look, local),
-      };
-    }
-  }
-  return { pos: kf[0].pos, look: kf[0].look };
-}
-
-function mergeSceneIndices(
-  current: number[],
-  candidates: number[],
-  totalCount: number
-) {
-  const next = new Set(current);
-
-  for (const candidate of candidates) {
-    if (candidate >= 0 && candidate < totalCount) {
-      next.add(candidate);
-    }
-  }
-
-  return Array.from(next).sort((a, b) => a - b);
-}
-
-function getSceneWarmPriority(centerIndex: number, totalCount: number) {
-  const order: number[] = [];
-  const seen = new Set<number>();
-
-  const push = (index: number) => {
-    if (index < 0 || index >= totalCount || seen.has(index)) {
-      return;
-    }
-
-    seen.add(index);
-    order.push(index);
-  };
-
-  push(centerIndex);
-  push(centerIndex - 1);
-  push(centerIndex + 1);
-
-  for (let offset = 2; offset < totalCount; offset += 1) {
-    push(centerIndex + offset);
-    push(centerIndex - offset);
-  }
-
-  return order;
-}
-
-function getSceneNeighborhood(
-  centerIndex: number,
-  totalCount: number,
-  radius = 1
-) {
-  const indices: number[] = [];
-
-  for (let offset = -radius; offset <= radius; offset += 1) {
-    const sceneIndex = centerIndex + offset;
-
-    if (sceneIndex >= 0 && sceneIndex < totalCount) {
-      indices.push(sceneIndex);
-    }
-  }
-
-  return indices;
-}
-
-function getSceneJumpCorridor(
-  fromIndex: number,
-  toIndex: number,
-  totalCount: number
-) {
-  const indices: number[] = [];
-  const start = Math.min(fromIndex, toIndex);
-  const end = Math.max(fromIndex, toIndex);
-
-  for (let sceneIndex = start; sceneIndex <= end; sceneIndex += 1) {
-    if (sceneIndex >= 0 && sceneIndex < totalCount) {
-      indices.push(sceneIndex);
-    }
-  }
-
-  return indices;
-}
-
-function getImmediateSceneWindow(
-  activeChapterIndex: number,
-  previousChapterIndex: number,
-  totalCount: number
-) {
-  return mergeSceneIndices(
-    getSceneNeighborhood(previousChapterIndex, totalCount),
-    getSceneNeighborhood(activeChapterIndex, totalCount),
-    totalCount
-  );
-}
-
-function getCanvasDprCap(
-  quality: QualityTier,
-  profile: SceneProfile,
-  lowMemoryDevice: boolean
-) {
-  if (lowMemoryDevice) {
-    return profile.enablePostFx ? 1.08 : 1;
-  }
-
-  if (quality === 'low') {
-    return 1;
-  }
-
-  if (!profile.enablePostFx) {
-    return 1.15;
-  }
-
-  if (!profile.pointerParallax) {
-    return quality === 'high' ? 1.3 : 1.2;
-  }
-
-  return quality === 'high' ? 1.85 : 1.45;
-}
-
-function getScenePerformanceBudget(performanceFactor: number) {
-  const clampedPerformanceFactor = THREE.MathUtils.clamp(
-    Number.isFinite(performanceFactor) ? performanceFactor : 1,
-    0.62,
-    1
-  );
-
-  return {
-    motion: 0.72 + clampedPerformanceFactor * 0.28,
-    glow: 0.68 + clampedPerformanceFactor * 0.32,
-    density: 0.64 + clampedPerformanceFactor * 0.36,
-  };
-}
-
-function getCanvasTouchFieldState(
-  enabled: boolean,
-  pointerSignal: CanvasPointerSignal,
-  interactionBurstActive: boolean
-): CanvasTouchFieldState {
-  if (!enabled) {
-    return 'idle';
-  }
-
-  if (interactionBurstActive || pointerSignal.fieldEnergy >= 0.82) {
-    return 'surging';
-  }
-
-  if (pointerSignal.active || pointerSignal.fieldEnergy >= 0.34) {
-    return 'tracking';
-  }
-
-  if (pointerSignal.fieldEnergy >= 0.08) {
-    return 'cooling';
-  }
-
-  return 'idle';
-}
-
-function getCanvasTouchMomentumState(
-  enabled: boolean,
-  pointerSignal: CanvasPointerSignal,
-  interactionBurstActive: boolean
-): CanvasTouchMomentumState {
-  if (!enabled) {
-    return 'idle';
-  }
-
-  if (interactionBurstActive || pointerSignal.momentum >= 0.88) {
-    return 'surging';
-  }
-
-  if (
-    pointerSignal.momentum >= 0.18 ||
-    pointerSignal.velocity.lengthSq() >= 0.04
-  ) {
-    return 'gliding';
-  }
-
-  return 'idle';
+export interface OliveUniverseCanvasProps {
+  quality: QualityTier;
+  sceneProfile: SceneProfile;
+  shouldAnimate: boolean;
+  mobileOptimized: boolean;
+  stabilityAssistActive: boolean;
+  interactionPulse: number;
+  onInteractionStateChange?: (state: 'idle' | 'engaged' | 'burst') => void;
+  onPerformanceBudgetExceeded?: () => void;
+  onReady?: () => void;
 }
 
 function FirstFrameReadyReporter({ onReady }: { onReady?: () => void }) {
-  const readyReportedRef = useRef(false);
+  const readyRef = useRef(false);
 
   useFrame(() => {
-    if (readyReportedRef.current) {
+    if (readyRef.current) {
       return;
     }
 
-    readyReportedRef.current = true;
+    readyRef.current = true;
     onReady?.();
   });
 
   return null;
 }
 
-function InteractionPerformanceRegressor({
-  enabled,
-  interactionBurstActive,
-  pointerSignalRef,
-}: {
-  enabled: boolean;
-  interactionBurstActive: boolean;
-  pointerSignalRef: MutableRefObject<CanvasPointerSignal>;
-}) {
-  const regress = useThree(state => state.performance.regress);
-  const lastRegressAtRef = useRef(0);
-
-  useFrame(({ clock }) => {
-    if (!enabled) {
-      return;
-    }
-
-    const pointerSignal = pointerSignalRef.current;
-    const interactionActive =
-      interactionBurstActive ||
-      pointerSignal.active ||
-      pointerSignal.fieldEnergy > 0.28;
-
-    if (!interactionActive) {
-      return;
-    }
-
-    const regressWindow =
-      (pointerSignal.coarse ? 0.18 : 0.12) *
-      (pointerSignal.performanceFactor < 0.82 ? 0.82 : 1);
-
-    if (clock.elapsedTime - lastRegressAtRef.current < regressWindow) {
-      return;
-    }
-
-    lastRegressAtRef.current = clock.elapsedTime;
-    regress();
-  });
-
-  return null;
-}
-
-function CanvasRuntimeTelemetryReporter({
-  enabled,
-  interactionBurstActive,
-  pointerSignalRef,
-  onTouchFieldStateChange,
-  onTouchMomentumStateChange,
-}: {
-  enabled: boolean;
-  interactionBurstActive: boolean;
-  pointerSignalRef: MutableRefObject<CanvasPointerSignal>;
-  onTouchFieldStateChange?: (state: CanvasTouchFieldState) => void;
-  onTouchMomentumStateChange?: (state: CanvasTouchMomentumState) => void;
-}) {
-  const currentPerformanceFactor = useThree(state => state.performance.current);
-  const lastTouchFieldStateRef = useRef<CanvasTouchFieldState>('idle');
-  const lastTouchMomentumStateRef = useRef<CanvasTouchMomentumState>('idle');
-  const lastPositionRef = useRef(new THREE.Vector2());
-  const velocityTargetRef = useRef(new THREE.Vector2());
-
-  useEffect(() => {
-    if (enabled) {
-      return;
-    }
-
-    const pointerSignal = pointerSignalRef.current;
-    pointerSignal.energy = 0;
-    pointerSignal.fieldEnergy = 0;
-    pointerSignal.velocity.set(0, 0);
-    pointerSignal.momentum = 0;
-    pointerSignal.performanceFactor = 1;
-    pointerSignal.fieldState = 'idle';
-    lastPositionRef.current.copy(pointerSignal.position);
-
-    if (lastTouchFieldStateRef.current !== 'idle') {
-      lastTouchFieldStateRef.current = 'idle';
-      onTouchFieldStateChange?.('idle');
-    }
-
-    if (lastTouchMomentumStateRef.current !== 'idle') {
-      lastTouchMomentumStateRef.current = 'idle';
-      onTouchMomentumStateChange?.('idle');
-    }
-  }, [
-    enabled,
-    onTouchFieldStateChange,
-    onTouchMomentumStateChange,
-    pointerSignalRef,
-  ]);
-
-  useFrame((_, delta) => {
-    const pointerSignal = pointerSignalRef.current;
-    const pointerActive = enabled && pointerSignal.active;
-    const previousPositionX = lastPositionRef.current.x;
-    const previousPositionY = lastPositionRef.current.y;
-    const frameDelta = Math.max(delta, 1 / 120);
-
-    pointerSignal.position.lerp(
-      pointerSignal.target,
-      pointerSignal.coarse ? 0.14 : 0.08
-    );
-    velocityTargetRef.current.set(
-      THREE.MathUtils.clamp(
-        ((pointerSignal.position.x - previousPositionX) / frameDelta) *
-          (pointerSignal.coarse ? 0.3 : 0.18),
-        -1.35,
-        1.35
-      ),
-      THREE.MathUtils.clamp(
-        ((pointerSignal.position.y - previousPositionY) / frameDelta) *
-          (pointerSignal.coarse ? 0.24 : 0.16),
-        -1.15,
-        1.15
-      )
-    );
-    lastPositionRef.current.copy(pointerSignal.position);
-
-    pointerSignal.velocity.lerp(
-      velocityTargetRef.current,
-      enabled ? (pointerActive ? 0.32 : 0.16) : 0.18
-    );
-    pointerSignal.energy = THREE.MathUtils.lerp(
-      pointerSignal.energy,
-      pointerActive ? 1 : 0,
-      pointerActive ? 0.18 : 0.07
-    );
-    pointerSignal.performanceFactor = THREE.MathUtils.lerp(
-      pointerSignal.performanceFactor,
-      enabled ? currentPerformanceFactor : 1,
-      enabled ? 0.12 : 0.18
-    );
-
-    const targetFieldEnergy = enabled
-      ? THREE.MathUtils.clamp(
-          pointerSignal.energy * (pointerSignal.coarse ? 0.92 : 0.78) +
-            (pointerSignal.active ? 0.18 : 0) +
-            (interactionBurstActive ? 0.42 : 0) +
-            (1 - pointerSignal.performanceFactor) * 0.12,
-          0,
-          1.25
-        )
-      : 0;
-
-    pointerSignal.fieldEnergy = THREE.MathUtils.lerp(
-      pointerSignal.fieldEnergy,
-      targetFieldEnergy,
-      enabled ? 0.16 : 0.12
-    );
-    pointerSignal.momentum = THREE.MathUtils.lerp(
-      pointerSignal.momentum,
-      enabled
-        ? THREE.MathUtils.clamp(
-            pointerSignal.energy * 0.34 +
-              pointerSignal.fieldEnergy * 0.42 +
-              pointerSignal.velocity.length() * 0.28 +
-              (interactionBurstActive ? 0.24 : 0) +
-              (1 - pointerSignal.performanceFactor) * 0.08,
-            0,
-            1.3
-          )
-        : 0,
-      enabled ? (pointerActive ? 0.2 : 0.12) : 0.18
-    );
-
-    const nextTouchFieldState = getCanvasTouchFieldState(
-      enabled,
-      pointerSignal,
-      interactionBurstActive
-    );
-
-    pointerSignal.fieldState = nextTouchFieldState;
-
-    if (lastTouchFieldStateRef.current !== nextTouchFieldState) {
-      lastTouchFieldStateRef.current = nextTouchFieldState;
-      onTouchFieldStateChange?.(nextTouchFieldState);
-    }
-
-    const nextTouchMomentumState = getCanvasTouchMomentumState(
-      enabled,
-      pointerSignal,
-      interactionBurstActive
-    );
-
-    if (lastTouchMomentumStateRef.current !== nextTouchMomentumState) {
-      lastTouchMomentumStateRef.current = nextTouchMomentumState;
-      onTouchMomentumStateChange?.(nextTouchMomentumState);
-    }
-  });
-
-  return null;
-}
-
-function AdaptivePerformanceDpr({
-  baseDpr,
-  enabled,
-  lowMemoryDevice,
-  compactViewport,
-  mobileOptimized,
-}: {
-  baseDpr: number;
-  enabled: boolean;
-  lowMemoryDevice: boolean;
-  compactViewport: boolean;
-  mobileOptimized: boolean;
-}) {
+function AdaptiveDpr({ baseDpr }: { baseDpr: number }) {
   const current = useThree(state => state.performance.current);
   const setDpr = useThree(state => state.setDpr);
-  const appliedDprRef = useRef<number | null>(null);
 
   useEffect(() => {
-    const floor = lowMemoryDevice
-      ? 0.72
-      : compactViewport
-        ? 0.8
-        : mobileOptimized
-          ? 0.88
-          : 0.94;
-    const dprFactor = enabled ? floor + (1 - floor) * current : 1;
-    const nextDpr = Number(
-      Math.max(1, Math.min(baseDpr, baseDpr * dprFactor)).toFixed(2)
+    const dpr = Math.max(
+      1,
+      Math.min(baseDpr, baseDpr * (0.78 + current * 0.22))
     );
-
-    if (appliedDprRef.current === nextDpr) {
-      return;
-    }
-
-    appliedDprRef.current = nextDpr;
-    setDpr(nextDpr);
-  }, [
-    baseDpr,
-    compactViewport,
-    current,
-    enabled,
-    lowMemoryDevice,
-    mobileOptimized,
-    setDpr,
-  ]);
+    setDpr(Number(dpr.toFixed(2)));
+  }, [baseDpr, current, setDpr]);
 
   return null;
-}
-
-function getWarmStepMs(
-  enablePostFx: boolean,
-  shouldAnimate: boolean,
-  lowMemoryDevice: boolean
-) {
-  if (lowMemoryDevice) {
-    if (!shouldAnimate) {
-      return enablePostFx ? 180 : 120;
-    }
-
-    return enablePostFx ? 240 : 160;
-  }
-
-  if (!shouldAnimate) {
-    return enablePostFx ? 120 : 90;
-  }
-
-  return enablePostFx ? 180 : 120;
-}
-
-function getWarmBatchSize(
-  enablePostFx: boolean,
-  shouldAnimate: boolean,
-  lowMemoryDevice: boolean
-) {
-  if (lowMemoryDevice) {
-    if (!shouldAnimate) {
-      return 3;
-    }
-
-    return enablePostFx ? 1 : 2;
-  }
-
-  if (!shouldAnimate) {
-    return enablePostFx ? 4 : 5;
-  }
-
-  return enablePostFx ? 2 : 3;
-}
-
-function getTransitionCarryMs(
-  enablePostFx: boolean,
-  jumpDistance: number,
-  shouldAnimate: boolean
-) {
-  if (!shouldAnimate) {
-    return jumpDistance > 1 ? 320 : 220;
-  }
-
-  if (!enablePostFx) {
-    return jumpDistance > 1 ? 520 : 320;
-  }
-
-  return jumpDistance > 1 ? 780 : 460;
-}
-
-function ParticleGalaxy({
-  isLive,
-  progressRef,
-  profile,
-  pointerSignalRef,
-}: {
-  isLive: boolean;
-  progressRef: MutableRefObject<number>;
-  profile: SceneProfile;
-  pointerSignalRef: MutableRefObject<CanvasPointerSignal>;
-}) {
-  const pointsRef = useRef<THREE.Points>(null);
-  const matRef = useRef<THREE.ShaderMaterial | null>(null);
-  const visibilityRef = useRef(0);
-  const count = profile.particleCount;
-
-  const geo = useMemo(() => {
-    const seeds = new Float32Array(count);
-    const pos = new Float32Array(count * 3);
-    for (let i = 0; i < count; i++) {
-      const seed = i / count;
-      seeds[i] = seed;
-      const phi = seed * Math.PI * 2 * 137.508;
-      const radius = Math.sqrt(seed) * 6.5;
-      pos[i * 3] = Math.cos(phi) * radius;
-      pos[i * 3 + 1] = (Math.random() - 0.5) * 3.5;
-      pos[i * 3 + 2] = Math.sin(phi) * radius;
-    }
-    const targets = sampleText('OLIVE', count);
-    const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-    geometry.setAttribute('aTarget', new THREE.BufferAttribute(targets, 3));
-    geometry.setAttribute('aSeed', new THREE.BufferAttribute(seeds, 1));
-    return geometry;
-  }, [count]);
-
-  const material = useMemo(
-    () =>
-      new THREE.ShaderMaterial({
-        vertexShader: PARTICLE_VERT,
-        fragmentShader: PARTICLE_FRAG,
-        uniforms: {
-          uTime: { value: 0 },
-          uMorph: { value: 0 },
-          uVisibility: { value: 0 },
-          uMouse: { value: new THREE.Vector2() },
-          uColor: { value: new THREE.Color('#ccff00') },
-          uEnergy: { value: 0 },
-        },
-        transparent: true,
-        depthWrite: false,
-        blending: THREE.AdditiveBlending,
-      }),
-    []
-  );
-
-  useEffect(() => {
-    matRef.current = material;
-  }, [material]);
-
-  useFrame(({ clock }) => {
-    if (!matRef.current) return;
-    const progress = progressRef.current ?? 0;
-    const pointerSignal = pointerSignalRef.current;
-    const performanceBudget = getScenePerformanceBudget(
-      pointerSignal.performanceFactor
-    );
-    const pointerVelocityX =
-      pointerSignal.velocity.x *
-      (pointerSignal.coarse ? 0.42 : 0.28) *
-      performanceBudget.motion;
-    const pointerVelocityY =
-      pointerSignal.velocity.y *
-      (pointerSignal.coarse ? 0.3 : 0.22) *
-      performanceBudget.motion;
-    const momentumPush =
-      pointerSignal.momentum *
-      (pointerSignal.coarse ? 0.32 : 0.2) *
-      performanceBudget.motion;
-    const mouseTargetX = pointerSignal.position.x + pointerVelocityX * 0.72;
-    const mouseTargetY = pointerSignal.position.y + pointerVelocityY * 0.58;
-    const [start, end] = CHAPTERS[0].range;
-    const visible =
-      isLive && progress >= start - 0.08 && progress <= end + 0.08;
-    const local = visible
-      ? Math.max(0, Math.min(1, (progress - start) / (end - start)))
-      : 0;
-
-    visibilityRef.current = THREE.MathUtils.lerp(
-      visibilityRef.current,
-      visible ? 1 : 0,
-      0.05
-    );
-
-    matRef.current.uniforms.uTime.value = clock.elapsedTime;
-    matRef.current.uniforms.uEnergy.value = THREE.MathUtils.lerp(
-      matRef.current.uniforms.uEnergy.value,
-      THREE.MathUtils.clamp(
-        pointerSignal.fieldEnergy * performanceBudget.glow +
-          pointerSignal.momentum * 0.35,
-        0,
-        1
-      ),
-      0.1
-    );
-    matRef.current.uniforms.uMorph.value = THREE.MathUtils.lerp(
-      matRef.current.uniforms.uMorph.value,
-      local * (1.04 + performanceBudget.density * 0.16) +
-        pointerSignal.energy * 0.08 * performanceBudget.motion +
-        momentumPush * 0.12,
-      0.025
-    );
-    matRef.current.uniforms.uVisibility.value =
-      visibilityRef.current *
-      THREE.MathUtils.clamp(
-        performanceBudget.glow + momentumPush * 0.08,
-        0.72,
-        1.22
-      );
-    matRef.current.uniforms.uMouse.value.set(
-      THREE.MathUtils.lerp(
-        matRef.current.uniforms.uMouse.value.x,
-        mouseTargetX,
-        pointerSignal.coarse ? 0.2 : 0.1
-      ),
-      THREE.MathUtils.lerp(
-        matRef.current.uniforms.uMouse.value.y,
-        mouseTargetY,
-        pointerSignal.coarse ? 0.2 : 0.1
-      )
-    );
-
-    if (pointsRef.current) {
-      pointsRef.current.visible = visible || visibilityRef.current > 0.02;
-      pointsRef.current.position.x = THREE.MathUtils.lerp(
-        pointsRef.current.position.x,
-        pointerVelocityX * 0.34,
-        0.06
-      );
-      pointsRef.current.position.y = THREE.MathUtils.lerp(
-        pointsRef.current.position.y,
-        pointerVelocityY * 0.26,
-        0.06
-      );
-      pointsRef.current.rotation.z = THREE.MathUtils.lerp(
-        pointsRef.current.rotation.z,
-        pointerVelocityX * 0.18 + momentumPush * 0.12,
-        0.06
-      );
-    }
-  });
-
-  return <points ref={pointsRef} geometry={geo} material={material} />;
-}
-
-function NeuralCortex({
-  isLive,
-  progressRef,
-  profile,
-  pointerSignalRef,
-}: {
-  isLive: boolean;
-  progressRef: MutableRefObject<number>;
-  profile: SceneProfile;
-  pointerSignalRef: MutableRefObject<CanvasPointerSignal>;
-}) {
-  const groupRef = useRef<THREE.Group>(null);
-  const keyLightRef = useRef<THREE.PointLight>(null);
-  const visibilityRef = useRef(0);
-  const nodeCount = profile.neuralNodeCount;
-
-  const { nodePos, lineGeo, lineMat } = useMemo(() => {
-    const nodePos: THREE.Vector3[] = Array.from(
-      { length: nodeCount },
-      () =>
-        new THREE.Vector3(
-          (Math.random() - 0.5) * 8,
-          (Math.random() - 0.5) * 5,
-          (Math.random() - 0.5) * 3.5
-        )
-    );
-
-    const verts: number[] = [];
-    const progressValues: number[] = [];
-
-    for (let a = 0; a < nodeCount; a++)
-      for (let b = a + 1; b < nodeCount; b++) {
-        if (nodePos[a].distanceTo(nodePos[b]) > 3.8) continue;
-        for (let step = 0; step <= 10; step++) {
-          const t = step / 10;
-          const point = new THREE.Vector3().lerpVectors(
-            nodePos[a],
-            nodePos[b],
-            t
-          );
-          verts.push(point.x, point.y, point.z);
-          progressValues.push(t);
-        }
-      }
-
-    const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute(
-      'position',
-      new THREE.BufferAttribute(new Float32Array(verts), 3)
-    );
-    geometry.setAttribute(
-      'aP',
-      new THREE.BufferAttribute(new Float32Array(progressValues), 1)
-    );
-
-    const material = new THREE.ShaderMaterial({
-      vertexShader: NEURAL_VERT,
-      fragmentShader: NEURAL_FRAG,
-      uniforms: {
-        uTime: { value: 0 },
-        uColor: { value: new THREE.Color('#00d4ff') },
-        uEnergy: { value: 0 },
-      },
-      transparent: true,
-      opacity: 0,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-    });
-
-    return { nodePos, lineGeo: geometry, lineMat: material };
-  }, [nodeCount]);
-
-  const nodeGeo = useMemo(() => new THREE.SphereGeometry(0.055, 8, 8), []);
-  const nodeMat = useMemo(
-    () =>
-      new THREE.MeshStandardMaterial({
-        color: '#00d4ff',
-        emissive: '#00d4ff',
-        emissiveIntensity: 2.5,
-        transparent: true,
-        opacity: 0,
-      }),
-    []
-  );
-  const coreMat = useMemo(
-    () =>
-      new THREE.MeshPhysicalMaterial({
-        color: '#0f172a',
-        emissive: '#67e8f9',
-        emissiveIntensity: 0,
-        roughness: 0.08,
-        metalness: 0.26,
-        transmission: 0.42,
-        thickness: 0.8,
-        transparent: true,
-        opacity: 0,
-      }),
-    []
-  );
-  const orbitMats = useMemo(
-    () =>
-      [2.05, 2.8].map(
-        () =>
-          new THREE.MeshBasicMaterial({
-            color: '#67e8f9',
-            transparent: true,
-            opacity: 0,
-            side: THREE.DoubleSide,
-            blending: THREE.AdditiveBlending,
-            depthWrite: false,
-          })
-      ),
-    []
-  );
-
-  useFrame(({ clock }) => {
-    if (!groupRef.current) return;
-    const progress = progressRef.current ?? 0;
-    const pointerSignal = pointerSignalRef.current;
-    const performanceBudget = getScenePerformanceBudget(
-      pointerSignal.performanceFactor
-    );
-    const pointerX =
-      pointerSignal.position.x *
-      (pointerSignal.coarse ? 0.42 : 0.26) *
-      performanceBudget.motion;
-    const pointerY =
-      pointerSignal.position.y *
-      (pointerSignal.coarse ? 0.28 : 0.18) *
-      performanceBudget.motion;
-    const pointerVelocityX =
-      pointerSignal.velocity.x *
-      (pointerSignal.coarse ? 0.36 : 0.24) *
-      performanceBudget.motion;
-    const pointerVelocityY =
-      pointerSignal.velocity.y *
-      (pointerSignal.coarse ? 0.26 : 0.18) *
-      performanceBudget.motion;
-    const pointerEnergy = pointerSignal.energy;
-    const momentumPush =
-      pointerSignal.momentum *
-      (pointerSignal.coarse ? 0.3 : 0.18) *
-      performanceBudget.motion;
-    const interactionEnergy = THREE.MathUtils.clamp(
-      pointerEnergy + momentumPush * 0.28,
-      0,
-      1.35
-    );
-    const [start, end] = CHAPTERS[1].range;
-    const visible =
-      isLive && progress >= start - 0.08 && progress <= end + 0.08;
-    visibilityRef.current = THREE.MathUtils.lerp(
-      visibilityRef.current,
-      visible ? 1 : 0,
-      0.04
-    );
-    lineMat.opacity =
-      visibilityRef.current *
-      (0.82 + interactionEnergy * 0.12) *
-      performanceBudget.glow;
-    nodeMat.opacity = Math.min(
-      1,
-      visibilityRef.current *
-        (0.96 + interactionEnergy * 0.1) *
-        performanceBudget.glow
-    );
-    coreMat.opacity =
-      visibilityRef.current *
-      (0.42 + interactionEnergy * 0.08) *
-      performanceBudget.glow;
-    coreMat.emissiveIntensity = THREE.MathUtils.lerp(
-      coreMat.emissiveIntensity,
-      visible ? (1.8 + interactionEnergy * 1.25) * performanceBudget.glow : 0,
-      0.06
-    );
-    orbitMats.forEach((material, index) => {
-      material.opacity =
-        visibilityRef.current *
-        (0.32 - index * 0.08 + interactionEnergy * 0.03) *
-        performanceBudget.glow;
-    });
-
-    groupRef.current.visible = visibilityRef.current > 0.02;
-    if (!groupRef.current.visible) {
-      return;
-    }
-
-    lineMat.uniforms.uTime.value = clock.elapsedTime;
-    lineMat.uniforms.uEnergy.value = THREE.MathUtils.lerp(
-      lineMat.uniforms.uEnergy.value,
-      THREE.MathUtils.clamp(interactionEnergy, 0, 1),
-      0.12
-    );
-    groupRef.current.position.x = THREE.MathUtils.lerp(
-      groupRef.current.position.x,
-      pointerX * 0.85 + pointerVelocityX * 0.36,
-      0.06
-    );
-    groupRef.current.position.y = THREE.MathUtils.lerp(
-      groupRef.current.position.y,
-      pointerY * 0.6 + pointerVelocityY * 0.28,
-      0.06
-    );
-    groupRef.current.scale.setScalar(
-      THREE.MathUtils.lerp(
-        groupRef.current.scale.x,
-        1 + momentumPush * 0.05,
-        0.08
-      )
-    );
-    groupRef.current.rotation.y =
-      clock.elapsedTime *
-        (0.045 + interactionEnergy * 0.024) *
-        performanceBudget.motion +
-      pointerX * 0.18 +
-      pointerVelocityX * 0.1;
-    groupRef.current.rotation.x = THREE.MathUtils.lerp(
-      groupRef.current.rotation.x,
-      pointerY * 0.22 + pointerVelocityY * 0.08,
-      0.08
-    );
-
-    if (keyLightRef.current) {
-      keyLightRef.current.intensity = THREE.MathUtils.lerp(
-        keyLightRef.current.intensity,
-        visible ? (2.5 + interactionEnergy * 1.2) * performanceBudget.glow : 0,
-        0.06
-      );
-    }
-  });
-
-  return (
-    <group ref={groupRef}>
-      <mesh material={coreMat} rotation={[Math.PI / 2, 0, 0]}>
-        <torusKnotGeometry args={[0.94, 0.16, 150, 18]} />
-      </mesh>
-      {[2.05, 2.8].map((radius, index) => (
-        <mesh
-          key={radius}
-          rotation={[Math.PI / 2 + index * 0.44, index * 0.72, 0]}
-          material={orbitMats[index]}
-        >
-          <torusGeometry args={[radius, 0.028, 10, 72]} />
-        </mesh>
-      ))}
-      <lineSegments geometry={lineGeo} material={lineMat} />
-      {nodePos.map((pos, index) => (
-        <mesh
-          key={index}
-          position={pos}
-          geometry={nodeGeo}
-          material={nodeMat}
-        />
-      ))}
-      <Sparkles
-        count={Math.max(12, Math.round(profile.cloudSparkles * 0.4))}
-        scale={6.8}
-        size={1.8}
-        speed={0.45}
-        color="#67e8f9"
-        opacity={0.34}
-      />
-      <pointLight
-        ref={keyLightRef}
-        color="#00d4ff"
-        intensity={2.5}
-        distance={14}
-        decay={2}
-      />
-    </group>
-  );
-}
-
-function CrystalFortress({
-  isLive,
-  progressRef,
-  pointerSignalRef,
-}: {
-  isLive: boolean;
-  progressRef: MutableRefObject<number>;
-  pointerSignalRef: MutableRefObject<CanvasPointerSignal>;
-}) {
-  const groupRef = useRef<THREE.Group>(null);
-  const keyLightRef = useRef<THREE.PointLight>(null);
-
-  const shieldMat = useMemo(
-    () =>
-      new THREE.ShaderMaterial({
-        vertexShader: SHIELD_VERT,
-        fragmentShader: SHIELD_FRAG,
-        uniforms: {
-          uTime: { value: 0 },
-          uColor: { value: new THREE.Color('#a855f7') },
-          uEnergy: { value: 0 },
-        },
-        transparent: true,
-        opacity: 0,
-        depthWrite: false,
-        side: THREE.DoubleSide,
-        blending: THREE.AdditiveBlending,
-      }),
-    []
-  );
-
-  const crystalMat = useMemo(
-    () =>
-      new THREE.MeshPhysicalMaterial({
-        color: '#6d28d9',
-        emissive: '#a855f7',
-        emissiveIntensity: 0.6,
-        roughness: 0.05,
-        metalness: 0.1,
-        transmission: 0.55,
-        thickness: 1.2,
-        transparent: true,
-        opacity: 0,
-      }),
-    []
-  );
-
-  const wireMat = useMemo(
-    () =>
-      new THREE.MeshBasicMaterial({
-        color: '#c084fc',
-        wireframe: true,
-        transparent: true,
-        opacity: 0,
-      }),
-    []
-  );
-
-  const ringMats = useMemo(
-    () =>
-      [2.2, 2.8, 3.5].map(
-        () =>
-          new THREE.MeshBasicMaterial({
-            color: '#a855f7',
-            transparent: true,
-            opacity: 0,
-          })
-      ),
-    []
-  );
-  const scanRef = useRef<THREE.Mesh>(null);
-  const scanMat = useMemo(
-    () =>
-      new THREE.MeshBasicMaterial({
-        color: '#d8b4fe',
-        transparent: true,
-        opacity: 0,
-        side: THREE.DoubleSide,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false,
-      }),
-    []
-  );
-  const sentinelMat = useMemo(
-    () =>
-      new THREE.MeshBasicMaterial({
-        color: '#e9d5ff',
-        transparent: true,
-        opacity: 0,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false,
-      }),
-    []
-  );
-
-  useFrame(({ clock }) => {
-    if (!groupRef.current) return;
-    const progress = progressRef.current ?? 0;
-    const pointerSignal = pointerSignalRef.current;
-    const performanceBudget = getScenePerformanceBudget(
-      pointerSignal.performanceFactor
-    );
-    const pointerX =
-      pointerSignal.position.x *
-      (pointerSignal.coarse ? 0.46 : 0.28) *
-      performanceBudget.motion;
-    const pointerY =
-      pointerSignal.position.y *
-      (pointerSignal.coarse ? 0.34 : 0.2) *
-      performanceBudget.motion;
-    const pointerVelocityX =
-      pointerSignal.velocity.x *
-      (pointerSignal.coarse ? 0.4 : 0.28) *
-      performanceBudget.motion;
-    const pointerVelocityY =
-      pointerSignal.velocity.y *
-      (pointerSignal.coarse ? 0.28 : 0.2) *
-      performanceBudget.motion;
-    const pointerEnergy = pointerSignal.energy;
-    const momentumPush =
-      pointerSignal.momentum *
-      (pointerSignal.coarse ? 0.34 : 0.22) *
-      performanceBudget.motion;
-    const interactionEnergy = THREE.MathUtils.clamp(
-      pointerEnergy + momentumPush * 0.3,
-      0,
-      1.4
-    );
-    const [start, end] = CHAPTERS[2].range;
-    const visible =
-      isLive && progress >= start - 0.08 && progress <= end + 0.08;
-    const elapsed = clock.elapsedTime;
-    const alpha = THREE.MathUtils.lerp(
-      crystalMat.opacity,
-      visible ? 0.82 * performanceBudget.glow : 0,
-      0.04
-    );
-    crystalMat.opacity = alpha;
-    crystalMat.emissiveIntensity = THREE.MathUtils.lerp(
-      crystalMat.emissiveIntensity,
-      visible ? (0.6 + interactionEnergy * 0.8) * performanceBudget.glow : 0,
-      0.06
-    );
-    wireMat.opacity = alpha * 0.35;
-    ringMats.forEach((material, index) => {
-      material.opacity =
-        alpha *
-        (0.45 - index * 0.08 + interactionEnergy * 0.04) *
-        performanceBudget.glow;
-    });
-    shieldMat.uniforms.uTime.value = elapsed * performanceBudget.motion;
-    shieldMat.uniforms.uEnergy.value = THREE.MathUtils.lerp(
-      shieldMat.uniforms.uEnergy.value,
-      THREE.MathUtils.clamp(interactionEnergy, 0, 1),
-      0.1
-    );
-    shieldMat.opacity = alpha * (1 + interactionEnergy * 0.12);
-    scanMat.opacity =
-      alpha * (0.22 + interactionEnergy * 0.1) * performanceBudget.glow;
-    sentinelMat.opacity =
-      alpha * (0.34 + interactionEnergy * 0.08) * performanceBudget.glow;
-
-    groupRef.current.visible = alpha > 0.02;
-    if (!groupRef.current.visible) {
-      return;
-    }
-
-    groupRef.current.position.x = THREE.MathUtils.lerp(
-      groupRef.current.position.x,
-      pointerX * 0.92 + pointerVelocityX * 0.44,
-      0.06
-    );
-    groupRef.current.position.y = THREE.MathUtils.lerp(
-      groupRef.current.position.y,
-      pointerY * 0.46 + pointerVelocityY * 0.28,
-      0.06
-    );
-    groupRef.current.scale.setScalar(
-      THREE.MathUtils.lerp(
-        groupRef.current.scale.x,
-        1 +
-          interactionEnergy * 0.05 * performanceBudget.motion +
-          momentumPush * 0.06,
-        0.08
-      )
-    );
-    groupRef.current.rotation.y =
-      elapsed * (0.11 + interactionEnergy * 0.03) * performanceBudget.motion +
-      pointerX * 0.22 +
-      pointerVelocityX * 0.12;
-    groupRef.current.rotation.x =
-      Math.sin(elapsed * 0.07 * performanceBudget.motion) * 0.14 +
-      pointerY * 0.16 +
-      pointerVelocityY * 0.1;
-
-    if (scanRef.current) {
-      scanRef.current.rotation.z = elapsed * 0.36;
-      scanRef.current.scale.setScalar(
-        1 + Math.sin(elapsed * 1.1) * 0.04 + momentumPush * 0.08
-      );
-      scanRef.current.position.x = THREE.MathUtils.lerp(
-        scanRef.current.position.x,
-        pointerX * 0.5 + pointerVelocityX * 0.24,
-        0.08
-      );
-      scanRef.current.position.y = THREE.MathUtils.lerp(
-        scanRef.current.position.y,
-        pointerY * 0.35 + pointerVelocityY * 0.22,
-        0.08
-      );
-    }
-
-    if (keyLightRef.current) {
-      keyLightRef.current.intensity = THREE.MathUtils.lerp(
-        keyLightRef.current.intensity,
-        visible ? (3 + interactionEnergy * 1.1) * performanceBudget.glow : 0,
-        0.06
-      );
-    }
-  });
-
-  return (
-    <group ref={groupRef}>
-      <mesh material={crystalMat}>
-        <icosahedronGeometry args={[1.5, 1]} />
-      </mesh>
-      <mesh material={wireMat}>
-        <icosahedronGeometry args={[1.52, 1]} />
-      </mesh>
-      <mesh material={shieldMat}>
-        <sphereGeometry args={[3.2, 32, 32]} />
-      </mesh>
-      {[2.2, 2.8, 3.5].map((radius, index) => (
-        <mesh
-          key={index}
-          rotation={[Math.PI / 2 + index * 0.55, index * 0.9, 0]}
-          material={ringMats[index]}
-        >
-          <torusGeometry args={[radius, 0.018, 8, 64]} />
-        </mesh>
-      ))}
-      <mesh ref={scanRef} material={scanMat} rotation={[Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[1.85, 3.15, 72]} />
-      </mesh>
-      {Array.from({ length: 6 }, (_, index) => {
-        const angle = (index / 6) * Math.PI * 2;
-
-        return (
-          <mesh
-            key={`sentinel-${index}`}
-            position={[
-              Math.cos(angle) * 2.7,
-              Math.sin(angle * 1.6) * 0.72,
-              Math.sin(angle) * 2.7,
-            ]}
-            rotation={[angle, angle, Math.PI / 4]}
-            material={sentinelMat}
-          >
-            <octahedronGeometry args={[0.2, 0]} />
-          </mesh>
-        );
-      })}
-      <pointLight
-        ref={keyLightRef}
-        color="#a855f7"
-        intensity={3}
-        distance={11}
-        decay={2}
-      />
-    </group>
-  );
-}
-
-function CloudConstellation({
-  isLive,
-  progressRef,
-  profile,
-  pointerSignalRef,
-}: {
-  isLive: boolean;
-  progressRef: MutableRefObject<number>;
-  profile: SceneProfile;
-  pointerSignalRef: MutableRefObject<CanvasPointerSignal>;
-}) {
-  const groupRef = useRef<THREE.Group>(null);
-  const keyLightRef = useRef<THREE.PointLight>(null);
-  const lineMat = useMemo(
-    () =>
-      new THREE.LineBasicMaterial({
-        color: '#38bdf8',
-        transparent: true,
-        opacity: 0,
-      }),
-    []
-  );
-  const nodeMat = useMemo(
-    () =>
-      new THREE.MeshStandardMaterial({
-        color: '#38bdf8',
-        emissive: '#38bdf8',
-        emissiveIntensity: 2,
-        transparent: true,
-        opacity: 0,
-      }),
-    []
-  );
-  const orbitMats = useMemo(
-    () =>
-      [2.3, 3.5, 4.7].map(
-        () =>
-          new THREE.MeshBasicMaterial({
-            color: '#7dd3fc',
-            transparent: true,
-            opacity: 0,
-            side: THREE.DoubleSide,
-            blending: THREE.AdditiveBlending,
-            depthWrite: false,
-          })
-      ),
-    []
-  );
-  const gatewayMat = useMemo(
-    () =>
-      new THREE.MeshPhysicalMaterial({
-        color: '#0f172a',
-        emissive: '#38bdf8',
-        emissiveIntensity: 0,
-        roughness: 0.12,
-        metalness: 0.18,
-        transmission: 0.5,
-        thickness: 0.9,
-        transparent: true,
-        opacity: 0,
-      }),
-    []
-  );
-
-  const { nodes, edgeGeos } = useMemo(() => {
-    const layers = [
-      { count: 4, y: -2.2, r: 4.0 },
-      { count: 6, y: 0, r: 3.5 },
-      { count: 4, y: 2.2, r: 2.5 },
-      { count: 2, y: 3.8, r: 1.0 },
-    ];
-    const nodes: THREE.Vector3[] = [];
-    for (const { count, y, r } of layers)
-      for (let i = 0; i < count; i++) {
-        const angle = (i / count) * Math.PI * 2;
-        nodes.push(
-          new THREE.Vector3(Math.cos(angle) * r, y, Math.sin(angle) * r)
-        );
-      }
-
-    const edgeGeos: THREE.BufferGeometry[] = [];
-    let base = 0;
-    for (let layerIndex = 0; layerIndex < layers.length - 1; layerIndex++) {
-      const layerCountA = layers[layerIndex].count;
-      const layerCountB = layers[layerIndex + 1].count;
-      const baseA = base;
-      const baseB = base + layerCountA;
-      for (let a = 0; a < layerCountA; a++)
-        for (let b = 0; b < layerCountB; b++)
-          if (Math.random() > 0.35) {
-            const geometry = new THREE.BufferGeometry().setFromPoints([
-              nodes[baseA + a],
-              nodes[baseB + b],
-            ]);
-            edgeGeos.push(geometry);
-          }
-      base += layerCountA;
-    }
-    return { nodes, edgeGeos };
-  }, []);
-
-  const nodeGeo = useMemo(() => new THREE.SphereGeometry(0.11, 10, 10), []);
-
-  useFrame(({ clock }) => {
-    if (!groupRef.current) return;
-    const progress = progressRef.current ?? 0;
-    const pointerSignal = pointerSignalRef.current;
-    const performanceBudget = getScenePerformanceBudget(
-      pointerSignal.performanceFactor
-    );
-    const pointerX =
-      pointerSignal.position.x *
-      (pointerSignal.coarse ? 0.48 : 0.28) *
-      performanceBudget.motion;
-    const pointerY =
-      pointerSignal.position.y *
-      (pointerSignal.coarse ? 0.28 : 0.18) *
-      performanceBudget.motion;
-    const pointerVelocityX =
-      pointerSignal.velocity.x *
-      (pointerSignal.coarse ? 0.38 : 0.26) *
-      performanceBudget.motion;
-    const pointerVelocityY =
-      pointerSignal.velocity.y *
-      (pointerSignal.coarse ? 0.24 : 0.16) *
-      performanceBudget.motion;
-    const pointerEnergy = pointerSignal.energy;
-    const momentumPush =
-      pointerSignal.momentum *
-      (pointerSignal.coarse ? 0.3 : 0.18) *
-      performanceBudget.motion;
-    const interactionEnergy = THREE.MathUtils.clamp(
-      pointerEnergy + momentumPush * 0.28,
-      0,
-      1.3
-    );
-    const [start, end] = CHAPTERS[3].range;
-    const visible =
-      isLive && progress >= start - 0.08 && progress <= end + 0.08;
-    const alpha = THREE.MathUtils.lerp(
-      lineMat.opacity,
-      visible ? (0.45 + interactionEnergy * 0.08) * performanceBudget.glow : 0,
-      0.04
-    );
-    lineMat.opacity = alpha;
-    nodeMat.opacity = THREE.MathUtils.lerp(
-      nodeMat.opacity,
-      visible ? 0.9 * performanceBudget.glow : 0,
-      0.04
-    );
-    nodeMat.emissiveIntensity = THREE.MathUtils.lerp(
-      nodeMat.emissiveIntensity,
-      visible ? (2 + interactionEnergy * 1.2) * performanceBudget.glow : 0,
-      0.06
-    );
-    gatewayMat.opacity = THREE.MathUtils.lerp(
-      gatewayMat.opacity,
-      visible ? (0.34 + interactionEnergy * 0.06) * performanceBudget.glow : 0,
-      0.04
-    );
-    gatewayMat.emissiveIntensity = THREE.MathUtils.lerp(
-      gatewayMat.emissiveIntensity,
-      visible ? (1.4 + interactionEnergy * 0.85) * performanceBudget.glow : 0,
-      0.06
-    );
-    orbitMats.forEach((material, index) => {
-      material.opacity = THREE.MathUtils.lerp(
-        material.opacity,
-        visible
-          ? (0.24 - index * 0.04 + interactionEnergy * 0.04) *
-              performanceBudget.glow
-          : 0,
-        0.04
-      );
-    });
-
-    groupRef.current.visible = alpha > 0.02 || (nodeMat.opacity ?? 0) > 0.02;
-    if (!groupRef.current.visible) {
-      return;
-    }
-
-    groupRef.current.position.x = THREE.MathUtils.lerp(
-      groupRef.current.position.x,
-      pointerX * 0.9 + pointerVelocityX * 0.38,
-      0.06
-    );
-    groupRef.current.position.y = THREE.MathUtils.lerp(
-      groupRef.current.position.y,
-      pointerY * 0.55 + pointerVelocityY * 0.24,
-      0.06
-    );
-    groupRef.current.scale.setScalar(
-      THREE.MathUtils.lerp(
-        groupRef.current.scale.x,
-        1 + momentumPush * 0.04,
-        0.08
-      )
-    );
-    groupRef.current.rotation.y =
-      clock.elapsedTime *
-        (0.055 + interactionEnergy * 0.02) *
-        performanceBudget.motion +
-      pointerX * 0.16 +
-      pointerVelocityX * 0.08;
-    groupRef.current.rotation.x = THREE.MathUtils.lerp(
-      groupRef.current.rotation.x,
-      pointerY * 0.18 + pointerVelocityY * 0.08,
-      0.08
-    );
-
-    if (keyLightRef.current) {
-      keyLightRef.current.intensity = THREE.MathUtils.lerp(
-        keyLightRef.current.intensity,
-        visible ? (2 + interactionEnergy * 0.9) * performanceBudget.glow : 0,
-        0.06
-      );
-    }
-  });
-
-  return (
-    <group ref={groupRef}>
-      {[2.3, 3.5, 4.7].map((radius, index) => (
-        <mesh
-          key={radius}
-          rotation={[Math.PI / 2 + index * 0.22, index * 0.5, 0]}
-          position={[0, (index - 1) * 0.75, -0.5]}
-          material={orbitMats[index]}
-        >
-          <torusGeometry args={[radius, 0.026, 10, 72]} />
-        </mesh>
-      ))}
-      <mesh material={gatewayMat} rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[1.15, 0.18, 16, 48]} />
-      </mesh>
-      {edgeGeos.map((geometry, index) => (
-        <lineSegments key={index} geometry={geometry} material={lineMat} />
-      ))}
-      {nodes.map((pos, index) => (
-        <mesh
-          key={index}
-          position={pos}
-          geometry={nodeGeo}
-          material={nodeMat}
-        />
-      ))}
-      <Sparkles
-        count={profile.cloudSparkles}
-        scale={8}
-        size={2}
-        speed={0.3}
-        color="#38bdf8"
-        opacity={0.5}
-      />
-      <pointLight
-        ref={keyLightRef}
-        color="#38bdf8"
-        intensity={2}
-        distance={13}
-        decay={2}
-      />
-    </group>
-  );
-}
-
-function SignalMatrix({
-  isLive,
-  progressRef,
-  profile,
-  pointerSignalRef,
-}: {
-  isLive: boolean;
-  progressRef: MutableRefObject<number>;
-  profile: SceneProfile;
-  pointerSignalRef: MutableRefObject<CanvasPointerSignal>;
-}) {
-  const groupRef = useRef<THREE.Group>(null);
-  const keyLightRef = useRef<THREE.PointLight>(null);
-  const gridSize = profile.signalGridSize;
-  const count = gridSize * gridSize;
-
-  const { barMesh, mat } = useMemo(() => {
-    const geometry = new THREE.BoxGeometry(0.14, 1, 0.14);
-    const barIdx = new Float32Array(count);
-    for (let i = 0; i < count; i++) barIdx[i] = i;
-    geometry.setAttribute('aI', new THREE.BufferAttribute(barIdx, 1));
-
-    const material = new THREE.ShaderMaterial({
-      vertexShader: DATA_VERT,
-      fragmentShader: DATA_FRAG,
-      uniforms: {
-        uTime: { value: 0 },
-        uColor: { value: new THREE.Color('#22c55e') },
-        uEnergy: { value: 0 },
-      },
-      transparent: true,
-      opacity: 0,
-    });
-
-    const mesh = new THREE.InstancedMesh(geometry, material, count);
-    mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-    const dummy = new THREE.Object3D();
-    for (let i = 0; i < count; i++) {
-      dummy.position.set(
-        ((i % gridSize) - gridSize / 2) * 0.6,
-        0,
-        (Math.floor(i / gridSize) - gridSize / 2) * 0.6
-      );
-      dummy.updateMatrix();
-      mesh.setMatrixAt(i, dummy.matrix);
-    }
-    mesh.instanceMatrix.needsUpdate = true;
-    return { barMesh: mesh, mat: material };
-  }, [count, gridSize]);
-
-  const dummy = useMemo(() => new THREE.Object3D(), []);
-  const scanDiscRef = useRef<THREE.Mesh>(null);
-  const scanMat = useMemo(
-    () =>
-      new THREE.MeshBasicMaterial({
-        color: '#4ade80',
-        transparent: true,
-        opacity: 0,
-        side: THREE.DoubleSide,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false,
-      }),
-    []
-  );
-  const ringMat = useMemo(
-    () =>
-      new THREE.MeshBasicMaterial({
-        color: '#bef264',
-        transparent: true,
-        opacity: 0,
-        side: THREE.DoubleSide,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false,
-      }),
-    []
-  );
-
-  useFrame(({ clock }) => {
-    if (!groupRef.current) return;
-    const progress = progressRef.current ?? 0;
-    const pointerSignal = pointerSignalRef.current;
-    const performanceBudget = getScenePerformanceBudget(
-      pointerSignal.performanceFactor
-    );
-    const pointerX =
-      pointerSignal.position.x *
-      (pointerSignal.coarse ? 0.75 : 0.46) *
-      performanceBudget.motion;
-    const pointerY =
-      pointerSignal.position.y *
-      (pointerSignal.coarse ? 0.75 : 0.46) *
-      performanceBudget.motion;
-    const pointerVelocityX =
-      pointerSignal.velocity.x *
-      (pointerSignal.coarse ? 0.46 : 0.3) *
-      performanceBudget.motion;
-    const pointerVelocityY =
-      pointerSignal.velocity.y *
-      (pointerSignal.coarse ? 0.42 : 0.28) *
-      performanceBudget.motion;
-    const pointerEnergy = pointerSignal.energy;
-    const momentumPush =
-      pointerSignal.momentum *
-      (pointerSignal.coarse ? 0.4 : 0.24) *
-      performanceBudget.motion;
-    const interactionEnergy = THREE.MathUtils.clamp(
-      pointerEnergy + momentumPush * 0.32,
-      0,
-      1.4
-    );
-    const pointerGridX =
-      (THREE.MathUtils.clamp(
-        pointerSignal.position.x + pointerVelocityX * 0.56,
-        -1.25,
-        1.25
-      ) +
-        1) *
-      0.5 *
-      (gridSize - 1);
-    const pointerGridZ =
-      (-THREE.MathUtils.clamp(
-        pointerSignal.position.y + pointerVelocityY * 0.46,
-        -1.25,
-        1.25
-      ) +
-        1) *
-      0.5 *
-      (gridSize - 1);
-    const [start, end] = CHAPTERS[4].range;
-    const visible =
-      isLive && progress >= start - 0.08 && progress <= end + 0.08;
-    mat.opacity = THREE.MathUtils.lerp(
-      mat.opacity ?? 1,
-      visible ? 0.88 * performanceBudget.density : 0,
-      0.04
-    );
-    scanMat.opacity = THREE.MathUtils.lerp(
-      scanMat.opacity,
-      visible ? (0.13 + interactionEnergy * 0.08) * performanceBudget.glow : 0,
-      0.04
-    );
-    ringMat.opacity = THREE.MathUtils.lerp(
-      ringMat.opacity,
-      visible ? (0.24 + interactionEnergy * 0.08) * performanceBudget.glow : 0,
-      0.04
-    );
-
-    groupRef.current.visible = (mat.opacity ?? 0) > 0.02;
-    if (!groupRef.current.visible) {
-      return;
-    }
-
-    mat.uniforms.uTime.value = clock.elapsedTime;
-    mat.uniforms.uEnergy.value = THREE.MathUtils.lerp(
-      mat.uniforms.uEnergy.value,
-      THREE.MathUtils.clamp(interactionEnergy, 0, 1),
-      0.12
-    );
-    for (let i = 0; i < count; i++) {
-      const col = i % gridSize;
-      const row = Math.floor(i / gridSize);
-      const height =
-        (Math.sin(clock.elapsedTime * 1.8 + col * 0.6 + row * 0.8) * 0.5 +
-          0.5) *
-          (Math.cos(clock.elapsedTime * 1.2 + col * 0.4) * 0.5 + 0.5) *
-          2.8 +
-        0.12;
-      const touchDistance = Math.hypot(col - pointerGridX, row - pointerGridZ);
-      const touchWave = Math.max(
-        0,
-        1 - touchDistance / Math.max(1.4, gridSize * 0.32)
-      );
-      const boostedHeight =
-        height +
-        touchWave *
-          (0.48 +
-            interactionEnergy * (pointerSignal.coarse ? 1.95 : 1.2) +
-            momentumPush * (pointerSignal.coarse ? 1.25 : 0.85));
-      const performanceHeight =
-        height + (boostedHeight - height) * performanceBudget.motion;
-      dummy.position.set(
-        (col - gridSize / 2) * 0.6,
-        performanceHeight * 0.5 - 1,
-        (row - gridSize / 2) * 0.6
-      );
-      dummy.scale.set(1, performanceHeight, 1);
-      dummy.updateMatrix();
-      barMesh.setMatrixAt(i, dummy.matrix);
-    }
-    barMesh.instanceMatrix.needsUpdate = true;
-    groupRef.current.position.x = THREE.MathUtils.lerp(
-      groupRef.current.position.x,
-      pointerX * 0.8 + pointerVelocityX * 0.42,
-      0.05
-    );
-    groupRef.current.position.y = THREE.MathUtils.lerp(
-      groupRef.current.position.y,
-      interactionEnergy * 0.14 * performanceBudget.motion + momentumPush * 0.08,
-      0.05
-    );
-    groupRef.current.position.z = THREE.MathUtils.lerp(
-      groupRef.current.position.z,
-      -pointerY * 0.8 - pointerVelocityY * 0.34,
-      0.05
-    );
-    groupRef.current.rotation.y =
-      Math.sin(clock.elapsedTime * 0.05 * performanceBudget.motion) * 0.25 +
-      pointerX * 0.18 +
-      pointerVelocityX * 0.1;
-
-    if (scanDiscRef.current) {
-      scanDiscRef.current.position.x = THREE.MathUtils.lerp(
-        scanDiscRef.current.position.x,
-        pointerX * 1.4 + pointerVelocityX * 0.52,
-        0.08
-      );
-      scanDiscRef.current.position.y =
-        Math.sin(clock.elapsedTime * 0.8) * 0.55 +
-        interactionEnergy * 0.12 +
-        momentumPush * 0.12;
-      scanDiscRef.current.position.z = THREE.MathUtils.lerp(
-        scanDiscRef.current.position.z,
-        -pointerY * 1.4 - pointerVelocityY * 0.48,
-        0.08
-      );
-      scanDiscRef.current.rotation.z =
-        clock.elapsedTime * 0.2 * performanceBudget.motion;
-      scanDiscRef.current.scale.setScalar(
-        1 +
-          interactionEnergy * 0.12 * performanceBudget.motion +
-          momentumPush * 0.12
-      );
-    }
-
-    if (keyLightRef.current) {
-      keyLightRef.current.intensity = THREE.MathUtils.lerp(
-        keyLightRef.current.intensity,
-        visible ? (2.2 + interactionEnergy * 1.1) * performanceBudget.glow : 0,
-        0.06
-      );
-    }
-  });
-
-  return (
-    <group ref={groupRef}>
-      <mesh
-        ref={scanDiscRef}
-        rotation={[-Math.PI / 2, 0, 0]}
-        position={[0, -0.8, 0]}
-        material={scanMat}
-      >
-        <circleGeometry args={[3.25, 48]} />
-      </mesh>
-      <mesh
-        rotation={[-Math.PI / 2, 0, 0]}
-        position={[0, -0.95, 0]}
-        material={ringMat}
-      >
-        <ringGeometry args={[3.05, 3.24, 64]} />
-      </mesh>
-      <primitive object={barMesh} />
-      <Sparkles
-        count={profile.signalSparkles}
-        scale={7}
-        size={3}
-        speed={0.35}
-        color="#22c55e"
-        opacity={0.5}
-      />
-      <pointLight
-        ref={keyLightRef}
-        color="#22c55e"
-        intensity={2.2}
-        distance={14}
-        decay={2}
-      />
-    </group>
-  );
-}
-
-function SingularityCore({
-  isLive,
-  progressRef,
-  profile,
-  pointerSignalRef,
-}: {
-  isLive: boolean;
-  progressRef: MutableRefObject<number>;
-  profile: SceneProfile;
-  pointerSignalRef: MutableRefObject<CanvasPointerSignal>;
-}) {
-  const groupRef = useRef<THREE.Group>(null);
-  const coreRef = useRef<THREE.Mesh>(null);
-  const keyLightRef = useRef<THREE.PointLight>(null);
-  const coreMat = useMemo(
-    () =>
-      new THREE.MeshStandardMaterial({
-        color: '#ccff00',
-        emissive: '#ccff00',
-        emissiveIntensity: 0,
-        transparent: true,
-        opacity: 0,
-      }),
-    []
-  );
-  const ringMats = useMemo(
-    () =>
-      [1.6, 2.1, 2.7, 3.4].map(
-        () =>
-          new THREE.MeshBasicMaterial({
-            color: '#ccff00',
-            transparent: true,
-            opacity: 0,
-          })
-      ),
-    []
-  );
-  const beamRef = useRef<THREE.Mesh>(null);
-  const beamMat = useMemo(
-    () =>
-      new THREE.MeshBasicMaterial({
-        color: '#fef08a',
-        transparent: true,
-        opacity: 0,
-        side: THREE.DoubleSide,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false,
-      }),
-    []
-  );
-  const spokeMat = useMemo(
-    () =>
-      new THREE.MeshBasicMaterial({
-        color: '#ccff00',
-        transparent: true,
-        opacity: 0,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false,
-      }),
-    []
-  );
-
-  useFrame(({ clock }) => {
-    if (!groupRef.current) return;
-    const progress = progressRef.current ?? 0;
-    const pointerSignal = pointerSignalRef.current;
-    const performanceBudget = getScenePerformanceBudget(
-      pointerSignal.performanceFactor
-    );
-    const pointerVelocityX =
-      pointerSignal.velocity.x *
-      (pointerSignal.coarse ? 0.3 : 0.2) *
-      performanceBudget.motion;
-    const pointerVelocityY =
-      pointerSignal.velocity.y *
-      (pointerSignal.coarse ? 0.22 : 0.16) *
-      performanceBudget.motion;
-    const momentumPush =
-      pointerSignal.momentum *
-      (pointerSignal.coarse ? 0.28 : 0.18) *
-      performanceBudget.motion;
-    const pointerX =
-      pointerSignal.position.x *
-      (pointerSignal.coarse ? 0.42 : 0.24) *
-      performanceBudget.motion;
-    const pointerY =
-      pointerSignal.position.y *
-      (pointerSignal.coarse ? 0.32 : 0.18) *
-      performanceBudget.motion;
-    const pointerEnergy = pointerSignal.energy;
-    const [start] = CHAPTERS[5].range;
-    const visible = isLive && progress >= start - 0.06;
-    const elapsed = clock.elapsedTime;
-    const alpha = THREE.MathUtils.lerp(
-      coreMat.opacity,
-      visible ? 0.95 * performanceBudget.glow : 0,
-      0.04
-    );
-    coreMat.opacity = alpha;
-    coreMat.emissiveIntensity =
-      (7 + pointerEnergy * 3.4) * alpha * performanceBudget.glow;
-    ringMats.forEach((material, index) => {
-      material.opacity =
-        alpha *
-        (0.5 - index * 0.09 + pointerEnergy * 0.08) *
-        performanceBudget.glow;
-    });
-    beamMat.opacity =
-      alpha * (0.18 + pointerEnergy * 0.12) * performanceBudget.glow;
-    spokeMat.opacity =
-      alpha * (0.34 + pointerEnergy * 0.08) * performanceBudget.glow;
-
-    groupRef.current.visible = alpha > 0.02;
-    if (!groupRef.current.visible) {
-      return;
-    }
-
-    if (coreRef.current) {
-      const scale =
-        1 +
-        Math.sin(elapsed * 2.2 * performanceBudget.motion) * 0.12 +
-        pointerEnergy * 0.08 * performanceBudget.motion +
-        momentumPush * 0.08;
-      coreRef.current.scale.setScalar(
-        THREE.MathUtils.lerp(coreRef.current.scale.x, scale, 0.1)
-      );
-    }
-    if (beamRef.current) {
-      beamRef.current.scale.y = THREE.MathUtils.lerp(
-        beamRef.current.scale.y,
-        1 +
-          Math.sin(elapsed * 1.4 * performanceBudget.motion) * 0.08 +
-          pointerEnergy * 0.22 * performanceBudget.motion +
-          momentumPush * 0.14,
-        0.08
-      );
-      beamRef.current.scale.x = THREE.MathUtils.lerp(
-        beamRef.current.scale.x,
-        1 +
-          pointerEnergy * 0.12 * performanceBudget.motion +
-          momentumPush * 0.08,
-        0.08
-      );
-      beamRef.current.scale.z = THREE.MathUtils.lerp(
-        beamRef.current.scale.z,
-        1 +
-          pointerEnergy * 0.12 * performanceBudget.motion +
-          momentumPush * 0.08,
-        0.08
-      );
-    }
-    groupRef.current.position.x = THREE.MathUtils.lerp(
-      groupRef.current.position.x,
-      pointerX * 0.7 + pointerVelocityX * 0.34,
-      0.06
-    );
-    groupRef.current.position.y = THREE.MathUtils.lerp(
-      groupRef.current.position.y,
-      pointerY * 0.46 + pointerVelocityY * 0.24,
-      0.06
-    );
-    groupRef.current.rotation.z =
-      elapsed * (0.18 + pointerEnergy * 0.08) * performanceBudget.motion +
-      pointerX * 0.24 +
-      pointerVelocityX * 0.1;
-    groupRef.current.rotation.x =
-      Math.sin(elapsed * 0.12 * performanceBudget.motion) * 0.1 +
-      pointerY * 0.18 +
-      pointerVelocityY * 0.08;
-
-    if (keyLightRef.current) {
-      keyLightRef.current.intensity = THREE.MathUtils.lerp(
-        keyLightRef.current.intensity,
-        visible
-          ? (7 + pointerEnergy * 2.4 + momentumPush * 2) *
-              performanceBudget.glow
-          : 0,
-        0.08
-      );
-    }
-  });
-
-  return (
-    <group ref={groupRef}>
-      <mesh ref={beamRef} material={beamMat}>
-        <cylinderGeometry args={[0.18, 0.66, 7.2, 24, 1, true]} />
-      </mesh>
-      {Array.from({ length: 6 }, (_, index) => (
-        <mesh
-          key={`spoke-${index}`}
-          rotation={[0, 0, (index / 6) * Math.PI * 2]}
-          material={spokeMat}
-        >
-          <boxGeometry args={[0.05, 6.2, 0.05]} />
-        </mesh>
-      ))}
-      <mesh ref={coreRef} material={coreMat}>
-        <sphereGeometry args={[0.42, 32, 32]} />
-      </mesh>
-      {[1.6, 2.1, 2.7, 3.4].map((radius, index) => (
-        <mesh
-          key={index}
-          rotation={[index * 0.7, index * 1.1, 0]}
-          material={ringMats[index]}
-        >
-          <torusGeometry args={[radius, 0.016, 8, 64]} />
-        </mesh>
-      ))}
-      <Sparkles
-        count={profile.singularitySparkles}
-        scale={7}
-        size={profile.singularitySparkleSize}
-        speed={0.9}
-        color="#ccff00"
-        opacity={0.85}
-      />
-      <pointLight
-        ref={keyLightRef}
-        color="#ccff00"
-        intensity={7}
-        distance={18}
-        decay={2}
-      />
-    </group>
-  );
-}
-
-function AtmosphereRig({
-  activeChapterIndex,
-  profile,
-  pointerSignalRef,
-}: {
-  activeChapterIndex: number;
-  profile: SceneProfile;
-  pointerSignalRef: MutableRefObject<CanvasPointerSignal>;
-}) {
-  const shellRef = useRef<THREE.Mesh>(null);
-  const haloRef = useRef<THREE.Mesh>(null);
-  const shellMaterialRef = useRef<THREE.MeshBasicMaterial>(null);
-  const haloMaterialRef = useRef<THREE.MeshBasicMaterial>(null);
-  const hemiLightRef = useRef<THREE.HemisphereLight>(null);
-  const keyLightRef = useRef<THREE.PointLight>(null);
-  const rimLightRef = useRef<THREE.PointLight>(null);
-  const atmosphere = useMemo(
-    () =>
-      CHAPTER_ATMOSPHERES[CHAPTERS[activeChapterIndex]?.id ?? CHAPTERS[0].id],
-    [activeChapterIndex]
-  );
-  const currentFogColor = useRef(new THREE.Color(atmosphere.fogColor));
-  const currentHazeColor = useRef(new THREE.Color(atmosphere.hazeColor));
-  const currentKeyLightColor = useRef(
-    new THREE.Color(atmosphere.keyLightColor)
-  );
-  const currentRimLightColor = useRef(
-    new THREE.Color(atmosphere.rimLightColor)
-  );
-  const targetFogColor = useMemo(
-    () => new THREE.Color(atmosphere.fogColor),
-    [atmosphere.fogColor]
-  );
-  const targetHazeColor = useMemo(
-    () => new THREE.Color(atmosphere.hazeColor),
-    [atmosphere.hazeColor]
-  );
-  const targetKeyLightColor = useMemo(
-    () => new THREE.Color(atmosphere.keyLightColor),
-    [atmosphere.keyLightColor]
-  );
-  const targetRimLightColor = useMemo(
-    () => new THREE.Color(atmosphere.rimLightColor),
-    [atmosphere.rimLightColor]
-  );
-
-  useFrame(({ clock, scene }) => {
-    const pointerSignal = pointerSignalRef.current;
-    const performanceBudget = getScenePerformanceBudget(
-      pointerSignal.performanceFactor
-    );
-    const pointerVelocityX =
-      pointerSignal.velocity.x *
-      (pointerSignal.coarse ? 0.3 : 0.2) *
-      performanceBudget.motion;
-    const pointerVelocityY =
-      pointerSignal.velocity.y *
-      (pointerSignal.coarse ? 0.22 : 0.16) *
-      performanceBudget.motion;
-    const momentumPush =
-      pointerSignal.momentum *
-      (pointerSignal.coarse ? 0.24 : 0.16) *
-      performanceBudget.motion;
-    const pointerX =
-      pointerSignal.position.x *
-      (pointerSignal.coarse ? 0.42 : 0.24) *
-      performanceBudget.motion;
-    const pointerY =
-      pointerSignal.position.y *
-      (pointerSignal.coarse ? 0.28 : 0.18) *
-      performanceBudget.motion;
-    const fieldGlow = pointerSignal.fieldEnergy * 0.12 + momentumPush * 0.08;
-
-    currentFogColor.current.lerp(targetFogColor, 0.04);
-    currentHazeColor.current.lerp(targetHazeColor, 0.04);
-    currentKeyLightColor.current.lerp(targetKeyLightColor, 0.05);
-    currentRimLightColor.current.lerp(targetRimLightColor, 0.05);
-
-    if (scene.fog instanceof THREE.Fog) {
-      scene.fog.color.copy(currentFogColor.current);
-    }
-
-    if (shellMaterialRef.current) {
-      shellMaterialRef.current.color.copy(currentHazeColor.current);
-      shellMaterialRef.current.opacity = THREE.MathUtils.lerp(
-        shellMaterialRef.current.opacity,
-        atmosphere.hazeOpacity * (0.92 + fieldGlow) * performanceBudget.glow,
-        0.06
-      );
-    }
-
-    if (haloMaterialRef.current) {
-      haloMaterialRef.current.color.copy(currentKeyLightColor.current);
-      haloMaterialRef.current.opacity = THREE.MathUtils.lerp(
-        haloMaterialRef.current.opacity,
-        (atmosphere.haloOpacity +
-          Math.sin(
-            clock.elapsedTime *
-              (0.55 + atmosphere.starDriftSpeed) *
-              performanceBudget.motion
-          ) *
-            0.025) *
-          (0.94 + fieldGlow) *
-          performanceBudget.glow,
-        0.08
-      );
-    }
-
-    if (shellRef.current) {
-      shellRef.current.position.x = THREE.MathUtils.lerp(
-        shellRef.current.position.x,
-        pointerX * 0.36 + pointerVelocityX * 0.14,
-        0.04
-      );
-      shellRef.current.position.y = THREE.MathUtils.lerp(
-        shellRef.current.position.y,
-        pointerY * 0.26 + pointerVelocityY * 0.12,
-        0.04
-      );
-      shellRef.current.rotation.y += 0.0009 * performanceBudget.motion;
-      shellRef.current.rotation.x =
-        Math.sin(clock.elapsedTime * 0.08 * performanceBudget.motion) * 0.04 +
-        pointerY * 0.08 +
-        pointerVelocityY * 0.06;
-    }
-
-    if (haloRef.current) {
-      const targetScale =
-        atmosphere.haloScale +
-        Math.sin(
-          clock.elapsedTime *
-            (0.42 + atmosphere.starDriftSpeed * 0.4) *
-            performanceBudget.motion
-        ) *
-          0.03 +
-        fieldGlow * 0.18 +
-        momentumPush * 0.14;
-      haloRef.current.position.x = THREE.MathUtils.lerp(
-        haloRef.current.position.x,
-        pointerX * 0.28 + pointerVelocityX * 0.12,
-        0.05
-      );
-      haloRef.current.position.y = THREE.MathUtils.lerp(
-        haloRef.current.position.y,
-        pointerY * 0.2 + pointerVelocityY * 0.1,
-        0.05
-      );
-      haloRef.current.scale.setScalar(
-        THREE.MathUtils.lerp(haloRef.current.scale.x, targetScale, 0.08)
-      );
-      haloRef.current.rotation.z =
-        clock.elapsedTime *
-        (0.03 + atmosphere.starDriftSpeed * 0.08) *
-        performanceBudget.motion;
-    }
-
-    if (hemiLightRef.current) {
-      hemiLightRef.current.color.copy(currentKeyLightColor.current);
-      hemiLightRef.current.groundColor.copy(currentFogColor.current);
-      hemiLightRef.current.intensity = THREE.MathUtils.lerp(
-        hemiLightRef.current.intensity,
-        Math.min(
-          1.4,
-          profile.ambientLight + atmosphere.ambientBoost + fieldGlow
-        ) * performanceBudget.glow,
-        0.06
-      );
-    }
-
-    if (keyLightRef.current) {
-      keyLightRef.current.color.copy(currentKeyLightColor.current);
-      keyLightRef.current.position.x = THREE.MathUtils.lerp(
-        keyLightRef.current.position.x,
-        4 + pointerX * 3.4 + pointerVelocityX * 1.6,
-        0.06
-      );
-      keyLightRef.current.position.y = THREE.MathUtils.lerp(
-        keyLightRef.current.position.y,
-        5 + pointerY * 2.2 + pointerVelocityY * 1.2,
-        0.06
-      );
-      keyLightRef.current.intensity = THREE.MathUtils.lerp(
-        keyLightRef.current.intensity,
-        (atmosphere.keyLightIntensity + fieldGlow * 4.5) *
-          performanceBudget.glow,
-        0.06
-      );
-    }
-
-    if (rimLightRef.current) {
-      rimLightRef.current.color.copy(currentRimLightColor.current);
-      rimLightRef.current.position.x = THREE.MathUtils.lerp(
-        rimLightRef.current.position.x,
-        -8 - pointerX * 2.8 - pointerVelocityX * 1.35,
-        0.06
-      );
-      rimLightRef.current.position.y = THREE.MathUtils.lerp(
-        rimLightRef.current.position.y,
-        -1.5 + pointerY * 1.8 + pointerVelocityY * 0.95,
-        0.06
-      );
-      rimLightRef.current.intensity = THREE.MathUtils.lerp(
-        rimLightRef.current.intensity,
-        (atmosphere.rimLightIntensity + fieldGlow * 3.2) *
-          performanceBudget.glow,
-        0.06
-      );
-    }
-  });
-
-  return (
-    <>
-      <mesh ref={shellRef} renderOrder={-3}>
-        <sphereGeometry args={[34, 40, 40]} />
-        <meshBasicMaterial
-          ref={shellMaterialRef}
-          transparent
-          opacity={0}
-          side={THREE.BackSide}
-          blending={THREE.AdditiveBlending}
-          depthWrite={false}
-        />
-      </mesh>
-
-      <mesh
-        ref={haloRef}
-        position={[0, 0, -10]}
-        rotation={[Math.PI / 2, 0, 0]}
-        renderOrder={-2}
-      >
-        <ringGeometry args={[4.8, 18, 96]} />
-        <meshBasicMaterial
-          ref={haloMaterialRef}
-          transparent
-          opacity={0}
-          side={THREE.DoubleSide}
-          blending={THREE.AdditiveBlending}
-          depthWrite={false}
-        />
-      </mesh>
-
-      <hemisphereLight
-        ref={hemiLightRef}
-        color={atmosphere.keyLightColor}
-        groundColor={atmosphere.fogColor}
-        intensity={profile.ambientLight}
-      />
-      <pointLight
-        ref={keyLightRef}
-        color={atmosphere.keyLightColor}
-        position={[4, 5, 11]}
-        intensity={atmosphere.keyLightIntensity}
-        distance={28}
-        decay={2}
-      />
-      <pointLight
-        ref={rimLightRef}
-        color={atmosphere.rimLightColor}
-        position={[-8, -1.5, -14]}
-        intensity={atmosphere.rimLightIntensity}
-        distance={28}
-        decay={2}
-      />
-    </>
-  );
-}
-
-function Background({
-  activeChapterIndex,
-  profile,
-  pointerSignalRef,
-}: {
-  activeChapterIndex: number;
-  profile: SceneProfile;
-  pointerSignalRef: MutableRefObject<CanvasPointerSignal>;
-}) {
-  const atmosphere =
-    CHAPTER_ATMOSPHERES[CHAPTERS[activeChapterIndex]?.id ?? CHAPTERS[0].id];
-
-  return (
-    <>
-      <Stars
-        radius={90}
-        depth={55}
-        count={profile.starCount}
-        factor={profile.starFactor}
-        saturation={0}
-        fade
-        speed={atmosphere.starDriftSpeed}
-      />
-      <fog
-        attach="fog"
-        color={atmosphere.fogColor}
-        near={35}
-        far={profile.fogFar}
-      />
-      <AtmosphereRig
-        activeChapterIndex={activeChapterIndex}
-        profile={profile}
-        pointerSignalRef={pointerSignalRef}
-      />
-    </>
-  );
-}
-
-type SceneRendererProps = {
-  isLive: boolean;
-  progressRef: MutableRefObject<number>;
-  profile: SceneProfile;
-  pointerSignalRef: MutableRefObject<CanvasPointerSignal>;
-};
-
-const SCENE_RENDERERS: Array<{
-  chapterId: string;
-  render: (props: SceneRendererProps) => JSX.Element;
-}> = [
-  {
-    chapterId: CHAPTERS[0].id,
-    render: props => <ParticleGalaxy {...props} />,
-  },
-  {
-    chapterId: CHAPTERS[1].id,
-    render: props => <NeuralCortex {...props} />,
-  },
-  {
-    chapterId: CHAPTERS[2].id,
-    render: ({ isLive, progressRef, pointerSignalRef }) => (
-      <CrystalFortress
-        isLive={isLive}
-        progressRef={progressRef}
-        pointerSignalRef={pointerSignalRef}
-      />
-    ),
-  },
-  {
-    chapterId: CHAPTERS[3].id,
-    render: props => <CloudConstellation {...props} />,
-  },
-  {
-    chapterId: CHAPTERS[4].id,
-    render: props => <SignalMatrix {...props} />,
-  },
-  {
-    chapterId: CHAPTERS[5].id,
-    render: props => <SingularityCore {...props} />,
-  },
-];
-
-function Scene({
-  activeChapterIndex,
-  progressRef,
-  profile,
-  sceneLens,
-  primeSceneIndices,
-  renderSceneIndices,
-  SceneOverlaysComponent,
-  interactionBurstActive,
-  interactionBurstCycle,
-  pointerSignalRef,
-}: {
-  activeChapterIndex: number;
-  progressRef: MutableRefObject<number>;
-  profile: SceneProfile;
-  sceneLens: SceneLensMode;
-  primeSceneIndices: number[];
-  renderSceneIndices: number[];
-  SceneOverlaysComponent: OliveUniverseSceneOverlaysComponent | null;
-  interactionBurstActive: boolean;
-  interactionBurstCycle: number;
-  pointerSignalRef: MutableRefObject<CanvasPointerSignal>;
-}) {
-  const { camera } = useThree();
-  const camPos = useRef(new THREE.Vector3(0, 0, 9));
-  const camLook = useRef(new THREE.Vector3(0, 0, 0));
-  const nextPos = useRef(new THREE.Vector3(0, 0, 9));
-  const nextLook = useRef(new THREE.Vector3(0, 0, 0));
-  const burstLevelRef = useRef(0);
-  const primeSceneSet = useMemo(
-    () => new Set(primeSceneIndices),
-    [primeSceneIndices]
-  );
-  const renderSceneSet = useMemo(
-    () => new Set(renderSceneIndices),
-    [renderSceneIndices]
-  );
-  const activeAtmosphere = useMemo(
-    () =>
-      CHAPTER_ATMOSPHERES[CHAPTERS[activeChapterIndex]?.id ?? CHAPTERS[0].id],
-    [activeChapterIndex]
-  );
-  const lensConfig = useMemo(
-    () => SCENE_LENS_CAMERA_SETTINGS[sceneLens],
-    [sceneLens]
-  );
-  const shouldPrimeScene = useCallback(
-    (sceneIndex: number) => primeSceneSet.has(sceneIndex),
-    [primeSceneSet]
-  );
-  const shouldRenderScene = useCallback(
-    (sceneIndex: number) => renderSceneSet.has(sceneIndex),
-    [renderSceneSet]
-  );
-
-  useFrame(({ clock }) => {
-    const progress = progressRef.current ?? 0;
-    const keyframe = camAtT(progress);
-    const pointerSignal = pointerSignalRef.current;
-    const performanceBudget = getScenePerformanceBudget(
-      pointerSignal.performanceFactor
-    );
-    const pointerVelocityX =
-      pointerSignal.velocity.x *
-      (pointerSignal.coarse ? 0.3 : 0.2) *
-      performanceBudget.motion;
-    const pointerVelocityY =
-      pointerSignal.velocity.y *
-      (pointerSignal.coarse ? 0.22 : 0.16) *
-      performanceBudget.motion;
-    const momentumPush =
-      pointerSignal.momentum *
-      (pointerSignal.coarse ? 0.26 : 0.16) *
-      performanceBudget.motion;
-
-    burstLevelRef.current = THREE.MathUtils.lerp(
-      burstLevelRef.current,
-      interactionBurstActive ? 1 : 0,
-      interactionBurstActive ? 0.16 : 0.1
-    );
-    const burst = burstLevelRef.current;
-    const pointerDriftStrength = pointerSignal.coarse
-      ? 0.38 * performanceBudget.motion
-      : profile.pointerParallax
-        ? 0.26 * performanceBudget.motion
-        : 0.18 * performanceBudget.motion;
-    const pointerX = pointerSignal.position.x * pointerDriftStrength;
-    const pointerY = pointerSignal.position.y * pointerDriftStrength * 0.72;
-    const pointerPush =
-      pointerSignal.energy *
-      (pointerSignal.coarse ? 0.24 : 0.14) *
-      performanceBudget.motion;
-    const driftStrength =
-      (0.06 + activeAtmosphere.haloOpacity * 0.32 + burst * 0.08) *
-      lensConfig.driftMultiplier *
-      performanceBudget.motion;
-    const driftTime =
-      clock.elapsedTime * (0.22 + activeAtmosphere.starDriftSpeed * 0.16);
-    const driftX =
-      Math.sin(driftTime + activeChapterIndex * 0.9) * driftStrength;
-    const driftY =
-      Math.cos(driftTime * 1.1 + activeChapterIndex * 0.45) *
-      driftStrength *
-      0.52;
-    const driftZ =
-      Math.sin(driftTime * 0.7 + activeChapterIndex) * driftStrength * 0.2;
-    const orbitPhase =
-      clock.elapsedTime * lensConfig.orbitSpeed + activeChapterIndex * 0.72;
-    const orbitRadius =
-      lensConfig.orbitRadius *
-      (0.8 + activeAtmosphere.haloOpacity * 1.4) *
-      performanceBudget.motion;
-    const orbitX = Math.cos(orbitPhase) * orbitRadius;
-    const orbitY = Math.sin(orbitPhase * 0.82) * orbitRadius * 0.34;
-    const orbitZ = Math.sin(orbitPhase * 0.58) * orbitRadius * 0.18;
-
-    nextPos.current.set(
-      keyframe.pos[0] +
-        driftX +
-        orbitX +
-        pointerX * 0.58 +
-        pointerVelocityX * 0.34,
-      keyframe.pos[1] +
-        driftY +
-        orbitY +
-        pointerY * 0.44 +
-        pointerVelocityY * 0.28,
-      keyframe.pos[2] +
-        driftZ +
-        orbitZ -
-        burst * lensConfig.pushIn -
-        pointerPush * 0.22 -
-        momentumPush * 0.2
-    );
-    nextLook.current.set(
-      keyframe.look[0] +
-        driftX * lensConfig.lookBias +
-        orbitX * 0.22 +
-        pointerX +
-        pointerVelocityX * 0.2,
-      keyframe.look[1] +
-        driftY * (lensConfig.lookBias + 0.06) +
-        orbitY * 0.28 +
-        pointerY +
-        pointerVelocityY * 0.16,
-      keyframe.look[2] +
-        burst * (0.08 + lensConfig.pushIn * 0.32) +
-        pointerPush * 0.18 +
-        momentumPush * 0.12
-    );
-    camPos.current.lerp(nextPos.current, lensConfig.lerp);
-    camLook.current.lerp(nextLook.current, lensConfig.lerp);
-    camera.position.copy(camPos.current);
-    camera.lookAt(camLook.current);
-  });
-
-  return (
-    <>
-      <Background
-        activeChapterIndex={activeChapterIndex}
-        profile={profile}
-        pointerSignalRef={pointerSignalRef}
-      />
-      {SceneOverlaysComponent && (
-        <SceneOverlaysComponent
-          activeChapterIndex={activeChapterIndex}
-          profile={profile}
-          sceneLens={sceneLens}
-          interactionBurstActive={interactionBurstActive}
-          interactionBurstCycle={interactionBurstCycle}
-          pointerSignalRef={pointerSignalRef}
-        />
-      )}
-      {SCENE_RENDERERS.map(({ chapterId, render }, sceneIndex) => {
-        if (!shouldPrimeScene(sceneIndex)) {
-          return null;
-        }
-
-        return (
-          <group key={chapterId}>
-            {render({
-              isLive: shouldRenderScene(sceneIndex),
-              progressRef,
-              profile,
-              pointerSignalRef,
-            })}
-          </group>
-        );
-      })}
-    </>
-  );
 }
 
 function PerformanceBudgetGuard({
   enabled,
-  stabilityAssistActive,
-  quality,
-  postFxEnabled,
-  lowMemoryDevice,
-  onBudgetExceeded,
+  onExceeded,
 }: {
   enabled: boolean;
-  stabilityAssistActive: boolean;
-  quality: QualityTier;
-  postFxEnabled: boolean;
-  lowMemoryDevice: boolean;
-  onBudgetExceeded?: () => void;
+  onExceeded?: () => void;
 }) {
-  const lowFpsScoreRef = useRef(0);
-  const notifiedRef = useRef(false);
+  const consecutiveDropsRef = useRef(0);
+  const hasTriggeredRef = useRef(false);
 
-  useEffect(() => {
-    if (!enabled || stabilityAssistActive) {
-      lowFpsScoreRef.current = 0;
-    }
-  }, [enabled, stabilityAssistActive]);
-
-  useEffect(() => {
-    if (!stabilityAssistActive) {
-      notifiedRef.current = false;
-    }
-  }, [stabilityAssistActive]);
-
-  useEffect(() => {
-    if (
-      !enabled ||
-      stabilityAssistActive ||
-      notifiedRef.current ||
-      typeof window === 'undefined'
-    ) {
+  useFrame((_, delta) => {
+    if (!enabled || hasTriggeredRef.current) {
       return;
     }
 
-    const debugWindow = window as OliveDebugWindow;
-    if (!debugWindow.__OLIVE_FORCE_STABILITY_ASSIST__) {
-      return;
+    if (typeof window !== 'undefined') {
+      const debugWindow = window as OliveDebugWindow;
+      if (debugWindow.__OLIVE_FORCE_STABILITY_ASSIST__) {
+        hasTriggeredRef.current = true;
+        onExceeded?.();
+        return;
+      }
     }
 
-    debugWindow.__OLIVE_FORCE_STABILITY_ASSIST__ = false;
-    notifiedRef.current = true;
-    onBudgetExceeded?.();
-  }, [enabled, onBudgetExceeded, stabilityAssistActive]);
-
-  useFrame(({ clock }, delta) => {
-    const gracePeriod = lowMemoryDevice ? 0.72 : postFxEnabled ? 0.92 : 1.08;
-    const badFrameThreshold = lowMemoryDevice
-      ? 1 / 30
-      : postFxEnabled
-        ? 1 / 28
-        : 1 / 26;
-    const budgetThreshold = lowMemoryDevice
-      ? 11
-      : postFxEnabled || quality === 'high'
-        ? 14
-        : 17;
-
-    if (
-      !enabled ||
-      stabilityAssistActive ||
-      notifiedRef.current ||
-      clock.elapsedTime < gracePeriod
-    ) {
-      return;
+    const fps = delta > 0 ? 1 / delta : 60;
+    if (fps < 26) {
+      consecutiveDropsRef.current += 1;
+    } else {
+      consecutiveDropsRef.current = Math.max(
+        0,
+        consecutiveDropsRef.current - 1
+      );
     }
 
-    lowFpsScoreRef.current =
-      delta > badFrameThreshold
-        ? lowFpsScoreRef.current + (delta > 1 / 22 ? 1.5 : 1)
-        : Math.max(0, lowFpsScoreRef.current - 0.75);
-
-    if (lowFpsScoreRef.current < budgetThreshold) {
-      return;
+    if (consecutiveDropsRef.current > 40) {
+      hasTriggeredRef.current = true;
+      onExceeded?.();
     }
-
-    notifiedRef.current = true;
-    lowFpsScoreRef.current = 0;
-    onBudgetExceeded?.();
   });
 
   return null;
 }
 
-export interface OliveUniverseCanvasProps {
-  activeChapterIndex: number;
-  progressRef: MutableRefObject<number>;
-  quality: QualityTier;
+function CameraRig({
+  pointerFieldRef,
+  shouldAnimate,
+  mobileOptimized,
+  fieldStrength,
+}: {
+  pointerFieldRef: MutableRefObject<PointerField>;
+  shouldAnimate: boolean;
+  mobileOptimized: boolean;
+  fieldStrength: number;
+}) {
+  const { camera } = useThree();
+  const lookTarget = useMemo(() => new THREE.Vector3(), []);
+  const desiredPosition = useMemo(() => new THREE.Vector3(0, 0, 7.8), []);
+
+  useFrame((state, delta) => {
+    const pointerField = pointerFieldRef.current;
+    pointerField.current.lerp(pointerField.target, shouldAnimate ? 0.08 : 0.12);
+    pointerField.burst = THREE.MathUtils.damp(
+      pointerField.burst,
+      0,
+      2.8,
+      delta
+    );
+    pointerField.engagement = THREE.MathUtils.damp(
+      pointerField.engagement,
+      pointerField.down ? 1 : 0.15,
+      3.2,
+      delta
+    );
+
+    const t = state.clock.elapsedTime;
+    const orbitRadius = mobileOptimized ? 0.32 : 0.55;
+    const orbitSpeed = shouldAnimate ? 0.12 : 0.04;
+    const driftX = pointerField.current.x * fieldStrength;
+    const driftY = pointerField.current.y * fieldStrength * 0.68;
+    const pushIn = pointerField.burst * 0.48 + pointerField.engagement * 0.18;
+
+    desiredPosition.set(
+      Math.cos(t * orbitSpeed) * orbitRadius + driftX,
+      0.25 + Math.sin(t * orbitSpeed * 0.85) * 0.18 + driftY,
+      7.8 - pushIn
+    );
+
+    camera.position.lerp(desiredPosition, shouldAnimate ? 0.06 : 0.12);
+    lookTarget.set(driftX * 0.5, driftY * 0.4, 0);
+    camera.lookAt(lookTarget);
+  });
+
+  return null;
+}
+
+function PulseCore({
+  pointerFieldRef,
+  shouldAnimate,
+  haloScale,
+}: {
+  pointerFieldRef: MutableRefObject<PointerField>;
+  shouldAnimate: boolean;
+  haloScale: number;
+}) {
+  const groupRef = useRef<THREE.Group>(null);
+  const shellRef = useRef<THREE.Mesh>(null);
+  const shellMaterialRef = useRef<THREE.MeshPhysicalMaterial>(null);
+  const coreMaterialRef = useRef<THREE.MeshStandardMaterial>(null);
+  const ringMaterialRef = useRef<THREE.MeshBasicMaterial>(null);
+
+  useFrame((state, delta) => {
+    const pointerField = pointerFieldRef.current;
+    const pulse =
+      1 + pointerField.burst * 0.08 + pointerField.engagement * 0.04;
+    const t = state.clock.elapsedTime;
+
+    if (groupRef.current) {
+      groupRef.current.rotation.x = Math.sin(t * 0.18) * 0.12;
+      groupRef.current.rotation.y += delta * (shouldAnimate ? 0.22 : 0.08);
+      groupRef.current.rotation.z = Math.cos(t * 0.14) * 0.08;
+      groupRef.current.scale.setScalar(
+        THREE.MathUtils.damp(groupRef.current.scale.x, pulse, 4.2, delta)
+      );
+    }
+
+    if (shellRef.current) {
+      shellRef.current.rotation.y += delta * 0.14;
+      shellRef.current.rotation.z -= delta * 0.06;
+    }
+
+    if (shellMaterialRef.current) {
+      shellMaterialRef.current.emissiveIntensity = THREE.MathUtils.damp(
+        shellMaterialRef.current.emissiveIntensity,
+        1 + pointerField.burst * 1.2,
+        4,
+        delta
+      );
+    }
+
+    if (coreMaterialRef.current) {
+      coreMaterialRef.current.emissiveIntensity = THREE.MathUtils.damp(
+        coreMaterialRef.current.emissiveIntensity,
+        1.3 + pointerField.burst * 1.4,
+        4,
+        delta
+      );
+    }
+
+    if (ringMaterialRef.current) {
+      ringMaterialRef.current.opacity = THREE.MathUtils.damp(
+        ringMaterialRef.current.opacity,
+        0.18 + pointerField.burst * 0.28,
+        3,
+        delta
+      );
+    }
+  });
+
+  return (
+    <group ref={groupRef}>
+      <mesh ref={shellRef} scale={haloScale}>
+        <icosahedronGeometry args={[1.95, 3]} />
+        <meshPhysicalMaterial
+          ref={shellMaterialRef}
+          color={SCENE_PALETTE.tertiary}
+          emissive={SCENE_PALETTE.secondary}
+          emissiveIntensity={1.2}
+          roughness={0.04}
+          metalness={0.32}
+          transparent
+          opacity={0.26}
+          transmission={0.44}
+          thickness={0.8}
+          wireframe
+        />
+      </mesh>
+
+      <mesh scale={0.9}>
+        <octahedronGeometry args={[1.05, 1]} />
+        <meshStandardMaterial
+          ref={coreMaterialRef}
+          color={SCENE_PALETTE.highlight}
+          emissive={SCENE_PALETTE.accent}
+          emissiveIntensity={1.6}
+          roughness={0.18}
+          metalness={0.22}
+        />
+      </mesh>
+
+      <mesh rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[2.8, 0.03, 16, 180]} />
+        <meshBasicMaterial
+          ref={ringMaterialRef}
+          color={SCENE_PALETTE.secondary}
+          transparent
+          opacity={0.24}
+          blending={THREE.AdditiveBlending}
+        />
+      </mesh>
+
+      <mesh rotation={[Math.PI / 2, Math.PI / 3, 0]}>
+        <torusGeometry args={[3.35, 0.02, 16, 180]} />
+        <meshBasicMaterial
+          color={SCENE_PALETTE.accent}
+          transparent
+          opacity={0.12}
+          blending={THREE.AdditiveBlending}
+        />
+      </mesh>
+    </group>
+  );
+}
+
+function RibbonField({
+  count,
+  pointerFieldRef,
+}: {
+  count: number;
+  pointerFieldRef: MutableRefObject<PointerField>;
+}) {
+  const groupRef = useRef<THREE.Group>(null);
+  const ribbons = useMemo(() => {
+    return Array.from({ length: count }, (_, index) => {
+      const radius = 2.4 + index * 0.35;
+      const curve = new THREE.CatmullRomCurve3(
+        Array.from({ length: 8 }, (_, pointIndex) => {
+          const angle = (pointIndex / 8) * Math.PI * 2;
+          return new THREE.Vector3(
+            Math.cos(angle + index * 0.4) * radius,
+            Math.sin(angle * 1.4 + index) * 0.9,
+            Math.sin(angle + index * 0.7) * radius * 0.42
+          );
+        }),
+        true
+      );
+
+      return {
+        geometry: new THREE.TubeGeometry(
+          curve,
+          220,
+          0.028 + index * 0.008,
+          12,
+          true
+        ),
+        color:
+          index % 3 === 0
+            ? SCENE_PALETTE.accent
+            : index % 3 === 1
+              ? SCENE_PALETTE.secondary
+              : SCENE_PALETTE.tertiary,
+        speed: 0.12 + index * 0.03,
+      };
+    });
+  }, [count]);
+
+  useEffect(() => {
+    return () => {
+      ribbons.forEach(ribbon => ribbon.geometry.dispose());
+    };
+  }, [ribbons]);
+
+  useFrame((state, delta) => {
+    if (!groupRef.current) {
+      return;
+    }
+
+    const burst = pointerFieldRef.current.burst;
+    groupRef.current.rotation.y += delta * (0.08 + burst * 0.04);
+    groupRef.current.rotation.x =
+      Math.sin(state.clock.elapsedTime * 0.12) * 0.18;
+  });
+
+  return (
+    <group ref={groupRef}>
+      {ribbons.map((ribbon, index) => (
+        <mesh
+          key={`ribbon-${index}`}
+          geometry={ribbon.geometry}
+          rotation={[index * 0.4, index * 0.2, index * 0.16]}
+        >
+          <meshBasicMaterial
+            color={ribbon.color}
+            transparent
+            opacity={0.1 + index * 0.02}
+            blending={THREE.AdditiveBlending}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+function MonolithField({
+  count,
+  pointerFieldRef,
+}: {
+  count: number;
+  pointerFieldRef: MutableRefObject<PointerField>;
+}) {
+  const groupRef = useRef<THREE.Group>(null);
+  const monoliths = useMemo(
+    () =>
+      Array.from({ length: count }, (_, index) => {
+        const angle = (index / count) * Math.PI * 2;
+        const radius = 4.2 + (index % 4) * 0.55;
+        return {
+          position: new THREE.Vector3(
+            Math.cos(angle) * radius,
+            -1.1 + (index % 5) * 0.65,
+            Math.sin(angle) * radius
+          ),
+          rotation: [angle * 0.35, angle, Math.PI * 0.08] as const,
+          scale: 0.42 + (index % 3) * 0.18,
+        };
+      }),
+    [count]
+  );
+
+  useFrame((state, delta) => {
+    if (!groupRef.current) {
+      return;
+    }
+
+    const pointerField = pointerFieldRef.current;
+    groupRef.current.rotation.y += delta * (0.06 + pointerField.burst * 0.05);
+    groupRef.current.position.x = THREE.MathUtils.damp(
+      groupRef.current.position.x,
+      pointerField.current.x * 0.25,
+      3,
+      delta
+    );
+    groupRef.current.position.y = THREE.MathUtils.damp(
+      groupRef.current.position.y,
+      pointerField.current.y * 0.18,
+      3,
+      delta
+    );
+    groupRef.current.rotation.x =
+      Math.sin(state.clock.elapsedTime * 0.16) * 0.08;
+  });
+
+  return (
+    <group ref={groupRef}>
+      {monoliths.map((monolith, index) => (
+        <mesh
+          key={`monolith-${index}`}
+          position={monolith.position}
+          rotation={monolith.rotation}
+          scale={monolith.scale}
+        >
+          <boxGeometry args={[0.28, 1.8, 0.28]} />
+          <meshPhysicalMaterial
+            color={
+              index % 2 === 0 ? SCENE_PALETTE.secondary : SCENE_PALETTE.tertiary
+            }
+            emissive={SCENE_PALETTE.accent}
+            emissiveIntensity={0.4}
+            roughness={0.12}
+            metalness={0.42}
+            transparent
+            opacity={0.66}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+function HaloParticles({
+  count,
+  particleSize,
+  pointerFieldRef,
+}: {
+  count: number;
+  particleSize: number;
+  pointerFieldRef: MutableRefObject<PointerField>;
+}) {
+  const pointsRef = useRef<THREE.Points>(null);
+  const materialRef = useRef<THREE.PointsMaterial>(null);
+  const geometry = useMemo(() => {
+    const positions = new Float32Array(count * 3);
+    for (let index = 0; index < count; index += 1) {
+      const phi = Math.acos(1 - (2 * (index + 0.5)) / count);
+      const theta = Math.PI * (1 + Math.sqrt(5)) * (index + 0.5);
+      const radius = 3.4 + Math.sin(index * 0.37) * 0.45;
+      positions[index * 3] = Math.cos(theta) * Math.sin(phi) * radius;
+      positions[index * 3 + 1] = Math.sin(theta) * Math.sin(phi) * radius;
+      positions[index * 3 + 2] = Math.cos(phi) * radius;
+    }
+
+    const nextGeometry = new THREE.BufferGeometry();
+    nextGeometry.setAttribute(
+      'position',
+      new THREE.BufferAttribute(positions, 3)
+    );
+    return nextGeometry;
+  }, [count]);
+
+  useEffect(() => {
+    return () => geometry.dispose();
+  }, [geometry]);
+
+  useFrame((state, delta) => {
+    if (!pointsRef.current || !materialRef.current) {
+      return;
+    }
+
+    const pointerField = pointerFieldRef.current;
+    pointsRef.current.rotation.y += delta * (0.06 + pointerField.burst * 0.04);
+    pointsRef.current.rotation.x =
+      Math.sin(state.clock.elapsedTime * 0.18) * 0.2;
+    materialRef.current.opacity = THREE.MathUtils.damp(
+      materialRef.current.opacity,
+      0.3 + pointerField.burst * 0.2,
+      4,
+      delta
+    );
+    materialRef.current.size = THREE.MathUtils.damp(
+      materialRef.current.size,
+      particleSize + pointerField.burst * 0.55,
+      4,
+      delta
+    );
+  });
+
+  return (
+    <points ref={pointsRef} geometry={geometry}>
+      <pointsMaterial
+        ref={materialRef}
+        color={SCENE_PALETTE.highlight}
+        transparent
+        opacity={0.34}
+        size={particleSize}
+        sizeAttenuation
+        blending={THREE.AdditiveBlending}
+        depthWrite={false}
+      />
+    </points>
+  );
+}
+
+function FloatingShards({
+  count,
+  pointerFieldRef,
+}: {
+  count: number;
+  pointerFieldRef: MutableRefObject<PointerField>;
+}) {
+  const groupRef = useRef<THREE.Group>(null);
+  const shards = useMemo(
+    () =>
+      Array.from({ length: count }, (_, index) => {
+        const angle = (index / count) * Math.PI * 2;
+        return {
+          position: [
+            Math.cos(angle) * (2.4 + (index % 4) * 0.65),
+            -2 + (index % 6) * 0.76,
+            Math.sin(angle * 1.4) * (2.1 + (index % 5) * 0.36),
+          ] as const,
+          scale: 0.22 + (index % 3) * 0.12,
+        };
+      }),
+    [count]
+  );
+
+  useFrame((state, delta) => {
+    if (!groupRef.current) {
+      return;
+    }
+
+    groupRef.current.rotation.y -=
+      delta * (0.04 + pointerFieldRef.current.burst * 0.04);
+    groupRef.current.rotation.z =
+      Math.sin(state.clock.elapsedTime * 0.22) * 0.16;
+  });
+
+  return (
+    <group ref={groupRef}>
+      {shards.map((shard, index) => (
+        <mesh
+          key={`shard-${index}`}
+          position={shard.position}
+          scale={shard.scale}
+          rotation={[index * 0.3, index * 0.5, index * 0.18]}
+        >
+          <tetrahedronGeometry args={[1, 0]} />
+          <meshBasicMaterial
+            color={
+              index % 2 === 0 ? SCENE_PALETTE.accent : SCENE_PALETTE.secondary
+            }
+            transparent
+            opacity={0.22}
+            blending={THREE.AdditiveBlending}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+function EnergyFloor({
+  pointerFieldRef,
+}: {
+  pointerFieldRef: MutableRefObject<PointerField>;
+}) {
+  const groupRef = useRef<THREE.Group>(null);
+
+  useFrame((state, delta) => {
+    if (!groupRef.current) {
+      return;
+    }
+
+    const pointerField = pointerFieldRef.current;
+    groupRef.current.rotation.z =
+      Math.sin(state.clock.elapsedTime * 0.08) * 0.04;
+    groupRef.current.scale.setScalar(
+      THREE.MathUtils.damp(
+        groupRef.current.scale.x,
+        1 + pointerField.burst * 0.05,
+        3.2,
+        delta
+      )
+    );
+  });
+
+  return (
+    <group
+      ref={groupRef}
+      position={[0, -3.35, 0]}
+      rotation={[-Math.PI / 2, 0, 0]}
+    >
+      <mesh>
+        <ringGeometry args={[3.8, 4.2, 120]} />
+        <meshBasicMaterial
+          color={SCENE_PALETTE.secondary}
+          transparent
+          opacity={0.16}
+          blending={THREE.AdditiveBlending}
+        />
+      </mesh>
+      <mesh rotation={[0, 0, Math.PI / 5]}>
+        <ringGeometry args={[5.2, 5.34, 140]} />
+        <meshBasicMaterial
+          color={SCENE_PALETTE.accent}
+          transparent
+          opacity={0.08}
+          blending={THREE.AdditiveBlending}
+        />
+      </mesh>
+    </group>
+  );
+}
+
+function SceneLighting({
+  pointerFieldRef,
+}: {
+  pointerFieldRef: MutableRefObject<PointerField>;
+}) {
+  const keyLightRef = useRef<THREE.PointLight>(null);
+  const fillLightRef = useRef<THREE.PointLight>(null);
+
+  useFrame((_, delta) => {
+    const burst = pointerFieldRef.current.burst;
+
+    if (keyLightRef.current) {
+      keyLightRef.current.intensity = THREE.MathUtils.damp(
+        keyLightRef.current.intensity,
+        16 + burst * 6,
+        3,
+        delta
+      );
+    }
+
+    if (fillLightRef.current) {
+      fillLightRef.current.intensity = THREE.MathUtils.damp(
+        fillLightRef.current.intensity,
+        8 + burst * 3,
+        3,
+        delta
+      );
+    }
+  });
+
+  return (
+    <>
+      <ambientLight intensity={0.9} color={SCENE_PALETTE.highlight} />
+      <hemisphereLight
+        intensity={0.7}
+        groundColor={SCENE_PALETTE.backgroundTo}
+        color={SCENE_PALETTE.secondary}
+      />
+      <pointLight
+        ref={keyLightRef}
+        position={[0, 0.6, 4.8]}
+        color={SCENE_PALETTE.accent}
+        intensity={16}
+        distance={26}
+        decay={1.8}
+      />
+      <pointLight
+        ref={fillLightRef}
+        position={[-5.5, 4, -2.5]}
+        color={SCENE_PALETTE.tertiary}
+        intensity={8}
+        distance={32}
+        decay={2}
+      />
+      <directionalLight
+        position={[4.5, 6, 3]}
+        intensity={1.8}
+        color={SCENE_PALETTE.highlight}
+      />
+    </>
+  );
+}
+
+function HeroScene({
+  pointerFieldRef,
+  sceneProfile,
+  shouldAnimate,
+  mobileOptimized,
+}: {
+  pointerFieldRef: MutableRefObject<PointerField>;
   sceneProfile: SceneProfile;
   shouldAnimate: boolean;
-  stabilityAssistActive: boolean;
-  sceneLens: SceneLensMode;
-  compactViewport: boolean;
-  interactionBurstActive: boolean;
-  interactionBurstCycle: number;
   mobileOptimized: boolean;
-  onPerformanceBudgetExceeded?: () => void;
-  onTouchFieldStateChange?: (state: CanvasTouchFieldState) => void;
-  onTouchMomentumStateChange?: (state: CanvasTouchMomentumState) => void;
-  onWarmCountChange?: (count: number) => void;
-  onReady?: () => void;
+}) {
+  const sceneRef = useRef<THREE.Group>(null);
+
+  useFrame((state, delta) => {
+    if (!sceneRef.current) {
+      return;
+    }
+
+    const pointerField = pointerFieldRef.current;
+    sceneRef.current.rotation.y += delta * (shouldAnimate ? 0.02 : 0.006);
+    sceneRef.current.position.x = THREE.MathUtils.damp(
+      sceneRef.current.position.x,
+      pointerField.current.x * 0.18,
+      2.4,
+      delta
+    );
+    sceneRef.current.position.y = THREE.MathUtils.damp(
+      sceneRef.current.position.y,
+      pointerField.current.y * 0.12,
+      2.4,
+      delta
+    );
+    sceneRef.current.scale.setScalar(
+      THREE.MathUtils.damp(
+        sceneRef.current.scale.x,
+        mobileOptimized
+          ? 0.94 + pointerField.burst * 0.02
+          : 1 + pointerField.burst * 0.03,
+        3.2,
+        delta
+      )
+    );
+    sceneRef.current.rotation.x =
+      Math.sin(state.clock.elapsedTime * 0.12) * 0.04;
+  });
+
+  return (
+    <group ref={sceneRef}>
+      <PulseCore
+        pointerFieldRef={pointerFieldRef}
+        shouldAnimate={shouldAnimate}
+        haloScale={sceneProfile.haloScale}
+      />
+      <RibbonField
+        count={sceneProfile.ribbonCount}
+        pointerFieldRef={pointerFieldRef}
+      />
+      <MonolithField
+        count={sceneProfile.monolithCount}
+        pointerFieldRef={pointerFieldRef}
+      />
+      <FloatingShards
+        count={sceneProfile.shardCount}
+        pointerFieldRef={pointerFieldRef}
+      />
+      <HaloParticles
+        count={sceneProfile.haloCount}
+        particleSize={sceneProfile.particleSize}
+        pointerFieldRef={pointerFieldRef}
+      />
+      <EnergyFloor pointerFieldRef={pointerFieldRef} />
+      <Sparkles
+        count={sceneProfile.sparkleCount}
+        scale={12}
+        size={mobileOptimized ? 2.2 : 3.1}
+        speed={0.18}
+        color={SCENE_PALETTE.secondary}
+        opacity={0.7}
+      />
+      <Stars
+        radius={sceneProfile.starRadius}
+        depth={42}
+        count={sceneProfile.starCount}
+        factor={mobileOptimized ? 2.4 : 3.2}
+        saturation={0}
+        fade
+        speed={0.32}
+      />
+    </group>
+  );
 }
 
 export default function OliveUniverseCanvas({
-  activeChapterIndex,
-  progressRef,
   quality,
   sceneProfile,
   shouldAnimate,
-  stabilityAssistActive,
-  sceneLens,
-  compactViewport,
-  interactionBurstActive,
-  interactionBurstCycle,
   mobileOptimized,
+  stabilityAssistActive,
+  interactionPulse,
+  onInteractionStateChange,
   onPerformanceBudgetExceeded,
-  onTouchFieldStateChange,
-  onTouchMomentumStateChange,
-  onWarmCountChange,
   onReady,
 }: OliveUniverseCanvasProps) {
-  const canvasRootRef = useRef<HTMLDivElement>(null);
-  const activePointerIdRef = useRef<number | null>(null);
-  const deviceMemory = useMemo(() => getDeviceMemory(), []);
-  const lowMemoryDevice =
-    typeof deviceMemory === 'number' && deviceMemory > 0 && deviceMemory <= 4;
-  const [PostFxComponent, setPostFxComponent] =
-    useState<OliveUniversePostFxComponent | null>(null);
-  const [SceneOverlaysComponent, setSceneOverlaysComponent] =
-    useState<OliveUniverseSceneOverlaysComponent | null>(null);
-  const [viewportSize, setViewportSize] = useState<ViewportSize>(() =>
-    getViewportSize()
-  );
-  const previousActiveChapterIndexRef = useRef(activeChapterIndex);
-  const pointerSignalRef = useRef<CanvasPointerSignal>({
+  const pointerFieldRef = useRef<PointerField>({
     target: new THREE.Vector2(),
-    position: new THREE.Vector2(),
-    velocity: new THREE.Vector2(),
-    energy: 0,
-    fieldEnergy: 0,
-    momentum: 0,
-    performanceFactor: 1,
-    active: false,
-    coarse: false,
-    fieldState: 'idle',
+    current: new THREE.Vector2(),
+    down: false,
+    burst: 0,
+    engagement: 0,
   });
-  const [warmedSceneIndices, setWarmedSceneIndices] = useState<number[]>(() =>
-    getSceneNeighborhood(activeChapterIndex, CHAPTERS.length)
-  );
-  const [transitionRenderSceneIndices, setTransitionRenderSceneIndices] =
-    useState<number[]>(() =>
-      getSceneNeighborhood(activeChapterIndex, CHAPTERS.length)
+  const interactionTimeoutRef = useRef<number | null>(null);
+  const [interactionState, setInteractionState] = useState<
+    'idle' | 'engaged' | 'burst'
+  >('idle');
+
+  useEffect(() => {
+    onInteractionStateChange?.(interactionState);
+  }, [interactionState, onInteractionStateChange]);
+
+  useEffect(() => {
+    return () => {
+      if (
+        interactionTimeoutRef.current !== null &&
+        typeof window !== 'undefined'
+      ) {
+        window.clearTimeout(interactionTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    pointerFieldRef.current.burst = Math.min(
+      pointerFieldRef.current.burst + 1.1,
+      1.4
     );
-  const immediateSceneWindow = getImmediateSceneWindow(
-    activeChapterIndex,
-    previousActiveChapterIndexRef.current,
-    CHAPTERS.length
-  );
-  const primeSceneIndices = mergeSceneIndices(
-    warmedSceneIndices,
-    immediateSceneWindow,
-    CHAPTERS.length
-  );
-  const renderSceneIndices = mergeSceneIndices(
-    transitionRenderSceneIndices,
-    immediateSceneWindow,
-    CHAPTERS.length
-  );
-  const pendingWarmSceneIndices = getSceneWarmPriority(
-    activeChapterIndex,
-    CHAPTERS.length
-  ).filter(sceneIndex => !primeSceneIndices.includes(sceneIndex));
-  const pendingWarmSceneKey = pendingWarmSceneIndices.join(',');
-  const aberrationOffset = useMemo(
+    setInteractionState('burst');
+
+    if (
+      interactionTimeoutRef.current !== null &&
+      typeof window !== 'undefined'
+    ) {
+      window.clearTimeout(interactionTimeoutRef.current);
+    }
+
+    if (typeof window !== 'undefined') {
+      interactionTimeoutRef.current = window.setTimeout(() => {
+        setInteractionState(pointerFieldRef.current.down ? 'engaged' : 'idle');
+        interactionTimeoutRef.current = null;
+      }, 560);
+    }
+  }, [interactionPulse]);
+
+  const updatePointer = useCallback((clientX: number, clientY: number) => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const x = (clientX / window.innerWidth) * 2 - 1;
+    const y = -((clientY / window.innerHeight) * 2 - 1);
+    pointerFieldRef.current.target.set(x, y);
+  }, []);
+
+  const releasePointer = useCallback(() => {
+    pointerFieldRef.current.down = false;
+    pointerFieldRef.current.target.set(0, 0);
+
+    if (typeof window !== 'undefined') {
+      if (interactionTimeoutRef.current !== null) {
+        window.clearTimeout(interactionTimeoutRef.current);
+      }
+
+      interactionTimeoutRef.current = window.setTimeout(() => {
+        setInteractionState('idle');
+        interactionTimeoutRef.current = null;
+      }, 420);
+    }
+  }, []);
+
+  const postFxOffset = useMemo(
     () =>
       new THREE.Vector2(
         sceneProfile.aberrationOffset,
-        sceneProfile.aberrationOffset
+        sceneProfile.aberrationOffset * 0.4
       ),
     [sceneProfile.aberrationOffset]
   );
-  const canvasDprCap = useMemo(
-    () => getCanvasDprCap(quality, sceneProfile, lowMemoryDevice),
-    [lowMemoryDevice, quality, sceneProfile]
-  );
-  const canvasPixelBudget = useMemo(
-    () =>
-      getCanvasPixelBudget(
-        quality,
-        sceneProfile,
-        lowMemoryDevice,
-        mobileOptimized,
-        compactViewport
-      ),
-    [compactViewport, lowMemoryDevice, mobileOptimized, quality, sceneProfile]
-  );
-  const canvasDpr = useMemo(
-    () =>
-      getViewportAwareDpr(
-        typeof window === 'undefined' ? 1 : window.devicePixelRatio || 1,
-        canvasDprCap,
-        viewportSize,
-        canvasPixelBudget
-      ),
-    [canvasDprCap, canvasPixelBudget, viewportSize]
-  );
-  const antialiasEnabled =
-    quality !== 'low' &&
-    sceneProfile.enablePostFx &&
-    !lowMemoryDevice &&
-    !compactViewport;
-  const powerPreference =
-    lowMemoryDevice || compactViewport
-      ? 'low-power'
-      : sceneProfile.enablePostFx
-        ? 'high-performance'
-        : 'default';
-  const warmStepMs = useMemo(
-    () =>
-      getWarmStepMs(sceneProfile.enablePostFx, shouldAnimate, lowMemoryDevice),
-    [lowMemoryDevice, sceneProfile.enablePostFx, shouldAnimate]
-  );
-  const warmBatchSize = useMemo(
-    () =>
-      getWarmBatchSize(
-        sceneProfile.enablePostFx,
-        shouldAnimate,
-        lowMemoryDevice
-      ),
-    [lowMemoryDevice, sceneProfile.enablePostFx, shouldAnimate]
-  );
-
-  useEffect(() => {
-    if (typeof window === 'undefined') {
-      return;
-    }
-
-    const updateViewportSize = () => {
-      const nextViewportSize = getViewportSize();
-
-      setViewportSize(currentViewportSize =>
-        currentViewportSize.width === nextViewportSize.width &&
-        currentViewportSize.height === nextViewportSize.height
-          ? currentViewportSize
-          : nextViewportSize
-      );
-    };
-
-    updateViewportSize();
-
-    window.addEventListener('resize', updateViewportSize);
-    window.addEventListener('orientationchange', updateViewportSize);
-    window.visualViewport?.addEventListener('resize', updateViewportSize);
-
-    return () => {
-      window.removeEventListener('resize', updateViewportSize);
-      window.removeEventListener('orientationchange', updateViewportSize);
-      window.visualViewport?.removeEventListener('resize', updateViewportSize);
-    };
-  }, []);
-
-  useEffect(() => {
-    const node = canvasRootRef.current;
-
-    if (typeof window === 'undefined' || !node) {
-      return;
-    }
-
-    const syncPointerMode = () => {
-      pointerSignalRef.current.coarse =
-        (window.matchMedia?.('(pointer: coarse)').matches ?? false) ||
-        window.innerWidth <= MOBILE_CANVAS_BREAKPOINT;
-    };
-
-    const updatePointerTarget = (clientX: number, clientY: number) => {
-      const nextViewportSize = getViewportSize();
-
-      pointerSignalRef.current.target.set(
-        (clientX / nextViewportSize.width) * 2 - 1,
-        -(clientY / nextViewportSize.height) * 2 + 1
-      );
-    };
-
-    const handlePointerDown = (event: PointerEvent) => {
-      if (shouldIgnoreCanvasPointerTarget(event.target)) {
-        return;
-      }
-
-      syncPointerMode();
-      updatePointerTarget(event.clientX, event.clientY);
-      pointerSignalRef.current.active = true;
-      activePointerIdRef.current = event.pointerId;
-
-      try {
-        node.setPointerCapture(event.pointerId);
-      } catch {
-        // Pointer capture can fail on some browsers/devices; the scene still works without it.
-      }
-    };
-
-    const handlePointerMove = (event: PointerEvent) => {
-      if (
-        activePointerIdRef.current !== null &&
-        event.pointerId !== activePointerIdRef.current
-      ) {
-        return;
-      }
-
-      if (shouldIgnoreCanvasPointerTarget(event.target)) {
-        return;
-      }
-
-      syncPointerMode();
-      updatePointerTarget(event.clientX, event.clientY);
-
-      if (
-        event.pointerType === 'touch' ||
-        event.pressure > 0 ||
-        event.buttons > 0
-      ) {
-        pointerSignalRef.current.active = true;
-      }
-    };
-
-    const clearPointer = (event?: PointerEvent) => {
-      pointerSignalRef.current.active = false;
-      pointerSignalRef.current.target.multiplyScalar(
-        pointerSignalRef.current.coarse ? 0.35 : 0.6
-      );
-
-      if (
-        event &&
-        activePointerIdRef.current !== null &&
-        event.pointerId !== activePointerIdRef.current
-      ) {
-        return;
-      }
-
-      const pointerId = activePointerIdRef.current;
-      activePointerIdRef.current = null;
-
-      if (pointerId !== null && node.hasPointerCapture(pointerId)) {
-        try {
-          node.releasePointerCapture(pointerId);
-        } catch {
-          // Ignore release failures; capture state is best-effort.
-        }
-      }
-    };
-
-    const handlePointerLeave = () => {
-      if (activePointerIdRef.current !== null) {
-        return;
-      }
-
-      clearPointer();
-    };
-
-    const handleBlur = () => {
-      clearPointer();
-    };
-
-    syncPointerMode();
-
-    node.addEventListener('pointerdown', handlePointerDown, {
-      passive: true,
-    });
-    node.addEventListener('pointermove', handlePointerMove, {
-      passive: true,
-    });
-    node.addEventListener('pointerleave', handlePointerLeave);
-    window.addEventListener('pointerup', clearPointer, { passive: true });
-    window.addEventListener('pointercancel', clearPointer);
-    window.addEventListener('blur', handleBlur);
-
-    return () => {
-      node.removeEventListener('pointerdown', handlePointerDown);
-      node.removeEventListener('pointermove', handlePointerMove);
-      node.removeEventListener('pointerleave', handlePointerLeave);
-      window.removeEventListener('pointerup', clearPointer);
-      window.removeEventListener('pointercancel', clearPointer);
-      window.removeEventListener('blur', handleBlur);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (typeof window === 'undefined' || PostFxComponent) {
-      return;
-    }
-
-    const shouldPreloadPostFx =
-      sceneProfile.enablePostFx || (quality !== 'low' && !lowMemoryDevice);
-
-    if (!shouldPreloadPostFx) {
-      return;
-    }
-
-    let cancelled = false;
-    let timeoutId = 0;
-    let idleId = 0;
-    const idleWindow = window as IdleCapableWindow;
-
-    const loadPostFx = () => {
-      void import('./OliveUniversePostFx')
-        .then(module => {
-          if (!cancelled) {
-            setPostFxComponent(() => module.default);
-          }
-        })
-        .catch(() => {
-          // Ignore transient chunk loading failures; the core scene stays usable.
-        });
-    };
-
-    if (sceneProfile.enablePostFx) {
-      loadPostFx();
-
-      return () => {
-        cancelled = true;
-      };
-    }
-
-    if (idleWindow.requestIdleCallback) {
-      idleId = idleWindow.requestIdleCallback(loadPostFx, {
-        timeout: shouldAnimate ? 960 : 1400,
-      });
-    } else {
-      timeoutId = window.setTimeout(loadPostFx, shouldAnimate ? 880 : 1280);
-    }
-
-    return () => {
-      cancelled = true;
-      idleWindow.cancelIdleCallback?.(idleId);
-      window.clearTimeout(timeoutId);
-    };
-  }, [
-    PostFxComponent,
-    lowMemoryDevice,
-    quality,
-    sceneProfile.enablePostFx,
-    shouldAnimate,
-  ]);
-
-  useEffect(() => {
-    if (typeof window === 'undefined' || SceneOverlaysComponent) {
-      return;
-    }
-
-    const shouldPreloadSceneOverlays =
-      activeChapterIndex > 0 ||
-      interactionBurstActive ||
-      sceneLens !== 'glide' ||
-      sceneProfile.enablePostFx;
-
-    let cancelled = false;
-    let timeoutId = 0;
-    let idleId = 0;
-    const idleWindow = window as IdleCapableWindow;
-
-    const loadSceneOverlays = () => {
-      void import('./OliveUniverseSceneOverlays')
-        .then(module => {
-          if (!cancelled) {
-            setSceneOverlaysComponent(() => module.default);
-          }
-        })
-        .catch(() => {
-          // Ignore transient chunk loading failures; the core scene stays usable.
-        });
-    };
-
-    if (shouldPreloadSceneOverlays) {
-      loadSceneOverlays();
-
-      return () => {
-        cancelled = true;
-      };
-    }
-
-    if (idleWindow.requestIdleCallback) {
-      idleId = idleWindow.requestIdleCallback(loadSceneOverlays, {
-        timeout: shouldAnimate ? 520 : 820,
-      });
-    } else {
-      timeoutId = window.setTimeout(
-        loadSceneOverlays,
-        shouldAnimate ? 360 : 640
-      );
-    }
-
-    return () => {
-      cancelled = true;
-      idleWindow.cancelIdleCallback?.(idleId);
-      window.clearTimeout(timeoutId);
-    };
-  }, [
-    SceneOverlaysComponent,
-    activeChapterIndex,
-    interactionBurstActive,
-    sceneLens,
-    sceneProfile.enablePostFx,
-    shouldAnimate,
-  ]);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') {
-      previousActiveChapterIndexRef.current = activeChapterIndex;
-      return;
-    }
-
-    const previousActiveChapterIndex = previousActiveChapterIndexRef.current;
-    const jumpDistance = Math.abs(
-      activeChapterIndex - previousActiveChapterIndex
-    );
-    const nextSceneWindow = getImmediateSceneWindow(
-      activeChapterIndex,
-      previousActiveChapterIndex,
-      CHAPTERS.length
-    );
-    const jumpCorridor =
-      jumpDistance > 1
-        ? getSceneJumpCorridor(
-            previousActiveChapterIndex,
-            activeChapterIndex,
-            CHAPTERS.length
-          )
-        : [];
-
-    setWarmedSceneIndices(current =>
-      mergeSceneIndices(
-        current,
-        [...nextSceneWindow, ...jumpCorridor],
-        CHAPTERS.length
-      )
-    );
-    setTransitionRenderSceneIndices(nextSceneWindow);
-    previousActiveChapterIndexRef.current = activeChapterIndex;
-
-    if (jumpDistance === 0) {
-      return;
-    }
-
-    const timeoutId = window.setTimeout(
-      () => {
-        setTransitionRenderSceneIndices(
-          getSceneNeighborhood(activeChapterIndex, CHAPTERS.length)
-        );
-      },
-      getTransitionCarryMs(
-        sceneProfile.enablePostFx,
-        jumpDistance,
-        shouldAnimate
-      )
-    );
-
-    return () => {
-      window.clearTimeout(timeoutId);
-    };
-  }, [activeChapterIndex, sceneProfile.enablePostFx, shouldAnimate]);
-
-  useEffect(() => {
-    onWarmCountChange?.(primeSceneIndices.length);
-  }, [onWarmCountChange, primeSceneIndices.length]);
-
-  useEffect(() => {
-    if (typeof window === 'undefined' || pendingWarmSceneKey.length === 0) {
-      return;
-    }
-
-    const nextBatch = pendingWarmSceneKey
-      .split(',')
-      .filter(Boolean)
-      .slice(0, warmBatchSize)
-      .map(sceneIndex => Number(sceneIndex));
-
-    const timeoutId = window.setTimeout(() => {
-      setWarmedSceneIndices(current =>
-        mergeSceneIndices(current, nextBatch, CHAPTERS.length)
-      );
-    }, warmStepMs);
-
-    return () => {
-      window.clearTimeout(timeoutId);
-    };
-  }, [pendingWarmSceneKey, warmBatchSize, warmStepMs]);
 
   return (
-    <div ref={canvasRootRef} className="universe-canvas" aria-hidden="true">
-      <Canvas
-        frameloop={shouldAnimate ? 'always' : 'demand'}
-        camera={{ position: [0, 0, 9], fov: 60, near: 0.1, far: 200 }}
-        dpr={canvasDpr}
-        performance={{
-          min: lowMemoryDevice
-            ? 0.68
-            : compactViewport
-              ? 0.76
-              : mobileOptimized
-                ? 0.84
-                : 0.9,
-          max: 1,
-          debounce: compactViewport ? 340 : 220,
-        }}
-        gl={{
-          antialias: antialiasEnabled,
-          alpha: false,
-          powerPreference,
-          toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 1.25,
-        }}
-        style={{ position: 'absolute', inset: 0, background: '#000' }}
-      >
-        <FirstFrameReadyReporter onReady={onReady} />
-        <PerformanceBudgetGuard
-          enabled={shouldAnimate}
-          stabilityAssistActive={stabilityAssistActive}
-          quality={quality}
-          postFxEnabled={sceneProfile.enablePostFx}
-          lowMemoryDevice={lowMemoryDevice}
-          onBudgetExceeded={onPerformanceBudgetExceeded}
-        />
-        <CanvasRuntimeTelemetryReporter
-          enabled={shouldAnimate}
-          interactionBurstActive={interactionBurstActive}
-          pointerSignalRef={pointerSignalRef}
-          onTouchFieldStateChange={onTouchFieldStateChange}
-          onTouchMomentumStateChange={onTouchMomentumStateChange}
-        />
-        <InteractionPerformanceRegressor
-          enabled={
-            shouldAnimate && (mobileOptimized || sceneProfile.enablePostFx)
-          }
-          interactionBurstActive={interactionBurstActive}
-          pointerSignalRef={pointerSignalRef}
-        />
-        <AdaptivePerformanceDpr
-          baseDpr={canvasDpr}
-          enabled={
-            shouldAnimate && (mobileOptimized || sceneProfile.enablePostFx)
-          }
-          lowMemoryDevice={lowMemoryDevice}
-          compactViewport={compactViewport}
-          mobileOptimized={mobileOptimized}
-        />
-        <Scene
-          activeChapterIndex={activeChapterIndex}
-          progressRef={progressRef}
-          profile={sceneProfile}
-          sceneLens={sceneLens}
-          primeSceneIndices={primeSceneIndices}
-          renderSceneIndices={renderSceneIndices}
-          SceneOverlaysComponent={SceneOverlaysComponent}
-          interactionBurstActive={interactionBurstActive}
-          interactionBurstCycle={interactionBurstCycle}
-          pointerSignalRef={pointerSignalRef}
-        />
-        {sceneProfile.enablePostFx && PostFxComponent && (
-          <PostFxComponent
-            aberrationOffset={aberrationOffset}
-            bloomIntensity={sceneProfile.bloomIntensity}
-            noiseOpacity={sceneProfile.noiseOpacity}
-            pointerSignalRef={pointerSignalRef}
-            interactionBurstActive={interactionBurstActive}
+    <Canvas
+      className="universe-canvas"
+      dpr={sceneProfile.dprCap}
+      performance={{ min: 0.5 }}
+      gl={{
+        antialias: !mobileOptimized,
+        alpha: true,
+        powerPreference: 'high-performance',
+      }}
+      camera={{
+        position: [0, 0, 7.8],
+        fov: mobileOptimized ? 42 : 38,
+        near: 0.1,
+        far: 180,
+      }}
+      onCreated={({ gl }) => {
+        gl.setClearColor(SCENE_PALETTE.backgroundFrom, 0);
+        gl.toneMapping = THREE.ACESFilmicToneMapping;
+        gl.toneMappingExposure = quality === 'high' ? 1.08 : 1;
+        gl.domElement.dataset.heroCanvas = 'true';
+      }}
+      onPointerMove={event => {
+        updatePointer(event.clientX, event.clientY);
+        setInteractionState(current =>
+          current === 'burst' ? current : 'engaged'
+        );
+      }}
+      onPointerDown={event => {
+        updatePointer(event.clientX, event.clientY);
+        pointerFieldRef.current.down = true;
+        pointerFieldRef.current.burst = Math.min(
+          pointerFieldRef.current.burst + 0.8,
+          1.4
+        );
+        setInteractionState('burst');
+      }}
+      onPointerUp={() => {
+        pointerFieldRef.current.down = false;
+        setInteractionState('engaged');
+      }}
+      onPointerLeave={releasePointer}
+      onPointerCancel={releasePointer}
+    >
+      <color attach="background" args={[SCENE_PALETTE.backgroundFrom]} />
+      <fog attach="fog" args={[SCENE_PALETTE.backgroundTo, 10, 40]} />
+
+      <AdaptiveDpr baseDpr={sceneProfile.dprCap} />
+      <FirstFrameReadyReporter onReady={onReady} />
+      <PerformanceBudgetGuard
+        enabled={
+          sceneProfile.enablePostFx &&
+          !mobileOptimized &&
+          !stabilityAssistActive
+        }
+        onExceeded={onPerformanceBudgetExceeded}
+      />
+      <CameraRig
+        pointerFieldRef={pointerFieldRef}
+        shouldAnimate={shouldAnimate}
+        mobileOptimized={mobileOptimized}
+        fieldStrength={sceneProfile.fieldStrength}
+      />
+      <SceneLighting pointerFieldRef={pointerFieldRef} />
+      <HeroScene
+        pointerFieldRef={pointerFieldRef}
+        sceneProfile={sceneProfile}
+        shouldAnimate={shouldAnimate}
+        mobileOptimized={mobileOptimized}
+      />
+
+      {sceneProfile.enablePostFx ? (
+        <EffectComposer multisampling={0} disableNormalPass>
+          <Bloom
+            intensity={sceneProfile.bloomIntensity}
+            luminanceThreshold={0.16}
+            luminanceSmoothing={0.32}
+            mipmapBlur
           />
-        )}
-      </Canvas>
-    </div>
+          <ChromaticAberration
+            offset={postFxOffset}
+            radialModulation
+            modulationOffset={0.35}
+          />
+          <Noise
+            opacity={sceneProfile.noiseOpacity}
+            premultiply
+            blendFunction={BlendFunction.SCREEN}
+          />
+          <Vignette eskil={false} offset={0.26} darkness={0.88} />
+        </EffectComposer>
+      ) : null}
+    </Canvas>
   );
 }
