@@ -132,47 +132,111 @@ function getViewportAwareDpr(
   return Math.max(1, Math.min(cappedDevicePixelRatio, canvasDprCap, budgetDpr));
 }
 
+// Simplex noise (Ashima Arts / Stefan Gustavson — public domain)
+const SIMPLEX_GLSL = /* glsl */ `
+  vec3 _s_mod289v3(vec3 x){return x-floor(x*(1.0/289.0))*289.0;}
+  vec4 _s_mod289v4(vec4 x){return x-floor(x*(1.0/289.0))*289.0;}
+  vec4 _s_permute(vec4 x){return _s_mod289v4(((x*34.0)+10.0)*x);}
+  vec4 _s_taylorInvSqrt(vec4 r){return 1.79284291400159-0.85373472095314*r;}
+  float snoise(vec3 v){
+    const vec2 C=vec2(1.0/6.0,1.0/3.0);
+    const vec4 D=vec4(0.0,0.5,1.0,2.0);
+    vec3 i=floor(v+dot(v,C.yyy));
+    vec3 x0=v-i+dot(i,C.xxx);
+    vec3 g=step(x0.yzx,x0.xyz);
+    vec3 l=1.0-g;
+    vec3 i1=min(g.xyz,l.zxy);
+    vec3 i2=max(g.xyz,l.zxy);
+    vec3 x1=x0-i1+C.xxx;
+    vec3 x2=x0-i2+C.yyy;
+    vec3 x3=x0-D.yyy;
+    i=_s_mod289v3(i);
+    vec4 p=_s_permute(_s_permute(_s_permute(i.z+vec4(0.0,i1.z,i2.z,1.0))+i.y+vec4(0.0,i1.y,i2.y,1.0))+i.x+vec4(0.0,i1.x,i2.x,1.0));
+    float n_=0.142857142857;
+    vec3 ns=n_*D.wyz-D.xzx;
+    vec4 j=p-49.0*floor(p*ns.z*ns.z);
+    vec4 x_=floor(j*ns.z);
+    vec4 y_=floor(j-7.0*x_);
+    vec4 x=x_*ns.x+ns.yyyy;
+    vec4 y=y_*ns.x+ns.yyyy;
+    vec4 h=1.0-abs(x)-abs(y);
+    vec4 b0=vec4(x.xy,y.xy);
+    vec4 b1=vec4(x.zw,y.zw);
+    vec4 s0=floor(b0)*2.0+1.0;
+    vec4 s1=floor(b1)*2.0+1.0;
+    vec4 sh=-step(h,vec4(0.0));
+    vec4 a0=b0.xzyw+s0.xzyw*sh.xxyy;
+    vec4 a1=b1.xzyw+s1.xzyw*sh.zzww;
+    vec3 p0=vec3(a0.xy,h.x);
+    vec3 p1=vec3(a0.zw,h.y);
+    vec3 p2=vec3(a1.xy,h.z);
+    vec3 p3=vec3(a1.zw,h.w);
+    vec4 norm=_s_taylorInvSqrt(vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3)));
+    p0*=norm.x;p1*=norm.y;p2*=norm.z;p3*=norm.w;
+    vec4 m=max(0.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.0);
+    m=m*m;
+    return 42.0*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));
+  }
+`;
+
 const PARTICLE_VERT = /* glsl */ `
+  ${SIMPLEX_GLSL}
+
   uniform float uTime;
   uniform float uMorph;
   uniform vec2  uMouse;
+  uniform float uEnergy;
   attribute vec3  aTarget;
   attribute float aSeed;
 
-  vec3 hash3(float n) {
-    vec3 p = fract(vec3(n, n * 1.61803, n * 2.71828) * vec3(127.1, 311.7, 74.7));
-    p = p * 2.0 - 1.0;
-    return p;
-  }
-
   void main() {
-    float phi   = aSeed * 6.28318 * 137.508;
-    float theta = acos(1.0 - 2.0 * fract(aSeed * 0.61803));
-    float r     = 4.5 + sin(aSeed * 7.3 + uTime * 0.2) * 2.0;
+    // Fibonacci sphere distribution — better coverage than random
+    float phi   = aSeed * 6.28318 * 137.50776;
+    float cosT  = 1.0 - 2.0 * fract(aSeed * 0.61803398);
+    float sinT  = sqrt(max(0.0, 1.0 - cosT * cosT));
+    float r     = 4.2 + snoise(vec3(aSeed * 2.3, uTime * 0.055, 0.0)) * 2.1;
 
     vec3 chaos = vec3(
-      sin(phi + uTime * 0.25) * sin(theta) * r,
-      cos(theta + uTime * 0.18) * 2.2,
-      cos(phi + uTime * 0.3)  * sin(theta) * r
+      cos(phi) * sinT * r,
+      cosT * 2.4,
+      sin(phi) * sinT * r
     );
 
-    vec3 pos = mix(chaos, aTarget, smoothstep(0.0, 1.0, uMorph));
+    // Layered simplex turbulence for organic galaxy drift
+    float tScale = 0.32;
+    float tTime  = uTime * 0.052;
+    vec3 turb = vec3(
+      snoise(vec3(chaos.xy * tScale, tTime)),
+      snoise(vec3(chaos.yz * tScale, tTime + 1.7)),
+      snoise(vec3(chaos.xz * tScale, tTime + 3.1))
+    ) * (1.0 - smoothstep(0.55, 1.0, uMorph)) * 2.2;
 
-    vec2 mw = uMouse * 5.2;
+    vec3 pos = mix(chaos + turb, aTarget, smoothstep(0.0, 1.0, uMorph));
+
+    // Mouse repulsion with energy-boosted radius
+    float repulseR = 2.6 + uEnergy * 1.2;
+    vec2 mw = uMouse * 5.8;
     vec2 d2 = pos.xy - mw;
     float md = length(d2);
-    if (md < 2.2 && md > 0.01) {
-      pos.xy += normalize(d2) * (2.2 - md) * (1.0 - uMorph * 0.4) * 0.9;
+    if (md < repulseR && md > 0.01) {
+      float strength = (repulseR - md) / repulseR;
+      pos.xy += normalize(d2) * strength * strength * repulseR * (1.0 - uMorph * 0.35) * (1.0 + uEnergy);
     }
 
-    float breath = sin(uTime + aSeed * 3.14) * 0.045;
-    pos += vec3(breath, cos(uTime * 0.8 + aSeed * 2.71) * 0.045, sin(uTime * 1.2 + aSeed) * 0.03) * uMorph;
+    // Organic breathing on formed text
+    float breathAmt = uMorph * 0.055;
+    float bx = snoise(vec3(aSeed * 1.1, uTime * 0.62, 0.5));
+    float by = snoise(vec3(aSeed * 1.4, uTime * 0.48, 1.3));
+    float bz = snoise(vec3(aSeed * 1.7, uTime * 0.54, 2.6));
+    pos += vec3(bx, by, bz) * breathAmt;
 
     vec4 mvPos = modelViewMatrix * vec4(pos, 1.0);
     gl_Position = projectionMatrix * mvPos;
 
-    float pulse = 1.0 + sin(uTime * 2.5 + aSeed * 6.28) * 0.22;
-    gl_PointSize = clamp(pulse * 290.0 / -mvPos.z, 1.0, 7.0);
+    // Point size: depth-attenuated, pulse-animated, energy-boosted
+    float pulse = 1.0 + snoise(vec3(aSeed * 3.2, uTime * 1.6, 0.0)) * 0.28;
+    float energyBoost = 1.0 + uEnergy * 0.55;
+    gl_PointSize = clamp(pulse * energyBoost * 310.0 / -mvPos.z, 1.0, 9.0);
   }
 `;
 
@@ -180,14 +244,29 @@ const PARTICLE_FRAG = /* glsl */ `
   uniform vec3  uColor;
   uniform float uMorph;
   uniform float uVisibility;
+  uniform float uEnergy;
   void main() {
     vec2  uv = gl_PointCoord - 0.5;
     float d  = length(uv);
     if (d > 0.5) discard;
-    float soft  = 1.0 - smoothstep(0.22, 0.5, d);
-    float glow  = (1.0 - d * 2.0) * uMorph * 0.8;
-    float alpha = soft * (0.45 + uMorph * 0.55) * uVisibility;
-    gl_FragColor = vec4(uColor + vec3(glow * 0.6 * uVisibility), alpha);
+
+    // Layered disc: hard core + soft halo
+    float core = 1.0 - smoothstep(0.0, 0.18, d);
+    float soft = 1.0 - smoothstep(0.14, 0.50, d);
+    float glow = (1.0 - d * 1.9) * uMorph;
+
+    // Energy pulse brightens core
+    float energyPulse = 1.0 + uEnergy * 0.7 * core;
+
+    float alpha = (soft * (0.42 + uMorph * 0.58) + glow * 0.55 + uEnergy * core * 0.28)
+                  * uVisibility * energyPulse;
+
+    // Color: base + additive glow + energy shift
+    vec3 col = uColor
+             + vec3(glow * 0.55 * uVisibility)
+             + uColor * uEnergy * core * 0.5;
+
+    gl_FragColor = vec4(col, clamp(alpha, 0.0, 1.0));
   }
 `;
 
@@ -203,11 +282,24 @@ const NEURAL_VERT = /* glsl */ `
 const NEURAL_FRAG = /* glsl */ `
   uniform float uTime;
   uniform vec3  uColor;
+  uniform float uEnergy;
   varying float vP;
   void main() {
-    float pulse = fract(vP - uTime * 0.4);
-    float i = exp(-pulse * 5.5) * 0.9 + 0.1;
-    gl_FragColor = vec4(uColor * i, i * 0.88);
+    // Dual traveling pulse waves — primary fast, secondary slower offset
+    float p1 = fract(vP - uTime * 0.42);
+    float p2 = fract(vP - uTime * 0.26 + 0.5);
+
+    float i1 = exp(-p1 * 6.2) * 0.88;
+    float i2 = exp(-p2 * 9.0) * 0.38;
+
+    // Base line glow
+    float base = 0.06 + uEnergy * 0.08;
+    float i = clamp(i1 + i2 + base, 0.0, 1.0);
+
+    // Hot core at pulse head
+    vec3 hotColor = mix(uColor, vec3(1.0), i1 * 0.45 + uEnergy * 0.2);
+
+    gl_FragColor = vec4(hotColor * i, i * 0.92);
   }
 `;
 
@@ -225,102 +317,183 @@ const SHIELD_VERT = /* glsl */ `
 const SHIELD_FRAG = /* glsl */ `
   uniform float uTime;
   uniform vec3  uColor;
+  uniform float uEnergy;
   varying vec3  vW;
   varying vec3  vN;
   void main() {
-    float dist   = length(vW);
-    float r1 = sin(dist * 4.0 - uTime * 1.6) * 0.5 + 0.5;
-    float r2 = sin(dist * 7.2 - uTime * 2.3 + 1.1) * 0.5 + 0.5;
-    float rings  = max(r1 * 0.65, r2 * 0.45);
-    vec3  vd     = normalize(cameraPosition - vW);
-    float fresnel= pow(1.0 - abs(dot(vN, vd)), 2.6);
-    float c      = rings * 0.35 + fresnel * 0.65;
-    vec3  col    = mix(uColor, vec3(1.0), fresnel * 0.45);
-    gl_FragColor = vec4(col, c * 0.62);
+    float dist = length(vW);
+
+    // Multi-frequency interference rings
+    float r1 = sin(dist * 3.8 - uTime * 1.55) * 0.5 + 0.5;
+    float r2 = sin(dist * 7.4 - uTime * 2.4  + 1.1) * 0.5 + 0.5;
+    float r3 = sin(dist * 14.0 - uTime * 3.8 + 2.6) * 0.5 + 0.5;
+    float rings = r1 * 0.5 + r2 * 0.32 + r3 * 0.18;
+
+    // Proper view-dependent Fresnel (Schlick approximation)
+    vec3  vd      = normalize(cameraPosition - vW);
+    float NdotV   = clamp(dot(normalize(vN), vd), 0.0, 1.0);
+    float fresnel = 1.0 - NdotV;
+    fresnel = fresnel * fresnel * fresnel * fresnel; // pow4 — sharper rim
+
+    // Energy-reactive pulse from interaction
+    float energyRing = sin(dist * 5.2 - uTime * 4.0) * 0.5 + 0.5;
+    float energyContrib = energyRing * uEnergy * 0.55;
+
+    float c = rings * 0.3 + fresnel * 0.6 + energyContrib;
+
+    // Chromatic rim — slight blue-shift at grazing angles
+    vec3 rimColor  = mix(uColor, vec3(0.6, 0.9, 1.0), fresnel * 0.5);
+    vec3 coreColor = mix(uColor, vec3(1.0), energyContrib * 0.6);
+    vec3 col = mix(coreColor, rimColor, fresnel);
+
+    gl_FragColor = vec4(col, clamp(c * 0.68 + uEnergy * 0.08, 0.0, 1.0));
   }
 `;
 
 const DATA_VERT = /* glsl */ `
   attribute float aI;
   uniform float uTime;
+  uniform float uEnergy;
   varying float vH;
+  varying float vY;
   void main() {
     float col = mod(aI, 12.0);
     float row = floor(aI / 12.0);
-    float h = (sin(uTime * 1.8 + col * 0.6 + row * 0.8) * 0.5 + 0.5)
-            * (cos(uTime * 1.2 + col * 0.4) * 0.5 + 0.5) * 2.8 + 0.12;
+
+    // Layered wave animation — primary + harmonic + energy burst
+    float wave1 = sin(uTime * 1.75 + col * 0.62 + row * 0.78) * 0.5 + 0.5;
+    float wave2 = cos(uTime * 1.15 + col * 0.41) * 0.5 + 0.5;
+    float wave3 = sin(uTime * 3.20 + col * 1.10 + row * 0.44) * 0.5 + 0.5;
+
+    float h = wave1 * wave2 * 2.6 + wave3 * 0.28 * uEnergy + 0.1;
+
     vec3 pos = position;
     pos.y = pos.y * h + h * 0.5 - 1.0;
+
     vH = h;
+    vY = pos.y;  // pass world-space Y for gradient
     gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
   }
 `;
 
 const DATA_FRAG = /* glsl */ `
   uniform vec3  uColor;
+  uniform float uEnergy;
   varying float vH;
+  varying float vY;
   void main() {
-    vec3 col = mix(uColor * 0.3, uColor, vH * 0.5);
-    col += vec3(vH * 0.25);
-    gl_FragColor = vec4(col, 0.88);
+    // Vertical gradient: dim base → bright top
+    float gradient = clamp(vH * 0.42 + 0.12, 0.0, 1.0);
+    vec3  col      = mix(uColor * 0.18, uColor, gradient);
+
+    // White-hot cap at peak bars
+    float cap = smoothstep(0.7, 1.0, vH / 2.6);
+    col = mix(col, vec3(1.0), cap * 0.55);
+
+    // Energy flare
+    col += uColor * uEnergy * cap * 0.6;
+
+    // Thin edge glow on top faces
+    float edge = smoothstep(0.82, 1.0, vH / 2.6);
+    float alpha = 0.82 + edge * 0.15;
+
+    gl_FragColor = vec4(col, alpha);
   }
 `;
 
 function sampleText(text: string, count: number): Float32Array {
   if (typeof document === 'undefined') return new Float32Array(count * 3);
+  const W = 640;
+  const H = 160;
   const cvs = document.createElement('canvas');
-  cvs.width = 512;
-  cvs.height = 128;
+  cvs.width = W;
+  cvs.height = H;
   const ctx = cvs.getContext('2d');
   if (!ctx) return new Float32Array(count * 3);
+
+  // Anti-aliased render for cleaner letter outlines
+  ctx.clearRect(0, 0, W, H);
   ctx.fillStyle = '#fff';
-  ctx.font = 'bold 60px "Space Grotesk", sans-serif';
+  ctx.font = 'bold 78px "Space Grotesk", "Inter", system-ui, sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText(text, 256, 64);
-  const { data } = ctx.getImageData(0, 0, 512, 128);
+  ctx.fillText(text, W / 2, H / 2);
+
+  const { data } = ctx.getImageData(0, 0, W, H);
   const pts: [number, number][] = [];
-  for (let y = 0; y < 128; y += 2)
-    for (let x = 0; x < 512; x += 2)
-      if (data[(y * 512 + x) * 4 + 3] > 100) pts.push([x, y]);
+  for (let y = 0; y < H; y += 2)
+    for (let x = 0; x < W; x += 2)
+      if (data[(y * W + x) * 4 + 3] > 80) pts.push([x, y]);
+
   const out = new Float32Array(count * 3);
-  const stride = Math.max(1, Math.floor(pts.length / count));
+  if (pts.length === 0) return out;
+
+  // Stratified random sampling — avoids clustering, covers shape evenly
+  const stride = pts.length / count;
   for (let i = 0; i < count; i++) {
-    const p = pts[Math.min(i * stride, pts.length - 1)];
+    const base = Math.floor(i * stride);
+    const offset = Math.floor(Math.random() * Math.min(stride, 4));
+    const p = pts[Math.min(base + offset, pts.length - 1)];
     if (p) {
-      out[i * 3] = (p[0] / 512 - 0.5) * 10.5;
-      out[i * 3 + 1] = -(p[1] / 128 - 0.5) * 2.6;
-      out[i * 3 + 2] = (Math.random() - 0.5) * 0.4;
+      out[i * 3] = (p[0] / W - 0.5) * 12.0;
+      out[i * 3 + 1] = -(p[1] / H - 0.5) * 3.0;
+      out[i * 3 + 2] = (Math.random() - 0.5) * 0.5;
     }
   }
   return out;
 }
 
+function catmullRom(
+  v0: number,
+  v1: number,
+  v2: number,
+  v3: number,
+  t: number
+): number {
+  const t2 = t * t;
+  const t3 = t2 * t;
+  return (
+    0.5 *
+    (2 * v1 +
+      (-v0 + v2) * t +
+      (2 * v0 - 5 * v1 + 4 * v2 - v3) * t2 +
+      (-v0 + 3 * v1 - 3 * v2 + v3) * t3)
+  );
+}
+
+function catmullRom3(
+  p0: readonly [number, number, number],
+  p1: readonly [number, number, number],
+  p2: readonly [number, number, number],
+  p3: readonly [number, number, number],
+  t: number
+): [number, number, number] {
+  return [
+    catmullRom(p0[0], p1[0], p2[0], p3[0], t),
+    catmullRom(p0[1], p1[1], p2[1], p3[1], t),
+    catmullRom(p0[2], p1[2], p2[2], p3[2], t),
+  ];
+}
+
 function camAtT(t: number) {
   const kf = CAMERA_KF;
   if (t <= kf[0].t) return { pos: kf[0].pos, look: kf[0].look };
-  if (t >= kf[kf.length - 1].t) {
-    const last = kf[kf.length - 1];
-    return { pos: last.pos, look: last.look };
-  }
+  const last = kf[kf.length - 1];
+  if (t >= last.t) return { pos: last.pos, look: last.look };
+
   for (let i = 0; i < kf.length - 1; i++) {
     if (t >= kf[i].t && t <= kf[i + 1].t) {
       const local = (t - kf[i].t) / (kf[i + 1].t - kf[i].t);
-      const eased =
-        local < 0.5 ? 2 * local * local : 1 - Math.pow(-2 * local + 2, 2) / 2;
-      const lerp3 = (
-        a: readonly [number, number, number],
-        b: readonly [number, number, number],
-        value: number
-      ) =>
-        [
-          a[0] + (b[0] - a[0]) * value,
-          a[1] + (b[1] - a[1]) * value,
-          a[2] + (b[2] - a[2]) * value,
-        ] as [number, number, number];
+
+      // Catmull-Rom control points — clamp ghost points at ends
+      const p0 = kf[Math.max(0, i - 1)];
+      const p1 = kf[i];
+      const p2 = kf[i + 1];
+      const p3 = kf[Math.min(kf.length - 1, i + 2)];
+
       return {
-        pos: lerp3(kf[i].pos, kf[i + 1].pos, eased),
-        look: lerp3(kf[i].look, kf[i + 1].look, eased),
+        pos: catmullRom3(p0.pos, p1.pos, p2.pos, p3.pos, local),
+        look: catmullRom3(p0.look, p1.look, p2.look, p3.look, local),
       };
     }
   }
@@ -861,6 +1034,7 @@ function ParticleGalaxy({
           uVisibility: { value: 0 },
           uMouse: { value: new THREE.Vector2() },
           uColor: { value: new THREE.Color('#ccff00') },
+          uEnergy: { value: 0 },
         },
         transparent: true,
         depthWrite: false,
@@ -908,6 +1082,16 @@ function ParticleGalaxy({
     );
 
     matRef.current.uniforms.uTime.value = clock.elapsedTime;
+    matRef.current.uniforms.uEnergy.value = THREE.MathUtils.lerp(
+      matRef.current.uniforms.uEnergy.value,
+      THREE.MathUtils.clamp(
+        pointerSignal.fieldEnergy * performanceBudget.glow +
+          pointerSignal.momentum * 0.35,
+        0,
+        1
+      ),
+      0.1
+    );
     matRef.current.uniforms.uMorph.value = THREE.MathUtils.lerp(
       matRef.current.uniforms.uMorph.value,
       local * (1.04 + performanceBudget.density * 0.16) +
@@ -1019,6 +1203,7 @@ function NeuralCortex({
       uniforms: {
         uTime: { value: 0 },
         uColor: { value: new THREE.Color('#00d4ff') },
+        uEnergy: { value: 0 },
       },
       transparent: true,
       opacity: 0,
@@ -1145,6 +1330,11 @@ function NeuralCortex({
     }
 
     lineMat.uniforms.uTime.value = clock.elapsedTime;
+    lineMat.uniforms.uEnergy.value = THREE.MathUtils.lerp(
+      lineMat.uniforms.uEnergy.value,
+      THREE.MathUtils.clamp(interactionEnergy, 0, 1),
+      0.12
+    );
     groupRef.current.position.x = THREE.MathUtils.lerp(
       groupRef.current.position.x,
       pointerX * 0.85 + pointerVelocityX * 0.36,
@@ -1245,6 +1435,7 @@ function CrystalFortress({
         uniforms: {
           uTime: { value: 0 },
           uColor: { value: new THREE.Color('#a855f7') },
+          uEnergy: { value: 0 },
         },
         transparent: true,
         opacity: 0,
@@ -1375,6 +1566,11 @@ function CrystalFortress({
         performanceBudget.glow;
     });
     shieldMat.uniforms.uTime.value = elapsed * performanceBudget.motion;
+    shieldMat.uniforms.uEnergy.value = THREE.MathUtils.lerp(
+      shieldMat.uniforms.uEnergy.value,
+      THREE.MathUtils.clamp(interactionEnergy, 0, 1),
+      0.1
+    );
     shieldMat.opacity = alpha * (1 + interactionEnergy * 0.12);
     scanMat.opacity =
       alpha * (0.22 + interactionEnergy * 0.1) * performanceBudget.glow;
@@ -1784,6 +1980,7 @@ function SignalMatrix({
       uniforms: {
         uTime: { value: 0 },
         uColor: { value: new THREE.Color('#22c55e') },
+        uEnergy: { value: 0 },
       },
       transparent: true,
       opacity: 0,
@@ -1908,6 +2105,11 @@ function SignalMatrix({
     }
 
     mat.uniforms.uTime.value = clock.elapsedTime;
+    mat.uniforms.uEnergy.value = THREE.MathUtils.lerp(
+      mat.uniforms.uEnergy.value,
+      THREE.MathUtils.clamp(interactionEnergy, 0, 1),
+      0.12
+    );
     for (let i = 0; i < count; i++) {
       const col = i % gridSize;
       const row = Math.floor(i / gridSize);
@@ -2562,6 +2764,49 @@ function Background({
   );
 }
 
+type SceneRendererProps = {
+  isLive: boolean;
+  progressRef: MutableRefObject<number>;
+  profile: SceneProfile;
+  pointerSignalRef: MutableRefObject<CanvasPointerSignal>;
+};
+
+const SCENE_RENDERERS: Array<{
+  chapterId: string;
+  render: (props: SceneRendererProps) => JSX.Element;
+}> = [
+  {
+    chapterId: CHAPTERS[0].id,
+    render: props => <ParticleGalaxy {...props} />,
+  },
+  {
+    chapterId: CHAPTERS[1].id,
+    render: props => <NeuralCortex {...props} />,
+  },
+  {
+    chapterId: CHAPTERS[2].id,
+    render: ({ isLive, progressRef, pointerSignalRef }) => (
+      <CrystalFortress
+        isLive={isLive}
+        progressRef={progressRef}
+        pointerSignalRef={pointerSignalRef}
+      />
+    ),
+  },
+  {
+    chapterId: CHAPTERS[3].id,
+    render: props => <CloudConstellation {...props} />,
+  },
+  {
+    chapterId: CHAPTERS[4].id,
+    render: props => <SignalMatrix {...props} />,
+  },
+  {
+    chapterId: CHAPTERS[5].id,
+    render: props => <SingularityCore {...props} />,
+  },
+];
+
 function Scene({
   activeChapterIndex,
   progressRef,
@@ -2735,53 +2980,22 @@ function Scene({
           pointerSignalRef={pointerSignalRef}
         />
       )}
-      {shouldPrimeScene(0) && (
-        <ParticleGalaxy
-          isLive={shouldRenderScene(0)}
-          progressRef={progressRef}
-          profile={profile}
-          pointerSignalRef={pointerSignalRef}
-        />
-      )}
-      {shouldPrimeScene(1) && (
-        <NeuralCortex
-          isLive={shouldRenderScene(1)}
-          progressRef={progressRef}
-          profile={profile}
-          pointerSignalRef={pointerSignalRef}
-        />
-      )}
-      {shouldPrimeScene(2) && (
-        <CrystalFortress
-          isLive={shouldRenderScene(2)}
-          progressRef={progressRef}
-          pointerSignalRef={pointerSignalRef}
-        />
-      )}
-      {shouldPrimeScene(3) && (
-        <CloudConstellation
-          isLive={shouldRenderScene(3)}
-          progressRef={progressRef}
-          profile={profile}
-          pointerSignalRef={pointerSignalRef}
-        />
-      )}
-      {shouldPrimeScene(4) && (
-        <SignalMatrix
-          isLive={shouldRenderScene(4)}
-          progressRef={progressRef}
-          profile={profile}
-          pointerSignalRef={pointerSignalRef}
-        />
-      )}
-      {shouldPrimeScene(5) && (
-        <SingularityCore
-          isLive={shouldRenderScene(5)}
-          progressRef={progressRef}
-          profile={profile}
-          pointerSignalRef={pointerSignalRef}
-        />
-      )}
+      {SCENE_RENDERERS.map(({ chapterId, render }, sceneIndex) => {
+        if (!shouldPrimeScene(sceneIndex)) {
+          return null;
+        }
+
+        return (
+          <group key={chapterId}>
+            {render({
+              isLive: shouldRenderScene(sceneIndex),
+              progressRef,
+              profile,
+              pointerSignalRef,
+            })}
+          </group>
+        );
+      })}
     </>
   );
 }

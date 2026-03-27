@@ -54,20 +54,37 @@ function updatePreviewStatus(shell: PreviewShell, root: PreviewHeroRoot) {
   const speedLabel = speedButton?.dataset.speedLabel ?? 'Live';
   const zoomLabel = zoomButton?.dataset.zoomLabel ?? 'Wide';
 
-  shell.querySelector<HTMLElement>(
+  const sceneLabelNode = shell.querySelector<HTMLElement>(
     '[data-landing-3d-scene-label]'
-  )!.textContent = sceneLabel;
-  shell.querySelector<HTMLElement>(
+  );
+  const sceneNoteNode = shell.querySelector<HTMLElement>(
     '[data-landing-3d-scene-note]'
-  )!.textContent = sceneNote;
-  shell.querySelector<HTMLElement>(
+  );
+  const tempoLabelNode = shell.querySelector<HTMLElement>(
     '[data-landing-3d-tempo-label]'
-  )!.textContent = `Tempo · ${speedLabel}`;
-  shell.querySelector<HTMLElement>(
+  );
+  const cameraLabelNode = shell.querySelector<HTMLElement>(
     '[data-landing-3d-camera-label]'
-  )!.textContent = `Camera · ${zoomLabel}`;
-  shell.querySelector<HTMLElement>('[data-landing-3d-status]')!.textContent =
-    `${sceneLabel} scene active · ${speedLabel} tempo · ${zoomLabel} framing.`;
+  );
+  const statusNode = shell.querySelector<HTMLElement>(
+    '[data-landing-3d-status]'
+  );
+
+  if (
+    !sceneLabelNode ||
+    !sceneNoteNode ||
+    !tempoLabelNode ||
+    !cameraLabelNode ||
+    !statusNode
+  ) {
+    return;
+  }
+
+  sceneLabelNode.textContent = sceneLabel;
+  sceneNoteNode.textContent = sceneNote;
+  tempoLabelNode.textContent = `Tempo · ${speedLabel}`;
+  cameraLabelNode.textContent = `Camera · ${zoomLabel}`;
+  statusNode.textContent = `${sceneLabel} scene active · ${speedLabel} tempo · ${zoomLabel} framing.`;
 }
 
 function initPreviewShell(shell: PreviewShell) {

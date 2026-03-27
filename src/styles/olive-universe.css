@@ -81,6 +81,7 @@
   display: grid;
   place-items: center;
   overflow: hidden;
+  pointer-events: none;
 }
 
 .universe-static-grid,
@@ -188,6 +189,37 @@
 .universe-static-visual--loading .universe-static-pulse {
   opacity: 0.72;
   animation: universe-static-charge 2.8s ease-in-out infinite;
+}
+
+.universe-static-visual--hybrid {
+  background: transparent;
+}
+
+.universe-static-visual--hybrid .universe-static-grid {
+  opacity: 0.26;
+  animation: universe-grid-drift 28s linear infinite;
+}
+
+.universe-static-visual--hybrid .universe-static-core {
+  opacity: 0.82;
+  box-shadow:
+    0 0 132px rgba(var(--universe-accent-rgb), 0.34),
+    0 0 220px rgba(var(--universe-accent-rgb), 0.12);
+}
+
+.universe-static-visual--hybrid .universe-static-orbit--outer {
+  opacity: 0.58;
+  animation: universe-orbit-spin 28s linear infinite;
+}
+
+.universe-static-visual--hybrid .universe-static-orbit--inner {
+  opacity: 0.72;
+  animation: universe-orbit-counterspin 22s linear infinite;
+}
+
+.universe-static-visual--hybrid .universe-static-pulse {
+  opacity: 0.44;
+  animation: universe-static-charge 4.6s ease-in-out infinite;
 }
 
 /* ── Chapter Overlays ────────────────────────────────────── */
@@ -1670,11 +1702,256 @@
   text-transform: uppercase;
 }
 
+/* ── Compact command dock ────────────────────────────────── */
+
+.universe-command-dock {
+  position: absolute;
+  left: clamp(16px, 4vw, 28px);
+  right: auto;
+  bottom: max(18px, env(safe-area-inset-bottom, 0px));
+  z-index: 22;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(360px, calc(100vw - 32px));
+  pointer-events: auto;
+}
+
+.universe-command-bar {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto 44px;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(
+    180deg,
+    rgba(7, 10, 18, 0.86) 0%,
+    rgba(7, 10, 18, 0.72) 100%
+  );
+  box-shadow:
+    0 24px 48px rgba(0, 0, 0, 0.34),
+    0 0 0 1px rgba(var(--universe-accent-rgb), 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(24px) saturate(130%);
+  -webkit-backdrop-filter: blur(24px) saturate(130%);
+}
+
+.universe-command-summary {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.universe-command-kicker,
+.universe-command-title,
+.universe-command-meta {
+  margin: 0;
+}
+
+.universe-command-kicker,
+.universe-command-meta {
+  font-family: 'JetBrains Mono', monospace;
+  text-transform: uppercase;
+}
+
+.universe-command-kicker {
+  font-size: 0.56rem;
+  letter-spacing: 0.12em;
+  color: rgba(var(--universe-atmosphere-secondary-rgb), 0.84);
+}
+
+.universe-command-title {
+  color: #ffffff;
+  font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  font-size: clamp(0.95rem, 1.2vw, 1.12rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  line-clamp: 2;
+  display: -webkit-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.universe-command-meta {
+  font-size: 0.54rem;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.universe-command-nav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  min-height: 44px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.92rem;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.universe-command-nav:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: rgba(var(--universe-accent-rgb), 0.28);
+  background: rgba(var(--universe-accent-rgb), 0.08);
+}
+
+.universe-command-nav:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.universe-command-panel {
+  position: relative;
+  inset: auto;
+  right: auto;
+  bottom: auto;
+  align-self: flex-end;
+  width: min(380px, 100%);
+  max-height: min(56vh, 520px);
+  margin: 0;
+  padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+  transition:
+    opacity 0.24s ease,
+    transform 0.24s ease,
+    max-height 0.24s ease,
+    margin 0.24s ease,
+    padding 0.24s ease,
+    border-color 0.24s ease;
+}
+
+.universe-command-panel.is-collapsed {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px) scale(0.98);
+  max-height: 0;
+  margin: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  overflow: hidden;
+  pointer-events: none;
+  border-color: transparent;
+}
+
+.universe-command-panel.is-open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.universe-command-panel .universe-story-jump-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.universe-command-panel .universe-story-scene-actions .universe-story-toggle {
+  flex: 1 1 calc(50% - 5px);
+}
+
+.universe-command-dock.is-open .universe-command-bar {
+  border-color: rgba(var(--universe-accent-rgb), 0.18);
+  box-shadow:
+    0 28px 54px rgba(0, 0, 0, 0.36),
+    0 0 0 1px rgba(var(--universe-accent-rgb), 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.universe-command-dock.is-desktop .universe-mobile-panel-toggle {
+  width: 44px;
+  min-height: 44px;
+  padding: 0;
+  grid-template-columns: 1fr;
+  justify-items: center;
+  border-radius: 16px;
+}
+
+.universe-command-dock.is-desktop .universe-mobile-panel-counter,
+.universe-command-dock.is-desktop .universe-mobile-panel-copy {
+  display: none;
+}
+
+.universe-command-dock.is-desktop .universe-mobile-panel-icon {
+  font-size: 1.08rem;
+}
+
+.universe-command-dock.is-compact {
+  top: calc(76px + env(safe-area-inset-top, 0px));
+  right: 12px;
+  left: 12px;
+  bottom: auto;
+  width: auto;
+}
+
+.universe-command-dock.is-compact .universe-command-bar {
+  grid-template-columns: 40px minmax(0, 1fr) auto 40px;
+  border-radius: 18px;
+}
+
+.universe-command-dock.is-compact .universe-command-nav {
+  width: 40px;
+  min-height: 40px;
+  border-radius: 14px;
+}
+
+.universe-command-dock.is-compact .universe-command-kicker {
+  font-size: 0.52rem;
+}
+
+.universe-command-dock.is-compact .universe-command-title {
+  font-size: clamp(0.9rem, 4vw, 1.05rem);
+}
+
+.universe-command-dock.is-compact .universe-command-meta,
+.universe-command-dock.is-compact .universe-mobile-panel-meta {
+  display: none;
+}
+
+.universe-command-dock.is-compact .universe-mobile-panel-toggle {
+  min-height: 40px;
+  padding: 8px 10px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  border-radius: 14px;
+}
+
+.universe-command-dock.is-compact .universe-mobile-panel-counter {
+  display: none;
+}
+
+.universe-command-dock.is-compact .universe-mobile-panel-kicker {
+  font-size: 0.7rem;
+}
+
+.universe-command-dock.is-compact .universe-command-panel {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: calc(92px + env(safe-area-inset-bottom, 0px));
+  width: auto;
+  max-height: min(50vh, 500px);
+}
+
 /* ── Scroll Hint ─────────────────────────────────────────── */
 
 .universe-scroll-hint {
   position: absolute;
-  bottom: 30px;
+  bottom: 146px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -1914,6 +2191,49 @@
 
   .universe-progress {
     display: none;
+  }
+
+  .universe-command-dock {
+    left: 12px;
+    right: 12px;
+    bottom: max(84px, calc(env(safe-area-inset-bottom, 0px) + 68px));
+    width: auto;
+  }
+
+  .universe-command-bar {
+    grid-template-columns: 46px minmax(0, 1fr) auto 46px;
+    gap: 8px;
+    padding: 8px;
+    border-radius: 20px;
+  }
+
+  .universe-command-nav {
+    width: 46px;
+    min-height: 46px;
+    border-radius: 16px;
+  }
+
+  .universe-command-title {
+    font-size: clamp(0.95rem, 4.4vw, 1.16rem);
+  }
+
+  .universe-command-meta {
+    font-size: 0.56rem;
+  }
+
+  .universe-command-panel {
+    width: 100%;
+    max-height: min(72vh, 560px);
+    padding: 14px;
+    border-radius: 22px;
+  }
+
+  .universe-command-panel .universe-story-jump-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .universe-scroll-hint {
+    bottom: 184px;
   }
 
   .universe-story-panel {

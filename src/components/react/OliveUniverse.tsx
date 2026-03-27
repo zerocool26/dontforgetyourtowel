@@ -232,7 +232,8 @@ function shouldIgnoreSceneInteractionTarget(target: EventTarget | null) {
 
 type StaticBackdropMode =
   | Extract<HeroVisualMode, 'reduced' | 'fallback'>
-  | 'loading';
+  | 'loading'
+  | 'hybrid';
 
 function StaticBackdrop({ mode }: { mode: StaticBackdropMode }) {
   return (
@@ -244,100 +245,6 @@ function StaticBackdrop({ mode }: { mode: StaticBackdropMode }) {
       <div className="universe-static-pulse" />
     </div>
   );
-}
-
-function ChapterOverlay({
-  ch,
-  visible,
-  isPrimary,
-  compact = false,
-}: {
-  ch: ChapterDef;
-  visible: boolean;
-  isPrimary?: boolean;
-  compact?: boolean;
-}) {
-  const HeadingTag = isPrimary ? 'h1' : 'h2';
-
-  return (
-    <section
-      className={`universe-chapter ${compact ? 'is-compact' : ''} ${visible ? 'is-visible' : 'is-hidden'}`}
-      aria-hidden={!visible}
-      aria-labelledby={`${ch.id}-title`}
-    >
-      <div className={`universe-content ${compact ? 'is-compact' : ''}`}>
-        <div
-          className={`universe-chapter-frame ${compact ? 'is-compact' : 'is-full'}`}
-        >
-          {compact ? (
-            <span
-              className="universe-chapter-accent"
-              aria-hidden="true"
-              style={
-                { '--universe-chapter-accent': ch.accent } as CSSProperties
-              }
-            />
-          ) : (
-            <span className="universe-kicker" style={{ color: ch.accent }}>
-              {ch.kicker}
-            </span>
-          )}
-          <HeadingTag
-            id={`${ch.id}-title`}
-            className={`universe-title ${compact ? 'is-compact' : ''}`}
-          >
-            {compact
-              ? ch.title.join(' ')
-              : ch.title.map((line, i) => (
-                  <span key={i}>
-                    {line}
-                    <br />
-                  </span>
-                ))}
-          </HeadingTag>
-
-          {!compact && (
-            <>
-              <p className="universe-copy">{ch.copy}</p>
-              {ch.metrics && (
-                <div className="universe-metrics">
-                  {ch.metrics.map(metric => (
-                    <span key={metric} className="universe-metric-chip">
-                      {metric}
-                    </span>
-                  ))}
-                </div>
-              )}
-              <div className="universe-ctas">
-                {ch.ctas.map((cta, i) => (
-                  <a
-                    key={i}
-                    href={cta.href}
-                    className={
-                      cta.primary
-                        ? 'universe-btn-primary'
-                        : 'universe-btn-secondary'
-                    }
-                    tabIndex={visible ? undefined : -1}
-                  >
-                    {cta.label}
-                  </a>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function getChapterRailLabel(chapter: ChapterDef) {
-  if (chapter.id === 'genesis') {
-    return 'Creative Technology';
-  }
-
-  return chapter.kicker;
 }
 
 export default function OliveUniverse() {
@@ -378,6 +285,8 @@ export default function OliveUniverse() {
   const [touchCapable, setTouchCapable] = useState(false);
   const [isCompactViewport, setIsCompactViewport] = useState(false);
   const [mobilePanelOpen, setMobilePanelOpen] = useState(false);
+  const [controlPanelOpen, setControlPanelOpen] = useState(false);
+  const [controlTab, setControlTab] = useState<'scenes' | 'cinematic' | 'motion'>('scenes');
   const [stabilityAssistActive, setStabilityAssistActive] = useState(false);
   const [guidedTourPlaying, setGuidedTourPlaying] = useState(false);
   const [guidedTourSpeed, setGuidedTourSpeed] =
@@ -471,7 +380,7 @@ export default function OliveUniverse() {
 
       setIsCompactViewport(compactViewport);
       if (!compactViewport) {
-        setMobilePanelOpen(false);
+        setControlPanelOpen(false);
       }
     };
 
@@ -838,8 +747,8 @@ export default function OliveUniverse() {
         triggerMobileHaptic('selection');
       }
 
-      if (source === 'manual' && isCompactViewport) {
-        setMobilePanelOpen(false);
+      if (source === 'manual') {
+        setControlPanelOpen(false);
       }
 
       pendingChapterSyncRef.current = chapterIndex;
@@ -1612,16 +1521,8 @@ export default function OliveUniverse() {
       ? 'drag-reactive'
       : 'pointer-reactive'
     : 'idle';
-  const showMobileTouchIndicator =
-    isCompactViewport &&
-    shouldRenderCanvas &&
-    !mobilePanelOpen &&
-    (interactionBurstActive ||
-      touchFieldState !== 'idle' ||
-      touchMomentumState !== 'idle');
-  const showMobileFeedbackRail =
-    isCompactViewport && shouldRenderCanvas && !mobilePanelOpen;
   const mobilePanelToggleLabel = `${mobilePanelOpen ? 'Hide' : 'Show'} hero controls for ${activeChapter.kicker}`;
+  const DockHeadingTag = chapter === 0 ? 'h1' : 'h2';
   const handleSceneReady = useCallback(() => {
     setSceneResolved(true);
   }, []);
@@ -1652,16 +1553,16 @@ export default function OliveUniverse() {
     }
   }, [renderProfile, shouldRenderCanvas]);
   const closeMobilePanel = useCallback(() => {
-    if (mobilePanelOpen) {
-      triggerMobileHaptic('selection');
-    }
-
+    setControlPanelOpen(false);
     setMobilePanelOpen(false);
-  }, [mobilePanelOpen, triggerMobileHaptic]);
+  }, []);
   const toggleMobilePanel = useCallback(() => {
-    triggerMobileHaptic(mobilePanelOpen ? 'selection' : 'light');
     setMobilePanelOpen(currentOpen => !currentOpen);
-  }, [mobilePanelOpen, triggerMobileHaptic]);
+  }, []);
+  const toggleControlPanel = useCallback(() => {
+    triggerMobileHaptic(controlPanelOpen ? 'selection' : 'light');
+    setControlPanelOpen(open => !open);
+  }, [controlPanelOpen, triggerMobileHaptic]);
   const shareSceneLink = useCallback(async () => {
     const sceneUrl = shareLinkRef.current?.href ?? sceneShareHref;
 
@@ -1719,7 +1620,7 @@ export default function OliveUniverse() {
       }
 
       if (isCompactViewport) {
-        setMobilePanelOpen(false);
+        setControlPanelOpen(false);
       }
 
       setStabilityAssistActive(false);
@@ -1890,30 +1791,34 @@ export default function OliveUniverse() {
     >
       <div className="universe-sticky">
         {shouldRenderCanvas ? (
-          sceneBootReady ? (
-            <Suspense fallback={<StaticBackdrop mode="loading" />}>
-              <OliveUniverseCanvas
-                activeChapterIndex={chapter}
-                progressRef={progressRef}
-                quality={runtimeQuality}
-                sceneProfile={sceneProfile}
-                shouldAnimate={shouldAnimateCanvas}
-                stabilityAssistActive={stabilityAssistActive}
-                sceneLens={sceneLens}
-                compactViewport={isCompactViewport}
-                interactionBurstActive={interactionBurstActive}
-                interactionBurstCycle={interactionBurstCycle}
-                mobileOptimized={shouldUseOptimizedMobile3D}
-                onPerformanceBudgetExceeded={enableStabilityAssist}
-                onTouchFieldStateChange={handleTouchFieldStateChange}
-                onTouchMomentumStateChange={handleTouchMomentumStateChange}
-                onWarmCountChange={handleSceneWarmCountChange}
-                onReady={handleSceneReady}
-              />
-            </Suspense>
-          ) : (
-            <StaticBackdrop mode="loading" />
-          )
+          <>
+            {sceneBootReady ? (
+              <Suspense fallback={<StaticBackdrop mode="loading" />}>
+                <OliveUniverseCanvas
+                  activeChapterIndex={chapter}
+                  progressRef={progressRef}
+                  quality={runtimeQuality}
+                  sceneProfile={sceneProfile}
+                  shouldAnimate={shouldAnimateCanvas}
+                  stabilityAssistActive={stabilityAssistActive}
+                  sceneLens={sceneLens}
+                  compactViewport={isCompactViewport}
+                  interactionBurstActive={interactionBurstActive}
+                  interactionBurstCycle={interactionBurstCycle}
+                  mobileOptimized={shouldUseOptimizedMobile3D}
+                  onPerformanceBudgetExceeded={enableStabilityAssist}
+                  onTouchFieldStateChange={handleTouchFieldStateChange}
+                  onTouchMomentumStateChange={handleTouchMomentumStateChange}
+                  onWarmCountChange={handleSceneWarmCountChange}
+                  onReady={handleSceneReady}
+                />
+              </Suspense>
+            ) : (
+              <StaticBackdrop mode="loading" />
+            )}
+
+            <StaticBackdrop mode={sceneResolved ? 'hybrid' : 'loading'} />
+          </>
         ) : (
           <StaticBackdrop
             mode={effectiveVisualMode === 'fallback' ? 'fallback' : 'reduced'}
@@ -1949,132 +1854,364 @@ export default function OliveUniverse() {
           <p className="sr-only" aria-live="polite" aria-atomic="true">
             {`Chapter ${chapter + 1} of ${CHAPTERS.length}: ${activeChapterTitle}. ${runtimeNote}${guidedTourPlaying ? ' Guided tour active.' : ''}`}
           </p>
+        </div>
 
-          {CHAPTERS.map((ch, i) => (
-            <ChapterOverlay
-              key={ch.id}
-              ch={ch}
-              visible={chapter === i}
-              isPrimary={i === 0}
-              compact={isCompactViewport}
+        {/* ── Screen-reader live region ───────────────────── */}
+        <p className="sr-only" aria-live="polite" aria-atomic="true">
+          {`Chapter ${chapter + 1} of ${CHAPTERS.length}: ${activeChapterTitle}. ${runtimeNote}`}
+        </p>
+
+        {/* ── Story HUD — fullscreen chapter content ────── */}
+        <div
+          className="universe-hud"
+          data-olive-hud="story"
+          aria-hidden={!shouldRenderCanvas}
+        >
+          <div className="universe-hud-story">
+            <p className="universe-hud-kicker">{activeChapter.kicker}</p>
+            <DockHeadingTag className="universe-hud-title">
+              {activeChapter.title.map((line, i) => (
+                <span key={i} className="universe-hud-title-line">{line}</span>
+              ))}
+            </DockHeadingTag>
+            <p className="universe-hud-copy">{activeChapter.copy}</p>
+            {activeChapter.metrics && (
+              <div className="universe-hud-metrics" aria-label="Chapter highlights">
+                {activeChapter.metrics.map(metric => (
+                  <span key={metric} className="universe-hud-metric">{metric}</span>
+                ))}
+              </div>
+            )}
+            <div className="universe-hud-ctas">
+              {activeChapter.ctas.map(cta => (
+                <a
+                  key={cta.label}
+                  href={cta.href}
+                  className={`universe-hud-cta ${cta.primary ? 'is-primary' : 'is-secondary'}`}
+                >
+                  {cta.label}
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Chapter progress dots ─────────────────────── */}
+        <div
+          className="universe-dots"
+          role="tablist"
+          aria-label="Chapter navigation"
+        >
+          {CHAPTERS.map((item, index) => (
+            <button
+              key={item.id}
+              type="button"
+              role="tab"
+              className={`universe-dot ${index === chapter ? 'is-active' : ''}`}
+              onClick={() => navigateToChapter(index)}
+              aria-selected={index === chapter}
+              aria-label={`Chapter ${index + 1}: ${item.kicker}`}
             />
           ))}
+        </div>
 
-          {showMobileFeedbackRail && (
+        {/* ── Single control panel FAB ──────────────────── */}
+        <div className="universe-panel-fab" role="group" aria-label="Hero scene controls">
+          <button
+            type="button"
+            className={`universe-fab-btn ${controlPanelOpen ? 'is-open' : ''}`}
+            onClick={toggleControlPanel}
+            aria-expanded={controlPanelOpen}
+            aria-haspopup="dialog"
+            aria-label={controlPanelOpen ? 'Close scene controls' : 'Open scene controls'}
+          >
+            {controlPanelOpen ? (
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M12 4L4 12M4 4l8 8" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round"/>
+              </svg>
+            ) : (
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <rect x="2" y="2" width="5" height="5" rx="1.2" stroke="currentColor" strokeWidth="1.5"/>
+                <rect x="9" y="2" width="5" height="5" rx="1.2" stroke="currentColor" strokeWidth="1.5"/>
+                <rect x="2" y="9" width="5" height="5" rx="1.2" stroke="currentColor" strokeWidth="1.5"/>
+                <rect x="9" y="9" width="5" height="5" rx="1.2" stroke="currentColor" strokeWidth="1.5"/>
+              </svg>
+            )}
+          </button>
+
+          {controlPanelOpen && (
             <div
-              className={`universe-mobile-feedback-rail ${showMobileTouchIndicator ? 'has-indicator' : 'is-quiet'}`}
-              role="group"
-              aria-label="Live mobile scene controls"
+              className="universe-panel"
+              role="dialog"
+              aria-label="Scene controls"
+              aria-modal="false"
             >
-              {showMobileTouchIndicator && (
-                <div
-                  className="universe-mobile-touch-indicator"
-                  role="status"
-                  aria-live="polite"
+              {/* Tab bar */}
+              <div className="universe-panel-tabs" role="tablist">
+                {(['scenes', 'cinematic', 'motion'] as const).map(tab => (
+                  <button
+                    key={tab}
+                    type="button"
+                    role="tab"
+                    className={`universe-panel-tab ${controlTab === tab ? 'is-active' : ''}`}
+                    onClick={() => setControlTab(tab)}
+                    aria-selected={controlTab === tab}
+                  >
+                    {tab === 'scenes' ? 'Scenes' : tab === 'cinematic' ? 'Cinematic' : 'Motion'}
+                  </button>
+                ))}
+              </div>
+
+              {/* Tab bodies */}
+              <div className="universe-panel-body">
+
+                {/* ── Scenes ── */}
+                {controlTab === 'scenes' && (
+                  <>
+                    <div className="universe-scene-grid">
+                      {CHAPTERS.map((item, index) => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          className={`universe-scene-btn ${index === chapter ? 'is-active' : ''}`}
+                          onClick={() => navigateToChapter(index)}
+                          aria-pressed={index === chapter}
+                        >
+                          <span className="universe-scene-num">
+                            {String(index + 1).padStart(2, '0')}
+                          </span>
+                          <span className="universe-scene-lbl">{item.kicker}</span>
+                        </button>
+                      ))}
+                    </div>
+                    <div className="universe-panel-nav">
+                      <button
+                        type="button"
+                        disabled={!previousChapter}
+                        onClick={() => previousChapter && navigateToChapter(chapter - 1)}
+                        aria-label={previousChapter ? `Previous: ${previousChapter.kicker}` : 'No previous scene'}
+                      >
+                        ←
+                      </button>
+                      <span>{chapterCounter}</span>
+                      <button
+                        type="button"
+                        disabled={!nextChapter}
+                        onClick={() => nextChapter && navigateToChapter(chapter + 1)}
+                        aria-label={nextChapter ? `Next: ${nextChapter.kicker}` : 'No next scene'}
+                      >
+                        →
+                      </button>
+                    </div>
+                  </>
+                )}
+
+                {/* ── Cinematic ── */}
+                {controlTab === 'cinematic' && webglSupported && (
+                  <>
+                    <div className="universe-control-group">
+                      <p className="universe-ctrl-label">Camera lens</p>
+                      <div className="universe-btn-row">
+                        {SCENE_LENS_ORDER.map(lens => (
+                          <button
+                            key={lens}
+                            type="button"
+                            className={`universe-opt-btn ${sceneLens === lens ? 'is-active' : ''}`}
+                            onClick={() => selectSceneLens(lens)}
+                            aria-pressed={sceneLens === lens}
+                          >
+                            {SCENE_LENS_OPTIONS[lens].label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="universe-control-group">
+                      <p className="universe-ctrl-label">Render quality</p>
+                      <div className="universe-btn-row">
+                        {RENDER_PROFILE_ORDER.map(profile => (
+                          <button
+                            key={profile}
+                            type="button"
+                            className={`universe-opt-btn ${renderProfile === profile ? 'is-active' : ''}`}
+                            onClick={() => selectRenderProfile(profile)}
+                            aria-pressed={renderProfile === profile}
+                          >
+                            {RENDER_PROFILE_OPTIONS[profile].label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    {stabilityAssistActive && (
+                      <button
+                        type="button"
+                        className="universe-opt-btn is-full"
+                        onClick={retryCinematicRender}
+                      >
+                        Retry cinematic render
+                      </button>
+                    )}
+                  </>
+                )}
+
+                {/* ── Motion ── */}
+                {controlTab === 'motion' && (
+                  <>
+                    {webglSupported && (
+                      <>
+                        <button
+                          type="button"
+                          className={`universe-tour-btn ${guidedTourPlaying ? 'is-active' : ''}`}
+                          onClick={toggleGuidedTour}
+                          aria-pressed={guidedTourPlaying}
+                        >
+                          {guidedTourPlaying ? '⏸ Pause tour' : '▶ Play tour'}
+                        </button>
+                        <div className="universe-control-group">
+                          <p className="universe-ctrl-label">Tour pace</p>
+                          <div className="universe-btn-row">
+                            {GUIDED_TOUR_SPEED_ORDER.map(speed => (
+                              <button
+                                key={speed}
+                                type="button"
+                                className={`universe-opt-btn ${guidedTourSpeed === speed ? 'is-active' : ''}`}
+                                onClick={() => setGuidedTourSpeed(speed)}
+                                aria-pressed={guidedTourSpeed === speed}
+                              >
+                                {GUIDED_TOUR_SPEEDS[speed].label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="universe-panel-divider" />
+                      </>
+                    )}
+                    {canOverrideReducedMotion ? (
+                      <button
+                        type="button"
+                        className="universe-opt-btn is-full is-accent"
+                        onClick={enableImmersiveScenes}
+                      >
+                        Enable immersive scenes
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        className="universe-opt-btn is-full"
+                        onClick={enableCalmMode}
+                      >
+                        Use calm mode
+                      </button>
+                    )}
+                    {motionPreference !== 'auto' && (
+                      <button
+                        type="button"
+                        className="universe-opt-btn is-full"
+                        onClick={resetMotionPreference}
+                      >
+                        System default
+                      </button>
+                    )}
+                  </>
+                )}
+              </div>
+
+              <div className="universe-panel-footer">
+                <a
+                  href={withBasePath('#creative-lanes')}
+                  className="universe-skip-link"
                 >
-                  <span
-                    className="universe-mobile-touch-indicator-pulse"
-                    aria-hidden="true"
-                  />
-                  <div className="universe-mobile-touch-indicator-copy">
-                    <p className="universe-mobile-touch-indicator-title">
-                      {touchFieldStatusLabel}
-                    </p>
-                    <p className="universe-mobile-touch-indicator-note">
-                      {mobileTouchIndicatorNote}
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              <button
-                type="button"
-                className={`universe-mobile-burst-button ${interactionBurstActive ? 'is-active' : ''}`}
-                onClick={triggerInteractionBurst}
-                aria-label="Trigger scene burst from compact controls"
-                aria-pressed={interactionBurstActive}
-              >
-                <span className="universe-mobile-burst-icon" aria-hidden="true">
-                  {interactionBurstActive ? '✦' : '✧'}
-                </span>
-                <span className="universe-mobile-burst-label">
-                  {interactionBurstActive ? 'Bursting' : 'Burst'}
-                </span>
-              </button>
+                  Skip to content ↓
+                </a>
+                <p className="universe-panel-hints">← → Home End</p>
+              </div>
             </div>
           )}
+        </div>
 
-          {isCompactViewport && (
-            <div
-              className="universe-mobile-dock"
-              role="group"
-              aria-label="Compact hero controls"
+        {/* legacy slot — kept for backwards-compat with any external selectors */}
+        <div
+          className={`universe-command-dock ${mobilePanelOpen ? 'is-open' : 'is-closed'} is-hidden`}
+          aria-hidden="true"
+          role="group"
+          aria-label="Hero scene controls"
+        >
+          <div className="universe-command-bar">
+            <button
+              type="button"
+              className="universe-command-nav"
+              onClick={() => {
+                if (previousChapter) {
+                  navigateToChapter(chapter - 1);
+                }
+              }}
+              disabled={!previousChapter}
+              aria-label={
+                previousChapter
+                  ? `Go to previous scene: ${previousChapter.kicker}`
+                  : 'Previous scene unavailable'
+              }
             >
-              <button
-                type="button"
-                className="universe-mobile-dock-button"
-                onClick={() => {
-                  if (previousChapter) {
-                    navigateToChapter(chapter - 1);
-                  }
-                }}
-                disabled={!previousChapter}
-                aria-label={
-                  previousChapter
-                    ? `Go to previous scene: ${previousChapter.kicker}`
-                    : 'Previous scene unavailable'
-                }
-              >
-                <span aria-hidden="true">←</span>
-              </button>
+              <span aria-hidden="true">←</span>
+            </button>
 
-              <button
-                type="button"
-                className={`universe-mobile-panel-toggle ${mobilePanelOpen ? 'is-open' : ''}`}
-                onClick={toggleMobilePanel}
-                aria-expanded={mobilePanelOpen}
-                aria-controls={MOBILE_PANEL_ID}
-                aria-label={mobilePanelToggleLabel}
-              >
-                <span className="universe-mobile-panel-counter">
-                  {chapterCounter}
-                </span>
-                <span className="universe-mobile-panel-copy">
-                  <span className="universe-mobile-panel-kicker">
-                    {activeChapter.kicker}
-                  </span>
-                  <span className="universe-mobile-panel-meta">
-                    {mobilePanelMeta}
-                  </span>
-                </span>
-                <span className="universe-mobile-panel-icon" aria-hidden="true">
-                  {mobilePanelOpen ? '×' : '⋯'}
-                </span>
-              </button>
-
-              <button
-                type="button"
-                className="universe-mobile-dock-button"
-                onClick={() => {
-                  if (nextChapter) {
-                    navigateToChapter(chapter + 1);
-                  }
-                }}
-                disabled={!nextChapter}
-                aria-label={
-                  nextChapter
-                    ? `Go to next scene: ${nextChapter.kicker}`
-                    : 'Next scene unavailable'
-                }
-              >
-                <span aria-hidden="true">→</span>
-              </button>
+            <div className="universe-command-summary">
+              <p className="universe-command-kicker">
+                {activeChapter.kicker} · Scene {chapterCounter}
+              </p>
+              <DockHeadingTag className="universe-command-title">
+                {activeChapterTitle}
+              </DockHeadingTag>
+              <p className="universe-command-meta">
+                {runtimeLabel} · {mobilePanelMeta}
+              </p>
             </div>
-          )}
+
+            <button
+              type="button"
+              className={`universe-mobile-panel-toggle ${mobilePanelOpen ? 'is-open' : ''}`}
+              onClick={toggleMobilePanel}
+              aria-expanded={mobilePanelOpen}
+              aria-controls={MOBILE_PANEL_ID}
+              aria-label={mobilePanelToggleLabel}
+            >
+              <span className="universe-mobile-panel-counter">
+                {chapterCounter}
+              </span>
+              <span className="universe-mobile-panel-copy">
+                <span className="universe-mobile-panel-kicker">
+                  {mobilePanelOpen ? 'Hide controls' : 'Show controls'}
+                </span>
+                <span className="universe-mobile-panel-meta">
+                  {sceneCacheStatusLabel}
+                </span>
+              </span>
+              <span className="universe-mobile-panel-icon" aria-hidden="true">
+                {mobilePanelOpen ? '×' : '⋯'}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              className="universe-command-nav"
+              onClick={() => {
+                if (nextChapter) {
+                  navigateToChapter(chapter + 1);
+                }
+              }}
+              disabled={!nextChapter}
+              aria-label={
+                nextChapter
+                  ? `Go to next scene: ${nextChapter.kicker}`
+                  : 'Next scene unavailable'
+              }
+            >
+              <span aria-hidden="true">→</span>
+            </button>
+          </div>
 
           <aside
             id={MOBILE_PANEL_ID}
-            className={`universe-story-panel ${isCompactViewport ? (mobilePanelOpen ? 'is-mobile-open' : 'is-mobile-collapsed') : ''}`}
+            className={`universe-story-panel universe-command-panel ${mobilePanelOpen ? 'is-open' : 'is-collapsed'}`}
             aria-label="Hero story status"
           >
             <div className="universe-story-panel-top">
@@ -2101,50 +2238,41 @@ export default function OliveUniverse() {
               </div>
             </div>
 
-            <p className="universe-story-kicker">Scene {chapterCounter}</p>
+            <p className="universe-story-kicker">{activeChapter.kicker}</p>
             <p className="universe-story-note">{runtimeNote}</p>
-            {isCompactViewport && (
-              <div
-                className="universe-story-scene-summary"
-                role="group"
-                aria-label={`${activeChapter.kicker} scene details`}
-              >
-                <p className="universe-story-scene-title">
-                  {activeChapterTitle}
-                </p>
-                <p className="universe-story-scene-copy">
-                  {activeChapter.copy}
-                </p>
+            <div
+              className="universe-story-scene-summary"
+              role="group"
+              aria-label={`${activeChapter.kicker} scene details`}
+            >
+              <p className="universe-story-scene-title">{activeChapterTitle}</p>
+              <p className="universe-story-scene-copy">{activeChapter.copy}</p>
 
-                {activeChapter.metrics && (
-                  <div
-                    className="universe-story-scene-metrics"
-                    aria-label="Chapter highlights"
-                  >
-                    {activeChapter.metrics.map(metric => (
-                      <span
-                        key={metric}
-                        className="universe-story-scene-metric"
-                      >
-                        {metric}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                <div className="universe-story-scene-actions">
-                  {activeChapter.ctas.map(cta => (
-                    <a
-                      key={cta.label}
-                      href={cta.href}
-                      className={`universe-story-toggle ${cta.primary ? 'is-primary' : 'is-secondary'}`}
-                    >
-                      {cta.label}
-                    </a>
+              {activeChapter.metrics && (
+                <div
+                  className="universe-story-scene-metrics"
+                  aria-label="Chapter highlights"
+                >
+                  {activeChapter.metrics.map(metric => (
+                    <span key={metric} className="universe-story-scene-metric">
+                      {metric}
+                    </span>
                   ))}
                 </div>
+              )}
+
+              <div className="universe-story-scene-actions">
+                {activeChapter.ctas.map(cta => (
+                  <a
+                    key={cta.label}
+                    href={cta.href}
+                    className={`universe-story-toggle ${cta.primary ? 'is-primary' : 'is-secondary'}`}
+                  >
+                    {cta.label}
+                  </a>
+                ))}
               </div>
-            )}
+            </div>
             {!shouldRenderCanvas && webglSupported && (
               <p className="universe-story-preload-status" role="status">
                 {scenePreloadLabel}
@@ -2177,31 +2305,29 @@ export default function OliveUniverse() {
               <p className="universe-story-next">{nextSceneLabel}</p>
             </div>
 
-            {isCompactViewport && (
-              <div
-                className="universe-story-jump-grid"
-                role="group"
-                aria-label="Chapter jump controls"
-              >
-                {CHAPTERS.map((item, index) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    className={`universe-story-jump-button ${index === chapter ? 'is-active' : ''}`}
-                    onClick={() => navigateToChapter(index)}
-                    aria-pressed={index === chapter}
-                    aria-label={`Jump to ${item.kicker}`}
-                  >
-                    <span className="universe-story-jump-index">
-                      {String(index + 1).padStart(2, '0')}
-                    </span>
-                    <span className="universe-story-jump-label">
-                      {item.kicker}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            )}
+            <div
+              className="universe-story-jump-grid"
+              role="group"
+              aria-label="Chapter jump controls"
+            >
+              {CHAPTERS.map((item, index) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={`universe-story-jump-button ${index === chapter ? 'is-active' : ''}`}
+                  onClick={() => navigateToChapter(index)}
+                  aria-pressed={index === chapter}
+                  aria-label={`Jump to ${item.kicker}`}
+                >
+                  <span className="universe-story-jump-index">
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
+                  <span className="universe-story-jump-label">
+                    {item.kicker}
+                  </span>
+                </button>
+              ))}
+            </div>
 
             <p
               className={`universe-story-tour-status ${guidedTourPlaying ? 'is-playing' : ''}`}
@@ -2578,31 +2704,6 @@ export default function OliveUniverse() {
             </a>
           </aside>
         </div>
-
-        <nav
-          className="universe-progress"
-          aria-label="Story chapters"
-          aria-keyshortcuts="ArrowLeft ArrowRight ArrowUp ArrowDown Home End PageUp PageDown"
-        >
-          {CHAPTERS.map((ch, i) => (
-            <button
-              key={ch.id}
-              type="button"
-              className={`universe-dot ${chapter === i ? 'is-active' : ''}`}
-              aria-label={`Jump to ${ch.kicker}`}
-              aria-pressed={chapter === i}
-              aria-current={chapter === i ? 'step' : undefined}
-              onClick={() => navigateToChapter(i)}
-            >
-              <span className="universe-dot-index">
-                {String(i + 1).padStart(2, '0')}
-              </span>
-              <span className="universe-dot-label">
-                {getChapterRailLabel(ch)}
-              </span>
-            </button>
-          ))}
-        </nav>
 
         {chapter === 0 && (
           <div className="universe-scroll-hint" aria-hidden="true">

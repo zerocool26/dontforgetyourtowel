@@ -1,5 +1,42 @@
 import { test, expect } from '@playwright/test';
 
+async function getCanvasVisiblePixelRatio(
+  locator: Parameters<typeof expect>[0]
+) {
+  if (!('evaluate' in locator) || typeof locator.evaluate !== 'function') {
+    return 0;
+  }
+
+  return locator.evaluate(canvas => {
+    if (!(canvas instanceof HTMLCanvasElement)) {
+      return 0;
+    }
+
+    const sample = document.createElement('canvas');
+    sample.width = 64;
+    sample.height = 64;
+    const ctx = sample.getContext('2d');
+
+    if (!ctx) {
+      return 0;
+    }
+
+    ctx.drawImage(canvas, 0, 0, sample.width, sample.height);
+    const { data } = ctx.getImageData(0, 0, sample.width, sample.height);
+
+    let visiblePixels = 0;
+
+    for (let index = 0; index < data.length; index += 4) {
+      const luminance = data[index] + data[index + 1] + data[index + 2];
+      if (luminance > 24) {
+        visiblePixels += 1;
+      }
+    }
+
+    return visiblePixels / (sample.width * sample.height);
+  });
+}
+
 test.describe('Landing Page Integrity', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('./');
@@ -32,10 +69,16 @@ test.describe('Landing Page Integrity', () => {
     page,
   }) => {
     const section = page.locator('[data-landing-3d-preview]');
+    const previewCanvas = section.locator('canvas[data-hero-canvas]');
 
     await section.scrollIntoViewIfNeeded();
     await expect(section).toBeVisible();
-    await expect(section.locator('canvas[data-hero-canvas]')).toBeVisible();
+    await expect(previewCanvas).toBeVisible();
+    await expect
+      .poll(async () => getCanvasVisiblePixelRatio(previewCanvas), {
+        timeout: 6000,
+      })
+      .toBeGreaterThan(0.015);
     await expect(
       page.getByRole('heading', {
         level: 2,

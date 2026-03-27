@@ -1,4 +1,25 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
+
+async function openHeroControls(page: Page) {
+  const toggle = page.getByRole('button', {
+    name: /show hero controls|hide hero controls/i,
+  });
+
+  await expect(toggle.first()).toBeVisible();
+
+  if ((await toggle.first().getAttribute('aria-expanded')) !== 'true') {
+    await toggle.first().click();
+  }
+
+  const panel = page.getByLabel('Hero story status');
+  await expect(panel).toBeVisible();
+  return panel;
+}
+
+async function getHeroJumpButton(page: Page, label: RegExp) {
+  const panel = await openHeroControls(page);
+  return panel.getByRole('button', { name: label });
+}
 
 test.describe('Homepage', () => {
   test('should load successfully', async ({ page }) => {
@@ -25,15 +46,15 @@ test.describe('Homepage', () => {
       })
     ).toBeVisible();
     await expect(
-      page.getByRole('navigation', { name: /story chapters/i })
+      page.getByRole('group', { name: /hero scene controls/i })
     ).toBeVisible();
     await expect(
       page.getByRole('button', {
-        name: /jump to creative technology studio/i,
+        name: /show hero controls for creative technology studio/i,
       })
     ).toBeVisible();
     await expect(
-      page.getByRole('link', { name: /skip immersive intro/i })
+      page.getByRole('button', { name: /go to next scene: ai systems/i })
     ).toBeVisible();
   });
 
@@ -54,6 +75,7 @@ test.describe('Homepage', () => {
     const enableScenes = page.getByRole('button', {
       name: /enable immersive scenes/i,
     });
+    await openHeroControls(page);
     await expect(enableScenes).toBeVisible();
     await enableScenes.click();
 
@@ -67,9 +89,9 @@ test.describe('Homepage', () => {
       'immersive'
     );
 
-    await page
-      .getByRole('button', { name: /jump to managed operations/i })
-      .click();
+    await (
+      await getHeroJumpButton(page, /jump to managed operations/i)
+    ).click();
     await expect(hero).toHaveAttribute('data-current-chapter', 'signal');
 
     await page.reload({ waitUntil: 'networkidle' });
@@ -94,6 +116,7 @@ test.describe('Homepage', () => {
     await expect(hero).toBeVisible();
     await expect(hero).toHaveAttribute('data-olive-mode', 'reduced');
 
+    await openHeroControls(page);
     await page
       .getByRole('button', { name: /enable immersive scenes/i })
       .click();
@@ -159,9 +182,7 @@ test.describe('Homepage', () => {
     await expect(hero).toBeVisible();
     await expect(hero).toHaveAttribute('data-olive-mode', 'reduced');
 
-    await page
-      .getByRole('button', { name: /jump to cloud engineering/i })
-      .click();
+    await (await getHeroJumpButton(page, /jump to cloud engineering/i)).click();
 
     await expect(hero).toHaveAttribute(
       'data-olive-motion-preference',
@@ -206,7 +227,7 @@ test.describe('Homepage', () => {
       ).__heroChapterTransitionAudit = { transitions, observer };
     });
 
-    await page.getByRole('button', { name: /jump to ai systems/i }).click();
+    await (await getHeroJumpButton(page, /jump to ai systems/i)).click();
     await expect(hero).toHaveAttribute('data-current-chapter', 'neural');
     await expect(
       hero.getByRole('heading', { name: /ai orchestration/i })
@@ -266,7 +287,9 @@ test.describe('Homepage', () => {
     const hero = page.locator('[data-olive-universe="ready"]');
     await expect(hero).toBeVisible();
 
-    await page
+    const heroControls = await openHeroControls(page);
+
+    await heroControls
       .getByRole('button', { name: /use cinematic render profile/i })
       .click();
 
@@ -276,7 +299,7 @@ test.describe('Homepage', () => {
       /(staging|booting|interactive)/
     );
 
-    await page
+    await heroControls
       .getByRole('button', { name: /jump to start your project/i })
       .click();
 
@@ -286,7 +309,9 @@ test.describe('Homepage', () => {
       hero.getByRole('heading', { name: /creative technology/i })
     ).not.toBeVisible();
 
-    await page.getByRole('button', { name: /jump to cybersecurity/i }).click();
+    await heroControls
+      .getByRole('button', { name: /jump to cybersecurity/i })
+      .click();
 
     await expect(hero).toHaveAttribute('data-current-chapter', 'vault');
     await expect(
@@ -309,6 +334,7 @@ test.describe('Homepage', () => {
 
     const hero = page.locator('[data-olive-universe="ready"]');
     await expect(hero).toBeVisible();
+    await openHeroControls(page);
     await expect(
       page.getByText(/shortcuts: ← → chapters · home start · end finale/i)
     ).toBeVisible();
