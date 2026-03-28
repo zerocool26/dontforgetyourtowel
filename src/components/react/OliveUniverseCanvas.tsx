@@ -426,7 +426,11 @@ function MonolithField({
         <mesh
           key={`monolith-${index}`}
           position={monolith.position}
-          rotation={monolith.rotation}
+          rotation={[
+            monolith.rotation[0],
+            monolith.rotation[1],
+            monolith.rotation[2],
+          ]}
           scale={monolith.scale}
         >
           <boxGeometry args={[0.28, 1.8, 0.28]} />
@@ -954,7 +958,7 @@ export default function OliveUniverseCanvas({
       />
 
       {sceneProfile.enablePostFx ? (
-        <EffectComposer multisampling={0} disableNormalPass>
+        <EffectComposer multisampling={0} enableNormalPass={false}>
           <Bloom
             intensity={sceneProfile.bloomIntensity}
             luminanceThreshold={0.16}

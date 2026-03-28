@@ -22,7 +22,6 @@ import {
   IMMERSIVE_LINKS,
   isMobileLikeDevice,
   optimizeSceneProfileForMobile,
-  prefersReducedMotion,
   SCENE_PALETTE,
   supportsWebGL,
   type HeroVisualMode,
