@@ -1520,6 +1520,8 @@ function SubspaceGrid({ pf }: { pf: MutableRefObject<PointerField> }) {
 }
 
 /* ── Scene lighting ──────────────────────────────────────────── */
+
+function SceneLighting({
   pf,
   keyIntensity,
   rimIntensity,
