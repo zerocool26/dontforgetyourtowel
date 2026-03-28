@@ -44,6 +44,15 @@ export interface SceneProfile {
   ambientIntensity: number;
   keyIntensity: number;
   rimIntensity: number;
+
+  /* ── advanced features ───────────────────────── */
+  warpStreakCount: number;
+  plasmaVeinCount: number;
+  haloRingCount: number;
+  enableDepthOfField: boolean;
+  dofFocusDistance: number;
+  dofBokehScale: number;
+  coreShellCount: number;
 }
 
 export const SCENE_PALETTE = {
@@ -166,6 +175,13 @@ const ULTRA: SceneProfile = {
   ambientIntensity: 0.35,
   keyIntensity: 22,
   rimIntensity: 12,
+  warpStreakCount: 80,
+  plasmaVeinCount: 12,
+  haloRingCount: 5,
+  enableDepthOfField: true,
+  dofFocusDistance: 0.035,
+  dofBokehScale: 2.8,
+  coreShellCount: 4,
 };
 
 const HIGH: SceneProfile = {
@@ -195,6 +211,13 @@ const HIGH: SceneProfile = {
   ambientIntensity: 0.38,
   keyIntensity: 20,
   rimIntensity: 10,
+  warpStreakCount: 56,
+  plasmaVeinCount: 8,
+  haloRingCount: 4,
+  enableDepthOfField: true,
+  dofFocusDistance: 0.04,
+  dofBokehScale: 2.2,
+  coreShellCount: 3,
 };
 
 const MED: SceneProfile = {
@@ -224,6 +247,13 @@ const MED: SceneProfile = {
   ambientIntensity: 0.42,
   keyIntensity: 18,
   rimIntensity: 8,
+  warpStreakCount: 36,
+  plasmaVeinCount: 6,
+  haloRingCount: 3,
+  enableDepthOfField: false,
+  dofFocusDistance: 0.045,
+  dofBokehScale: 1.8,
+  coreShellCount: 3,
 };
 
 const LOW: SceneProfile = {
@@ -253,6 +283,13 @@ const LOW: SceneProfile = {
   ambientIntensity: 0.5,
   keyIntensity: 14,
   rimIntensity: 6,
+  warpStreakCount: 18,
+  plasmaVeinCount: 4,
+  haloRingCount: 2,
+  enableDepthOfField: false,
+  dofFocusDistance: 0.05,
+  dofBokehScale: 1.2,
+  coreShellCount: 2,
 };
 
 const NONE: SceneProfile = {
@@ -282,6 +319,13 @@ const NONE: SceneProfile = {
   ambientIntensity: 0.2,
   keyIntensity: 0,
   rimIntensity: 0,
+  warpStreakCount: 0,
+  plasmaVeinCount: 0,
+  haloRingCount: 0,
+  enableDepthOfField: false,
+  dofFocusDistance: 0,
+  dofBokehScale: 0,
+  coreShellCount: 1,
 };
 
 export function getSceneProfile(
@@ -316,6 +360,11 @@ export function optimizeSceneProfileForMobile(
     enablePostFx: false,
     fieldStrength: Math.min(p.fieldStrength, 0.22),
     parallaxDepth: Math.min(p.parallaxDepth, 0.28),
+    warpStreakCount: Math.min(p.warpStreakCount, agg ? 10 : 18),
+    plasmaVeinCount: Math.min(p.plasmaVeinCount, agg ? 3 : 4),
+    haloRingCount: Math.min(p.haloRingCount, 1),
+    enableDepthOfField: false,
+    coreShellCount: Math.min(p.coreShellCount, 2),
   };
 }
 

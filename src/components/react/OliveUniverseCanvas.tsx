@@ -15,6 +15,7 @@ import {
   Bloom,
   ChromaticAberration,
   EffectComposer,
+  DepthOfField,
   Noise,
   Vignette,
 } from '@react-three/postprocessing';
@@ -813,6 +814,276 @@ function EnergyFloor({ pf }: { pf: MutableRefObject<PointerField> }) {
   );
 }
 
+/* ── Warp streaks — radial lines that surge on interaction ────── */
+
+function WarpStreaks({
+  pf,
+  count,
+}: {
+  pf: MutableRefObject<PointerField>;
+  count: number;
+}) {
+  const groupRef = useRef<THREE.Group>(null);
+  const linesRef = useRef<THREE.LineSegments | null>(null);
+
+  const { geometry, material } = useMemo(() => {
+    const positions = new Float32Array(count * 6);
+    for (let i = 0; i < count; i++) {
+      const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.15;
+      const yAngle = (Math.random() - 0.5) * Math.PI * 0.65;
+      const innerR = 2.8 + Math.random() * 0.5;
+      const outerR = innerR + 0.5 + Math.random() * 2;
+      const cy = Math.cos(yAngle);
+      const sy = Math.sin(yAngle);
+      positions[i * 6] = Math.cos(angle) * innerR * cy;
+      positions[i * 6 + 1] = sy * innerR;
+      positions[i * 6 + 2] = Math.sin(angle) * innerR * cy;
+      positions[i * 6 + 3] = Math.cos(angle) * outerR * cy;
+      positions[i * 6 + 4] = sy * outerR;
+      positions[i * 6 + 5] = Math.sin(angle) * outerR * cy;
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    const mat = new THREE.LineBasicMaterial({
+      color: SCENE_PALETTE.accent,
+      transparent: true,
+      opacity: 0.06,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    return { geometry: geo, material: mat };
+  }, [count]);
+
+  useEffect(() => {
+    if (!groupRef.current) return;
+    const lines = new THREE.LineSegments(geometry, material);
+    linesRef.current = lines;
+    groupRef.current.add(lines);
+    return () => {
+      groupRef.current?.remove(lines);
+      geometry.dispose();
+      material.dispose();
+      linesRef.current = null;
+    };
+  }, [geometry, material]);
+
+  useFrame((state, delta) => {
+    const obj = linesRef.current;
+    if (!obj) return;
+    const burst = pf.current.burst;
+    obj.rotation.y += delta * (0.006 + burst * 0.03);
+    obj.rotation.z = Math.sin(state.clock.elapsedTime * 0.04) * 0.02;
+    const s = 1 + burst * 1.8;
+    obj.scale.setScalar(THREE.MathUtils.damp(obj.scale.x, s, 3.5, delta));
+    (obj.material as THREE.LineBasicMaterial).opacity = THREE.MathUtils.damp(
+      (obj.material as THREE.LineBasicMaterial).opacity,
+      0.06 + burst * 0.45,
+      4,
+      delta
+    );
+  });
+
+  return <group ref={groupRef} />;
+}
+
+/* ── Plasma veins — energy conduits radiating from core ──────── */
+
+function PlasmaVeins({
+  pf,
+  count,
+}: {
+  pf: MutableRefObject<PointerField>;
+  count: number;
+}) {
+  const groupRef = useRef<THREE.Group>(null);
+
+  const veins = useMemo(() => {
+    const result: { geometry: THREE.TubeGeometry; color: string }[] = [];
+    for (let i = 0; i < count; i++) {
+      const angle = (i / count) * Math.PI * 2;
+      const endR = 3.8 + (i % 3) * 0.7;
+      const yEnd = ((i % 5) - 2) * 0.55;
+      const start = new THREE.Vector3(0, 0, 0);
+      const mid = new THREE.Vector3(
+        Math.cos(angle + 0.35) * endR * 0.45,
+        yEnd * 0.4 + Math.sin(angle * 2.5) * 0.7,
+        Math.sin(angle + 0.35) * endR * 0.45
+      );
+      const end = new THREE.Vector3(
+        Math.cos(angle) * endR,
+        yEnd,
+        Math.sin(angle) * endR
+      );
+      const curve = new THREE.QuadraticBezierCurve3(start, mid, end);
+      const geo = new THREE.TubeGeometry(
+        curve,
+        20,
+        0.012 + (i % 3) * 0.004,
+        5,
+        false
+      );
+      const colors = [
+        SCENE_PALETTE.accent,
+        SCENE_PALETTE.secondary,
+        SCENE_PALETTE.tertiary,
+      ];
+      result.push({ geometry: geo, color: colors[i % 3] });
+    }
+    return result;
+  }, [count]);
+
+  useEffect(() => () => veins.forEach(v => v.geometry.dispose()), [veins]);
+
+  useFrame((state, delta) => {
+    if (!groupRef.current) return;
+    const burst = pf.current.burst;
+    groupRef.current.rotation.y += delta * (0.018 + burst * 0.012);
+    groupRef.current.rotation.z =
+      Math.sin(state.clock.elapsedTime * 0.09) * 0.04;
+  });
+
+  return (
+    <group ref={groupRef}>
+      {veins.map((vein, i) => (
+        <mesh key={`vein-${i}`} geometry={vein.geometry}>
+          <meshBasicMaterial
+            color={vein.color}
+            transparent
+            opacity={0.1 + (i % 3) * 0.025}
+            blending={THREE.AdditiveBlending}
+            depthWrite={false}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+/* ── Prismatic halo — spectral outer ring decomposition ──────── */
+
+function PrismaticHalo({
+  pf,
+  ringCount,
+}: {
+  pf: MutableRefObject<PointerField>;
+  ringCount: number;
+}) {
+  const groupRef = useRef<THREE.Group>(null);
+  const spectrumColors = useMemo(
+    () => [
+      '#ff3355',
+      '#ff8833',
+      '#ffdd33',
+      '#33ff88',
+      '#33ddff',
+      '#5533ff',
+      '#cc33ff',
+    ],
+    []
+  );
+
+  useFrame((state, delta) => {
+    if (!groupRef.current) return;
+    const t = state.clock.elapsedTime;
+    const burst = pf.current.burst;
+    groupRef.current.rotation.z += delta * (0.018 + burst * 0.035);
+    groupRef.current.rotation.x = Math.sin(t * 0.065) * 0.14 + Math.PI / 2.3;
+    groupRef.current.scale.setScalar(
+      THREE.MathUtils.damp(groupRef.current.scale.x, 1 + burst * 0.12, 3, delta)
+    );
+  });
+
+  return (
+    <group ref={groupRef} position={[0, 0.15, 0]}>
+      {Array.from({ length: ringCount }, (_, i) => {
+        const baseR = 6.5 + i * 0.22;
+        const colorIdx = i % spectrumColors.length;
+        return (
+          <mesh key={`halo-${i}`}>
+            <torusGeometry args={[baseR, 0.01 + i * 0.003, 6, 180]} />
+            <meshBasicMaterial
+              color={spectrumColors[colorIdx]}
+              transparent
+              opacity={Math.max(0.01, 0.065 - i * 0.008)}
+              blending={THREE.AdditiveBlending}
+              depthWrite={false}
+            />
+          </mesh>
+        );
+      })}
+    </group>
+  );
+}
+
+/* ── Core shell overlays — geometric wireframe cages ─────────── */
+
+function CoreShellOverlays({
+  pf,
+  shellCount,
+  coreSpeed,
+}: {
+  pf: MutableRefObject<PointerField>;
+  shellCount: number;
+  coreSpeed: number;
+}) {
+  const dodecRef = useRef<THREE.Mesh>(null);
+  const octaRef = useRef<THREE.Mesh>(null);
+
+  useFrame((state, delta) => {
+    const t = state.clock.elapsedTime;
+    const pulse = 1 + pf.current.burst * 0.1;
+
+    if (dodecRef.current) {
+      dodecRef.current.rotation.y -= delta * coreSpeed * 0.7;
+      dodecRef.current.rotation.x = Math.cos(t * 0.11) * 0.18;
+      dodecRef.current.rotation.z += delta * 0.035;
+      dodecRef.current.scale.setScalar(
+        THREE.MathUtils.damp(dodecRef.current.scale.x, 1.8 * pulse, 3.2, delta)
+      );
+    }
+
+    if (octaRef.current) {
+      octaRef.current.rotation.y += delta * coreSpeed * 0.45;
+      octaRef.current.rotation.z = Math.sin(t * 0.08) * 0.22;
+      octaRef.current.scale.setScalar(
+        THREE.MathUtils.damp(octaRef.current.scale.x, 2.6 * pulse, 3.2, delta)
+      );
+    }
+  });
+
+  return (
+    <>
+      {shellCount >= 3 && (
+        <mesh ref={dodecRef} scale={1.8} rotation={[0.25, 0, 0.35]}>
+          <dodecahedronGeometry args={[1, 0]} />
+          <meshBasicMaterial
+            color={SCENE_PALETTE.accent}
+            transparent
+            opacity={0.05}
+            wireframe
+            blending={THREE.AdditiveBlending}
+            depthWrite={false}
+          />
+        </mesh>
+      )}
+      {shellCount >= 4 && (
+        <mesh ref={octaRef} scale={2.6} rotation={[0.55, 0.3, 0]}>
+          <octahedronGeometry args={[1, 0]} />
+          <meshBasicMaterial
+            color={SCENE_PALETTE.secondary}
+            transparent
+            opacity={0.035}
+            wireframe
+            blending={THREE.AdditiveBlending}
+            depthWrite={false}
+          />
+        </mesh>
+      )}
+    </>
+  );
+}
+
 /* ── Scene lighting ──────────────────────────────────────────── */
 
 function SceneLighting({
@@ -983,6 +1254,29 @@ function HeroScene({
         fade
         speed={0.25}
       />
+      {profile.warpStreakCount > 0 && (
+        <WarpStreaks pf={pf} count={profile.warpStreakCount} />
+      )}
+      {profile.plasmaVeinCount > 0 && (
+        <PlasmaVeins pf={pf} count={profile.plasmaVeinCount} />
+      )}
+      {profile.haloRingCount > 0 && (
+        <PrismaticHalo pf={pf} ringCount={profile.haloRingCount} />
+      )}
+      <CoreShellOverlays
+        pf={pf}
+        shellCount={profile.coreShellCount}
+        coreSpeed={profile.coreSpeed}
+      />
+      {profile.attractorTrailLen > 60 && (
+        <group rotation={[0.4, Math.PI / 3, 0.2]}>
+          <AttractorTrail
+            pf={pf}
+            len={Math.floor(profile.attractorTrailLen * 0.6)}
+            speed={profile.attractorSpeed * 0.65}
+          />
+        </group>
+      )}
     </group>
   );
 }
@@ -1166,6 +1460,18 @@ export default function OliveUniverseCanvas({
             opacity={sceneProfile.noiseOpacity}
             premultiply
             blendFunction={BlendFunction.SCREEN}
+          />
+          <DepthOfField
+            focusDistance={
+              sceneProfile.enableDepthOfField
+                ? sceneProfile.dofFocusDistance
+                : 0
+            }
+            focalLength={sceneProfile.enableDepthOfField ? 0.025 : 0}
+            bokehScale={
+              sceneProfile.enableDepthOfField ? sceneProfile.dofBokehScale : 0
+            }
+            height={480}
           />
           <Vignette
             eskil={false}
