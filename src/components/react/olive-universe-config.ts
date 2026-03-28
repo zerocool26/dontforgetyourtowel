@@ -61,6 +61,13 @@ export interface SceneProfile {
   cometaryOrbiterCount: number;
   volumetricRayCount: number;
   enableSubspaceGrid: boolean;
+
+  /* ── apex tier ───────────────────────────────── */
+  quantumFluxStrands: number;
+  sparkShowerCount: number;
+  temporalEchoLayers: number;
+  neuralWebNodes: number;
+  enableGravitationalLens: boolean;
 }
 
 export const SCENE_PALETTE = {
@@ -196,6 +203,11 @@ const ULTRA: SceneProfile = {
   cometaryOrbiterCount: 18,
   volumetricRayCount: 8,
   enableSubspaceGrid: true,
+  quantumFluxStrands: 6,
+  sparkShowerCount: 200,
+  temporalEchoLayers: 4,
+  neuralWebNodes: 40,
+  enableGravitationalLens: true,
 };
 
 const HIGH: SceneProfile = {
@@ -238,6 +250,11 @@ const HIGH: SceneProfile = {
   cometaryOrbiterCount: 12,
   volumetricRayCount: 6,
   enableSubspaceGrid: true,
+  quantumFluxStrands: 4,
+  sparkShowerCount: 140,
+  temporalEchoLayers: 3,
+  neuralWebNodes: 28,
+  enableGravitationalLens: true,
 };
 
 const MED: SceneProfile = {
@@ -280,6 +297,11 @@ const MED: SceneProfile = {
   cometaryOrbiterCount: 8,
   volumetricRayCount: 4,
   enableSubspaceGrid: true,
+  quantumFluxStrands: 3,
+  sparkShowerCount: 80,
+  temporalEchoLayers: 2,
+  neuralWebNodes: 18,
+  enableGravitationalLens: false,
 };
 
 const LOW: SceneProfile = {
@@ -322,6 +344,11 @@ const LOW: SceneProfile = {
   cometaryOrbiterCount: 5,
   volumetricRayCount: 2,
   enableSubspaceGrid: false,
+  quantumFluxStrands: 2,
+  sparkShowerCount: 40,
+  temporalEchoLayers: 1,
+  neuralWebNodes: 10,
+  enableGravitationalLens: false,
 };
 
 const NONE: SceneProfile = {
@@ -364,6 +391,11 @@ const NONE: SceneProfile = {
   cometaryOrbiterCount: 0,
   volumetricRayCount: 0,
   enableSubspaceGrid: false,
+  quantumFluxStrands: 0,
+  sparkShowerCount: 0,
+  temporalEchoLayers: 0,
+  neuralWebNodes: 0,
+  enableGravitationalLens: false,
 };
 
 export function getSceneProfile(
@@ -409,6 +441,11 @@ export function optimizeSceneProfileForMobile(
     cometaryOrbiterCount: Math.min(p.cometaryOrbiterCount, agg ? 3 : 5),
     volumetricRayCount: Math.min(p.volumetricRayCount, agg ? 2 : 3),
     enableSubspaceGrid: false,
+    quantumFluxStrands: Math.min(p.quantumFluxStrands, agg ? 1 : 2),
+    sparkShowerCount: Math.min(p.sparkShowerCount, agg ? 20 : 40),
+    temporalEchoLayers: Math.min(p.temporalEchoLayers, 1),
+    neuralWebNodes: Math.min(p.neuralWebNodes, agg ? 6 : 10),
+    enableGravitationalLens: false,
   };
 }
 

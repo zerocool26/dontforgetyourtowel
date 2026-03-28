@@ -1555,6 +1555,409 @@ function SubspaceGrid({ pf }: { pf: MutableRefObject<PointerField> }) {
   );
 }
 
+/* ── Quantum flux — flowing ribbon streams through space ──────── */
+
+function QuantumFlux({
+  pf,
+  strandCount,
+}: {
+  pf: MutableRefObject<PointerField>;
+  strandCount: number;
+}) {
+  const groupRef = useRef<THREE.Group>(null);
+
+  const strands = useMemo(() => {
+    const result: { geometry: THREE.TubeGeometry; color: string }[] = [];
+    const colors = [
+      SCENE_PALETTE.accent,
+      SCENE_PALETTE.secondary,
+      SCENE_PALETTE.tertiary,
+      SCENE_PALETTE.warm,
+    ];
+    for (let s = 0; s < strandCount; s++) {
+      const pts: THREE.Vector3[] = [];
+      const baseAngle = (s / strandCount) * Math.PI * 2;
+      const segs = 64;
+      for (let i = 0; i <= segs; i++) {
+        const t = i / segs;
+        const spiralR = 1.5 + t * 4;
+        const angle = baseAngle + t * Math.PI * 3.5;
+        const wave = Math.sin(t * Math.PI * 4 + s * 1.7) * 0.8;
+        pts.push(
+          new THREE.Vector3(
+            Math.cos(angle) * spiralR,
+            wave + (t - 0.5) * 3,
+            Math.sin(angle) * spiralR
+          )
+        );
+      }
+      const curve = new THREE.CatmullRomCurve3(pts, false);
+      const geo = new THREE.TubeGeometry(
+        curve,
+        48,
+        0.008 + (s % 3) * 0.004,
+        4,
+        false
+      );
+      result.push({ geometry: geo, color: colors[s % colors.length] });
+    }
+    return result;
+  }, [strandCount]);
+
+  useEffect(() => () => strands.forEach(s => s.geometry.dispose()), [strands]);
+
+  useFrame((state, delta) => {
+    if (!groupRef.current) return;
+    const burst = pf.current.burst;
+    groupRef.current.rotation.y += delta * (0.02 + burst * 0.015);
+    groupRef.current.rotation.x =
+      Math.sin(state.clock.elapsedTime * 0.05) * 0.06;
+  });
+
+  return (
+    <group ref={groupRef}>
+      {strands.map((strand, i) => (
+        <mesh key={`qf-${i}`} geometry={strand.geometry}>
+          <meshBasicMaterial
+            color={strand.color}
+            transparent
+            opacity={0.065 + (i % 3) * 0.015}
+            blending={THREE.AdditiveBlending}
+            depthWrite={false}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+/* ── Spark shower — cascading particle fountain from core ────── */
+
+function SparkShower({
+  pf,
+  count,
+}: {
+  pf: MutableRefObject<PointerField>;
+  count: number;
+}) {
+  const pointsRef = useRef<THREE.Points>(null);
+  const velocitiesRef = useRef<Float32Array | null>(null);
+
+  const geometry = useMemo(() => {
+    const positions = new Float32Array(count * 3);
+    const vels = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const elev = (Math.random() - 0.3) * Math.PI * 0.8;
+      const speed = 0.02 + Math.random() * 0.04;
+      positions[i * 3] = 0;
+      positions[i * 3 + 1] = 0;
+      positions[i * 3 + 2] = 0;
+      vels[i * 3] = Math.cos(angle) * Math.cos(elev) * speed;
+      vels[i * 3 + 1] = Math.sin(elev) * speed * 1.2;
+      vels[i * 3 + 2] = Math.sin(angle) * Math.cos(elev) * speed;
+    }
+    velocitiesRef.current = vels;
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    return geo;
+  }, [count]);
+
+  useEffect(() => () => geometry.dispose(), [geometry]);
+
+  useFrame((_, delta) => {
+    if (!pointsRef.current || !velocitiesRef.current) return;
+    const posAttr = geometry.getAttribute('position') as THREE.BufferAttribute;
+    const arr = posAttr.array as Float32Array;
+    const vels = velocitiesRef.current;
+    const burst = pf.current.burst;
+    const maxR = 7;
+
+    for (let i = 0; i < count; i++) {
+      arr[i * 3] += vels[i * 3] * (1 + burst * 2);
+      arr[i * 3 + 1] += vels[i * 3 + 1] * (1 + burst * 2) - delta * 0.003;
+      arr[i * 3 + 2] += vels[i * 3 + 2] * (1 + burst * 2);
+
+      const dist = Math.sqrt(
+        arr[i * 3] * arr[i * 3] +
+          arr[i * 3 + 1] * arr[i * 3 + 1] +
+          arr[i * 3 + 2] * arr[i * 3 + 2]
+      );
+      if (dist > maxR) {
+        const angle = Math.random() * Math.PI * 2;
+        const elev = (Math.random() - 0.3) * Math.PI * 0.8;
+        const speed = 0.02 + Math.random() * 0.04;
+        arr[i * 3] = 0;
+        arr[i * 3 + 1] = 0;
+        arr[i * 3 + 2] = 0;
+        vels[i * 3] = Math.cos(angle) * Math.cos(elev) * speed;
+        vels[i * 3 + 1] = Math.sin(elev) * speed * 1.2;
+        vels[i * 3 + 2] = Math.sin(angle) * Math.cos(elev) * speed;
+      }
+    }
+    posAttr.needsUpdate = true;
+  });
+
+  return (
+    <points ref={pointsRef} geometry={geometry}>
+      <pointsMaterial
+        color={SCENE_PALETTE.accent}
+        transparent
+        opacity={0.3}
+        size={0.4}
+        sizeAttenuation
+        blending={THREE.AdditiveBlending}
+        depthWrite={false}
+      />
+    </points>
+  );
+}
+
+/* ── Temporal echoes — ghostly lagging core afterimages ───────── */
+
+function TemporalEchoes({
+  pf,
+  layerCount,
+  coreSpeed,
+}: {
+  pf: MutableRefObject<PointerField>;
+  layerCount: number;
+  coreSpeed: number;
+}) {
+  const meshRefs = useRef<(THREE.Mesh | null)[]>([]);
+  const historyRef = useRef<{ rx: number; ry: number; rz: number }[]>([]);
+
+  useFrame((state, delta) => {
+    const t = state.clock.elapsedTime;
+    const currentRY = t * coreSpeed;
+    const currentRX = Math.sin(t * 0.14) * 0.15;
+    const currentRZ = Math.cos(t * 0.11) * 0.1;
+
+    historyRef.current.unshift({
+      rx: currentRX,
+      ry: currentRY,
+      rz: currentRZ,
+    });
+    if (historyRef.current.length > layerCount * 12) {
+      historyRef.current.length = layerCount * 12;
+    }
+
+    for (let i = 0; i < layerCount; i++) {
+      const mesh = meshRefs.current[i];
+      if (!mesh) continue;
+      const delay = (i + 1) * 10;
+      const entry =
+        historyRef.current[Math.min(delay, historyRef.current.length - 1)];
+      if (!entry) continue;
+      mesh.rotation.set(entry.rx, entry.ry, entry.rz);
+      const targetOpacity = Math.max(
+        0.005,
+        0.04 - i * 0.008 + pf.current.burst * 0.02
+      );
+      const mat = mesh.material as THREE.MeshBasicMaterial;
+      mat.opacity = THREE.MathUtils.damp(mat.opacity, targetOpacity, 4, delta);
+      const s = 2.2 + i * 0.35;
+      mesh.scale.setScalar(
+        THREE.MathUtils.damp(
+          mesh.scale.x,
+          s + pf.current.burst * 0.15,
+          3,
+          delta
+        )
+      );
+    }
+  });
+
+  const colors = [
+    SCENE_PALETTE.accent,
+    SCENE_PALETTE.secondary,
+    SCENE_PALETTE.tertiary,
+    SCENE_PALETTE.warm,
+  ];
+
+  return (
+    <>
+      {Array.from({ length: layerCount }, (_, i) => (
+        <mesh
+          key={`te-${i}`}
+          ref={el => {
+            meshRefs.current[i] = el;
+          }}
+          scale={2.2 + i * 0.35}
+        >
+          <icosahedronGeometry args={[1, 1]} />
+          <meshBasicMaterial
+            color={colors[i % colors.length]}
+            transparent
+            opacity={0.03}
+            wireframe
+            blending={THREE.AdditiveBlending}
+            depthWrite={false}
+          />
+        </mesh>
+      ))}
+    </>
+  );
+}
+
+/* ── Neural web — interconnected node constellation ──────────── */
+
+function NeuralWeb({
+  pf,
+  nodeCount,
+}: {
+  pf: MutableRefObject<PointerField>;
+  nodeCount: number;
+}) {
+  const groupRef = useRef<THREE.Group>(null);
+  const linesGroupRef = useRef<THREE.Group | null>(null);
+
+  const { nodePositions, lineGeometry, lineMaterial } = useMemo(() => {
+    const nodes: THREE.Vector3[] = [];
+    for (let i = 0; i < nodeCount; i++) {
+      const r = 3 + Math.random() * 5;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+      nodes.push(
+        new THREE.Vector3(
+          r * Math.sin(phi) * Math.cos(theta),
+          r * Math.sin(phi) * Math.sin(theta),
+          r * Math.cos(phi)
+        )
+      );
+    }
+
+    const conns: [number, number][] = [];
+    const maxDist = 3.8;
+    for (let i = 0; i < nodeCount; i++) {
+      for (let j = i + 1; j < nodeCount; j++) {
+        if (nodes[i].distanceTo(nodes[j]) < maxDist) {
+          conns.push([i, j]);
+        }
+      }
+    }
+
+    const positions = new Float32Array(conns.length * 6);
+    for (let c = 0; c < conns.length; c++) {
+      const [a, b] = conns[c];
+      positions[c * 6] = nodes[a].x;
+      positions[c * 6 + 1] = nodes[a].y;
+      positions[c * 6 + 2] = nodes[a].z;
+      positions[c * 6 + 3] = nodes[b].x;
+      positions[c * 6 + 4] = nodes[b].y;
+      positions[c * 6 + 5] = nodes[b].z;
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    const mat = new THREE.LineBasicMaterial({
+      color: SCENE_PALETTE.secondary,
+      transparent: true,
+      opacity: 0.04,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    return {
+      nodePositions: nodes,
+      connections: conns,
+      lineGeometry: geo,
+      lineMaterial: mat,
+    };
+  }, [nodeCount]);
+
+  useEffect(() => {
+    if (!linesGroupRef.current) return;
+    const lines = new THREE.LineSegments(lineGeometry, lineMaterial);
+    linesGroupRef.current.add(lines);
+    return () => {
+      linesGroupRef.current?.remove(lines);
+      lineGeometry.dispose();
+      lineMaterial.dispose();
+    };
+  }, [lineGeometry, lineMaterial]);
+
+  useFrame((state, delta) => {
+    if (!groupRef.current) return;
+    const burst = pf.current.burst;
+    groupRef.current.rotation.y += delta * (0.008 + burst * 0.01);
+    groupRef.current.rotation.x =
+      Math.sin(state.clock.elapsedTime * 0.04) * 0.04;
+    lineMaterial.opacity = THREE.MathUtils.damp(
+      lineMaterial.opacity,
+      0.04 + burst * 0.08,
+      4,
+      delta
+    );
+  });
+
+  return (
+    <group ref={groupRef}>
+      {nodePositions.map((pos, i) => (
+        <mesh key={`nw-${i}`} position={pos} scale={0.025 + (i % 4) * 0.008}>
+          <sphereGeometry args={[1, 6, 6]} />
+          <meshBasicMaterial
+            color={
+              i % 3 === 0
+                ? SCENE_PALETTE.accent
+                : i % 3 === 1
+                  ? SCENE_PALETTE.secondary
+                  : SCENE_PALETTE.tertiary
+            }
+            transparent
+            opacity={0.5}
+            blending={THREE.AdditiveBlending}
+            depthWrite={false}
+          />
+        </mesh>
+      ))}
+      <group ref={linesGroupRef} />
+    </group>
+  );
+}
+
+/* ── Gravitational lens — refraction disc around core ────────── */
+
+function GravitationalLens({ pf }: { pf: MutableRefObject<PointerField> }) {
+  const meshRef = useRef<THREE.Mesh>(null);
+
+  useFrame((state, delta) => {
+    if (!meshRef.current) return;
+    const t = state.clock.elapsedTime;
+    const burst = pf.current.burst;
+    meshRef.current.rotation.z += delta * 0.01;
+    meshRef.current.rotation.x = Math.sin(t * 0.035) * 0.08;
+    const mat = meshRef.current.material as THREE.MeshPhysicalMaterial;
+    mat.opacity = THREE.MathUtils.damp(
+      mat.opacity,
+      0.06 + burst * 0.04,
+      4,
+      delta
+    );
+    const s = 3.2 + Math.sin(t * 0.2) * 0.15 + burst * 0.3;
+    meshRef.current.scale.setScalar(
+      THREE.MathUtils.damp(meshRef.current.scale.x, s, 3, delta)
+    );
+  });
+
+  return (
+    <mesh ref={meshRef} scale={3.2}>
+      <sphereGeometry args={[1, 32, 32]} />
+      <meshPhysicalMaterial
+        color={SCENE_PALETTE.highlight}
+        transparent
+        opacity={0.06}
+        transmission={0.92}
+        thickness={0.3}
+        ior={1.8}
+        roughness={0}
+        metalness={0}
+        envMapIntensity={0.3}
+        depthWrite={false}
+      />
+    </mesh>
+  );
+}
+
 /* ── Scene lighting ──────────────────────────────────────────── */
 
 function SceneLighting({
@@ -1755,6 +2158,23 @@ function HeroScene({
         <VolumetricRays pf={pf} rayCount={profile.volumetricRayCount} />
       )}
       {profile.enableSubspaceGrid && <SubspaceGrid pf={pf} />}
+      {profile.quantumFluxStrands > 0 && (
+        <QuantumFlux pf={pf} strandCount={profile.quantumFluxStrands} />
+      )}
+      {profile.sparkShowerCount > 0 && (
+        <SparkShower pf={pf} count={profile.sparkShowerCount} />
+      )}
+      {profile.temporalEchoLayers > 0 && (
+        <TemporalEchoes
+          pf={pf}
+          layerCount={profile.temporalEchoLayers}
+          coreSpeed={profile.coreSpeed}
+        />
+      )}
+      {profile.neuralWebNodes > 0 && (
+        <NeuralWeb pf={pf} nodeCount={profile.neuralWebNodes} />
+      )}
+      {profile.enableGravitationalLens && <GravitationalLens pf={pf} />}
       {profile.attractorTrailLen > 60 && (
         <group rotation={[0.4, Math.PI / 3, 0.2]}>
           <AttractorTrail
