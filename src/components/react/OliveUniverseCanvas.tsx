@@ -2480,7 +2480,9 @@ function InterferenceShells({
       if (!mesh) return;
       const phase = i * 0.65;
       const targetScale =
-        baseScale + Math.sin(t * (0.35 + i * 0.08) + phase) * 0.08 + burst * 0.18;
+        baseScale +
+        Math.sin(t * (0.35 + i * 0.08) + phase) * 0.08 +
+        burst * 0.18;
       mesh.scale.setScalar(
         THREE.MathUtils.damp(mesh.scale.x, targetScale, 3.4, delta)
       );
@@ -2539,11 +2541,7 @@ function VoidRipples({
       Array.from({ length: rippleCount }, (_, i) => ({
         radius: 2.6 + i * 0.55,
         tube: 0.018 + i * 0.004,
-        rotation: [
-          Math.PI / 2 + i * 0.24,
-          i * 0.45,
-          i * 0.2,
-        ] as const,
+        rotation: [Math.PI / 2 + i * 0.24, i * 0.45, i * 0.2] as const,
         phase: i * 0.8,
       })),
     [rippleCount]
@@ -2556,7 +2554,9 @@ function VoidRipples({
       const mesh = meshRefs.current[i];
       if (!mesh) return;
       const pulse = 1 + Math.sin(t * 0.8 + ripple.phase) * 0.06 + burst * 0.16;
-      mesh.scale.setScalar(THREE.MathUtils.damp(mesh.scale.x, pulse, 3.6, delta));
+      mesh.scale.setScalar(
+        THREE.MathUtils.damp(mesh.scale.x, pulse, 3.6, delta)
+      );
       mesh.rotation.z += delta * (0.02 + i * 0.01 + burst * 0.02);
       const mat = mesh.material as THREE.MeshBasicMaterial;
       mat.opacity = THREE.MathUtils.damp(
@@ -2576,7 +2576,11 @@ function VoidRipples({
           ref={el => {
             meshRefs.current[i] = el;
           }}
-          rotation={[ripple.rotation[0], ripple.rotation[1], ripple.rotation[2]]}
+          rotation={[
+            ripple.rotation[0],
+            ripple.rotation[1],
+            ripple.rotation[2],
+          ]}
         >
           <torusGeometry args={[ripple.radius, ripple.tube, 8, 180]} />
           <meshBasicMaterial
@@ -2656,7 +2660,9 @@ function PhotonBloom({
           )}
           <meshStandardMaterial
             color={i % 3 === 0 ? SCENE_PALETTE.highlight : SCENE_PALETTE.core}
-            emissive={i % 2 === 0 ? SCENE_PALETTE.accent : SCENE_PALETTE.secondary}
+            emissive={
+              i % 2 === 0 ? SCENE_PALETTE.accent : SCENE_PALETTE.secondary
+            }
             emissiveIntensity={1.2}
             roughness={0.15}
             metalness={0.35}
@@ -2726,7 +2732,9 @@ function HaloGlyphs({
             <dodecahedronGeometry args={[1, 0]} />
           )}
           <meshBasicMaterial
-            color={i % 2 === 0 ? SCENE_PALETTE.tertiary : SCENE_PALETTE.secondary}
+            color={
+              i % 2 === 0 ? SCENE_PALETTE.tertiary : SCENE_PALETTE.secondary
+            }
             transparent
             opacity={0.1}
             wireframe
@@ -2805,6 +2813,410 @@ function ChromaTorusField({ pf }: { pf: MutableRefObject<PointerField> }) {
           />
         </mesh>
       ))}
+    </>
+  );
+}
+
+/* ── Crown spires ───────────────────────────────────────────── */
+
+function CrownSpires({
+  pf,
+  spireCount,
+}: {
+  pf: MutableRefObject<PointerField>;
+  spireCount: number;
+}) {
+  const groupRef = useRef<THREE.Group>(null);
+  const spires = useMemo(
+    () =>
+      Array.from({ length: spireCount }, (_, i) => {
+        const theta = Math.acos(1 - (2 * (i + 0.5)) / spireCount);
+        const phi = Math.PI * (3 - Math.sqrt(5)) * i;
+        const radius = 2.55 + (i % 3) * 0.28;
+        const position = new THREE.Vector3(
+          radius * Math.sin(theta) * Math.cos(phi),
+          radius * Math.cos(theta),
+          radius * Math.sin(theta) * Math.sin(phi)
+        );
+        const quat = new THREE.Quaternion().setFromUnitVectors(
+          new THREE.Vector3(0, 1, 0),
+          position.clone().normalize()
+        );
+        const euler = new THREE.Euler().setFromQuaternion(quat);
+        return {
+          position,
+          rotation: [euler.x, euler.y, euler.z] as const,
+          length: 0.85 + (i % 4) * 0.22,
+          width: 0.09 + (i % 3) * 0.02,
+          phase: i * 0.55,
+        };
+      }),
+    [spireCount]
+  );
+
+  useFrame((state, delta) => {
+    if (!groupRef.current) return;
+    const t = state.clock.elapsedTime;
+    const burst = pf.current.burst;
+    groupRef.current.rotation.y += delta * (0.025 + burst * 0.03);
+    groupRef.current.children.forEach((child, i) => {
+      const spire = spires[i];
+      if (!spire) return;
+      const mesh = child as THREE.Mesh;
+      mesh.scale.y = THREE.MathUtils.damp(
+        mesh.scale.y,
+        1 + Math.sin(t * 1.8 + spire.phase) * 0.14 + burst * 0.28,
+        4,
+        delta
+      );
+      const mat = mesh.material as THREE.MeshPhysicalMaterial;
+      mat.emissiveIntensity = THREE.MathUtils.damp(
+        mat.emissiveIntensity,
+        0.5 + burst * 1.6 + Math.sin(t * 2.3 + spire.phase) * 0.2,
+        4,
+        delta
+      );
+    });
+  });
+
+  return (
+    <group ref={groupRef}>
+      {spires.map((spire, i) => (
+        <mesh
+          key={`crown-spire-${i}`}
+          position={spire.position}
+          rotation={[spire.rotation[0], spire.rotation[1], spire.rotation[2]]}
+        >
+          <coneGeometry args={[spire.width, spire.length, 6, 1, false]} />
+          <meshPhysicalMaterial
+            color={i % 2 === 0 ? SCENE_PALETTE.core : SCENE_PALETTE.secondary}
+            emissive={i % 2 === 0 ? SCENE_PALETTE.accent : SCENE_PALETTE.warm}
+            emissiveIntensity={0.5}
+            roughness={0.08}
+            metalness={0.4}
+            transmission={0.22}
+            transparent
+            opacity={0.82}
+            toneMapped={false}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+/* ── Meridian arcs ──────────────────────────────────────────── */
+
+function MeridianArcs({
+  pf,
+  arcCount,
+}: {
+  pf: MutableRefObject<PointerField>;
+  arcCount: number;
+}) {
+  const groupRef = useRef<THREE.Group>(null);
+
+  const arcs = useMemo(() => {
+    const result: { geometry: THREE.TubeGeometry; color: string }[] = [];
+    const colors = [
+      SCENE_PALETTE.secondary,
+      SCENE_PALETTE.accent,
+      SCENE_PALETTE.tertiary,
+    ];
+    for (let i = 0; i < arcCount; i++) {
+      const phi = (i / arcCount) * Math.PI * 2;
+      const points: THREE.Vector3[] = [];
+      const segments = 48;
+      for (let j = 0; j <= segments; j++) {
+        const t = j / segments;
+        const theta = t * Math.PI;
+        const radius = 6.6 + Math.sin(theta * 4 + i) * 0.18;
+        const x = radius * Math.sin(theta) * Math.cos(phi);
+        const y = radius * Math.cos(theta);
+        const z = radius * Math.sin(theta) * Math.sin(phi);
+        points.push(new THREE.Vector3(x, y, z));
+      }
+      const curve = new THREE.CatmullRomCurve3(
+        points,
+        false,
+        'centripetal',
+        0.5
+      );
+      result.push({
+        geometry: new THREE.TubeGeometry(
+          curve,
+          36,
+          0.012 + (i % 3) * 0.003,
+          4,
+          false
+        ),
+        color: colors[i % colors.length],
+      });
+    }
+    return result;
+  }, [arcCount]);
+
+  useEffect(() => () => arcs.forEach(arc => arc.geometry.dispose()), [arcs]);
+
+  useFrame((state, delta) => {
+    if (!groupRef.current) return;
+    const burst = pf.current.burst;
+    groupRef.current.rotation.y += delta * (0.012 + burst * 0.016);
+    groupRef.current.rotation.z =
+      Math.sin(state.clock.elapsedTime * 0.05) * 0.08;
+  });
+
+  return (
+    <group ref={groupRef}>
+      {arcs.map((arc, i) => (
+        <mesh key={`meridian-arc-${i}`} geometry={arc.geometry}>
+          <meshBasicMaterial
+            color={arc.color}
+            transparent
+            opacity={0.055 + (i % 3) * 0.012}
+            blending={THREE.AdditiveBlending}
+            depthWrite={false}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+/* ── Relay satellites ───────────────────────────────────────── */
+
+function RelaySatellites({
+  pf,
+  satelliteCount,
+}: {
+  pf: MutableRefObject<PointerField>;
+  satelliteCount: number;
+}) {
+  const groupRef = useRef<THREE.Group>(null);
+  const satellites = useMemo(
+    () =>
+      Array.from({ length: satelliteCount }, (_, i) => ({
+        radius: 8.4 + (i % 4) * 0.6,
+        speed: 0.08 + (i % 5) * 0.018,
+        phase: (i / satelliteCount) * Math.PI * 2,
+        inclination: ((i % 6) - 2.5) * 0.16,
+        scale: 0.16 + (i % 3) * 0.03,
+      })),
+    [satelliteCount]
+  );
+
+  useFrame((state, delta) => {
+    if (!groupRef.current) return;
+    const t = state.clock.elapsedTime;
+    const burst = pf.current.burst;
+    groupRef.current.children.forEach((child, i) => {
+      const sat = satellites[i];
+      if (!sat) return;
+      const group = child as THREE.Group;
+      const angle = t * sat.speed + sat.phase;
+      group.position.set(
+        Math.cos(angle) * sat.radius,
+        Math.sin(sat.inclination + angle * 1.3) * 2.4,
+        Math.sin(angle) * sat.radius
+      );
+      group.rotation.x += delta * (0.4 + sat.speed);
+      group.rotation.y -= delta * (0.35 + burst * 0.15);
+      group.scale.setScalar(
+        THREE.MathUtils.damp(group.scale.x, sat.scale + burst * 0.03, 4, delta)
+      );
+    });
+  });
+
+  return (
+    <group ref={groupRef}>
+      {satellites.map((sat, i) => (
+        <group key={`relay-sat-${i}`} scale={sat.scale}>
+          <mesh>
+            <torusGeometry args={[0.9, 0.1, 6, 36]} />
+            <meshBasicMaterial
+              color={
+                i % 2 === 0 ? SCENE_PALETTE.secondary : SCENE_PALETTE.tertiary
+              }
+              transparent
+              opacity={0.12}
+              blending={THREE.AdditiveBlending}
+              depthWrite={false}
+            />
+          </mesh>
+          <mesh>
+            <sphereGeometry args={[0.22, 10, 10]} />
+            <meshStandardMaterial
+              color={SCENE_PALETTE.highlight}
+              emissive={i % 2 === 0 ? SCENE_PALETTE.accent : SCENE_PALETTE.warm}
+              emissiveIntensity={1.8}
+              roughness={0.15}
+              metalness={0.2}
+              toneMapped={false}
+            />
+          </mesh>
+        </group>
+      ))}
+    </group>
+  );
+}
+
+/* ── Petal field ────────────────────────────────────────────── */
+
+function PetalField({
+  pf,
+  petalCount,
+}: {
+  pf: MutableRefObject<PointerField>;
+  petalCount: number;
+}) {
+  const groupRef = useRef<THREE.Group>(null);
+  const petals = useMemo(
+    () =>
+      Array.from({ length: petalCount }, (_, i) => ({
+        angle: (i / petalCount) * Math.PI * 2,
+        radius: 1.8 + (i % 4) * 0.3,
+        tilt: ((i % 6) - 3) * 0.16,
+        scaleX: 0.34 + (i % 3) * 0.06,
+        scaleY: 0.78 + (i % 4) * 0.08,
+        phase: i * 0.4,
+      })),
+    [petalCount]
+  );
+
+  useFrame((state, delta) => {
+    if (!groupRef.current) return;
+    const t = state.clock.elapsedTime;
+    const burst = pf.current.burst;
+    groupRef.current.rotation.y += delta * (0.02 + burst * 0.025);
+    groupRef.current.children.forEach((child, i) => {
+      const petal = petals[i];
+      if (!petal) return;
+      const mesh = child as THREE.Mesh;
+      mesh.scale.x = THREE.MathUtils.damp(
+        mesh.scale.x,
+        petal.scaleX + Math.sin(t * 1.4 + petal.phase) * 0.03 + burst * 0.03,
+        4,
+        delta
+      );
+      mesh.scale.y = THREE.MathUtils.damp(
+        mesh.scale.y,
+        petal.scaleY + Math.cos(t * 1.1 + petal.phase) * 0.04 + burst * 0.08,
+        4,
+        delta
+      );
+      const mat = mesh.material as THREE.MeshBasicMaterial;
+      mat.opacity = THREE.MathUtils.damp(
+        mat.opacity,
+        0.08 + Math.sin(t * 1.6 + petal.phase) * 0.02 + burst * 0.05,
+        4,
+        delta
+      );
+    });
+  });
+
+  return (
+    <group ref={groupRef}>
+      {petals.map((petal, i) => (
+        <mesh
+          key={`petal-field-${i}`}
+          position={[
+            Math.cos(petal.angle) * petal.radius,
+            Math.sin(petal.phase) * 0.35,
+            Math.sin(petal.angle) * petal.radius,
+          ]}
+          rotation={[Math.PI / 2 + petal.tilt, petal.angle, 0]}
+          scale={[petal.scaleX, petal.scaleY, 1]}
+        >
+          <circleGeometry args={[1, 28]} />
+          <meshBasicMaterial
+            color={i % 2 === 0 ? SCENE_PALETTE.warm : SCENE_PALETTE.accent}
+            transparent
+            opacity={0.08}
+            blending={THREE.AdditiveBlending}
+            depthWrite={false}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+/* ── Lit orbit cage ─────────────────────────────────────────── */
+
+function LitOrbitCage({ pf }: { pf: MutableRefObject<PointerField> }) {
+  const boxRefA = useRef<THREE.Mesh>(null);
+  const boxRefB = useRef<THREE.Mesh>(null);
+  const octaRef = useRef<THREE.Mesh>(null);
+
+  useFrame((state, delta) => {
+    const burst = pf.current.burst;
+    const t = state.clock.elapsedTime;
+    if (boxRefA.current) {
+      boxRefA.current.rotation.x += delta * 0.045;
+      boxRefA.current.rotation.y -= delta * (0.04 + burst * 0.03);
+      boxRefA.current.scale.setScalar(
+        THREE.MathUtils.damp(
+          boxRefA.current.scale.x,
+          7.2 + burst * 0.2,
+          4,
+          delta
+        )
+      );
+    }
+    if (boxRefB.current) {
+      boxRefB.current.rotation.y += delta * 0.035;
+      boxRefB.current.rotation.z -= delta * (0.03 + burst * 0.025);
+      boxRefB.current.scale.setScalar(
+        THREE.MathUtils.damp(
+          boxRefB.current.scale.x,
+          8.1 + Math.sin(t * 0.4) * 0.08,
+          4,
+          delta
+        )
+      );
+    }
+    if (octaRef.current) {
+      octaRef.current.rotation.x -= delta * 0.025;
+      octaRef.current.rotation.z += delta * (0.028 + burst * 0.02);
+    }
+  });
+
+  return (
+    <>
+      <mesh ref={boxRefA} scale={7.2} rotation={[0.5, 0.1, 0.2]}>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshBasicMaterial
+          color={SCENE_PALETTE.secondary}
+          transparent
+          opacity={0.02}
+          wireframe
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+        />
+      </mesh>
+      <mesh ref={boxRefB} scale={8.1} rotation={[0.2, 0.8, -0.35]}>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshBasicMaterial
+          color={SCENE_PALETTE.tertiary}
+          transparent
+          opacity={0.014}
+          wireframe
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+        />
+      </mesh>
+      <mesh ref={octaRef} scale={9.2} rotation={[0.15, 0.3, 0.55]}>
+        <octahedronGeometry args={[1, 0]} />
+        <meshBasicMaterial
+          color={SCENE_PALETTE.accent}
+          transparent
+          opacity={0.015}
+          wireframe
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+        />
+      </mesh>
     </>
   );
 }
@@ -3058,6 +3470,19 @@ function HeroScene({
         <HaloGlyphs pf={pf} glyphCount={profile.haloGlyphCount} />
       )}
       {profile.enableChromaTorusField && <ChromaTorusField pf={pf} />}
+      {profile.crownSpireCount > 0 && (
+        <CrownSpires pf={pf} spireCount={profile.crownSpireCount} />
+      )}
+      {profile.meridianArcCount > 0 && (
+        <MeridianArcs pf={pf} arcCount={profile.meridianArcCount} />
+      )}
+      {profile.relaySatelliteCount > 0 && (
+        <RelaySatellites pf={pf} satelliteCount={profile.relaySatelliteCount} />
+      )}
+      {profile.petalFieldCount > 0 && (
+        <PetalField pf={pf} petalCount={profile.petalFieldCount} />
+      )}
+      {profile.enableLitOrbitCage && <LitOrbitCage pf={pf} />}
       {profile.attractorTrailLen > 60 && (
         <group rotation={[0.4, Math.PI / 3, 0.2]}>
           <AttractorTrail

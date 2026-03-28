@@ -82,6 +82,13 @@ export interface SceneProfile {
   photonBloomCount: number;
   haloGlyphCount: number;
   enableChromaTorusField: boolean;
+
+  /* ── apotheosis tier ────────────────────────── */
+  crownSpireCount: number;
+  meridianArcCount: number;
+  relaySatelliteCount: number;
+  petalFieldCount: number;
+  enableLitOrbitCage: boolean;
 }
 
 export const SCENE_PALETTE = {
@@ -232,6 +239,11 @@ const ULTRA: SceneProfile = {
   photonBloomCount: 18,
   haloGlyphCount: 12,
   enableChromaTorusField: true,
+  crownSpireCount: 8,
+  meridianArcCount: 10,
+  relaySatelliteCount: 9,
+  petalFieldCount: 14,
+  enableLitOrbitCage: true,
 };
 
 const HIGH: SceneProfile = {
@@ -289,6 +301,11 @@ const HIGH: SceneProfile = {
   photonBloomCount: 12,
   haloGlyphCount: 9,
   enableChromaTorusField: true,
+  crownSpireCount: 6,
+  meridianArcCount: 8,
+  relaySatelliteCount: 6,
+  petalFieldCount: 10,
+  enableLitOrbitCage: true,
 };
 
 const MED: SceneProfile = {
@@ -346,6 +363,11 @@ const MED: SceneProfile = {
   photonBloomCount: 8,
   haloGlyphCount: 6,
   enableChromaTorusField: false,
+  crownSpireCount: 4,
+  meridianArcCount: 5,
+  relaySatelliteCount: 4,
+  petalFieldCount: 7,
+  enableLitOrbitCage: false,
 };
 
 const LOW: SceneProfile = {
@@ -403,6 +425,11 @@ const LOW: SceneProfile = {
   photonBloomCount: 5,
   haloGlyphCount: 4,
   enableChromaTorusField: false,
+  crownSpireCount: 2,
+  meridianArcCount: 3,
+  relaySatelliteCount: 3,
+  petalFieldCount: 4,
+  enableLitOrbitCage: false,
 };
 
 const NONE: SceneProfile = {
@@ -460,6 +487,11 @@ const NONE: SceneProfile = {
   photonBloomCount: 0,
   haloGlyphCount: 0,
   enableChromaTorusField: false,
+  crownSpireCount: 0,
+  meridianArcCount: 0,
+  relaySatelliteCount: 0,
+  petalFieldCount: 0,
+  enableLitOrbitCage: false,
 };
 
 export function getSceneProfile(
@@ -523,6 +555,11 @@ export function optimizeSceneProfileForMobile(
     photonBloomCount: Math.min(p.photonBloomCount, agg ? 4 : 6),
     haloGlyphCount: Math.min(p.haloGlyphCount, agg ? 3 : 4),
     enableChromaTorusField: false,
+    crownSpireCount: Math.min(p.crownSpireCount, agg ? 2 : 3),
+    meridianArcCount: Math.min(p.meridianArcCount, agg ? 2 : 4),
+    relaySatelliteCount: Math.min(p.relaySatelliteCount, agg ? 2 : 3),
+    petalFieldCount: Math.min(p.petalFieldCount, agg ? 4 : 5),
+    enableLitOrbitCage: false,
   };
 }
 
