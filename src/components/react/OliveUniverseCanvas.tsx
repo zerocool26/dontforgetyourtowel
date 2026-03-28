@@ -1096,7 +1096,12 @@ function EventHorizonDisc({
   const groupRef = useRef<THREE.Group>(null);
 
   const rings = useMemo(() => {
-    const result: { geometry: THREE.TorusGeometry; color: string; opacity: number; radius: number }[] = [];
+    const result: {
+      geometry: THREE.TorusGeometry;
+      color: string;
+      opacity: number;
+      radius: number;
+    }[] = [];
     const colors = [
       SCENE_PALETTE.warm,
       SCENE_PALETTE.accent,
@@ -1162,7 +1167,11 @@ function MagneticFieldLines({
 
   const tubes = useMemo(() => {
     const result: { geometry: THREE.TubeGeometry; color: string }[] = [];
-    const colors = [SCENE_PALETTE.secondary, SCENE_PALETTE.accent, SCENE_PALETTE.tertiary];
+    const colors = [
+      SCENE_PALETTE.secondary,
+      SCENE_PALETTE.accent,
+      SCENE_PALETTE.tertiary,
+    ];
     for (let i = 0; i < lineCount; i++) {
       const phi = (i / lineCount) * Math.PI * 2;
       const pts: THREE.Vector3[] = [];
@@ -1193,7 +1202,8 @@ function MagneticFieldLines({
     if (!groupRef.current) return;
     const burst = pf.current.burst;
     groupRef.current.rotation.y += delta * (0.012 + burst * 0.018);
-    groupRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 0.055) * 0.08;
+    groupRef.current.rotation.z =
+      Math.sin(state.clock.elapsedTime * 0.055) * 0.08;
   });
 
   return (
@@ -1225,8 +1235,9 @@ function ResonanceWaves({
   const meshRefs = useRef<(THREE.Mesh | null)[]>([]);
 
   const geometries = useMemo(() => {
-    return Array.from({ length: waveCount }, () =>
-      new THREE.SphereGeometry(1, 28, 28)
+    return Array.from(
+      { length: waveCount },
+      () => new THREE.SphereGeometry(1, 28, 28)
     );
   }, [waveCount]);
 
@@ -1238,7 +1249,10 @@ function ResonanceWaves({
     for (let i = 0; i < waveCount; i++) {
       const mesh = meshRefs.current[i];
       if (!mesh) continue;
-      const phase = ((t * (0.15 + burst * 0.06) + (i / waveCount) * Math.PI * 2) % (Math.PI * 2)) / (Math.PI * 2);
+      const phase =
+        ((t * (0.15 + burst * 0.06) + (i / waveCount) * Math.PI * 2) %
+          (Math.PI * 2)) /
+        (Math.PI * 2);
       const radius = 0.5 + phase * 8;
       mesh.scale.setScalar(radius);
       const mat = mesh.material as THREE.MeshBasicMaterial;
@@ -1256,7 +1270,9 @@ function ResonanceWaves({
       {geometries.map((geo, i) => (
         <mesh
           key={`rw-${i}`}
-          ref={el => { meshRefs.current[i] = el; }}
+          ref={el => {
+            meshRefs.current[i] = el;
+          }}
           geometry={geo}
         >
           <meshBasicMaterial
@@ -1287,7 +1303,8 @@ function CometaryOrbiters({
 
   const orbits = useMemo(() => {
     return Array.from({ length: count }, (_, i) => {
-      const inclination = ((i / count) * Math.PI * 0.6 - 0.3) + (Math.random() - 0.5) * 0.25;
+      const inclination =
+        (i / count) * Math.PI * 0.6 - 0.3 + (Math.random() - 0.5) * 0.25;
       const radius = 3.5 + (i % 5) * 0.9 + Math.random() * 0.6;
       const speed = 0.12 + (i % 4) * 0.04;
       const phase = (i / count) * Math.PI * 2;
@@ -1300,7 +1317,11 @@ function CometaryOrbiters({
     const headGeo = new THREE.SphereGeometry(0.04, 6, 6);
     const lineGeos: THREE.BufferGeometry[] = [];
     const lineMats: THREE.LineBasicMaterial[] = [];
-    const colors = [SCENE_PALETTE.accent, SCENE_PALETTE.secondary, SCENE_PALETTE.warm];
+    const colors = [
+      SCENE_PALETTE.accent,
+      SCENE_PALETTE.secondary,
+      SCENE_PALETTE.warm,
+    ];
     for (let i = 0; i < count; i++) {
       const positions = new Float32Array(orbits[i].tailLen * 3);
       const geo = new THREE.BufferGeometry();
@@ -1315,7 +1336,11 @@ function CometaryOrbiters({
       lineGeos.push(geo);
       lineMats.push(mat);
     }
-    return { lineGeometries: lineGeos, lineMaterials: lineMats, headGeometry: headGeo };
+    return {
+      lineGeometries: lineGeos,
+      lineMaterials: lineMats,
+      headGeometry: headGeo,
+    };
   }, [count, orbits]);
 
   useEffect(() => {
@@ -1345,11 +1370,14 @@ function CometaryOrbiters({
       const orb = orbits[i];
       const angle = t * orb.speed + orb.phase + burst * 0.2;
       const cx = Math.cos(angle) * orb.radius;
-      const cy = Math.sin(orb.inclination) * Math.sin(angle) * orb.radius * 0.35;
+      const cy =
+        Math.sin(orb.inclination) * Math.sin(angle) * orb.radius * 0.35;
       const cz = Math.sin(angle) * orb.radius * Math.cos(orb.inclination);
       head.position.set(cx, cy, cz);
 
-      const posAttr = lineGeometries[i].getAttribute('position') as THREE.BufferAttribute;
+      const posAttr = lineGeometries[i].getAttribute(
+        'position'
+      ) as THREE.BufferAttribute;
       const arr = posAttr.array as Float32Array;
       for (let j = orb.tailLen - 1; j > 0; j--) {
         arr[j * 3] = arr[(j - 1) * 3];
@@ -1406,7 +1434,9 @@ function VolumetricRays({
   }, [rayCount]);
 
   const geometries = useMemo(() => {
-    return cones.map(c => new THREE.ConeGeometry(c.spread, c.length, 4, 1, true));
+    return cones.map(
+      c => new THREE.ConeGeometry(c.spread, c.length, 4, 1, true)
+    );
   }, [cones]);
 
   useEffect(() => () => geometries.forEach(g => g.dispose()), [geometries]);
@@ -1417,7 +1447,8 @@ function VolumetricRays({
     groupRef.current.rotation.y += delta * (0.005 + burst * 0.015);
     const children = groupRef.current.children;
     for (let i = 0; i < children.length; i++) {
-      const mat = (children[i] as THREE.Mesh).material as THREE.MeshBasicMaterial;
+      const mat = (children[i] as THREE.Mesh)
+        .material as THREE.MeshBasicMaterial;
       mat.opacity = THREE.MathUtils.damp(
         mat.opacity,
         0.018 + burst * 0.06,
@@ -1427,7 +1458,11 @@ function VolumetricRays({
     }
   });
 
-  const colors = [SCENE_PALETTE.accent, SCENE_PALETTE.secondary, SCENE_PALETTE.warm];
+  const colors = [
+    SCENE_PALETTE.accent,
+    SCENE_PALETTE.secondary,
+    SCENE_PALETTE.warm,
+  ];
 
   return (
     <group ref={groupRef}>
@@ -1481,7 +1516,8 @@ function SubspaceGrid({ pf }: { pf: MutableRefObject<PointerField> }) {
   useEffect(() => () => geometry.dispose(), [geometry]);
 
   useFrame((state, delta) => {
-    if (!meshRef.current || !positionsRef.current || !basePositionsRef.current) return;
+    if (!meshRef.current || !positionsRef.current || !basePositionsRef.current)
+      return;
     const t = state.clock.elapsedTime;
     const burst = pf.current.burst;
     const arr = positionsRef.current;
