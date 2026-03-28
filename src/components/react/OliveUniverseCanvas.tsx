@@ -260,13 +260,13 @@ function CrystallineCore({
     if (shellMatRef.current) {
       shellMatRef.current.emissiveIntensity = THREE.MathUtils.damp(
         shellMatRef.current.emissiveIntensity,
-        0.8 + p.burst * 2,
+        0.22 + p.burst * 0.55,
         4,
         delta
       );
       shellMatRef.current.opacity = THREE.MathUtils.damp(
         shellMatRef.current.opacity,
-        0.18 + p.burst * 0.12,
+        0.1 + p.burst * 0.04,
         3,
         delta
       );
@@ -275,7 +275,7 @@ function CrystallineCore({
     if (innerMatRef.current) {
       innerMatRef.current.emissiveIntensity = THREE.MathUtils.damp(
         innerMatRef.current.emissiveIntensity,
-        1.8 + p.burst * 2.4 + Math.sin(t * 1.2) * 0.3,
+        0.55 + p.burst * 0.7 + Math.sin(t * 1.2) * 0.08,
         4,
         delta
       );
@@ -291,23 +291,23 @@ function CrystallineCore({
           ref={shellMatRef}
           color={SCENE_PALETTE.secondary}
           emissive={SCENE_PALETTE.accent}
-          emissiveIntensity={1}
-          roughness={0.02}
-          metalness={0.35}
-          clearcoat={1}
-          clearcoatRoughness={0.08}
-          iridescence={0.8}
+          emissiveIntensity={0.22}
+          roughness={0.06}
+          metalness={0.28}
+          clearcoat={0.85}
+          clearcoatRoughness={0.14}
+          iridescence={0.35}
           iridescenceIOR={1.45}
-          reflectivity={1}
+          reflectivity={0.55}
           transparent
-          opacity={0.2}
-          transmission={0.55}
-          thickness={1.2}
+          opacity={0.12}
+          transmission={0.42}
+          thickness={0.8}
           ior={1.45}
           attenuationDistance={2.4}
           attenuationColor={SCENE_PALETTE.secondary}
           wireframe
-          envMapIntensity={0.8}
+          envMapIntensity={0.45}
         />
       </mesh>
 
@@ -318,9 +318,9 @@ function CrystallineCore({
           ref={innerMatRef}
           color={SCENE_PALETTE.core}
           emissive={SCENE_PALETTE.accent}
-          emissiveIntensity={2}
-          roughness={0.15}
-          metalness={0.1}
+          emissiveIntensity={0.55}
+          roughness={0.22}
+          metalness={0.06}
         />
       </mesh>
 
@@ -330,17 +330,17 @@ function CrystallineCore({
         <meshPhysicalMaterial
           color={SCENE_PALETTE.tertiary}
           emissive={SCENE_PALETTE.tertiary}
-          emissiveIntensity={0.3}
-          roughness={0.05}
-          metalness={0.2}
-          clearcoat={1}
-          clearcoatRoughness={0.1}
-          iridescence={0.55}
+          emissiveIntensity={0.05}
+          roughness={0.08}
+          metalness={0.12}
+          clearcoat={0.8}
+          clearcoatRoughness={0.18}
+          iridescence={0.22}
           iridescenceIOR={1.3}
           transparent
-          opacity={0.06}
-          transmission={0.7}
-          thickness={0.6}
+          opacity={0.03}
+          transmission={0.48}
+          thickness={0.45}
           attenuationDistance={2}
           attenuationColor={SCENE_PALETTE.tertiary}
         />
@@ -373,28 +373,28 @@ function OrbitalRings({
         tube: 0.025,
         tilt: [Math.PI / 2, 0, 0] as const,
         color: SCENE_PALETTE.secondary,
-        baseOpacity: 0.22,
+        baseOpacity: 0.1,
       },
       {
         radius: 3.8,
         tube: 0.018,
         tilt: [1.2, 0.5, 0] as const,
         color: SCENE_PALETTE.accent,
-        baseOpacity: 0.16,
+        baseOpacity: 0.07,
       },
       {
         radius: 4.5,
         tube: 0.014,
         tilt: [0.8, -0.3, 0.6] as const,
         color: SCENE_PALETTE.tertiary,
-        baseOpacity: 0.12,
+        baseOpacity: 0.05,
       },
       {
         radius: 5.4,
         tube: 0.01,
         tilt: [1.5, 1, 0.2] as const,
         color: SCENE_PALETTE.secondary,
-        baseOpacity: 0.08,
+        baseOpacity: 0.03,
       },
     ],
     []
@@ -409,7 +409,7 @@ function OrbitalRings({
       if (!mat) return;
       mat.opacity = THREE.MathUtils.damp(
         mat.opacity,
-        rings[i].baseOpacity + burst * 0.18,
+        rings[i].baseOpacity + burst * 0.08,
         3,
         delta
       );
@@ -1954,17 +1954,17 @@ function GravitationalLens({ pf }: { pf: MutableRefObject<PointerField> }) {
 
   return (
     <mesh ref={meshRef} scale={3.2}>
-      <sphereGeometry args={[1, 32, 32]} />
+      <sphereGeometry args={[1, 42, 42]} />
       <meshPhysicalMaterial
         color={SCENE_PALETTE.highlight}
         transparent
-        opacity={0.06}
-        transmission={0.92}
+        opacity={0.02}
+        transmission={0.68}
         thickness={0.3}
         ior={1.8}
-        roughness={0}
+        roughness={0.04}
         metalness={0}
-        envMapIntensity={0.3}
+        envMapIntensity={0.15}
         depthWrite={false}
       />
     </mesh>
@@ -2127,13 +2127,13 @@ function DarkMatterWeb({
       const mat = mesh.material as THREE.MeshStandardMaterial;
       mat.opacity = THREE.MathUtils.damp(
         mat.opacity,
-        0.25 + 0.15 * Math.sin(t * 0.6 + fil.phase) + burst * 0.2,
+        0.08 + 0.04 * Math.sin(t * 0.6 + fil.phase) + burst * 0.05,
         3,
         delta
       );
       mat.emissiveIntensity = THREE.MathUtils.damp(
         mat.emissiveIntensity,
-        0.6 + burst * 1.2 + Math.sin(t * 0.8 + fil.phase) * 0.3,
+        0.12 + burst * 0.35 + Math.sin(t * 0.8 + fil.phase) * 0.05,
         4,
         delta
       );
@@ -2148,10 +2148,9 @@ function DarkMatterWeb({
           <meshStandardMaterial
             color={SCENE_PALETTE.tertiary}
             emissive={SCENE_PALETTE.secondary}
-            emissiveIntensity={0.6}
+            emissiveIntensity={0.12}
             transparent
-            opacity={0.25}
-            toneMapped={false}
+            opacity={0.08}
           />
         </mesh>
       ))}
@@ -2214,13 +2213,13 @@ function PulsarBeacons({
         const mat = cone.material as THREE.MeshStandardMaterial;
         mat.opacity = THREE.MathUtils.damp(
           mat.opacity,
-          0.2 + 0.15 * Math.sin(t * 3 + b.phase) + burst * 0.25,
+          0.08 + 0.05 * Math.sin(t * 3 + b.phase) + burst * 0.1,
           4,
           delta
         );
         mat.emissiveIntensity = THREE.MathUtils.damp(
           mat.emissiveIntensity,
-          1.2 + burst * 2 + Math.sin(t * 4 + b.phase) * 0.4,
+          0.24 + burst * 0.5 + Math.sin(t * 4 + b.phase) * 0.08,
           5,
           delta
         );
@@ -2233,25 +2232,23 @@ function PulsarBeacons({
       {beacons.map((b, i) => (
         <group key={i} position={b.position}>
           <mesh>
-            <coneGeometry args={[0.12, 6, 6, 1, true]} />
+            <coneGeometry args={[0.12, 6, 10, 1, true]} />
             <meshStandardMaterial
               color={SCENE_PALETTE.secondary}
               emissive={SCENE_PALETTE.accent}
-              emissiveIntensity={1.2}
+              emissiveIntensity={0.24}
               transparent
-              opacity={0.2}
+              opacity={0.08}
               side={THREE.DoubleSide}
-              toneMapped={false}
               depthWrite={false}
             />
           </mesh>
           <mesh>
-            <sphereGeometry args={[0.06, 8, 8]} />
+            <sphereGeometry args={[0.06, 14, 14]} />
             <meshStandardMaterial
               color={SCENE_PALETTE.highlight}
               emissive={SCENE_PALETTE.accent}
-              emissiveIntensity={3}
-              toneMapped={false}
+              emissiveIntensity={0.55}
             />
           </mesh>
         </group>
@@ -2655,7 +2652,7 @@ function PhotonBloom({
       const mat = mesh.material as THREE.MeshStandardMaterial;
       mat.emissiveIntensity = THREE.MathUtils.damp(
         mat.emissiveIntensity,
-        1.1 + burst * 2 + Math.sin(t * 2.4 + bloom.phase) * 0.25,
+        0.22 + burst * 0.55 + Math.sin(t * 2.4 + bloom.phase) * 0.08,
         5,
         delta
       );
@@ -2667,21 +2664,20 @@ function PhotonBloom({
       {blooms.map((bloom, i) => (
         <mesh key={`photon-bloom-${i}`} scale={bloom.scale}>
           {i % 2 === 0 ? (
-            <octahedronGeometry args={[1, 0]} />
+            <octahedronGeometry args={[1, 1]} />
           ) : (
-            <icosahedronGeometry args={[0.8, 0]} />
+            <icosahedronGeometry args={[0.8, 1]} />
           )}
           <meshStandardMaterial
             color={i % 3 === 0 ? SCENE_PALETTE.highlight : SCENE_PALETTE.core}
             emissive={
               i % 2 === 0 ? SCENE_PALETTE.accent : SCENE_PALETTE.secondary
             }
-            emissiveIntensity={1.2}
-            roughness={0.15}
-            metalness={0.35}
+            emissiveIntensity={0.22}
+            roughness={0.22}
+            metalness={0.18}
             transparent
-            opacity={0.82}
-            toneMapped={false}
+            opacity={0.58}
           />
         </mesh>
       ))}
@@ -3045,26 +3041,25 @@ function RelaySatellites({
       {satellites.map((sat, i) => (
         <group key={`relay-sat-${i}`} scale={sat.scale}>
           <mesh>
-            <torusGeometry args={[0.9, 0.1, 6, 36]} />
+            <torusGeometry args={[0.9, 0.08, 10, 56]} />
             <meshBasicMaterial
               color={
                 i % 2 === 0 ? SCENE_PALETTE.secondary : SCENE_PALETTE.tertiary
               }
               transparent
-              opacity={0.12}
+              opacity={0.05}
               blending={THREE.AdditiveBlending}
               depthWrite={false}
             />
           </mesh>
           <mesh>
-            <sphereGeometry args={[0.22, 10, 10]} />
+            <sphereGeometry args={[0.22, 16, 16]} />
             <meshStandardMaterial
               color={SCENE_PALETTE.highlight}
               emissive={i % 2 === 0 ? SCENE_PALETTE.accent : SCENE_PALETTE.warm}
-              emissiveIntensity={1.8}
-              roughness={0.15}
-              metalness={0.2}
-              toneMapped={false}
+              emissiveIntensity={0.4}
+              roughness={0.2}
+              metalness={0.12}
             />
           </mesh>
         </group>
@@ -3120,7 +3115,7 @@ function PetalField({
       const mat = mesh.material as THREE.MeshBasicMaterial;
       mat.opacity = THREE.MathUtils.damp(
         mat.opacity,
-        0.08 + Math.sin(t * 1.6 + petal.phase) * 0.02 + burst * 0.05,
+        0.03 + Math.sin(t * 1.6 + petal.phase) * 0.01 + burst * 0.02,
         4,
         delta
       );
@@ -3140,11 +3135,11 @@ function PetalField({
           rotation={[Math.PI / 2 + petal.tilt, petal.angle, 0]}
           scale={[petal.scaleX, petal.scaleY, 1]}
         >
-          <circleGeometry args={[1, 28]} />
+          <circleGeometry args={[1, 44]} />
           <meshBasicMaterial
             color={i % 2 === 0 ? SCENE_PALETTE.warm : SCENE_PALETTE.accent}
             transparent
-            opacity={0.08}
+            opacity={0.03}
             blending={THREE.AdditiveBlending}
             depthWrite={false}
             side={THREE.DoubleSide}
@@ -3271,7 +3266,7 @@ function LightCards({
       const mat = mesh.material as THREE.MeshBasicMaterial;
       mat.opacity = THREE.MathUtils.damp(
         mat.opacity,
-        0.05 + Math.sin(t * 1.6 + card.phase) * 0.015 + burst * 0.08,
+        0.012 + Math.sin(t * 1.6 + card.phase) * 0.004 + burst * 0.015,
         4,
         delta
       );
@@ -3292,13 +3287,14 @@ function LightCards({
         >
           <planeGeometry args={[card.width, card.height]} />
           <meshBasicMaterial
-            color={i % 2 === 0 ? SCENE_PALETTE.highlight : SCENE_PALETTE.secondary}
+            color={
+              i % 2 === 0 ? SCENE_PALETTE.highlight : SCENE_PALETTE.secondary
+            }
             transparent
-            opacity={0.06}
+            opacity={0.012}
             blending={THREE.AdditiveBlending}
             depthWrite={false}
             side={THREE.DoubleSide}
-            toneMapped={false}
           />
         </mesh>
       ))}
@@ -3350,7 +3346,7 @@ function GlassOrbiters({
       const mat = mesh.material as THREE.MeshPhysicalMaterial;
       mat.emissiveIntensity = THREE.MathUtils.damp(
         mat.emissiveIntensity,
-        0.15 + burst * 0.6,
+        0.04 + burst * 0.12,
         4,
         delta
       );
@@ -3361,25 +3357,26 @@ function GlassOrbiters({
     <group ref={groupRef}>
       {orbiters.map((orb, i) => (
         <mesh key={`glass-orb-${i}`} scale={orb.scale}>
-          <sphereGeometry args={[1, 22, 22]} />
+          <sphereGeometry args={[1, 32, 32]} />
           <meshPhysicalMaterial
-            color={i % 2 === 0 ? SCENE_PALETTE.secondary : SCENE_PALETTE.highlight}
+            color={
+              i % 2 === 0 ? SCENE_PALETTE.secondary : SCENE_PALETTE.highlight
+            }
             emissive={SCENE_PALETTE.accent}
-            emissiveIntensity={0.15}
-            roughness={0.02}
-            metalness={0.12}
+            emissiveIntensity={0.04}
+            roughness={0.04}
+            metalness={0.08}
             clearcoat={1}
-            clearcoatRoughness={0.04}
-            iridescence={0.9}
+            clearcoatRoughness={0.08}
+            iridescence={0.4}
             iridescenceIOR={1.25}
-            transmission={0.88}
+            transmission={0.78}
             thickness={0.45}
             ior={1.55}
             attenuationDistance={1.2}
             attenuationColor={SCENE_PALETTE.secondary}
             transparent
-            opacity={0.82}
-            toneMapped={false}
+            opacity={0.46}
           />
         </mesh>
       ))}
@@ -3399,7 +3396,11 @@ function CausticRibbons({
   const groupRef = useRef<THREE.Group>(null);
   const ribbons = useMemo(() => {
     const result: { geometry: THREE.TubeGeometry; color: string }[] = [];
-    const colors = [SCENE_PALETTE.highlight, SCENE_PALETTE.secondary, SCENE_PALETTE.accent];
+    const colors = [
+      SCENE_PALETTE.highlight,
+      SCENE_PALETTE.secondary,
+      SCENE_PALETTE.accent,
+    ];
     for (let i = 0; i < ribbonCount; i++) {
       const startAngle = (i / ribbonCount) * Math.PI * 2;
       const pts: THREE.Vector3[] = [];
@@ -3409,24 +3410,40 @@ function CausticRibbons({
         const angle = startAngle + t * Math.PI * (1.1 + (i % 3) * 0.18);
         const radius = 2.2 + t * 4.4;
         const y = Math.sin(t * Math.PI * 2 + i * 0.7) * 0.65;
-        pts.push(new THREE.Vector3(Math.cos(angle) * radius, y, Math.sin(angle) * radius));
+        pts.push(
+          new THREE.Vector3(
+            Math.cos(angle) * radius,
+            y,
+            Math.sin(angle) * radius
+          )
+        );
       }
       const curve = new THREE.CatmullRomCurve3(pts, false, 'centripetal', 0.5);
       result.push({
-        geometry: new THREE.TubeGeometry(curve, 36, 0.018 + (i % 3) * 0.004, 6, false),
+        geometry: new THREE.TubeGeometry(
+          curve,
+          36,
+          0.018 + (i % 3) * 0.004,
+          6,
+          false
+        ),
         color: colors[i % colors.length],
       });
     }
     return result;
   }, [ribbonCount]);
 
-  useEffect(() => () => ribbons.forEach(ribbon => ribbon.geometry.dispose()), [ribbons]);
+  useEffect(
+    () => () => ribbons.forEach(ribbon => ribbon.geometry.dispose()),
+    [ribbons]
+  );
 
   useFrame((state, delta) => {
     if (!groupRef.current) return;
     const burst = pf.current.burst;
     groupRef.current.rotation.y += delta * (0.014 + burst * 0.02);
-    groupRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.07) * 0.08;
+    groupRef.current.rotation.x =
+      Math.sin(state.clock.elapsedTime * 0.07) * 0.08;
   });
 
   return (
@@ -3436,18 +3453,17 @@ function CausticRibbons({
           <meshPhysicalMaterial
             color={ribbon.color}
             emissive={ribbon.color}
-            emissiveIntensity={0.25}
-            roughness={0.06}
-            metalness={0.18}
+            emissiveIntensity={0.06}
+            roughness={0.12}
+            metalness={0.1}
             clearcoat={1}
-            clearcoatRoughness={0.08}
-            iridescence={0.6}
+            clearcoatRoughness={0.16}
+            iridescence={0.35}
             iridescenceIOR={1.3}
             transparent
-            opacity={0.2}
-            transmission={0.22}
+            opacity={0.08}
+            transmission={0.12}
             depthWrite={false}
-            toneMapped={false}
           />
         </mesh>
       ))}
@@ -3499,7 +3515,8 @@ function PrismDust({
     if (!pointsRef.current) return;
     const burst = pf.current.burst;
     pointsRef.current.rotation.y += delta * (0.01 + burst * 0.012);
-    pointsRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.03) * 0.05;
+    pointsRef.current.rotation.x =
+      Math.sin(state.clock.elapsedTime * 0.03) * 0.05;
     pointsRef.current.position.z = THREE.MathUtils.damp(
       pointsRef.current.position.z,
       -burst * 0.45,
@@ -3513,8 +3530,8 @@ function PrismDust({
       <pointsMaterial
         vertexColors
         transparent
-        opacity={0.28}
-        size={0.95}
+        opacity={0.09}
+        size={0.58}
         sizeAttenuation
         blending={THREE.AdditiveBlending}
         depthWrite={false}
@@ -3545,7 +3562,7 @@ function SceneLighting({
     if (keyRef.current) {
       keyRef.current.intensity = THREE.MathUtils.damp(
         keyRef.current.intensity,
-        keyIntensity + burst * 8,
+        keyIntensity + burst * 1.4,
         3,
         delta
       );
@@ -3553,7 +3570,7 @@ function SceneLighting({
     if (rimRef.current) {
       rimRef.current.intensity = THREE.MathUtils.damp(
         rimRef.current.intensity,
-        rimIntensity + burst * 4,
+        rimIntensity + burst * 0.9,
         3,
         delta
       );
@@ -3561,7 +3578,7 @@ function SceneLighting({
     if (accentRef.current) {
       accentRef.current.intensity = THREE.MathUtils.damp(
         accentRef.current.intensity,
-        6 + burst * 5,
+        2.2 + burst * 1.2,
         3,
         delta
       );
@@ -3575,7 +3592,7 @@ function SceneLighting({
         color={SCENE_PALETTE.highlight}
       />
       <hemisphereLight
-        intensity={0.6}
+        intensity={0.42}
         groundColor={SCENE_PALETTE.deep}
         color={SCENE_PALETTE.secondary}
       />
@@ -3599,18 +3616,18 @@ function SceneLighting({
         ref={accentRef}
         position={[5, -2, 4]}
         color={SCENE_PALETTE.warm}
-        intensity={6}
+        intensity={2.2}
         distance={25}
         decay={2.2}
       />
       <directionalLight
         position={[3, 7, 3]}
-        intensity={1.6}
+        intensity={0.82}
         color={SCENE_PALETTE.highlight}
       />
       <directionalLight
         position={[-4, -3, -5]}
-        intensity={0.6}
+        intensity={0.24}
         color={SCENE_PALETTE.secondary}
       />
     </>
@@ -3919,7 +3936,7 @@ export default function OliveUniverseCanvas({
         gl.setClearColor(SCENE_PALETTE.backgroundFrom, 0);
         gl.toneMapping = THREE.ACESFilmicToneMapping;
         gl.toneMappingExposure =
-          quality === 'ultra' ? 1.12 : quality === 'high' ? 1.06 : 1;
+          quality === 'ultra' ? 0.94 : quality === 'high' ? 0.96 : 0.98;
         gl.domElement.dataset.heroCanvas = 'true';
       }}
       onPointerMove={e => {
@@ -3977,15 +3994,20 @@ export default function OliveUniverseCanvas({
           <Bloom
             intensity={sceneProfile.bloomIntensity}
             luminanceThreshold={sceneProfile.bloomThreshold}
-            luminanceSmoothing={0.3}
+            luminanceSmoothing={0.12}
             mipmapBlur
           />
           <Bloom
             intensity={
-              sceneProfile.enableDualBloom ? sceneProfile.bloomIntensity * 0.42 : 0
+              sceneProfile.enableDualBloom
+                ? sceneProfile.bloomIntensity * 0.12
+                : 0
             }
-            luminanceThreshold={Math.max(0.04, sceneProfile.bloomThreshold * 0.55)}
-            luminanceSmoothing={0.75}
+            luminanceThreshold={Math.max(
+              0.72,
+              sceneProfile.bloomThreshold + 0.08
+            )}
+            luminanceSmoothing={0.9}
             mipmapBlur
           />
           <ChromaticAberration
