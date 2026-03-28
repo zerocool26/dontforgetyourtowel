@@ -53,6 +53,7 @@ function StaticBackdrop({
 
 export default function OliveUniverse() {
   const interactionTimeoutRef = useRef<number | null>(null);
+  const burstLockUntilRef = useRef(0);
   const [mounted, setMounted] = useState(false);
   const [quality, setQuality] = useState<QualityTier>('medium');
   const [prefersReduced, setPrefersReduced] = useState(false);
@@ -104,6 +105,16 @@ export default function OliveUniverse() {
         rmq.removeEventListener('change', syncRM);
     };
   }, [syncCapabilities]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const oliveWindow = window as Window & {
+      __OLIVE_FORCE_STABILITY_ASSIST__?: boolean;
+    };
+    if (oliveWindow.__OLIVE_FORCE_STABILITY_ASSIST__) {
+      setStabilityAssistActive(true);
+    }
+  }, []);
 
   useEffect(
     () => () => {
@@ -177,6 +188,7 @@ export default function OliveUniverse() {
 
   const triggerPulse = useCallback(() => {
     if (!shouldRenderCanvas || typeof window === 'undefined') return;
+    burstLockUntilRef.current = window.performance.now() + 700;
     setInteractionPulse(c => c + 1);
     setInteractionState('burst');
 
@@ -191,6 +203,14 @@ export default function OliveUniverse() {
 
   const handleInteractionStateChange = useCallback(
     (next: 'idle' | 'engaged' | 'burst') => {
+      if (
+        typeof window !== 'undefined' &&
+        next !== 'burst' &&
+        window.performance.now() < burstLockUntilRef.current
+      ) {
+        return;
+      }
+
       setInteractionState(cur =>
         cur === 'burst' && next === 'engaged' ? cur : next
       );
@@ -207,6 +227,10 @@ export default function OliveUniverse() {
   );
   const tertiaryRgb = useMemo(() => hexToRgbString(SCENE_PALETTE.tertiary), []);
   const warmRgb = useMemo(() => hexToRgbString(SCENE_PALETTE.warm), []);
+  const highlightRgb = useMemo(
+    () => hexToRgbString(SCENE_PALETTE.highlight),
+    []
+  );
 
   return (
     <section
@@ -232,13 +256,15 @@ export default function OliveUniverse() {
           '--universe-secondary-rgb': secondaryRgb,
           '--universe-tertiary-rgb': tertiaryRgb,
           '--universe-warm-rgb': warmRgb,
+          '--universe-highlight-rgb': highlightRgb,
         } as CSSProperties
       }
-      onPointerDown={triggerPulse}
+      onPointerDownCapture={triggerPulse}
     >
       {/* Atmospheric layers behind the canvas */}
       <div className="universe-stage-deephaze" aria-hidden="true" />
       <div className="universe-stage-aurora-glow" aria-hidden="true" />
+      <div className="universe-stage-specular-veil" aria-hidden="true" />
       <div className="universe-stage-plasma-corona" aria-hidden="true" />
       <div className="universe-stage-ion-storm" aria-hidden="true" />
       <div className="universe-stage-lumen-weave" aria-hidden="true" />

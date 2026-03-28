@@ -294,11 +294,18 @@ function CrystallineCore({
           emissiveIntensity={1}
           roughness={0.02}
           metalness={0.35}
+          clearcoat={1}
+          clearcoatRoughness={0.08}
+          iridescence={0.8}
+          iridescenceIOR={1.45}
+          reflectivity={1}
           transparent
           opacity={0.2}
           transmission={0.55}
           thickness={1.2}
           ior={1.45}
+          attenuationDistance={2.4}
+          attenuationColor={SCENE_PALETTE.secondary}
           wireframe
           envMapIntensity={0.8}
         />
@@ -326,10 +333,16 @@ function CrystallineCore({
           emissiveIntensity={0.3}
           roughness={0.05}
           metalness={0.2}
+          clearcoat={1}
+          clearcoatRoughness={0.1}
+          iridescence={0.55}
+          iridescenceIOR={1.3}
           transparent
           opacity={0.06}
           transmission={0.7}
           thickness={0.6}
+          attenuationDistance={2}
+          attenuationColor={SCENE_PALETTE.tertiary}
         />
       </mesh>
     </group>
@@ -3221,6 +3234,295 @@ function LitOrbitCage({ pf }: { pf: MutableRefObject<PointerField> }) {
   );
 }
 
+/* ── Light cards — cinematic luminous panels ───────────────── */
+
+function LightCards({
+  pf,
+  cardCount,
+}: {
+  pf: MutableRefObject<PointerField>;
+  cardCount: number;
+}) {
+  const groupRef = useRef<THREE.Group>(null);
+  const cards = useMemo(
+    () =>
+      Array.from({ length: cardCount }, (_, i) => ({
+        angle: (i / cardCount) * Math.PI * 2,
+        radius: 4.6 + (i % 4) * 0.45,
+        y: ((i % 5) - 2) * 0.8,
+        width: 0.35 + (i % 3) * 0.08,
+        height: 1.6 + (i % 4) * 0.22,
+        phase: i * 0.5,
+      })),
+    [cardCount]
+  );
+
+  useFrame((state, delta) => {
+    if (!groupRef.current) return;
+    const t = state.clock.elapsedTime;
+    const burst = pf.current.burst;
+    groupRef.current.rotation.y += delta * (0.008 + burst * 0.015);
+    groupRef.current.children.forEach((child, i) => {
+      const card = cards[i];
+      if (!card) return;
+      const mesh = child as THREE.Mesh;
+      mesh.position.y = card.y + Math.sin(t * 0.9 + card.phase) * 0.18;
+      mesh.lookAt(0, 0, 6);
+      const mat = mesh.material as THREE.MeshBasicMaterial;
+      mat.opacity = THREE.MathUtils.damp(
+        mat.opacity,
+        0.05 + Math.sin(t * 1.6 + card.phase) * 0.015 + burst * 0.08,
+        4,
+        delta
+      );
+    });
+  });
+
+  return (
+    <group ref={groupRef}>
+      {cards.map((card, i) => (
+        <mesh
+          key={`light-card-${i}`}
+          position={[
+            Math.cos(card.angle) * card.radius,
+            card.y,
+            Math.sin(card.angle) * card.radius,
+          ]}
+          rotation={[0, -card.angle + Math.PI / 2, 0]}
+        >
+          <planeGeometry args={[card.width, card.height]} />
+          <meshBasicMaterial
+            color={i % 2 === 0 ? SCENE_PALETTE.highlight : SCENE_PALETTE.secondary}
+            transparent
+            opacity={0.06}
+            blending={THREE.AdditiveBlending}
+            depthWrite={false}
+            side={THREE.DoubleSide}
+            toneMapped={false}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+/* ── Glass orbiters — refractive premium detail orbs ───────── */
+
+function GlassOrbiters({
+  pf,
+  orbCount,
+}: {
+  pf: MutableRefObject<PointerField>;
+  orbCount: number;
+}) {
+  const groupRef = useRef<THREE.Group>(null);
+  const orbiters = useMemo(
+    () =>
+      Array.from({ length: orbCount }, (_, i) => ({
+        radius: 3.8 + (i % 4) * 0.55,
+        speed: 0.16 + (i % 5) * 0.025,
+        phase: (i / orbCount) * Math.PI * 2,
+        yAmp: 0.55 + (i % 3) * 0.18,
+        scale: 0.14 + (i % 4) * 0.03,
+      })),
+    [orbCount]
+  );
+
+  useFrame((state, delta) => {
+    if (!groupRef.current) return;
+    const t = state.clock.elapsedTime;
+    const burst = pf.current.burst;
+    groupRef.current.children.forEach((child, i) => {
+      const orb = orbiters[i];
+      if (!orb) return;
+      const mesh = child as THREE.Mesh;
+      const angle = t * orb.speed + orb.phase;
+      mesh.position.set(
+        Math.cos(angle) * orb.radius,
+        Math.sin(angle * 1.6 + orb.phase) * orb.yAmp,
+        Math.sin(angle) * orb.radius
+      );
+      mesh.rotation.x += delta * (0.4 + orb.speed);
+      mesh.rotation.y -= delta * (0.25 + burst * 0.1);
+      mesh.scale.setScalar(
+        THREE.MathUtils.damp(mesh.scale.x, orb.scale + burst * 0.02, 4, delta)
+      );
+      const mat = mesh.material as THREE.MeshPhysicalMaterial;
+      mat.emissiveIntensity = THREE.MathUtils.damp(
+        mat.emissiveIntensity,
+        0.15 + burst * 0.6,
+        4,
+        delta
+      );
+    });
+  });
+
+  return (
+    <group ref={groupRef}>
+      {orbiters.map((orb, i) => (
+        <mesh key={`glass-orb-${i}`} scale={orb.scale}>
+          <sphereGeometry args={[1, 22, 22]} />
+          <meshPhysicalMaterial
+            color={i % 2 === 0 ? SCENE_PALETTE.secondary : SCENE_PALETTE.highlight}
+            emissive={SCENE_PALETTE.accent}
+            emissiveIntensity={0.15}
+            roughness={0.02}
+            metalness={0.12}
+            clearcoat={1}
+            clearcoatRoughness={0.04}
+            iridescence={0.9}
+            iridescenceIOR={1.25}
+            transmission={0.88}
+            thickness={0.45}
+            ior={1.55}
+            attenuationDistance={1.2}
+            attenuationColor={SCENE_PALETTE.secondary}
+            transparent
+            opacity={0.82}
+            toneMapped={false}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+/* ── Caustic ribbons — premium optical sweeps ──────────────── */
+
+function CausticRibbons({
+  pf,
+  ribbonCount,
+}: {
+  pf: MutableRefObject<PointerField>;
+  ribbonCount: number;
+}) {
+  const groupRef = useRef<THREE.Group>(null);
+  const ribbons = useMemo(() => {
+    const result: { geometry: THREE.TubeGeometry; color: string }[] = [];
+    const colors = [SCENE_PALETTE.highlight, SCENE_PALETTE.secondary, SCENE_PALETTE.accent];
+    for (let i = 0; i < ribbonCount; i++) {
+      const startAngle = (i / ribbonCount) * Math.PI * 2;
+      const pts: THREE.Vector3[] = [];
+      const segs = 32;
+      for (let j = 0; j <= segs; j++) {
+        const t = j / segs;
+        const angle = startAngle + t * Math.PI * (1.1 + (i % 3) * 0.18);
+        const radius = 2.2 + t * 4.4;
+        const y = Math.sin(t * Math.PI * 2 + i * 0.7) * 0.65;
+        pts.push(new THREE.Vector3(Math.cos(angle) * radius, y, Math.sin(angle) * radius));
+      }
+      const curve = new THREE.CatmullRomCurve3(pts, false, 'centripetal', 0.5);
+      result.push({
+        geometry: new THREE.TubeGeometry(curve, 36, 0.018 + (i % 3) * 0.004, 6, false),
+        color: colors[i % colors.length],
+      });
+    }
+    return result;
+  }, [ribbonCount]);
+
+  useEffect(() => () => ribbons.forEach(ribbon => ribbon.geometry.dispose()), [ribbons]);
+
+  useFrame((state, delta) => {
+    if (!groupRef.current) return;
+    const burst = pf.current.burst;
+    groupRef.current.rotation.y += delta * (0.014 + burst * 0.02);
+    groupRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.07) * 0.08;
+  });
+
+  return (
+    <group ref={groupRef}>
+      {ribbons.map((ribbon, i) => (
+        <mesh key={`caustic-ribbon-${i}`} geometry={ribbon.geometry}>
+          <meshPhysicalMaterial
+            color={ribbon.color}
+            emissive={ribbon.color}
+            emissiveIntensity={0.25}
+            roughness={0.06}
+            metalness={0.18}
+            clearcoat={1}
+            clearcoatRoughness={0.08}
+            iridescence={0.6}
+            iridescenceIOR={1.3}
+            transparent
+            opacity={0.2}
+            transmission={0.22}
+            depthWrite={false}
+            toneMapped={false}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+/* ── Prism dust — larger cinematic sparkle field ───────────── */
+
+function PrismDust({
+  pf,
+  count,
+}: {
+  pf: MutableRefObject<PointerField>;
+  count: number;
+}) {
+  const pointsRef = useRef<THREE.Points>(null);
+  const colorAttr = useMemo(() => new Float32Array(count * 3), [count]);
+
+  const geometry = useMemo(() => {
+    const positions = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      const r = 2.5 + Math.random() * 12;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+      positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+      positions[i * 3 + 1] = r * Math.cos(phi) * 0.65;
+      positions[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
+
+      const color =
+        i % 3 === 0
+          ? new THREE.Color(SCENE_PALETTE.highlight)
+          : i % 3 === 1
+            ? new THREE.Color(SCENE_PALETTE.secondary)
+            : new THREE.Color(SCENE_PALETTE.accent);
+      colorAttr[i * 3] = color.r;
+      colorAttr[i * 3 + 1] = color.g;
+      colorAttr[i * 3 + 2] = color.b;
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geo.setAttribute('color', new THREE.BufferAttribute(colorAttr, 3));
+    return geo;
+  }, [colorAttr, count]);
+
+  useEffect(() => () => geometry.dispose(), [geometry]);
+
+  useFrame((state, delta) => {
+    if (!pointsRef.current) return;
+    const burst = pf.current.burst;
+    pointsRef.current.rotation.y += delta * (0.01 + burst * 0.012);
+    pointsRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.03) * 0.05;
+    pointsRef.current.position.z = THREE.MathUtils.damp(
+      pointsRef.current.position.z,
+      -burst * 0.45,
+      3,
+      delta
+    );
+  });
+
+  return (
+    <points ref={pointsRef} geometry={geometry}>
+      <pointsMaterial
+        vertexColors
+        transparent
+        opacity={0.28}
+        size={0.95}
+        sizeAttenuation
+        blending={THREE.AdditiveBlending}
+        depthWrite={false}
+      />
+    </points>
+  );
+}
+
 /* ── Scene lighting ──────────────────────────────────────────── */
 
 function SceneLighting({
@@ -3483,6 +3785,18 @@ function HeroScene({
         <PetalField pf={pf} petalCount={profile.petalFieldCount} />
       )}
       {profile.enableLitOrbitCage && <LitOrbitCage pf={pf} />}
+      {profile.lightCardCount > 0 && (
+        <LightCards pf={pf} cardCount={profile.lightCardCount} />
+      )}
+      {profile.glassOrbCount > 0 && (
+        <GlassOrbiters pf={pf} orbCount={profile.glassOrbCount} />
+      )}
+      {profile.causticRibbonCount > 0 && (
+        <CausticRibbons pf={pf} ribbonCount={profile.causticRibbonCount} />
+      )}
+      {profile.prismDustCount > 0 && (
+        <PrismDust pf={pf} count={profile.prismDustCount} />
+      )}
       {profile.attractorTrailLen > 60 && (
         <group rotation={[0.4, Math.PI / 3, 0.2]}>
           <AttractorTrail
@@ -3664,6 +3978,14 @@ export default function OliveUniverseCanvas({
             intensity={sceneProfile.bloomIntensity}
             luminanceThreshold={sceneProfile.bloomThreshold}
             luminanceSmoothing={0.3}
+            mipmapBlur
+          />
+          <Bloom
+            intensity={
+              sceneProfile.enableDualBloom ? sceneProfile.bloomIntensity * 0.42 : 0
+            }
+            luminanceThreshold={Math.max(0.04, sceneProfile.bloomThreshold * 0.55)}
+            luminanceSmoothing={0.75}
             mipmapBlur
           />
           <ChromaticAberration

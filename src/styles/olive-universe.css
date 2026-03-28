@@ -396,6 +396,21 @@
   }
 }
 
+@keyframes specular-veil-drift {
+  0% {
+    opacity: 0.16;
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(0.98);
+  }
+  50% {
+    opacity: 0.34;
+    transform: translate3d(1.2%, -1%, 0) rotate(5deg) scale(1.03);
+  }
+  100% {
+    opacity: 0.2;
+    transform: translate3d(-1%, 1%, 0) rotate(-3deg) scale(1.01);
+  }
+}
+
 /* ── Loaded state refinements ──────────────────────────────── */
 
 .universe-wrapper[data-olive-scene='interactive'] .universe-static-visual {
@@ -505,6 +520,24 @@
     filter 0.35s ease-out;
 }
 
+.universe-wrapper[data-olive-interaction='burst']
+  .universe-stage-specular-veil {
+  opacity: 0.9;
+  filter: blur(38px) saturate(1.45);
+  transition:
+    opacity 0.2s ease-out,
+    filter 0.25s ease-out;
+}
+
+.universe-wrapper[data-olive-interaction='engaged']
+  .universe-stage-specular-veil {
+  opacity: 0.62;
+  filter: blur(46px) saturate(1.18);
+  transition:
+    opacity 0.35s ease-out,
+    filter 0.35s ease-out;
+}
+
 .universe-wrapper[data-olive-interaction='burst'] .universe-stage-lumen-weave {
   opacity: 0.82;
   filter: blur(44px) saturate(1.35);
@@ -604,6 +637,41 @@
   mix-blend-mode: screen;
   animation: aurora-glow-sweep 55s ease-in-out infinite alternate;
   filter: blur(110px);
+  will-change: opacity, transform;
+}
+
+/* ── Specular veil — glossy premium highlight sweep ────────── */
+
+.universe-stage-specular-veil {
+  position: absolute;
+  inset: -6%;
+  width: 112%;
+  height: 112%;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    linear-gradient(
+      120deg,
+      transparent 12%,
+      rgba(var(--universe-highlight-rgb, 255, 255, 255), 0.02) 26%,
+      rgba(var(--universe-secondary-rgb, 56, 189, 248), 0.026) 38%,
+      transparent 54%
+    ),
+    linear-gradient(
+      300deg,
+      transparent 18%,
+      rgba(var(--universe-accent-rgb, 139, 92, 246), 0.012) 34%,
+      rgba(var(--universe-highlight-rgb, 255, 255, 255), 0.018) 46%,
+      transparent 62%
+    ),
+    radial-gradient(
+      ellipse 38% 30% at 50% 46%,
+      rgba(var(--universe-highlight-rgb, 255, 255, 255), 0.025) 0%,
+      transparent 68%
+    );
+  mix-blend-mode: screen;
+  animation: specular-veil-drift 24s ease-in-out infinite alternate;
+  filter: blur(52px);
   will-change: opacity, transform;
 }
 
@@ -712,6 +780,7 @@
 .universe-wrapper[data-olive-runtime='stability'] .universe-stage-temperature,
 .universe-wrapper[data-olive-runtime='stability'] .universe-stage-deephaze,
 .universe-wrapper[data-olive-runtime='stability'] .universe-stage-aurora-glow,
+.universe-wrapper[data-olive-runtime='stability'] .universe-stage-specular-veil,
 .universe-wrapper[data-olive-runtime='stability'] .universe-stage-ion-storm,
 .universe-wrapper[data-olive-runtime='stability'] .universe-stage-lumen-weave,
 .universe-wrapper[data-olive-runtime='stability']
@@ -728,6 +797,7 @@
   .universe-stage-temperature,
   .universe-stage-deephaze,
   .universe-stage-aurora-glow,
+  .universe-stage-specular-veil,
   .universe-stage-ion-storm,
   .universe-stage-lumen-weave,
   .universe-stage-plasma-corona,

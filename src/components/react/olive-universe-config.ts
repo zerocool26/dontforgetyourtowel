@@ -89,6 +89,13 @@ export interface SceneProfile {
   relaySatelliteCount: number;
   petalFieldCount: number;
   enableLitOrbitCage: boolean;
+
+  /* ── premium polish tier ────────────────────── */
+  lightCardCount: number;
+  glassOrbCount: number;
+  causticRibbonCount: number;
+  prismDustCount: number;
+  enableDualBloom: boolean;
 }
 
 export const SCENE_PALETTE = {
@@ -244,6 +251,11 @@ const ULTRA: SceneProfile = {
   relaySatelliteCount: 9,
   petalFieldCount: 14,
   enableLitOrbitCage: true,
+  lightCardCount: 10,
+  glassOrbCount: 8,
+  causticRibbonCount: 6,
+  prismDustCount: 420,
+  enableDualBloom: true,
 };
 
 const HIGH: SceneProfile = {
@@ -306,6 +318,11 @@ const HIGH: SceneProfile = {
   relaySatelliteCount: 6,
   petalFieldCount: 10,
   enableLitOrbitCage: true,
+  lightCardCount: 7,
+  glassOrbCount: 6,
+  causticRibbonCount: 4,
+  prismDustCount: 280,
+  enableDualBloom: true,
 };
 
 const MED: SceneProfile = {
@@ -368,6 +385,11 @@ const MED: SceneProfile = {
   relaySatelliteCount: 4,
   petalFieldCount: 7,
   enableLitOrbitCage: false,
+  lightCardCount: 5,
+  glassOrbCount: 4,
+  causticRibbonCount: 3,
+  prismDustCount: 180,
+  enableDualBloom: false,
 };
 
 const LOW: SceneProfile = {
@@ -430,6 +452,11 @@ const LOW: SceneProfile = {
   relaySatelliteCount: 3,
   petalFieldCount: 4,
   enableLitOrbitCage: false,
+  lightCardCount: 3,
+  glassOrbCount: 2,
+  causticRibbonCount: 2,
+  prismDustCount: 90,
+  enableDualBloom: false,
 };
 
 const NONE: SceneProfile = {
@@ -492,6 +519,11 @@ const NONE: SceneProfile = {
   relaySatelliteCount: 0,
   petalFieldCount: 0,
   enableLitOrbitCage: false,
+  lightCardCount: 0,
+  glassOrbCount: 0,
+  causticRibbonCount: 0,
+  prismDustCount: 0,
+  enableDualBloom: false,
 };
 
 export function getSceneProfile(
@@ -560,6 +592,11 @@ export function optimizeSceneProfileForMobile(
     relaySatelliteCount: Math.min(p.relaySatelliteCount, agg ? 2 : 3),
     petalFieldCount: Math.min(p.petalFieldCount, agg ? 4 : 5),
     enableLitOrbitCage: false,
+    lightCardCount: Math.min(p.lightCardCount, agg ? 2 : 3),
+    glassOrbCount: Math.min(p.glassOrbCount, agg ? 2 : 3),
+    causticRibbonCount: Math.min(p.causticRibbonCount, agg ? 1 : 2),
+    prismDustCount: Math.min(p.prismDustCount, agg ? 60 : 100),
+    enableDualBloom: false,
   };
 }
 
