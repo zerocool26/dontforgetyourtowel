@@ -351,6 +351,21 @@
   }
 }
 
+@keyframes plasma-corona-pulse {
+  0% {
+    opacity: 0.5;
+    transform: scale(0.97);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+}
+
 /* ── Loaded state refinements ──────────────────────────────── */
 
 .universe-wrapper[data-olive-scene='interactive'] .universe-static-visual {
@@ -424,6 +439,24 @@
   transition:
     opacity 0.5s ease-out,
     filter 0.5s ease-out;
+}
+
+.universe-wrapper[data-olive-interaction='burst']
+  .universe-stage-plasma-corona {
+  opacity: 1;
+  filter: blur(50px) saturate(1.4);
+  transition:
+    opacity 0.2s ease-out,
+    filter 0.25s ease-out;
+}
+
+.universe-wrapper[data-olive-interaction='engaged']
+  .universe-stage-plasma-corona {
+  opacity: 0.85;
+  filter: blur(60px) saturate(1.2);
+  transition:
+    opacity 0.4s ease-out,
+    filter 0.4s ease-out;
 }
 
 .universe-wrapper[data-olive-interaction='idle'] .universe-stage-aura {
@@ -511,6 +544,33 @@
   will-change: opacity, transform;
 }
 
+/* ── Plasma corona — warm inner halo pulsation ─────────────── */
+
+.universe-stage-plasma-corona {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(
+      ellipse 35% 30% at 50% 48%,
+      rgba(var(--universe-warm-rgb, 255, 107, 107), 0.04) 0%,
+      rgba(var(--universe-accent-rgb, 217, 255, 63), 0.025) 30%,
+      transparent 65%
+    ),
+    radial-gradient(
+      ellipse 25% 22% at 52% 46%,
+      rgba(var(--universe-accent-rgb, 217, 255, 63), 0.03) 0%,
+      transparent 55%
+    );
+  mix-blend-mode: screen;
+  animation: plasma-corona-pulse 20s ease-in-out infinite alternate;
+  filter: blur(70px);
+  will-change: opacity, transform;
+}
+
 /* ── Stability assist ──────────────────────────────────────── */
 
 .universe-wrapper[data-olive-runtime='stability'] .universe-stage-film-grain,
@@ -530,7 +590,9 @@
 
 .universe-wrapper[data-olive-runtime='stability'] .universe-stage-temperature,
 .universe-wrapper[data-olive-runtime='stability'] .universe-stage-deephaze,
-.universe-wrapper[data-olive-runtime='stability'] .universe-stage-aurora-glow {
+.universe-wrapper[data-olive-runtime='stability'] .universe-stage-aurora-glow,
+.universe-wrapper[data-olive-runtime='stability']
+  .universe-stage-plasma-corona {
   display: none;
 }
 
@@ -543,6 +605,7 @@
   .universe-stage-temperature,
   .universe-stage-deephaze,
   .universe-stage-aurora-glow,
+  .universe-stage-plasma-corona,
   .universe-static-nebula,
   .universe-static-core,
   .universe-static-orbit,

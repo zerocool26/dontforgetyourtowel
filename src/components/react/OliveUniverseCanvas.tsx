@@ -1958,6 +1958,505 @@ function GravitationalLens({ pf }: { pf: MutableRefObject<PointerField> }) {
   );
 }
 
+/* ── Solar flare arcs ────────────────────────────────────────── */
+
+function SolarFlareArcs({
+  pf,
+  flareCount,
+}: {
+  pf: MutableRefObject<PointerField>;
+  flareCount: number;
+}) {
+  const groupRef = useRef<THREE.Group>(null);
+
+  const arcs = useMemo(() => {
+    const result: {
+      curve: THREE.CatmullRomCurve3;
+      phase: number;
+      tilt: number;
+      height: number;
+    }[] = [];
+    for (let i = 0; i < flareCount; i++) {
+      const angle = (i / flareCount) * Math.PI * 2 + Math.random() * 0.4;
+      const height = 2.2 + Math.random() * 2.8;
+      const baseR = 1.8;
+      const pts: THREE.Vector3[] = [];
+      const segments = 16;
+      for (let s = 0; s <= segments; s++) {
+        const t = s / segments;
+        const arcAngle = angle + (t - 0.5) * 0.8;
+        const lift = Math.sin(t * Math.PI) * height;
+        const r = baseR + Math.sin(t * Math.PI) * 1.2;
+        pts.push(
+          new THREE.Vector3(
+            Math.cos(arcAngle) * r,
+            lift,
+            Math.sin(arcAngle) * r
+          )
+        );
+      }
+      result.push({
+        curve: new THREE.CatmullRomCurve3(pts, false, 'centripetal', 0.5),
+        phase: Math.random() * Math.PI * 2,
+        tilt: (Math.random() - 0.5) * 0.6,
+        height,
+      });
+    }
+    return result;
+  }, [flareCount]);
+
+  useFrame(({ clock }, delta) => {
+    if (!groupRef.current) return;
+    const t = clock.getElapsedTime();
+    const burst = pf.current.burst;
+    groupRef.current.children.forEach((child, i) => {
+      const arc = arcs[i];
+      if (!arc) return;
+      const mesh = child as THREE.Mesh;
+      const pulse = 0.7 + 0.3 * Math.sin(t * 1.2 + arc.phase);
+      const scale = pulse + burst * 0.3;
+      mesh.scale.setScalar(THREE.MathUtils.damp(mesh.scale.x, scale, 4, delta));
+      (mesh.material as THREE.MeshStandardMaterial).emissiveIntensity =
+        THREE.MathUtils.damp(
+          (mesh.material as THREE.MeshStandardMaterial).emissiveIntensity,
+          1.5 + burst * 2 + Math.sin(t * 2.5 + arc.phase) * 0.5,
+          5,
+          delta
+        );
+    });
+  });
+
+  return (
+    <group ref={groupRef}>
+      {arcs.map((arc, i) => (
+        <mesh key={i} rotation={[arc.tilt, 0, 0]}>
+          <tubeGeometry
+            args={[arc.curve, 32, 0.04 + (arc.height / 5) * 0.03, 6, false]}
+          />
+          <meshStandardMaterial
+            color={SCENE_PALETTE.warm}
+            emissive={SCENE_PALETTE.accent}
+            emissiveIntensity={1.5}
+            transparent
+            opacity={0.85}
+            toneMapped={false}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+/* ── Dark matter web ─────────────────────────────────────────── */
+
+function DarkMatterWeb({
+  pf,
+  filamentCount,
+}: {
+  pf: MutableRefObject<PointerField>;
+  filamentCount: number;
+}) {
+  const groupRef = useRef<THREE.Group>(null);
+
+  const filaments = useMemo(() => {
+    const result: { curve: THREE.CatmullRomCurve3; phase: number }[] = [];
+    const golden = (1 + Math.sqrt(5)) / 2;
+    for (let i = 0; i < filamentCount; i++) {
+      const theta1 = Math.acos(1 - (2 * i) / filamentCount);
+      const phi1 = (2 * Math.PI * i) / golden;
+      const r1 = 8 + Math.random() * 4;
+      const start = new THREE.Vector3(
+        r1 * Math.sin(theta1) * Math.cos(phi1),
+        r1 * Math.cos(theta1),
+        r1 * Math.sin(theta1) * Math.sin(phi1)
+      );
+      const j = (i + Math.floor(filamentCount / 3)) % filamentCount;
+      const theta2 = Math.acos(1 - (2 * j) / filamentCount);
+      const phi2 = (2 * Math.PI * j) / golden;
+      const r2 = 8 + Math.random() * 4;
+      const end = new THREE.Vector3(
+        r2 * Math.sin(theta2) * Math.cos(phi2),
+        r2 * Math.cos(theta2),
+        r2 * Math.sin(theta2) * Math.sin(phi2)
+      );
+      const mid = start
+        .clone()
+        .add(end)
+        .multiplyScalar(0.5)
+        .add(
+          new THREE.Vector3(
+            (Math.random() - 0.5) * 3,
+            (Math.random() - 0.5) * 3,
+            (Math.random() - 0.5) * 3
+          )
+        );
+      result.push({
+        curve: new THREE.CatmullRomCurve3(
+          [start, mid, end],
+          false,
+          'centripetal',
+          0.5
+        ),
+        phase: Math.random() * Math.PI * 2,
+      });
+    }
+    return result;
+  }, [filamentCount]);
+
+  useFrame(({ clock }, delta) => {
+    if (!groupRef.current) return;
+    const t = clock.getElapsedTime();
+    const burst = pf.current.burst;
+    groupRef.current.children.forEach((child, i) => {
+      const fil = filaments[i];
+      if (!fil) return;
+      const mesh = child as THREE.Mesh;
+      const mat = mesh.material as THREE.MeshStandardMaterial;
+      mat.opacity = THREE.MathUtils.damp(
+        mat.opacity,
+        0.25 + 0.15 * Math.sin(t * 0.6 + fil.phase) + burst * 0.2,
+        3,
+        delta
+      );
+      mat.emissiveIntensity = THREE.MathUtils.damp(
+        mat.emissiveIntensity,
+        0.6 + burst * 1.2 + Math.sin(t * 0.8 + fil.phase) * 0.3,
+        4,
+        delta
+      );
+    });
+  });
+
+  return (
+    <group ref={groupRef}>
+      {filaments.map((fil, i) => (
+        <mesh key={i}>
+          <tubeGeometry args={[fil.curve, 24, 0.015, 4, false]} />
+          <meshStandardMaterial
+            color={SCENE_PALETTE.tertiary}
+            emissive={SCENE_PALETTE.secondary}
+            emissiveIntensity={0.6}
+            transparent
+            opacity={0.25}
+            toneMapped={false}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+/* ── Pulsar beacons ──────────────────────────────────────────── */
+
+function PulsarBeacons({
+  pf,
+  beaconCount,
+}: {
+  pf: MutableRefObject<PointerField>;
+  beaconCount: number;
+}) {
+  const groupRef = useRef<THREE.Group>(null);
+
+  const beacons = useMemo(() => {
+    const result: {
+      position: THREE.Vector3;
+      axis: THREE.Vector3;
+      speed: number;
+      phase: number;
+    }[] = [];
+    for (let i = 0; i < beaconCount; i++) {
+      const theta = Math.acos(1 - (2 * (i + 0.5)) / beaconCount);
+      const phi = Math.PI * (1 + Math.sqrt(5)) * i;
+      const r = 5.5 + Math.random() * 2.5;
+      result.push({
+        position: new THREE.Vector3(
+          r * Math.sin(theta) * Math.cos(phi),
+          r * Math.cos(theta),
+          r * Math.sin(theta) * Math.sin(phi)
+        ),
+        axis: new THREE.Vector3(
+          Math.random() - 0.5,
+          Math.random() - 0.5,
+          Math.random() - 0.5
+        ).normalize(),
+        speed: 0.8 + Math.random() * 1.2,
+        phase: Math.random() * Math.PI * 2,
+      });
+    }
+    return result;
+  }, [beaconCount]);
+
+  useFrame(({ clock }, delta) => {
+    if (!groupRef.current) return;
+    const t = clock.getElapsedTime();
+    const burst = pf.current.burst;
+    groupRef.current.children.forEach((child, i) => {
+      const b = beacons[i];
+      if (!b) return;
+      const g = child as THREE.Group;
+      const angle = t * b.speed + b.phase;
+      g.rotation.set(b.axis.x * angle, b.axis.y * angle, b.axis.z * angle);
+      const cone = g.children[0] as THREE.Mesh | undefined;
+      if (cone) {
+        const mat = cone.material as THREE.MeshStandardMaterial;
+        mat.opacity = THREE.MathUtils.damp(
+          mat.opacity,
+          0.2 + 0.15 * Math.sin(t * 3 + b.phase) + burst * 0.25,
+          4,
+          delta
+        );
+        mat.emissiveIntensity = THREE.MathUtils.damp(
+          mat.emissiveIntensity,
+          1.2 + burst * 2 + Math.sin(t * 4 + b.phase) * 0.4,
+          5,
+          delta
+        );
+      }
+    });
+  });
+
+  return (
+    <group ref={groupRef}>
+      {beacons.map((b, i) => (
+        <group key={i} position={b.position}>
+          <mesh>
+            <coneGeometry args={[0.12, 6, 6, 1, true]} />
+            <meshStandardMaterial
+              color={SCENE_PALETTE.secondary}
+              emissive={SCENE_PALETTE.accent}
+              emissiveIntensity={1.2}
+              transparent
+              opacity={0.2}
+              side={THREE.DoubleSide}
+              toneMapped={false}
+              depthWrite={false}
+            />
+          </mesh>
+          <mesh>
+            <sphereGeometry args={[0.06, 8, 8]} />
+            <meshStandardMaterial
+              color={SCENE_PALETTE.highlight}
+              emissive={SCENE_PALETTE.accent}
+              emissiveIntensity={3}
+              toneMapped={false}
+            />
+          </mesh>
+        </group>
+      ))}
+    </group>
+  );
+}
+
+/* ── Crystalline growth ──────────────────────────────────────── */
+
+function CrystallineGrowth({
+  pf,
+  branchCount,
+}: {
+  pf: MutableRefObject<PointerField>;
+  branchCount: number;
+}) {
+  const groupRef = useRef<THREE.Group>(null);
+
+  const branches = useMemo(() => {
+    const result: {
+      position: THREE.Vector3;
+      rotation: THREE.Euler;
+      length: number;
+      width: number;
+      phase: number;
+    }[] = [];
+    const seeds = 3;
+    const perSeed = Math.ceil(branchCount / seeds);
+    for (let s = 0; s < seeds; s++) {
+      const seedAngle = (s / seeds) * Math.PI * 2;
+      const seedR = 3.5 + s * 0.8;
+      const seedPos = new THREE.Vector3(
+        Math.cos(seedAngle) * seedR,
+        (Math.random() - 0.5) * 2.5,
+        Math.sin(seedAngle) * seedR
+      );
+
+      for (let b = 0; b < perSeed && result.length < branchCount; b++) {
+        const spread = (b / perSeed) * Math.PI * 2;
+        const upAngle = (Math.random() - 0.3) * 1.2;
+        const outR = 0.3 + Math.random() * 1.8;
+        const pos = seedPos
+          .clone()
+          .add(
+            new THREE.Vector3(
+              Math.cos(spread) * outR * Math.cos(upAngle),
+              Math.sin(upAngle) * outR,
+              Math.sin(spread) * outR * Math.cos(upAngle)
+            )
+          );
+        result.push({
+          position: pos,
+          rotation: new THREE.Euler(
+            Math.random() * Math.PI,
+            Math.random() * Math.PI,
+            Math.random() * Math.PI
+          ),
+          length: 0.4 + Math.random() * 0.8,
+          width: 0.02 + Math.random() * 0.04,
+          phase: Math.random() * Math.PI * 2,
+        });
+      }
+    }
+    return result;
+  }, [branchCount]);
+
+  useFrame(({ clock }, delta) => {
+    if (!groupRef.current) return;
+    const t = clock.getElapsedTime();
+    const burst = pf.current.burst;
+    groupRef.current.children.forEach((child, i) => {
+      const br = branches[i];
+      if (!br) return;
+      const mesh = child as THREE.Mesh;
+      const mat = mesh.material as THREE.MeshPhysicalMaterial;
+      const pulse = 0.85 + 0.15 * Math.sin(t * 1.8 + br.phase);
+      mesh.scale.y = THREE.MathUtils.damp(
+        mesh.scale.y,
+        pulse + burst * 0.2,
+        4,
+        delta
+      );
+      mat.emissiveIntensity = THREE.MathUtils.damp(
+        mat.emissiveIntensity,
+        0.4 + burst * 1.5 + Math.sin(t * 2.2 + br.phase) * 0.3,
+        5,
+        delta
+      );
+    });
+  });
+
+  return (
+    <group ref={groupRef}>
+      {branches.map((br, i) => (
+        <mesh key={i} position={br.position} rotation={br.rotation}>
+          <octahedronGeometry args={[br.width, 0]} />
+          <meshPhysicalMaterial
+            color={SCENE_PALETTE.secondary}
+            emissive={SCENE_PALETTE.tertiary}
+            emissiveIntensity={0.4}
+            transparent
+            opacity={0.7}
+            roughness={0.1}
+            metalness={0.3}
+            transmission={0.4}
+            ior={1.6}
+            thickness={br.length}
+            toneMapped={false}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+/* ── Cosmic string resonance ─────────────────────────────────── */
+
+function CosmicStringResonance({ pf }: { pf: MutableRefObject<PointerField> }) {
+  const groupRef = useRef<THREE.Group>(null);
+
+  const strings = useMemo(() => {
+    const count = 5;
+    const result: {
+      points: Float32Array;
+      axis: THREE.Vector3;
+      baseR: number;
+      phase: number;
+      freq: number;
+    }[] = [];
+    for (let s = 0; s < count; s++) {
+      const angle = (s / count) * Math.PI * 2;
+      const tilt = (Math.random() - 0.5) * 1.4;
+      const segments = 80;
+      const pts = new Float32Array(segments * 3);
+      const baseR = 6 + Math.random() * 5;
+      for (let i = 0; i < segments; i++) {
+        const t = (i / (segments - 1)) * Math.PI * 2;
+        pts[i * 3] = Math.cos(t + angle) * baseR;
+        pts[i * 3 + 1] = Math.sin(t * 3 + tilt) * 0.5;
+        pts[i * 3 + 2] = Math.sin(t + angle) * baseR;
+      }
+      result.push({
+        points: pts,
+        axis: new THREE.Vector3(
+          Math.cos(angle),
+          tilt,
+          Math.sin(angle)
+        ).normalize(),
+        baseR,
+        phase: Math.random() * Math.PI * 2,
+        freq: 2 + Math.random() * 3,
+      });
+    }
+    return result;
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (!groupRef.current) return;
+      groupRef.current.children.forEach(child => {
+        const line = child as THREE.Line;
+        line.geometry?.dispose();
+        (line.material as THREE.Material)?.dispose();
+      });
+    };
+  }, []);
+
+  useFrame(({ clock }) => {
+    if (!groupRef.current) return;
+    const t = clock.getElapsedTime();
+    const burst = pf.current.burst;
+    groupRef.current.children.forEach((child, si) => {
+      const s = strings[si];
+      if (!s) return;
+      const line = child as THREE.Line;
+      const posAttr = line.geometry.getAttribute('position');
+      if (!posAttr) return;
+      const arr = posAttr.array as Float32Array;
+      const segments = arr.length / 3;
+      for (let i = 0; i < segments; i++) {
+        const frac = i / (segments - 1);
+        const wave =
+          Math.sin(frac * s.freq * Math.PI * 2 + t * 2.5 + s.phase) *
+          (0.3 + burst * 0.4) *
+          Math.sin(frac * Math.PI);
+        arr[i * 3 + 1] = s.points[i * 3 + 1] + wave;
+      }
+      posAttr.needsUpdate = true;
+      const mat = line.material as THREE.LineBasicMaterial;
+      mat.opacity = 0.35 + 0.15 * Math.sin(t * 1.5 + s.phase) + burst * 0.2;
+    });
+  });
+
+  useEffect(() => {
+    if (!groupRef.current) return;
+    // Imperatively build line geometries (avoids SVG <line> conflict)
+    groupRef.current.clear();
+    strings.forEach(s => {
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute(
+        'position',
+        new THREE.BufferAttribute(s.points.slice(), 3)
+      );
+      const mat = new THREE.LineBasicMaterial({
+        color: SCENE_PALETTE.accent,
+        transparent: true,
+        opacity: 0.35,
+        toneMapped: false,
+      });
+      const line = new THREE.Line(geo, mat);
+      groupRef.current!.add(line);
+    });
+  }, [strings]);
+
+  return <group ref={groupRef} />;
+}
+
 /* ── Scene lighting ──────────────────────────────────────────── */
 
 function SceneLighting({
@@ -2175,6 +2674,22 @@ function HeroScene({
         <NeuralWeb pf={pf} nodeCount={profile.neuralWebNodes} />
       )}
       {profile.enableGravitationalLens && <GravitationalLens pf={pf} />}
+      {profile.solarFlareCount > 0 && (
+        <SolarFlareArcs pf={pf} flareCount={profile.solarFlareCount} />
+      )}
+      {profile.darkMatterFilaments > 0 && (
+        <DarkMatterWeb pf={pf} filamentCount={profile.darkMatterFilaments} />
+      )}
+      {profile.pulsarBeaconCount > 0 && (
+        <PulsarBeacons pf={pf} beaconCount={profile.pulsarBeaconCount} />
+      )}
+      {profile.crystallineGrowthBranches > 0 && (
+        <CrystallineGrowth
+          pf={pf}
+          branchCount={profile.crystallineGrowthBranches}
+        />
+      )}
+      {profile.enableCosmicStrings && <CosmicStringResonance pf={pf} />}
       {profile.attractorTrailLen > 60 && (
         <group rotation={[0.4, Math.PI / 3, 0.2]}>
           <AttractorTrail

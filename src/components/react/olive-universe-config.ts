@@ -68,6 +68,13 @@ export interface SceneProfile {
   temporalEchoLayers: number;
   neuralWebNodes: number;
   enableGravitationalLens: boolean;
+
+  /* ── zenith tier ──────────────────────────────── */
+  solarFlareCount: number;
+  darkMatterFilaments: number;
+  pulsarBeaconCount: number;
+  crystallineGrowthBranches: number;
+  enableCosmicStrings: boolean;
 }
 
 export const SCENE_PALETTE = {
@@ -208,6 +215,11 @@ const ULTRA: SceneProfile = {
   temporalEchoLayers: 4,
   neuralWebNodes: 40,
   enableGravitationalLens: true,
+  solarFlareCount: 5,
+  darkMatterFilaments: 8,
+  pulsarBeaconCount: 3,
+  crystallineGrowthBranches: 24,
+  enableCosmicStrings: true,
 };
 
 const HIGH: SceneProfile = {
@@ -255,6 +267,11 @@ const HIGH: SceneProfile = {
   temporalEchoLayers: 3,
   neuralWebNodes: 28,
   enableGravitationalLens: true,
+  solarFlareCount: 4,
+  darkMatterFilaments: 6,
+  pulsarBeaconCount: 2,
+  crystallineGrowthBranches: 16,
+  enableCosmicStrings: true,
 };
 
 const MED: SceneProfile = {
@@ -302,6 +319,11 @@ const MED: SceneProfile = {
   temporalEchoLayers: 2,
   neuralWebNodes: 18,
   enableGravitationalLens: false,
+  solarFlareCount: 3,
+  darkMatterFilaments: 4,
+  pulsarBeaconCount: 1,
+  crystallineGrowthBranches: 10,
+  enableCosmicStrings: false,
 };
 
 const LOW: SceneProfile = {
@@ -349,6 +371,11 @@ const LOW: SceneProfile = {
   temporalEchoLayers: 1,
   neuralWebNodes: 10,
   enableGravitationalLens: false,
+  solarFlareCount: 2,
+  darkMatterFilaments: 2,
+  pulsarBeaconCount: 1,
+  crystallineGrowthBranches: 6,
+  enableCosmicStrings: false,
 };
 
 const NONE: SceneProfile = {
@@ -396,6 +423,11 @@ const NONE: SceneProfile = {
   temporalEchoLayers: 0,
   neuralWebNodes: 0,
   enableGravitationalLens: false,
+  solarFlareCount: 0,
+  darkMatterFilaments: 0,
+  pulsarBeaconCount: 0,
+  crystallineGrowthBranches: 0,
+  enableCosmicStrings: false,
 };
 
 export function getSceneProfile(
@@ -446,6 +478,14 @@ export function optimizeSceneProfileForMobile(
     temporalEchoLayers: Math.min(p.temporalEchoLayers, 1),
     neuralWebNodes: Math.min(p.neuralWebNodes, agg ? 6 : 10),
     enableGravitationalLens: false,
+    solarFlareCount: Math.min(p.solarFlareCount, agg ? 1 : 2),
+    darkMatterFilaments: Math.min(p.darkMatterFilaments, agg ? 2 : 3),
+    pulsarBeaconCount: Math.min(p.pulsarBeaconCount, 1),
+    crystallineGrowthBranches: Math.min(
+      p.crystallineGrowthBranches,
+      agg ? 4 : 6
+    ),
+    enableCosmicStrings: false,
   };
 }
 

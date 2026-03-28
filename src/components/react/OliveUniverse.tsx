@@ -239,6 +239,7 @@ export default function OliveUniverse() {
       {/* Atmospheric layers behind the canvas */}
       <div className="universe-stage-deephaze" aria-hidden="true" />
       <div className="universe-stage-aurora-glow" aria-hidden="true" />
+      <div className="universe-stage-plasma-corona" aria-hidden="true" />
       <div className="universe-stage-temperature" aria-hidden="true" />
       <div className="universe-stage-aura" aria-hidden="true" />
       <div className="universe-stage-nebula" aria-hidden="true" />
