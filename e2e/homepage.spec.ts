@@ -23,14 +23,23 @@ test.describe('Homepage immersive landing', () => {
   });
 
   test('desktop sessions should resolve the 3D scene', async ({
-    page,
+    browser,
+    baseURL,
     isMobile,
   }) => {
     if (isMobile) {
       test.skip();
     }
 
-    await page.goto('./');
+    const context = await browser.newContext({
+      reducedMotion: 'no-preference',
+      viewport: { width: 1440, height: 900 },
+    });
+    const page = await context.newPage();
+
+    await page.goto(baseURL ?? 'http://localhost:4321/', {
+      waitUntil: 'networkidle',
+    });
 
     const hero = page.locator('[data-olive-universe="ready"]');
     await expect(hero).toBeVisible();
@@ -41,6 +50,8 @@ test.describe('Homepage immersive landing', () => {
         timeout: 6000,
       })
       .toBe('interactive');
+
+    await context.close();
   });
 
   test('reduced-motion sessions should use the calm presentation', async ({
@@ -94,8 +105,19 @@ test.describe('Homepage immersive landing', () => {
     await context.close();
   });
 
-  test('direct interaction should trigger a scene burst', async ({ page }) => {
-    await page.goto('./');
+  test('direct interaction should trigger a scene burst', async ({
+    browser,
+    baseURL,
+  }) => {
+    const context = await browser.newContext({
+      reducedMotion: 'no-preference',
+      viewport: { width: 1440, height: 900 },
+    });
+    const page = await context.newPage();
+
+    await page.goto(baseURL ?? 'http://localhost:4321/', {
+      waitUntil: 'networkidle',
+    });
 
     const hero = page.locator('[data-olive-universe="ready"]');
     await expect(hero).toBeVisible();
@@ -108,6 +130,8 @@ test.describe('Homepage immersive landing', () => {
         timeout: 4000,
       })
       .toBe('idle');
+
+    await context.close();
   });
 
   test('forced stability assist should downgrade runtime mode', async ({

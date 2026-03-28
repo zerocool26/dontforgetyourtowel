@@ -62,14 +62,23 @@ test.describe('Landing page integrity', () => {
   });
 
   test('desktop rendering should produce visible canvas output', async ({
-    page,
+    browser,
+    baseURL,
     isMobile,
   }) => {
     if (isMobile) {
       test.skip();
     }
 
-    await page.goto('./');
+    const context = await browser.newContext({
+      reducedMotion: 'no-preference',
+      viewport: { width: 1440, height: 900 },
+    });
+    const page = await context.newPage();
+
+    await page.goto(baseURL ?? 'http://localhost:4321/', {
+      waitUntil: 'networkidle',
+    });
 
     const canvas = page.locator('canvas[data-hero-canvas="true"]');
     await expect(canvas).toBeVisible();
@@ -78,6 +87,8 @@ test.describe('Landing page integrity', () => {
         timeout: 6000,
       })
       .toBeGreaterThan(0.015);
+
+    await context.close();
   });
 
   test('mobile viewports should keep the scene fullscreen and optimized', async ({
