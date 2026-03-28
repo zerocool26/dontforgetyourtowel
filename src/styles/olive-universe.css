@@ -1,0 +1,422 @@
+/* ═════════════════════════════════════════════════════════════
+   Olive Universe – immersive full-screen 3D hero styles
+   ═════════════════════════════════════════════════════════════ */
+
+/* ── Layout ────────────────────────────────────────────────── */
+
+.universe-wrapper {
+  position: fixed;
+  inset: 0;
+  width: 100dvw;
+  height: 100dvh;
+  overflow: hidden;
+  background: radial-gradient(
+    ellipse at 50% 45%,
+    rgba(var(--universe-accent-rgb, 139, 92, 246), 0.06) 0%,
+    rgba(var(--universe-secondary-rgb, 56, 189, 248), 0.03) 25%,
+    #02040a 65%
+  );
+  z-index: 0;
+  isolation: isolate;
+  contain: strict;
+}
+
+/* ── Canvas ────────────────────────────────────────────────── */
+
+.universe-wrapper canvas {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+  z-index: 1;
+  touch-action: none;
+  will-change: transform;
+}
+
+/* ── Stage atmospheric layers ──────────────────────────────── */
+
+.universe-stage-aura,
+.universe-stage-nebula,
+.universe-stage-vignette,
+.universe-stage-film-grain,
+.universe-stage-scanlines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  will-change: opacity;
+}
+
+.universe-stage-aura {
+  z-index: 0;
+  background: radial-gradient(
+    ellipse 60% 50% at 50% 48%,
+    rgba(var(--universe-accent-rgb, 139, 92, 246), 0.1) 0%,
+    rgba(var(--universe-warm-rgb, 244, 114, 182), 0.04) 30%,
+    transparent 70%
+  );
+  mix-blend-mode: screen;
+  animation: aura-breathe 18s ease-in-out infinite alternate;
+  filter: blur(60px);
+}
+
+.universe-stage-nebula {
+  z-index: 0;
+  background:
+    radial-gradient(
+      ellipse 40% 35% at 30% 65%,
+      rgba(var(--universe-secondary-rgb, 56, 189, 248), 0.06) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 35% 30% at 72% 35%,
+      rgba(var(--universe-tertiary-rgb, 52, 211, 153), 0.05) 0%,
+      transparent 55%
+    );
+  mix-blend-mode: screen;
+  animation: nebula-drift 32s ease-in-out infinite alternate;
+  filter: blur(80px);
+}
+
+.universe-stage-vignette {
+  z-index: 10;
+  background: radial-gradient(
+    ellipse 75% 70% at 50% 50%,
+    transparent 45%,
+    rgba(2, 4, 10, 0.35) 70%,
+    rgba(2, 4, 10, 0.8) 100%
+  );
+}
+
+.universe-stage-film-grain {
+  z-index: 11;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  animation: grain-crawl 0.5s steps(2) infinite;
+}
+
+.universe-stage-scanlines {
+  z-index: 12;
+  opacity: 0.018;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(255, 255, 255, 0.04) 2px,
+    rgba(255, 255, 255, 0.04) 4px
+  );
+  background-size: 100% 4px;
+}
+
+/* ── Static fallback / reduced-motion backdrop ─────────────── */
+
+.universe-static-visual {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 45%, #0c0e1a 0%, #02040a 100%);
+}
+
+.universe-static-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(139, 92, 246, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139, 92, 246, 0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(
+    ellipse 60% 55% at 50% 50%,
+    rgba(0, 0, 0, 0.5) 0%,
+    transparent 75%
+  );
+}
+
+.universe-static-nebula {
+  position: absolute;
+  inset: -10%;
+  background: radial-gradient(
+    ellipse 35% 30% at 50% 50%,
+    rgba(var(--universe-accent-rgb, 139, 92, 246), 0.12) 0%,
+    rgba(var(--universe-secondary-rgb, 56, 189, 248), 0.05) 40%,
+    transparent 70%
+  );
+  filter: blur(70px);
+  animation: static-nebula-pulse 12s ease-in-out infinite alternate;
+}
+
+.universe-static-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    circle,
+    rgba(var(--universe-accent-rgb, 139, 92, 246), 0.35) 0%,
+    rgba(var(--universe-accent-rgb, 139, 92, 246), 0.1) 50%,
+    transparent 75%
+  );
+  box-shadow: 0 0 80px 30px rgba(var(--universe-accent-rgb, 139, 92, 246), 0.08);
+  animation: static-core-glow 8s ease-in-out infinite alternate;
+}
+
+.universe-static-orbit {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+  border: 1px solid rgba(var(--universe-accent-rgb, 139, 92, 246), 0.08);
+  transform: translate(-50%, -50%);
+}
+
+.universe-static-orbit--outer {
+  width: 320px;
+  height: 320px;
+  animation: static-orbit-rotate 60s linear infinite;
+}
+
+.universe-static-orbit--inner {
+  width: 200px;
+  height: 200px;
+  border-color: rgba(var(--universe-secondary-rgb, 56, 189, 248), 0.06);
+  animation: static-orbit-rotate 45s linear infinite reverse;
+}
+
+.universe-static-orbit--far {
+  width: 480px;
+  height: 480px;
+  border-style: dashed;
+  border-color: rgba(var(--universe-tertiary-rgb, 52, 211, 153), 0.04);
+  animation: static-orbit-rotate 90s linear infinite;
+}
+
+.universe-static-pulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(var(--universe-accent-rgb, 139, 92, 246), 0.9);
+  box-shadow: 0 0 12px 4px rgba(var(--universe-accent-rgb, 139, 92, 246), 0.3);
+  animation: static-center-pulse 4s ease-in-out infinite;
+}
+
+/* ── Accessible copy ───────────────────────────────────────── */
+
+.universe-a11y-copy {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ── Keyframe animations ───────────────────────────────────── */
+
+@keyframes aura-breathe {
+  0% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes nebula-drift {
+  0% {
+    opacity: 0.6;
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(15px, -10px) scale(1.04);
+  }
+}
+
+@keyframes grain-crawl {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(-10px, 10px);
+  }
+}
+
+@keyframes static-nebula-pulse {
+  0% {
+    opacity: 0.5;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes static-core-glow {
+  0% {
+    opacity: 0.6;
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+}
+
+@keyframes static-orbit-rotate {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes static-center-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.6);
+  }
+}
+
+/* ── Loaded state refinements ──────────────────────────────── */
+
+.universe-wrapper[data-olive-scene='interactive'] .universe-static-visual {
+  display: none;
+}
+
+.universe-wrapper[data-olive-scene='interactive'] .universe-stage-aura {
+  opacity: 0.8;
+}
+
+.universe-wrapper[data-olive-scene='booting'] canvas {
+  opacity: 0;
+  animation: canvas-fade-in 1.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.15s
+    forwards;
+}
+
+@keyframes canvas-fade-in {
+  to {
+    opacity: 1;
+  }
+}
+
+/* ── Interaction reticle glow ──────────────────────────────── */
+
+.universe-wrapper[data-olive-interaction='burst'] .universe-stage-aura {
+  opacity: 1;
+  transition: opacity 0.2s ease-out;
+}
+
+.universe-wrapper[data-olive-interaction='idle'] .universe-stage-aura {
+  transition: opacity 1.6s ease-in;
+}
+
+/* ── Stability assist ──────────────────────────────────────── */
+
+.universe-wrapper[data-olive-runtime='stability'] .universe-stage-film-grain,
+.universe-wrapper[data-olive-runtime='stability'] .universe-stage-scanlines {
+  display: none;
+}
+
+.universe-wrapper[data-olive-runtime='stability'] .universe-stage-aura {
+  animation: none;
+  opacity: 0.5;
+}
+
+.universe-wrapper[data-olive-runtime='stability'] .universe-stage-nebula {
+  animation: none;
+  opacity: 0.4;
+}
+
+/* ── Reduced motion ────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .universe-stage-aura,
+  .universe-stage-nebula,
+  .universe-stage-film-grain,
+  .universe-static-nebula,
+  .universe-static-core,
+  .universe-static-orbit,
+  .universe-static-pulse {
+    animation: none !important;
+  }
+
+  .universe-stage-film-grain {
+    display: none;
+  }
+
+  .universe-stage-scanlines {
+    opacity: 0.01;
+  }
+
+  .universe-wrapper[data-olive-scene='booting'] canvas {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+/* ── Mobile / compact viewport ─────────────────────────────── */
+
+@media (max-width: 960px) {
+  .universe-stage-film-grain {
+    display: none;
+  }
+
+  .universe-stage-scanlines {
+    opacity: 0.01;
+  }
+
+  .universe-stage-aura {
+    filter: blur(40px);
+  }
+
+  .universe-stage-nebula {
+    filter: blur(50px);
+  }
+}
+
+@media (max-width: 480px) {
+  .universe-stage-scanlines {
+    display: none;
+  }
+
+  .universe-static-orbit--far {
+    display: none;
+  }
+
+  .universe-static-core {
+    width: 80px;
+    height: 80px;
+  }
+
+  .universe-static-orbit--outer {
+    width: 220px;
+    height: 220px;
+  }
+
+  .universe-static-orbit--inner {
+    width: 140px;
+    height: 140px;
+  }
+}
