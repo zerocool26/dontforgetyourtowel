@@ -2457,6 +2457,358 @@ function CosmicStringResonance({ pf }: { pf: MutableRefObject<PointerField> }) {
   return <group ref={groupRef} />;
 }
 
+/* ── Interference shells ────────────────────────────────────── */
+
+function InterferenceShells({
+  pf,
+  shellCount,
+}: {
+  pf: MutableRefObject<PointerField>;
+  shellCount: number;
+}) {
+  const meshRefs = useRef<(THREE.Mesh | null)[]>([]);
+  const baseScales = useMemo(
+    () => Array.from({ length: shellCount }, (_, i) => 1.85 + i * 0.72),
+    [shellCount]
+  );
+
+  useFrame((state, delta) => {
+    const t = state.clock.elapsedTime;
+    const burst = pf.current.burst;
+    baseScales.forEach((baseScale, i) => {
+      const mesh = meshRefs.current[i];
+      if (!mesh) return;
+      const phase = i * 0.65;
+      const targetScale =
+        baseScale + Math.sin(t * (0.35 + i * 0.08) + phase) * 0.08 + burst * 0.18;
+      mesh.scale.setScalar(
+        THREE.MathUtils.damp(mesh.scale.x, targetScale, 3.4, delta)
+      );
+      mesh.rotation.x += delta * (0.02 + i * 0.006);
+      mesh.rotation.y -= delta * (0.025 + i * 0.008 + burst * 0.01);
+      const mat = mesh.material as THREE.MeshBasicMaterial;
+      mat.opacity = THREE.MathUtils.damp(
+        mat.opacity,
+        Math.max(0.015, 0.055 - i * 0.008) + burst * 0.03,
+        4,
+        delta
+      );
+    });
+  });
+
+  return (
+    <>
+      {baseScales.map((baseScale, i) => (
+        <mesh
+          key={`interference-shell-${i}`}
+          ref={el => {
+            meshRefs.current[i] = el;
+          }}
+          scale={baseScale}
+          rotation={[i * 0.3, i * 0.45, i * 0.15]}
+        >
+          <sphereGeometry args={[1, 24, 24]} />
+          <meshBasicMaterial
+            color={
+              i % 2 === 0 ? SCENE_PALETTE.secondary : SCENE_PALETTE.tertiary
+            }
+            transparent
+            opacity={0.04}
+            wireframe
+            blending={THREE.AdditiveBlending}
+            depthWrite={false}
+          />
+        </mesh>
+      ))}
+    </>
+  );
+}
+
+/* ── Void ripples ───────────────────────────────────────────── */
+
+function VoidRipples({
+  pf,
+  rippleCount,
+}: {
+  pf: MutableRefObject<PointerField>;
+  rippleCount: number;
+}) {
+  const meshRefs = useRef<(THREE.Mesh | null)[]>([]);
+  const ripples = useMemo(
+    () =>
+      Array.from({ length: rippleCount }, (_, i) => ({
+        radius: 2.6 + i * 0.55,
+        tube: 0.018 + i * 0.004,
+        rotation: [
+          Math.PI / 2 + i * 0.24,
+          i * 0.45,
+          i * 0.2,
+        ] as const,
+        phase: i * 0.8,
+      })),
+    [rippleCount]
+  );
+
+  useFrame((state, delta) => {
+    const t = state.clock.elapsedTime;
+    const burst = pf.current.burst;
+    ripples.forEach((ripple, i) => {
+      const mesh = meshRefs.current[i];
+      if (!mesh) return;
+      const pulse = 1 + Math.sin(t * 0.8 + ripple.phase) * 0.06 + burst * 0.16;
+      mesh.scale.setScalar(THREE.MathUtils.damp(mesh.scale.x, pulse, 3.6, delta));
+      mesh.rotation.z += delta * (0.02 + i * 0.01 + burst * 0.02);
+      const mat = mesh.material as THREE.MeshBasicMaterial;
+      mat.opacity = THREE.MathUtils.damp(
+        mat.opacity,
+        Math.max(0.012, 0.05 - i * 0.006) + burst * 0.05,
+        4,
+        delta
+      );
+    });
+  });
+
+  return (
+    <>
+      {ripples.map((ripple, i) => (
+        <mesh
+          key={`void-ripple-${i}`}
+          ref={el => {
+            meshRefs.current[i] = el;
+          }}
+          rotation={[ripple.rotation[0], ripple.rotation[1], ripple.rotation[2]]}
+        >
+          <torusGeometry args={[ripple.radius, ripple.tube, 8, 180]} />
+          <meshBasicMaterial
+            color={i % 2 === 0 ? SCENE_PALETTE.accent : SCENE_PALETTE.warm}
+            transparent
+            opacity={0.04}
+            blending={THREE.AdditiveBlending}
+            depthWrite={false}
+          />
+        </mesh>
+      ))}
+    </>
+  );
+}
+
+/* ── Photon bloom — orbiting luminous petals ───────────────── */
+
+function PhotonBloom({
+  pf,
+  bloomCount,
+}: {
+  pf: MutableRefObject<PointerField>;
+  bloomCount: number;
+}) {
+  const groupRef = useRef<THREE.Group>(null);
+  const blooms = useMemo(
+    () =>
+      Array.from({ length: bloomCount }, (_, i) => ({
+        orbitRadius: 2.8 + (i % 6) * 0.42 + Math.random() * 0.35,
+        height: (Math.random() - 0.5) * 3.2,
+        speed: 0.18 + (i % 5) * 0.025,
+        phase: (i / bloomCount) * Math.PI * 2,
+        tilt: (Math.random() - 0.5) * 1.1,
+        scale: 0.09 + (i % 4) * 0.018,
+      })),
+    [bloomCount]
+  );
+
+  useFrame((state, delta) => {
+    if (!groupRef.current) return;
+    const t = state.clock.elapsedTime;
+    const burst = pf.current.burst;
+    groupRef.current.children.forEach((child, i) => {
+      const bloom = blooms[i];
+      if (!bloom) return;
+      const mesh = child as THREE.Mesh;
+      const angle = t * bloom.speed + bloom.phase;
+      mesh.position.set(
+        Math.cos(angle) * bloom.orbitRadius,
+        bloom.height + Math.sin(angle * 1.7 + bloom.tilt) * 0.35,
+        Math.sin(angle) * bloom.orbitRadius
+      );
+      mesh.rotation.x += delta * (0.45 + bloom.speed);
+      mesh.rotation.y -= delta * (0.32 + burst * 0.2);
+      const scaleTarget = bloom.scale + burst * 0.03;
+      mesh.scale.setScalar(
+        THREE.MathUtils.damp(mesh.scale.x, scaleTarget, 5, delta)
+      );
+      const mat = mesh.material as THREE.MeshStandardMaterial;
+      mat.emissiveIntensity = THREE.MathUtils.damp(
+        mat.emissiveIntensity,
+        1.1 + burst * 2 + Math.sin(t * 2.4 + bloom.phase) * 0.25,
+        5,
+        delta
+      );
+    });
+  });
+
+  return (
+    <group ref={groupRef}>
+      {blooms.map((bloom, i) => (
+        <mesh key={`photon-bloom-${i}`} scale={bloom.scale}>
+          {i % 2 === 0 ? (
+            <octahedronGeometry args={[1, 0]} />
+          ) : (
+            <icosahedronGeometry args={[0.8, 0]} />
+          )}
+          <meshStandardMaterial
+            color={i % 3 === 0 ? SCENE_PALETTE.highlight : SCENE_PALETTE.core}
+            emissive={i % 2 === 0 ? SCENE_PALETTE.accent : SCENE_PALETTE.secondary}
+            emissiveIntensity={1.2}
+            roughness={0.15}
+            metalness={0.35}
+            transparent
+            opacity={0.82}
+            toneMapped={false}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+/* ── Halo glyphs ────────────────────────────────────────────── */
+
+function HaloGlyphs({
+  pf,
+  glyphCount,
+}: {
+  pf: MutableRefObject<PointerField>;
+  glyphCount: number;
+}) {
+  const groupRef = useRef<THREE.Group>(null);
+  const glyphs = useMemo(
+    () =>
+      Array.from({ length: glyphCount }, (_, i) => ({
+        angle: (i / glyphCount) * Math.PI * 2,
+        radius: 7.6 + (i % 4) * 0.45,
+        y: ((i % 5) - 2) * 0.8,
+        scale: 0.22 + (i % 3) * 0.05,
+        spin: 0.2 + (i % 4) * 0.04,
+      })),
+    [glyphCount]
+  );
+
+  useFrame((state, delta) => {
+    if (!groupRef.current) return;
+    const t = state.clock.elapsedTime;
+    const burst = pf.current.burst;
+    groupRef.current.rotation.y += delta * (0.01 + burst * 0.012);
+    groupRef.current.children.forEach((child, i) => {
+      const glyph = glyphs[i];
+      if (!glyph) return;
+      const mesh = child as THREE.Mesh;
+      mesh.rotation.x += delta * glyph.spin;
+      mesh.rotation.y -= delta * (glyph.spin * 0.8 + burst * 0.08);
+      mesh.position.y = glyph.y + Math.sin(t * 0.9 + i) * 0.18;
+    });
+  });
+
+  return (
+    <group ref={groupRef}>
+      {glyphs.map((glyph, i) => (
+        <mesh
+          key={`halo-glyph-${i}`}
+          position={[
+            Math.cos(glyph.angle) * glyph.radius,
+            glyph.y,
+            Math.sin(glyph.angle) * glyph.radius,
+          ]}
+          scale={glyph.scale}
+          rotation={[glyph.angle * 0.3, glyph.angle, 0]}
+        >
+          {i % 2 === 0 ? (
+            <torusKnotGeometry args={[1, 0.2, 56, 8, 2, 3]} />
+          ) : (
+            <dodecahedronGeometry args={[1, 0]} />
+          )}
+          <meshBasicMaterial
+            color={i % 2 === 0 ? SCENE_PALETTE.tertiary : SCENE_PALETTE.secondary}
+            transparent
+            opacity={0.1}
+            wireframe
+            blending={THREE.AdditiveBlending}
+            depthWrite={false}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+/* ── Chroma torus field ─────────────────────────────────────── */
+
+function ChromaTorusField({ pf }: { pf: MutableRefObject<PointerField> }) {
+  const meshRefs = useRef<(THREE.Mesh | null)[]>([]);
+  const defs = useMemo(
+    () => [
+      {
+        scale: 3.3,
+        rotation: [0.2, 0.4, 0.1] as const,
+        color: SCENE_PALETTE.secondary,
+      },
+      {
+        scale: 4.4,
+        rotation: [0.9, -0.25, 0.35] as const,
+        color: SCENE_PALETTE.accent,
+      },
+      {
+        scale: 5.2,
+        rotation: [1.1, 0.55, -0.2] as const,
+        color: SCENE_PALETTE.tertiary,
+      },
+    ],
+    []
+  );
+
+  useFrame((state, delta) => {
+    const burst = pf.current.burst;
+    const t = state.clock.elapsedTime;
+    defs.forEach((def, i) => {
+      const mesh = meshRefs.current[i];
+      if (!mesh) return;
+      mesh.rotation.x += delta * (0.05 + i * 0.02);
+      mesh.rotation.y -= delta * (0.06 + i * 0.015 + burst * 0.03);
+      mesh.rotation.z += delta * (0.03 + i * 0.01);
+      const mat = mesh.material as THREE.MeshBasicMaterial;
+      mat.opacity = THREE.MathUtils.damp(
+        mat.opacity,
+        0.02 + i * 0.008 + burst * 0.04 + Math.sin(t * 0.8 + i) * 0.004,
+        4,
+        delta
+      );
+    });
+  });
+
+  return (
+    <>
+      {defs.map((def, i) => (
+        <mesh
+          key={`chroma-torus-${i}`}
+          ref={el => {
+            meshRefs.current[i] = el;
+          }}
+          scale={def.scale}
+          rotation={[def.rotation[0], def.rotation[1], def.rotation[2]]}
+        >
+          <torusKnotGeometry args={[1, 0.08, 180, 18, 3 + i, 5 + i]} />
+          <meshBasicMaterial
+            color={def.color}
+            transparent
+            opacity={0.03 + i * 0.005}
+            wireframe
+            blending={THREE.AdditiveBlending}
+            depthWrite={false}
+          />
+        </mesh>
+      ))}
+    </>
+  );
+}
+
 /* ── Scene lighting ──────────────────────────────────────────── */
 
 function SceneLighting({
@@ -2690,6 +3042,22 @@ function HeroScene({
         />
       )}
       {profile.enableCosmicStrings && <CosmicStringResonance pf={pf} />}
+      {profile.interferenceShellCount > 0 && (
+        <InterferenceShells
+          pf={pf}
+          shellCount={profile.interferenceShellCount}
+        />
+      )}
+      {profile.voidRippleCount > 0 && (
+        <VoidRipples pf={pf} rippleCount={profile.voidRippleCount} />
+      )}
+      {profile.photonBloomCount > 0 && (
+        <PhotonBloom pf={pf} bloomCount={profile.photonBloomCount} />
+      )}
+      {profile.haloGlyphCount > 0 && (
+        <HaloGlyphs pf={pf} glyphCount={profile.haloGlyphCount} />
+      )}
+      {profile.enableChromaTorusField && <ChromaTorusField pf={pf} />}
       {profile.attractorTrailLen > 60 && (
         <group rotation={[0.4, Math.PI / 3, 0.2]}>
           <AttractorTrail

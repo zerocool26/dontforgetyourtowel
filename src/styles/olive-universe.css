@@ -366,6 +366,21 @@
   }
 }
 
+@keyframes ion-storm-drift {
+  0% {
+    opacity: 0.25;
+    transform: translate3d(-1%, 1%, 0) rotate(0deg) scale(0.98);
+  }
+  50% {
+    opacity: 0.55;
+    transform: translate3d(1.5%, -1%, 0) rotate(4deg) scale(1.03);
+  }
+  100% {
+    opacity: 0.3;
+    transform: translate3d(0, 0, 0) rotate(-3deg) scale(1.01);
+  }
+}
+
 /* ── Loaded state refinements ──────────────────────────────── */
 
 .universe-wrapper[data-olive-scene='interactive'] .universe-static-visual {
@@ -457,6 +472,22 @@
   transition:
     opacity 0.4s ease-out,
     filter 0.4s ease-out;
+}
+
+.universe-wrapper[data-olive-interaction='burst'] .universe-stage-ion-storm {
+  opacity: 0.92;
+  filter: blur(65px) saturate(1.45);
+  transition:
+    opacity 0.2s ease-out,
+    filter 0.25s ease-out;
+}
+
+.universe-wrapper[data-olive-interaction='engaged'] .universe-stage-ion-storm {
+  opacity: 0.7;
+  filter: blur(78px) saturate(1.2);
+  transition:
+    opacity 0.35s ease-out,
+    filter 0.35s ease-out;
 }
 
 .universe-wrapper[data-olive-interaction='idle'] .universe-stage-aura {
@@ -571,6 +602,36 @@
   will-change: opacity, transform;
 }
 
+/* ── Ion storm — electric cross-current wash ───────────────── */
+
+.universe-stage-ion-storm {
+  position: absolute;
+  inset: -4%;
+  width: 108%;
+  height: 108%;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    conic-gradient(
+      from 110deg at 50% 48%,
+      rgba(var(--universe-secondary-rgb, 101, 229, 255), 0.03) 0deg,
+      transparent 70deg,
+      rgba(var(--universe-accent-rgb, 217, 255, 63), 0.02) 145deg,
+      transparent 220deg,
+      rgba(var(--universe-tertiary-rgb, 159, 122, 234), 0.025) 300deg,
+      transparent 360deg
+    ),
+    radial-gradient(
+      ellipse 48% 42% at 50% 46%,
+      rgba(var(--universe-secondary-rgb, 101, 229, 255), 0.02) 0%,
+      transparent 68%
+    );
+  mix-blend-mode: screen;
+  animation: ion-storm-drift 28s ease-in-out infinite alternate;
+  filter: blur(85px);
+  will-change: opacity, transform;
+}
+
 /* ── Stability assist ──────────────────────────────────────── */
 
 .universe-wrapper[data-olive-runtime='stability'] .universe-stage-film-grain,
@@ -591,6 +652,7 @@
 .universe-wrapper[data-olive-runtime='stability'] .universe-stage-temperature,
 .universe-wrapper[data-olive-runtime='stability'] .universe-stage-deephaze,
 .universe-wrapper[data-olive-runtime='stability'] .universe-stage-aurora-glow,
+.universe-wrapper[data-olive-runtime='stability'] .universe-stage-ion-storm,
 .universe-wrapper[data-olive-runtime='stability']
   .universe-stage-plasma-corona {
   display: none;
@@ -605,6 +667,7 @@
   .universe-stage-temperature,
   .universe-stage-deephaze,
   .universe-stage-aurora-glow,
+  .universe-stage-ion-storm,
   .universe-stage-plasma-corona,
   .universe-static-nebula,
   .universe-static-core,

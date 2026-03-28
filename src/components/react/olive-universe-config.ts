@@ -75,6 +75,13 @@ export interface SceneProfile {
   pulsarBeaconCount: number;
   crystallineGrowthBranches: number;
   enableCosmicStrings: boolean;
+
+  /* ── transcendent tier ───────────────────────── */
+  interferenceShellCount: number;
+  voidRippleCount: number;
+  photonBloomCount: number;
+  haloGlyphCount: number;
+  enableChromaTorusField: boolean;
 }
 
 export const SCENE_PALETTE = {
@@ -220,6 +227,11 @@ const ULTRA: SceneProfile = {
   pulsarBeaconCount: 3,
   crystallineGrowthBranches: 24,
   enableCosmicStrings: true,
+  interferenceShellCount: 4,
+  voidRippleCount: 5,
+  photonBloomCount: 18,
+  haloGlyphCount: 12,
+  enableChromaTorusField: true,
 };
 
 const HIGH: SceneProfile = {
@@ -272,6 +284,11 @@ const HIGH: SceneProfile = {
   pulsarBeaconCount: 2,
   crystallineGrowthBranches: 16,
   enableCosmicStrings: true,
+  interferenceShellCount: 3,
+  voidRippleCount: 4,
+  photonBloomCount: 12,
+  haloGlyphCount: 9,
+  enableChromaTorusField: true,
 };
 
 const MED: SceneProfile = {
@@ -324,6 +341,11 @@ const MED: SceneProfile = {
   pulsarBeaconCount: 1,
   crystallineGrowthBranches: 10,
   enableCosmicStrings: false,
+  interferenceShellCount: 2,
+  voidRippleCount: 3,
+  photonBloomCount: 8,
+  haloGlyphCount: 6,
+  enableChromaTorusField: false,
 };
 
 const LOW: SceneProfile = {
@@ -376,6 +398,11 @@ const LOW: SceneProfile = {
   pulsarBeaconCount: 1,
   crystallineGrowthBranches: 6,
   enableCosmicStrings: false,
+  interferenceShellCount: 1,
+  voidRippleCount: 2,
+  photonBloomCount: 5,
+  haloGlyphCount: 4,
+  enableChromaTorusField: false,
 };
 
 const NONE: SceneProfile = {
@@ -428,6 +455,11 @@ const NONE: SceneProfile = {
   pulsarBeaconCount: 0,
   crystallineGrowthBranches: 0,
   enableCosmicStrings: false,
+  interferenceShellCount: 0,
+  voidRippleCount: 0,
+  photonBloomCount: 0,
+  haloGlyphCount: 0,
+  enableChromaTorusField: false,
 };
 
 export function getSceneProfile(
@@ -486,6 +518,11 @@ export function optimizeSceneProfileForMobile(
       agg ? 4 : 6
     ),
     enableCosmicStrings: false,
+    interferenceShellCount: Math.min(p.interferenceShellCount, agg ? 1 : 2),
+    voidRippleCount: Math.min(p.voidRippleCount, agg ? 1 : 2),
+    photonBloomCount: Math.min(p.photonBloomCount, agg ? 4 : 6),
+    haloGlyphCount: Math.min(p.haloGlyphCount, agg ? 3 : 4),
+    enableChromaTorusField: false,
   };
 }
 

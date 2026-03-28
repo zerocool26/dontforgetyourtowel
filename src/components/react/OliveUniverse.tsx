@@ -240,6 +240,7 @@ export default function OliveUniverse() {
       <div className="universe-stage-deephaze" aria-hidden="true" />
       <div className="universe-stage-aurora-glow" aria-hidden="true" />
       <div className="universe-stage-plasma-corona" aria-hidden="true" />
+      <div className="universe-stage-ion-storm" aria-hidden="true" />
       <div className="universe-stage-temperature" aria-hidden="true" />
       <div className="universe-stage-aura" aria-hidden="true" />
       <div className="universe-stage-nebula" aria-hidden="true" />
