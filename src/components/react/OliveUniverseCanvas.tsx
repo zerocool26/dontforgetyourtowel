@@ -1084,9 +1084,442 @@ function CoreShellOverlays({
   );
 }
 
-/* ── Scene lighting ──────────────────────────────────────────── */
+/* ── Event horizon — accretion disk with concentric rings ──── */
 
-function SceneLighting({
+function EventHorizonDisc({
+  pf,
+  ringCount,
+}: {
+  pf: MutableRefObject<PointerField>;
+  ringCount: number;
+}) {
+  const groupRef = useRef<THREE.Group>(null);
+
+  const rings = useMemo(() => {
+    const result: { geometry: THREE.TorusGeometry; color: string; opacity: number; radius: number }[] = [];
+    const colors = [
+      SCENE_PALETTE.warm,
+      SCENE_PALETTE.accent,
+      SCENE_PALETTE.secondary,
+      SCENE_PALETTE.tertiary,
+    ];
+    for (let i = 0; i < ringCount; i++) {
+      const t = i / ringCount;
+      const r = 2.2 + t * 4.5;
+      const tube = 0.015 + (1 - t) * 0.03;
+      const geo = new THREE.TorusGeometry(r, tube, 6, 120);
+      result.push({
+        geometry: geo,
+        color: colors[i % colors.length],
+        opacity: 0.08 + (1 - t) * 0.12,
+        radius: r,
+      });
+    }
+    return result;
+  }, [ringCount]);
+
+  useEffect(() => () => rings.forEach(r => r.geometry.dispose()), [rings]);
+
+  useFrame((state, delta) => {
+    if (!groupRef.current) return;
+    const t = state.clock.elapsedTime;
+    const burst = pf.current.burst;
+    groupRef.current.rotation.z += delta * (0.035 + burst * 0.02);
+    groupRef.current.rotation.x = -1.25 + Math.sin(t * 0.04) * 0.06;
+    groupRef.current.scale.setScalar(
+      THREE.MathUtils.damp(groupRef.current.scale.x, 1 + burst * 0.08, 3, delta)
+    );
+  });
+
+  return (
+    <group ref={groupRef} rotation={[-1.25, 0.15, 0]}>
+      {rings.map((ring, i) => (
+        <mesh key={`eh-${i}`} geometry={ring.geometry}>
+          <meshBasicMaterial
+            color={ring.color}
+            transparent
+            opacity={ring.opacity}
+            blending={THREE.AdditiveBlending}
+            depthWrite={false}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+/* ── Magnetic field lines — dipole curves from poles ─────────── */
+
+function MagneticFieldLines({
+  pf,
+  lineCount,
+}: {
+  pf: MutableRefObject<PointerField>;
+  lineCount: number;
+}) {
+  const groupRef = useRef<THREE.Group>(null);
+
+  const tubes = useMemo(() => {
+    const result: { geometry: THREE.TubeGeometry; color: string }[] = [];
+    const colors = [SCENE_PALETTE.secondary, SCENE_PALETTE.accent, SCENE_PALETTE.tertiary];
+    for (let i = 0; i < lineCount; i++) {
+      const phi = (i / lineCount) * Math.PI * 2;
+      const pts: THREE.Vector3[] = [];
+      const segs = 48;
+      for (let j = 0; j <= segs; j++) {
+        const theta = (j / segs) * Math.PI;
+        const sinT = Math.sin(theta);
+        const cosT = Math.cos(theta);
+        const r = 3.5 * sinT * sinT;
+        pts.push(
+          new THREE.Vector3(
+            r * sinT * Math.cos(phi),
+            r * cosT,
+            r * sinT * Math.sin(phi)
+          )
+        );
+      }
+      const curve = new THREE.CatmullRomCurve3(pts, false);
+      const geo = new THREE.TubeGeometry(curve, 32, 0.012, 4, false);
+      result.push({ geometry: geo, color: colors[i % colors.length] });
+    }
+    return result;
+  }, [lineCount]);
+
+  useEffect(() => () => tubes.forEach(t => t.geometry.dispose()), [tubes]);
+
+  useFrame((state, delta) => {
+    if (!groupRef.current) return;
+    const burst = pf.current.burst;
+    groupRef.current.rotation.y += delta * (0.012 + burst * 0.018);
+    groupRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 0.055) * 0.08;
+  });
+
+  return (
+    <group ref={groupRef}>
+      {tubes.map((tube, i) => (
+        <mesh key={`mfl-${i}`} geometry={tube.geometry}>
+          <meshBasicMaterial
+            color={tube.color}
+            transparent
+            opacity={0.07 + (i % 3) * 0.015}
+            blending={THREE.AdditiveBlending}
+            depthWrite={false}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+/* ── Resonance waves — expanding sphere pulses ───────────────── */
+
+function ResonanceWaves({
+  pf,
+  waveCount,
+}: {
+  pf: MutableRefObject<PointerField>;
+  waveCount: number;
+}) {
+  const meshRefs = useRef<(THREE.Mesh | null)[]>([]);
+
+  const geometries = useMemo(() => {
+    return Array.from({ length: waveCount }, () =>
+      new THREE.SphereGeometry(1, 28, 28)
+    );
+  }, [waveCount]);
+
+  useEffect(() => () => geometries.forEach(g => g.dispose()), [geometries]);
+
+  useFrame((state, delta) => {
+    const t = state.clock.elapsedTime;
+    const burst = pf.current.burst;
+    for (let i = 0; i < waveCount; i++) {
+      const mesh = meshRefs.current[i];
+      if (!mesh) continue;
+      const phase = ((t * (0.15 + burst * 0.06) + (i / waveCount) * Math.PI * 2) % (Math.PI * 2)) / (Math.PI * 2);
+      const radius = 0.5 + phase * 8;
+      mesh.scale.setScalar(radius);
+      const mat = mesh.material as THREE.MeshBasicMaterial;
+      mat.opacity = THREE.MathUtils.damp(
+        mat.opacity,
+        Math.max(0, 0.08 * (1 - phase) + burst * 0.04),
+        5,
+        delta
+      );
+    }
+  });
+
+  return (
+    <>
+      {geometries.map((geo, i) => (
+        <mesh
+          key={`rw-${i}`}
+          ref={el => { meshRefs.current[i] = el; }}
+          geometry={geo}
+        >
+          <meshBasicMaterial
+            color={SCENE_PALETTE.accent}
+            transparent
+            opacity={0.06}
+            wireframe
+            blending={THREE.AdditiveBlending}
+            depthWrite={false}
+          />
+        </mesh>
+      ))}
+    </>
+  );
+}
+
+/* ── Cometary orbiters — bright particles with tails ─────────── */
+
+function CometaryOrbiters({
+  pf,
+  count,
+}: {
+  pf: MutableRefObject<PointerField>;
+  count: number;
+}) {
+  const groupRef = useRef<THREE.Group>(null);
+  const linesRef = useRef<THREE.Group | null>(null);
+
+  const orbits = useMemo(() => {
+    return Array.from({ length: count }, (_, i) => {
+      const inclination = ((i / count) * Math.PI * 0.6 - 0.3) + (Math.random() - 0.5) * 0.25;
+      const radius = 3.5 + (i % 5) * 0.9 + Math.random() * 0.6;
+      const speed = 0.12 + (i % 4) * 0.04;
+      const phase = (i / count) * Math.PI * 2;
+      const tailLen = 6 + Math.floor(Math.random() * 5);
+      return { inclination, radius, speed, phase, tailLen };
+    });
+  }, [count]);
+
+  const { lineGeometries, lineMaterials, headGeometry } = useMemo(() => {
+    const headGeo = new THREE.SphereGeometry(0.04, 6, 6);
+    const lineGeos: THREE.BufferGeometry[] = [];
+    const lineMats: THREE.LineBasicMaterial[] = [];
+    const colors = [SCENE_PALETTE.accent, SCENE_PALETTE.secondary, SCENE_PALETTE.warm];
+    for (let i = 0; i < count; i++) {
+      const positions = new Float32Array(orbits[i].tailLen * 3);
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      const mat = new THREE.LineBasicMaterial({
+        color: colors[i % colors.length],
+        transparent: true,
+        opacity: 0.12,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      });
+      lineGeos.push(geo);
+      lineMats.push(mat);
+    }
+    return { lineGeometries: lineGeos, lineMaterials: lineMats, headGeometry: headGeo };
+  }, [count, orbits]);
+
+  useEffect(() => {
+    if (!linesRef.current) return;
+    const lines: THREE.Line[] = [];
+    for (let i = 0; i < count; i++) {
+      const line = new THREE.Line(lineGeometries[i], lineMaterials[i]);
+      lines.push(line);
+      linesRef.current.add(line);
+    }
+    return () => {
+      lines.forEach(l => linesRef.current?.remove(l));
+      lineGeometries.forEach(g => g.dispose());
+      lineMaterials.forEach(m => m.dispose());
+      headGeometry.dispose();
+    };
+  }, [lineGeometries, lineMaterials, headGeometry, count]);
+
+  useFrame((state, delta) => {
+    if (!groupRef.current) return;
+    const t = state.clock.elapsedTime;
+    const burst = pf.current.burst;
+    const children = groupRef.current.children;
+    for (let i = 0; i < count; i++) {
+      const head = children[i] as THREE.Mesh | undefined;
+      if (!head) continue;
+      const orb = orbits[i];
+      const angle = t * orb.speed + orb.phase + burst * 0.2;
+      const cx = Math.cos(angle) * orb.radius;
+      const cy = Math.sin(orb.inclination) * Math.sin(angle) * orb.radius * 0.35;
+      const cz = Math.sin(angle) * orb.radius * Math.cos(orb.inclination);
+      head.position.set(cx, cy, cz);
+
+      const posAttr = lineGeometries[i].getAttribute('position') as THREE.BufferAttribute;
+      const arr = posAttr.array as Float32Array;
+      for (let j = orb.tailLen - 1; j > 0; j--) {
+        arr[j * 3] = arr[(j - 1) * 3];
+        arr[j * 3 + 1] = arr[(j - 1) * 3 + 1];
+        arr[j * 3 + 2] = arr[(j - 1) * 3 + 2];
+      }
+      arr[0] = cx;
+      arr[1] = cy;
+      arr[2] = cz;
+      posAttr.needsUpdate = true;
+    }
+    groupRef.current.rotation.y += delta * 0.003;
+  });
+
+  return (
+    <>
+      <group ref={groupRef}>
+        {orbits.map((_, i) => (
+          <mesh key={`comet-${i}`} geometry={headGeometry}>
+            <meshBasicMaterial
+              color={SCENE_PALETTE.highlight}
+              transparent
+              opacity={0.7}
+              blending={THREE.AdditiveBlending}
+              depthWrite={false}
+            />
+          </mesh>
+        ))}
+      </group>
+      <group ref={linesRef} />
+    </>
+  );
+}
+
+/* ── Volumetric rays — god-ray cones from core ───────────────── */
+
+function VolumetricRays({
+  pf,
+  rayCount,
+}: {
+  pf: MutableRefObject<PointerField>;
+  rayCount: number;
+}) {
+  const groupRef = useRef<THREE.Group>(null);
+
+  const cones = useMemo(() => {
+    return Array.from({ length: rayCount }, (_, i) => {
+      const angle = (i / rayCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.3;
+      const yAngle = (Math.random() - 0.5) * Math.PI * 0.4;
+      const length = 5 + Math.random() * 4;
+      const spread = 0.15 + Math.random() * 0.2;
+      return { angle, yAngle, length, spread };
+    });
+  }, [rayCount]);
+
+  const geometries = useMemo(() => {
+    return cones.map(c => new THREE.ConeGeometry(c.spread, c.length, 4, 1, true));
+  }, [cones]);
+
+  useEffect(() => () => geometries.forEach(g => g.dispose()), [geometries]);
+
+  useFrame((state, delta) => {
+    if (!groupRef.current) return;
+    const burst = pf.current.burst;
+    groupRef.current.rotation.y += delta * (0.005 + burst * 0.015);
+    const children = groupRef.current.children;
+    for (let i = 0; i < children.length; i++) {
+      const mat = (children[i] as THREE.Mesh).material as THREE.MeshBasicMaterial;
+      mat.opacity = THREE.MathUtils.damp(
+        mat.opacity,
+        0.018 + burst * 0.06,
+        4,
+        delta
+      );
+    }
+  });
+
+  const colors = [SCENE_PALETTE.accent, SCENE_PALETTE.secondary, SCENE_PALETTE.warm];
+
+  return (
+    <group ref={groupRef}>
+      {cones.map((c, i) => {
+        const rx = c.yAngle;
+        const ry = 0;
+        const rz = -c.angle + Math.PI / 2;
+        const halfLen = c.length / 2;
+        const px = Math.cos(c.angle) * Math.cos(c.yAngle) * halfLen;
+        const py = Math.sin(c.yAngle) * halfLen;
+        const pz = Math.sin(c.angle) * Math.cos(c.yAngle) * halfLen;
+        return (
+          <mesh
+            key={`vr-${i}`}
+            geometry={geometries[i]}
+            position={[px, py, pz]}
+            rotation={[rx, ry, rz]}
+          >
+            <meshBasicMaterial
+              color={colors[i % colors.length]}
+              transparent
+              opacity={0.018}
+              blending={THREE.AdditiveBlending}
+              depthWrite={false}
+              side={THREE.DoubleSide}
+            />
+          </mesh>
+        );
+      })}
+    </group>
+  );
+}
+
+/* ── Subspace grid — warped energy ground-plane ──────────────── */
+
+function SubspaceGrid({ pf }: { pf: MutableRefObject<PointerField> }) {
+  const meshRef = useRef<THREE.Mesh>(null);
+  const positionsRef = useRef<Float32Array | null>(null);
+  const basePositionsRef = useRef<Float32Array | null>(null);
+
+  const geometry = useMemo(() => {
+    const size = 28;
+    const segs = 48;
+    const geo = new THREE.PlaneGeometry(size, size, segs, segs);
+    const posArr = geo.getAttribute('position').array as Float32Array;
+    positionsRef.current = posArr;
+    basePositionsRef.current = new Float32Array(posArr);
+    return geo;
+  }, []);
+
+  useEffect(() => () => geometry.dispose(), [geometry]);
+
+  useFrame((state, delta) => {
+    if (!meshRef.current || !positionsRef.current || !basePositionsRef.current) return;
+    const t = state.clock.elapsedTime;
+    const burst = pf.current.burst;
+    const arr = positionsRef.current;
+    const base = basePositionsRef.current;
+    const len = arr.length / 3;
+    for (let i = 0; i < len; i++) {
+      const bx = base[i * 3];
+      const by = base[i * 3 + 1];
+      const dist = Math.sqrt(bx * bx + by * by);
+      const warp = Math.sin(dist * 0.6 - t * 0.4) * 0.35 * (1 + burst * 0.6);
+      const radialPull = Math.max(0, 1 - dist / 8) * 0.25;
+      arr[i * 3 + 2] = warp - radialPull * (1 + burst * 2);
+    }
+    geometry.getAttribute('position').needsUpdate = true;
+    geometry.computeVertexNormals();
+    meshRef.current.rotation.z += delta * 0.003;
+  });
+
+  return (
+    <mesh
+      ref={meshRef}
+      geometry={geometry}
+      position={[0, -5.5, 0]}
+      rotation={[-Math.PI / 2, 0, 0]}
+    >
+      <meshBasicMaterial
+        color={SCENE_PALETTE.secondary}
+        transparent
+        opacity={0.025}
+        wireframe
+        blending={THREE.AdditiveBlending}
+        depthWrite={false}
+      />
+    </mesh>
+  );
+}
+
+/* ── Scene lighting ──────────────────────────────────────────── */
   pf,
   keyIntensity,
   rimIntensity,
@@ -1268,6 +1701,22 @@ function HeroScene({
         shellCount={profile.coreShellCount}
         coreSpeed={profile.coreSpeed}
       />
+      {profile.eventHorizonRings > 0 && (
+        <EventHorizonDisc pf={pf} ringCount={profile.eventHorizonRings} />
+      )}
+      {profile.magneticFieldLines > 0 && (
+        <MagneticFieldLines pf={pf} lineCount={profile.magneticFieldLines} />
+      )}
+      {profile.resonanceWaveCount > 0 && (
+        <ResonanceWaves pf={pf} waveCount={profile.resonanceWaveCount} />
+      )}
+      {profile.cometaryOrbiterCount > 0 && (
+        <CometaryOrbiters pf={pf} count={profile.cometaryOrbiterCount} />
+      )}
+      {profile.volumetricRayCount > 0 && (
+        <VolumetricRays pf={pf} rayCount={profile.volumetricRayCount} />
+      )}
+      {profile.enableSubspaceGrid && <SubspaceGrid pf={pf} />}
       {profile.attractorTrailLen > 60 && (
         <group rotation={[0.4, Math.PI / 3, 0.2]}>
           <AttractorTrail

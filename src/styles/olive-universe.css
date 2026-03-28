@@ -299,6 +299,43 @@
   }
 }
 
+@keyframes chromatic-burst {
+  0% {
+    opacity: 0.7;
+    transform: scale(0.92);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.18);
+  }
+}
+
+@keyframes temperature-shift {
+  0% {
+    opacity: 0.4;
+    transform: translate(-2%, 1%) rotate(-0.5deg);
+  }
+  50% {
+    opacity: 0.8;
+    transform: translate(1%, -1%) rotate(0.3deg);
+  }
+  100% {
+    opacity: 0.5;
+    transform: translate(0, 0) rotate(0deg);
+  }
+}
+
+@keyframes deephaze-drift {
+  0% {
+    opacity: 0.4;
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    opacity: 0.7;
+    transform: translate(-10px, 8px) scale(1.03);
+  }
+}
+
 /* ── Loaded state refinements ──────────────────────────────── */
 
 .universe-wrapper[data-olive-scene='interactive'] .universe-static-visual {
@@ -328,8 +365,89 @@
   transition: opacity 0.2s ease-out;
 }
 
+.universe-wrapper[data-olive-interaction='burst'] .universe-stage-nebula {
+  opacity: 1;
+  filter: blur(60px) saturate(1.5);
+  transition:
+    opacity 0.25s ease-out,
+    filter 0.3s ease-out;
+}
+
+.universe-wrapper[data-olive-interaction='burst']::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: radial-gradient(
+    ellipse 50% 45% at 50% 50%,
+    rgba(var(--universe-accent-rgb, 217, 255, 63), 0.06) 0%,
+    rgba(var(--universe-warm-rgb, 255, 107, 107), 0.03) 35%,
+    transparent 70%
+  );
+  pointer-events: none;
+  animation: chromatic-burst 0.6s ease-out forwards;
+  mix-blend-mode: screen;
+}
+
 .universe-wrapper[data-olive-interaction='idle'] .universe-stage-aura {
   transition: opacity 1.6s ease-in;
+}
+
+.universe-wrapper[data-olive-interaction='idle'] .universe-stage-nebula {
+  transition:
+    opacity 1.8s ease-in,
+    filter 1.8s ease-in;
+}
+
+.universe-wrapper[data-olive-interaction='idle']::after {
+  content: none;
+}
+
+/* ── Color temperature shift layer ─────────────────────────── */
+
+.universe-stage-temperature {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(
+    ellipse 55% 50% at 50% 50%,
+    rgba(var(--universe-warm-rgb, 255, 107, 107), 0.02) 0%,
+    rgba(var(--universe-secondary-rgb, 56, 189, 248), 0.015) 40%,
+    transparent 75%
+  );
+  mix-blend-mode: color-dodge;
+  animation: temperature-shift 25s ease-in-out infinite alternate;
+  filter: blur(90px);
+  will-change: opacity;
+}
+
+/* ── Deep space haze — outermost distance fog ──────────────── */
+
+.universe-stage-deephaze {
+  position: absolute;
+  inset: -5%;
+  width: 110%;
+  height: 110%;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(
+      ellipse 80% 75% at 35% 60%,
+      rgba(var(--universe-tertiary-rgb, 52, 211, 153), 0.025) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse 70% 65% at 68% 38%,
+      rgba(var(--universe-accent-rgb, 217, 255, 63), 0.015) 0%,
+      transparent 45%
+    );
+  mix-blend-mode: screen;
+  animation: deephaze-drift 45s ease-in-out infinite alternate;
+  filter: blur(100px);
+  will-change: opacity, transform;
 }
 
 /* ── Stability assist ──────────────────────────────────────── */
@@ -349,12 +467,19 @@
   opacity: 0.4;
 }
 
+.universe-wrapper[data-olive-runtime='stability'] .universe-stage-temperature,
+.universe-wrapper[data-olive-runtime='stability'] .universe-stage-deephaze {
+  display: none;
+}
+
 /* ── Reduced motion ────────────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {
   .universe-stage-aura,
   .universe-stage-nebula,
   .universe-stage-film-grain,
+  .universe-stage-temperature,
+  .universe-stage-deephaze,
   .universe-static-nebula,
   .universe-static-core,
   .universe-static-orbit,

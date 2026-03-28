@@ -53,6 +53,14 @@ export interface SceneProfile {
   dofFocusDistance: number;
   dofBokehScale: number;
   coreShellCount: number;
+
+  /* ── next-gen visuals ────────────────────────── */
+  eventHorizonRings: number;
+  magneticFieldLines: number;
+  resonanceWaveCount: number;
+  cometaryOrbiterCount: number;
+  volumetricRayCount: number;
+  enableSubspaceGrid: boolean;
 }
 
 export const SCENE_PALETTE = {
@@ -182,6 +190,12 @@ const ULTRA: SceneProfile = {
   dofFocusDistance: 0.035,
   dofBokehScale: 2.8,
   coreShellCount: 4,
+  eventHorizonRings: 14,
+  magneticFieldLines: 10,
+  resonanceWaveCount: 4,
+  cometaryOrbiterCount: 18,
+  volumetricRayCount: 8,
+  enableSubspaceGrid: true,
 };
 
 const HIGH: SceneProfile = {
@@ -218,6 +232,12 @@ const HIGH: SceneProfile = {
   dofFocusDistance: 0.04,
   dofBokehScale: 2.2,
   coreShellCount: 3,
+  eventHorizonRings: 10,
+  magneticFieldLines: 8,
+  resonanceWaveCount: 3,
+  cometaryOrbiterCount: 12,
+  volumetricRayCount: 6,
+  enableSubspaceGrid: true,
 };
 
 const MED: SceneProfile = {
@@ -254,6 +274,12 @@ const MED: SceneProfile = {
   dofFocusDistance: 0.045,
   dofBokehScale: 1.8,
   coreShellCount: 3,
+  eventHorizonRings: 7,
+  magneticFieldLines: 5,
+  resonanceWaveCount: 2,
+  cometaryOrbiterCount: 8,
+  volumetricRayCount: 4,
+  enableSubspaceGrid: true,
 };
 
 const LOW: SceneProfile = {
@@ -290,6 +316,12 @@ const LOW: SceneProfile = {
   dofFocusDistance: 0.05,
   dofBokehScale: 1.2,
   coreShellCount: 2,
+  eventHorizonRings: 4,
+  magneticFieldLines: 3,
+  resonanceWaveCount: 1,
+  cometaryOrbiterCount: 5,
+  volumetricRayCount: 2,
+  enableSubspaceGrid: false,
 };
 
 const NONE: SceneProfile = {
@@ -326,6 +358,12 @@ const NONE: SceneProfile = {
   dofFocusDistance: 0,
   dofBokehScale: 0,
   coreShellCount: 1,
+  eventHorizonRings: 0,
+  magneticFieldLines: 0,
+  resonanceWaveCount: 0,
+  cometaryOrbiterCount: 0,
+  volumetricRayCount: 0,
+  enableSubspaceGrid: false,
 };
 
 export function getSceneProfile(
@@ -365,6 +403,12 @@ export function optimizeSceneProfileForMobile(
     haloRingCount: Math.min(p.haloRingCount, 1),
     enableDepthOfField: false,
     coreShellCount: Math.min(p.coreShellCount, 2),
+    eventHorizonRings: Math.min(p.eventHorizonRings, agg ? 3 : 5),
+    magneticFieldLines: Math.min(p.magneticFieldLines, agg ? 2 : 3),
+    resonanceWaveCount: Math.min(p.resonanceWaveCount, 1),
+    cometaryOrbiterCount: Math.min(p.cometaryOrbiterCount, agg ? 3 : 5),
+    volumetricRayCount: Math.min(p.volumetricRayCount, agg ? 2 : 3),
+    enableSubspaceGrid: false,
   };
 }
 
