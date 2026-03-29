@@ -1002,19 +1002,26 @@ function OrbitalShards({
 
 function EnergyFloor({ pf }: { pf: MutableRefObject<PointerField> }) {
   const groupRef = useRef<THREE.Group>(null);
+  const discRef = useRef<THREE.Mesh>(null);
 
   useFrame((state, delta) => {
     if (!groupRef.current) return;
+    const burst = pf.current.burst;
     groupRef.current.rotation.z =
       Math.sin(state.clock.elapsedTime * 0.06) * 0.04;
     groupRef.current.scale.setScalar(
-      THREE.MathUtils.damp(
-        groupRef.current.scale.x,
-        1 + pf.current.burst * 0.06,
-        3,
-        delta
-      )
+      THREE.MathUtils.damp(groupRef.current.scale.x, 1 + burst * 0.05, 3, delta)
     );
+
+    if (discRef.current) {
+      const mat = discRef.current.material as THREE.MeshBasicMaterial;
+      mat.opacity = THREE.MathUtils.damp(
+        mat.opacity,
+        0.042 + burst * 0.02,
+        4,
+        delta
+      );
+    }
   });
 
   return (
@@ -1023,22 +1030,36 @@ function EnergyFloor({ pf }: { pf: MutableRefObject<PointerField> }) {
       position={[0, -3.8, 0]}
       rotation={[-Math.PI / 2, 0, 0]}
     >
+      <mesh ref={discRef} scale={[1.35, 1, 1.35]} rotation={[0, 0, 0.14]}>
+        <circleGeometry args={[3.8, 96]} />
+        <meshBasicMaterial
+          color={SCENE_PALETTE.mist}
+          transparent
+          opacity={0.042}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+        />
+      </mesh>
       {[
         {
           inner: 4.5,
           outer: 4.8,
-          color: SCENE_PALETTE.secondary,
-          opacity: 0.05,
+          color: SCENE_PALETTE.bloom,
+          opacity: 0.038,
         },
-        { inner: 6.0, outer: 6.2, color: SCENE_PALETTE.accent, opacity: 0.03 },
+        { inner: 6.0, outer: 6.2, color: SCENE_PALETTE.jade, opacity: 0.026 },
         {
           inner: 7.8,
           outer: 7.92,
-          color: SCENE_PALETTE.tertiary,
-          opacity: 0.018,
+          color: SCENE_PALETTE.orchid,
+          opacity: 0.016,
         },
       ].map((ring, i) => (
-        <mesh key={`floor-${i}`} rotation={[0, 0, i * 0.3]}>
+        <mesh
+          key={`floor-${i}`}
+          rotation={[0, 0, i * 0.3]}
+          scale={[1.18 + i * 0.05, 1, 0.88 + i * 0.03]}
+        >
           <ringGeometry args={[ring.inner, ring.outer, 140]} />
           <meshBasicMaterial
             color={ring.color}
@@ -1084,9 +1105,9 @@ function WarpStreaks({
     const geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     const mat = new THREE.LineBasicMaterial({
-      color: SCENE_PALETTE.accent,
+      color: SCENE_PALETTE.bloom,
       transparent: true,
-      opacity: 0.02,
+      opacity: 0.016,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     });
@@ -1116,7 +1137,7 @@ function WarpStreaks({
     obj.scale.setScalar(THREE.MathUtils.damp(obj.scale.x, s, 3.5, delta));
     (obj.material as THREE.LineBasicMaterial).opacity = THREE.MathUtils.damp(
       (obj.material as THREE.LineBasicMaterial).opacity,
-      0.02 + burst * 0.15,
+      0.016 + burst * 0.1,
       4,
       delta
     );
