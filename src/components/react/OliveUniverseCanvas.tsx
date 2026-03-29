@@ -255,20 +255,25 @@ function CameraRig({
     );
 
     const t = state.clock.elapsedTime;
-    const orbit = mobile ? 0.28 : 0.48;
-    const speed = shouldAnimate ? 0.1 : 0.03;
+    const orbit = mobile ? 0.24 : 0.42;
+    const speed = shouldAnimate ? 0.078 : 0.026;
     const dx = p.current.x * fieldStrength;
     const dy = p.current.y * fieldStrength * 0.65;
     const push = p.burst * 0.55 + p.engagement * 0.2;
+    const editorialSweep =
+      Math.sin(t * (speed * 0.65)) * (mobile ? 0.08 : 0.22);
+    const altitudeDrift =
+      Math.cos(t * (speed * 0.5) + 0.6) * (mobile ? 0.06 : 0.14);
+    const inhale = Math.sin(t * 0.22) * 0.08;
 
     desired.set(
-      Math.cos(t * speed) * orbit + dx * parallax,
-      0.2 + Math.sin(t * speed * 0.72) * 0.22 + dy * parallax,
-      8.5 - push
+      0.28 + Math.cos(t * speed) * orbit + editorialSweep + dx * parallax,
+      0.18 + Math.sin(t * speed * 0.72) * 0.18 + altitudeDrift + dy * parallax,
+      8.5 - push + inhale
     );
 
     camera.position.lerp(desired, shouldAnimate ? 0.05 : 0.1);
-    target.set(dx * 0.45, dy * 0.35, 0);
+    target.set(-0.18 + dx * 0.34, 0.04 + dy * 0.26, 0);
     camera.lookAt(target);
   });
 
@@ -571,6 +576,125 @@ function OrganicVeilShells({
         />
       </mesh>
     </>
+  );
+}
+
+function PearlSutureOrbit({
+  pf,
+  shouldAnimate,
+  beadCount,
+}: {
+  pf: MutableRefObject<PointerField>;
+  shouldAnimate: boolean;
+  beadCount: number;
+}) {
+  const groupRef = useRef<THREE.Group>(null);
+  const orbitRef = useRef<THREE.Mesh>(null);
+  const beads = useMemo(
+    () =>
+      Array.from({ length: beadCount }, (_, i) => ({
+        phase: (i / beadCount) * Math.PI * 2,
+        scale: 0.09 + (i % 3) * 0.028,
+        yBias: ((i % 4) - 1.5) * 0.05,
+      })),
+    [beadCount]
+  );
+
+  useFrame((state, delta) => {
+    const burst = pf.current.burst;
+    const t = state.clock.elapsedTime;
+
+    if (groupRef.current) {
+      groupRef.current.rotation.y += delta * (shouldAnimate ? 0.18 : 0.07);
+      groupRef.current.rotation.z =
+        -0.24 + Math.sin(t * 0.28) * 0.08 + burst * 0.02;
+      groupRef.current.position.y = -0.06 + Math.sin(t * 0.52) * 0.05;
+      groupRef.current.scale.setScalar(
+        THREE.MathUtils.damp(
+          groupRef.current.scale.x,
+          1 + burst * 0.06,
+          4,
+          delta
+        )
+      );
+    }
+
+    if (orbitRef.current) {
+      orbitRef.current.rotation.z += delta * (shouldAnimate ? 0.12 : 0.04);
+      const mat = orbitRef.current.material as THREE.MeshBasicMaterial;
+      mat.opacity = THREE.MathUtils.damp(
+        mat.opacity,
+        0.014 + burst * 0.01,
+        4,
+        delta
+      );
+    }
+
+    groupRef.current?.children.forEach((child, i) => {
+      if (i === 0) return;
+      const bead = beads[i - 1];
+      if (!bead) return;
+      const mesh = child as THREE.Mesh;
+      const angle = t * (0.26 + i * 0.01) + bead.phase;
+      const x = Math.cos(angle) * 2.65;
+      const y =
+        Math.sin(angle * 1.8 + bead.phase) * 0.22 +
+        bead.yBias +
+        Math.cos(angle * 0.8) * 0.06;
+      const z = Math.sin(angle) * 1.74;
+      mesh.position.set(x, y, z);
+      mesh.scale.setScalar(
+        THREE.MathUtils.damp(
+          mesh.scale.x,
+          bead.scale + Math.sin(t * 1.4 + bead.phase) * 0.012 + burst * 0.01,
+          5,
+          delta
+        )
+      );
+      mesh.rotation.x += delta * 0.45;
+      mesh.rotation.y -= delta * 0.3;
+    });
+  });
+
+  return (
+    <group
+      ref={groupRef}
+      position={[0.26, -0.08, 0.14]}
+      rotation={[0.62, 0.32, -0.24]}
+    >
+      <mesh ref={orbitRef} scale={[1.16, 0.68, 1]}>
+        <torusGeometry args={[2.35, 0.012, 8, 180]} />
+        <meshBasicMaterial
+          color={SCENE_PALETTE.mist}
+          transparent
+          opacity={0.014}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+        />
+      </mesh>
+      {beads.map((bead, i) => (
+        <mesh key={`pearl-suture-${i}`} scale={bead.scale}>
+          <sphereGeometry args={[1, 24, 24]} />
+          <meshPhysicalMaterial
+            color={i % 2 === 0 ? SCENE_PALETTE.highlight : SCENE_PALETTE.mist}
+            emissive={i % 3 === 0 ? SCENE_PALETTE.ember : SCENE_PALETTE.bloom}
+            emissiveIntensity={0.018}
+            roughness={0.05}
+            metalness={0.08}
+            clearcoat={1}
+            clearcoatRoughness={0.04}
+            transmission={0.82}
+            thickness={0.52}
+            ior={1.42}
+            attenuationDistance={1.8}
+            attenuationColor={SCENE_PALETTE.bloom}
+            transparent
+            opacity={0.56}
+            envMapIntensity={1.2}
+          />
+        </mesh>
+      ))}
+    </group>
   );
 }
 
@@ -957,8 +1081,13 @@ function OrbitalShards({
             Math.sin(angle) * r,
           ] as const,
           rotation: [angle * 0.7, i * 0.4, i * 0.25] as const,
-          scale: 0.15 + (i % 4) * 0.08,
-          geoType: i % 3, // 0 = tetra, 1 = octa, 2 = box
+          scale: [
+            0.16 + (i % 4) * 0.05,
+            0.34 + (i % 3) * 0.08,
+            0.16 + ((i + 1) % 4) * 0.05,
+          ] as const,
+          geoType: i % 3, // 0 = pearl, 1 = cocoon, 2 = column
+          phase: i * 0.42,
         };
       }),
     [count]
@@ -966,9 +1095,41 @@ function OrbitalShards({
 
   useFrame((state, delta) => {
     if (!groupRef.current) return;
-    groupRef.current.rotation.y -= delta * (0.025 + pf.current.burst * 0.03);
-    groupRef.current.rotation.z =
-      Math.sin(state.clock.elapsedTime * 0.08) * 0.05;
+    const t = state.clock.elapsedTime;
+    const burst = pf.current.burst;
+    groupRef.current.rotation.y -= delta * (0.018 + burst * 0.018);
+    groupRef.current.rotation.z = Math.sin(t * 0.06) * 0.04;
+
+    groupRef.current.children.forEach((child, i) => {
+      const shard = shards[i];
+      if (!shard) return;
+      const mesh = child as THREE.Mesh;
+      mesh.position.y =
+        shard.position[1] + Math.sin(t * 0.7 + shard.phase) * 0.16;
+      mesh.rotation.x += delta * (0.16 + (i % 3) * 0.04);
+      mesh.rotation.y -= delta * (0.12 + burst * 0.06);
+      mesh.rotation.z += delta * (0.08 + (i % 4) * 0.02);
+      mesh.scale.x = THREE.MathUtils.damp(
+        mesh.scale.x,
+        shard.scale[0] + Math.sin(t * 0.9 + shard.phase) * 0.02,
+        4,
+        delta
+      );
+      mesh.scale.y = THREE.MathUtils.damp(
+        mesh.scale.y,
+        shard.scale[1] +
+          Math.cos(t * 0.78 + shard.phase) * 0.03 +
+          burst * 0.015,
+        4,
+        delta
+      );
+      mesh.scale.z = THREE.MathUtils.damp(
+        mesh.scale.z,
+        shard.scale[2] + Math.sin(t * 0.64 + shard.phase) * 0.02,
+        4,
+        delta
+      );
+    });
   });
 
   return (
@@ -978,19 +1139,22 @@ function OrbitalShards({
           key={`shard-${i}`}
           position={s.position}
           rotation={[s.rotation[0], s.rotation[1], s.rotation[2]]}
-          scale={s.scale}
+          scale={[s.scale[0], s.scale[1], s.scale[2]]}
         >
-          {s.geoType === 0 && <tetrahedronGeometry args={[1, 0]} />}
-          {s.geoType === 1 && <octahedronGeometry args={[0.8, 0]} />}
-          {s.geoType === 2 && <boxGeometry args={[0.5, 1.4, 0.5]} />}
+          {s.geoType === 0 && <sphereGeometry args={[1, 20, 20]} />}
+          {s.geoType === 1 && <sphereGeometry args={[1, 28, 18]} />}
+          {s.geoType === 2 && <cylinderGeometry args={[0.48, 0.82, 1.9, 18]} />}
           <meshPhysicalMaterial
-            color={i % 2 === 0 ? SCENE_PALETTE.bloom : SCENE_PALETTE.orchid}
-            emissive={SCENE_PALETTE.jade}
-            emissiveIntensity={0.02}
-            roughness={0.06}
-            metalness={0.5}
+            color={i % 2 === 0 ? SCENE_PALETTE.mist : SCENE_PALETTE.bloom}
+            emissive={i % 2 === 0 ? SCENE_PALETTE.jade : SCENE_PALETTE.orchid}
+            emissiveIntensity={0.012}
+            roughness={0.08}
+            metalness={0.18}
+            clearcoat={1}
+            clearcoatRoughness={0.08}
+            transmission={0.36}
             transparent
-            opacity={0.3}
+            opacity={0.22}
           />
         </mesh>
       ))}
@@ -1289,18 +1453,18 @@ function CoreShellOverlays({
 
     if (dodecRef.current) {
       dodecRef.current.rotation.y -= delta * coreSpeed * 0.7;
-      dodecRef.current.rotation.x = Math.cos(t * 0.11) * 0.18;
+      dodecRef.current.rotation.x = Math.cos(t * 0.11) * 0.14;
       dodecRef.current.rotation.z += delta * 0.035;
       dodecRef.current.scale.setScalar(
-        THREE.MathUtils.damp(dodecRef.current.scale.x, 1.8 * pulse, 3.2, delta)
+        THREE.MathUtils.damp(dodecRef.current.scale.x, 1.95 * pulse, 3.2, delta)
       );
     }
 
     if (octaRef.current) {
       octaRef.current.rotation.y += delta * coreSpeed * 0.45;
-      octaRef.current.rotation.z = Math.sin(t * 0.08) * 0.22;
+      octaRef.current.rotation.z = Math.sin(t * 0.08) * 0.16;
       octaRef.current.scale.setScalar(
-        THREE.MathUtils.damp(octaRef.current.scale.x, 2.6 * pulse, 3.2, delta)
+        THREE.MathUtils.damp(octaRef.current.scale.x, 2.75 * pulse, 3.2, delta)
       );
     }
   });
@@ -1308,12 +1472,16 @@ function CoreShellOverlays({
   return (
     <>
       {shellCount >= 3 && (
-        <mesh ref={dodecRef} scale={1.8} rotation={[0.25, 0, 0.35]}>
-          <dodecahedronGeometry args={[1, 0]} />
+        <mesh
+          ref={dodecRef}
+          scale={[2.1, 1.46, 1.82]}
+          rotation={[0.25, 0, 0.35]}
+        >
+          <sphereGeometry args={[1, 32, 24]} />
           <meshBasicMaterial
-            color={SCENE_PALETTE.accent}
+            color={SCENE_PALETTE.bloom}
             transparent
-            opacity={0.02}
+            opacity={0.012}
             wireframe
             blending={THREE.AdditiveBlending}
             depthWrite={false}
@@ -1321,12 +1489,12 @@ function CoreShellOverlays({
         </mesh>
       )}
       {shellCount >= 4 && (
-        <mesh ref={octaRef} scale={2.6} rotation={[0.55, 0.3, 0]}>
-          <octahedronGeometry args={[1, 0]} />
+        <mesh ref={octaRef} scale={[1.62, 2.84, 1.9]} rotation={[0.55, 0.3, 0]}>
+          <sphereGeometry args={[1, 28, 28]} />
           <meshBasicMaterial
-            color={SCENE_PALETTE.secondary}
+            color={SCENE_PALETTE.orchid}
             transparent
-            opacity={0.014}
+            opacity={0.01}
             wireframe
             blending={THREE.AdditiveBlending}
             depthWrite={false}
@@ -1334,6 +1502,98 @@ function CoreShellOverlays({
         </mesh>
       )}
     </>
+  );
+}
+
+function BiomorphicCanopy({
+  pf,
+  shouldAnimate,
+  strandCount,
+}: {
+  pf: MutableRefObject<PointerField>;
+  shouldAnimate: boolean;
+  strandCount: number;
+}) {
+  const groupRef = useRef<THREE.Group>(null);
+  const strands = useMemo(() => {
+    const result: { geometry: THREE.TubeGeometry; color: string }[] = [];
+    const colors = [
+      SCENE_PALETTE.mist,
+      SCENE_PALETTE.bloom,
+      SCENE_PALETTE.orchid,
+    ];
+
+    for (let i = 0; i < strandCount; i++) {
+      const side = i % 2 === 0 ? 1 : -1;
+      const sweep = 3.6 + i * 0.55;
+      const pts = [
+        new THREE.Vector3(side * 4.8, 2.6 - i * 0.42, -1.4 + i * 0.3),
+        new THREE.Vector3(side * 2.2, 2.1 + i * 0.24, 1.3 + i * 0.24),
+        new THREE.Vector3(-side * 0.5, 0.8 - i * 0.16, 2.3 + i * 0.18),
+        new THREE.Vector3(-side * sweep, -0.9 - i * 0.28, 0.8 + i * 0.2),
+      ];
+      const curve = new THREE.CatmullRomCurve3(pts, false, 'centripetal', 0.45);
+      result.push({
+        geometry: new THREE.TubeGeometry(
+          curve,
+          48,
+          0.026 - i * 0.004,
+          10,
+          false
+        ),
+        color: colors[i % colors.length],
+      });
+    }
+    return result;
+  }, [strandCount]);
+
+  useEffect(
+    () => () => strands.forEach(strand => strand.geometry.dispose()),
+    [strands]
+  );
+
+  useFrame((state, delta) => {
+    if (!groupRef.current) return;
+    const burst = pf.current.burst;
+    const t = state.clock.elapsedTime;
+    groupRef.current.rotation.y += delta * (shouldAnimate ? 0.028 : 0.01);
+    groupRef.current.rotation.z = Math.sin(t * 0.12) * 0.05 - 0.08;
+    groupRef.current.position.x = 0.2 + Math.cos(t * 0.1) * 0.16;
+    groupRef.current.position.y = 0.1 + Math.sin(t * 0.16) * 0.12;
+    groupRef.current.scale.setScalar(
+      THREE.MathUtils.damp(
+        groupRef.current.scale.x,
+        1 + burst * 0.04,
+        3.5,
+        delta
+      )
+    );
+  });
+
+  return (
+    <group ref={groupRef} position={[0.2, 0.1, 0]} rotation={[0.22, 0.18, -0.08]}>
+      {strands.map((strand, i) => (
+        <mesh key={`biomorphic-canopy-${i}`} geometry={strand.geometry}>
+          <meshPhysicalMaterial
+            color={strand.color}
+            emissive={strand.color}
+            emissiveIntensity={0.006}
+            roughness={0.08}
+            metalness={0.02}
+            clearcoat={1}
+            clearcoatRoughness={0.08}
+            iridescence={0.1}
+            iridescenceIOR={1.22}
+            transparent
+            opacity={0.045 - i * 0.008}
+            transmission={0.32}
+            thickness={0.2}
+            depthWrite={false}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+      ))}
+    </group>
   );
 }
 
@@ -3476,11 +3736,14 @@ function LightCards({
   const cards = useMemo(
     () =>
       Array.from({ length: cardCount }, (_, i) => ({
-        angle: (i / cardCount) * Math.PI * 2,
-        radius: 4.9 + (i % 4) * 0.55,
-        y: ((i % 5) - 2) * 0.92,
-        width: 0.28 + (i % 3) * 0.06,
-        height: 2.4 + (i % 4) * 0.36,
+        angle:
+          -1.2 +
+          (i / Math.max(1, cardCount - 1)) * 2.35 +
+          ((i % 2) - 0.5) * 0.16,
+        radius: 4.5 + (i % 3) * 0.7 + (i > cardCount / 2 ? 0.45 : 0),
+        y: -1.4 + ((i % 5) - 2) * 0.86 + (i > cardCount / 2 ? 0.55 : 0),
+        width: 0.22 + (i % 3) * 0.08,
+        height: 2.2 + (i % 4) * 0.42,
         phase: i * 0.5,
       })),
     [cardCount]
@@ -3496,11 +3759,11 @@ function LightCards({
       if (!card) return;
       const mesh = child as THREE.Mesh;
       mesh.position.y = card.y + Math.sin(t * 0.9 + card.phase) * 0.18;
-      mesh.lookAt(0, 0, 6);
+      mesh.lookAt(0.8, 0.2, 6);
       const mat = mesh.material as THREE.MeshBasicMaterial;
       mat.opacity = THREE.MathUtils.damp(
         mat.opacity,
-        0.004 + Math.sin(t * 1.6 + card.phase) * 0.002 + burst * 0.006,
+        0.006 + Math.sin(t * 1.6 + card.phase) * 0.002 + burst * 0.006,
         4,
         delta
       );
@@ -3521,9 +3784,15 @@ function LightCards({
         >
           <planeGeometry args={[card.width, card.height]} />
           <meshBasicMaterial
-            color={i % 2 === 0 ? SCENE_PALETTE.highlight : SCENE_PALETTE.bloom}
+            color={
+              i % 3 === 0
+                ? SCENE_PALETTE.highlight
+                : i % 3 === 1
+                  ? SCENE_PALETTE.bloom
+                  : SCENE_PALETTE.orchid
+            }
             transparent
-            opacity={0.005}
+            opacity={0.006}
             blending={THREE.AdditiveBlending}
             depthWrite={false}
             side={THREE.DoubleSide}
@@ -3547,11 +3816,11 @@ function GlassOrbiters({
   const orbiters = useMemo(
     () =>
       Array.from({ length: orbCount }, (_, i) => ({
-        radius: 3.8 + (i % 4) * 0.55,
+        radius: 3.4 + (i % 4) * 0.72 + (i > orbCount / 2 ? 0.4 : 0),
         speed: 0.16 + (i % 5) * 0.025,
         phase: (i / orbCount) * Math.PI * 2,
-        yAmp: 0.55 + (i % 3) * 0.18,
-        scale: 0.14 + (i % 4) * 0.03,
+        yAmp: 0.45 + (i % 3) * 0.22,
+        scale: 0.14 + (i % 4) * 0.03 + (i === 0 ? 0.05 : 0),
       })),
     [orbCount]
   );
@@ -3566,9 +3835,9 @@ function GlassOrbiters({
       const mesh = child as THREE.Mesh;
       const angle = t * orb.speed + orb.phase;
       mesh.position.set(
-        Math.cos(angle) * orb.radius,
+        Math.cos(angle) * orb.radius + 0.22,
         Math.sin(angle * 1.6 + orb.phase) * orb.yAmp,
-        Math.sin(angle) * orb.radius
+        Math.sin(angle) * orb.radius * 0.82
       );
       mesh.rotation.x += delta * (0.4 + orb.speed);
       mesh.rotation.y -= delta * (0.25 + burst * 0.1);
@@ -3886,13 +4155,13 @@ function HeroScene({
     sceneRef.current.rotation.y += delta * (shouldAnimate ? 0.006 : 0.0025);
     sceneRef.current.position.x = THREE.MathUtils.damp(
       sceneRef.current.position.x,
-      p.current.x * 0.11,
+      -0.28 + p.current.x * 0.11,
       2,
       delta
     );
     sceneRef.current.position.y = THREE.MathUtils.damp(
       sceneRef.current.position.y,
-      p.current.y * 0.08,
+      -0.04 + p.current.y * 0.08,
       2,
       delta
     );
@@ -3921,6 +4190,13 @@ function HeroScene({
       />
       {profile.coreDetail >= 8 && !mobile && (
         <OrganicVeilShells pf={pf} shouldAnimate={shouldAnimate} />
+      )}
+      {profile.glassOrbCount > 1 && !mobile && (
+        <PearlSutureOrbit
+          pf={pf}
+          shouldAnimate={shouldAnimate}
+          beadCount={Math.max(7, profile.glassOrbCount * 3)}
+        />
       )}
       <OrbitalRings pf={pf} ringSegments={profile.ringSegments} />
       <AttractorTrail
@@ -3960,6 +4236,13 @@ function HeroScene({
         shellCount={profile.coreShellCount}
         coreSpeed={profile.coreSpeed}
       />
+      {profile.lightCardCount >= 3 && !mobile && (
+        <BiomorphicCanopy
+          pf={pf}
+          shouldAnimate={shouldAnimate}
+          strandCount={Math.min(3, profile.causticRibbonCount + 1)}
+        />
+      )}
       {profile.eventHorizonRings > 0 && (
         <EventHorizonDisc pf={pf} ringCount={profile.eventHorizonRings} />
       )}

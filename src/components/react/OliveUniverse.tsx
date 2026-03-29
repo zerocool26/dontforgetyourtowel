@@ -286,6 +286,7 @@ export default function OliveUniverse() {
       <div className="universe-stage-aura" aria-hidden="true" />
       <div className="universe-stage-nebula" aria-hidden="true" />
       <div className="universe-stage-silk-haze" aria-hidden="true" />
+      <div className="universe-stage-editorial-shadow" aria-hidden="true" />
       <div className="universe-stage-drafting-grid" aria-hidden="true" />
       <div className="universe-stage-signal-frame" aria-hidden="true" />
       <div className="universe-stage-aperture" aria-hidden="true" />
@@ -312,6 +313,7 @@ export default function OliveUniverse() {
       )}
 
       {/* Atmospheric layers on top of the canvas */}
+      <div className="universe-stage-foreground-veil" aria-hidden="true" />
       <div className="universe-stage-vignette" aria-hidden="true" />
       <div className="universe-stage-film-grain" aria-hidden="true" />
       <div className="universe-stage-scanlines" aria-hidden="true" />
