@@ -40,6 +40,7 @@
 
 .universe-stage-aura,
 .universe-stage-nebula,
+.universe-stage-silk-haze,
 .universe-stage-drafting-grid,
 .universe-stage-signal-frame,
 .universe-stage-aperture,
@@ -91,6 +92,29 @@
   mix-blend-mode: screen;
   animation: nebula-drift 32s ease-in-out infinite alternate;
   filter: blur(88px);
+}
+
+.universe-stage-silk-haze {
+  z-index: 1;
+  opacity: 0.26;
+  background:
+    radial-gradient(
+      ellipse 54% 38% at 50% 48%,
+      rgba(var(--universe-highlight-rgb, 251, 248, 243), 0.02) 0%,
+      rgba(var(--universe-bloom-rgb, 217, 244, 236), 0.016) 28%,
+      transparent 64%
+    ),
+    linear-gradient(
+      125deg,
+      transparent 18%,
+      rgba(var(--universe-mist-rgb, 239, 232, 218), 0.024) 38%,
+      rgba(var(--universe-ember-rgb, 246, 192, 160), 0.014) 48%,
+      rgba(var(--universe-orchid-rgb, 200, 185, 255), 0.014) 58%,
+      transparent 78%
+    );
+  mix-blend-mode: screen;
+  filter: blur(92px);
+  animation: silk-haze-drift 26s ease-in-out infinite alternate;
 }
 
 .universe-stage-vignette {
@@ -424,6 +448,21 @@
   }
 }
 
+@keyframes silk-haze-drift {
+  0% {
+    opacity: 0.18;
+    transform: translate3d(-1%, 0, 0) rotate(-2deg) scale(0.98);
+  }
+  50% {
+    opacity: 0.28;
+    transform: translate3d(1.2%, -1%, 0) rotate(2deg) scale(1.03);
+  }
+  100% {
+    opacity: 0.22;
+    transform: translate3d(0.4%, 0.8%, 0) rotate(-1deg) scale(1.01);
+  }
+}
+
 /* ── Loaded state refinements ──────────────────────────────── */
 
 .universe-wrapper[data-olive-scene='interactive'] .universe-static-visual {
@@ -559,10 +598,26 @@
     filter 0.25s ease-out;
 }
 
+.universe-wrapper[data-olive-interaction='burst'] .universe-stage-silk-haze {
+  opacity: 0.34;
+  filter: blur(80px) saturate(1.03);
+  transition:
+    opacity 0.22s ease-out,
+    filter 0.25s ease-out;
+}
+
 .universe-wrapper[data-olive-interaction='engaged']
   .universe-stage-lumen-weave {
   opacity: 0.18;
   filter: blur(54px) saturate(1);
+  transition:
+    opacity 0.35s ease-out,
+    filter 0.35s ease-out;
+}
+
+.universe-wrapper[data-olive-interaction='engaged'] .universe-stage-silk-haze {
+  opacity: 0.28;
+  filter: blur(86px) saturate(1.01);
   transition:
     opacity 0.35s ease-out,
     filter 0.35s ease-out;
@@ -788,7 +843,7 @@
 
 .universe-stage-drafting-grid {
   z-index: 2;
-  opacity: 0.12;
+  opacity: 0.06;
   background-image:
     radial-gradient(
       circle at 20% 20%,
@@ -828,7 +883,7 @@
   box-shadow:
     inset 0 0 0 1px rgba(var(--universe-bloom-rgb, 217, 244, 236), 0.02),
     0 0 0 1px rgba(var(--universe-shadow-rgb, 3, 10, 20), 0.38);
-  opacity: 0.52;
+  opacity: 0.22;
 }
 
 .universe-stage-signal-frame::before,
@@ -837,8 +892,8 @@
   position: absolute;
   width: 84px;
   height: 84px;
-  border-top: 1px solid rgba(var(--universe-jade-rgb, 116, 201, 183), 0.18);
-  border-left: 1px solid rgba(var(--universe-orchid-rgb, 200, 185, 255), 0.14);
+  border-top: 1px solid rgba(var(--universe-jade-rgb, 116, 201, 183), 0.12);
+  border-left: 1px solid rgba(var(--universe-orchid-rgb, 200, 185, 255), 0.1);
 }
 
 .universe-stage-signal-frame::before {
@@ -888,6 +943,11 @@
   opacity: 0.4;
 }
 
+.universe-wrapper[data-olive-runtime='stability'] .universe-stage-silk-haze {
+  animation: none;
+  opacity: 0.18;
+}
+
 .universe-wrapper[data-olive-runtime='stability'] .universe-stage-temperature,
 .universe-wrapper[data-olive-runtime='stability'] .universe-stage-deephaze,
 .universe-wrapper[data-olive-runtime='stability'] .universe-stage-aurora-glow,
@@ -905,6 +965,7 @@
 @media (prefers-reduced-motion: reduce) {
   .universe-stage-aura,
   .universe-stage-nebula,
+  .universe-stage-silk-haze,
   .universe-stage-film-grain,
   .universe-stage-temperature,
   .universe-stage-deephaze,
@@ -954,12 +1015,19 @@
     filter: blur(50px);
   }
 
+  .universe-stage-silk-haze {
+    filter: blur(60px);
+  }
+
   .universe-stage-signal-frame {
     inset: 18px;
   }
 
   .universe-stage-drafting-grid {
-    background-size: 64px 64px;
+    background-size:
+      88px 88px,
+      88px 88px,
+      100% 100%;
   }
 }
 

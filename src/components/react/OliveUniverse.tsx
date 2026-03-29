@@ -188,7 +188,7 @@ export default function OliveUniverse() {
 
   const triggerPulse = useCallback(() => {
     if (!shouldRenderCanvas || typeof window === 'undefined') return;
-    burstLockUntilRef.current = window.performance.now() + 700;
+    burstLockUntilRef.current = window.performance.now() + 420;
     setInteractionPulse(c => c + 1);
     setInteractionState('burst');
 
@@ -198,7 +198,7 @@ export default function OliveUniverse() {
     interactionTimeoutRef.current = window.setTimeout(() => {
       setInteractionState('idle');
       interactionTimeoutRef.current = null;
-    }, 1200);
+    }, 820);
   }, [shouldRenderCanvas]);
 
   const handleInteractionStateChange = useCallback(
@@ -285,6 +285,7 @@ export default function OliveUniverse() {
       <div className="universe-stage-temperature" aria-hidden="true" />
       <div className="universe-stage-aura" aria-hidden="true" />
       <div className="universe-stage-nebula" aria-hidden="true" />
+      <div className="universe-stage-silk-haze" aria-hidden="true" />
       <div className="universe-stage-drafting-grid" aria-hidden="true" />
       <div className="universe-stage-signal-frame" aria-hidden="true" />
       <div className="universe-stage-aperture" aria-hidden="true" />

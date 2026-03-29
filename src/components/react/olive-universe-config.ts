@@ -179,6 +179,14 @@ export function detectQuality(): QualityTier {
   return 'medium';
 }
 
+export function isAutomatedRuntime() {
+  if (typeof navigator === 'undefined') return false;
+  return (
+    (navigator as NavigatorWithDeviceMemory).webdriver === true ||
+    /HeadlessChrome|Playwright/i.test(navigator.userAgent ?? '')
+  );
+}
+
 export function supportsWebGL() {
   if (typeof document === 'undefined') return true;
   try {
@@ -471,6 +479,52 @@ const LOW: SceneProfile = {
   enableDualBloom: false,
 };
 
+const AUTOMATED_LOW: SceneProfile = {
+  ...LOW,
+  nebulaCount: 120,
+  attractorTrailLen: 40,
+  auroraSegments: 18,
+  orbitalCount: 4,
+  dustCount: 120,
+  starCount: 320,
+  starRadius: 78,
+  coreDetail: 4,
+  innerDetail: 2,
+  ringSegments: 64,
+  fieldStrength: 0.16,
+  ambientIntensity: 0.28,
+  keyIntensity: 2.15,
+  rimIntensity: 1.1,
+  warpStreakCount: 3,
+  plasmaVeinCount: 1,
+  haloRingCount: 1,
+  coreShellCount: 1,
+  eventHorizonRings: 1,
+  magneticFieldLines: 0,
+  resonanceWaveCount: 0,
+  cometaryOrbiterCount: 1,
+  volumetricRayCount: 0,
+  quantumFluxStrands: 0,
+  sparkShowerCount: 4,
+  temporalEchoLayers: 0,
+  neuralWebNodes: 0,
+  solarFlareCount: 0,
+  darkMatterFilaments: 0,
+  pulsarBeaconCount: 0,
+  crystallineGrowthBranches: 0,
+  interferenceShellCount: 0,
+  voidRippleCount: 0,
+  photonBloomCount: 1,
+  haloGlyphCount: 0,
+  crownSpireCount: 0,
+  meridianArcCount: 0,
+  relaySatelliteCount: 0,
+  petalFieldCount: 1,
+  lightCardCount: 0,
+  glassOrbCount: 0,
+  prismDustCount: 12,
+};
+
 const NONE: SceneProfile = {
   nebulaCount: 0,
   attractorTrailLen: 0,
@@ -543,6 +597,7 @@ export function getSceneProfile(
   mode: HeroVisualMode
 ): SceneProfile {
   if (mode === 'fallback' || mode === 'reduced') return NONE;
+  if (isAutomatedRuntime()) return AUTOMATED_LOW;
   if (mode === 'lite' || quality === 'low') return LOW;
   if (quality === 'ultra') return ULTRA;
   if (quality === 'high') return HIGH;

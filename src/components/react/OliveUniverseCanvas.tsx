@@ -446,6 +446,134 @@ function CrystallineCore({
   );
 }
 
+function OrganicVeilShells({
+  pf,
+  shouldAnimate,
+}: {
+  pf: MutableRefObject<PointerField>;
+  shouldAnimate: boolean;
+}) {
+  const outerRef = useRef<THREE.Mesh>(null);
+  const innerRef = useRef<THREE.Mesh>(null);
+
+  useFrame((state, delta) => {
+    const t = state.clock.elapsedTime;
+    const burst = pf.current.burst;
+
+    if (outerRef.current) {
+      outerRef.current.rotation.y += delta * (shouldAnimate ? 0.045 : 0.016);
+      outerRef.current.rotation.x = Math.sin(t * 0.22) * 0.14 + 0.4;
+      outerRef.current.rotation.z = Math.cos(t * 0.17) * 0.16 - 0.22;
+      outerRef.current.scale.set(
+        THREE.MathUtils.damp(
+          outerRef.current.scale.x,
+          2.82 + burst * 0.08,
+          3,
+          delta
+        ),
+        THREE.MathUtils.damp(
+          outerRef.current.scale.y,
+          1.82 + burst * 0.04,
+          3,
+          delta
+        ),
+        THREE.MathUtils.damp(
+          outerRef.current.scale.z,
+          2.36 + burst * 0.06,
+          3,
+          delta
+        )
+      );
+    }
+
+    if (innerRef.current) {
+      innerRef.current.rotation.y -= delta * (shouldAnimate ? 0.038 : 0.014);
+      innerRef.current.rotation.x = -0.52 + Math.cos(t * 0.19) * 0.12;
+      innerRef.current.rotation.z = 0.38 + Math.sin(t * 0.14) * 0.15;
+      innerRef.current.scale.set(
+        THREE.MathUtils.damp(
+          innerRef.current.scale.x,
+          2.24 + burst * 0.05,
+          3,
+          delta
+        ),
+        THREE.MathUtils.damp(
+          innerRef.current.scale.y,
+          1.48 + burst * 0.03,
+          3,
+          delta
+        ),
+        THREE.MathUtils.damp(
+          innerRef.current.scale.z,
+          2.84 + burst * 0.08,
+          3,
+          delta
+        )
+      );
+    }
+  });
+
+  return (
+    <>
+      <mesh
+        ref={outerRef}
+        scale={[2.82, 1.82, 2.36]}
+        rotation={[0.4, 0, -0.22]}
+      >
+        <sphereGeometry args={[1, 54, 54]} />
+        <meshPhysicalMaterial
+          color={SCENE_PALETTE.bloom}
+          emissive={SCENE_PALETTE.bloom}
+          emissiveIntensity={0.006}
+          roughness={0.05}
+          metalness={0.04}
+          clearcoat={1}
+          clearcoatRoughness={0.03}
+          iridescence={0.08}
+          iridescenceIOR={1.2}
+          transmission={0.58}
+          thickness={0.38}
+          ior={1.23}
+          attenuationDistance={2.6}
+          attenuationColor={SCENE_PALETTE.mist}
+          transparent
+          opacity={0.09}
+          depthWrite={false}
+          side={THREE.DoubleSide}
+          envMapIntensity={1.05}
+        />
+      </mesh>
+
+      <mesh
+        ref={innerRef}
+        scale={[2.24, 1.48, 2.84]}
+        rotation={[-0.52, 0.3, 0.38]}
+      >
+        <sphereGeometry args={[1, 42, 42]} />
+        <meshPhysicalMaterial
+          color={SCENE_PALETTE.orchid}
+          emissive={SCENE_PALETTE.jade}
+          emissiveIntensity={0.004}
+          roughness={0.07}
+          metalness={0.02}
+          clearcoat={1}
+          clearcoatRoughness={0.05}
+          transmission={0.34}
+          thickness={0.28}
+          ior={1.18}
+          attenuationDistance={2.2}
+          attenuationColor={SCENE_PALETTE.ember}
+          transparent
+          opacity={0.06}
+          depthWrite={false}
+          side={THREE.DoubleSide}
+          envMapIntensity={0.92}
+        />
+      </mesh>
+    </>
+  );
+}
+
 /* ── Orbital rings with varying tilt ─────────────────────────── */
 
 function OrbitalRings({
@@ -3770,6 +3898,9 @@ function HeroScene({
         innerDetail={profile.innerDetail}
         coreSpeed={profile.coreSpeed}
       />
+      {profile.coreDetail >= 8 && !mobile && (
+        <OrganicVeilShells pf={pf} shouldAnimate={shouldAnimate} />
+      )}
       <OrbitalRings pf={pf} ringSegments={profile.ringSegments} />
       <AttractorTrail
         pf={pf}
@@ -3965,7 +4096,7 @@ export default function OliveUniverseCanvas({
       interactionTimeout.current = window.setTimeout(() => {
         setInteractionState(pf.current.down ? 'engaged' : 'idle');
         interactionTimeout.current = null;
-      }, 560);
+      }, 420);
     }
   }, []);
 
@@ -3990,7 +4121,7 @@ export default function OliveUniverseCanvas({
       interactionTimeout.current = window.setTimeout(() => {
         setInteractionState('idle');
         interactionTimeout.current = null;
-      }, 420);
+      }, 320);
     }
   }, []);
 
@@ -4041,10 +4172,7 @@ export default function OliveUniverseCanvas({
         pf.current.down = true;
         commitBurst(0.9);
       }}
-      onPointerUp={() => {
-        pf.current.down = false;
-        setInteractionState(cur => (cur === 'burst' ? cur : 'engaged'));
-      }}
+      onPointerUp={releasePointer}
       onPointerLeave={releasePointer}
       onPointerCancel={releasePointer}
     >
