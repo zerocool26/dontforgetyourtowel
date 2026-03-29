@@ -231,6 +231,10 @@ export default function OliveUniverse() {
     () => hexToRgbString(SCENE_PALETTE.highlight),
     []
   );
+  const shadowRgb = useMemo(() => hexToRgbString(SCENE_PALETTE.shadow), []);
+  const mistRgb = useMemo(() => hexToRgbString(SCENE_PALETTE.mist), []);
+  const emberRgb = useMemo(() => hexToRgbString(SCENE_PALETTE.ember), []);
+  const signalRgb = useMemo(() => hexToRgbString(SCENE_PALETTE.signal), []);
 
   return (
     <section
@@ -257,6 +261,10 @@ export default function OliveUniverse() {
           '--universe-tertiary-rgb': tertiaryRgb,
           '--universe-warm-rgb': warmRgb,
           '--universe-highlight-rgb': highlightRgb,
+          '--universe-shadow-rgb': shadowRgb,
+          '--universe-mist-rgb': mistRgb,
+          '--universe-ember-rgb': emberRgb,
+          '--universe-signal-rgb': signalRgb,
         } as CSSProperties
       }
       onPointerDownCapture={triggerPulse}
@@ -271,6 +279,9 @@ export default function OliveUniverse() {
       <div className="universe-stage-temperature" aria-hidden="true" />
       <div className="universe-stage-aura" aria-hidden="true" />
       <div className="universe-stage-nebula" aria-hidden="true" />
+      <div className="universe-stage-drafting-grid" aria-hidden="true" />
+      <div className="universe-stage-signal-frame" aria-hidden="true" />
+      <div className="universe-stage-aperture" aria-hidden="true" />
 
       {/* 3D Canvas or fallback */}
       {shouldRenderCanvas ? (

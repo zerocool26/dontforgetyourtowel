@@ -10,7 +10,7 @@ import {
 } from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Stars } from '@react-three/drei';
+import { Environment, Lightformer, Stars } from '@react-three/drei';
 import {
   Bloom,
   ChromaticAberration,
@@ -52,6 +52,18 @@ export interface OliveUniverseCanvasProps {
   onInteractionStateChange?: (state: 'idle' | 'engaged' | 'burst') => void;
   onPerformanceBudgetExceeded?: () => void;
   onReady?: () => void;
+}
+
+const CURATED_SPECTRUM = [
+  SCENE_PALETTE.highlight,
+  SCENE_PALETTE.secondary,
+  SCENE_PALETTE.signal,
+  SCENE_PALETTE.accent,
+  SCENE_PALETTE.ember,
+] as const;
+
+function pickSpectrumColor(index: number) {
+  return CURATED_SPECTRUM[index % CURATED_SPECTRUM.length];
 }
 
 /* ── Utility: Lorenz attractor points ────────────────────────── */
@@ -152,6 +164,53 @@ function PerformanceBudgetGuard({
   return null;
 }
 
+function ArtDirectedEnvironment({ mobile }: { mobile: boolean }) {
+  return (
+    <Environment resolution={mobile ? 72 : 112} frames={1}>
+      <color attach="background" args={[SCENE_PALETTE.backgroundFrom]} />
+      <Lightformer
+        form="ring"
+        color={SCENE_PALETTE.highlight}
+        intensity={1.5}
+        position={[0, 0.6, 6]}
+        scale={[2.4, 2.4, 1]}
+      />
+      <Lightformer
+        form="rect"
+        color={SCENE_PALETTE.secondary}
+        intensity={1.1}
+        position={[-5, 1.8, 3]}
+        rotation={[0, Math.PI / 3, 0]}
+        scale={[1.4, 8.5, 1]}
+      />
+      <Lightformer
+        form="rect"
+        color={SCENE_PALETTE.accent}
+        intensity={0.8}
+        position={[4.8, -1.6, 2]}
+        rotation={[0, -Math.PI / 3.6, 0]}
+        scale={[1.2, 6.5, 1]}
+      />
+      <Lightformer
+        form="circle"
+        color={SCENE_PALETTE.ember}
+        intensity={0.7}
+        position={[0, -4.6, -1]}
+        rotation={[Math.PI / 2, 0, 0]}
+        scale={[6.5, 6.5, 1]}
+      />
+      <Lightformer
+        form="rect"
+        color={SCENE_PALETTE.signal}
+        intensity={0.45}
+        position={[0, 6, -6]}
+        rotation={[0, Math.PI, 0]}
+        scale={[10, 5.5, 1]}
+      />
+    </Environment>
+  );
+}
+
 /* ── Camera rig with inertia + parallax ──────────────────────── */
 
 function CameraRig({
@@ -228,6 +287,7 @@ function CrystallineCore({
   const innerRef = useRef<THREE.Mesh>(null);
   const shellMatRef = useRef<THREE.MeshPhysicalMaterial>(null);
   const innerMatRef = useRef<THREE.MeshStandardMaterial>(null);
+  const mantleMatRef = useRef<THREE.MeshPhysicalMaterial>(null);
 
   useFrame((state, delta) => {
     const p = pf.current;
@@ -247,6 +307,7 @@ function CrystallineCore({
     if (shellRef.current) {
       shellRef.current.rotation.y -= delta * 0.12;
       shellRef.current.rotation.z += delta * 0.06;
+      shellRef.current.rotation.x = Math.sin(t * 0.23) * 0.12;
     }
 
     if (innerRef.current) {
@@ -260,13 +321,13 @@ function CrystallineCore({
     if (shellMatRef.current) {
       shellMatRef.current.emissiveIntensity = THREE.MathUtils.damp(
         shellMatRef.current.emissiveIntensity,
-        0.03 + p.burst * 0.08,
+        0.015 + p.burst * 0.04,
         4,
         delta
       );
       shellMatRef.current.opacity = THREE.MathUtils.damp(
         shellMatRef.current.opacity,
-        0.1 + p.burst * 0.03,
+        0.18 + p.burst * 0.04,
         3,
         delta
       );
@@ -275,8 +336,23 @@ function CrystallineCore({
     if (innerMatRef.current) {
       innerMatRef.current.emissiveIntensity = THREE.MathUtils.damp(
         innerMatRef.current.emissiveIntensity,
-        0.08 + p.burst * 0.12 + Math.sin(t * 1.2) * 0.02,
+        0.04 + p.burst * 0.07 + Math.sin(t * 1.2) * 0.01,
         4,
+        delta
+      );
+    }
+
+    if (mantleMatRef.current) {
+      mantleMatRef.current.opacity = THREE.MathUtils.damp(
+        mantleMatRef.current.opacity,
+        0.08 + p.burst * 0.025,
+        3.5,
+        delta
+      );
+      mantleMatRef.current.emissiveIntensity = THREE.MathUtils.damp(
+        mantleMatRef.current.emissiveIntensity,
+        0.01 + p.burst * 0.02,
+        3.5,
         delta
       );
     }
@@ -284,65 +360,78 @@ function CrystallineCore({
 
   return (
     <group ref={groupRef}>
-      {/* Outer shell — refractive wireframe icosahedron */}
-      <mesh ref={shellRef}>
+      {/* Outer shell — faceted glass body */}
+      <mesh ref={shellRef} scale={[1.04, 0.96, 1.08]}>
         <icosahedronGeometry args={[2.2, coreDetail]} />
         <meshPhysicalMaterial
           ref={shellMatRef}
-          color={SCENE_PALETTE.secondary}
-          emissive={SCENE_PALETTE.accent}
-          emissiveIntensity={0.03}
-          roughness={0.03}
-          metalness={0.35}
+          color={SCENE_PALETTE.mist}
+          emissive={SCENE_PALETTE.signal}
+          emissiveIntensity={0.015}
+          roughness={0.08}
+          metalness={0.22}
           clearcoat={1}
-          clearcoatRoughness={0.08}
-          iridescence={0.15}
+          clearcoatRoughness={0.04}
+          iridescence={0.22}
           iridescenceIOR={1.5}
-          reflectivity={0.7}
+          reflectivity={0.86}
           transparent
-          opacity={0.1}
-          transmission={0.65}
-          thickness={1.0}
-          ior={1.5}
-          attenuationDistance={3.0}
+          opacity={0.18}
+          transmission={0.86}
+          thickness={1.35}
+          ior={1.42}
+          attenuationDistance={3.8}
           attenuationColor={SCENE_PALETTE.secondary}
-          wireframe
-          envMapIntensity={0.6}
+          envMapIntensity={1.45}
         />
       </mesh>
 
-      {/* Inner glow sphere */}
+      <mesh scale={[1.09, 1.01, 0.95]} rotation={[0.1, 0.2, 0.35]}>
+        <icosahedronGeometry args={[2.26, Math.max(1, coreDetail - 2)]} />
+        <meshBasicMaterial
+          color={SCENE_PALETTE.signal}
+          transparent
+          opacity={0.018}
+          wireframe
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+        />
+      </mesh>
+
+      {/* Inner pearl core */}
       <mesh ref={innerRef} scale={0.72}>
         <icosahedronGeometry args={[1, innerDetail]} />
         <meshStandardMaterial
           ref={innerMatRef}
           color={SCENE_PALETTE.core}
           emissive={SCENE_PALETTE.accent}
-          emissiveIntensity={0.08}
-          roughness={0.35}
-          metalness={0.15}
+          emissiveIntensity={0.04}
+          roughness={0.26}
+          metalness={0.22}
         />
       </mesh>
 
-      {/* Glass mantle between shell and inner */}
-      <mesh scale={1.4}>
+      {/* Secondary mantle for richer layered refraction */}
+      <mesh scale={[1.46, 1.26, 1.34]} rotation={[0.45, 0.2, -0.1]}>
         <icosahedronGeometry args={[1, Math.max(1, coreDetail - 1)]} />
         <meshPhysicalMaterial
-          color={SCENE_PALETTE.tertiary}
-          emissive={SCENE_PALETTE.tertiary}
+          ref={mantleMatRef}
+          color={SCENE_PALETTE.signal}
+          emissive={SCENE_PALETTE.secondary}
           emissiveIntensity={0.01}
-          roughness={0.05}
-          metalness={0.15}
+          roughness={0.06}
+          metalness={0.18}
           clearcoat={1}
-          clearcoatRoughness={0.1}
-          iridescence={0.12}
+          clearcoatRoughness={0.08}
+          iridescence={0.18}
           iridescenceIOR={1.35}
           transparent
-          opacity={0.04}
-          transmission={0.7}
-          thickness={0.6}
-          attenuationDistance={2.5}
+          opacity={0.08}
+          transmission={0.64}
+          thickness={0.95}
+          attenuationDistance={3.2}
           attenuationColor={SCENE_PALETTE.tertiary}
+          envMapIntensity={1.2}
         />
       </mesh>
     </group>
@@ -983,18 +1072,7 @@ function PrismaticHalo({
   ringCount: number;
 }) {
   const groupRef = useRef<THREE.Group>(null);
-  const spectrumColors = useMemo(
-    () => [
-      '#ff3355',
-      '#ff8833',
-      '#ffdd33',
-      '#33ff88',
-      '#33ddff',
-      '#5533ff',
-      '#cc33ff',
-    ],
-    []
-  );
+  const spectrumColors = useMemo(() => CURATED_SPECTRUM, []);
 
   useFrame((state, delta) => {
     if (!groupRef.current) return;
@@ -1010,15 +1088,19 @@ function PrismaticHalo({
   return (
     <group ref={groupRef} position={[0, 0.15, 0]}>
       {Array.from({ length: ringCount }, (_, i) => {
-        const baseR = 6.5 + i * 0.22;
+        const baseR = 6.3 + i * 0.3;
         const colorIdx = i % spectrumColors.length;
         return (
-          <mesh key={`halo-${i}`}>
-            <torusGeometry args={[baseR, 0.01 + i * 0.003, 6, 180]} />
+          <mesh
+            key={`halo-${i}`}
+            scale={[1 + i * 0.015, 0.76 + i * 0.02, 1]}
+            rotation={[0, i * 0.18, i * 0.1]}
+          >
+            <torusGeometry args={[baseR, 0.008 + i * 0.0025, 8, 220]} />
             <meshBasicMaterial
               color={spectrumColors[colorIdx]}
               transparent
-              opacity={Math.max(0.005, 0.02 - i * 0.003)}
+              opacity={Math.max(0.004, 0.014 - i * 0.0015)}
               blending={THREE.AdditiveBlending}
               depthWrite={false}
             />
@@ -1559,7 +1641,7 @@ function SubspaceGrid({ pf }: { pf: MutableRefObject<PointerField> }) {
       <meshBasicMaterial
         color={SCENE_PALETTE.secondary}
         transparent
-        opacity={0.025}
+        opacity={0.01}
         wireframe
         blending={THREE.AdditiveBlending}
         depthWrite={false}
@@ -1634,7 +1716,7 @@ function QuantumFlux({
           <meshBasicMaterial
             color={strand.color}
             transparent
-            opacity={0.065 + (i % 3) * 0.015}
+            opacity={0.02 + (i % 3) * 0.005}
             blending={THREE.AdditiveBlending}
             depthWrite={false}
             side={THREE.DoubleSide}
@@ -1717,8 +1799,8 @@ function SparkShower({
       <pointsMaterial
         color={SCENE_PALETTE.accent}
         transparent
-        opacity={0.3}
-        size={0.4}
+        opacity={0.08}
+        size={0.2}
         sizeAttenuation
         blending={THREE.AdditiveBlending}
         depthWrite={false}
@@ -1897,7 +1979,7 @@ function NeuralWeb({
       Math.sin(state.clock.elapsedTime * 0.04) * 0.04;
     lineMaterial.opacity = THREE.MathUtils.damp(
       lineMaterial.opacity,
-      0.04 + burst * 0.08,
+      0.015 + burst * 0.03,
       4,
       delta
     );
@@ -1907,7 +1989,7 @@ function NeuralWeb({
     <group ref={groupRef}>
       {nodePositions.map((pos, i) => (
         <mesh key={`nw-${i}`} position={pos} scale={0.025 + (i % 4) * 0.008}>
-          <sphereGeometry args={[1, 6, 6]} />
+          <sphereGeometry args={[1, 8, 8]} />
           <meshBasicMaterial
             color={
               i % 3 === 0
@@ -1917,7 +1999,7 @@ function NeuralWeb({
                   : SCENE_PALETTE.tertiary
             }
             transparent
-            opacity={0.5}
+            opacity={0.2}
             blending={THREE.AdditiveBlending}
             depthWrite={false}
           />
@@ -1942,7 +2024,7 @@ function GravitationalLens({ pf }: { pf: MutableRefObject<PointerField> }) {
     const mat = meshRef.current.material as THREE.MeshPhysicalMaterial;
     mat.opacity = THREE.MathUtils.damp(
       mat.opacity,
-      0.06 + burst * 0.04,
+      0.008 + burst * 0.012,
       4,
       delta
     );
@@ -1954,7 +2036,7 @@ function GravitationalLens({ pf }: { pf: MutableRefObject<PointerField> }) {
 
   return (
     <mesh ref={meshRef} scale={3.2}>
-      <sphereGeometry args={[1, 42, 42]} />
+      <sphereGeometry args={[1, 48, 48]} />
       <meshPhysicalMaterial
         color={SCENE_PALETTE.highlight}
         transparent
@@ -2878,7 +2960,7 @@ function CrownSpires({
       const mat = mesh.material as THREE.MeshPhysicalMaterial;
       mat.emissiveIntensity = THREE.MathUtils.damp(
         mat.emissiveIntensity,
-        0.5 + burst * 1.6 + Math.sin(t * 2.3 + spire.phase) * 0.2,
+        0.04 + burst * 0.12 + Math.sin(t * 2.3 + spire.phase) * 0.015,
         4,
         delta
       );
@@ -2893,17 +2975,16 @@ function CrownSpires({
           position={spire.position}
           rotation={[spire.rotation[0], spire.rotation[1], spire.rotation[2]]}
         >
-          <coneGeometry args={[spire.width, spire.length, 6, 1, false]} />
+          <coneGeometry args={[spire.width, spire.length, 12, 1, false]} />
           <meshPhysicalMaterial
             color={i % 2 === 0 ? SCENE_PALETTE.core : SCENE_PALETTE.secondary}
             emissive={i % 2 === 0 ? SCENE_PALETTE.accent : SCENE_PALETTE.warm}
-            emissiveIntensity={0.5}
-            roughness={0.08}
-            metalness={0.4}
-            transmission={0.22}
+            emissiveIntensity={0.04}
+            roughness={0.06}
+            metalness={0.45}
+            transmission={0.35}
             transparent
-            opacity={0.82}
-            toneMapped={false}
+            opacity={0.35}
           />
         </mesh>
       ))}
@@ -2924,11 +3005,6 @@ function MeridianArcs({
 
   const arcs = useMemo(() => {
     const result: { geometry: THREE.TubeGeometry; color: string }[] = [];
-    const colors = [
-      SCENE_PALETTE.secondary,
-      SCENE_PALETTE.accent,
-      SCENE_PALETTE.tertiary,
-    ];
     for (let i = 0; i < arcCount; i++) {
       const phi = (i / arcCount) * Math.PI * 2;
       const points: THREE.Vector3[] = [];
@@ -2956,7 +3032,7 @@ function MeridianArcs({
           4,
           false
         ),
-        color: colors[i % colors.length],
+        color: pickSpectrumColor(i + 1),
       });
     }
     return result;
@@ -2979,7 +3055,7 @@ function MeridianArcs({
           <meshBasicMaterial
             color={arc.color}
             transparent
-            opacity={0.055 + (i % 3) * 0.012}
+            opacity={0.02 + (i % 3) * 0.004}
             blending={THREE.AdditiveBlending}
             depthWrite={false}
           />
@@ -3038,25 +3114,23 @@ function RelaySatellites({
       {satellites.map((sat, i) => (
         <group key={`relay-sat-${i}`} scale={sat.scale}>
           <mesh>
-            <torusGeometry args={[0.9, 0.08, 10, 56]} />
+            <torusGeometry args={[0.9, 0.08, 14, 80]} />
             <meshBasicMaterial
-              color={
-                i % 2 === 0 ? SCENE_PALETTE.secondary : SCENE_PALETTE.tertiary
-              }
+              color={pickSpectrumColor(i + 2)}
               transparent
-              opacity={0.05}
+              opacity={0.02}
               blending={THREE.AdditiveBlending}
               depthWrite={false}
             />
           </mesh>
           <mesh>
-            <sphereGeometry args={[0.22, 16, 16]} />
+            <sphereGeometry args={[0.22, 20, 20]} />
             <meshStandardMaterial
               color={SCENE_PALETTE.highlight}
-              emissive={i % 2 === 0 ? SCENE_PALETTE.accent : SCENE_PALETTE.warm}
-              emissiveIntensity={0.4}
-              roughness={0.2}
-              metalness={0.12}
+              emissive={pickSpectrumColor(i + 1)}
+              emissiveIntensity={0.04}
+              roughness={0.15}
+              metalness={0.2}
             />
           </mesh>
         </group>
@@ -3112,7 +3186,7 @@ function PetalField({
       const mat = mesh.material as THREE.MeshBasicMaterial;
       mat.opacity = THREE.MathUtils.damp(
         mat.opacity,
-        0.03 + Math.sin(t * 1.6 + petal.phase) * 0.01 + burst * 0.02,
+        0.01 + Math.sin(t * 1.6 + petal.phase) * 0.003 + burst * 0.008,
         4,
         delta
       );
@@ -3132,11 +3206,11 @@ function PetalField({
           rotation={[Math.PI / 2 + petal.tilt, petal.angle, 0]}
           scale={[petal.scaleX, petal.scaleY, 1]}
         >
-          <circleGeometry args={[1, 44]} />
+          <circleGeometry args={[1, 64]} />
           <meshBasicMaterial
             color={i % 2 === 0 ? SCENE_PALETTE.warm : SCENE_PALETTE.accent}
             transparent
-            opacity={0.03}
+            opacity={0.01}
             blending={THREE.AdditiveBlending}
             depthWrite={false}
             side={THREE.DoubleSide}
@@ -3194,7 +3268,7 @@ function LitOrbitCage({ pf }: { pf: MutableRefObject<PointerField> }) {
         <meshBasicMaterial
           color={SCENE_PALETTE.secondary}
           transparent
-          opacity={0.02}
+          opacity={0.008}
           wireframe
           blending={THREE.AdditiveBlending}
           depthWrite={false}
@@ -3205,7 +3279,7 @@ function LitOrbitCage({ pf }: { pf: MutableRefObject<PointerField> }) {
         <meshBasicMaterial
           color={SCENE_PALETTE.tertiary}
           transparent
-          opacity={0.014}
+          opacity={0.006}
           wireframe
           blending={THREE.AdditiveBlending}
           depthWrite={false}
@@ -3216,7 +3290,7 @@ function LitOrbitCage({ pf }: { pf: MutableRefObject<PointerField> }) {
         <meshBasicMaterial
           color={SCENE_PALETTE.accent}
           transparent
-          opacity={0.015}
+          opacity={0.006}
           wireframe
           blending={THREE.AdditiveBlending}
           depthWrite={false}
@@ -3240,10 +3314,10 @@ function LightCards({
     () =>
       Array.from({ length: cardCount }, (_, i) => ({
         angle: (i / cardCount) * Math.PI * 2,
-        radius: 4.6 + (i % 4) * 0.45,
-        y: ((i % 5) - 2) * 0.8,
-        width: 0.35 + (i % 3) * 0.08,
-        height: 1.6 + (i % 4) * 0.22,
+        radius: 4.9 + (i % 4) * 0.55,
+        y: ((i % 5) - 2) * 0.92,
+        width: 0.28 + (i % 3) * 0.06,
+        height: 1.9 + (i % 4) * 0.28,
         phase: i * 0.5,
       })),
     [cardCount]
@@ -3263,7 +3337,7 @@ function LightCards({
       const mat = mesh.material as THREE.MeshBasicMaterial;
       mat.opacity = THREE.MathUtils.damp(
         mat.opacity,
-        0.012 + Math.sin(t * 1.6 + card.phase) * 0.004 + burst * 0.015,
+        0.004 + Math.sin(t * 1.6 + card.phase) * 0.002 + burst * 0.006,
         4,
         delta
       );
@@ -3284,11 +3358,9 @@ function LightCards({
         >
           <planeGeometry args={[card.width, card.height]} />
           <meshBasicMaterial
-            color={
-              i % 2 === 0 ? SCENE_PALETTE.highlight : SCENE_PALETTE.secondary
-            }
+            color={i % 2 === 0 ? SCENE_PALETTE.highlight : SCENE_PALETTE.mist}
             transparent
-            opacity={0.012}
+            opacity={0.004}
             blending={THREE.AdditiveBlending}
             depthWrite={false}
             side={THREE.DoubleSide}
@@ -3343,7 +3415,7 @@ function GlassOrbiters({
       const mat = mesh.material as THREE.MeshPhysicalMaterial;
       mat.emissiveIntensity = THREE.MathUtils.damp(
         mat.emissiveIntensity,
-        0.04 + burst * 0.12,
+        0.01 + burst * 0.04,
         4,
         delta
       );
@@ -3354,26 +3426,25 @@ function GlassOrbiters({
     <group ref={groupRef}>
       {orbiters.map((orb, i) => (
         <mesh key={`glass-orb-${i}`} scale={orb.scale}>
-          <sphereGeometry args={[1, 32, 32]} />
+          <sphereGeometry args={[1, 48, 48]} />
           <meshPhysicalMaterial
-            color={
-              i % 2 === 0 ? SCENE_PALETTE.secondary : SCENE_PALETTE.highlight
-            }
-            emissive={SCENE_PALETTE.accent}
-            emissiveIntensity={0.04}
-            roughness={0.04}
-            metalness={0.08}
+            color={i % 2 === 0 ? SCENE_PALETTE.mist : SCENE_PALETTE.highlight}
+            emissive={pickSpectrumColor(i + 1)}
+            emissiveIntensity={0.01}
+            roughness={0.03}
+            metalness={0.06}
             clearcoat={1}
-            clearcoatRoughness={0.08}
-            iridescence={0.4}
+            clearcoatRoughness={0.06}
+            iridescence={0.28}
             iridescenceIOR={1.25}
-            transmission={0.78}
-            thickness={0.45}
+            transmission={0.9}
+            thickness={0.78}
             ior={1.55}
             attenuationDistance={1.2}
             attenuationColor={SCENE_PALETTE.secondary}
             transparent
-            opacity={0.46}
+            opacity={0.56}
+            envMapIntensity={1.3}
           />
         </mesh>
       ))}
@@ -3450,16 +3521,16 @@ function CausticRibbons({
           <meshPhysicalMaterial
             color={ribbon.color}
             emissive={ribbon.color}
-            emissiveIntensity={0.06}
-            roughness={0.12}
-            metalness={0.1}
+            emissiveIntensity={0.01}
+            roughness={0.1}
+            metalness={0.08}
             clearcoat={1}
-            clearcoatRoughness={0.16}
-            iridescence={0.35}
+            clearcoatRoughness={0.12}
+            iridescence={0.2}
             iridescenceIOR={1.3}
             transparent
-            opacity={0.08}
-            transmission={0.12}
+            opacity={0.03}
+            transmission={0.18}
             depthWrite={false}
           />
         </mesh>
@@ -3527,8 +3598,8 @@ function PrismDust({
       <pointsMaterial
         vertexColors
         transparent
-        opacity={0.09}
-        size={0.58}
+        opacity={0.03}
+        size={0.3}
         sizeAttenuation
         blending={THREE.AdditiveBlending}
         depthWrite={false}
@@ -3589,43 +3660,43 @@ function SceneLighting({
         color={SCENE_PALETTE.highlight}
       />
       <hemisphereLight
-        intensity={0.42}
+        intensity={0.34}
         groundColor={SCENE_PALETTE.deep}
-        color={SCENE_PALETTE.secondary}
+        color={SCENE_PALETTE.signal}
       />
       <pointLight
         ref={keyRef}
-        position={[0, 0.5, 5.5]}
-        color={SCENE_PALETTE.accent}
+        position={[0.5, 1.1, 5.8]}
+        color={SCENE_PALETTE.highlight}
         intensity={keyIntensity}
         distance={30}
         decay={1.8}
       />
       <pointLight
         ref={rimRef}
-        position={[-6, 5, -3]}
-        color={SCENE_PALETTE.tertiary}
+        position={[-6.5, 4.5, -2.5]}
+        color={SCENE_PALETTE.secondary}
         intensity={rimIntensity}
         distance={35}
         decay={2}
       />
       <pointLight
         ref={accentRef}
-        position={[5, -2, 4]}
+        position={[5.6, -2.4, 3.6]}
         color={SCENE_PALETTE.warm}
         intensity={2.2}
         distance={25}
         decay={2.2}
       />
       <directionalLight
-        position={[3, 7, 3]}
-        intensity={0.82}
-        color={SCENE_PALETTE.highlight}
+        position={[3.5, 6.5, 4]}
+        intensity={0.64}
+        color={SCENE_PALETTE.mist}
       />
       <directionalLight
         position={[-4, -3, -5]}
-        intensity={0.24}
-        color={SCENE_PALETTE.secondary}
+        intensity={0.18}
+        color={SCENE_PALETTE.signal}
       />
     </>
   );
@@ -3867,8 +3938,8 @@ export default function OliveUniverseCanvas({
     []
   );
 
-  useEffect(() => {
-    pf.current.burst = Math.min(pf.current.burst + 1.1, 1.5);
+  const commitBurst = useCallback((amount: number) => {
+    pf.current.burst = Math.min(pf.current.burst + amount, 1.5);
     setInteractionState('burst');
 
     if (interactionTimeout.current !== null && typeof window !== 'undefined') {
@@ -3880,7 +3951,11 @@ export default function OliveUniverseCanvas({
         interactionTimeout.current = null;
       }, 560);
     }
-  }, [interactionPulse]);
+  }, []);
+
+  useEffect(() => {
+    commitBurst(1.1);
+  }, [commitBurst, interactionPulse]);
 
   const updatePointer = useCallback((cx: number, cy: number) => {
     if (typeof window === 'undefined') return;
@@ -3933,8 +4008,13 @@ export default function OliveUniverseCanvas({
         gl.setClearColor(SCENE_PALETTE.backgroundFrom, 0);
         gl.toneMapping = THREE.ACESFilmicToneMapping;
         gl.toneMappingExposure =
-          quality === 'ultra' ? 0.94 : quality === 'high' ? 0.96 : 0.98;
+          quality === 'ultra' ? 0.92 : quality === 'high' ? 0.95 : 0.98;
         gl.domElement.dataset.heroCanvas = 'true';
+        if (typeof window !== 'undefined') {
+          window.requestAnimationFrame(() => onReady?.());
+        } else {
+          onReady?.();
+        }
       }}
       onPointerMove={e => {
         updatePointer(e.clientX, e.clientY);
@@ -3943,12 +4023,11 @@ export default function OliveUniverseCanvas({
       onPointerDown={e => {
         updatePointer(e.clientX, e.clientY);
         pf.current.down = true;
-        pf.current.burst = Math.min(pf.current.burst + 0.9, 1.5);
-        setInteractionState('burst');
+        commitBurst(0.9);
       }}
       onPointerUp={() => {
         pf.current.down = false;
-        setInteractionState('engaged');
+        setInteractionState(cur => (cur === 'burst' ? cur : 'engaged'));
       }}
       onPointerLeave={releasePointer}
       onPointerCancel={releasePointer}
@@ -3973,6 +4052,7 @@ export default function OliveUniverseCanvas({
         parallax={sceneProfile.parallaxDepth}
         fieldStrength={sceneProfile.fieldStrength}
       />
+      <ArtDirectedEnvironment mobile={mobileOptimized} />
       <SceneLighting
         pf={pf}
         keyIntensity={sceneProfile.keyIntensity}

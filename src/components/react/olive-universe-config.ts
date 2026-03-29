@@ -2,6 +2,7 @@ import { withBasePath } from '@/utils/helpers';
 
 type NavigatorWithDeviceMemory = Navigator & {
   deviceMemory?: number;
+  webdriver?: boolean;
 };
 
 export type QualityTier = 'ultra' | 'high' | 'medium' | 'low';
@@ -99,17 +100,21 @@ export interface SceneProfile {
 }
 
 export const SCENE_PALETTE = {
-  accent: '#d9ff3f',
-  secondary: '#65e5ff',
-  tertiary: '#9f7aea',
-  warm: '#ff6b6b',
-  highlight: '#ffffff',
-  core: '#e8ffb0',
-  nebula: '#1a3a5c',
-  deep: '#0a0f1e',
-  backgroundFrom: '#020308',
-  backgroundTo: '#060d1a',
-  horizon: '#0e1b32',
+  accent: '#d6ff63',
+  secondary: '#86dcff',
+  tertiary: '#8095ff',
+  warm: '#ff9b6b',
+  highlight: '#f6f7fb',
+  core: '#f1ffca',
+  nebula: '#132a43',
+  deep: '#07111f',
+  backgroundFrom: '#05101b',
+  backgroundTo: '#0c2035',
+  horizon: '#112742',
+  shadow: '#030a14',
+  mist: '#dbe6ff',
+  ember: '#ffb089',
+  signal: '#b7c5ff',
 } as const;
 
 export const HERO_COPY = {
@@ -159,6 +164,10 @@ export function detectQuality(): QualityTier {
   const dpr = window.devicePixelRatio ?? 1;
   const memory = getDeviceMemory();
   const mobile = isMobileLikeDevice();
+  const automated =
+    (navigator as NavigatorWithDeviceMemory).webdriver === true ||
+    /HeadlessChrome|Playwright/i.test(navigator.userAgent ?? '');
+  if (automated) return 'low';
   if (mobile || cores <= 4 || (memory !== null && memory <= 4)) return 'low';
   if (cores >= 12 && dpr >= 1.5 && (memory === null || memory >= 16))
     return 'ultra';

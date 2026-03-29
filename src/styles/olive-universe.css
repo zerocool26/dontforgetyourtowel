@@ -12,9 +12,11 @@
   overflow: hidden;
   background: radial-gradient(
     ellipse at 50% 45%,
-    rgba(var(--universe-accent-rgb, 139, 92, 246), 0.025) 0%,
-    rgba(var(--universe-secondary-rgb, 56, 189, 248), 0.015) 25%,
-    #02040a 65%
+    rgba(var(--universe-mist-rgb, 246, 247, 251), 0.035) 0%,
+    rgba(var(--universe-secondary-rgb, 134, 220, 255), 0.018) 18%,
+    rgba(var(--universe-accent-rgb, 214, 255, 99), 0.014) 34%,
+    rgba(var(--universe-shadow-rgb, 3, 10, 20), 0.18) 52%,
+    #02060d 72%
   );
   z-index: 0;
   isolation: isolate;
@@ -38,6 +40,9 @@
 
 .universe-stage-aura,
 .universe-stage-nebula,
+.universe-stage-drafting-grid,
+.universe-stage-signal-frame,
+.universe-stage-aperture,
 .universe-stage-vignette,
 .universe-stage-film-grain,
 .universe-stage-scanlines {
@@ -51,30 +56,36 @@
 
 .universe-stage-aura {
   z-index: 0;
-  opacity: 0.42;
+  opacity: 0.34;
   background: radial-gradient(
     ellipse 60% 50% at 50% 48%,
-    rgba(var(--universe-accent-rgb, 139, 92, 246), 0.035) 0%,
-    rgba(var(--universe-warm-rgb, 244, 114, 182), 0.014) 30%,
+    rgba(var(--universe-mist-rgb, 246, 247, 251), 0.026) 0%,
+    rgba(var(--universe-secondary-rgb, 134, 220, 255), 0.018) 26%,
+    rgba(var(--universe-ember-rgb, 255, 176, 137), 0.012) 42%,
     transparent 70%
   );
   mix-blend-mode: screen;
   animation: aura-breathe 18s ease-in-out infinite alternate;
-  filter: blur(60px);
+  filter: blur(72px);
 }
 
 .universe-stage-nebula {
   z-index: 0;
-  opacity: 0.34;
+  opacity: 0.28;
   background:
     radial-gradient(
-      ellipse 40% 35% at 30% 65%,
-      rgba(var(--universe-secondary-rgb, 56, 189, 248), 0.02) 0%,
+      ellipse 42% 36% at 28% 66%,
+      rgba(var(--universe-signal-rgb, 183, 197, 255), 0.02) 0%,
       transparent 60%
     ),
     radial-gradient(
-      ellipse 35% 30% at 72% 35%,
-      rgba(var(--universe-tertiary-rgb, 52, 211, 153), 0.018) 0%,
+      ellipse 38% 32% at 72% 34%,
+      rgba(var(--universe-secondary-rgb, 134, 220, 255), 0.016) 0%,
+      transparent 56%
+    ),
+    radial-gradient(
+      ellipse 24% 24% at 62% 58%,
+      rgba(var(--universe-ember-rgb, 255, 176, 137), 0.01) 0%,
       transparent 55%
     );
   mix-blend-mode: screen;
@@ -582,11 +593,11 @@
   z-index: 0;
   background: radial-gradient(
     ellipse 55% 50% at 50% 50%,
-    rgba(var(--universe-warm-rgb, 255, 107, 107), 0.008) 0%,
-    rgba(var(--universe-secondary-rgb, 56, 189, 248), 0.006) 40%,
+    rgba(var(--universe-ember-rgb, 255, 176, 137), 0.01) 0%,
+    rgba(var(--universe-secondary-rgb, 134, 220, 255), 0.006) 38%,
     transparent 75%
   );
-  opacity: 0.24;
+  opacity: 0.18;
   mix-blend-mode: soft-light;
   animation: temperature-shift 25s ease-in-out infinite alternate;
   filter: blur(90px);
@@ -605,15 +616,15 @@
   background:
     radial-gradient(
       ellipse 80% 75% at 35% 60%,
-      rgba(var(--universe-tertiary-rgb, 52, 211, 153), 0.01) 0%,
+      rgba(var(--universe-signal-rgb, 183, 197, 255), 0.012) 0%,
       transparent 50%
     ),
     radial-gradient(
       ellipse 70% 65% at 68% 38%,
-      rgba(var(--universe-accent-rgb, 217, 255, 63), 0.006) 0%,
+      rgba(var(--universe-accent-rgb, 214, 255, 99), 0.008) 0%,
       transparent 45%
     );
-  opacity: 0.24;
+  opacity: 0.2;
   mix-blend-mode: screen;
   animation: deephaze-drift 45s ease-in-out infinite alternate;
   filter: blur(100px);
@@ -631,14 +642,14 @@
   z-index: 0;
   background: conic-gradient(
     from 200deg at 45% 40%,
-    rgba(var(--universe-accent-rgb, 217, 255, 63), 0.008) 0deg,
-    rgba(var(--universe-secondary-rgb, 101, 229, 255), 0.01) 60deg,
+    rgba(var(--universe-highlight-rgb, 246, 247, 251), 0.008) 0deg,
+    rgba(var(--universe-secondary-rgb, 134, 220, 255), 0.01) 58deg,
     transparent 120deg,
-    rgba(var(--universe-tertiary-rgb, 159, 122, 234), 0.006) 200deg,
-    rgba(var(--universe-warm-rgb, 255, 107, 107), 0.004) 280deg,
+    rgba(var(--universe-signal-rgb, 183, 197, 255), 0.006) 200deg,
+    rgba(var(--universe-ember-rgb, 255, 176, 137), 0.005) 280deg,
     transparent 360deg
   );
-  opacity: 0.18;
+  opacity: 0.16;
   mix-blend-mode: screen;
   animation: aurora-glow-sweep 55s ease-in-out infinite alternate;
   filter: blur(110px);
@@ -658,20 +669,20 @@
     linear-gradient(
       120deg,
       transparent 12%,
-      rgba(var(--universe-highlight-rgb, 255, 255, 255), 0.008) 26%,
-      rgba(var(--universe-secondary-rgb, 56, 189, 248), 0.01) 38%,
+      rgba(var(--universe-highlight-rgb, 246, 247, 251), 0.01) 26%,
+      rgba(var(--universe-secondary-rgb, 134, 220, 255), 0.012) 38%,
       transparent 54%
     ),
     linear-gradient(
       300deg,
       transparent 18%,
-      rgba(var(--universe-accent-rgb, 139, 92, 246), 0.004) 34%,
-      rgba(var(--universe-highlight-rgb, 255, 255, 255), 0.007) 46%,
+      rgba(var(--universe-signal-rgb, 183, 197, 255), 0.004) 34%,
+      rgba(var(--universe-highlight-rgb, 246, 247, 251), 0.008) 46%,
       transparent 62%
     ),
     radial-gradient(
       ellipse 38% 30% at 50% 46%,
-      rgba(var(--universe-highlight-rgb, 255, 255, 255), 0.01) 0%,
+      rgba(var(--universe-highlight-rgb, 246, 247, 251), 0.012) 0%,
       transparent 68%
     );
   opacity: 0.16;
@@ -693,16 +704,16 @@
   background:
     radial-gradient(
       ellipse 35% 30% at 50% 48%,
-      rgba(var(--universe-warm-rgb, 255, 107, 107), 0.012) 0%,
-      rgba(var(--universe-accent-rgb, 217, 255, 63), 0.008) 30%,
+      rgba(var(--universe-ember-rgb, 255, 176, 137), 0.012) 0%,
+      rgba(var(--universe-accent-rgb, 214, 255, 99), 0.008) 30%,
       transparent 65%
     ),
     radial-gradient(
       ellipse 25% 22% at 52% 46%,
-      rgba(var(--universe-accent-rgb, 217, 255, 63), 0.01) 0%,
+      rgba(var(--universe-highlight-rgb, 246, 247, 251), 0.008) 0%,
       transparent 55%
     );
-  opacity: 0.2;
+  opacity: 0.17;
   mix-blend-mode: screen;
   animation: plasma-corona-pulse 20s ease-in-out infinite alternate;
   filter: blur(70px);
@@ -721,19 +732,19 @@
   background:
     conic-gradient(
       from 110deg at 50% 48%,
-      rgba(var(--universe-secondary-rgb, 101, 229, 255), 0.01) 0deg,
+      rgba(var(--universe-secondary-rgb, 134, 220, 255), 0.008) 0deg,
       transparent 70deg,
-      rgba(var(--universe-accent-rgb, 217, 255, 63), 0.006) 145deg,
+      rgba(var(--universe-accent-rgb, 214, 255, 99), 0.005) 145deg,
       transparent 220deg,
-      rgba(var(--universe-tertiary-rgb, 159, 122, 234), 0.008) 300deg,
+      rgba(var(--universe-signal-rgb, 183, 197, 255), 0.006) 300deg,
       transparent 360deg
     ),
     radial-gradient(
       ellipse 48% 42% at 50% 46%,
-      rgba(var(--universe-secondary-rgb, 101, 229, 255), 0.008) 0%,
+      rgba(var(--universe-secondary-rgb, 134, 220, 255), 0.008) 0%,
       transparent 68%
     );
-  opacity: 0.16;
+  opacity: 0.14;
   mix-blend-mode: screen;
   animation: ion-storm-drift 28s ease-in-out infinite alternate;
   filter: blur(85px);
@@ -752,21 +763,104 @@
   background:
     repeating-conic-gradient(
       from 0deg at 50% 50%,
-      rgba(var(--universe-accent-rgb, 217, 255, 63), 0.004) 0deg 10deg,
-      transparent 10deg 28deg,
-      rgba(var(--universe-secondary-rgb, 101, 229, 255), 0.004) 28deg 36deg,
-      transparent 36deg 58deg
+      rgba(var(--universe-highlight-rgb, 246, 247, 251), 0.004) 0deg 8deg,
+      transparent 8deg 24deg,
+      rgba(var(--universe-secondary-rgb, 134, 220, 255), 0.004) 24deg 30deg,
+      transparent 30deg 54deg,
+      rgba(var(--universe-accent-rgb, 214, 255, 99), 0.003) 54deg 58deg,
+      transparent 58deg 72deg,
+      rgba(var(--universe-signal-rgb, 183, 197, 255), 0.003) 72deg 78deg,
+      transparent 78deg 118deg,
+      rgba(var(--universe-ember-rgb, 255, 176, 137), 0.002) 118deg 122deg,
+      transparent 122deg 180deg,
+      rgba(var(--universe-highlight-rgb, 246, 247, 251), 0.003) 180deg 186deg,
+      transparent 186deg 360deg
     ),
     radial-gradient(
       ellipse 42% 38% at 50% 50%,
-      rgba(var(--universe-highlight-rgb, 255, 255, 255), 0.007) 0%,
+      rgba(var(--universe-highlight-rgb, 246, 247, 251), 0.007) 0%,
       transparent 65%
     );
-  opacity: 0.14;
+  opacity: 0.12;
   mix-blend-mode: screen;
   animation: lumen-weave-drift 34s ease-in-out infinite alternate;
   filter: blur(56px);
   will-change: opacity, transform;
+}
+
+.universe-stage-drafting-grid {
+  z-index: 2;
+  opacity: 0.22;
+  background-image:
+    linear-gradient(
+      rgba(var(--universe-mist-rgb, 219, 230, 255), 0.055) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(var(--universe-mist-rgb, 219, 230, 255), 0.055) 1px,
+      transparent 1px
+    );
+  background-size: 88px 88px;
+  mask-image: radial-gradient(
+    ellipse 72% 62% at 50% 48%,
+    rgba(0, 0, 0, 0.52) 0%,
+    rgba(0, 0, 0, 0.14) 42%,
+    transparent 78%
+  );
+  mix-blend-mode: soft-light;
+}
+
+.universe-stage-signal-frame {
+  z-index: 9;
+  inset: 28px;
+  width: auto;
+  height: auto;
+  border: 1px solid rgba(var(--universe-mist-rgb, 219, 230, 255), 0.07);
+  box-shadow:
+    inset 0 0 0 1px rgba(var(--universe-secondary-rgb, 134, 220, 255), 0.03),
+    0 0 0 1px rgba(var(--universe-shadow-rgb, 3, 10, 20), 0.38);
+  opacity: 0.82;
+}
+
+.universe-stage-signal-frame::before,
+.universe-stage-signal-frame::after {
+  content: '';
+  position: absolute;
+  width: 84px;
+  height: 84px;
+  border-top: 1px solid rgba(var(--universe-accent-rgb, 214, 255, 99), 0.22);
+  border-left: 1px solid rgba(var(--universe-accent-rgb, 214, 255, 99), 0.16);
+}
+
+.universe-stage-signal-frame::before {
+  top: -1px;
+  left: -1px;
+}
+
+.universe-stage-signal-frame::after {
+  right: -1px;
+  bottom: -1px;
+  transform: rotate(180deg);
+}
+
+.universe-stage-aperture {
+  z-index: 8;
+  background:
+    radial-gradient(
+      ellipse 44% 36% at 50% 48%,
+      transparent 0%,
+      transparent 52%,
+      rgba(var(--universe-mist-rgb, 219, 230, 255), 0.05) 58%,
+      transparent 66%
+    ),
+    radial-gradient(
+      ellipse 28% 24% at 50% 48%,
+      rgba(var(--universe-highlight-rgb, 246, 247, 251), 0.025) 0%,
+      transparent 70%
+    );
+  opacity: 0.42;
+  mix-blend-mode: screen;
 }
 
 /* ── Stability assist ──────────────────────────────────────── */
@@ -792,6 +886,7 @@
 .universe-wrapper[data-olive-runtime='stability'] .universe-stage-specular-veil,
 .universe-wrapper[data-olive-runtime='stability'] .universe-stage-ion-storm,
 .universe-wrapper[data-olive-runtime='stability'] .universe-stage-lumen-weave,
+.universe-wrapper[data-olive-runtime='stability'] .universe-stage-aperture,
 .universe-wrapper[data-olive-runtime='stability']
   .universe-stage-plasma-corona {
   display: none;
@@ -810,6 +905,7 @@
   .universe-stage-ion-storm,
   .universe-stage-lumen-weave,
   .universe-stage-plasma-corona,
+  .universe-stage-aperture,
   .universe-static-nebula,
   .universe-static-core,
   .universe-static-orbit,
@@ -849,6 +945,14 @@
   .universe-stage-nebula {
     filter: blur(50px);
   }
+
+  .universe-stage-signal-frame {
+    inset: 18px;
+  }
+
+  .universe-stage-drafting-grid {
+    background-size: 64px 64px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -873,5 +977,15 @@
   .universe-static-orbit--inner {
     width: 140px;
     height: 140px;
+  }
+
+  .universe-stage-signal-frame {
+    inset: 12px;
+  }
+
+  .universe-stage-signal-frame::before,
+  .universe-stage-signal-frame::after {
+    width: 56px;
+    height: 56px;
   }
 }
