@@ -100,21 +100,24 @@ export interface SceneProfile {
 }
 
 export const SCENE_PALETTE = {
-  accent: '#d6ff63',
-  secondary: '#86dcff',
-  tertiary: '#8095ff',
-  warm: '#ff9b6b',
-  highlight: '#f6f7fb',
-  core: '#f1ffca',
-  nebula: '#132a43',
-  deep: '#07111f',
-  backgroundFrom: '#05101b',
-  backgroundTo: '#0c2035',
-  horizon: '#112742',
+  accent: '#d8e7a7',
+  secondary: '#8be1d1',
+  tertiary: '#a39df4',
+  warm: '#f3b29f',
+  highlight: '#fbf8f3',
+  core: '#f8f1de',
+  nebula: '#173444',
+  deep: '#08131d',
+  backgroundFrom: '#071018',
+  backgroundTo: '#102534',
+  horizon: '#17394b',
   shadow: '#030a14',
-  mist: '#dbe6ff',
-  ember: '#ffb089',
-  signal: '#b7c5ff',
+  mist: '#efe8da',
+  ember: '#f6c0a0',
+  signal: '#c5c0ff',
+  bloom: '#d9f4ec',
+  jade: '#74c9b7',
+  orchid: '#c8b9ff',
 } as const;
 
 export const HERO_COPY = {

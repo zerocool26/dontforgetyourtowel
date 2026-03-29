@@ -235,6 +235,9 @@ export default function OliveUniverse() {
   const mistRgb = useMemo(() => hexToRgbString(SCENE_PALETTE.mist), []);
   const emberRgb = useMemo(() => hexToRgbString(SCENE_PALETTE.ember), []);
   const signalRgb = useMemo(() => hexToRgbString(SCENE_PALETTE.signal), []);
+  const bloomRgb = useMemo(() => hexToRgbString(SCENE_PALETTE.bloom), []);
+  const jadeRgb = useMemo(() => hexToRgbString(SCENE_PALETTE.jade), []);
+  const orchidRgb = useMemo(() => hexToRgbString(SCENE_PALETTE.orchid), []);
 
   return (
     <section
@@ -265,6 +268,9 @@ export default function OliveUniverse() {
           '--universe-mist-rgb': mistRgb,
           '--universe-ember-rgb': emberRgb,
           '--universe-signal-rgb': signalRgb,
+          '--universe-bloom-rgb': bloomRgb,
+          '--universe-jade-rgb': jadeRgb,
+          '--universe-orchid-rgb': orchidRgb,
         } as CSSProperties
       }
       onPointerDownCapture={triggerPulse}
