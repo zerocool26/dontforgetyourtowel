@@ -5,7 +5,7 @@ const deployment = createDeploymentConfig();
 const analyticsFlag = process.env.NEXT_PUBLIC_ENABLE_ANALYTICS;
 const analyticsEnabled = analyticsFlag === 'true' || analyticsFlag === '1';
 
-export const SITE_TITLE = 'Olive Chicago';
+export const SITE_TITLE = 'Olive Global Systems';
 export const SITE_DESCRIPTION =
   'Integrated trade platform across mechanical, electrical, plumbing, general contracting, commercial HVAC, auto repair, and MSP services.';
 export const SITE_URL = deployment.siteUrl;
@@ -16,7 +16,7 @@ export const CONTACT_EMAIL =
 export const SITE_CONFIG = {
   title: SITE_TITLE,
   description: SITE_DESCRIPTION,
-  author: 'Olive Chicago',
+  author: 'Olive Global Systems',
   defaultLanguage: 'en-US',
   social: {
     github: deployment.repoUrl || 'https://github.com',
@@ -28,9 +28,9 @@ export const SITE_CONFIG = {
 } as const;
 
 export const THEME_CONFIG = {
-  defaultTheme: 'dark' as const,
-  storageKey: 'ep-theme-preference',
-  supportedThemes: ['light', 'dark', 'system'] as const,
+  defaultTheme: 'ops-center' as const,
+  storageKey: 'olive-theme-preference',
+  supportedThemes: ['ops-center', 'corporate', 'terminal'] as const,
 } as const;
 
 export const API_CONFIG = {

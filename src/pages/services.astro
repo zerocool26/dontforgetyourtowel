@@ -1,6 +1,6 @@
 ---
-/* eslint-disable astro/no-set-html-directive */
 import MarketingLayout from '../layouts/MarketingLayout.astro';
+import StructuredData from '../components/StructuredData.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
 import ModernCard from '../components/ui/ModernCard.astro';
 import TradeDirectoryCard from '../components/business/TradeDirectoryCard.astro';
@@ -22,13 +22,36 @@ const serviceCategories = Array.from(
   new Set(servicesExtended.map(service => service.category))
 );
 
-const servicesSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'CollectionPage',
-  name: 'Services Hub',
-  description:
-    'Integrated services hub covering all seven trades plus the retained technology services catalog.',
-  url: new URL(withBasePath('services/'), Astro.site).toString(),
+const breadcrumbItems = [
+  {
+    '@type': 'ListItem',
+    position: 1,
+    name: 'Home',
+    item: new URL(withBasePath('/'), Astro.site).toString(),
+  },
+  {
+    '@type': 'ListItem',
+    position: 2,
+    name: 'Services Hub',
+    item: new URL(withBasePath('services/'), Astro.site).toString(),
+  },
+];
+
+const pageNavigator = {
+  label: 'Services Hub',
+  accent: '#ccff00',
+  items: [
+    { id: 'services-hero', label: 'Hub Overview', shortLabel: 'Overview' },
+    { id: 'trade-surface', label: 'Trade Surface', shortLabel: 'Trades' },
+    { id: 'service-catalog', label: 'Catalog Depth', shortLabel: 'Catalog' },
+    {
+      id: 'service-planner',
+      label: 'Planning Tools',
+      shortLabel: 'Planner',
+    },
+    { id: 'service-quiz', label: 'Recommendation Engine', shortLabel: 'Quiz' },
+    { id: 'faq', label: 'Scope FAQ', shortLabel: 'FAQ' },
+  ],
 };
 ---
 
@@ -37,15 +60,23 @@ const servicesSchema = {
   description="Integrated services hub for all seven trades, with the retained MSP, security, cloud, AI, and digital systems catalog still live."
   bodyClass="creative-page bg-[#02040a]"
   showFooter={true}
+  pageNavigator={pageNavigator}
 >
-  <script
-    type="application/ld+json"
-    set:html={JSON.stringify(servicesSchema)}
+  <StructuredData
+    type="collection"
+    data={{
+      name: 'Services Hub',
+      description:
+        'Integrated services hub covering all seven trades plus the retained technology services catalog.',
+    }}
   />
+  <StructuredData type="breadcrumbs" data={{ items: breadcrumbItems }} />
 
   <section
-    class="tone-surface relative overflow-hidden pb-14 pt-28"
+    class="tone-surface relative scroll-mt-32 overflow-hidden pb-14 pt-28"
     data-reveal
+    id="services-hero"
+    data-page-section
   >
     <div
       class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,rgba(204,255,0,0.12),transparent_52%)]"
@@ -133,7 +164,12 @@ const servicesSchema = {
     </div>
   </section>
 
-  <section class="tone-surface" data-reveal>
+  <section
+    class="tone-surface scroll-mt-32"
+    data-reveal
+    id="trade-surface"
+    data-page-section
+  >
     <div class="mx-auto max-w-[1400px] px-6 py-10">
       <div
         class="flex flex-col gap-4 border-b border-white/10 pb-6 md:flex-row md:items-end md:justify-between"
@@ -206,8 +242,10 @@ const servicesSchema = {
   </section>
 
   <section
-    class="tone-border tone-surface overflow-hidden border-y"
+    class="tone-border tone-surface scroll-mt-32 overflow-hidden border-y"
     data-reveal
+    id="service-catalog"
+    data-page-section
   >
     <div class="mx-auto max-w-[1400px] px-6 py-20">
       <div class="mb-10 max-w-3xl space-y-4">
@@ -226,7 +264,12 @@ const servicesSchema = {
     </div>
   </section>
 
-  <section class="tone-surface scroll-mt-32" id="service-planner" data-reveal>
+  <section
+    class="tone-surface scroll-mt-32"
+    id="service-planner"
+    data-reveal
+    data-page-section
+  >
     <div class="mx-auto max-w-[1400px] px-6 py-20">
       <div class="max-w-3xl space-y-4">
         <p class="creative-kicker">Planning Tools</p>
@@ -245,7 +288,12 @@ const servicesSchema = {
     </div>
   </section>
 
-  <section class="tone-surface" data-reveal>
+  <section
+    class="tone-surface scroll-mt-32"
+    data-reveal
+    id="service-quiz"
+    data-page-section
+  >
     <div class="mx-auto max-w-[1400px] px-6 py-20">
       <div class="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
         <div class="space-y-4">
@@ -265,7 +313,12 @@ const servicesSchema = {
     </div>
   </section>
 
-  <section class="tone-border tone-surface border-y" id="faq" data-reveal>
+  <section
+    class="tone-border tone-surface scroll-mt-32 border-y"
+    id="faq"
+    data-reveal
+    data-page-section
+  >
     <div class="mx-auto max-w-[1400px] px-6 py-20">
       <div class="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
         <div class="space-y-4">

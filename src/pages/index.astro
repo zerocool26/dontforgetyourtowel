@@ -98,6 +98,22 @@ const continuityRoutes = [
 const highlightedTrade = tradeProfiles.find(
   trade => trade.slug === 'msp-tech-services'
 );
+
+const pageNavigator = {
+  label: 'Landing Atlas',
+  accent: '#ccff00',
+  items: [
+    { id: 'landing-hero', label: 'Command Center', shortLabel: 'Home' },
+    { id: 'directory', label: 'Trade Worlds', shortLabel: 'Trades' },
+    { id: 'programs', label: 'Program Choreography', shortLabel: 'Programs' },
+    {
+      id: 'gallery-preview',
+      label: 'Gallery Preview',
+      shortLabel: 'Gallery',
+    },
+    { id: 'continuity', label: 'Connected Continuity', shortLabel: 'Routes' },
+  ],
+};
 ---
 
 <MarketingLayout
@@ -106,10 +122,15 @@ const highlightedTrade = tradeProfiles.find(
   mainClass="relative isolate overflow-x-clip"
   bodyClass="creative-page bg-[#02040a]"
   showFooter={true}
+  pageNavigator={pageNavigator}
 >
   <OliveUniverse client:load />
 
-  <section class="relative min-h-[100dvh] overflow-hidden">
+  <section
+    class="relative min-h-[100dvh] scroll-mt-32 overflow-hidden"
+    id="landing-hero"
+    data-page-section
+  >
     <div class="landing-veil"></div>
     <div class="relative z-20 mx-auto max-w-[1440px] px-6 pb-20 pt-28 sm:pt-36">
       <div class="grid gap-8 xl:grid-cols-[1.1fr_0.9fr] xl:items-end">
@@ -232,7 +253,12 @@ const highlightedTrade = tradeProfiles.find(
     </div>
   </section>
 
-  <section class="relative z-20" data-reveal id="directory">
+  <section
+    class="relative z-20 scroll-mt-32"
+    data-reveal
+    id="directory"
+    data-page-section
+  >
     <div class="mx-auto max-w-[1440px] px-6 py-10">
       <div class="creative-hero-shell p-8">
         <div
@@ -309,7 +335,12 @@ const highlightedTrade = tradeProfiles.find(
     </div>
   </section>
 
-  <section class="relative z-20" data-reveal>
+  <section
+    class="relative z-20 scroll-mt-32"
+    data-reveal
+    id="programs"
+    data-page-section
+  >
     <div class="mx-auto max-w-[1440px] px-6 py-10">
       <div class="grid gap-5 xl:grid-cols-[1fr_1fr]">
         <ModernCard variant="minimal" className="creative-panel p-7">
@@ -391,7 +422,12 @@ const highlightedTrade = tradeProfiles.find(
     </div>
   </section>
 
-  <section class="relative z-20" data-reveal>
+  <section
+    class="relative z-20 scroll-mt-32"
+    data-reveal
+    id="gallery-preview"
+    data-page-section
+  >
     <div class="mx-auto max-w-[1440px] px-6 py-10">
       <div class="creative-hero-shell p-8">
         <div
@@ -450,7 +486,12 @@ const highlightedTrade = tradeProfiles.find(
     </div>
   </section>
 
-  <section class="relative z-20" data-reveal>
+  <section
+    class="relative z-20 scroll-mt-32"
+    data-reveal
+    id="continuity"
+    data-page-section
+  >
     <div class="mx-auto max-w-[1440px] px-6 py-10">
       <div class="grid gap-5 xl:grid-cols-[1.04fr_0.96fr]">
         <ModernCard variant="minimal" className="creative-panel p-7">

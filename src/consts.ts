@@ -37,7 +37,7 @@ export const CONTACT_EMAIL =
 export const SITE_CONFIG = {
   title: SITE_TITLE,
   description: SITE_DESCRIPTION,
-  author: 'Olive Chicago',
+  author: 'Olive Global Systems',
   defaultLanguage: 'en-US',
   // Social links
   social: {
@@ -59,9 +59,9 @@ export const SITE_CONFIG = {
  * Theme configuration
  */
 export const THEME_CONFIG = {
-  defaultTheme: 'dark' as const,
-  storageKey: 'ep-theme-preference',
-  supportedThemes: ['light', 'dark', 'system'] as const,
+  defaultTheme: 'ops-center' as const,
+  storageKey: 'olive-theme-preference',
+  supportedThemes: ['ops-center', 'corporate', 'terminal'] as const,
 } as const;
 
 /**

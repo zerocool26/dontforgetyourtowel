@@ -61,6 +61,19 @@ const subpageBreadcrumbItems = [
     item: new URL(subpageHref, Astro.site).toString(),
   },
 ];
+
+const pageNavigator = {
+  label: `${trade.shortName} Route`,
+  accent: trade.accent,
+  items: [
+    { id: 'route-hero', label: 'Route Overview', shortLabel: 'Overview' },
+    {
+      id: 'route-playbook',
+      label: 'Execution Playbook',
+      shortLabel: 'Playbook',
+    },
+  ],
+};
 ---
 
 <MarketingLayout
@@ -68,6 +81,7 @@ const subpageBreadcrumbItems = [
   description={resolvedSubpage.description}
   bodyClass={`creative-page bg-[#02040a] ${tradeVisual.themeClass}`}
   showFooter={true}
+  pageNavigator={pageNavigator}
 >
   <StructuredData
     type="service"
@@ -84,8 +98,10 @@ const subpageBreadcrumbItems = [
   />
   <StructuredData type="breadcrumbs" data={{ items: subpageBreadcrumbItems }} />
   <section
-    class="tone-surface relative overflow-hidden pb-14 pt-28"
+    class="tone-surface relative scroll-mt-32 overflow-hidden pb-14 pt-28"
     data-reveal
+    id="route-hero"
+    data-page-section
   >
     <div
       class="absolute inset-0 -z-10 opacity-90"
@@ -189,7 +205,12 @@ const subpageBreadcrumbItems = [
     </div>
   </section>
 
-  <section class="tone-surface" data-reveal>
+  <section
+    class="tone-surface scroll-mt-32"
+    data-reveal
+    id="route-playbook"
+    data-page-section
+  >
     <div class="mx-auto max-w-[1320px] px-6 py-12">
       <div class="grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
         <div class="grid gap-5">

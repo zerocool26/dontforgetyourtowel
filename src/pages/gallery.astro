@@ -64,6 +64,20 @@ const galleryRoutes = [
     href: withBasePath('build-studio/#studio'),
   },
 ];
+
+const pageNavigator = {
+  label: 'Gallery Guide',
+  accent: featuredInstallation.palette[0],
+  items: [
+    { id: 'gallery-hero', label: 'Gallery Introduction', shortLabel: 'Intro' },
+    { id: 'gallery-wall', label: 'Curatorial Wall', shortLabel: 'Wall' },
+    {
+      id: 'gallery-doctrine',
+      label: 'Gallery Doctrine',
+      shortLabel: 'Doctrine',
+    },
+  ],
+};
 ---
 
 <MarketingLayout
@@ -72,6 +86,7 @@ const galleryRoutes = [
   bodyClass="creative-page bg-[#02040a]"
   mainClass="relative isolate overflow-x-clip"
   showFooter={true}
+  pageNavigator={pageNavigator}
 >
   <StructuredData
     type="collection"
@@ -100,7 +115,12 @@ const galleryRoutes = [
       ],
     }}
   />
-  <section class="relative overflow-hidden pb-14 pt-28" data-reveal>
+  <section
+    class="relative scroll-mt-32 overflow-hidden pb-14 pt-28"
+    data-reveal
+    id="gallery-hero"
+    data-page-section
+  >
     <div class="gallery-ambient"></div>
     <div class="mx-auto max-w-[1440px] px-6">
       <div class="grid gap-8 xl:grid-cols-[1.08fr_0.92fr] xl:items-end">
@@ -225,7 +245,12 @@ const galleryRoutes = [
     </div>
   </section>
 
-  <section class="relative z-20" data-reveal id="gallery-wall">
+  <section
+    class="relative z-20 scroll-mt-32"
+    data-reveal
+    id="gallery-wall"
+    data-page-section
+  >
     <div class="mx-auto max-w-[1440px] px-6 py-10">
       <div class="creative-hero-shell p-6 sm:p-8">
         <div class="flex flex-col gap-6 border-b border-white/10 pb-6">
@@ -390,7 +415,12 @@ const galleryRoutes = [
     </div>
   </section>
 
-  <section class="relative z-20" data-reveal>
+  <section
+    class="relative z-20 scroll-mt-32"
+    data-reveal
+    id="gallery-doctrine"
+    data-page-section
+  >
     <div class="mx-auto max-w-[1440px] px-6 py-10">
       <div class="grid gap-5 xl:grid-cols-[0.98fr_1.02fr]">
         <ModernCard variant="minimal" className="creative-panel p-7">

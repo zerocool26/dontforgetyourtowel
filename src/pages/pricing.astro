@@ -1,6 +1,7 @@
 ---
 /* eslint-disable astro/no-set-html-directive */
 import MarketingLayout from '../layouts/MarketingLayout.astro';
+import StructuredData from '../components/StructuredData.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
 import ModernCard from '../components/ui/ModernCard.astro';
 import PricingCalculator from '../components/business/PricingCalculator.tsx';
@@ -57,9 +58,17 @@ const faqSchema = {
   title="Pricing | Olive Global Systems"
   description="Live plan comparison, SLA guidance, pricing calculators, and ROI planning tools for managed operations, security, cloud, and AI delivery."
 >
-  <script
-    type="application/ld+json"
-    set:html={JSON.stringify(breadcrumbSchema)}
+  <StructuredData
+    type="collection"
+    data={{
+      name: 'Pricing',
+      description:
+        'Plan comparison, SLA guidance, pricing calculators, and ROI planning tools.',
+    }}
+  />
+  <StructuredData
+    type="breadcrumbs"
+    data={{ items: breadcrumbSchema.itemListElement }}
   />
   <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
 

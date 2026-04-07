@@ -1,0 +1,474 @@
+---
+export interface PageNavigatorItem {
+  id: string;
+  label: string;
+  shortLabel?: string;
+}
+
+export interface Props {
+  label: string;
+  items: PageNavigatorItem[];
+  accent?: string;
+}
+
+const { label, items = [], accent = '#ccff00' } = Astro.props as Props;
+
+const visibleItems = items.filter(item => item.id && item.label);
+const initialItem = visibleItems[0];
+---
+
+{
+  visibleItems.length > 1 ? (
+    <aside
+      class="page-navigator"
+      data-page-navigator
+      style={`--page-nav-accent:${accent};`}
+      aria-label={`${label} section navigation`}
+    >
+      <div
+        class="page-navigator__desktop"
+        data-page-nav-shell
+        data-state="hidden"
+      >
+        <p class="page-navigator__eyebrow">{label}</p>
+        <div class="page-navigator__track" aria-hidden="true">
+          <span class="page-navigator__track-fill" data-page-nav-progress />
+        </div>
+        <div class="page-navigator__list" role="list">
+          {visibleItems.map((item, index) => (
+            <a
+              href={`#${item.id}`}
+              class={`page-navigator__link ${index === 0 ? 'is-active' : ''}`}
+              data-page-nav-link
+              data-page-nav-target={item.id}
+              aria-current={index === 0 ? 'location' : undefined}
+            >
+              <span class="page-navigator__index">
+                {(index + 1).toString().padStart(2, '0')}
+              </span>
+              <span class="page-navigator__text">
+                <span class="page-navigator__title">{item.label}</span>
+                <span class="page-navigator__jump">Jump</span>
+              </span>
+            </a>
+          ))}
+        </div>
+      </div>
+
+      <div
+        class="page-navigator__mobile"
+        data-page-nav-shell
+        data-state="hidden"
+      >
+        <div class="page-navigator__mobile-meta">
+          <p class="page-navigator__mobile-label">{label}</p>
+          <p class="page-navigator__mobile-current" data-page-nav-current>
+            {initialItem?.shortLabel ?? initialItem?.label}
+          </p>
+        </div>
+        <div
+          class="page-navigator__track page-navigator__track--mobile"
+          aria-hidden="true"
+        >
+          <span class="page-navigator__track-fill" data-page-nav-progress />
+        </div>
+        <div class="page-navigator__mobile-rail scrollbar-hide">
+          {visibleItems.map((item, index) => (
+            <a
+              href={`#${item.id}`}
+              class={`page-navigator__pill ${index === 0 ? 'is-active' : ''}`}
+              data-page-nav-link
+              data-page-nav-target={item.id}
+              aria-current={index === 0 ? 'location' : undefined}
+            >
+              {item.shortLabel ?? item.label}
+            </a>
+          ))}
+        </div>
+      </div>
+    </aside>
+  ) : null
+}
+
+<script is:inline>
+  (() => {
+    const initPageNavigator = () => {
+      const root = document.querySelector('[data-page-navigator]');
+      if (!(root instanceof HTMLElement)) return;
+      if (root.dataset.bound === '1') return;
+      root.dataset.bound = '1';
+
+      const links = Array.from(
+        root.querySelectorAll('[data-page-nav-link]')
+      ).filter(
+        (node): node is HTMLAnchorElement => node instanceof HTMLAnchorElement
+      );
+      const progressBars = Array.from(
+        root.querySelectorAll('[data-page-nav-progress]')
+      ).filter((node): node is HTMLElement => node instanceof HTMLElement);
+      const shells = Array.from(
+        root.querySelectorAll('[data-page-nav-shell]')
+      ).filter((node): node is HTMLElement => node instanceof HTMLElement);
+      const currentLabel = root.querySelector(
+        '[data-page-nav-current]'
+      ) as HTMLElement | null;
+
+      const getSections = () =>
+        links
+          .map(link => {
+            const id = link.dataset.pageNavTarget;
+            if (!id) return null;
+            const element = document.getElementById(id);
+            return element ? { id, element } : null;
+          })
+          .filter(
+            (
+              value
+            ): value is {
+              id: string;
+              element: HTMLElement;
+            } => Boolean(value)
+          );
+
+      let sections = getSections();
+      let ticking = false;
+
+      const setActive = (activeId: string) => {
+        links.forEach(link => {
+          const isActive = link.dataset.pageNavTarget === activeId;
+          link.classList.toggle('is-active', isActive);
+          if (isActive) {
+            link.setAttribute('aria-current', 'location');
+          } else {
+            link.removeAttribute('aria-current');
+          }
+        });
+
+        const activeIndex = Math.max(
+          sections.findIndex(section => section.id === activeId),
+          0
+        );
+        const ratio =
+          sections.length > 1 ? activeIndex / (sections.length - 1) : 0;
+
+        progressBars.forEach(bar => {
+          bar.style.transform = `scaleX(${Math.max(ratio, 0.06)})`;
+        });
+
+        const activeMobileLink = links.find(
+          link =>
+            link.dataset.pageNavTarget === activeId &&
+            link.classList.contains('page-navigator__pill')
+        );
+
+        if (currentLabel && activeMobileLink) {
+          currentLabel.textContent = activeMobileLink.textContent?.trim() || '';
+        }
+      };
+
+      const updateVisibility = () => {
+        const shouldShow =
+          window.scrollY > Math.min(window.innerHeight * 0.32, 260);
+        shells.forEach(shell => {
+          shell.dataset.state = shouldShow ? 'visible' : 'hidden';
+        });
+      };
+
+      const updateActiveSection = () => {
+        if (!sections.length) return;
+
+        const offset = Math.max(window.innerHeight * 0.24, 150);
+        let activeSection = sections[0];
+
+        sections.forEach(section => {
+          const top = section.element.getBoundingClientRect().top;
+          if (top - offset <= 0) {
+            activeSection = section;
+          }
+        });
+
+        setActive(activeSection.id);
+      };
+
+      const refresh = () => {
+        sections = getSections();
+        if (!sections.length) return;
+        updateVisibility();
+        updateActiveSection();
+      };
+
+      const onScroll = () => {
+        if (ticking) return;
+        ticking = true;
+        window.requestAnimationFrame(() => {
+          updateVisibility();
+          updateActiveSection();
+          ticking = false;
+        });
+      };
+
+      links.forEach(link => {
+        link.addEventListener('click', () => {
+          const targetId = link.dataset.pageNavTarget;
+          if (!targetId) return;
+          setActive(targetId);
+        });
+      });
+
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', refresh);
+      refresh();
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initPageNavigator, {
+        once: true,
+      });
+    } else {
+      initPageNavigator();
+    }
+
+    document.addEventListener('astro:page-load', initPageNavigator);
+  })();
+</script>
+
+<style>
+  .page-navigator {
+    position: fixed;
+    right: 1.1rem;
+    top: 50%;
+    z-index: 45;
+    pointer-events: none;
+  }
+
+  .page-navigator__desktop,
+  .page-navigator__mobile {
+    pointer-events: auto;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background:
+      linear-gradient(180deg, rgba(8, 10, 16, 0.94), rgba(6, 8, 14, 0.86)),
+      rgba(5, 6, 10, 0.9);
+    box-shadow:
+      0 28px 80px -42px rgba(0, 0, 0, 0.92),
+      0 0 0 1px rgba(255, 255, 255, 0.025),
+      0 0 44px -24px color-mix(in srgb, var(--page-nav-accent) 26%, transparent);
+    backdrop-filter: blur(20px);
+    transition:
+      opacity 220ms ease,
+      transform 220ms ease,
+      border-color 220ms ease;
+  }
+
+  .page-navigator__desktop[data-state='hidden'],
+  .page-navigator__mobile[data-state='hidden'] {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+    pointer-events: none;
+  }
+
+  .page-navigator__desktop[data-state='visible'],
+  .page-navigator__mobile[data-state='visible'] {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+
+  .page-navigator__desktop {
+    display: none;
+    width: min(19rem, 24vw);
+    transform: translateY(-50%);
+    border-radius: 1.55rem;
+    padding: 1rem;
+  }
+
+  .page-navigator__eyebrow,
+  .page-navigator__mobile-label {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.52);
+  }
+
+  .page-navigator__track {
+    position: relative;
+    margin: 0.9rem 0 1rem;
+    height: 2px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+  }
+
+  .page-navigator__track-fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 100%;
+    transform-origin: left center;
+    transform: scaleX(0.06);
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--page-nav-accent) 85%, white 15%),
+      rgba(255, 255, 255, 0.92)
+    );
+    box-shadow: 0 0 20px
+      color-mix(in srgb, var(--page-nav-accent) 42%, transparent);
+  }
+
+  .page-navigator__list {
+    display: grid;
+    gap: 0.55rem;
+  }
+
+  .page-navigator__link {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.85rem;
+    align-items: center;
+    border-radius: 1rem;
+    border: 1px solid transparent;
+    padding: 0.72rem 0.78rem;
+    color: rgba(255, 255, 255, 0.7);
+    transition:
+      color 180ms ease,
+      border-color 180ms ease,
+      background-color 180ms ease,
+      transform 180ms ease;
+  }
+
+  .page-navigator__link:hover,
+  .page-navigator__link.is-active {
+    color: rgba(255, 255, 255, 0.96);
+    border-color: color-mix(
+      in srgb,
+      var(--page-nav-accent) 24%,
+      rgba(255, 255, 255, 0.08)
+    );
+    background: color-mix(
+      in srgb,
+      var(--page-nav-accent) 10%,
+      rgba(255, 255, 255, 0.02)
+    );
+    transform: translateX(-2px);
+  }
+
+  .page-navigator__index {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    color: color-mix(in srgb, var(--page-nav-accent) 66%, white 34%);
+  }
+
+  .page-navigator__text {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    min-width: 0;
+  }
+
+  .page-navigator__title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .page-navigator__jump {
+    font-size: 0.66rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.4);
+  }
+
+  .page-navigator__mobile {
+    position: fixed;
+    left: 0.75rem;
+    right: 0.75rem;
+    bottom: calc(5rem + env(safe-area-inset-bottom));
+    display: block;
+    border-radius: 1.3rem;
+    padding: 0.8rem 0.85rem 0.75rem;
+  }
+
+  .page-navigator__mobile-meta {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.8rem;
+  }
+
+  .page-navigator__mobile-current {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.86);
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+
+  .page-navigator__track--mobile {
+    margin: 0.6rem 0 0.8rem;
+  }
+
+  .page-navigator__mobile-rail {
+    display: flex;
+    gap: 0.55rem;
+    overflow-x: auto;
+    padding-bottom: 0.1rem;
+  }
+
+  .page-navigator__pill {
+    flex: 0 0 auto;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 0.52rem 0.78rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.68);
+    white-space: nowrap;
+    background: rgba(255, 255, 255, 0.03);
+    transition:
+      border-color 180ms ease,
+      background-color 180ms ease,
+      color 180ms ease;
+  }
+
+  .page-navigator__pill.is-active {
+    border-color: color-mix(
+      in srgb,
+      var(--page-nav-accent) 34%,
+      rgba(255, 255, 255, 0.08)
+    );
+    background: color-mix(
+      in srgb,
+      var(--page-nav-accent) 12%,
+      rgba(255, 255, 255, 0.03)
+    );
+    color: rgba(255, 255, 255, 0.94);
+  }
+
+  @media (min-width: 1280px) {
+    .page-navigator__desktop {
+      display: block;
+    }
+
+    .page-navigator__mobile {
+      display: none;
+    }
+  }
+
+  @media (max-width: 639px) {
+    .page-navigator__mobile {
+      left: 0.6rem;
+      right: 0.6rem;
+      bottom: calc(4.8rem + env(safe-area-inset-bottom));
+      padding-inline: 0.75rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .page-navigator__desktop,
+    .page-navigator__mobile,
+    .page-navigator__link,
+    .page-navigator__pill {
+      transition: none;
+    }
+  }
+</style>

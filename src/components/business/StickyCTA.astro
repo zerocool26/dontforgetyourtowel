@@ -1,37 +1,187 @@
 ---
 import ModernButton from '../ui/ModernButton.astro';
-import { CONTACT_EMAIL } from '../../consts';
+import { BASE_PATH, CONTACT_EMAIL } from '../../consts';
+import { tradeProfiles } from '../../data/trades';
 import { withBasePath } from '../../utils/helpers';
 
-const href = `mailto:${encodeURIComponent(
-  CONTACT_EMAIL
-)}?subject=${encodeURIComponent('Free consultation request')}`;
+const normalizePath = (value: string) => {
+  const strippedBase =
+    BASE_PATH && BASE_PATH !== '/' ? value.replace(BASE_PATH, '/') : value;
+  const trimmed = strippedBase.replace(/\/+$/, '');
+  return trimmed.length ? trimmed : '/';
+};
+
+const currentPath = normalizePath(Astro.url.pathname);
+const pathSegments = currentPath.split('/').filter(Boolean);
+const activeTrade =
+  pathSegments[0] === 'trades'
+    ? tradeProfiles.find(trade => trade.slug === pathSegments[1])
+    : undefined;
+const activeSubpage =
+  activeTrade && pathSegments[2]
+    ? activeTrade.subpages.find(item => item.slug === pathSegments[2])
+    : undefined;
+
+const buildMailto = (subject: string) =>
+  `mailto:${encodeURIComponent(CONTACT_EMAIL)}?subject=${encodeURIComponent(subject)}`;
+
+let cta = {
+  accent: '#ccff00',
+  eyebrow: 'Project intake',
+  copy: 'Want a flagship build brief in two minutes?',
+  detail: 'Live config, no obligation.',
+  secondaryHref: withBasePath('build-studio/#studio'),
+  secondaryLabel: 'Launch studio',
+  primaryHref: buildMailto('Premium project inquiry'),
+  primaryLabel: 'Start brief',
+};
+
+if (currentPath === '/' || currentPath.startsWith('/gallery')) {
+  cta = currentPath.startsWith('/gallery')
+    ? {
+        accent: '#7dd3fc',
+        eyebrow: 'Gallery route',
+        copy: 'Want one of these design ideas turned into a live build?',
+        detail:
+          'The gallery links back into real pages, not disconnected mockups.',
+        secondaryHref: '#gallery-wall',
+        secondaryLabel: 'View wall',
+        primaryHref: `${withBasePath('contact-hq/')}?tradePage=${encodeURIComponent('Design Gallery')}&brief=${encodeURIComponent('I want to discuss a gallery-inspired site direction.')}`,
+        primaryLabel: 'Discuss concept',
+      }
+    : {
+        accent: '#ccff00',
+        eyebrow: 'Landing intake',
+        copy: 'Use the command center to route into the right trade or build path.',
+        detail:
+          'Trade pages, gallery, services, and studio all stay connected.',
+        secondaryHref: withBasePath('build-studio/#studio'),
+        secondaryLabel: 'Launch studio',
+        primaryHref: `${withBasePath('contact-hq/')}?brief=${encodeURIComponent('I want to scope a premium multi-trade website or project.')}`,
+        primaryLabel: 'Start brief',
+      };
+} else if (currentPath.startsWith('/services')) {
+  cta = {
+    accent: '#ccff00',
+    eyebrow: 'Services intake',
+    copy: 'Need the right mix of trade delivery and retained tech services?',
+    detail:
+      'The planner, catalog, and seven-trade map are all tied into one intake path.',
+    secondaryHref: withBasePath('services/#service-planner'),
+    secondaryLabel: 'Open planner',
+    primaryHref: `${withBasePath('contact-hq/')}?trade=${encodeURIComponent('msp-tech-services')}&tradePage=${encodeURIComponent('Services Hub')}`,
+    primaryLabel: 'Start service intake',
+  };
+} else if (currentPath.startsWith('/company')) {
+  cta = {
+    accent: '#f59e0b',
+    eyebrow: 'Platform discussion',
+    copy: 'Want to adapt this platform architecture into a live delivery site?',
+    detail:
+      'The about page explains the structure. The intake turns it into a real brief.',
+    secondaryHref: withBasePath('trades/'),
+    secondaryLabel: 'Browse trades',
+    primaryHref: `${withBasePath('contact-hq/')}?brief=${encodeURIComponent('I want to discuss the multi-trade platform structure and rollout.')}`,
+    primaryLabel: 'Discuss platform',
+  };
+} else if (activeTrade) {
+  const tradePageLabel = activeSubpage
+    ? activeSubpage.title
+    : `${activeTrade.name} overview`;
+
+  cta = {
+    accent: activeTrade.accent,
+    eyebrow: `${activeTrade.shortName} intake`,
+    copy: activeSubpage
+      ? `Ready to scope ${activeSubpage.shortLabel.toLowerCase()} inside ${activeTrade.shortName}?`
+      : `Need a ${activeTrade.shortName.toLowerCase()} route with actual field setup and owner outputs?`,
+    detail: activeSubpage
+      ? 'This route can flow directly into a trade-aware intake with the page context preserved.'
+      : 'Overview, subpages, and trade intake stay aligned so the page actually functions like a real vertical.',
+    secondaryHref: activeSubpage
+      ? withBasePath(`trades/${activeTrade.slug}/`)
+      : withBasePath(`trades/${activeTrade.slug}/`),
+    secondaryLabel: activeSubpage ? 'Trade overview' : 'Open route',
+    primaryHref: `${withBasePath('contact-hq/')}?trade=${encodeURIComponent(activeTrade.slug)}&tradePage=${encodeURIComponent(tradePageLabel)}`,
+    primaryLabel: activeSubpage
+      ? `Start this route`
+      : `Start ${activeTrade.shortName}`,
+  };
+}
 ---
 
 <div
   id="sticky-cta"
-  class="pointer-events-none fixed bottom-16 left-0 right-0 z-40 hidden px-4 md:hidden"
+  class="pointer-events-none fixed left-0 right-0 z-40 hidden px-4 md:hidden"
+  style="bottom: calc(8.85rem + env(safe-area-inset-bottom)); --sticky-accent: var(--color-primary);"
 >
   <div
-    class="tone-border tone-elevated pointer-events-auto mx-auto flex max-w-[740px] items-center justify-between gap-4 rounded-2xl border px-4 py-3 backdrop-blur"
+    class="tone-border tone-elevated sticky-cta-shell pointer-events-auto mx-auto flex max-w-[760px] items-center justify-between gap-4 rounded-[1.4rem] border px-4 py-3 backdrop-blur"
+    style={`--sticky-accent:${cta.accent};`}
   >
-    <p class="tone-body text-sm">
-      Want a flagship build brief in two minutes?
-      <span class="tone-muted">Live config, no obligation.</span>
+    <p class="tone-body min-w-0 text-sm">
+      <span class="sticky-cta-shell__eyebrow">{cta.eyebrow}</span>
+      <span class="block">
+        {cta.copy}
+        <span class="tone-muted"> {cta.detail}</span>
+      </span>
       <a
-        class="ml-2 text-[#ccff00] hover:underline"
-        href={withBasePath('build-studio/#studio')}>Launch studio</a
+        class="sticky-cta-shell__link mt-2 inline-flex"
+        href={cta.secondaryHref}>{cta.secondaryLabel}</a
       >
     </p>
     <ModernButton
-      href={href}
+      href={cta.primaryHref}
       variant="primary"
       className="pointer-events-auto min-h-[48px] whitespace-nowrap"
     >
-      Schedule
+      {cta.primaryLabel}
     </ModernButton>
   </div>
 </div>
+
+<style>
+  .sticky-cta-shell {
+    position: relative;
+    overflow: hidden;
+    box-shadow:
+      0 26px 54px -32px rgba(0, 0, 0, 0.95),
+      0 0 38px -24px color-mix(in srgb, var(--sticky-accent) 45%, transparent);
+  }
+
+  .sticky-cta-shell::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(
+        circle at top left,
+        color-mix(in srgb, var(--sticky-accent) 18%, transparent),
+        transparent 38%
+      ),
+      linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--sticky-accent) 16%, transparent),
+        transparent 42%
+      );
+    opacity: 0.9;
+  }
+
+  .sticky-cta-shell__eyebrow {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--sticky-accent) 76%, white 24%);
+  }
+
+  .sticky-cta-shell__link {
+    color: color-mix(in srgb, var(--sticky-accent) 78%, white 22%);
+  }
+</style>
 
 <script is:inline>
   (function () {

@@ -7,6 +7,7 @@ import WebVitals from '../components/WebVitals.astro';
 import ErrorTracking from '../components/ErrorTracking.astro';
 import StructuredData from '../components/StructuredData.astro';
 import MobileNav from '../components/business/MobileNav.astro';
+import PageNavigator from '../components/business/PageNavigator.astro';
 import StickyCTA from '../components/business/StickyCTA.astro';
 import LiveChat from '../components/business/LiveChat';
 import CommandPalette from '../components/CommandPalette';
@@ -24,6 +25,11 @@ interface Props {
   showMobileNav?: boolean;
   showLiveChat?: boolean;
   enableClientRouter?: boolean;
+  pageNavigator?: {
+    label: string;
+    items: { id: string; label: string; shortLabel?: string }[];
+    accent?: string;
+  };
 }
 
 const {
@@ -37,6 +43,7 @@ const {
   showMobileNav = true,
   showLiveChat = true,
   enableClientRouter = true,
+  pageNavigator,
 } = Astro.props as Props;
 ---
 
@@ -150,11 +157,16 @@ const {
       Skip to main content
     </a>
     {showHeader ? <Header /> : null}
-    <main id="main-content" class={mainClass} tabindex="-1">
+    <main
+      id="main-content"
+      class={`${mainClass} ${showMobileNav ? 'pb-[calc(8.5rem+env(safe-area-inset-bottom))] md:pb-24' : ''}`.trim()}
+      tabindex="-1"
+    >
       <slot />
     </main>
     {showFooter ? <Footer /> : null}
 
+    {pageNavigator?.items?.length ? <PageNavigator {...pageNavigator} /> : null}
     {showStickyCTA ? <StickyCTA /> : null}
     {showMobileNav ? <MobileNav /> : null}
     <CommandPalette client:only="preact" />

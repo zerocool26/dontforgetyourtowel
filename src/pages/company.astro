@@ -42,6 +42,20 @@ const companySections = [
     copy: 'The showroom, ecommerce-style portfolio, pricing logic, planners, and technology catalog remain active. This site was extended, not flattened.',
   },
 ];
+
+const pageNavigator = {
+  label: 'Platform Guide',
+  accent: '#f59e0b',
+  items: [
+    {
+      id: 'company-hero',
+      label: 'Why This Platform Exists',
+      shortLabel: 'Why',
+    },
+    { id: 'company-logic', label: 'Architecture Logic', shortLabel: 'Logic' },
+    { id: 'company-trades', label: 'Trade Overview', shortLabel: 'Trades' },
+  ],
+};
 ---
 
 <MarketingLayout
@@ -49,10 +63,13 @@ const companySections = [
   description="About the seven-trade Olive Global Systems platform, how it is structured, and how the site connects physical delivery with retained digital capabilities."
   bodyClass="creative-page bg-[#02040a]"
   showFooter={true}
+  pageNavigator={pageNavigator}
 >
   <section
-    class="tone-surface relative overflow-hidden pb-14 pt-28"
+    class="tone-surface relative scroll-mt-32 overflow-hidden pb-14 pt-28"
     data-reveal
+    id="company-hero"
+    data-page-section
   >
     <div
       class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,rgba(204,255,0,0.12),transparent_52%)]"
@@ -119,7 +136,12 @@ const companySections = [
     </div>
   </section>
 
-  <section class="tone-surface" data-reveal>
+  <section
+    class="tone-surface scroll-mt-32"
+    data-reveal
+    id="company-logic"
+    data-page-section
+  >
     <div class="mx-auto max-w-[1360px] px-6 py-12">
       <div class="grid gap-5 xl:grid-cols-[1.05fr_0.95fr]">
         <div class="grid gap-5">
@@ -179,7 +201,12 @@ const companySections = [
     </div>
   </section>
 
-  <section class="tone-surface pb-20" data-reveal>
+  <section
+    class="tone-surface scroll-mt-32 pb-20"
+    data-reveal
+    id="company-trades"
+    data-page-section
+  >
     <div class="mx-auto max-w-[1360px] px-6 py-10">
       <div class="creative-hero-shell p-8">
         <div

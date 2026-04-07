@@ -44,6 +44,21 @@ const tradeBreadcrumbItems = [
     item: new URL(tradeHref, Astro.site).toString(),
   },
 ];
+
+const pageNavigator = {
+  label: `${trade.shortName} Guide`,
+  accent: trade.accent,
+  items: [
+    { id: 'trade-hero', label: 'Trade Overview', shortLabel: 'Overview' },
+    { id: 'trade-scope', label: 'Service Lines', shortLabel: 'Scope' },
+    {
+      id: 'trade-positioning',
+      label: 'Market And Standards',
+      shortLabel: 'Standards',
+    },
+    { id: 'trade-routes', label: 'Focused Routes', shortLabel: 'Routes' },
+  ],
+};
 ---
 
 <MarketingLayout
@@ -51,6 +66,7 @@ const tradeBreadcrumbItems = [
   description={trade.summary}
   bodyClass={`creative-page bg-[#02040a] ${tradeVisual.themeClass}`}
   showFooter={true}
+  pageNavigator={pageNavigator}
 >
   <StructuredData
     type="service"
@@ -67,8 +83,10 @@ const tradeBreadcrumbItems = [
   />
   <StructuredData type="breadcrumbs" data={{ items: tradeBreadcrumbItems }} />
   <section
-    class="tone-surface relative overflow-hidden pb-14 pt-28"
+    class="tone-surface relative scroll-mt-32 overflow-hidden pb-14 pt-28"
     data-reveal
+    id="trade-hero"
+    data-page-section
   >
     <div
       class="absolute inset-0 -z-10 opacity-90"
@@ -192,7 +210,12 @@ const tradeBreadcrumbItems = [
     </div>
   </section>
 
-  <section class="tone-surface" data-reveal>
+  <section
+    class="tone-surface scroll-mt-32"
+    data-reveal
+    id="trade-scope"
+    data-page-section
+  >
     <div class="mx-auto max-w-[1400px] px-6 py-12">
       <div class="grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
         <ModernCard
@@ -277,12 +300,18 @@ const tradeBreadcrumbItems = [
     </div>
   </section>
 
-  <section class="tone-surface" data-reveal>
+  <section
+    class="tone-surface scroll-mt-32"
+    data-reveal
+    id="trade-positioning"
+    data-page-section
+  >
     <div class="mx-auto max-w-[1400px] px-6 py-4">
       <div class="grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
         <ModernCard
           variant="minimal"
-          className="creative-panel trade-side-panel p-6"
+          className="creative-panel trade-side-panel scroll-mt-32 p-6"
+          id="trade-routes"
         >
           <p class="creative-kicker">Market Fit</p>
           <div class="mt-5 grid gap-4">
