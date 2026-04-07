@@ -11,6 +11,7 @@ import ModernButton from './ui/ModernButton.astro';
 const homeHref = withBasePath('/');
 
 const links = [
+  { label: 'Trades', href: withBasePath('trades/') },
   { label: 'Gallery', href: withBasePath('gallery/') },
   { label: 'About', href: withBasePath('company/') },
   { label: 'Services', href: withBasePath('services/') },
@@ -39,6 +40,13 @@ const normalizePath = (value: string) => {
 
 const currentPath = normalizePath(Astro.url.pathname);
 const routeContext = getRouteContext(Astro.url.pathname);
+const isHomePage = currentPath === '/';
+const isTradePage =
+  currentPath === '/trades' || currentPath.startsWith('/trades/');
+const compactContextLinks = routeContext.suggestions.slice(
+  0,
+  isTradePage ? 2 : 1
+);
 
 const searchTriggerClasses =
   'tone-border tone-surface tone-muted inline-flex min-h-[44px] items-center gap-2 rounded-lg border px-3 text-xs font-mono uppercase tracking-[0.22em] transition hover:border-white/20 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ccff00]';
@@ -270,102 +278,99 @@ const isTradeActiveHref = (href: string) => {
     </div>
   </nav>
 
-  <div class="hidden border-t border-white/[0.05] lg:block">
-    <nav
-      class="mx-auto max-w-[1400px] px-5 sm:px-6 lg:px-8"
-      aria-label="Trade navigation"
-    >
-      <div class="flex items-center gap-2 overflow-x-auto py-3 scrollbar-hide">
-        <a
-          class={`rounded-full border px-3 py-1.5 font-mono text-[0.68rem] uppercase tracking-[0.24em] transition ${
-            isActiveHref(withBasePath('trades/'))
-              ? 'border-[#ccff00]/40 bg-[#ccff00]/10 text-white'
-              : 'border-white/10 bg-white/[0.03] text-white/55 hover:border-white/20 hover:text-white'
-          }`}
-          href={withBasePath('trades/')}
-          data-astro-prefetch
-          aria-current={isActiveHref(withBasePath('trades/'))
-            ? 'page'
-            : undefined}
+  {
+    isTradePage ? (
+      <div class="hidden border-t border-white/[0.05] lg:block">
+        <nav
+          class="mx-auto max-w-[1400px] px-5 sm:px-6 lg:px-8"
+          aria-label="Trade navigation"
         >
-          Trade Directory
-        </a>
-        {
-          tradeLinks.map(link => {
-            const active = isTradeActiveHref(link.href);
-            return (
-              <a
-                class={`rounded-full border px-3 py-1.5 font-mono text-[0.68rem] uppercase tracking-[0.22em] transition ${
-                  active
-                    ? 'text-white shadow-[0_0_20px_rgba(255,255,255,0.08)]'
-                    : 'text-white/58 hover:text-white'
-                }`}
-                style={`border-color: ${active ? `color-mix(in srgb, ${link.accent} 42%, transparent)` : 'rgba(255,255,255,0.08)'}; background:${active ? `color-mix(in srgb, ${link.accent} 14%, rgba(255,255,255,0.03))` : 'rgba(255,255,255,0.03)'};`}
-                href={link.href}
-                data-astro-prefetch
-                aria-current={active ? 'page' : undefined}
-              >
-                {link.label}
-              </a>
-            );
-          })
-        }
-      </div>
-    </nav>
-  </div>
-
-  <div class="border-t border-white/[0.05]">
-    <div class="mx-auto max-w-[1400px] px-4 py-3 sm:px-6 lg:px-8">
-      <div
-        class="header-context flex flex-col gap-3 rounded-[1.2rem] border border-white/10 bg-white/[0.03] px-4 py-3 md:flex-row md:items-center md:justify-between"
-        style="box-shadow: 0 18px 44px -32px rgba(0,0,0,0.92), 0 0 30px -24px color-mix(in srgb, var(--header-route-accent) 38%, transparent);"
-      >
-        <div class="min-w-0">
-          <div class="flex flex-wrap items-center gap-2">
-            <span
-              class="inline-flex rounded-full border px-2.5 py-1 font-mono text-[0.62rem] uppercase tracking-[0.2em] text-white/80"
-              style="border-color: color-mix(in srgb, var(--header-route-accent) 32%, rgba(255,255,255,0.08)); background: color-mix(in srgb, var(--header-route-accent) 10%, rgba(255,255,255,0.03));"
+          <div class="flex items-center gap-2 overflow-x-auto py-2.5 scrollbar-hide">
+            <a
+              class={`rounded-full border px-3 py-1.5 font-mono text-[0.68rem] uppercase tracking-[0.24em] transition ${
+                isActiveHref(withBasePath('trades/'))
+                  ? 'border-[#ccff00]/40 bg-[#ccff00]/10 text-white'
+                  : 'border-white/10 bg-white/[0.03] text-white/55 hover:border-white/20 hover:text-white'
+              }`}
+              href={withBasePath('trades/')}
+              data-astro-prefetch
+              aria-current={
+                isActiveHref(withBasePath('trades/')) ? 'page' : undefined
+              }
             >
-              {routeContext.currentCategory}
-            </span>
-            <span
-              class="text-white/38 font-mono text-[0.62rem] uppercase tracking-[0.18em]"
-            >
-              {routeContext.kicker}
-            </span>
-          </div>
-          <p
-            class="mt-2 truncate text-sm font-semibold text-white sm:text-base"
-          >
-            {routeContext.currentTitle}
-          </p>
-          <p class="text-white/56 mt-1 max-w-3xl text-sm leading-relaxed">
-            {routeContext.currentDescription}
-          </p>
-        </div>
-
-        <div
-          class="flex gap-2 overflow-x-auto pb-1 scrollbar-hide md:max-w-[44rem] md:justify-end"
-        >
-          {
-            routeContext.suggestions.slice(0, 2).map(link => (
-              <a
-                href={link.href}
-                class="header-context__link min-w-[11rem] flex-1 rounded-2xl border border-white/10 bg-black/20 px-3 py-2.5 transition hover:border-white/20 hover:bg-white/[0.05] md:min-w-[12.5rem] md:flex-none"
-              >
-                <span class="block text-sm font-semibold text-white">
+              Trade Directory
+            </a>
+            {tradeLinks.map(link => {
+              const active = isTradeActiveHref(link.href);
+              return (
+                <a
+                  class={`rounded-full border px-3 py-1.5 font-mono text-[0.68rem] uppercase tracking-[0.22em] transition ${
+                    active
+                      ? 'text-white shadow-[0_0_20px_rgba(255,255,255,0.08)]'
+                      : 'text-white/58 hover:text-white'
+                  }`}
+                  style={`border-color: ${active ? `color-mix(in srgb, ${link.accent} 42%, transparent)` : 'rgba(255,255,255,0.08)'}; background:${active ? `color-mix(in srgb, ${link.accent} 14%, rgba(255,255,255,0.03))` : 'rgba(255,255,255,0.03)'};`}
+                  href={link.href}
+                  data-astro-prefetch
+                  aria-current={active ? 'page' : undefined}
+                >
                   {link.label}
-                </span>
-                <span class="mt-1 block text-xs leading-relaxed text-white/50">
-                  {link.detail}
-                </span>
-              </a>
-            ))
-          }
+                </a>
+              );
+            })}
+          </div>
+        </nav>
+      </div>
+    ) : null
+  }
+
+  {
+    !isHomePage ? (
+      <div class="border-t border-white/[0.05]">
+        <div class="mx-auto max-w-[1400px] px-4 py-2.5 sm:px-6 lg:px-8">
+          <div class="header-context-compact flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div class="flex min-w-0 items-start gap-3">
+              <span
+                class="mt-0.5 inline-flex flex-shrink-0 rounded-full border px-2.5 py-1 font-mono text-[0.6rem] uppercase tracking-[0.22em] text-white/80"
+                style="border-color: color-mix(in srgb, var(--header-route-accent) 30%, rgba(255,255,255,0.08)); background: color-mix(in srgb, var(--header-route-accent) 8%, rgba(255,255,255,0.03));"
+              >
+                {routeContext.currentCategory}
+              </span>
+              <div class="min-w-0">
+                <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <p class="truncate text-sm font-semibold text-white sm:text-[0.95rem]">
+                    {routeContext.currentTitle}
+                  </p>
+                  <span class="text-white/34 font-mono text-[0.58rem] uppercase tracking-[0.22em]">
+                    {routeContext.kicker}
+                  </span>
+                </div>
+                <p class="text-white/48 mt-1 hidden max-w-3xl truncate text-sm leading-relaxed xl:block">
+                  {routeContext.currentDescription}
+                </p>
+              </div>
+            </div>
+
+            <div class="flex gap-2 overflow-x-auto pb-1 scrollbar-hide md:max-w-[34rem] md:justify-end">
+              {compactContextLinks.map(link => (
+                <a
+                  href={link.href}
+                  class="header-context-compact__link min-w-[10rem] flex-1 rounded-full border border-white/10 bg-white/[0.03] px-3 py-2 transition hover:border-white/20 hover:bg-white/[0.05] md:min-w-0 md:flex-none"
+                >
+                  <span class="block text-sm font-semibold text-white">
+                    {link.label}
+                  </span>
+                  <span class="text-white/46 mt-0.5 hidden text-[0.72rem] leading-relaxed lg:block">
+                    {link.detail}
+                  </span>
+                </a>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
+    ) : null
+  }
 
   <div class="lg:hidden" id="mobile-menu" hidden>
     <div
