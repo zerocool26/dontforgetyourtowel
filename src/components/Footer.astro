@@ -2,8 +2,10 @@
 import { withBasePath } from '../utils/helpers';
 import ModernCard from './ui/ModernCard.astro';
 import ModernButton from './ui/ModernButton.astro';
+import RouteAtlas from './business/RouteAtlas.astro';
 
 const today = new Date();
+const buildStamp = today.toISOString().split('T')[0].replace(/-/g, '');
 
 const navSections = [
   {
@@ -58,6 +60,10 @@ const navSections = [
   </div>
 
   <div class="relative z-10 mx-auto max-w-[1400px] px-6 py-16">
+    <div class="mb-10">
+      <RouteAtlas />
+    </div>
+
     <div class="grid gap-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
       <div class="space-y-6">
         <div class="flex items-center gap-3">
@@ -142,9 +148,7 @@ const navSections = [
           <p
             class="font-mono text-[10px] uppercase tracking-widest text-white/20"
           >
-            Build ID: {
-              new Date().toISOString().split('T')[0].replace(/-/g, '')
-            }.{Math.floor(Math.random() * 1000)}
+            Build ID: {buildStamp}.atlas
           </p>
         </div>
       </div>

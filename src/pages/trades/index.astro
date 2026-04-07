@@ -25,6 +25,24 @@ const tradeSignals = [
     value: 'Homepage + services',
   },
 ];
+
+const pageNavigator = {
+  label: 'Trade Directory',
+  accent: '#ccff00',
+  items: [
+    {
+      id: 'trade-directory-hero',
+      label: 'Directory Overview',
+      shortLabel: 'Overview',
+    },
+    { id: 'directory', label: 'Trade Grid', shortLabel: 'Trades' },
+    {
+      id: 'trade-programs',
+      label: 'Integrated Programs',
+      shortLabel: 'Programs',
+    },
+  ],
+};
 ---
 
 <MarketingLayout
@@ -32,6 +50,7 @@ const tradeSignals = [
   description="Browse the seven trade divisions and their supporting subpages across the integrated Olive Global Systems website."
   bodyClass="creative-page bg-[#02040a]"
   showFooter={true}
+  pageNavigator={pageNavigator}
 >
   <StructuredData
     type="collection"
@@ -61,8 +80,10 @@ const tradeSignals = [
     }}
   />
   <section
-    class="tone-surface relative overflow-hidden pb-14 pt-28"
+    class="tone-surface relative scroll-mt-32 overflow-hidden pb-14 pt-28"
     data-reveal
+    id="trade-directory-hero"
+    data-page-section
   >
     <div
       class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,rgba(204,255,0,0.12),transparent_52%)]"
@@ -120,7 +141,12 @@ const tradeSignals = [
     </div>
   </section>
 
-  <section class="tone-surface" id="directory" data-reveal>
+  <section
+    class="tone-surface scroll-mt-32"
+    id="directory"
+    data-reveal
+    data-page-section
+  >
     <div class="mx-auto max-w-[1400px] px-6 py-12">
       <div class="grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
         {
@@ -132,7 +158,12 @@ const tradeSignals = [
     </div>
   </section>
 
-  <section class="tone-surface pb-20" data-reveal>
+  <section
+    class="tone-surface scroll-mt-32 pb-20"
+    data-reveal
+    id="trade-programs"
+    data-page-section
+  >
     <div class="mx-auto max-w-[1400px] px-6">
       <div class="grid gap-5 xl:grid-cols-3">
         {

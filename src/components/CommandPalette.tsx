@@ -27,11 +27,16 @@ import { createFocusTrap, announce } from '../utils/a11y';
 import { get as httpGet } from '../utils/http';
 import { withBasePath } from '../utils/helpers';
 import { isLegacyRouteUrl } from '../utils/legacy-routes';
+import {
+  readRecentRoutes,
+  toNavigableRouteUrl,
+} from '../utils/route-memory';
 
 type CommandCategory =
   | 'Navigation'
   | 'Theme'
   | 'Actions'
+  | 'Recent'
   | 'Page'
   | 'Case Study';
 
@@ -240,6 +245,7 @@ export default function CommandPalette() {
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [searchItems, setSearchItems] = useState<CommandItem[]>([]);
+  const [recentCommands, setRecentCommands] = useState<CommandItem[]>([]);
   const [filteredCommands, setFilteredCommands] =
     useState<CommandItem[]>(BASE_COMMANDS);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -261,6 +267,19 @@ export default function CommandPalette() {
   }, []);
   const shortcutLabel = isMac ? 'Cmd K' : 'Ctrl K';
   const shortcutText = isMac ? 'Command K' : 'Control K';
+
+  const loadRecentCommands = useCallback(() => {
+    const items = readRecentRoutes().slice(0, 4).map(item => ({
+      id: `recent-${item.url}`,
+      label: item.title,
+      icon: Layout,
+      action: () => navigate(toNavigableRouteUrl(item.url)),
+      category: 'Recent' as const,
+      keywords: [item.category.toLowerCase(), 'recent', item.url],
+      description: item.description,
+    }));
+    setRecentCommands(items);
+  }, []);
 
   // Fetch search index using our http utility
   const fetchSearchIndex = useCallback(async () => {
@@ -299,16 +318,49 @@ export default function CommandPalette() {
     }
   }, [isOpen, searchItems.length, fetchSearchIndex]);
 
+  useEffect(() => {
+    if (isOpen) {
+      loadRecentCommands();
+    }
+  }, [isOpen, loadRecentCommands]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleRouteMemoryUpdate = () => {
+      loadRecentCommands();
+    };
+
+    window.addEventListener(
+      'olive:route-memory-updated',
+      handleRouteMemoryUpdate as EventListener
+    );
+
+    return () => {
+      window.removeEventListener(
+        'olive:route-memory-updated',
+        handleRouteMemoryUpdate as EventListener
+      );
+    };
+  }, [loadRecentCommands]);
+
   // Debounce input to avoid running fuzzy search on every keystroke
   useEffect(() => {
     const handle = setTimeout(() => setDebouncedQuery(query), 120);
     return () => clearTimeout(handle);
   }, [query]);
 
-  const allCommands = useMemo(
-    () => [...BASE_COMMANDS, ...searchItems],
-    [searchItems]
-  );
+  const allCommands = useMemo(() => {
+    const seenLabels = new Set<string>();
+    return [...recentCommands, ...BASE_COMMANDS, ...searchItems].filter(
+      command => {
+        const key = command.label.trim().toLowerCase();
+        if (seenLabels.has(key)) return false;
+        seenLabels.add(key);
+        return true;
+      }
+    );
+  }, [recentCommands, searchItems]);
   const searchableCommands = useMemo(
     () =>
       allCommands.map(({ id, label, category, keywords, description }) => ({
@@ -693,10 +745,10 @@ export default function CommandPalette() {
                     id={optionId}
                     role="option"
                     aria-selected={isSelected}
-                    className={`flex cursor-pointer items-center gap-3 rounded-lg px-4 py-3 transition-colors ${
+                    className={`flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 transition-all ${
                       isSelected
-                        ? 'bg-indigo-600 text-white'
-                        : 'tone-body hover:bg-zinc-800'
+                        ? 'border-[#ccff00]/30 bg-[#ccff00]/10 text-white shadow-[0_0_28px_rgba(204,255,0,0.08)]'
+                        : 'tone-body border-transparent hover:border-white/10 hover:bg-white/[0.04]'
                     }`}
                     onClick={() => {
                       command.action();
@@ -705,18 +757,33 @@ export default function CommandPalette() {
                     onMouseEnter={() => setSelectedIndex(index)}
                   >
                     <Icon
-                      className={`h-5 w-5 ${isSelected ? 'text-white' : 'tone-muted'}`}
+                      className={`mt-1 h-5 w-5 ${isSelected ? 'text-[#ccff00]' : 'tone-muted'}`}
                     />
                     <div className="flex flex-1 flex-col">
-                      <span className="font-medium">{command.label}</span>
-                      <span
-                        className={`text-xs ${isSelected ? 'text-indigo-200' : 'tone-muted'}`}
-                      >
-                        {command.category}
-                      </span>
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="font-medium">{command.label}</span>
+                        <span
+                          className={`rounded-full border px-2 py-0.5 text-[10px] font-mono uppercase tracking-[0.18em] ${
+                            isSelected
+                              ? 'border-[#ccff00]/30 text-[#ccff00]'
+                              : 'border-white/10 text-zinc-500'
+                          }`}
+                        >
+                          {command.category}
+                        </span>
+                      </div>
+                      {command.description ? (
+                        <span
+                          className={`mt-1 text-xs leading-relaxed ${
+                            isSelected ? 'text-white/75' : 'tone-muted'
+                          }`}
+                        >
+                          {command.description}
+                        </span>
+                      ) : null}
                     </div>
                     {isSelected && (
-                      <Command className="h-4 w-4 text-indigo-200" />
+                      <Command className="mt-1 h-4 w-4 text-[#ccff00]" />
                     )}
                   </li>
                 );
