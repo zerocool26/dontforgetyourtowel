@@ -24,7 +24,7 @@ const analyticsEnabled =
 // MSP/IT services branding (safe defaults; customise as needed)
 export const SITE_TITLE = 'Olive Global Systems';
 export const SITE_DESCRIPTION =
-  'Elite-tier IT architecture, autonomous AI engineering, and next-gen cybersecurity for global enterprises. Leading the 2026 technology transition.';
+  'Integrated trade platform for mechanical, electrical, plumbing, general contracting, commercial HVAC, auto repair, and MSP technology services.';
 export const SITE_URL = DEPLOYMENT.siteUrl;
 export const BASE_PATH = import.meta.env.BASE_URL ?? DEPLOYMENT.basePath;
 export const DEPLOYMENT_CONFIG = DEPLOYMENT;

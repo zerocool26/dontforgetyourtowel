@@ -1,0 +1,135 @@
+---
+import MarketingLayout from '../../layouts/MarketingLayout.astro';
+import ModernButton from '../../components/ui/ModernButton.astro';
+import ModernCard from '../../components/ui/ModernCard.astro';
+import TradeDirectoryCard from '../../components/business/TradeDirectoryCard.astro';
+import {
+  tradeProfiles,
+  tradePrograms,
+  totalTradeSubpages,
+} from '../../data/trades';
+import { withBasePath } from '../../utils/helpers';
+
+const tradeSignals = [
+  {
+    label: 'Trade overviews',
+    value: String(tradeProfiles.length),
+  },
+  {
+    label: 'Trade subpages',
+    value: String(totalTradeSubpages),
+  },
+  {
+    label: 'Linked hub',
+    value: 'Homepage + services',
+  },
+];
+---
+
+<MarketingLayout
+  title="Trade Directory | Olive Global Systems"
+  description="Browse the seven trade divisions and their supporting subpages across the integrated Olive Global Systems website."
+  bodyClass="creative-page bg-[#02040a]"
+  showFooter={true}
+>
+  <section
+    class="tone-surface relative overflow-hidden pb-14 pt-28"
+    data-reveal
+  >
+    <div
+      class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,rgba(204,255,0,0.12),transparent_52%)]"
+    >
+    </div>
+    <div class="mx-auto max-w-[1400px] px-6">
+      <div
+        class="creative-hero-shell grid gap-8 p-8 xl:grid-cols-[1.15fr_0.85fr]"
+      >
+        <div class="space-y-5">
+          <p class="creative-kicker">Trade Directory</p>
+          <h1
+            class="tone-title text-5xl font-semibold tracking-tight sm:text-6xl"
+          >
+            Seven trade lanes. One shared navigation system.
+          </h1>
+          <p class="tone-body max-w-3xl text-base leading-relaxed">
+            This directory is the structured browse layer for the new site
+            architecture. Each trade has its own overview page, tailored
+            subpages, and links back into the homepage and services hub.
+          </p>
+          <div class="flex flex-col gap-3 sm:flex-row">
+            <ModernButton
+              href={withBasePath('/')}
+              variant="primary"
+              className="min-h-[48px]"
+            >
+              Return to landing page
+            </ModernButton>
+            <ModernButton
+              href={withBasePath('services/')}
+              variant="secondary"
+              className="min-h-[48px]"
+            >
+              Open services hub
+            </ModernButton>
+          </div>
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-3 xl:grid-cols-1">
+          {
+            tradeSignals.map(signal => (
+              <ModernCard variant="minimal" className="creative-panel p-5">
+                <p class="tone-muted text-xs uppercase tracking-[0.24em]">
+                  {signal.label}
+                </p>
+                <p class="tone-title mt-2 text-3xl font-semibold">
+                  {signal.value}
+                </p>
+              </ModernCard>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="tone-surface" id="directory" data-reveal>
+    <div class="mx-auto max-w-[1400px] px-6 py-12">
+      <div class="grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
+        {
+          tradeProfiles.map(trade => (
+            <TradeDirectoryCard trade={trade} showMarketFocus={true} />
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="tone-surface pb-20" data-reveal>
+    <div class="mx-auto max-w-[1400px] px-6">
+      <div class="grid gap-5 xl:grid-cols-3">
+        {
+          tradePrograms.map(program => (
+            <ModernCard variant="minimal" className="creative-panel p-6">
+              <p class="creative-kicker">{program.title}</p>
+              <p class="tone-body mt-4 text-sm">{program.description}</p>
+              <div class="mt-5 flex flex-wrap gap-2">
+                {program.tradeSlugs.map(slug => {
+                  const trade = tradeProfiles.find(item => item.slug === slug);
+                  return trade ? (
+                    <a
+                      class="creative-chip"
+                      href={withBasePath(`trades/${trade.slug}/`)}
+                      style={`border-color: color-mix(in srgb, ${trade.accent} 28%, rgba(255,255,255,0.08));`}
+                    >
+                      {trade.shortName}
+                    </a>
+                  ) : null;
+                })}
+              </div>
+            </ModernCard>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</MarketingLayout>

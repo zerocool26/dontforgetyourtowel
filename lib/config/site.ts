@@ -7,7 +7,7 @@ const analyticsEnabled = analyticsFlag === 'true' || analyticsFlag === '1';
 
 export const SITE_TITLE = 'Olive Chicago';
 export const SITE_DESCRIPTION =
-  'Enterprise-grade managed IT, cybersecurity, cloud, and AI consulting for growing businesses.';
+  'Integrated trade platform across mechanical, electrical, plumbing, general contracting, commercial HVAC, auto repair, and MSP services.';
 export const SITE_URL = deployment.siteUrl;
 export const BASE_PATH = deployment.basePath;
 export const CONTACT_EMAIL =

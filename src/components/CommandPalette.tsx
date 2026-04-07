@@ -88,6 +88,23 @@ const BASE_COMMANDS: CommandItem[] = [
     category: 'Navigation',
   },
   {
+    id: 'nav-trades',
+    label: 'Open Trade Directory',
+    icon: Layout,
+    action: () => navigate(withBasePath('trades/')),
+    category: 'Navigation',
+    keywords: [
+      'trades',
+      'mechanical',
+      'electrical',
+      'plumbing',
+      'general contracting',
+      'commercial hvac',
+      'auto repair',
+      'msp',
+    ],
+  },
+  {
     id: 'nav-services',
     label: 'Go to Services',
     icon: Box,

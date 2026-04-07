@@ -1,19 +1,463 @@
 ---
-import Layout from '../layouts/MarketingLayout.astro';
+import MarketingLayout from '../layouts/MarketingLayout.astro';
 import OliveUniverse from '../components/react/OliveUniverse';
+import ModernButton from '../components/ui/ModernButton.astro';
+import ModernCard from '../components/ui/ModernCard.astro';
+import TradeDirectoryCard from '../components/business/TradeDirectoryCard.astro';
+import { CONTACT_EMAIL } from '../consts';
+import {
+  tradeProfiles,
+  tradePrograms,
+  totalTradeSubpages,
+} from '../data/trades';
+import { servicesExtended } from '../data/services-extended';
+import { withBasePath } from '../utils/helpers';
+
+const startProjectHref = `mailto:${encodeURIComponent(
+  CONTACT_EMAIL
+)}?subject=${encodeURIComponent('Multi-trade project inquiry')}`;
+
+const homeSignals = [
+  {
+    label: 'Trade divisions',
+    value: String(tradeProfiles.length),
+    detail:
+      'Mechanical, electrical, plumbing, general contracting, commercial HVAC, auto repair, and MSP/tech.',
+  },
+  {
+    label: 'Tailored subpages',
+    value: String(totalTradeSubpages),
+    detail:
+      'Each trade now has its own overview plus supporting route surfaces.',
+  },
+  {
+    label: 'Tech capability depth',
+    value: `${servicesExtended.length}+`,
+    detail:
+      'The original managed services and digital systems stack remains live inside the hub.',
+  },
+  {
+    label: 'Landing role',
+    value: 'Source of truth',
+    detail:
+      'Homepage, directory pages, and trade routes now pull from the same trade model.',
+  },
+];
+
+const executionBands = [
+  {
+    title: 'Preconstruction And Discovery',
+    description:
+      'Scope framing, phasing, asset conditions, and commercial intent are translated into structured trade pages rather than buried in generic copy.',
+  },
+  {
+    title: 'Field Delivery And Coordination',
+    description:
+      'Mechanical, electrical, plumbing, general contracting, HVAC, fleet service, and MSP workflows now read like connected operations instead of unrelated pages.',
+  },
+  {
+    title: 'Turnover And Ongoing Service',
+    description:
+      'Closeout, service continuity, support, and future modernization stay tied back to the same landing architecture.',
+  },
+];
+
+const showcaseLinks = [
+  {
+    title: 'Trade directory',
+    description:
+      'Browse the seven trade lanes, their summaries, and linked subpages from a single command surface.',
+    href: withBasePath('trades/#directory'),
+  },
+  {
+    title: 'Services command hub',
+    description:
+      'Keep the full MSP, security, cloud, AI, and digital systems catalog active inside the broader site.',
+    href: withBasePath('services/'),
+  },
+  {
+    title: 'Build Studio',
+    description:
+      'The flagship interactive showroom still stays live as a proof point for the creative and ecommerce side of the site.',
+    href: withBasePath('build-studio/#studio'),
+  },
+  {
+    title: 'Portfolio and commerce',
+    description:
+      'Existing ecommerce and showcase experiences remain part of the main site rather than being stripped out.',
+    href: withBasePath('about/#shop-experience'),
+  },
+];
 ---
 
-<Layout
-  title="Olive Global Systems — Immersive Creative Systems"
-  description="A single fullscreen interactive landing experience built as a cinematic digital showcase for Olive Global Systems."
-  mainClass="m-0 p-0"
-  bodyClass="overflow-hidden bg-[#02040a]"
-  showFooter={false}
-  showStickyCTA={false}
-  showHeader={false}
-  showMobileNav={false}
-  showLiveChat={false}
-  enableClientRouter={false}
+<MarketingLayout
+  title="Olive Global Systems | Seven-Trade Delivery Platform"
+  description="Creative, professional multi-trade website for mechanical, electrical, plumbing, general contracting, commercial HVAC, auto repair, and MSP/tech services."
+  mainClass="relative isolate overflow-x-clip"
+  bodyClass="creative-page bg-[#02040a]"
+  showFooter={true}
 >
   <OliveUniverse client:load />
-</Layout>
+
+  <section class="relative min-h-[100dvh] overflow-hidden">
+    <div
+      class="absolute inset-0 bg-[linear-gradient(180deg,rgba(2,4,10,0.18),rgba(2,4,10,0.58)_48%,rgba(2,4,10,0.92)_100%)]"
+    >
+    </div>
+    <div class="relative z-20 mx-auto max-w-[1400px] px-6 pb-20 pt-28 sm:pt-36">
+      <div class="grid gap-8 xl:grid-cols-[1.2fr_0.8fr] xl:items-end">
+        <div class="pointer-events-none max-w-4xl space-y-7">
+          <div class="pointer-events-auto inline-flex flex-wrap gap-2">
+            <span class="creative-kicker">Landing Command Center</span>
+            <span class="creative-chip">7 trade lanes</span>
+            <span class="creative-chip">Integrated services hub</span>
+            <span class="creative-chip">Interactive demos retained</span>
+          </div>
+
+          <div class="pointer-events-auto space-y-5">
+            <h1
+              class="tone-title max-w-5xl text-5xl !leading-[0.94] tracking-[-0.06em] sm:text-6xl lg:text-7xl xl:text-[5.6rem]"
+            >
+              Immersive landing experience for
+              <span class="creative-gradient-text--accent">
+                seven integrated trade divisions.
+              </span>
+            </h1>
+            <p
+              class="creative-copy text-white/78 max-w-3xl text-lg leading-relaxed sm:text-xl"
+            >
+              The homepage now acts as the source of truth for mechanical,
+              electrical, plumbing, general contracting, commercial HVAC, auto
+              repair, and MSP/tech services. Existing ecommerce, portfolio, and
+              showroom work stays live and is folded into the same system
+              instead of being removed.
+            </p>
+          </div>
+
+          <div class="pointer-events-auto flex flex-col gap-3 sm:flex-row">
+            <ModernButton
+              href={withBasePath('trades/#directory')}
+              variant="gradient"
+              className="min-h-[50px]"
+            >
+              Explore all trade pages
+            </ModernButton>
+            <ModernButton
+              href={withBasePath('services/')}
+              variant="secondary"
+              className="min-h-[50px]"
+            >
+              Open services hub
+            </ModernButton>
+            <ModernButton
+              href={startProjectHref}
+              variant="outline"
+              className="min-h-[50px]"
+            >
+              Start a multi-trade brief
+            </ModernButton>
+          </div>
+
+          <div class="pointer-events-auto flex flex-wrap gap-2 pt-3">
+            {
+              tradeProfiles.map(trade => (
+                <a
+                  class="creative-chip"
+                  href={withBasePath(`trades/${trade.slug}/`)}
+                  style={`border-color: color-mix(in srgb, ${trade.accent} 28%, rgba(255,255,255,0.08));`}
+                >
+                  {trade.shortName}
+                </a>
+              ))
+            }
+          </div>
+        </div>
+
+        <div class="pointer-events-auto grid gap-4">
+          {
+            homeSignals.map(signal => (
+              <ModernCard variant="minimal" className="creative-panel p-5">
+                <p class="tone-muted text-xs uppercase tracking-[0.26em]">
+                  {signal.label}
+                </p>
+                <p class="tone-title mt-2 text-3xl font-semibold">
+                  {signal.value}
+                </p>
+                <p class="tone-body mt-2 text-sm">{signal.detail}</p>
+              </ModernCard>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="relative z-20" data-reveal id="directory">
+    <div class="mx-auto max-w-[1400px] px-6 py-10">
+      <div class="creative-hero-shell p-8">
+        <div
+          class="flex flex-col gap-6 border-b border-white/10 pb-8 md:flex-row md:items-end md:justify-between"
+        >
+          <div class="max-w-3xl space-y-4">
+            <p class="creative-kicker">Trade Directory</p>
+            <h2 class="tone-title text-4xl font-semibold tracking-tight">
+              A professional trade map tied back to one landing system.
+            </h2>
+            <p class="tone-body text-base leading-relaxed">
+              Every trade gets its own page and subpages, but the language,
+              links, and positioning stay anchored to the homepage so the site
+              reads like one serious operation rather than seven disconnected
+              microsites.
+            </p>
+          </div>
+          <ModernButton
+            href={withBasePath('trades/')}
+            variant="secondary"
+            className="min-h-[48px]"
+          >
+            Open trade directory
+          </ModernButton>
+        </div>
+
+        <div class="mt-8 grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
+          {tradeProfiles.map(trade => <TradeDirectoryCard trade={trade} />)}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="relative z-20" data-reveal>
+    <div class="mx-auto max-w-[1400px] px-6 py-10">
+      <div class="grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
+        <ModernCard variant="minimal" className="creative-panel p-7">
+          <p class="creative-kicker">Execution Bands</p>
+          <h2 class="tone-title mt-4 text-3xl font-semibold">
+            The landing page now describes how the whole site operates.
+          </h2>
+          <div class="mt-8 space-y-5">
+            {
+              executionBands.map((band, index) => (
+                <div class="flex items-start gap-4">
+                  <span class="mt-1 inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/10 font-mono text-xs text-white/70">
+                    0{index + 1}
+                  </span>
+                  <div>
+                    <p class="tone-title text-lg font-semibold">{band.title}</p>
+                    <p class="tone-body mt-1 text-sm">{band.description}</p>
+                  </div>
+                </div>
+              ))
+            }
+          </div>
+        </ModernCard>
+
+        <ModernCard variant="minimal" className="creative-panel p-7">
+          <p class="creative-kicker">Integrated Programs</p>
+          <div class="mt-6 grid gap-4">
+            {
+              tradePrograms.map(program => (
+                <div class="rounded-3xl border border-white/10 bg-white/[0.02] p-5">
+                  <div class="border-white/8 flex flex-col gap-3 border-b pb-4 md:flex-row md:items-start md:justify-between">
+                    <div class="max-w-2xl">
+                      <h3 class="tone-title text-xl font-semibold">
+                        {program.title}
+                      </h3>
+                      <p class="tone-body mt-2 text-sm">
+                        {program.description}
+                      </p>
+                    </div>
+                    <span class="creative-chip whitespace-nowrap">
+                      {program.tradeSlugs.length} trades linked
+                    </span>
+                  </div>
+                  <div class="mt-4 flex flex-wrap gap-2">
+                    {program.tradeSlugs.map(slug => {
+                      const trade = tradeProfiles.find(
+                        item => item.slug === slug
+                      );
+                      return trade ? (
+                        <a
+                          class="creative-chip"
+                          href={withBasePath(`trades/${trade.slug}/`)}
+                          style={`border-color: color-mix(in srgb, ${trade.accent} 28%, rgba(255,255,255,0.08));`}
+                        >
+                          {trade.shortName}
+                        </a>
+                      ) : null;
+                    })}
+                  </div>
+                  <div class="mt-4 grid gap-3 md:grid-cols-3">
+                    {program.outputs.map(output => (
+                      <div class="border-white/8 rounded-2xl border bg-black/20 px-4 py-3 text-sm text-white/75">
+                        {output}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))
+            }
+          </div>
+        </ModernCard>
+      </div>
+    </div>
+  </section>
+
+  <section class="relative z-20" data-reveal>
+    <div class="mx-auto max-w-[1400px] px-6 py-10">
+      <div class="grid gap-5 xl:grid-cols-[1.05fr_0.95fr]">
+        <ModernCard variant="minimal" className="creative-panel p-7">
+          <p class="creative-kicker">Page Network</p>
+          <h2 class="tone-title mt-4 text-3xl font-semibold">
+            The homepage now points directly to the rest of the site.
+          </h2>
+          <p class="tone-body mt-3 max-w-3xl text-sm">
+            Each overview page and subpage below is linked from the same trade
+            model. That means navigation, search, and directory views all stay
+            aligned without hand-maintaining duplicate content.
+          </p>
+
+          <div class="mt-8 grid gap-4 lg:grid-cols-2">
+            {
+              tradeProfiles.map(trade => (
+                <div class="rounded-3xl border border-white/10 bg-white/[0.02] p-5">
+                  <div class="flex items-center justify-between gap-4">
+                    <div>
+                      <p class="tone-title text-lg font-semibold">
+                        {trade.name}
+                      </p>
+                      <p class="tone-body mt-1 text-sm">{trade.marketFocus}</p>
+                    </div>
+                    <a
+                      class="creative-chip"
+                      href={withBasePath(`trades/${trade.slug}/`)}
+                      style={`border-color: color-mix(in srgb, ${trade.accent} 28%, rgba(255,255,255,0.08));`}
+                    >
+                      Overview
+                    </a>
+                  </div>
+                  <div class="mt-4 flex flex-wrap gap-2">
+                    {trade.subpages.map(subpage => (
+                      <a
+                        class="creative-chip"
+                        href={withBasePath(
+                          `trades/${trade.slug}/${subpage.slug}/`
+                        )}
+                        style={`border-color: color-mix(in srgb, ${trade.accent} 28%, rgba(255,255,255,0.08));`}
+                      >
+                        {subpage.shortLabel}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              ))
+            }
+          </div>
+        </ModernCard>
+
+        <ModernCard variant="minimal" className="creative-panel p-7">
+          <p class="creative-kicker">Existing Work Preserved</p>
+          <div class="mt-6 grid gap-4">
+            {
+              showcaseLinks.map(link => (
+                <a
+                  href={link.href}
+                  class="rounded-3xl border border-white/10 bg-white/[0.02] p-5 transition hover:border-white/20 hover:bg-white/[0.04]"
+                >
+                  <p class="tone-title text-lg font-semibold">{link.title}</p>
+                  <p class="tone-body mt-2 text-sm">{link.description}</p>
+                </a>
+              ))
+            }
+          </div>
+        </ModernCard>
+      </div>
+    </div>
+  </section>
+
+  <section class="relative z-20" data-reveal>
+    <div class="mx-auto max-w-[1400px] px-6 py-10">
+      <div class="creative-hero-shell grid gap-8 p-8 lg:grid-cols-[1fr_0.9fr]">
+        <div class="space-y-4">
+          <p class="creative-kicker">MSP Shift</p>
+          <h2 class="tone-title text-4xl font-semibold tracking-tight">
+            MSP and tech services were not removed. They were elevated into the
+            same trade structure.
+          </h2>
+          <p class="tone-body max-w-3xl text-sm leading-relaxed">
+            The original service catalog, calculators, FAQ, pricing, and
+            digital-business content stay active. The difference is that MSP and
+            tech services now sit beside the physical trades instead of feeling
+            like a separate brand buried elsewhere in the site.
+          </p>
+          <div class="flex flex-col gap-3 sm:flex-row">
+            <ModernButton
+              href={withBasePath('trades/msp-tech-services/')}
+              variant="primary"
+              className="min-h-[48px]"
+            >
+              Open MSP / Tech trade
+            </ModernButton>
+            <ModernButton
+              href={withBasePath('services/#service-planner')}
+              variant="secondary"
+              className="min-h-[48px]"
+            >
+              Open tech planner
+            </ModernButton>
+          </div>
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-2">
+          {
+            tradeProfiles
+              .find(trade => trade.slug === 'msp-tech-services')
+              ?.serviceLines.map(line => (
+                <ModernCard variant="minimal" className="creative-panel p-5">
+                  <p class="tone-title text-base font-semibold">{line.title}</p>
+                  <p class="tone-body mt-2 text-sm">{line.description}</p>
+                </ModernCard>
+              ))
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="relative z-20" data-reveal>
+    <div class="mx-auto max-w-[1400px] px-6 py-14">
+      <div class="tone-border tone-surface rounded-[2rem] border p-8">
+        <div class="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+          <div class="space-y-4">
+            <p class="creative-kicker">Next Move</p>
+            <h2 class="tone-title text-4xl font-semibold tracking-tight">
+              Use the landing page to route buyers into the exact trade,
+              subpage, or retained interactive feature they need.
+            </h2>
+            <p class="tone-body max-w-3xl text-sm leading-relaxed">
+              This turns the homepage from a visual-only splash into a serious
+              front door for a full GitHub Pages business site: seven trades,
+              tailored copy, retained demos, and one connected navigation
+              system.
+            </p>
+          </div>
+          <div class="flex flex-col gap-3 sm:flex-row lg:justify-end">
+            <ModernButton
+              href={withBasePath('trades/')}
+              variant="gradient"
+              className="min-h-[50px]"
+            >
+              Browse all trades
+            </ModernButton>
+            <ModernButton
+              href={startProjectHref}
+              variant="secondary"
+              className="min-h-[50px]"
+            >
+              Email project brief
+            </ModernButton>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</MarketingLayout>

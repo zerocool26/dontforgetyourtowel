@@ -320,7 +320,7 @@ export default function OliveUniverse() {
 
       {/* Accessible content — screen readers only */}
       <div className="universe-a11y-copy sr-only" data-olive-links>
-        <h1>{HERO_COPY.title}</h1>
+        <h2>{HERO_COPY.title}</h2>
         <p>{HERO_COPY.description}</p>
         <p>{HERO_COPY.accessibilityNote}</p>
         <p>{HERO_MODE_NOTES[effectiveVisualMode]}</p>

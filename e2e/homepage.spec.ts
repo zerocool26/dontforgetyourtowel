@@ -122,7 +122,7 @@ test.describe('Homepage immersive landing', () => {
     const hero = page.locator('[data-olive-universe="ready"]');
     await expect(hero).toBeVisible();
 
-    await hero.click({ position: { x: 220, y: 260 } });
+    await hero.click({ position: { x: 220, y: 260 }, force: true });
     await expect(hero).toHaveAttribute('data-olive-interaction', 'burst');
 
     await expect

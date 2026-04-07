@@ -31,7 +31,7 @@ async function getCanvasVisiblePixelRatio(locator: Locator) {
 }
 
 test.describe('Landing page integrity', () => {
-  test('should dedicate the viewport to the immersive scene', async ({
+  test('should keep the immersive scene active behind the landing page', async ({
     page,
   }) => {
     await page.goto('./');
@@ -44,15 +44,16 @@ test.describe('Landing page integrity', () => {
 
     await expect(
       page.getByRole('navigation', { name: /main navigation/i })
-    ).toHaveCount(0);
+    ).toBeVisible();
   });
 
-  test('should expose accessible destination links without adding visible chrome', async ({
+  test('should expose accessible destination links alongside visible navigation', async ({
     page,
   }) => {
     await page.goto('./');
 
     const linksShell = page.locator('[data-olive-links]');
+    await expect(linksShell.locator('a[href$="/trades/"]')).toHaveCount(1);
     await expect(linksShell.locator('a[href$="/services/"]')).toHaveCount(1);
     await expect(linksShell.locator('a[href$="/about/"]')).toHaveCount(1);
     await expect(linksShell.locator('a[href$="/build-studio/"]')).toHaveCount(

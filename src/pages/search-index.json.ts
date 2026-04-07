@@ -1,6 +1,7 @@
 import { getCollection } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 import { isLegacyRouteUrl } from '../utils/legacy-routes';
+import { tradeProfiles } from '../data/trades';
 
 type SearchItem = {
   id: string;
@@ -34,7 +35,8 @@ export async function GET() {
     {
       id: 'page-home',
       title: 'Home',
-      description: 'Enterprise IT solutions that scale with your business',
+      description:
+        'Immersive landing page for the seven-trade delivery platform and retained digital showcase',
       category: 'Page',
       url: '/',
       tags: ['home', 'landing'],
@@ -82,10 +84,29 @@ export async function GET() {
     {
       id: 'page-services',
       title: 'Services',
-      description: 'Managed IT, cybersecurity, cloud, and AI consulting',
+      description:
+        'Cross-trade services hub with the retained MSP, security, cloud, AI, and digital systems catalog',
       category: 'Page',
       url: 'services/',
       tags: ['services', 'msp', 'security', 'cloud', 'ai'],
+    },
+    {
+      id: 'page-trades',
+      title: 'Trade Directory',
+      description:
+        'Browse all seven trade lanes across mechanical, electrical, plumbing, general contracting, HVAC, auto repair, and MSP services',
+      category: 'Page',
+      url: 'trades/',
+      tags: [
+        'trades',
+        'mechanical',
+        'electrical',
+        'plumbing',
+        'general contracting',
+        'commercial hvac',
+        'auto repair',
+        'msp',
+      ],
     },
     {
       id: 'page-services-planner',
@@ -170,9 +191,42 @@ export async function GET() {
     })
   );
 
-  const searchItems: SearchItem[] = [...caseStudyItems, ...staticPages].filter(
-    item => !isLegacyRouteUrl(item.url)
-  );
+  const tradeItems: SearchItem[] = tradeProfiles.flatMap(trade => [
+    {
+      id: `trade-${trade.slug}`,
+      title: trade.name,
+      description: trade.summary,
+      category: 'Page',
+      url: `trades/${trade.slug}/`,
+      date: new Date().toISOString(),
+      tags: [
+        'trade',
+        trade.name.toLowerCase(),
+        trade.shortName.toLowerCase(),
+        ...trade.subpages.map(subpage => subpage.shortLabel.toLowerCase()),
+      ],
+    },
+    ...trade.subpages.map(subpage => ({
+      id: `trade-${trade.slug}-${subpage.slug}`,
+      title: `${trade.name} — ${subpage.title}`,
+      description: subpage.description,
+      category: 'Page',
+      url: `trades/${trade.slug}/${subpage.slug}/`,
+      date: new Date().toISOString(),
+      tags: [
+        'trade',
+        trade.name.toLowerCase(),
+        subpage.title.toLowerCase(),
+        subpage.shortLabel.toLowerCase(),
+      ],
+    })),
+  ]);
+
+  const searchItems: SearchItem[] = [
+    ...caseStudyItems,
+    ...staticPages,
+    ...tradeItems,
+  ].filter(item => !isLegacyRouteUrl(item.url));
 
   return new Response(JSON.stringify(searchItems), {
     status: 200,

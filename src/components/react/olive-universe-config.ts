@@ -121,14 +121,15 @@ export const SCENE_PALETTE = {
 } as const;
 
 export const HERO_COPY = {
-  title: 'Olive Global Systems immersive landing experience',
+  title: 'Olive Global Systems immersive trade landing experience',
   description:
-    'A fullscreen cinematic 3D showcase featuring procedural nebula fields, crystalline attractor physics, and reactive particle systems.',
+    'A cinematic 3D landing environment now paired with visible content for seven trade divisions and linked site navigation.',
   accessibilityNote:
-    'The homepage intentionally presents only the immersive scene visually. Navigation links remain available to assistive technology and direct URL access.',
+    'The homepage includes both the immersive scene and visible landing-page content that routes into the seven-trade site structure.',
 } as const;
 
 export const IMMERSIVE_LINKS = [
+  { label: 'Open trade directory', href: withBasePath('trades/') },
   { label: 'Explore services', href: withBasePath('services/') },
   { label: 'View portfolio', href: withBasePath('about/') },
   { label: 'Open Build Studio', href: withBasePath('build-studio/') },

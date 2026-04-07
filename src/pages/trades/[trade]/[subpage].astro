@@ -1,0 +1,208 @@
+---
+import MarketingLayout from '../../../layouts/MarketingLayout.astro';
+import ModernButton from '../../../components/ui/ModernButton.astro';
+import ModernCard from '../../../components/ui/ModernCard.astro';
+import {
+  tradeProfiles,
+  getTradeSubpage,
+  type TradeProfile,
+  type TradeSubpage,
+} from '../../../data/trades';
+import { withBasePath } from '../../../utils/helpers';
+
+export function getStaticPaths() {
+  return tradeProfiles.flatMap(trade =>
+    trade.subpages.map(subpage => ({
+      params: { trade: trade.slug, subpage: subpage.slug },
+      props: { trade, subpage },
+    }))
+  );
+}
+
+const { trade, subpage } = Astro.props as {
+  trade: TradeProfile;
+  subpage: TradeSubpage;
+};
+
+const siblingSubpages = trade.subpages.filter(
+  item => item.slug !== subpage.slug
+);
+const resolvedSubpage = getTradeSubpage(trade.slug, subpage.slug) ?? subpage;
+---
+
+<MarketingLayout
+  title={`${resolvedSubpage.title} | ${trade.name}`}
+  description={resolvedSubpage.description}
+  bodyClass="creative-page bg-[#02040a]"
+  showFooter={true}
+>
+  <section
+    class="tone-surface relative overflow-hidden pb-14 pt-28"
+    data-reveal
+  >
+    <div
+      class="absolute inset-0 -z-10 opacity-90"
+      style={`background: radial-gradient(circle at top, color-mix(in srgb, ${trade.accent} 18%, transparent), transparent 54%);`}
+    >
+    </div>
+    <div class="mx-auto max-w-[1320px] px-6">
+      <div
+        class="creative-hero-shell grid gap-8 p-8 xl:grid-cols-[1.1fr_0.9fr]"
+      >
+        <div class="space-y-5">
+          <div class="flex flex-wrap gap-2">
+            <a class="creative-chip" href={withBasePath('/')}>Home</a>
+            <a class="creative-chip" href={withBasePath('trades/')}>Trades</a>
+            <a
+              class="creative-chip"
+              href={withBasePath(`trades/${trade.slug}/`)}
+            >
+              {trade.shortName}
+            </a>
+            <span
+              class="creative-chip"
+              style={`border-color: color-mix(in srgb, ${trade.accent} 30%, rgba(255,255,255,0.08));`}
+            >
+              {resolvedSubpage.shortLabel}
+            </span>
+          </div>
+          <p class="creative-kicker">{trade.eyebrow}</p>
+          <h1
+            class="tone-title text-5xl font-semibold tracking-tight sm:text-6xl"
+          >
+            {resolvedSubpage.title}
+          </h1>
+          <p class="tone-body max-w-3xl text-base leading-relaxed">
+            {resolvedSubpage.description}
+          </p>
+          <p class="tone-body max-w-3xl text-sm leading-relaxed">
+            {resolvedSubpage.intro}
+          </p>
+          <div class="flex flex-col gap-3 sm:flex-row">
+            <ModernButton
+              href={withBasePath(`trades/${trade.slug}/`)}
+              variant="primary"
+              className="min-h-[48px]"
+            >
+              Back to {trade.shortName}
+            </ModernButton>
+            <ModernButton
+              href={withBasePath('services/')}
+              variant="secondary"
+              className="min-h-[48px]"
+            >
+              Open services hub
+            </ModernButton>
+          </div>
+        </div>
+
+        <ModernCard variant="minimal" className="creative-panel p-6">
+          <p class="creative-kicker">Callout</p>
+          <p class="tone-title mt-4 text-3xl font-semibold">
+            {resolvedSubpage.callout.value}
+          </p>
+          <p class="tone-body mt-3 text-sm">{resolvedSubpage.callout.note}</p>
+          <div class="mt-6 flex flex-wrap gap-2">
+            <span
+              class="creative-chip"
+              style={`border-color: color-mix(in srgb, ${trade.accent} 28%, rgba(255,255,255,0.08));`}
+            >
+              {resolvedSubpage.callout.label}
+            </span>
+            <span class="creative-chip">{trade.shortName}</span>
+          </div>
+        </ModernCard>
+      </div>
+    </div>
+  </section>
+
+  <section class="tone-surface" data-reveal>
+    <div class="mx-auto max-w-[1320px] px-6 py-12">
+      <div class="grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
+        <div class="grid gap-5">
+          {
+            resolvedSubpage.sections.map((section, index) => (
+              <ModernCard variant="minimal" className="creative-panel p-7">
+                <div class="flex items-start gap-4">
+                  <span class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 font-mono text-xs text-white/75">
+                    0{index + 1}
+                  </span>
+                  <div class="min-w-0">
+                    <h2 class="tone-title text-3xl font-semibold">
+                      {section.title}
+                    </h2>
+                    <p class="tone-body mt-3 text-sm leading-relaxed">
+                      {section.copy}
+                    </p>
+                    <ul class="tone-body mt-5 space-y-3 text-sm">
+                      {section.bullets.map(item => (
+                        <li class="flex items-start gap-3">
+                          <span
+                            class="mt-2 h-2 w-2 flex-shrink-0 rounded-full"
+                            style={`background:${trade.accent};`}
+                          />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </ModernCard>
+            ))
+          }
+        </div>
+
+        <div class="grid gap-5">
+          <ModernCard variant="minimal" className="creative-panel p-6">
+            <p class="creative-kicker">Overview Link</p>
+            <p class="tone-title mt-4 text-2xl font-semibold">{trade.name}</p>
+            <p class="tone-body mt-2 text-sm">{trade.summary}</p>
+            <div class="mt-5">
+              <ModernButton
+                href={withBasePath(`trades/${trade.slug}/`)}
+                variant="secondary"
+              >
+                Open trade overview
+              </ModernButton>
+            </div>
+          </ModernCard>
+
+          <ModernCard variant="minimal" className="creative-panel p-6">
+            <p class="creative-kicker">Related Subpages</p>
+            <div class="mt-4 grid gap-3">
+              {
+                siblingSubpages.map(item => (
+                  <a
+                    href={withBasePath(`trades/${trade.slug}/${item.slug}/`)}
+                    class="rounded-3xl border border-white/10 bg-white/[0.02] p-4 transition hover:border-white/20 hover:bg-white/[0.04]"
+                  >
+                    <p class="tone-title text-base font-semibold">
+                      {item.title}
+                    </p>
+                    <p class="tone-body mt-2 text-sm">{item.description}</p>
+                  </a>
+                ))
+              }
+            </div>
+          </ModernCard>
+
+          <ModernCard variant="minimal" className="creative-panel p-6">
+            <p class="creative-kicker">Connected Trade Signals</p>
+            <div class="mt-4 flex flex-wrap gap-2">
+              {
+                trade.integration.map(item => (
+                  <span
+                    class="creative-chip"
+                    style={`border-color: color-mix(in srgb, ${trade.accent} 24%, rgba(255,255,255,0.08));`}
+                  >
+                    {item}
+                  </span>
+                ))
+              }
+            </div>
+          </ModernCard>
+        </div>
+      </div>
+    </div>
+  </section>
+</MarketingLayout>

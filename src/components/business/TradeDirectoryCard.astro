@@ -1,0 +1,102 @@
+---
+import ModernCard from '../ui/ModernCard.astro';
+import ModernButton from '../ui/ModernButton.astro';
+import { withBasePath } from '../../utils/helpers';
+import type { TradeProfile } from '../../data/trades';
+
+interface Props {
+  trade: TradeProfile;
+  showSubpages?: boolean;
+  showMarketFocus?: boolean;
+}
+
+const {
+  trade,
+  showSubpages = true,
+  showMarketFocus = false,
+} = Astro.props as Props;
+
+const tradeHref = withBasePath(`trades/${trade.slug}/`);
+---
+
+<ModernCard
+  variant="minimal"
+  className="creative-panel h-full p-6"
+  style={`--trade-accent: ${trade.accent};`}
+>
+  <div class="flex items-start justify-between gap-4">
+    <div class="space-y-3">
+      <p
+        class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-[color:color-mix(in_srgb,var(--trade-accent),white_22%)] bg-[color:color-mix(in_srgb,var(--trade-accent),transparent_82%)] font-mono text-sm font-semibold uppercase tracking-[0.18em] text-white"
+      >
+        {trade.badge}
+      </p>
+      <div>
+        <p class="tone-muted text-xs uppercase tracking-[0.24em]">
+          {trade.eyebrow}
+        </p>
+        <h3 class="tone-title mt-2 text-2xl font-semibold">{trade.name}</h3>
+      </div>
+    </div>
+    <span
+      class="rounded-full border px-3 py-1 text-[0.65rem] uppercase tracking-[0.24em] text-white/80"
+      style={`border-color: color-mix(in srgb, ${trade.accent} 38%, transparent); background: color-mix(in srgb, ${trade.accent} 14%, transparent);`}
+    >
+      Trade Lane
+    </span>
+  </div>
+
+  <p class="tone-body mt-5 text-sm leading-relaxed">{trade.summary}</p>
+
+  {
+    showMarketFocus && (
+      <p class="tone-body mt-4 text-xs uppercase tracking-[0.18em] text-white/60">
+        {trade.marketFocus}
+      </p>
+    )
+  }
+
+  <ul class="tone-body mt-5 space-y-2 text-sm">
+    {
+      trade.serviceLines.slice(0, 3).map(line => (
+        <li class="flex items-start gap-2">
+          <span
+            class="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full"
+            style={`background:${trade.accent};`}
+          />
+          <span>{line.title}</span>
+        </li>
+      ))
+    }
+  </ul>
+
+  <div class="mt-6 flex flex-wrap gap-3">
+    <ModernButton href={tradeHref} variant="primary" className="min-h-[46px]">
+      Open overview
+    </ModernButton>
+    <ModernButton href={withBasePath('services/')} variant="secondary">
+      Services hub
+    </ModernButton>
+  </div>
+
+  {
+    showSubpages && (
+      <div class="mt-6 border-t border-white/10 pt-5">
+        <p class="tone-muted text-xs uppercase tracking-[0.22em]">
+          Trade subpages
+        </p>
+        <div class="mt-3 flex flex-wrap gap-2">
+          {trade.subpages.map(subpage => (
+            <a
+              class="creative-chip"
+              href={withBasePath(`trades/${trade.slug}/${subpage.slug}/`)}
+              style={`border-color: color-mix(in srgb, ${trade.accent} 24%, rgba(255,255,255,0.08));`}
+            >
+              {subpage.shortLabel}
+            </a>
+          ))}
+        </div>
+      </div>
+    )
+  }
+</ModernCard>

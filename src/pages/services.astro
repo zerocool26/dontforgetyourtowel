@@ -3,230 +3,129 @@
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
 import ModernCard from '../components/ui/ModernCard.astro';
-import ServiceCard from '../components/business/ServiceCard.astro';
-import CaseStudyCard from '../components/business/CaseStudyCard.astro';
-import TestimonialSlider from '../components/business/TestimonialSlider.astro';
-import ServicesQuiz from '../components/business/ServicesQuiz.tsx';
+import TradeDirectoryCard from '../components/business/TradeDirectoryCard.astro';
 import ServiceCatalog from '../components/business/ServiceCatalog.tsx';
-import ClientLogoCloud from '../components/business/ClientLogoCloud.astro';
 import ServiceComparisonMatrix from '../components/business/ServiceComparisonMatrix.tsx';
+import ServicesQuiz from '../components/business/ServicesQuiz.tsx';
 import FAQAccordion from '../components/ui/FAQAccordion.tsx';
-import { getCollection } from 'astro:content';
-import { withBasePath } from '../utils/helpers';
 import { CONTACT_EMAIL } from '../consts';
 import { servicesExtended } from '../data/services-extended';
-import { pricingTiers, servicesFaqs } from '../data/pricing';
+import { servicesFaqs, pricingTiers } from '../data/pricing';
+import { tradeProfiles } from '../data/trades';
+import { withBasePath } from '../utils/helpers';
 
 const startProjectHref = `mailto:${encodeURIComponent(
   CONTACT_EMAIL
-)}?subject=${encodeURIComponent('Services inquiry')}`;
+)}?subject=${encodeURIComponent('Services and trades inquiry')}`;
 
-const services = [
-  {
-    id: 'managed-it',
-    title: 'Managed IT & Support',
-    description:
-      'Predictable operations, responsive support, and documented systems—so IT stays boring (in the best way).',
-    bullets: [
-      '24/7 monitoring & alerting',
-      'Helpdesk + onsite dispatch options',
-      'Patch management & asset lifecycle',
-      'Backup/DR testing and reporting',
-    ],
-  },
-  {
-    id: 'cybersecurity',
-    title: 'Security & Compliance',
-    description:
-      'Layered controls, visibility, and response readiness—aligned to your risk profile and regulatory needs.',
-    bullets: [
-      'Endpoint protection + hardening',
-      'Email security & phishing defense',
-      'MFA, SSO, identity governance',
-      'Incident response guidance',
-    ],
-  },
-  {
-    id: 'cloud',
-    title: 'Cloud & DevOps',
-    description:
-      'Modernize safely: migrations, landing zones, IaC, CI/CD, and cost controls built-in.',
-    bullets: [
-      'Microsoft 365 / Google Workspace optimization',
-      'Azure/AWS migrations & landing zones',
-      'Network + access modernization',
-      'Cost controls + policy guardrails',
-    ],
-  },
-  {
-    id: 'ai',
-    title: 'Automation & AI Enablement',
-    description:
-      'Practical automation and AI adoption with governance, privacy, and measurable productivity gains.',
-    bullets: [
-      'AI readiness & data classification',
-      'Workflow automation & copilots',
-      'Policy, training, and governance',
-      'Security reviews for AI tooling',
-    ],
-  },
-];
+const serviceCategories = Array.from(
+  new Set(servicesExtended.map(service => service.category))
+);
 
-const engagementModel = [
-  {
-    phase: 'Assess',
-    outcomes: [
-      'Environment inventory',
-      'Risk baseline',
-      'Quick-win action plan',
-    ],
-  },
-  {
-    phase: 'Onboard',
-    outcomes: [
-      'Monitoring & agent rollout',
-      'Security hardening',
-      'Runbooks + escalation',
-    ],
-  },
-  {
-    phase: 'Operate',
-    outcomes: ['Helpdesk + ticketing', 'Patch cadence', 'Monthly reporting'],
-  },
-  {
-    phase: 'Optimize',
-    outcomes: [
-      'Roadmap sessions',
-      'Cost optimization',
-      'Quarterly security review',
-    ],
-  },
-];
-
-const industries = [
-  { name: 'Healthcare', note: 'HIPAA-aligned controls and audit support' },
-  { name: 'Financial Services', note: 'SOC 2 readiness + vendor risk' },
-  {
-    name: 'Manufacturing',
-    note: 'Operational continuity + endpoint resilience',
-  },
-  {
-    name: 'Professional Services',
-    note: 'Secure collaboration + identity governance',
-  },
-  { name: 'Retail', note: 'Device management + network segmentation' },
-  { name: 'SaaS & Tech', note: 'Cloud guardrails + security program support' },
-];
-
-const caseStudies = (await getCollection('caseStudies' as never)) as any[];
-const featuredCaseStudies = caseStudies.slice(0, 3);
-const testimonials = (await getCollection('testimonials' as never)) as any[];
-const featuredTestimonials = testimonials
-  .filter(t => t?.data?.featured)
-  .slice(0, 6);
-
-const organizationSchema = {
+const servicesSchema = {
   '@context': 'https://schema.org',
-  '@type': 'Organization',
-  name: 'Olive Global Systems',
-  url: new URL(withBasePath('/'), Astro.site).toString(),
-};
-
-const servicesBreadcrumbSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'BreadcrumbList',
-  itemListElement: [
-    {
-      '@type': 'ListItem',
-      position: 1,
-      name: 'Home',
-      item: new URL(withBasePath('/'), Astro.site).toString(),
-    },
-    {
-      '@type': 'ListItem',
-      position: 2,
-      name: 'Services',
-      item: new URL(withBasePath('services/'), Astro.site).toString(),
-    },
-  ],
+  '@type': 'CollectionPage',
+  name: 'Services Hub',
+  description:
+    'Integrated services hub covering all seven trades plus the retained technology services catalog.',
+  url: new URL(withBasePath('services/'), Astro.site).toString(),
 };
 ---
 
 <MarketingLayout
-  title="Services | Olive Global Systems"
-  description="Enterprise service catalog across cybersecurity, MSP, AI consulting, application engineering, network architecture, and cloud delivery."
+  title="Services Hub | Olive Global Systems"
+  description="Integrated services hub for all seven trades, with the retained MSP, security, cloud, AI, and digital systems catalog still live."
+  bodyClass="creative-page bg-[#02040a]"
+  showFooter={true}
 >
-  <!-- eslint-disable-next-line astro/no-set-html-directive -->
   <script
     type="application/ld+json"
-    set:html={JSON.stringify(organizationSchema)}
-  />
-  <!-- eslint-disable-next-line astro/no-set-html-directive -->
-  <script
-    type="application/ld+json"
-    set:html={JSON.stringify(servicesBreadcrumbSchema)}
+    set:html={JSON.stringify(servicesSchema)}
   />
 
   <section
-    class="tone-surface relative overflow-hidden pb-16 pt-28"
+    class="tone-surface relative overflow-hidden pb-14 pt-28"
     data-reveal
   >
     <div
-      class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(204,255,0,0.12),_transparent_55%)]"
+      class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,rgba(204,255,0,0.12),transparent_52%)]"
     >
     </div>
-    <div class="mx-auto max-w-[1220px] px-6">
+    <div class="mx-auto max-w-[1400px] px-6">
       <div
-        class="creative-hero-shell grid gap-10 p-8 lg:grid-cols-2 lg:items-center"
+        class="creative-hero-shell grid gap-8 p-8 xl:grid-cols-[1.1fr_0.9fr]"
       >
-        <div class="space-y-6">
-          <p class="creative-kicker">Services</p>
+        <div class="space-y-5">
+          <p class="creative-kicker">Services Hub</p>
           <h1
-            class="creative-title tone-title text-4xl !leading-[1.05] tracking-tighter sm:text-6xl lg:text-7xl"
+            class="tone-title text-5xl font-semibold tracking-tight sm:text-6xl"
           >
-            Creative systems delivery across
-            <span class="text-[#ccff00]"> AI, security, and cloud.</span>
+            Seven trades up front. Full tech catalog still alive underneath.
           </h1>
-          <p
-            class="creative-copy mt-6 max-w-2xl text-pretty text-lg font-light leading-relaxed text-neutral-400 sm:text-xl"
-          >
-            We design and operate ambitious technology programs: product-facing
-            AI, hardened infrastructure, and cloud/platform systems that stay
-            expressive without becoming fragile.
+          <p class="tone-body max-w-3xl text-base leading-relaxed">
+            This page now acts as the cross-trade services hub. The new trade
+            architecture sits at the top, while the original MSP, security,
+            cloud, AI, pricing, and planning tools remain part of the same
+            experience instead of being cut out.
           </p>
           <div class="flex flex-col gap-3 sm:flex-row">
             <ModernButton
-              href={withBasePath('services/#engagement-model')}
-              variant="secondary"
-              className="min-h-[48px]"
-            >
-              How we work
-            </ModernButton>
-            <ModernButton
-              href={startProjectHref}
+              href={withBasePath('trades/')}
               variant="primary"
               className="min-h-[48px]"
             >
-              Start a project
+              Browse trade directory
+            </ModernButton>
+            <ModernButton
+              href={startProjectHref}
+              variant="secondary"
+              className="min-h-[48px]"
+            >
+              Start service intake
             </ModernButton>
           </div>
         </div>
 
-        <div class="grid gap-4">
-          <ModernCard variant="minimal" className="creative-panel p-6">
-            <p class="tone-title text-sm font-semibold">Fast onboarding</p>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <ModernCard variant="minimal" className="creative-panel p-5">
+            <p class="tone-muted text-xs uppercase tracking-[0.24em]">
+              Trade lanes
+            </p>
+            <p class="tone-title mt-2 text-3xl font-semibold">
+              {tradeProfiles.length}
+            </p>
             <p class="tone-body mt-2 text-sm">
-              Most engagements move from intake to active instrumentation in
-              10–14 days, depending on system complexity.
+              Physical trades plus MSP / tech services in one linked structure.
             </p>
           </ModernCard>
-          <ModernCard variant="minimal" className="creative-panel p-6">
-            <p class="tone-title text-sm font-semibold">
-              Transparent reporting
+          <ModernCard variant="minimal" className="creative-panel p-5">
+            <p class="tone-muted text-xs uppercase tracking-[0.24em]">
+              Catalog depth
+            </p>
+            <p class="tone-title mt-2 text-3xl font-semibold">
+              {servicesExtended.length}+
             </p>
             <p class="tone-body mt-2 text-sm">
-              Weekly delivery signal, monthly operating reviews, and no
-              black-box implementation work.
+              Specialist technology services preserved from the original site.
+            </p>
+          </ModernCard>
+          <ModernCard variant="minimal" className="creative-panel p-5">
+            <p class="tone-muted text-xs uppercase tracking-[0.24em]">
+              Planner mode
+            </p>
+            <p class="tone-title mt-2 text-3xl font-semibold">Live</p>
+            <p class="tone-body mt-2 text-sm">
+              Existing comparison tools still guide pricing and service fit.
+            </p>
+          </ModernCard>
+          <ModernCard variant="minimal" className="creative-panel p-5">
+            <p class="tone-muted text-xs uppercase tracking-[0.24em]">
+              Site role
+            </p>
+            <p class="tone-title mt-2 text-3xl font-semibold">Bridge page</p>
+            <p class="tone-body mt-2 text-sm">
+              Connects the landing page, trade pages, pricing, and retained
+              technical features.
             </p>
           </ModernCard>
         </div>
@@ -234,232 +133,92 @@ const servicesBreadcrumbSchema = {
     </div>
   </section>
 
-  <ClientLogoCloud />
-
-  <section class="tone-border tone-surface border-y" data-reveal>
-    <div class="mx-auto max-w-[1220px] px-6 py-16">
-      <div class="mb-5 flex flex-wrap items-center gap-2">
-        <span class="creative-kicker">Service Lanes</span>
-        <a class="creative-chip" href="#managed-it">Managed IT</a>
-        <a class="creative-chip" href="#cybersecurity">Cybersecurity</a>
-        <a class="creative-chip" href="#cloud">Cloud & DevOps</a>
-        <a class="creative-chip" href="#ai">AI Enablement</a>
+  <section class="tone-surface" data-reveal>
+    <div class="mx-auto max-w-[1400px] px-6 py-10">
+      <div
+        class="flex flex-col gap-4 border-b border-white/10 pb-6 md:flex-row md:items-end md:justify-between"
+      >
+        <div class="max-w-3xl space-y-3">
+          <p class="creative-kicker">Trade Surface</p>
+          <h2 class="tone-title text-4xl font-semibold tracking-tight">
+            Every trade is linked here first.
+          </h2>
+          <p class="tone-body text-sm">
+            The services hub is no longer tech-only. It now routes into the
+            seven-trade system while keeping the deeper digital catalog and
+            tools intact.
+          </p>
+        </div>
+        <ModernButton
+          href={withBasePath('trades/')}
+          variant="secondary"
+          className="min-h-[48px]"
+        >
+          Open all trade pages
+        </ModernButton>
       </div>
-      <div class="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-        {
-          services.map(s => (
-            <ServiceCard
-              title={s.title}
-              description={s.description}
-              bullets={s.bullets}
-              href={`#${s.id}`}
-            />
-          ))
-        }
-      </div>
-    </div>
-  </section>
 
-  <section
-    class="tone-border tone-surface sticky top-16 z-20 border-b backdrop-blur-xl"
-  >
-    <div class="mx-auto max-w-[1220px] px-6 py-4 sm:py-5">
-      <div class="flex flex-wrap items-center gap-2" data-services-jump>
-        <span class="creative-kicker">Quick Jump</span>
-        <a class="creative-chip" data-jump-link href="#managed-it">Managed IT</a
-        >
-        <a class="creative-chip" data-jump-link href="#cybersecurity"
-          >Cybersecurity</a
-        >
-        <a class="creative-chip" data-jump-link href="#cloud">Cloud & DevOps</a>
-        <a class="creative-chip" data-jump-link href="#ai">AI Enablement</a>
-        <a class="creative-chip" data-jump-link href="#service-planner"
-          >Planner</a
-        >
-        <a class="creative-chip" data-jump-link href="#engagement-model"
-          >Engagement Model</a
-        >
-        <a class="creative-chip" data-jump-link href="#pricing-snapshot"
-          >Pricing</a
-        >
-        <a class="creative-chip" data-jump-link href="#faq">FAQ</a>
-        <a class="creative-chip" data-jump-link href="#contact">Contact</a>
+      <div class="mt-8 grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
+        {tradeProfiles.map(trade => <TradeDirectoryCard trade={trade} />)}
       </div>
     </div>
   </section>
 
-  <script is:inline>
-    (() => {
-      const nav = document.querySelector('[data-services-jump]');
-      if (!nav) return;
-
-      const links = Array.from(nav.querySelectorAll('a[data-jump-link]'));
-      if (!links.length) return;
-
-      const targets = links
-        .map(link => {
-          const hash = link.getAttribute('href') || '';
-          const id = hash.startsWith('#') ? hash.slice(1) : '';
-          const section = id ? document.getElementById(id) : null;
-          return section ? { link, id, section } : null;
-        })
-        .filter(Boolean);
-
-      const setActive = activeId => {
-        for (const item of targets) {
-          const isActive = item.id === activeId;
-          item.link.classList.toggle('is-active', isActive);
-          if (isActive) {
-            item.link.setAttribute('aria-current', 'location');
-          } else {
-            item.link.removeAttribute('aria-current');
-          }
-        }
-      };
-
-      setActive(targets[0]?.id ?? '');
-
-      const observer = new IntersectionObserver(
-        entries => {
-          const visible = entries
-            .filter(entry => entry.isIntersecting)
-            .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
-
-          if (!visible.length) return;
-
-          const activeSection = visible[0].target;
-          const activeItem = targets.find(
-            item => item.section === activeSection
-          );
-          if (activeItem) setActive(activeItem.id);
-        },
-        {
-          root: null,
-          rootMargin: '-35% 0px -55% 0px',
-          threshold: [0.15, 0.35, 0.65],
-        }
-      );
-
-      for (const item of targets) {
-        observer.observe(item.section);
-        item.link.addEventListener('click', () => setActive(item.id), {
-          passive: true,
-        });
-      }
-    })();
-  </script>
-
-  <style is:inline>
-    [data-services-jump] .creative-chip.is-active {
-      border-color: color-mix(
-        in srgb,
-        var(--color-accent, #ccff00) 45%,
-        transparent
-      );
-      color: color-mix(in srgb, var(--color-accent, #ccff00) 68%, white 32%);
-      background: color-mix(in srgb, var(--color-surface) 78%, transparent);
-    }
-  </style>
-
-  <section class="tone-border tone-surface border-b" data-reveal>
-    <div class="mx-auto max-w-[1220px] px-6 py-10">
-      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <ModernCard variant="minimal" className="creative-panel p-5">
-          <p class="tone-muted text-xs uppercase tracking-[0.24em]">
-            Catalog Depth
+  <section class="tone-surface" data-reveal>
+    <div class="mx-auto max-w-[1400px] px-6 py-10">
+      <div class="grid gap-5 xl:grid-cols-[0.95fr_1.05fr]">
+        <ModernCard variant="minimal" className="creative-panel p-7">
+          <p class="creative-kicker">Tech Service Lanes</p>
+          <h2 class="tone-title mt-4 text-3xl font-semibold">
+            MSP and digital services remain a major part of the platform.
+          </h2>
+          <p class="tone-body mt-3 text-sm">
+            These categories are preserved from the original services build and
+            now sit inside the same site map as the physical trades.
           </p>
-          <p class="tone-title mt-2 text-2xl font-semibold">100+ Services</p>
-          <p class="tone-body mt-1 text-xs">
-            Specialist offerings mapped across six enterprise domains.
-          </p>
-        </ModernCard>
-        <ModernCard variant="minimal" className="creative-panel p-5">
-          <p class="tone-muted text-xs uppercase tracking-[0.24em]">
-            Operating Model
-          </p>
-          <p class="tone-title mt-2 text-2xl font-semibold">4 Phases</p>
-          <p class="tone-body mt-1 text-xs">
-            Assess, onboard, operate, and optimize with measurable cadence.
-          </p>
-        </ModernCard>
-        <ModernCard variant="minimal" className="creative-panel p-5">
-          <p class="tone-muted text-xs uppercase tracking-[0.24em]">
-            Coverage Window
-          </p>
-          <p class="tone-title mt-2 text-2xl font-semibold">24/7 Option</p>
-          <p class="tone-body mt-1 text-xs">
-            Production support, detection, and escalation pathways.
-          </p>
-        </ModernCard>
-        <ModernCard
-          variant="minimal"
-          className="creative-panel tone-elevated p-5"
-        >
-          <p class="tone-muted text-xs uppercase tracking-[0.24em]">
-            Delivery Focus
-          </p>
-          <p class="tone-title mt-2 text-2xl font-semibold">Outcome-First</p>
-          <p class="tone-body mt-1 text-xs">
-            Roadmaps translated into operating controls and shipped systems.
-          </p>
-        </ModernCard>
-      </div>
-    </div>
-  </section>
-
-  {
-    services.map(s => (
-      <section id={s.id} class="tone-surface scroll-mt-32">
-        <div class="mx-auto max-w-[1220px] px-6 py-16 sm:py-20">
-          <div class="grid gap-10 lg:grid-cols-2 lg:items-start">
-            <div class="space-y-4">
-              <h2 class="tone-title text-3xl font-semibold">{s.title}</h2>
-              <p class="tone-body text-sm">{s.description}</p>
-              <div class="pt-2">
-                <ModernButton
-                  href={startProjectHref}
-                  variant="primary"
-                  className="min-h-[48px]"
-                >
-                  Discuss your needs
-                </ModernButton>
-              </div>
-            </div>
-            <ModernCard
-              variant="minimal"
-              className="creative-panel tone-elevated p-6"
-            >
-              <p class="tone-title text-sm font-semibold">What’s included</p>
-              <ul class="tone-body mt-4 space-y-2 text-sm">
-                {s.bullets.map(item => (
-                  <li class="flex items-start gap-2">
-                    <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 bg-[#ccff00]" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <p class="tone-body mt-5 text-xs">
-                Exact scope depends on your plan and environment. We’ll confirm
-                inclusions during onboarding.
-              </p>
-            </ModernCard>
+          <div class="mt-6 flex flex-wrap gap-2">
+            {
+              serviceCategories.map(category => (
+                <span class="creative-chip">{category}</span>
+              ))
+            }
           </div>
+        </ModernCard>
+
+        <div class="grid gap-4 sm:grid-cols-2">
+          {
+            pricingTiers.slice(0, 4).map(tier => (
+              <ModernCard variant="minimal" className="creative-panel p-5">
+                <p class="tone-muted text-xs uppercase tracking-[0.24em]">
+                  {tier.bestFor}
+                </p>
+                <p class="tone-title mt-2 text-2xl font-semibold">
+                  {tier.name}
+                </p>
+                <p class="tone-title mt-2 text-xl">{tier.price}</p>
+                <p class="tone-body mt-2 text-sm">{tier.description}</p>
+              </ModernCard>
+            ))
+          }
         </div>
-      </section>
-    ))
-  }
+      </div>
+    </div>
+  </section>
 
   <section
     class="tone-border tone-surface overflow-hidden border-y"
     data-reveal
   >
-    <div class="mx-auto max-w-[1220px] px-6 py-24">
-      <div class="mb-16 space-y-4 text-center">
-        <h2 class="tone-title text-4xl font-bold">The Comprehensive Catalog</h2>
-        <p class="tone-body mx-auto max-w-2xl">
-          Explore our full range of 100+ specialized services across security,
-          development, and AI consulting. Built for the most demanding technical
-          environments.
+    <div class="mx-auto max-w-[1400px] px-6 py-20">
+      <div class="mb-10 max-w-3xl space-y-4">
+        <p class="creative-kicker">Comprehensive Catalog</p>
+        <h2 class="tone-title text-4xl font-semibold tracking-tight">
+          The original high-depth technology catalog is still available.
+        </h2>
+        <p class="tone-body text-sm">
+          This is the retained catalog for managed services, security, cloud,
+          AI, development, networking, and cloud platform work. It now supports
+          the MSP / tech trade inside the broader seven-trade experience.
         </p>
       </div>
 
@@ -468,12 +227,15 @@ const servicesBreadcrumbSchema = {
   </section>
 
   <section class="tone-surface scroll-mt-32" id="service-planner" data-reveal>
-    <div class="mx-auto max-w-[1220px] px-6 py-20">
+    <div class="mx-auto max-w-[1400px] px-6 py-20">
       <div class="max-w-3xl space-y-4">
-        <h2 class="tone-title text-3xl font-semibold">Plan your stack</h2>
+        <p class="creative-kicker">Planning Tools</p>
+        <h2 class="tone-title text-3xl font-semibold">
+          Keep the live comparison and recommendation tooling.
+        </h2>
         <p class="tone-body text-sm">
-          Match the current business pressure to the right delivery lane, then
-          jump straight into plan comparison or a tailored discovery request.
+          The existing planner remains part of the site so technology buyers can
+          still compare options without losing the new trade architecture.
         </p>
       </div>
 
@@ -484,297 +246,17 @@ const servicesBreadcrumbSchema = {
   </section>
 
   <section class="tone-surface" data-reveal>
-    <div class="mx-auto max-w-[1220px] px-6 py-24">
-      <div class="grid gap-16 lg:grid-cols-2 lg:items-center">
-        <div class="space-y-8">
-          <div
-            class="inline-flex items-center gap-2 rounded-full border border-[#ccff00]/20 bg-[#ccff00]/5 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-[#ccff00]"
-          >
-            Strategic Outlook 2026
-          </div>
-          <h2 class="tone-title text-4xl font-bold leading-tight sm:text-5xl">
-            The Technology Transition: <span class="text-[#ccff00]"
-              >Beyond Traditional IT.</span
-            >
-          </h2>
-          <p class="tone-body text-lg leading-relaxed">
-            The era of basic managed services is over. We are transitioning into
-            an age of autonomous operations, quantum-safe security, and
-            AI-orchestrated infrastructure.
-          </p>
-          <div class="space-y-6">
-            <div class="flex gap-4">
-              <div
-                class="tone-border tone-surface flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border text-[#ccff00]"
-              >
-                <svg
-                  class="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  ><path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg
-                >
-              </div>
-              <div>
-                <h3 class="tone-title text-lg font-semibold">
-                  Autonomous Operations
-                </h3>
-                <p class="tone-body mt-1 text-sm">
-                  Moving from reactive patching to self-healing clusters and
-                  AI-driven performance optimization.
-                </p>
-              </div>
-            </div>
-            <div class="flex gap-4">
-              <div
-                class="tone-border tone-surface flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border text-[#ccff00]"
-              >
-                <svg
-                  class="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  ><path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                  ></path></svg
-                >
-              </div>
-              <div>
-                <h3 class="tone-title text-lg font-semibold">
-                  Quantum Resilience
-                </h3>
-                <p class="tone-body mt-1 text-sm">
-                  Hardening data architectures today against the decryption
-                  threats of tomorrow.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="relative">
-          <div
-            class="absolute -inset-4 rounded-full bg-[#ccff00]/10 opacity-30 blur-3xl"
-          >
-          </div>
-          <div
-            class="tone-border tone-surface relative overflow-hidden rounded-3xl border p-1"
-          >
-            <div
-              class="aspect-square flex items-center justify-center bg-gradient-to-br from-white/10 to-transparent"
-            >
-              <div class="space-y-4 p-8 text-center">
-                <div
-                  class="bg-gradient-to-r from-[#ccff00] to-cyan-400 bg-clip-text text-6xl font-bold text-transparent"
-                >
-                  100%
-                </div>
-                <p
-                  class="tone-muted font-mono text-sm uppercase tracking-tighter"
-                >
-                  Cloud-native native alignment
-                </p>
-                <div class="h-px w-full bg-white/5"></div>
-                <div class="tone-title text-3xl font-bold">
-                  Strategic Advantage
-                </div>
-                <p class="tone-body text-xs">
-                  We don't just maintain; we accelerate. Our engineering
-                  philosophy is rooted in building systems that aren't just
-                  reliable, but competitive.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section
-    class="tone-border tone-surface border-y"
-    id="engagement-model"
-    data-reveal
-  >
-    <div class="mx-auto max-w-[1220px] px-6 py-20">
-      <div class="max-w-3xl space-y-4">
-        <h2 class="tone-title text-3xl font-semibold">How we work</h2>
-        <p class="tone-body text-sm">
-          A simple engagement model: assess risk, onboard cleanly, operate with
-          discipline, and optimize continuously.
-        </p>
-      </div>
-
-      <div class="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-        {
-          engagementModel.map(step => (
-            <ModernCard
-              variant="minimal"
-              className="creative-panel tone-elevated p-6"
-            >
-              <p class="tone-title text-sm font-semibold">{step.phase}</p>
-              <ul class="tone-body mt-4 space-y-2 text-sm">
-                {step.outcomes.map(outcome => (
-                  <li class="flex items-start gap-2">
-                    <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 bg-[#ccff00]" />
-                    <span>{outcome}</span>
-                  </li>
-                ))}
-              </ul>
-            </ModernCard>
-          ))
-        }
-      </div>
-    </div>
-  </section>
-
-  <section class="tone-surface" id="industries" data-reveal>
-    <div class="mx-auto max-w-[1220px] px-6 py-20">
-      <div class="max-w-3xl space-y-4">
-        <h2 class="tone-title text-3xl font-semibold">Industries we support</h2>
-        <p class="tone-body text-sm">
-          We bring proven playbooks, documentation, and controls to regulated
-          and fast-moving environments.
-        </p>
-      </div>
-
-      <div class="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-        {
-          industries.map(i => (
-            <ModernCard
-              variant="minimal"
-              className="creative-panel tone-elevated p-6"
-            >
-              <p class="tone-title text-sm font-semibold">{i.name}</p>
-              <p class="tone-body mt-2 text-sm">{i.note}</p>
-            </ModernCard>
-          ))
-        }
-      </div>
-    </div>
-  </section>
-
-  <section
-    class="tone-border tone-surface border-y"
-    id="pricing-snapshot"
-    data-reveal
-  >
-    <div class="mx-auto max-w-[1220px] px-6 py-20">
-      <div
-        class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between"
-      >
-        <div class="max-w-3xl space-y-3">
-          <h2 class="tone-title text-3xl font-semibold">
-            See the pricing path
-          </h2>
-          <p class="tone-body text-sm">
-            Buyers should not have to guess where to start. These are the four
-            operating lanes we use most often before tailoring scope in
-            discovery.
-          </p>
-        </div>
-        <ModernButton
-          href={withBasePath('pricing/#plans')}
-          variant="secondary"
-          className="min-h-[48px]"
-        >
-          Open live pricing
-        </ModernButton>
-      </div>
-
-      <div class="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-        {
-          pricingTiers.map(tier => (
-            <ModernCard
-              variant="minimal"
-              className={`creative-panel p-6 ${tier.highlight ? 'tone-elevated border-[#ccff00]/30 bg-[#ccff00]/5' : ''}`}
-            >
-              <p class="tone-title text-sm font-semibold">{tier.name}</p>
-              <p class="tone-title mt-2 text-2xl font-semibold">{tier.price}</p>
-              <p class="tone-body mt-2 text-sm">{tier.description}</p>
-              <p class="tone-muted mt-4 text-xs uppercase tracking-[0.22em]">
-                {tier.bestFor}
-              </p>
-            </ModernCard>
-          ))
-        }
-      </div>
-    </div>
-  </section>
-
-  <section
-    class="tone-border tone-surface border-y"
-    id="case-studies"
-    data-reveal
-  >
-    <div class="mx-auto max-w-[1220px] px-6 py-20">
-      <div
-        class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between"
-      >
-        <div class="max-w-3xl space-y-3">
-          <h2 class="tone-title text-3xl font-semibold">Recent outcomes</h2>
-          <p class="tone-body text-sm">
-            A few examples of modernization, security hardening, and automation
-            delivered for real teams.
-          </p>
-        </div>
-        <ModernButton
-          href={withBasePath('contact-hq/')}
-          variant="secondary"
-          className="min-h-[48px]"
-        >
-          Compare plans
-        </ModernButton>
-      </div>
-
-      <div class="mt-10 grid gap-5 md:grid-cols-3">
-        {
-          featuredCaseStudies.map((entry: any) => (
-            <CaseStudyCard
-              title={entry.data?.title ?? entry.slug}
-              industry={entry.data?.industry}
-              summary={entry.data?.summary}
-              results={entry.data?.results}
-              href={withBasePath('services/#case-studies')}
-            />
-          ))
-        }
-      </div>
-    </div>
-  </section>
-
-  <section class="tone-surface" data-reveal>
-    <div class="mx-auto max-w-[1220px] px-6 py-20">
-      <div class="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
+    <div class="mx-auto max-w-[1400px] px-6 py-20">
+      <div class="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
         <div class="space-y-4">
+          <p class="creative-kicker">Recommendation Engine</p>
           <h2 class="tone-title text-3xl font-semibold">
-            Not sure what you need?
+            Keep the service quiz as a fast entry point.
           </h2>
           <p class="tone-body text-sm">
-            Take a 60-second quiz and we’ll recommend a starting package.
+            Buyers can still use the existing quiz to get guided direction, then
+            branch into the trade pages or the deeper MSP service catalog.
           </p>
-          <div class="flex flex-wrap gap-3">
-            <ModernButton
-              href={startProjectHref}
-              variant="secondary"
-              className="min-h-[48px]"
-            >
-              Or talk to an expert
-            </ModernButton>
-            <ModernButton
-              href={withBasePath('pricing/#plans')}
-              variant="primary"
-              className="min-h-[48px]"
-            >
-              Compare plans
-            </ModernButton>
-          </div>
         </div>
         <div class="tone-border tone-surface rounded-2xl border p-6">
           <ServicesQuiz client:visible />
@@ -783,77 +265,22 @@ const servicesBreadcrumbSchema = {
     </div>
   </section>
 
-  <section
-    class="tone-border tone-surface border-t"
-    id="testimonials"
-    data-reveal
-  >
-    <div class="mx-auto max-w-[1220px] px-6 py-20">
-      <div class="max-w-3xl space-y-4">
-        <h2 class="tone-title text-3xl font-semibold">What clients say</h2>
-        <p class="tone-body text-sm">
-          Trust is earned in the day-to-day: reliable support, clear reporting,
-          and real risk reduction.
-        </p>
-      </div>
-
-      <div class="mt-10">
-        <TestimonialSlider testimonials={featuredTestimonials} />
-      </div>
-    </div>
-  </section>
-
   <section class="tone-border tone-surface border-y" id="faq" data-reveal>
-    <div class="mx-auto max-w-[1220px] px-6 py-20">
+    <div class="mx-auto max-w-[1400px] px-6 py-20">
       <div class="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
         <div class="space-y-4">
-          <h2 class="tone-title text-3xl font-semibold">Common questions</h2>
+          <p class="creative-kicker">FAQ</p>
+          <h2 class="tone-title text-3xl font-semibold">
+            Common questions about fit, scope, and next steps.
+          </h2>
           <p class="tone-body text-sm">
-            The usual objections around scope, cadence, and fit—answered before
-            you have to schedule a call.
+            The supporting FAQ remains live and continues to serve buyers who
+            need clarity before they route into a trade page or pricing path.
           </p>
-          <ModernButton
-            href={withBasePath('pricing/#faq')}
-            variant="secondary"
-            className="min-h-[48px]"
-          >
-            View pricing FAQ
-          </ModernButton>
         </div>
 
         <div>
           <FAQAccordion client:visible items={servicesFaqs} />
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="tone-surface" id="contact" data-reveal>
-    <div class="mx-auto max-w-[1220px] px-6 py-20">
-      <div class="tone-border tone-surface rounded-2xl border p-8">
-        <div class="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
-          <div class="space-y-3">
-            <h2 class="tone-title text-2xl font-semibold">Get in touch</h2>
-            <p class="tone-body text-sm">
-              No forms. Email us a short summary of what you’re trying to
-              achieve and we’ll reply with next steps.
-            </p>
-            <p class="tone-body text-sm">
-              <a
-                class="text-[#ccff00] hover:underline"
-                href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a
-              >
-            </p>
-          </div>
-          <div class="flex flex-col gap-3 sm:flex-row lg:justify-end">
-            <ModernButton
-              href={startProjectHref}
-              variant="primary"
-              className="min-h-[48px]"
-            >
-              Email project details
-            </ModernButton>
-          </div>
         </div>
       </div>
     </div>
