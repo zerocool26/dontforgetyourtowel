@@ -105,6 +105,21 @@ const BASE_COMMANDS: CommandItem[] = [
     ],
   },
   {
+    id: 'nav-gallery',
+    label: 'Open Design Gallery',
+    icon: Layout,
+    action: () => navigate(withBasePath('gallery/')),
+    category: 'Navigation',
+    keywords: [
+      'gallery',
+      'design',
+      'art',
+      'creative',
+      'interface',
+      'futuristic',
+    ],
+  },
+  {
     id: 'nav-services',
     label: 'Go to Services',
     icon: Box,

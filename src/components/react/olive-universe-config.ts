@@ -123,13 +123,14 @@ export const SCENE_PALETTE = {
 export const HERO_COPY = {
   title: 'Olive Global Systems immersive trade landing experience',
   description:
-    'A cinematic 3D landing environment now paired with visible content for seven trade divisions and linked site navigation.',
+    'A cinematic 3D landing environment paired with visible content for seven trade divisions, a design gallery, and linked site navigation.',
   accessibilityNote:
-    'The homepage includes both the immersive scene and visible landing-page content that routes into the seven-trade site structure.',
+    'The homepage includes both the immersive scene and visible landing-page content that routes into the seven-trade site structure and the new design gallery.',
 } as const;
 
 export const IMMERSIVE_LINKS = [
   { label: 'Open trade directory', href: withBasePath('trades/') },
+  { label: 'Open design gallery', href: withBasePath('gallery/') },
   { label: 'Explore services', href: withBasePath('services/') },
   { label: 'View portfolio', href: withBasePath('about/') },
   { label: 'Open Build Studio', href: withBasePath('build-studio/') },

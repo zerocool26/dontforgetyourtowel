@@ -1,0 +1,908 @@
+---
+import MarketingLayout from '../layouts/MarketingLayout.astro';
+import ModernButton from '../components/ui/ModernButton.astro';
+import ModernCard from '../components/ui/ModernCard.astro';
+import {
+  galleryCategories,
+  galleryInstallations,
+} from '../data/design-gallery';
+import { withBasePath } from '../utils/helpers';
+
+const featuredInstallation = galleryInstallations[0];
+
+const gallerySignals = [
+  {
+    label: 'Installations',
+    value: String(galleryInstallations.length),
+    detail: 'A curated wall of trade-inspired visual systems.',
+  },
+  {
+    label: 'Trade references',
+    value: '7 + platform',
+    detail: 'Every major service lane gets its own design language.',
+  },
+  {
+    label: 'View modes',
+    value: 'Poster / Salon / Index',
+    detail: 'The page can shift from immersive gallery to quick scan.',
+  },
+];
+
+const galleryPrinciples = [
+  {
+    title: 'Built from real scope',
+    copy: 'The collection uses actual trade logic like sequencing, plantroom geometry, controls flow, balancing, phasing, and diagnostics rather than generic “creative agency” abstractions.',
+  },
+  {
+    title: 'Art direction with boundaries',
+    copy: 'Each study stretches visual language without losing professional credibility, which keeps the page premium, strange in the right way, and still usable on mobile.',
+  },
+  {
+    title: 'Tied back to the live site',
+    copy: 'Every installation routes into a live trade or platform page so the gallery remains part of the working website instead of becoming a disconnected concept board.',
+  },
+];
+
+const galleryRoutes = [
+  {
+    title: 'Trade Directory',
+    description:
+      'Use the source map when you want all seven divisions in one place.',
+    href: withBasePath('trades/'),
+  },
+  {
+    title: 'About The Platform',
+    description:
+      'Read the broader operating model behind the multi-trade site.',
+    href: withBasePath('company/'),
+  },
+  {
+    title: 'Build Studio',
+    description:
+      'Jump into the retained flagship interactive showroom experience.',
+    href: withBasePath('build-studio/#studio'),
+  },
+];
+---
+
+<MarketingLayout
+  title="Design Gallery | Olive Global Systems"
+  description="Interactive design gallery featuring premium trade-inspired interface, motion, material, and spatial studies tied back to the live seven-trade site."
+  bodyClass="creative-page bg-[#02040a]"
+  mainClass="relative isolate overflow-x-clip"
+  showFooter={true}
+>
+  <section class="relative overflow-hidden pb-14 pt-28" data-reveal>
+    <div class="gallery-ambient"></div>
+    <div class="mx-auto max-w-[1440px] px-6">
+      <div class="grid gap-8 xl:grid-cols-[1.08fr_0.92fr] xl:items-end">
+        <div class="space-y-6">
+          <div class="inline-flex flex-wrap gap-2">
+            <span class="creative-kicker">Design Gallery</span>
+            <span class="creative-chip">Interactive curatorial filters</span>
+            <span class="creative-chip">Trade-led art direction</span>
+            <span class="creative-chip">Mobile safe</span>
+          </div>
+
+          <div class="space-y-5">
+            <h1
+              class="tone-title max-w-5xl text-5xl !leading-[0.94] tracking-[-0.06em] sm:text-6xl lg:text-7xl xl:text-[5.45rem]"
+            >
+              A gallery of
+              <span class="creative-gradient-text--accent">
+                trade-exclusive design worlds
+              </span>
+              built directly into the site.
+            </h1>
+            <p class="creative-copy text-white/78 max-w-3xl text-lg sm:text-xl">
+              This page is a living exhibition of premium interface, motion,
+              material, and spatial ideas. Each installation is rooted in one of
+              the live trades or platform systems, so the gallery functions as
+              both digital art and a serious demonstration of how far the site
+              can go.
+            </p>
+          </div>
+
+          <div class="flex flex-col gap-3 sm:flex-row">
+            <ModernButton
+              href="#gallery-wall"
+              variant="gradient"
+              className="min-h-[50px]"
+            >
+              Enter the gallery
+            </ModernButton>
+            <ModernButton
+              href={withBasePath('trades/')}
+              variant="secondary"
+              className="min-h-[50px]"
+            >
+              Browse trade directory
+            </ModernButton>
+            <ModernButton
+              href={withBasePath('/')}
+              variant="outline"
+              className="min-h-[50px]"
+            >
+              Return to landing page
+            </ModernButton>
+          </div>
+
+          <div class="grid gap-4 md:grid-cols-3">
+            {
+              gallerySignals.map(signal => (
+                <ModernCard variant="minimal" className="creative-panel p-5">
+                  <p class="tone-muted text-xs uppercase tracking-[0.26em]">
+                    {signal.label}
+                  </p>
+                  <p class="tone-title mt-2 text-3xl font-semibold">
+                    {signal.value}
+                  </p>
+                  <p class="tone-body mt-2 text-sm">{signal.detail}</p>
+                </ModernCard>
+              ))
+            }
+          </div>
+        </div>
+
+        <ModernCard
+          variant="minimal"
+          className="gallery-feature-card overflow-hidden p-0"
+        >
+          <div
+            class="gallery-feature-stage"
+            style={`--gallery-accent:${featuredInstallation.palette[0]};--gallery-secondary:${featuredInstallation.palette[1]};--gallery-shadow:${featuredInstallation.palette[2]};`}
+          >
+            <div class="gallery-feature-stage__mesh"></div>
+            <div class="gallery-feature-stage__orb"></div>
+            <div class="gallery-feature-stage__plane"></div>
+          </div>
+          <div class="space-y-4 p-6">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="creative-chip">{featuredInstallation.trade}</span>
+              <span class="creative-chip">{featuredInstallation.category}</span>
+              <span class="creative-chip">{featuredInstallation.room}</span>
+            </div>
+            <div>
+              <p class="tone-title text-2xl font-semibold">
+                {featuredInstallation.title}
+              </p>
+              <p class="tone-body mt-3 text-sm leading-relaxed">
+                {featuredInstallation.summary}
+              </p>
+            </div>
+            <div class="grid gap-3 sm:grid-cols-2">
+              {
+                featuredInstallation.metrics.map(metric => (
+                  <div class="rounded-[1.35rem] border border-white/10 bg-white/[0.03] px-4 py-3">
+                    <p class="tone-muted text-[0.68rem] uppercase tracking-[0.24em]">
+                      {metric.label}
+                    </p>
+                    <p class="tone-title mt-2 text-sm font-semibold">
+                      {metric.value}
+                    </p>
+                  </div>
+                ))
+              }
+            </div>
+            <ModernButton
+              href={featuredInstallation.sourceHref}
+              variant="secondary"
+              className="min-h-[48px]"
+            >
+              {featuredInstallation.sourceLabel}
+            </ModernButton>
+          </div>
+        </ModernCard>
+      </div>
+    </div>
+  </section>
+
+  <section class="relative z-20" data-reveal id="gallery-wall">
+    <div class="mx-auto max-w-[1440px] px-6 py-10">
+      <div class="creative-hero-shell p-6 sm:p-8">
+        <div class="flex flex-col gap-6 border-b border-white/10 pb-6">
+          <div class="space-y-3">
+            <p class="creative-kicker">Curatorial Controls</p>
+            <h2 class="tone-title text-4xl font-semibold tracking-tight">
+              Switch the wall between immersive posters, a salon hang, and a
+              fast index view.
+            </h2>
+            <p class="tone-body max-w-3xl text-sm leading-relaxed">
+              Filter by design discipline to study one mood at a time or scan
+              the full collection. The view modes are lightweight on purpose, so
+              the page stays responsive and elegant across desktop and mobile.
+            </p>
+          </div>
+
+          <div class="grid gap-5 xl:grid-cols-[1fr_auto] xl:items-end">
+            <div
+              class="flex flex-wrap gap-2"
+              aria-label="Filter installations by category"
+              data-gallery-filter-group
+            >
+              <button
+                type="button"
+                class="gallery-toggle is-active"
+                data-gallery-filter="All"
+                aria-pressed="true"
+              >
+                All disciplines
+              </button>
+              {
+                galleryCategories.map(category => (
+                  <button
+                    type="button"
+                    class="gallery-toggle"
+                    data-gallery-filter={category}
+                    aria-pressed="false"
+                  >
+                    {category}
+                  </button>
+                ))
+              }
+            </div>
+
+            <div
+              class="flex flex-wrap gap-2"
+              aria-label="Change gallery view"
+              data-gallery-view-group
+            >
+              <button
+                type="button"
+                class="gallery-toggle is-active"
+                data-gallery-view="poster"
+                aria-pressed="true"
+              >
+                Poster
+              </button>
+              <button
+                type="button"
+                class="gallery-toggle"
+                data-gallery-view="salon"
+                aria-pressed="false"
+              >
+                Salon
+              </button>
+              <button
+                type="button"
+                class="gallery-toggle"
+                data-gallery-view="index"
+                aria-pressed="false"
+              >
+                Index
+              </button>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3">
+            <span class="creative-chip">Interactive wall</span>
+            <span class="creative-chip">Live route integration</span>
+            <p class="tone-muted text-sm" data-gallery-count>
+              Showing {galleryInstallations.length} installations
+            </p>
+          </div>
+        </div>
+
+        <div class="gallery-grid is-poster mt-8" data-gallery-grid>
+          {
+            galleryInstallations.map(installation => (
+              <article
+                class={`gallery-card gallery-card--${installation.size}`}
+                data-gallery-card
+                data-gallery-category={installation.category}
+                style={`--gallery-accent:${installation.palette[0]};--gallery-secondary:${installation.palette[1]};--gallery-shadow:${installation.palette[2]};`}
+              >
+                <div class="gallery-card__poster">
+                  <div class="gallery-card__poster-grid" />
+                  <div class="gallery-card__poster-orb" />
+                  <div class="gallery-card__poster-ribbon" />
+                  <div class="gallery-card__poster-chip">
+                    {installation.room}
+                  </div>
+                </div>
+
+                <div class="gallery-card__content">
+                  <div class="flex flex-wrap gap-2">
+                    <span class="creative-chip">{installation.trade}</span>
+                    <span class="creative-chip">{installation.category}</span>
+                    <span class="creative-chip">{installation.medium}</span>
+                  </div>
+
+                  <div class="space-y-3">
+                    <h3 class="tone-title text-2xl font-semibold">
+                      {installation.title}
+                    </h3>
+                    <p class="tone-body text-sm leading-relaxed">
+                      {installation.summary}
+                    </p>
+                  </div>
+
+                  <div class="grid gap-3 sm:grid-cols-2">
+                    {installation.metrics.map(metric => (
+                      <div class="gallery-card__metric">
+                        <p class="tone-muted text-[0.65rem] uppercase tracking-[0.24em]">
+                          {metric.label}
+                        </p>
+                        <p class="tone-title mt-2 text-sm font-semibold">
+                          {metric.value}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <details class="gallery-card__notes">
+                    <summary>Curator note</summary>
+                    <p>{installation.curatorNote}</p>
+                  </details>
+
+                  <div class="flex flex-wrap gap-2">
+                    {installation.tags.map(tag => (
+                      <span class="gallery-tag">{tag}</span>
+                    ))}
+                  </div>
+
+                  <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <p class="tone-muted text-xs uppercase tracking-[0.24em]">
+                      Linked into the live site
+                    </p>
+                    <ModernButton
+                      href={installation.sourceHref}
+                      variant="secondary"
+                      className="min-h-[46px]"
+                    >
+                      {installation.sourceLabel}
+                    </ModernButton>
+                  </div>
+                </div>
+              </article>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="relative z-20" data-reveal>
+    <div class="mx-auto max-w-[1440px] px-6 py-10">
+      <div class="grid gap-5 xl:grid-cols-[0.98fr_1.02fr]">
+        <ModernCard variant="minimal" className="creative-panel p-7">
+          <p class="creative-kicker">Gallery Doctrine</p>
+          <div class="mt-6 space-y-5">
+            {
+              galleryPrinciples.map((principle, index) => (
+                <div class="flex items-start gap-4">
+                  <span class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 font-mono text-xs text-white/70">
+                    0{index + 1}
+                  </span>
+                  <div>
+                    <p class="tone-title text-lg font-semibold">
+                      {principle.title}
+                    </p>
+                    <p class="tone-body mt-2 text-sm leading-relaxed">
+                      {principle.copy}
+                    </p>
+                  </div>
+                </div>
+              ))
+            }
+          </div>
+        </ModernCard>
+
+        <ModernCard variant="minimal" className="creative-panel p-7">
+          <p class="creative-kicker">Continue Into The Site</p>
+          <div class="mt-6 grid gap-4">
+            {
+              galleryRoutes.map(route => (
+                <a
+                  href={route.href}
+                  class="gallery-route-card rounded-[1.6rem] border border-white/10 bg-white/[0.03] p-5 transition hover:border-white/20 hover:bg-white/[0.05]"
+                >
+                  <p class="tone-title text-xl font-semibold">{route.title}</p>
+                  <p class="tone-body mt-2 text-sm">{route.description}</p>
+                </a>
+              ))
+            }
+          </div>
+        </ModernCard>
+      </div>
+    </div>
+  </section>
+</MarketingLayout>
+
+<script is:inline>
+  (() => {
+    const initGallery = () => {
+      const grid = document.querySelector('[data-gallery-grid]');
+      const count = document.querySelector('[data-gallery-count]');
+      const filterButtons = Array.from(
+        document.querySelectorAll('[data-gallery-filter]')
+      );
+      const viewButtons = Array.from(
+        document.querySelectorAll('[data-gallery-view]')
+      );
+      const cards = Array.from(
+        document.querySelectorAll('[data-gallery-card]')
+      );
+
+      if (!(grid instanceof HTMLElement) || !(count instanceof HTMLElement)) {
+        return;
+      }
+
+      let activeFilter = 'All';
+      let activeView = 'poster';
+
+      const render = () => {
+        let visibleCount = 0;
+
+        cards.forEach(card => {
+          if (!(card instanceof HTMLElement)) return;
+
+          const category = card.dataset.galleryCategory ?? '';
+          const isVisible = activeFilter === 'All' || category === activeFilter;
+
+          card.hidden = !isVisible;
+          if (isVisible) visibleCount += 1;
+        });
+
+        grid.classList.remove('is-poster', 'is-salon', 'is-index');
+        grid.classList.add(`is-${activeView}`);
+        count.textContent = `Showing ${visibleCount} installation${visibleCount === 1 ? '' : 's'}`;
+      };
+
+      filterButtons.forEach(button => {
+        if (!(button instanceof HTMLButtonElement)) return;
+        button.addEventListener('click', () => {
+          activeFilter = button.dataset.galleryFilter ?? 'All';
+          filterButtons.forEach(node => {
+            if (!(node instanceof HTMLButtonElement)) return;
+            const isActive =
+              (node.dataset.galleryFilter ?? '') === activeFilter;
+            node.classList.toggle('is-active', isActive);
+            node.setAttribute('aria-pressed', String(isActive));
+          });
+          render();
+        });
+      });
+
+      viewButtons.forEach(button => {
+        if (!(button instanceof HTMLButtonElement)) return;
+        button.addEventListener('click', () => {
+          activeView = button.dataset.galleryView ?? 'poster';
+          viewButtons.forEach(node => {
+            if (!(node instanceof HTMLButtonElement)) return;
+            const isActive = (node.dataset.galleryView ?? '') === activeView;
+            node.classList.toggle('is-active', isActive);
+            node.setAttribute('aria-pressed', String(isActive));
+          });
+          render();
+        });
+      });
+
+      render();
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initGallery, {
+        once: true,
+      });
+    } else {
+      initGallery();
+    }
+
+    document.addEventListener('astro:page-load', initGallery);
+  })();
+</script>
+
+<style is:inline>
+  .gallery-ambient {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(
+        circle at 15% 10%,
+        rgba(204, 255, 0, 0.12),
+        transparent 26%
+      ),
+      radial-gradient(
+        circle at 88% 14%,
+        rgba(118, 194, 255, 0.14),
+        transparent 24%
+      ),
+      linear-gradient(180deg, rgba(2, 4, 10, 0), rgba(2, 4, 10, 0.84));
+  }
+
+  .gallery-feature-card {
+    background:
+      linear-gradient(
+        155deg,
+        rgba(255, 255, 255, 0.08),
+        rgba(255, 255, 255, 0.02)
+      ),
+      rgba(4, 6, 12, 0.86);
+  }
+
+  .gallery-feature-stage {
+    position: relative;
+    min-height: 320px;
+    overflow: hidden;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background:
+      radial-gradient(
+        circle at 24% 18%,
+        color-mix(in srgb, var(--gallery-accent) 46%, transparent),
+        transparent 26%
+      ),
+      radial-gradient(
+        circle at 78% 26%,
+        color-mix(in srgb, var(--gallery-secondary) 42%, transparent),
+        transparent 28%
+      ),
+      linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--gallery-shadow) 82%, black 18%),
+        rgba(9, 14, 22, 0.96)
+      );
+  }
+
+  .gallery-feature-stage__mesh,
+  .gallery-feature-stage__orb,
+  .gallery-feature-stage__plane {
+    position: absolute;
+    pointer-events: none;
+  }
+
+  .gallery-feature-stage__mesh {
+    inset: 10% 8%;
+    border-radius: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+    background-size: 34px 34px;
+    mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.82), transparent);
+  }
+
+  .gallery-feature-stage__orb {
+    top: 18%;
+    right: 14%;
+    height: 180px;
+    width: 180px;
+    border-radius: 999px;
+    background: radial-gradient(
+      circle at 30% 30%,
+      rgba(255, 255, 255, 0.95),
+      color-mix(in srgb, var(--gallery-accent) 50%, white 50%) 26%,
+      transparent 72%
+    );
+    filter: blur(2px);
+    opacity: 0.88;
+  }
+
+  .gallery-feature-stage__plane {
+    inset: auto 10% 14% 14%;
+    height: 92px;
+    border-radius: 999px;
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--gallery-accent) 0%, transparent),
+      color-mix(in srgb, var(--gallery-secondary) 46%, transparent),
+      color-mix(in srgb, var(--gallery-accent) 18%, transparent)
+    );
+    filter: blur(28px);
+    opacity: 0.9;
+  }
+
+  .gallery-toggle {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+    padding: 0.72rem 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.68);
+    transition:
+      transform 0.25s ease,
+      border-color 0.25s ease,
+      background 0.25s ease,
+      color 0.25s ease;
+  }
+
+  .gallery-toggle:hover {
+    transform: translateY(-1px);
+    border-color: rgba(255, 255, 255, 0.18);
+    color: rgba(255, 255, 255, 0.92);
+  }
+
+  .gallery-toggle.is-active {
+    border-color: rgba(204, 255, 0, 0.32);
+    background: linear-gradient(
+      135deg,
+      rgba(204, 255, 0, 0.14),
+      rgba(112, 210, 255, 0.08)
+    );
+    color: white;
+    box-shadow: 0 0 30px -16px rgba(204, 255, 0, 0.3);
+  }
+
+  .gallery-grid {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  .gallery-grid.is-poster {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+
+  .gallery-grid.is-salon {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+
+  .gallery-grid.is-index {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .gallery-card {
+    position: relative;
+    display: grid;
+    gap: 0;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 1.75rem;
+    background:
+      linear-gradient(
+        160deg,
+        rgba(255, 255, 255, 0.06),
+        rgba(255, 255, 255, 0)
+      ),
+      rgba(5, 7, 14, 0.88);
+    box-shadow: 0 36px 90px -44px rgba(0, 0, 0, 0.96);
+    transition:
+      transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.35s ease,
+      box-shadow 0.35s ease;
+  }
+
+  .gallery-card:hover {
+    transform: translateY(-4px);
+    border-color: color-mix(in srgb, var(--gallery-accent) 32%, transparent);
+    box-shadow:
+      0 42px 110px -48px rgba(0, 0, 0, 0.98),
+      0 0 42px -24px color-mix(in srgb, var(--gallery-accent) 36%, transparent);
+  }
+
+  .gallery-card__poster {
+    position: relative;
+    min-height: 260px;
+    overflow: hidden;
+    background:
+      radial-gradient(
+        circle at 18% 16%,
+        color-mix(in srgb, var(--gallery-accent) 46%, transparent),
+        transparent 26%
+      ),
+      radial-gradient(
+        circle at 86% 22%,
+        color-mix(in srgb, var(--gallery-secondary) 44%, transparent),
+        transparent 28%
+      ),
+      linear-gradient(
+        145deg,
+        color-mix(in srgb, var(--gallery-shadow) 88%, black 12%),
+        rgba(8, 10, 18, 0.96)
+      );
+  }
+
+  .gallery-card__poster-grid,
+  .gallery-card__poster-orb,
+  .gallery-card__poster-ribbon,
+  .gallery-card__poster-chip {
+    position: absolute;
+  }
+
+  .gallery-card__poster-grid {
+    inset: 8%;
+    border-radius: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+    background-size: 22px 22px;
+    mask-image: linear-gradient(180deg, rgba(0, 0, 0, 1), transparent 92%);
+  }
+
+  .gallery-card__poster-orb {
+    top: 16%;
+    right: 12%;
+    height: 144px;
+    width: 144px;
+    border-radius: 999px;
+    background: radial-gradient(
+      circle at 36% 28%,
+      rgba(255, 255, 255, 0.98),
+      color-mix(in srgb, var(--gallery-accent) 42%, white 58%) 28%,
+      transparent 70%
+    );
+    filter: blur(1px);
+    opacity: 0.86;
+  }
+
+  .gallery-card__poster-ribbon {
+    left: 8%;
+    right: 22%;
+    bottom: 14%;
+    height: 68px;
+    border-radius: 999px;
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--gallery-accent) 0%, transparent),
+      color-mix(in srgb, var(--gallery-secondary) 50%, transparent),
+      color-mix(in srgb, var(--gallery-accent) 20%, transparent)
+    );
+    filter: blur(24px);
+    opacity: 0.88;
+  }
+
+  .gallery-card__poster-chip {
+    left: 1rem;
+    top: 1rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(5, 7, 14, 0.35);
+    padding: 0.5rem 0.8rem;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(14px);
+  }
+
+  .gallery-card__content {
+    display: grid;
+    gap: 1.1rem;
+    padding: 1.3rem;
+  }
+
+  .gallery-card__metric {
+    border-radius: 1.15rem;
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    background: rgba(255, 255, 255, 0.03);
+    padding: 0.85rem 0.95rem;
+  }
+
+  .gallery-card__notes {
+    border-radius: 1.15rem;
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    background: rgba(255, 255, 255, 0.03);
+    padding: 0.95rem 1rem;
+  }
+
+  .gallery-card__notes summary {
+    cursor: pointer;
+    list-style: none;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.78);
+  }
+
+  .gallery-card__notes summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .gallery-card__notes p {
+    margin: 0.85rem 0 0;
+    color: rgba(255, 255, 255, 0.68);
+    font-size: 0.92rem;
+    line-height: 1.7;
+  }
+
+  .gallery-tag {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.45rem 0.78rem;
+    font-size: 0.72rem;
+    color: rgba(255, 255, 255, 0.72);
+  }
+
+  .gallery-route-card {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .gallery-route-card::after {
+    content: '';
+    position: absolute;
+    inset: auto 14% -40% 14%;
+    height: 120px;
+    border-radius: 999px;
+    background: radial-gradient(
+      circle,
+      rgba(204, 255, 0, 0.1),
+      transparent 72%
+    );
+    filter: blur(22px);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .gallery-route-card:hover::after {
+    opacity: 1;
+  }
+
+  @media (min-width: 900px) {
+    .gallery-grid.is-poster {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+    }
+
+    .gallery-grid.is-salon {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .gallery-card--feature {
+      grid-column: span 7;
+    }
+
+    .gallery-card--wide {
+      grid-column: span 7;
+    }
+
+    .gallery-card--tall {
+      grid-column: span 5;
+    }
+
+    .gallery-card--standard {
+      grid-column: span 5;
+    }
+
+    .gallery-grid.is-poster .gallery-card--feature .gallery-card__poster,
+    .gallery-grid.is-poster .gallery-card--wide .gallery-card__poster {
+      min-height: 320px;
+    }
+
+    .gallery-grid.is-poster .gallery-card--tall .gallery-card__poster {
+      min-height: 400px;
+    }
+  }
+
+  @media (min-width: 1100px) {
+    .gallery-grid.is-poster .gallery-card {
+      grid-template-columns: minmax(280px, 0.9fr) minmax(0, 1.1fr);
+    }
+
+    .gallery-grid.is-poster .gallery-card--tall {
+      grid-template-columns: minmax(250px, 0.84fr) minmax(0, 1.16fr);
+    }
+  }
+
+  .gallery-grid.is-salon .gallery-card,
+  .gallery-grid.is-index .gallery-card {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .gallery-grid.is-salon .gallery-card__poster {
+    min-height: 240px;
+  }
+
+  .gallery-grid.is-index .gallery-card {
+    border-radius: 1.4rem;
+  }
+
+  .gallery-grid.is-index .gallery-card__poster {
+    min-height: 180px;
+  }
+
+  .gallery-grid.is-index .gallery-card__content {
+    gap: 0.9rem;
+  }
+</style>

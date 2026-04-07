@@ -9,6 +9,7 @@ const navSections = [
   {
     title: 'Company',
     items: [
+      { label: 'Design Gallery', href: withBasePath('gallery/') },
       { label: 'About', href: withBasePath('company/') },
       { label: 'Trade Directory', href: withBasePath('trades/') },
       { label: 'Portfolio', href: withBasePath('about/') },
@@ -26,6 +27,7 @@ const navSections = [
         href: `${withBasePath('services/')}#contact`,
       },
       { label: 'Request a quote', href: withBasePath('contact-hq/') },
+      { label: 'Open gallery', href: withBasePath('gallery/') },
       { label: 'Explore services', href: withBasePath('services/') },
     ],
   },
@@ -92,12 +94,12 @@ const navSections = [
             Start intake
           </ModernButton>
           <ModernButton
-            href={withBasePath('contact-hq/')}
+            href={withBasePath('gallery/')}
             variant="secondary"
             rounded="sm"
             className="font-mono text-xs uppercase tracking-wider"
           >
-            Explore services
+            Open gallery
           </ModernButton>
         </div>
         <div class="tone-muted flex gap-3">

@@ -9,6 +9,7 @@ import ModernButton from './ui/ModernButton.astro';
 const homeHref = withBasePath('/');
 
 const links = [
+  { label: 'Gallery', href: withBasePath('gallery/') },
   { label: 'About', href: withBasePath('company/') },
   { label: 'Services', href: withBasePath('services/') },
   { label: 'Pricing', href: withBasePath('pricing/') },
@@ -105,7 +106,7 @@ const isTradeActiveHref = (href: string) => {
       </div>
     </a>
 
-    <div class="hidden h-full items-center md:flex">
+    <div class="hidden h-full items-center lg:flex">
       {
         (() => {
           const active = isActiveHref(homeHref);
@@ -150,7 +151,7 @@ const isTradeActiveHref = (href: string) => {
       </div>
     </div>
 
-    <div class="hidden items-center gap-4 pl-6 md:flex">
+    <div class="hidden items-center gap-4 pl-6 lg:flex">
       <button
         type="button"
         data-command-palette-trigger
@@ -188,7 +189,7 @@ const isTradeActiveHref = (href: string) => {
       </ModernButton>
     </div>
 
-    <div class="flex items-center gap-2 md:hidden">
+    <div class="flex items-center gap-2 lg:hidden">
       <button
         type="button"
         data-command-palette-trigger
@@ -234,7 +235,7 @@ const isTradeActiveHref = (href: string) => {
     </div>
   </nav>
 
-  <div class="hidden border-t border-white/[0.05] md:block">
+  <div class="hidden border-t border-white/[0.05] lg:block">
     <nav
       class="mx-auto max-w-[1400px] px-5 sm:px-6 lg:px-8"
       aria-label="Trade navigation"
@@ -278,7 +279,7 @@ const isTradeActiveHref = (href: string) => {
     </nav>
   </div>
 
-  <div class="md:hidden" id="mobile-menu" hidden>
+  <div class="lg:hidden" id="mobile-menu" hidden>
     <div
       class="tone-border tone-surface tone-body space-y-2 border-t px-4 py-5 text-sm"
     >

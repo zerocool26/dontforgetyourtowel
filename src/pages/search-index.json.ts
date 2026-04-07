@@ -51,6 +51,15 @@ export async function GET() {
       tags: ['about', 'company', 'platform', 'trade architecture'],
     },
     {
+      id: 'page-gallery',
+      title: 'Design Gallery',
+      description:
+        'Interactive gallery of premium trade-inspired visual studies with filters, view modes, and links back into the live site',
+      category: 'Page',
+      url: 'gallery/',
+      tags: ['gallery', 'design', 'art', 'creative', 'interface', 'premium'],
+    },
+    {
       id: 'page-about',
       title: 'Portfolio Shop Demo',
       description:
