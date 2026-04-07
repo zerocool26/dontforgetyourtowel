@@ -4,10 +4,24 @@
  * Adds schema.org markup for better SEO and rich results
  */
 
-import { SITE_URL } from '../consts';
+import {
+  CONTACT_EMAIL,
+  SITE_CONFIG,
+  SITE_DESCRIPTION,
+  SITE_TITLE,
+  SITE_URL,
+} from '../consts';
 
 export interface Props {
-  type?: 'website' | 'article' | 'blog' | 'organization' | 'breadcrumbs';
+  type?:
+    | 'website'
+    | 'article'
+    | 'blog'
+    | 'organization'
+    | 'breadcrumbs'
+    | 'collection'
+    | 'service'
+    | 'contact';
   data?: Record<string, any>;
 }
 
@@ -15,16 +29,19 @@ const { type = 'website', data = {} } = Astro.props;
 
 const baseUrl = Astro.site?.toString() || SITE_URL;
 const currentUrl = new URL(Astro.url.pathname, baseUrl).toString();
+const logoUrl = new URL(
+  SITE_CONFIG.seo.ogImage || '/og-image.png',
+  baseUrl
+).toString();
 
 // Website schema
 const websiteSchema = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
-  name: 'Elite Project',
-  alternateName: 'EP',
+  name: SITE_TITLE,
+  alternateName: SITE_CONFIG.author,
   url: baseUrl,
-  description:
-    'Static intelligence for decisive operators. Build executive-ready status hubs with Astro.',
+  description: SITE_DESCRIPTION,
   inLanguage: 'en-US',
   ...data,
 };
@@ -33,16 +50,16 @@ const websiteSchema = {
 const organizationSchema = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
-  name: 'Elite Project',
-  alternateName: 'EP',
+  name: SITE_TITLE,
+  alternateName: SITE_CONFIG.author,
   url: baseUrl,
+  description: SITE_DESCRIPTION,
+  email: CONTACT_EMAIL,
   logo: {
     '@type': 'ImageObject',
-    url: `${baseUrl}/favicon.svg`,
+    url: logoUrl,
   },
-  sameAs: [
-    // Add social media profiles here
-  ],
+  sameAs: Object.values(SITE_CONFIG.social).filter(Boolean),
   ...data,
 };
 
@@ -57,15 +74,15 @@ const articleSchema = {
   dateModified: data.updatedDate || data.pubDate || new Date().toISOString(),
   author: {
     '@type': 'Organization',
-    name: 'Elite Project',
+    name: SITE_TITLE,
     url: baseUrl,
   },
   publisher: {
     '@type': 'Organization',
-    name: 'Elite Project',
+    name: SITE_TITLE,
     logo: {
       '@type': 'ImageObject',
-      url: `${baseUrl}/favicon.svg`,
+      url: logoUrl,
     },
   },
   mainEntityOfPage: {
@@ -82,6 +99,55 @@ const breadcrumbsSchema = {
   itemListElement: data.items || [],
 };
 
+const collectionSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: data.name || data.title || SITE_TITLE,
+  description: data.description || SITE_DESCRIPTION,
+  url: currentUrl,
+  isPartOf: {
+    '@type': 'WebSite',
+    name: SITE_TITLE,
+    url: baseUrl,
+  },
+  ...data,
+};
+
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  name: data.name || data.title || SITE_TITLE,
+  description: data.description || SITE_DESCRIPTION,
+  url: currentUrl,
+  provider: {
+    '@type': 'Organization',
+    name: SITE_TITLE,
+    url: baseUrl,
+  },
+  serviceType: data.serviceType || data.name || data.title,
+  areaServed: data.areaServed || 'United States',
+  audience: data.audience,
+  hasOfferCatalog: data.hasOfferCatalog,
+  offers: data.offers,
+  termsOfService: data.termsOfService,
+  ...data,
+};
+
+const contactSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ContactPage',
+  name: data.name || `${SITE_TITLE} Contact`,
+  description: data.description || 'Project intake and contact routing.',
+  url: currentUrl,
+  mainEntity: {
+    '@type': 'Organization',
+    name: SITE_TITLE,
+    url: baseUrl,
+    email: CONTACT_EMAIL,
+  },
+  ...data,
+};
+
 // Select appropriate schema
 let schema;
 switch (type) {
@@ -94,6 +160,15 @@ switch (type) {
     break;
   case 'breadcrumbs':
     schema = breadcrumbsSchema;
+    break;
+  case 'collection':
+    schema = collectionSchema;
+    break;
+  case 'service':
+    schema = serviceSchema;
+    break;
+  case 'contact':
+    schema = contactSchema;
     break;
   default:
     schema = websiteSchema;

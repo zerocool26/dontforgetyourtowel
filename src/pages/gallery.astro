@@ -1,5 +1,6 @@
 ---
 import MarketingLayout from '../layouts/MarketingLayout.astro';
+import StructuredData from '../components/StructuredData.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
 import ModernCard from '../components/ui/ModernCard.astro';
 import {
@@ -72,6 +73,33 @@ const galleryRoutes = [
   mainClass="relative isolate overflow-x-clip"
   showFooter={true}
 >
+  <StructuredData
+    type="collection"
+    data={{
+      name: 'Design Gallery',
+      description:
+        'Interactive gallery of trade-inspired visual studies tied to the live site architecture.',
+    }}
+  />
+  <StructuredData
+    type="breadcrumbs"
+    data={{
+      items: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: new URL(withBasePath('/'), Astro.site).toString(),
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'Design Gallery',
+          item: new URL(withBasePath('gallery/'), Astro.site).toString(),
+        },
+      ],
+    }}
+  />
   <section class="relative overflow-hidden pb-14 pt-28" data-reveal>
     <div class="gallery-ambient"></div>
     <div class="mx-auto max-w-[1440px] px-6">

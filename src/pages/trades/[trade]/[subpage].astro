@@ -1,5 +1,6 @@
 ---
 import MarketingLayout from '../../../layouts/MarketingLayout.astro';
+import StructuredData from '../../../components/StructuredData.astro';
 import ModernButton from '../../../components/ui/ModernButton.astro';
 import ModernCard from '../../../components/ui/ModernCard.astro';
 import {
@@ -9,6 +10,7 @@ import {
   type TradeSubpage,
 } from '../../../data/trades';
 import { getTradeVisual } from '../../../data/trade-visuals';
+import { getTradeSubpageOperations } from '../../../data/trade-operations';
 import { withBasePath } from '../../../utils/helpers';
 
 export function getStaticPaths() {
@@ -30,6 +32,35 @@ const siblingSubpages = trade.subpages.filter(
 );
 const resolvedSubpage = getTradeSubpage(trade.slug, subpage.slug) ?? subpage;
 const tradeVisual = getTradeVisual(trade.slug);
+const subpageOperations = getTradeSubpageOperations(trade.slug, subpage.slug);
+const subpageHref = withBasePath(`trades/${trade.slug}/${subpage.slug}/`);
+const subpageIntakeHref = `${withBasePath('contact-hq/')}?trade=${encodeURIComponent(trade.slug)}&tradePage=${encodeURIComponent(resolvedSubpage.title)}`;
+const subpageBreadcrumbItems = [
+  {
+    '@type': 'ListItem',
+    position: 1,
+    name: 'Home',
+    item: new URL(withBasePath('/'), Astro.site).toString(),
+  },
+  {
+    '@type': 'ListItem',
+    position: 2,
+    name: 'Trade Directory',
+    item: new URL(withBasePath('trades/'), Astro.site).toString(),
+  },
+  {
+    '@type': 'ListItem',
+    position: 3,
+    name: trade.name,
+    item: new URL(withBasePath(`trades/${trade.slug}/`), Astro.site).toString(),
+  },
+  {
+    '@type': 'ListItem',
+    position: 4,
+    name: resolvedSubpage.title,
+    item: new URL(subpageHref, Astro.site).toString(),
+  },
+];
 ---
 
 <MarketingLayout
@@ -38,6 +69,20 @@ const tradeVisual = getTradeVisual(trade.slug);
   bodyClass={`creative-page bg-[#02040a] ${tradeVisual.themeClass}`}
   showFooter={true}
 >
+  <StructuredData
+    type="service"
+    data={{
+      name: resolvedSubpage.title,
+      description: resolvedSubpage.description,
+      serviceType: resolvedSubpage.callout.value,
+      audience: {
+        '@type': 'BusinessAudience',
+        audienceType: trade.marketFocus,
+      },
+      areaServed: 'United States',
+    }}
+  />
+  <StructuredData type="breadcrumbs" data={{ items: subpageBreadcrumbItems }} />
   <section
     class="tone-surface relative overflow-hidden pb-14 pt-28"
     data-reveal
@@ -83,8 +128,15 @@ const tradeVisual = getTradeVisual(trade.slug);
           </p>
           <div class="flex flex-col gap-3 sm:flex-row">
             <ModernButton
-              href={withBasePath(`trades/${trade.slug}/`)}
+              href={subpageIntakeHref}
               variant="primary"
+              className="min-h-[48px]"
+            >
+              Start intake for this route
+            </ModernButton>
+            <ModernButton
+              href={withBasePath(`trades/${trade.slug}/`)}
+              variant="secondary"
               className="min-h-[48px]"
             >
               Back to {trade.shortName}
@@ -105,7 +157,24 @@ const tradeVisual = getTradeVisual(trade.slug);
             {resolvedSubpage.callout.value}
           </p>
           <p class="tone-body mt-3 text-sm">{resolvedSubpage.callout.note}</p>
-          <p class="tone-body mt-4 text-sm">{tradeVisual.stageCopy}</p>
+          {
+            subpageOperations && (
+              <div class="mt-5 grid gap-3">
+                <div class="trade-subpage-mini">
+                  <p class="trade-subpage-mini__label">Required inputs</p>
+                  <p class="trade-subpage-mini__value">
+                    {subpageOperations.requiredInputs[0]}
+                  </p>
+                </div>
+                <div class="trade-subpage-mini">
+                  <p class="trade-subpage-mini__label">Field checkpoint</p>
+                  <p class="trade-subpage-mini__value">
+                    {subpageOperations.fieldChecklist[0]}
+                  </p>
+                </div>
+              </div>
+            )
+          }
           <div class="mt-6 flex flex-wrap gap-2">
             <span
               class="creative-chip"
@@ -203,19 +272,60 @@ const tradeVisual = getTradeVisual(trade.slug);
             variant="minimal"
             className="creative-panel trade-subpage-aside p-6"
           >
-            <p class="creative-kicker">Connected Trade Signals</p>
-            <div class="mt-4 flex flex-wrap gap-2">
+            <p class="creative-kicker">Required inputs</p>
+            <ul class="tone-body mt-4 space-y-3 text-sm">
               {
-                trade.integration.map(item => (
-                  <span
-                    class="creative-chip"
-                    style={`border-color: color-mix(in srgb, ${trade.accent} 24%, rgba(255,255,255,0.08));`}
-                  >
-                    {item}
-                  </span>
+                (subpageOperations?.requiredInputs ?? []).map(item => (
+                  <li class="flex items-start gap-3">
+                    <span
+                      class="mt-2 h-2 w-2 flex-shrink-0 rounded-full"
+                      style={`background:${trade.accent};`}
+                    />
+                    <span>{item}</span>
+                  </li>
                 ))
               }
-            </div>
+            </ul>
+          </ModernCard>
+
+          <ModernCard
+            variant="minimal"
+            className="creative-panel trade-subpage-aside p-6"
+          >
+            <p class="creative-kicker">Field checklist</p>
+            <ul class="tone-body mt-4 space-y-3 text-sm">
+              {
+                (subpageOperations?.fieldChecklist ?? []).map(item => (
+                  <li class="flex items-start gap-3">
+                    <span
+                      class="mt-2 h-2 w-2 flex-shrink-0 rounded-full"
+                      style={`background:${trade.accent};`}
+                    />
+                    <span>{item}</span>
+                  </li>
+                ))
+              }
+            </ul>
+          </ModernCard>
+
+          <ModernCard
+            variant="minimal"
+            className="creative-panel trade-subpage-aside p-6"
+          >
+            <p class="creative-kicker">Owner deliverables</p>
+            <ul class="tone-body mt-4 space-y-3 text-sm">
+              {
+                (subpageOperations?.ownerDeliverables ?? []).map(item => (
+                  <li class="flex items-start gap-3">
+                    <span
+                      class="mt-2 h-2 w-2 flex-shrink-0 rounded-full"
+                      style={`background:${trade.accent};`}
+                    />
+                    <span>{item}</span>
+                  </li>
+                ))
+              }
+            </ul>
           </ModernCard>
         </div>
       </div>
@@ -260,6 +370,28 @@ const tradeVisual = getTradeVisual(trade.slug);
         rgba(255, 255, 255, 0.01)
       ),
       rgba(255, 255, 255, 0.02);
+  }
+
+  .trade-subpage-mini {
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
+    padding: 0.85rem 0.9rem;
+  }
+
+  .trade-subpage-mini__label {
+    margin: 0;
+    font-size: 0.64rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.46);
+  }
+
+  .trade-subpage-mini__value {
+    margin: 0.45rem 0 0;
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 0.9rem;
+    line-height: 1.55;
   }
 
   body.trade-experience--mechanical .trade-subpage-shell {

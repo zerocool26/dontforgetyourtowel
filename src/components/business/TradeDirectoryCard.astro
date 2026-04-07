@@ -4,6 +4,7 @@ import ModernButton from '../ui/ModernButton.astro';
 import { withBasePath } from '../../utils/helpers';
 import type { TradeProfile } from '../../data/trades';
 import { getTradeVisual } from '../../data/trade-visuals';
+import { getTradeOperations } from '../../data/trade-operations';
 
 interface Props {
   trade: TradeProfile;
@@ -19,6 +20,7 @@ const {
 
 const tradeHref = withBasePath(`trades/${trade.slug}/`);
 const tradeVisual = getTradeVisual(trade.slug);
+const tradeOperations = getTradeOperations(trade.slug);
 ---
 
 <ModernCard
@@ -57,6 +59,25 @@ const tradeVisual = getTradeVisual(trade.slug);
       </p>
     )
   }
+
+  <div class="mt-5 grid gap-3">
+    <div class="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3">
+      <p class="tone-muted text-[0.64rem] uppercase tracking-[0.2em]">
+        Operating model
+      </p>
+      <p class="tone-title mt-2 text-sm font-semibold">
+        {tradeOperations.operatingModel}
+      </p>
+    </div>
+    <div class="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3">
+      <p class="tone-muted text-[0.64rem] uppercase tracking-[0.2em]">
+        First deliverable
+      </p>
+      <p class="tone-title mt-2 text-sm font-semibold">
+        {tradeOperations.ownerOutputs[0]}
+      </p>
+    </div>
+  </div>
 
   <ul class="tone-body mt-5 space-y-2 text-sm">
     {

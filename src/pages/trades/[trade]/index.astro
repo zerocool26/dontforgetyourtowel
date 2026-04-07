@@ -1,10 +1,12 @@
 ---
 import MarketingLayout from '../../../layouts/MarketingLayout.astro';
+import StructuredData from '../../../components/StructuredData.astro';
 import ModernButton from '../../../components/ui/ModernButton.astro';
 import ModernCard from '../../../components/ui/ModernCard.astro';
 import { servicesExtended } from '../../../data/services-extended';
 import { tradeProfiles, type TradeProfile } from '../../../data/trades';
 import { getTradeVisual } from '../../../data/trade-visuals';
+import { getTradeOperations } from '../../../data/trade-operations';
 import { withBasePath } from '../../../utils/helpers';
 
 export function getStaticPaths() {
@@ -20,6 +22,28 @@ const techCategories = Array.from(
 );
 const tradeHref = withBasePath(`trades/${trade.slug}/`);
 const tradeVisual = getTradeVisual(trade.slug);
+const tradeOperations = getTradeOperations(trade.slug);
+const tradeIntakeHref = `${withBasePath('contact-hq/')}?trade=${encodeURIComponent(trade.slug)}&tradePage=${encodeURIComponent(`${trade.name} overview`)}`;
+const tradeBreadcrumbItems = [
+  {
+    '@type': 'ListItem',
+    position: 1,
+    name: 'Home',
+    item: new URL(withBasePath('/'), Astro.site).toString(),
+  },
+  {
+    '@type': 'ListItem',
+    position: 2,
+    name: 'Trade Directory',
+    item: new URL(withBasePath('trades/'), Astro.site).toString(),
+  },
+  {
+    '@type': 'ListItem',
+    position: 3,
+    name: trade.name,
+    item: new URL(tradeHref, Astro.site).toString(),
+  },
+];
 ---
 
 <MarketingLayout
@@ -28,6 +52,20 @@ const tradeVisual = getTradeVisual(trade.slug);
   bodyClass={`creative-page bg-[#02040a] ${tradeVisual.themeClass}`}
   showFooter={true}
 >
+  <StructuredData
+    type="service"
+    data={{
+      name: trade.name,
+      description: trade.summary,
+      serviceType: tradeOperations.operatingModel,
+      audience: {
+        '@type': 'BusinessAudience',
+        audienceType: trade.marketFocus,
+      },
+      areaServed: 'United States',
+    }}
+  />
+  <StructuredData type="breadcrumbs" data={{ items: tradeBreadcrumbItems }} />
   <section
     class="tone-surface relative overflow-hidden pb-14 pt-28"
     data-reveal
@@ -67,7 +105,34 @@ const tradeVisual = getTradeVisual(trade.slug);
           >
             {trade.marketFocus}
           </p>
+          <div class="grid gap-3 sm:grid-cols-3">
+            <div class="trade-info-chip">
+              <p class="trade-info-chip__label">Operating model</p>
+              <p class="trade-info-chip__value">
+                {tradeOperations.operatingModel}
+              </p>
+            </div>
+            <div class="trade-info-chip">
+              <p class="trade-info-chip__label">Service rhythm</p>
+              <p class="trade-info-chip__value">
+                {tradeOperations.serviceRhythm}
+              </p>
+            </div>
+            <div class="trade-info-chip">
+              <p class="trade-info-chip__label">Project window</p>
+              <p class="trade-info-chip__value">
+                {tradeOperations.projectWindow}
+              </p>
+            </div>
+          </div>
           <div class="flex flex-col gap-3 sm:flex-row">
+            <ModernButton
+              href={tradeIntakeHref}
+              variant="primary"
+              className="min-h-[48px]"
+            >
+              Start {trade.shortName} intake
+            </ModernButton>
             <ModernButton
               href={withBasePath('trades/')}
               variant="secondary"
@@ -163,10 +228,39 @@ const tradeVisual = getTradeVisual(trade.slug);
             variant="minimal"
             className="creative-panel trade-side-panel p-6"
           >
-            <p class="creative-kicker">{tradeVisual.subpageLabel}</p>
-            <ul class="tone-body mt-5 space-y-3 text-sm">
+            <p class="creative-kicker">Operational setup</p>
+            <div class="mt-5 grid gap-4">
               {
-                trade.differentiators.map(item => (
+                tradeOperations.setupGroups.map(group => (
+                  <div class="trade-detail-card rounded-3xl border border-white/10 bg-white/[0.02] p-5">
+                    <p class="tone-title text-base font-semibold">
+                      {group.title}
+                    </p>
+                    <ul class="tone-body mt-3 space-y-2 text-sm">
+                      {group.items.map(item => (
+                        <li class="flex items-start gap-2">
+                          <span
+                            class="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full"
+                            style={`background:${trade.accent};`}
+                          />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))
+              }
+            </div>
+          </ModernCard>
+
+          <ModernCard
+            variant="minimal"
+            className="creative-panel trade-side-panel p-6"
+          >
+            <p class="creative-kicker">Owner outputs</p>
+            <ul class="tone-body mt-4 space-y-3 text-sm">
+              {
+                tradeOperations.ownerOutputs.map(item => (
                   <li class="flex items-start gap-3">
                     <span
                       class="mt-2 h-2 w-2 flex-shrink-0 rounded-full"
@@ -177,25 +271,6 @@ const tradeVisual = getTradeVisual(trade.slug);
                 ))
               }
             </ul>
-          </ModernCard>
-
-          <ModernCard
-            variant="minimal"
-            className="creative-panel trade-side-panel p-6"
-          >
-            <p class="creative-kicker">Connected Trades</p>
-            <div class="mt-4 flex flex-wrap gap-2">
-              {
-                trade.integration.map(item => (
-                  <span
-                    class="creative-chip"
-                    style={`border-color: color-mix(in srgb, ${trade.accent} 24%, rgba(255,255,255,0.08));`}
-                  >
-                    {item}
-                  </span>
-                ))
-              }
-            </div>
           </ModernCard>
         </div>
       </div>
@@ -226,13 +301,46 @@ const tradeVisual = getTradeVisual(trade.slug);
           variant="minimal"
           className="creative-panel trade-side-panel p-6"
         >
+          <div class="grid gap-4 border-b border-white/10 pb-5 md:grid-cols-2">
+            <div>
+              <p class="creative-kicker">Trade standards</p>
+              <ul class="tone-body mt-4 space-y-3 text-sm">
+                {
+                  tradeOperations.standards.map(item => (
+                    <li class="flex items-start gap-3">
+                      <span
+                        class="mt-2 h-2 w-2 flex-shrink-0 rounded-full"
+                        style={`background:${trade.accent};`}
+                      />
+                      <span>{item}</span>
+                    </li>
+                  ))
+                }
+              </ul>
+            </div>
+            <div>
+              <p class="creative-kicker">Connected trades</p>
+              <div class="mt-4 flex flex-wrap gap-2">
+                {
+                  trade.integration.map(item => (
+                    <span
+                      class="creative-chip"
+                      style={`border-color: color-mix(in srgb, ${trade.accent} 24%, rgba(255,255,255,0.08));`}
+                    >
+                      {item}
+                    </span>
+                  ))
+                }
+              </div>
+            </div>
+          </div>
           <div
-            class="flex flex-col gap-4 border-b border-white/10 pb-5 md:flex-row md:items-end md:justify-between"
+            class="flex flex-col gap-4 pt-6 md:flex-row md:items-end md:justify-between"
           >
             <div>
               <p class="creative-kicker">Subpages</p>
               <h2 class="tone-title mt-3 text-3xl font-semibold">
-                Tailored routes for this trade.
+                Focused routes for this trade.
               </h2>
             </div>
             <a class="creative-chip" href={tradeHref}> Overview </a>
@@ -345,6 +453,28 @@ const tradeVisual = getTradeVisual(trade.slug);
         rgba(255, 255, 255, 0.01)
       ),
       rgba(255, 255, 255, 0.02);
+  }
+
+  .trade-info-chip {
+    border-radius: 1.15rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
+    padding: 0.95rem 1rem;
+  }
+
+  .trade-info-chip__label {
+    margin: 0;
+    font-size: 0.68rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.48);
+  }
+
+  .trade-info-chip__value {
+    margin: 0.45rem 0 0;
+    color: rgba(255, 255, 255, 0.84);
+    font-size: 0.92rem;
+    line-height: 1.55;
   }
 
   body.trade-experience--mechanical .trade-hero-shell {

@@ -1,15 +1,19 @@
 ---
 /* eslint-disable astro/no-set-html-directive */
 import MarketingLayout from '../layouts/MarketingLayout.astro';
+import StructuredData from '../components/StructuredData.astro';
 import ModernCard from '../components/ui/ModernCard.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
 import { withBasePath } from '../utils/helpers';
 import { CONTACT_EMAIL } from '../consts';
 import { studioPresets } from '../data/build-studio';
+import { tradeProfiles } from '../data/trades';
 
 const serviceIntent = Astro.url.searchParams.get('service')?.trim() ?? '';
 const solutionIntent = Astro.url.searchParams.get('solution')?.trim() ?? '';
 const briefIntent = Astro.url.searchParams.get('brief')?.trim() ?? '';
+const tradeIntent = Astro.url.searchParams.get('trade')?.trim() ?? '';
+const tradePageIntent = Astro.url.searchParams.get('tradePage')?.trim() ?? '';
 
 const recommendedServiceLabel: Record<string, string> = {
   msp: 'Managed IT Services',
@@ -21,19 +25,28 @@ const recommendedServiceLabel: Record<string, string> = {
 const recommendedSolutionLabel = Object.fromEntries(
   studioPresets.map(preset => [preset.id, preset.name])
 ) as Record<string, string>;
+const recommendedTradeLabel = Object.fromEntries(
+  tradeProfiles.map(trade => [trade.slug, trade.name])
+) as Record<string, string>;
 
 const serviceIntentLabel =
   recommendedServiceLabel[serviceIntent.toLowerCase()] ?? serviceIntent;
 const solutionIntentLabel =
   recommendedSolutionLabel[solutionIntent] ?? solutionIntent;
+const tradeIntentLabel =
+  recommendedTradeLabel[tradeIntent.toLowerCase()] ?? tradeIntent;
 
-const kickoffSubject = serviceIntentLabel
-  ? `New project inquiry — ${serviceIntentLabel}`
-  : solutionIntentLabel
-    ? `New project inquiry — ${solutionIntentLabel}`
-    : 'New project inquiry';
+const kickoffSubject = tradeIntentLabel
+  ? `New project inquiry — ${tradeIntentLabel}`
+  : serviceIntentLabel
+    ? `New project inquiry — ${serviceIntentLabel}`
+    : solutionIntentLabel
+      ? `New project inquiry — ${solutionIntentLabel}`
+      : 'New project inquiry';
 
 const kickoffBodyLines = [
+  tradeIntentLabel ? `Trade focus: ${tradeIntentLabel}` : '',
+  tradePageIntent ? `Trade page: ${tradePageIntent}` : '',
   solutionIntentLabel ? `Build path: ${solutionIntentLabel}` : '',
   briefIntent ? `Build brief: ${briefIntent}` : '',
 ].filter(Boolean);
@@ -48,7 +61,11 @@ if (kickoffBodyLines.length) {
 
 const kickoffHref = `mailto:${encodeURIComponent(CONTACT_EMAIL)}?${kickoffMailtoParams.toString()}`;
 const hasIntakeContext = Boolean(
-  serviceIntentLabel || solutionIntentLabel || briefIntent
+  tradeIntentLabel ||
+  tradePageIntent ||
+  serviceIntentLabel ||
+  solutionIntentLabel ||
+  briefIntent
 );
 
 const contactChannels = [
@@ -128,13 +145,6 @@ const faqs = [
   },
 ];
 
-const organizationSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'Organization',
-  name: 'Olive Global Systems',
-  url: new URL(withBasePath('/'), Astro.site).toString(),
-};
-
 const contactBreadcrumbSchema = {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
@@ -172,15 +182,11 @@ const faqSchema = {
   title="Contact | Olive Global Systems"
   description="Creative intake hub for project discovery, operational support, security advisory, and partnership conversations."
 >
-  <!-- eslint-disable-next-line astro/no-set-html-directive -->
-  <script
-    type="application/ld+json"
-    set:html={JSON.stringify(organizationSchema)}
-  />
-  <!-- eslint-disable-next-line astro/no-set-html-directive -->
-  <script
-    type="application/ld+json"
-    set:html={JSON.stringify(contactBreadcrumbSchema)}
+  <StructuredData type="contact" />
+  <StructuredData type="organization" />
+  <StructuredData
+    type="breadcrumbs"
+    data={{ items: contactBreadcrumbSchema.itemListElement }}
   />
   <!-- eslint-disable-next-line astro/no-set-html-directive -->
   <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
@@ -232,6 +238,34 @@ const faqSchema = {
               Live intake context
             </p>
             <div class="mt-3 grid gap-3">
+              <div
+                id="intake-context-trade-row"
+                class:list={[!tradeIntentLabel && 'hidden']}
+              >
+                <p class="tone-muted text-[11px] uppercase tracking-[0.18em]">
+                  Trade focus
+                </p>
+                <p
+                  id="intake-context-trade"
+                  class="tone-title mt-1 text-sm font-semibold"
+                >
+                  {tradeIntentLabel}
+                </p>
+              </div>
+              <div
+                id="intake-context-trade-page-row"
+                class:list={[!tradePageIntent && 'hidden']}
+              >
+                <p class="tone-muted text-[11px] uppercase tracking-[0.18em]">
+                  Trade route
+                </p>
+                <p
+                  id="intake-context-trade-page"
+                  class="tone-body mt-1 text-sm leading-relaxed"
+                >
+                  {tradePageIntent}
+                </p>
+              </div>
               <div
                 id="intake-context-service-row"
                 class:list={[!serviceIntentLabel && 'hidden']}
@@ -464,6 +498,7 @@ const faqSchema = {
       contactEmail: CONTACT_EMAIL,
       serviceLabels: recommendedServiceLabel,
       solutionLabels: recommendedSolutionLabel,
+      tradeLabels: recommendedTradeLabel,
     }}
   >
     (() => {
@@ -471,18 +506,35 @@ const faqSchema = {
       const serviceKey = (params.get('service') || '').trim();
       const solutionKey = (params.get('solution') || '').trim();
       const briefValue = (params.get('brief') || '').trim();
+      const tradeKey = (params.get('trade') || '').trim();
+      const tradePageValue = (params.get('tradePage') || '').trim();
 
       const serviceLabel =
         serviceLabels[serviceKey.toLowerCase()] || serviceKey;
       const solutionLabel = solutionLabels[solutionKey] || solutionKey;
-      const hasContext = Boolean(serviceLabel || solutionLabel || briefValue);
+      const tradeLabel = tradeLabels[tradeKey.toLowerCase()] || tradeKey;
+      const hasContext = Boolean(
+        tradeLabel ||
+        tradePageValue ||
+        serviceLabel ||
+        solutionLabel ||
+        briefValue
+      );
 
       const panel = document.getElementById('intake-context');
+      const tradeRow = document.getElementById('intake-context-trade-row');
+      const tradePageRow = document.getElementById(
+        'intake-context-trade-page-row'
+      );
       const serviceRow = document.getElementById('intake-context-service-row');
       const solutionRow = document.getElementById(
         'intake-context-solution-row'
       );
       const briefRow = document.getElementById('intake-context-brief-row');
+      const tradeValue = document.getElementById('intake-context-trade');
+      const tradePageNode = document.getElementById(
+        'intake-context-trade-page'
+      );
       const serviceValue = document.getElementById('intake-context-service');
       const solutionValue = document.getElementById('intake-context-solution');
       const briefValueNode = document.getElementById('intake-context-brief');
@@ -500,17 +552,27 @@ const faqSchema = {
         panel.classList.toggle('hidden', !hasContext);
       }
 
+      applyField(tradeRow, tradeValue, tradeLabel);
+      applyField(tradePageRow, tradePageNode, tradePageValue);
       applyField(serviceRow, serviceValue, serviceLabel);
       applyField(solutionRow, solutionValue, solutionLabel);
       applyField(briefRow, briefValueNode, briefValue);
 
-      const kickoffSubject = serviceLabel
-        ? `New project inquiry — ${serviceLabel}`
-        : solutionLabel
-          ? `New project inquiry — ${solutionLabel}`
-          : 'New project inquiry';
+      const kickoffSubject = tradeLabel
+        ? `New project inquiry — ${tradeLabel}`
+        : serviceLabel
+          ? `New project inquiry — ${serviceLabel}`
+          : solutionLabel
+            ? `New project inquiry — ${solutionLabel}`
+            : 'New project inquiry';
 
       const bodyLines = [];
+      if (tradeLabel) {
+        bodyLines.push(`Trade focus: ${tradeLabel}`);
+      }
+      if (tradePageValue) {
+        bodyLines.push(`Trade page: ${tradePageValue}`);
+      }
       if (solutionLabel) {
         bodyLines.push(`Build path: ${solutionLabel}`);
       }

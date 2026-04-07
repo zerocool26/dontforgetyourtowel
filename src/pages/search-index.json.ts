@@ -2,6 +2,10 @@ import { getCollection } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 import { isLegacyRouteUrl } from '../utils/legacy-routes';
 import { tradeProfiles } from '../data/trades';
+import {
+  getTradeOperations,
+  getTradeSubpageOperations,
+} from '../data/trade-operations';
 
 type SearchItem = {
   id: string;
@@ -210,34 +214,48 @@ export async function GET() {
   );
 
   const tradeItems: SearchItem[] = tradeProfiles.flatMap(trade => [
-    {
-      id: `trade-${trade.slug}`,
-      title: trade.name,
-      description: trade.summary,
-      category: 'Page',
-      url: `trades/${trade.slug}/`,
-      date: new Date().toISOString(),
-      tags: [
-        'trade',
-        trade.name.toLowerCase(),
-        trade.shortName.toLowerCase(),
-        ...trade.subpages.map(subpage => subpage.shortLabel.toLowerCase()),
-      ],
-    },
-    ...trade.subpages.map(subpage => ({
-      id: `trade-${trade.slug}-${subpage.slug}`,
-      title: `${trade.name} — ${subpage.title}`,
-      description: subpage.description,
-      category: 'Page',
-      url: `trades/${trade.slug}/${subpage.slug}/`,
-      date: new Date().toISOString(),
-      tags: [
-        'trade',
-        trade.name.toLowerCase(),
-        subpage.title.toLowerCase(),
-        subpage.shortLabel.toLowerCase(),
-      ],
-    })),
+    (() => {
+      const operations = getTradeOperations(trade.slug);
+      return {
+        id: `trade-${trade.slug}`,
+        title: trade.name,
+        description: trade.summary,
+        category: 'Page',
+        url: `trades/${trade.slug}/`,
+        date: new Date().toISOString(),
+        tags: [
+          'trade',
+          trade.name.toLowerCase(),
+          trade.shortName.toLowerCase(),
+          operations.operatingModel.toLowerCase(),
+          operations.serviceRhythm.toLowerCase(),
+          ...operations.ownerOutputs.map(item => item.toLowerCase()),
+          ...operations.standards.map(item => item.toLowerCase()),
+          ...trade.subpages.map(subpage => subpage.shortLabel.toLowerCase()),
+        ],
+      };
+    })(),
+    ...trade.subpages.map(subpage => {
+      const operations = getTradeSubpageOperations(trade.slug, subpage.slug);
+      return {
+        id: `trade-${trade.slug}-${subpage.slug}`,
+        title: `${trade.name} — ${subpage.title}`,
+        description: subpage.description,
+        category: 'Page',
+        url: `trades/${trade.slug}/${subpage.slug}/`,
+        date: new Date().toISOString(),
+        tags: [
+          'trade',
+          trade.name.toLowerCase(),
+          subpage.title.toLowerCase(),
+          subpage.shortLabel.toLowerCase(),
+          ...(operations?.requiredInputs.map(item => item.toLowerCase()) ?? []),
+          ...(operations?.fieldChecklist.map(item => item.toLowerCase()) ?? []),
+          ...(operations?.ownerDeliverables.map(item => item.toLowerCase()) ??
+            []),
+        ],
+      };
+    }),
   ]);
 
   const searchItems: SearchItem[] = [

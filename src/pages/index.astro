@@ -10,6 +10,7 @@ import {
   totalTradeSubpages,
 } from '../data/trades';
 import { getTradeVisual } from '../data/trade-visuals';
+import { getTradeOperations } from '../data/trade-operations';
 import { servicesExtended } from '../data/services-extended';
 import { galleryInstallations } from '../data/design-gallery';
 import { withBasePath } from '../utils/helpers';
@@ -47,15 +48,15 @@ const landingSignals = [
 const designPillars = [
   {
     title: 'Landing page as command center',
-    copy: 'The homepage now works like a living index of the entire site. Trade pages, gallery studies, services, about content, and retained interactive work all route back here cleanly.',
+    copy: 'Home, trades, gallery, services, about, and retained demos route from one clear index.',
   },
   {
     title: 'Each trade treated as a world',
-    copy: 'Mechanical does not look like electrical. Plumbing does not read like MSP. The goal is a shared platform architecture with deliberately different atmospheres inside each lane.',
+    copy: 'Each lane keeps shared structure but gets its own atmosphere, priorities, and trade-specific information.',
   },
   {
     title: 'Creative, but still credible',
-    copy: 'The visual system goes further than a normal contractor site while keeping hierarchy, responsiveness, clarity, and professional trust intact.',
+    copy: 'The visual system stays expressive without losing hierarchy, responsiveness, or trust.',
   },
 ];
 
@@ -136,9 +137,8 @@ const highlightedTrade = tradeProfiles.find(
             >
               The site now treats mechanical, electrical, plumbing, general
               contracting, commercial HVAC, auto repair, and MSP / tech services
-              as seven distinct design worlds tied back to one landing source of
-              truth. A new gallery page pushes the visual language further
-              without disconnecting it from the working site.
+              as seven distinct trade worlds tied back to one landing source of
+              truth. The gallery adds range without turning the site into noise.
             </p>
           </div>
 
@@ -216,7 +216,7 @@ const highlightedTrade = tradeProfiles.find(
               <p class="tone-body text-sm leading-relaxed">
                 The new page adds curatorial filters, view modes, and
                 trade-linked visual studies so the site can show premium design
-                range without abandoning usability or structure.
+                range without losing structure.
               </p>
               <ModernButton
                 href={withBasePath('gallery/')}
@@ -246,9 +246,8 @@ const highlightedTrade = tradeProfiles.find(
             </h2>
             <p class="tone-body text-base leading-relaxed">
               The goal is not seven copies of the same contractor page. Each
-              lane gets its own atmosphere, headline rhythm, visual accent, and
-              route structure while still staying connected to the main
-              platform.
+              lane gets its own visual accent, operating model, and route
+              structure while staying connected to the platform.
             </p>
           </div>
           <ModernButton
@@ -264,6 +263,7 @@ const highlightedTrade = tradeProfiles.find(
           {
             tradeProfiles.map(trade => {
               const visual = getTradeVisual(trade.slug);
+              const operations = getTradeOperations(trade.slug);
               return (
                 <a
                   href={withBasePath(`trades/${trade.slug}/`)}
@@ -282,15 +282,15 @@ const highlightedTrade = tradeProfiles.find(
                       {trade.name}
                     </p>
                     <p class="tone-body text-sm leading-relaxed">
-                      {trade.summary}
+                      {operations.operatingModel}
                     </p>
                   </div>
                   <div class="landing-trade-world__metric">
                     <p class="tone-muted text-[0.65rem] uppercase tracking-[0.24em]">
-                      {visual.stageLabel}
+                      Service rhythm
                     </p>
                     <p class="tone-title mt-2 text-sm font-semibold">
-                      {visual.stageValue}
+                      {operations.serviceRhythm}
                     </p>
                   </div>
                   <div class="flex flex-wrap gap-2">
@@ -404,10 +404,8 @@ const highlightedTrade = tradeProfiles.find(
               art direction.
             </h2>
             <p class="tone-body text-base leading-relaxed">
-              These studies are not generic placeholders. They are trade-aware
-              visual concepts linked directly into the live routes, showing how
-              a premium frontend system can move between operations,
-              storytelling, and design expression.
+              These studies are trade-aware visual concepts linked directly into
+              the live routes.
             </p>
           </div>
           <ModernButton
@@ -459,13 +457,11 @@ const highlightedTrade = tradeProfiles.find(
           <p class="creative-kicker">Connected Continuity</p>
           <h2 class="tone-title mt-4 text-3xl font-semibold">
             Nothing important was deleted. The site was extended into a more
-            mature system.
+            complete system.
           </h2>
           <p class="tone-body mt-3 max-w-3xl text-sm leading-relaxed">
-            The landing page now points clearly into the trade map, the new
-            gallery, the services architecture, the about page, the portfolio
-            lab, and the build studio. That turns the homepage into a real
-            command layer rather than a decorative splash screen.
+            The landing page points directly into the trade map, gallery,
+            services architecture, about page, portfolio lab, and build studio.
           </p>
 
           <div class="mt-8 grid gap-4 lg:grid-cols-2">
@@ -493,8 +489,7 @@ const highlightedTrade = tradeProfiles.find(
             <p class="tone-body text-sm leading-relaxed">
               Buyers can route into a specific trade, explore art-directed
               gallery concepts, study the broader company architecture, or jump
-              into the retained interactive demos. That balance between utility,
-              expression, and architecture is the point.
+              into the retained interactive demos.
             </p>
           </div>
           <div class="mt-8 flex flex-col gap-3">
