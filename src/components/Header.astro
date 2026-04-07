@@ -3,6 +3,7 @@ import { BASE_PATH, CONTACT_EMAIL, SITE_TITLE } from '../consts';
 import { withBasePath } from '../utils/helpers';
 import { tradeProfiles } from '../data/trades';
 import { getTradeVisual } from '../data/trade-visuals';
+import { getRouteContext } from '../utils/route-context';
 import ThemeSelector from './ThemeSelector.astro';
 import ModernButton from './ui/ModernButton.astro';
 
@@ -36,6 +37,7 @@ const normalizePath = (value: string) => {
 };
 
 const currentPath = normalizePath(Astro.url.pathname);
+const routeContext = getRouteContext(Astro.url.pathname);
 
 const searchTriggerClasses =
   'tone-border tone-surface tone-muted inline-flex min-h-[44px] items-center gap-2 rounded-lg border px-3 text-xs font-mono uppercase tracking-[0.22em] transition hover:border-white/20 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ccff00]';
@@ -71,10 +73,12 @@ const isTradeActiveHref = (href: string) => {
 
 <header
   class="safe-area-inset-top sticky top-0 z-50 border-b border-white/[0.06] bg-[#030303]/80 backdrop-blur-2xl backdrop-saturate-150"
+  style={`--header-route-accent:${routeContext.accent};`}
 >
   <!-- Accent gradient line at top of header -->
   <div
-    class="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#ccff00]/40 to-transparent"
+    class="pointer-events-none absolute inset-x-0 top-0 h-px"
+    style="background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--header-route-accent) 50%, transparent), transparent);"
     aria-hidden="true"
   >
   </div>
@@ -277,6 +281,59 @@ const isTradeActiveHref = (href: string) => {
         }
       </div>
     </nav>
+  </div>
+
+  <div class="border-t border-white/[0.05]">
+    <div class="mx-auto max-w-[1400px] px-4 py-3 sm:px-6 lg:px-8">
+      <div
+        class="header-context flex flex-col gap-3 rounded-[1.2rem] border border-white/10 bg-white/[0.03] px-4 py-3 md:flex-row md:items-center md:justify-between"
+        style="box-shadow: 0 18px 44px -32px rgba(0,0,0,0.92), 0 0 30px -24px color-mix(in srgb, var(--header-route-accent) 38%, transparent);"
+      >
+        <div class="min-w-0">
+          <div class="flex flex-wrap items-center gap-2">
+            <span
+              class="inline-flex rounded-full border px-2.5 py-1 font-mono text-[0.62rem] uppercase tracking-[0.2em] text-white/80"
+              style="border-color: color-mix(in srgb, var(--header-route-accent) 32%, rgba(255,255,255,0.08)); background: color-mix(in srgb, var(--header-route-accent) 10%, rgba(255,255,255,0.03));"
+            >
+              {routeContext.currentCategory}
+            </span>
+            <span
+              class="text-white/38 font-mono text-[0.62rem] uppercase tracking-[0.18em]"
+            >
+              {routeContext.kicker}
+            </span>
+          </div>
+          <p
+            class="mt-2 truncate text-sm font-semibold text-white sm:text-base"
+          >
+            {routeContext.currentTitle}
+          </p>
+          <p class="text-white/56 mt-1 max-w-3xl text-sm leading-relaxed">
+            {routeContext.currentDescription}
+          </p>
+        </div>
+
+        <div
+          class="flex gap-2 overflow-x-auto pb-1 scrollbar-hide md:max-w-[44rem] md:justify-end"
+        >
+          {
+            routeContext.suggestions.slice(0, 2).map(link => (
+              <a
+                href={link.href}
+                class="header-context__link min-w-[11rem] flex-1 rounded-2xl border border-white/10 bg-black/20 px-3 py-2.5 transition hover:border-white/20 hover:bg-white/[0.05] md:min-w-[12.5rem] md:flex-none"
+              >
+                <span class="block text-sm font-semibold text-white">
+                  {link.label}
+                </span>
+                <span class="mt-1 block text-xs leading-relaxed text-white/50">
+                  {link.detail}
+                </span>
+              </a>
+            ))
+          }
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="lg:hidden" id="mobile-menu" hidden>

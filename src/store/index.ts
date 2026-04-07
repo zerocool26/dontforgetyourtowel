@@ -4,6 +4,7 @@
  */
 
 import { atom, map, computed } from 'nanostores';
+import { THEME_CONFIG } from '../consts';
 
 // ============================================================================
 // THEME STORE
@@ -12,6 +13,12 @@ import { atom, map, computed } from 'nanostores';
 export type Theme = 'ops-center' | 'corporate' | 'terminal';
 export type ColorScheme = 'light' | 'dark' | 'system';
 
+const THEME_CHROME: Record<Theme, string> = {
+  'ops-center': '#05070c',
+  corporate: '#f8fafc',
+  terminal: '#041108',
+};
+
 export const theme = atom<Theme>('ops-center');
 export const colorScheme = atom<ColorScheme>('system');
 export const accentColor = atom<string>('#3b82f6');
@@ -19,10 +26,15 @@ export const accentColor = atom<string>('#3b82f6');
 export function setTheme(newTheme: Theme) {
   theme.set(newTheme);
   if (typeof localStorage !== 'undefined') {
+    localStorage.setItem(THEME_CONFIG.storageKey, newTheme);
     localStorage.setItem('theme', newTheme);
   }
   if (typeof document !== 'undefined') {
     document.documentElement.dataset.theme = newTheme;
+    const chromeColor = THEME_CHROME[newTheme];
+    document
+      .querySelectorAll('meta[name="theme-color"][data-theme-color]')
+      .forEach(meta => meta.setAttribute('content', chromeColor));
 
     // Handle dark mode class for Tailwind
     if (newTheme === 'corporate') {
@@ -66,7 +78,8 @@ export function setAccentColor(color: string) {
 
 export function initializeTheme() {
   if (typeof localStorage !== 'undefined') {
-    const savedTheme = localStorage.getItem('theme') as Theme;
+    const savedTheme = (localStorage.getItem(THEME_CONFIG.storageKey) ||
+      localStorage.getItem('theme')) as Theme;
     const savedScheme = localStorage.getItem('colorScheme') as ColorScheme;
     const savedAccent = localStorage.getItem('accentColor');
 

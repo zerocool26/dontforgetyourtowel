@@ -9,10 +9,12 @@ import StructuredData from '../components/StructuredData.astro';
 import MobileNav from '../components/business/MobileNav.astro';
 import PageNavigator from '../components/business/PageNavigator.astro';
 import StickyCTA from '../components/business/StickyCTA.astro';
+import RouteAtmosphere from '../components/business/RouteAtmosphere.astro';
 import LiveChat from '../components/business/LiveChat';
 import CommandPalette from '../components/CommandPalette';
 import PullToRefresh from '../components/ui/PullToRefresh.astro';
 import { BASE_PATH } from '../consts';
+import { getRouteContext } from '../utils/route-context';
 
 interface Props {
   title: string;
@@ -45,6 +47,8 @@ const {
   enableClientRouter = true,
   pageNavigator,
 } = Astro.props as Props;
+
+const routeContext = getRouteContext(Astro.url.pathname);
 ---
 
 <!doctype html>
@@ -147,30 +151,41 @@ const {
       })();
     </script>
   </head>
-  <body class={`antialiased bg-[#030303] text-neutral-50 ${bodyClass}`.trim()}>
+  <body
+    class={`antialiased bg-[#030303] text-neutral-50 ${bodyClass}`.trim()}
+    style={`--route-accent:${routeContext.accent};`}
+    data-route-category={routeContext.currentCategory}
+  >
     <div class="creative-noise"></div>
+    <RouteAtmosphere />
     <PullToRefresh />
-    <a
-      href="#main-content"
-      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-sm focus:bg-[#ccff00] focus:px-4 focus:py-2 focus:text-white focus:outline-none focus:ring-2 focus:ring-[#ccff00]"
-    >
-      Skip to main content
-    </a>
-    {showHeader ? <Header /> : null}
-    <main
-      id="main-content"
-      class={`${mainClass} ${showMobileNav ? 'pb-[calc(8.5rem+env(safe-area-inset-bottom))] md:pb-24' : ''}`.trim()}
-      tabindex="-1"
-    >
-      <slot />
-    </main>
-    {showFooter ? <Footer /> : null}
+    <div class="relative z-[1]">
+      <a
+        href="#main-content"
+        class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-sm focus:bg-[#ccff00] focus:px-4 focus:py-2 focus:text-white focus:outline-none focus:ring-2 focus:ring-[#ccff00]"
+      >
+        Skip to main content
+      </a>
+      {showHeader ? <Header /> : null}
+      <main
+        id="main-content"
+        class={`${mainClass} ${showMobileNav ? 'pb-[calc(8.5rem+env(safe-area-inset-bottom))] md:pb-24' : ''}`.trim()}
+        tabindex="-1"
+      >
+        <slot />
+      </main>
+      {showFooter ? <Footer /> : null}
 
-    {pageNavigator?.items?.length ? <PageNavigator {...pageNavigator} /> : null}
-    {showStickyCTA ? <StickyCTA /> : null}
-    {showMobileNav ? <MobileNav /> : null}
-    <CommandPalette client:only="preact" />
-    {showLiveChat ? <LiveChat client:idle /> : null}
+      {
+        pageNavigator?.items?.length ? (
+          <PageNavigator {...pageNavigator} />
+        ) : null
+      }
+      {showStickyCTA ? <StickyCTA /> : null}
+      {showMobileNav ? <MobileNav /> : null}
+      <CommandPalette client:only="preact" />
+      {showLiveChat ? <LiveChat client:idle /> : null}
+    </div>
 
     <script is:inline>
       (() => {

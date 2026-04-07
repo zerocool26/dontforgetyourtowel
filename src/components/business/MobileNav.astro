@@ -1,14 +1,64 @@
 ---
 import { withBasePath } from '../../utils/helpers';
+import { getRouteContext } from '../../utils/route-context';
 import BottomNav from '../ui/BottomNav.astro';
 
+const routeContext = getRouteContext(Astro.url.pathname);
+
 const items = [
-  { label: 'Home', href: withBasePath('/'), icon: '🏠' },
-  { label: 'Trades', href: withBasePath('trades/'), icon: '🏗️' },
-  { label: 'Gallery', href: withBasePath('gallery/'), icon: '🖼️' },
-  { label: 'Studio', href: withBasePath('build-studio/'), icon: '🛠️' },
-  { label: 'Contact', href: withBasePath('contact-hq/'), icon: '📨' },
+  {
+    label: 'Home',
+    href: withBasePath('/'),
+    iconPaths: ['M3.75 10.5L12 3.75L20.25 10.5', 'M6.75 9.75V20.25H17.25V9.75'],
+    match: 'exact' as const,
+  },
+  {
+    label: 'Trades',
+    href: withBasePath('trades/'),
+    iconPaths: [
+      'M4.5 4.5H10.5V10.5H4.5z',
+      'M13.5 4.5H19.5V10.5H13.5z',
+      'M4.5 13.5H10.5V19.5H4.5z',
+      'M13.5 13.5H19.5V19.5H13.5z',
+    ],
+    match: 'prefix' as const,
+  },
+  {
+    label: 'Gallery',
+    href: withBasePath('gallery/'),
+    iconPaths: [
+      'M4.5 5.25H19.5V18.75H4.5z',
+      'M7.5 14.25L10.5 11.25L13.5 14.25L16.5 10.5L19.5 14.25',
+    ],
+    match: 'prefix' as const,
+  },
+  {
+    label: 'Studio',
+    href: withBasePath('build-studio/'),
+    iconPaths: [
+      'M12 3.75V20.25',
+      'M5.25 10.5L12 3.75L18.75 10.5L12 20.25L5.25 10.5',
+    ],
+    match: 'prefix' as const,
+  },
+  {
+    label: 'Contact',
+    href: withBasePath('contact-hq/'),
+    iconPaths: ['M4.5 6.75H19.5V17.25H4.5z', 'M5.25 7.5L12 12.75L18.75 7.5'],
+    match: 'prefix' as const,
+  },
 ];
 ---
 
-<BottomNav items={items} />
+<BottomNav
+  items={items}
+  accent={routeContext.accent}
+  contextTitle={routeContext.currentTitle}
+  contextAction={routeContext.suggestions[0]
+    ? {
+        label: routeContext.suggestions[0].label,
+        href: routeContext.suggestions[0].href,
+        detail: routeContext.currentCategory,
+      }
+    : undefined}
+/>

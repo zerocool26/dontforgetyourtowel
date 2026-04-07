@@ -1,0 +1,280 @@
+---
+import { getRouteContext } from '../../utils/route-context';
+
+const routeContext = getRouteContext(Astro.url.pathname);
+const watermark = routeContext.currentTitle
+  .replace(/[^a-z0-9 ]/gi, ' ')
+  .split(/\s+/)
+  .filter(Boolean)
+  .slice(0, 3)
+  .join(' ')
+  .toUpperCase();
+const signalTokens = [
+  routeContext.currentCategory,
+  routeContext.kicker,
+  ...routeContext.suggestions.slice(0, 2).map(item => item.label),
+].slice(0, 4);
+---
+
+<div
+  class="route-atmosphere"
+  style={`--route-atmosphere-accent:${routeContext.accent};`}
+  aria-hidden="true"
+>
+  <div class="route-atmosphere__wash"></div>
+  <div class="route-atmosphere__beam"></div>
+  <div class="route-atmosphere__grid"></div>
+  <div class="route-atmosphere__orb route-atmosphere__orb--primary"></div>
+  <div class="route-atmosphere__orb route-atmosphere__orb--secondary"></div>
+  <div class="route-atmosphere__rings"></div>
+  <div class="route-atmosphere__watermark">{watermark}</div>
+  <div class="route-atmosphere__hud">
+    {
+      signalTokens.map(token => (
+        <span class="route-atmosphere__token">{token}</span>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .route-atmosphere {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: clip;
+    isolation: isolate;
+  }
+
+  .route-atmosphere__wash,
+  .route-atmosphere__beam,
+  .route-atmosphere__grid,
+  .route-atmosphere__orb,
+  .route-atmosphere__rings {
+    position: absolute;
+    inset: 0;
+  }
+
+  .route-atmosphere__wash {
+    background:
+      radial-gradient(
+        52rem circle at 14% 14%,
+        color-mix(in srgb, var(--route-atmosphere-accent) 20%, transparent),
+        transparent 60%
+      ),
+      radial-gradient(
+        44rem circle at 86% 22%,
+        color-mix(in srgb, var(--route-atmosphere-accent) 11%, white 6%),
+        transparent 58%
+      ),
+      linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.02),
+        transparent 24%,
+        rgba(255, 255, 255, 0.015) 70%,
+        transparent
+      );
+    opacity: 0.9;
+  }
+
+  .route-atmosphere__beam {
+    inset: auto -8% 18%;
+    height: clamp(7rem, 18vw, 16rem);
+    border-radius: 999px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in srgb, var(--route-atmosphere-accent) 18%, transparent),
+      transparent
+    );
+    filter: blur(40px);
+    opacity: 0.85;
+    transform: rotate(-7deg);
+  }
+
+  .route-atmosphere__grid {
+    inset: 0;
+    background-image:
+      linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--route-atmosphere-accent) 8%, transparent) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--route-atmosphere-accent) 7%, transparent) 1px,
+        transparent 1px
+      );
+    background-size: 7.5rem 7.5rem;
+    mask-image: linear-gradient(
+      180deg,
+      transparent,
+      rgba(255, 255, 255, 0.72) 16%,
+      rgba(255, 255, 255, 0.3) 65%,
+      transparent
+    );
+    opacity: 0.26;
+  }
+
+  .route-atmosphere__orb {
+    inset: auto;
+    border-radius: 999px;
+    background: radial-gradient(
+      circle at 30% 30%,
+      color-mix(in srgb, var(--route-atmosphere-accent) 24%, white 8%),
+      transparent 62%
+    );
+    filter: blur(18px);
+    opacity: 0.75;
+  }
+
+  .route-atmosphere__orb--primary {
+    top: 10rem;
+    right: clamp(1rem, 7vw, 6rem);
+    width: clamp(9rem, 18vw, 16rem);
+    height: clamp(9rem, 18vw, 16rem);
+  }
+
+  .route-atmosphere__orb--secondary {
+    bottom: 10rem;
+    left: clamp(-1rem, 3vw, 2rem);
+    width: clamp(12rem, 22vw, 19rem);
+    height: clamp(12rem, 22vw, 19rem);
+    opacity: 0.55;
+  }
+
+  .route-atmosphere__rings {
+    top: 5rem;
+    right: clamp(-7rem, -1vw, -2rem);
+    inset: auto auto auto 0;
+    width: 34rem;
+    height: 34rem;
+    border-radius: 999px;
+    border: 1px solid
+      color-mix(in srgb, var(--route-atmosphere-accent) 18%, transparent);
+    box-shadow:
+      0 0 0 3rem
+        color-mix(in srgb, var(--route-atmosphere-accent) 4%, transparent),
+      0 0 0 7rem
+        color-mix(in srgb, var(--route-atmosphere-accent) 2%, transparent);
+    opacity: 0.32;
+    transform: translate(74vw, 0);
+  }
+
+  .route-atmosphere__watermark {
+    position: absolute;
+    top: clamp(6.5rem, 11vw, 10rem);
+    left: clamp(1rem, 4vw, 3.5rem);
+    max-width: min(74rem, 80vw);
+    font-family: var(--font-display);
+    font-size: clamp(3.2rem, 12vw, 10rem);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    line-height: 0.88;
+    color: color-mix(in srgb, var(--route-atmosphere-accent) 9%, white 2%);
+    opacity: 0.14;
+    mix-blend-mode: screen;
+    text-transform: uppercase;
+    text-wrap: balance;
+  }
+
+  .route-atmosphere__hud {
+    position: absolute;
+    right: clamp(1rem, 3vw, 2rem);
+    bottom: clamp(7rem, 10vw, 8.5rem);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.45rem;
+    max-width: min(34rem, calc(100vw - 2rem));
+  }
+
+  .route-atmosphere__token {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2rem;
+    border-radius: 999px;
+    border: 1px solid
+      color-mix(
+        in srgb,
+        var(--route-atmosphere-accent) 16%,
+        rgba(255, 255, 255, 0.08)
+      );
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--route-atmosphere-accent) 10%, transparent),
+      rgba(255, 255, 255, 0.02)
+    );
+    padding: 0 0.8rem;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.44);
+    backdrop-filter: blur(16px);
+  }
+
+  @media (max-width: 768px) {
+    .route-atmosphere__watermark {
+      top: 7rem;
+      left: 1rem;
+      max-width: calc(100vw - 2rem);
+      font-size: clamp(2.35rem, 15vw, 4.75rem);
+      letter-spacing: 0.06em;
+      opacity: 0.12;
+    }
+
+    .route-atmosphere__grid {
+      background-size: 4.5rem 4.5rem;
+      opacity: 0.2;
+    }
+
+    .route-atmosphere__hud {
+      left: 1rem;
+      right: 1rem;
+      bottom: 12.25rem;
+      justify-content: flex-start;
+      max-width: none;
+    }
+
+    .route-atmosphere__token {
+      font-size: 0.58rem;
+      letter-spacing: 0.15em;
+      color: rgba(255, 255, 255, 0.38);
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .route-atmosphere__beam {
+      animation: route-atmosphere-drift 18s ease-in-out infinite alternate;
+    }
+
+    .route-atmosphere__orb--primary {
+      animation: route-atmosphere-float 14s ease-in-out infinite;
+    }
+
+    .route-atmosphere__orb--secondary {
+      animation: route-atmosphere-float 18s ease-in-out infinite reverse;
+    }
+  }
+
+  @keyframes route-atmosphere-drift {
+    from {
+      transform: rotate(-7deg) translate3d(-2%, 0, 0);
+    }
+    to {
+      transform: rotate(-10deg) translate3d(2%, -2%, 0);
+    }
+  }
+
+  @keyframes route-atmosphere-float {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    50% {
+      transform: translate3d(0, -1rem, 0) scale(1.03);
+    }
+  }
+</style>
