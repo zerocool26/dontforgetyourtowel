@@ -3,6 +3,7 @@ import MarketingLayout from '../layouts/MarketingLayout.astro';
 import OliveUniverse from '../components/react/OliveUniverse';
 import ModernButton from '../components/ui/ModernButton.astro';
 import ModernCard from '../components/ui/ModernCard.astro';
+import SignalCabinet from '../components/business/SignalCabinet.astro';
 import { CONTACT_EMAIL } from '../consts';
 import {
   tradeProfiles,
@@ -98,6 +99,20 @@ const continuityRoutes = [
 const highlightedTrade = tradeProfiles.find(
   trade => trade.slug === 'msp-tech-services'
 );
+const landingTradeSignals = tradeProfiles.map(trade => {
+  const operations = getTradeOperations(trade.slug);
+  const visual = getTradeVisual(trade.slug);
+  return {
+    kicker: visual.stageLabel,
+    title: trade.name,
+    detail: trade.differentiators[0] ?? trade.summary,
+    meta: [
+      operations.operatingModel,
+      operations.serviceRhythm,
+      `${trade.subpages.length} focused routes`,
+    ],
+  };
+});
 
 const pageNavigator = {
   label: 'Landing Atlas',
@@ -343,38 +358,13 @@ const pageNavigator = {
   >
     <div class="mx-auto max-w-[1440px] px-6 py-10">
       <div class="grid gap-5 xl:grid-cols-[1fr_1fr]">
-        <ModernCard variant="minimal" className="creative-panel p-7">
-          <p class="creative-kicker">Program Choreography</p>
-          <h2 class="tone-title mt-4 text-3xl font-semibold">
-            The landing page still explains how the entire platform operates.
-          </h2>
-          <div class="mt-6 grid gap-4">
-            {
-              tradePrograms.map(program => (
-                <div class="landing-program-card">
-                  <div class="border-white/8 flex flex-col gap-3 border-b pb-4 md:flex-row md:items-start md:justify-between">
-                    <div class="max-w-2xl">
-                      <p class="tone-title text-xl font-semibold">
-                        {program.title}
-                      </p>
-                      <p class="tone-body mt-2 text-sm">
-                        {program.description}
-                      </p>
-                    </div>
-                    <span class="creative-chip">
-                      {program.tradeSlugs.length} linked trades
-                    </span>
-                  </div>
-                  <div class="mt-4 flex flex-wrap gap-2">
-                    {program.outputs.map(output => (
-                      <span class="landing-program-card__output">{output}</span>
-                    ))}
-                  </div>
-                </div>
-              ))
-            }
-          </div>
-        </ModernCard>
+        <SignalCabinet
+          eyebrow="Trade Evidence"
+          title="Each vertical carries its own operating logic."
+          description="This is where the site stops feeling generic. Every trade keeps a different operating model, sequencing pressure, and delivery posture instead of sharing one flat contractor voice."
+          accent="#ccff00"
+          items={landingTradeSignals}
+        />
 
         <ModernCard variant="minimal" className="creative-panel p-7">
           <p class="creative-kicker">MSP Shift</p>
@@ -416,6 +406,35 @@ const pageNavigator = {
             >
               Open services hub
             </ModernButton>
+          </div>
+          <div class="mt-6 border-t border-white/10 pt-5">
+            <p class="creative-kicker">Program choreography</p>
+            <div class="mt-4 grid gap-3">
+              {
+                tradePrograms.map(program => (
+                  <div class="landing-program-row">
+                    <div class="min-w-0">
+                      <p class="tone-title text-base font-semibold">
+                        {program.title}
+                      </p>
+                      <p class="tone-body mt-1 text-sm">
+                        {program.description}
+                      </p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                      <span class="creative-chip">
+                        {program.tradeSlugs.length} linked trades
+                      </span>
+                      {program.outputs.slice(0, 2).map(output => (
+                        <span class="landing-program-card__output">
+                          {output}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))
+              }
+            </div>
           </div>
         </ModernCard>
       </div>
@@ -579,6 +598,22 @@ const pageNavigator = {
         transparent 24%
       ),
       linear-gradient(180deg, rgba(2, 4, 10, 0.14), rgba(2, 4, 10, 0.82));
+  }
+
+  .landing-program-row {
+    display: grid;
+    gap: 0.85rem;
+    border-radius: 1.25rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.025);
+    padding: 0.95rem 1rem;
+  }
+
+  @media (min-width: 900px) {
+    .landing-program-row {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+    }
   }
 
   .landing-note-card {

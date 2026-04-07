@@ -4,6 +4,7 @@ import StructuredData from '../../../components/StructuredData.astro';
 import ModernButton from '../../../components/ui/ModernButton.astro';
 import ModernCard from '../../../components/ui/ModernCard.astro';
 import TradePhaseStudio from '../../../components/business/TradePhaseStudio.astro';
+import SignalCabinet from '../../../components/business/SignalCabinet.astro';
 import { servicesExtended } from '../../../data/services-extended';
 import { tradeProfiles, type TradeProfile } from '../../../data/trades';
 import { getTradeVisual } from '../../../data/trade-visuals';
@@ -29,6 +30,26 @@ const overviewPhases = tradeOperations.setupGroups.map(group => ({
   items: group.items,
   summary: group.items[0],
 }));
+const tradeSignalItems = [
+  {
+    kicker: 'Differentiator',
+    title: `${trade.shortName} posture`,
+    detail: trade.differentiators[0] ?? trade.summary,
+    meta: trade.differentiators.slice(1),
+  },
+  {
+    kicker: 'Owner outputs',
+    title: 'Closeout built for operations',
+    detail: tradeOperations.ownerOutputs[0] ?? trade.summary,
+    meta: tradeOperations.ownerOutputs.slice(1),
+  },
+  {
+    kicker: 'Standards',
+    title: 'Field quality expectations',
+    detail: tradeOperations.standards[0] ?? trade.marketFocus,
+    meta: tradeOperations.standards.slice(1),
+  },
+];
 const tradeIntakeHref = `${withBasePath('contact-hq/')}?trade=${encodeURIComponent(trade.slug)}&tradePage=${encodeURIComponent(`${trade.name} overview`)}`;
 const tradeBreadcrumbItems = [
   {
@@ -261,25 +282,13 @@ const pageNavigator = {
             phases={overviewPhases}
           />
 
-          <ModernCard
-            variant="minimal"
-            className="creative-panel trade-side-panel p-6"
-          >
-            <p class="creative-kicker">Owner outputs</p>
-            <ul class="tone-body mt-4 space-y-3 text-sm">
-              {
-                tradeOperations.ownerOutputs.map(item => (
-                  <li class="flex items-start gap-3">
-                    <span
-                      class="mt-2 h-2 w-2 flex-shrink-0 rounded-full"
-                      style={`background:${trade.accent};`}
-                    />
-                    <span>{item}</span>
-                  </li>
-                ))
-              }
-            </ul>
-          </ModernCard>
+          <SignalCabinet
+            eyebrow={`${trade.shortName} Signals`}
+            title="Operational character"
+            description="This trade page is meant to read like a real vertical with its own field posture, owner-facing outputs, and quality discipline."
+            accent={trade.accent}
+            items={tradeSignalItems}
+          />
         </div>
       </div>
     </div>
@@ -317,22 +326,6 @@ const pageNavigator = {
         >
           <div class="grid gap-4 border-b border-white/10 pb-5 md:grid-cols-2">
             <div>
-              <p class="creative-kicker">Trade standards</p>
-              <ul class="tone-body mt-4 space-y-3 text-sm">
-                {
-                  tradeOperations.standards.map(item => (
-                    <li class="flex items-start gap-3">
-                      <span
-                        class="mt-2 h-2 w-2 flex-shrink-0 rounded-full"
-                        style={`background:${trade.accent};`}
-                      />
-                      <span>{item}</span>
-                    </li>
-                  ))
-                }
-              </ul>
-            </div>
-            <div>
               <p class="creative-kicker">Connected trades</p>
               <div class="mt-4 flex flex-wrap gap-2">
                 {
@@ -346,6 +339,12 @@ const pageNavigator = {
                   ))
                 }
               </div>
+            </div>
+            <div>
+              <p class="creative-kicker">Market fit</p>
+              <p class="tone-body mt-4 text-sm leading-relaxed">
+                {trade.marketFocus}
+              </p>
             </div>
           </div>
           <div

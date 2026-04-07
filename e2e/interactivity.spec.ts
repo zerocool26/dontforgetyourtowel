@@ -223,4 +223,29 @@ test.describe('Interactivity Features', () => {
       ).toHaveAttribute('data-state', 'active');
     });
   });
+
+  test.describe('Editorial signal cabinet', () => {
+    test('should switch the highlighted trade signal on the landing page', async ({
+      page,
+    }) => {
+      await page.goto('./');
+      await page.waitForLoadState('domcontentloaded');
+
+      const cabinet = page.locator('[data-signal-cabinet]').first();
+      await expect(cabinet).toBeVisible();
+
+      await expect(
+        cabinet.locator('[data-signal-cabinet-title]')
+      ).toContainText(/mechanical/i);
+
+      await cabinet.getByRole('button', { name: /electrical/i }).click();
+
+      await expect(
+        cabinet.locator('[data-signal-cabinet-title]')
+      ).toContainText(/electrical/i);
+      await expect(
+        cabinet.getByRole('button', { name: /electrical/i })
+      ).toHaveAttribute('aria-pressed', 'true');
+    });
+  });
 });
