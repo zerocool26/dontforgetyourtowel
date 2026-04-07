@@ -156,4 +156,42 @@ test.describe('Interactivity Features', () => {
       await expect(emailLink).toHaveAttribute('href', /mailto:/i);
     });
   });
+
+  test.describe('Gallery wall', () => {
+    test('should persist curatorial state in the URL and across reloads', async ({
+      page,
+    }) => {
+      await page.goto('gallery/');
+      await page.waitForLoadState('domcontentloaded');
+
+      const salonButton = page.getByRole('button', { name: /^salon$/i });
+      const categoryButton = page
+        .locator('[data-gallery-filter]')
+        .filter({ hasText: /material/i })
+        .first();
+
+      await salonButton.click();
+      await categoryButton.click();
+
+      await expect(page).toHaveURL(
+        /gallery\/\?discipline=.*&galleryView=salon|gallery\/\?galleryView=salon&discipline=.*/
+      );
+      await expect(page.locator('[data-gallery-active-state]')).toContainText(
+        /salon view/i
+      );
+      await expect(
+        page.locator('[data-gallery-active-state]')
+      ).not.toContainText(/all disciplines/i);
+
+      await page.reload();
+      await page.waitForLoadState('domcontentloaded');
+
+      await expect(
+        page.getByRole('button', { name: /^salon$/i })
+      ).toHaveAttribute('aria-pressed', 'true');
+      await expect(page.locator('[data-gallery-active-state]')).toContainText(
+        /salon view/i
+      );
+    });
+  });
 });

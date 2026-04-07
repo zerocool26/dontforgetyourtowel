@@ -330,9 +330,36 @@ const pageNavigator = {
           <div class="flex flex-wrap items-center gap-3">
             <span class="creative-chip">Interactive wall</span>
             <span class="creative-chip">Live route integration</span>
+            <span class="creative-chip" data-gallery-active-state>
+              Poster view • All disciplines
+            </span>
             <p class="tone-muted text-sm" data-gallery-count>
               Showing {galleryInstallations.length} installations
             </p>
+          </div>
+          <div class="gallery-state-bar">
+            <div class="gallery-state-bar__copy">
+              <p class="tone-title text-sm font-semibold">Curatorial state</p>
+              <p class="tone-body text-sm" data-gallery-state-summary>
+                All disciplines in poster view.
+              </p>
+            </div>
+            <div class="gallery-state-bar__actions">
+              <button
+                type="button"
+                class="gallery-state-button"
+                data-gallery-copy-state
+              >
+                Copy state link
+              </button>
+              <button
+                type="button"
+                class="gallery-state-button"
+                data-gallery-reset-state
+              >
+                Reset wall
+              </button>
+            </div>
           </div>
         </div>
 
@@ -469,9 +496,17 @@ const pageNavigator = {
 
 <script is:inline>
   (() => {
+    const STORAGE_KEY = 'olive-gallery-state';
+    const FILTER_PARAM = 'discipline';
+    const VIEW_PARAM = 'galleryView';
+
     const initGallery = () => {
       const grid = document.querySelector('[data-gallery-grid]');
       const count = document.querySelector('[data-gallery-count]');
+      const activeState = document.querySelector('[data-gallery-active-state]');
+      const summary = document.querySelector('[data-gallery-state-summary]');
+      const copyButton = document.querySelector('[data-gallery-copy-state]');
+      const resetButton = document.querySelector('[data-gallery-reset-state]');
       const filterButtons = Array.from(
         document.querySelectorAll('[data-gallery-filter]')
       );
@@ -486,8 +521,99 @@ const pageNavigator = {
         return;
       }
 
-      let activeFilter = 'All';
-      let activeView = 'poster';
+      if (grid.dataset.galleryBound === 'true') {
+        return;
+      }
+
+      grid.dataset.galleryBound = 'true';
+
+      const availableFilters = new Set(
+        filterButtons
+          .map(button =>
+            button instanceof HTMLElement ? button.dataset.galleryFilter : ''
+          )
+          .filter(Boolean)
+      );
+      const availableViews = new Set(
+        viewButtons
+          .map(button =>
+            button instanceof HTMLElement ? button.dataset.galleryView : ''
+          )
+          .filter(Boolean)
+      );
+
+      const readStoredState = () => {
+        try {
+          const raw = window.localStorage.getItem(STORAGE_KEY);
+          return raw ? JSON.parse(raw) : null;
+        } catch {
+          return null;
+        }
+      };
+
+      const getInitialFilter = () => {
+        const params = new URLSearchParams(window.location.search);
+        const fromUrl = params.get(FILTER_PARAM) || '';
+        const fromStorage = readStoredState()?.filter || '';
+        const nextFilter = fromUrl || fromStorage || 'All';
+        return availableFilters.has(nextFilter) ? nextFilter : 'All';
+      };
+
+      const getInitialView = () => {
+        const params = new URLSearchParams(window.location.search);
+        const fromUrl = params.get(VIEW_PARAM) || '';
+        const fromStorage = readStoredState()?.view || '';
+        const nextView = fromUrl || fromStorage || 'poster';
+        return availableViews.has(nextView) ? nextView : 'poster';
+      };
+
+      let activeFilter = getInitialFilter();
+      let activeView = getInitialView();
+
+      const syncControlState = () => {
+        filterButtons.forEach(node => {
+          if (!(node instanceof HTMLButtonElement)) return;
+          const isActive = (node.dataset.galleryFilter ?? '') === activeFilter;
+          node.classList.toggle('is-active', isActive);
+          node.setAttribute('aria-pressed', String(isActive));
+        });
+
+        viewButtons.forEach(node => {
+          if (!(node instanceof HTMLButtonElement)) return;
+          const isActive = (node.dataset.galleryView ?? '') === activeView;
+          node.classList.toggle('is-active', isActive);
+          node.setAttribute('aria-pressed', String(isActive));
+        });
+      };
+
+      const syncUrlAndStorage = () => {
+        const nextUrl = new URL(window.location.href);
+        if (activeFilter === 'All') {
+          nextUrl.searchParams.delete(FILTER_PARAM);
+        } else {
+          nextUrl.searchParams.set(FILTER_PARAM, activeFilter);
+        }
+
+        if (activeView === 'poster') {
+          nextUrl.searchParams.delete(VIEW_PARAM);
+        } else {
+          nextUrl.searchParams.set(VIEW_PARAM, activeView);
+        }
+
+        window.history.replaceState({}, '', nextUrl.toString());
+
+        try {
+          window.localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify({
+              filter: activeFilter,
+              view: activeView,
+            })
+          );
+        } catch {
+          // ignore storage failures
+        }
+      };
 
       const render = () => {
         let visibleCount = 0;
@@ -505,19 +631,32 @@ const pageNavigator = {
         grid.classList.remove('is-poster', 'is-salon', 'is-index');
         grid.classList.add(`is-${activeView}`);
         count.textContent = `Showing ${visibleCount} installation${visibleCount === 1 ? '' : 's'}`;
+
+        const filterLabel =
+          activeFilter === 'All' ? 'All disciplines' : activeFilter;
+        const viewLabel =
+          activeView === 'poster'
+            ? 'Poster view'
+            : activeView === 'salon'
+              ? 'Salon view'
+              : 'Index view';
+
+        if (activeState instanceof HTMLElement) {
+          activeState.textContent = `${viewLabel} • ${filterLabel}`;
+        }
+
+        if (summary instanceof HTMLElement) {
+          summary.textContent = `${filterLabel} active in ${viewLabel.toLowerCase()}.`;
+        }
+
+        syncControlState();
+        syncUrlAndStorage();
       };
 
       filterButtons.forEach(button => {
         if (!(button instanceof HTMLButtonElement)) return;
         button.addEventListener('click', () => {
           activeFilter = button.dataset.galleryFilter ?? 'All';
-          filterButtons.forEach(node => {
-            if (!(node instanceof HTMLButtonElement)) return;
-            const isActive =
-              (node.dataset.galleryFilter ?? '') === activeFilter;
-            node.classList.toggle('is-active', isActive);
-            node.setAttribute('aria-pressed', String(isActive));
-          });
           render();
         });
       });
@@ -526,15 +665,32 @@ const pageNavigator = {
         if (!(button instanceof HTMLButtonElement)) return;
         button.addEventListener('click', () => {
           activeView = button.dataset.galleryView ?? 'poster';
-          viewButtons.forEach(node => {
-            if (!(node instanceof HTMLButtonElement)) return;
-            const isActive = (node.dataset.galleryView ?? '') === activeView;
-            node.classList.toggle('is-active', isActive);
-            node.setAttribute('aria-pressed', String(isActive));
-          });
           render();
         });
       });
+
+      if (copyButton instanceof HTMLButtonElement) {
+        copyButton.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(window.location.href);
+            copyButton.textContent = 'Copied';
+          } catch {
+            copyButton.textContent = 'Unavailable';
+          }
+
+          window.setTimeout(() => {
+            copyButton.textContent = 'Copy state link';
+          }, 1200);
+        });
+      }
+
+      if (resetButton instanceof HTMLButtonElement) {
+        resetButton.addEventListener('click', () => {
+          activeFilter = 'All';
+          activeView = 'poster';
+          render();
+        });
+      }
 
       render();
     };
@@ -898,7 +1054,67 @@ const pageNavigator = {
     opacity: 1;
   }
 
+  .gallery-state-bar {
+    display: grid;
+    gap: 0.9rem;
+    margin-top: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 1.35rem;
+    background:
+      linear-gradient(
+        160deg,
+        rgba(255, 255, 255, 0.05),
+        rgba(255, 255, 255, 0.02)
+      ),
+      rgba(5, 7, 14, 0.72);
+    padding: 1rem 1.05rem;
+  }
+
+  .gallery-state-bar__copy {
+    display: grid;
+    gap: 0.2rem;
+  }
+
+  .gallery-state-bar__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+
+  .gallery-state-button {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+    padding: 0.72rem 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.72);
+    transition:
+      transform 0.25s ease,
+      border-color 0.25s ease,
+      background-color 0.25s ease,
+      color 0.25s ease;
+  }
+
+  .gallery-state-button:hover {
+    transform: translateY(-1px);
+    border-color: rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.94);
+  }
+
   @media (min-width: 900px) {
+    .gallery-state-bar {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+    }
+
     .gallery-grid.is-poster {
       grid-template-columns: repeat(12, minmax(0, 1fr));
     }

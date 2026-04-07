@@ -38,6 +38,7 @@ export async function GET() {
       home: '/',
       about: 'company/',
       gallery: 'gallery/',
+      galleryStateQueryParams: ['discipline', 'galleryView'],
       services: 'services/',
       pricing: 'pricing/',
       contact: 'contact-hq/',
