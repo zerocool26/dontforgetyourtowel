@@ -8,6 +8,7 @@ import {
   type TradeProfile,
   type TradeSubpage,
 } from '../../../data/trades';
+import { getTradeVisual } from '../../../data/trade-visuals';
 import { withBasePath } from '../../../utils/helpers';
 
 export function getStaticPaths() {
@@ -28,12 +29,13 @@ const siblingSubpages = trade.subpages.filter(
   item => item.slug !== subpage.slug
 );
 const resolvedSubpage = getTradeSubpage(trade.slug, subpage.slug) ?? subpage;
+const tradeVisual = getTradeVisual(trade.slug);
 ---
 
 <MarketingLayout
   title={`${resolvedSubpage.title} | ${trade.name}`}
   description={resolvedSubpage.description}
-  bodyClass="creative-page bg-[#02040a]"
+  bodyClass={`creative-page bg-[#02040a] ${tradeVisual.themeClass}`}
   showFooter={true}
 >
   <section
@@ -47,7 +49,8 @@ const resolvedSubpage = getTradeSubpage(trade.slug, subpage.slug) ?? subpage;
     </div>
     <div class="mx-auto max-w-[1320px] px-6">
       <div
-        class="creative-hero-shell grid gap-8 p-8 xl:grid-cols-[1.1fr_0.9fr]"
+        class="creative-hero-shell trade-subpage-shell grid gap-8 p-8 xl:grid-cols-[1.1fr_0.9fr]"
+        style={`--trade-accent:${trade.accent};`}
       >
         <div class="space-y-5">
           <div class="flex flex-wrap gap-2">
@@ -96,12 +99,13 @@ const resolvedSubpage = getTradeSubpage(trade.slug, subpage.slug) ?? subpage;
           </div>
         </div>
 
-        <ModernCard variant="minimal" className="creative-panel p-6">
-          <p class="creative-kicker">Callout</p>
+        <ModernCard variant="minimal" className="trade-subpage-callout p-6">
+          <p class="creative-kicker">{tradeVisual.stageLabel}</p>
           <p class="tone-title mt-4 text-3xl font-semibold">
             {resolvedSubpage.callout.value}
           </p>
           <p class="tone-body mt-3 text-sm">{resolvedSubpage.callout.note}</p>
+          <p class="tone-body mt-4 text-sm">{tradeVisual.stageCopy}</p>
           <div class="mt-6 flex flex-wrap gap-2">
             <span
               class="creative-chip"
@@ -122,7 +126,10 @@ const resolvedSubpage = getTradeSubpage(trade.slug, subpage.slug) ?? subpage;
         <div class="grid gap-5">
           {
             resolvedSubpage.sections.map((section, index) => (
-              <ModernCard variant="minimal" className="creative-panel p-7">
+              <ModernCard
+                variant="minimal"
+                className="creative-panel trade-subpage-section p-7"
+              >
                 <div class="flex items-start gap-4">
                   <span class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 font-mono text-xs text-white/75">
                     0{index + 1}
@@ -153,8 +160,11 @@ const resolvedSubpage = getTradeSubpage(trade.slug, subpage.slug) ?? subpage;
         </div>
 
         <div class="grid gap-5">
-          <ModernCard variant="minimal" className="creative-panel p-6">
-            <p class="creative-kicker">Overview Link</p>
+          <ModernCard
+            variant="minimal"
+            className="creative-panel trade-subpage-aside p-6"
+          >
+            <p class="creative-kicker">{tradeVisual.subpageLabel}</p>
             <p class="tone-title mt-4 text-2xl font-semibold">{trade.name}</p>
             <p class="tone-body mt-2 text-sm">{trade.summary}</p>
             <div class="mt-5">
@@ -167,14 +177,17 @@ const resolvedSubpage = getTradeSubpage(trade.slug, subpage.slug) ?? subpage;
             </div>
           </ModernCard>
 
-          <ModernCard variant="minimal" className="creative-panel p-6">
+          <ModernCard
+            variant="minimal"
+            className="creative-panel trade-subpage-aside p-6"
+          >
             <p class="creative-kicker">Related Subpages</p>
             <div class="mt-4 grid gap-3">
               {
                 siblingSubpages.map(item => (
                   <a
                     href={withBasePath(`trades/${trade.slug}/${item.slug}/`)}
-                    class="rounded-3xl border border-white/10 bg-white/[0.02] p-4 transition hover:border-white/20 hover:bg-white/[0.04]"
+                    class="trade-subpage-link rounded-3xl border border-white/10 bg-white/[0.02] p-4 transition hover:border-white/20 hover:bg-white/[0.04]"
                   >
                     <p class="tone-title text-base font-semibold">
                       {item.title}
@@ -186,7 +199,10 @@ const resolvedSubpage = getTradeSubpage(trade.slug, subpage.slug) ?? subpage;
             </div>
           </ModernCard>
 
-          <ModernCard variant="minimal" className="creative-panel p-6">
+          <ModernCard
+            variant="minimal"
+            className="creative-panel trade-subpage-aside p-6"
+          >
             <p class="creative-kicker">Connected Trade Signals</p>
             <div class="mt-4 flex flex-wrap gap-2">
               {
@@ -206,3 +222,128 @@ const resolvedSubpage = getTradeSubpage(trade.slug, subpage.slug) ?? subpage;
     </div>
   </section>
 </MarketingLayout>
+
+<style is:inline>
+  .trade-subpage-shell,
+  .trade-subpage-callout,
+  .trade-subpage-section,
+  .trade-subpage-aside,
+  .trade-subpage-link {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .trade-subpage-callout {
+    border: 1px solid
+      color-mix(in srgb, var(--trade-accent, #ffffff) 24%, transparent);
+    background:
+      linear-gradient(
+        160deg,
+        rgba(255, 255, 255, 0.08),
+        rgba(255, 255, 255, 0.02)
+      ),
+      radial-gradient(
+        circle at top right,
+        color-mix(in srgb, var(--trade-accent, #ffffff) 18%, transparent),
+        transparent 40%
+      ),
+      rgba(5, 7, 12, 0.82);
+  }
+
+  .trade-subpage-section,
+  .trade-subpage-aside,
+  .trade-subpage-link {
+    background:
+      linear-gradient(
+        150deg,
+        rgba(255, 255, 255, 0.05),
+        rgba(255, 255, 255, 0.01)
+      ),
+      rgba(255, 255, 255, 0.02);
+  }
+
+  body.trade-experience--mechanical .trade-subpage-shell {
+    background:
+      linear-gradient(140deg, rgba(185, 242, 113, 0.09), transparent 24%),
+      repeating-linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.025) 0,
+        rgba(255, 255, 255, 0.025) 1px,
+        transparent 1px,
+        transparent 34px
+      ),
+      rgba(5, 7, 12, 0.9);
+  }
+
+  body.trade-experience--electrical .trade-subpage-shell {
+    background:
+      radial-gradient(
+        circle at 82% 18%,
+        rgba(255, 224, 130, 0.16),
+        transparent 26%
+      ),
+      linear-gradient(135deg, rgba(255, 224, 130, 0.08), transparent 34%),
+      rgba(5, 7, 12, 0.9);
+  }
+
+  body.trade-experience--plumbing .trade-subpage-shell {
+    background:
+      radial-gradient(
+        circle at 18% 18%,
+        rgba(125, 211, 252, 0.16),
+        transparent 24%
+      ),
+      radial-gradient(
+        circle at 76% 70%,
+        rgba(125, 211, 252, 0.08),
+        transparent 26%
+      ),
+      rgba(5, 7, 12, 0.9);
+  }
+
+  body.trade-experience--gc .trade-subpage-shell {
+    background:
+      linear-gradient(135deg, rgba(253, 164, 175, 0.08), transparent 36%),
+      repeating-linear-gradient(
+        0deg,
+        rgba(255, 255, 255, 0.024) 0,
+        rgba(255, 255, 255, 0.024) 1px,
+        transparent 1px,
+        transparent 28px
+      ),
+      rgba(5, 7, 12, 0.9);
+  }
+
+  body.trade-experience--hvac .trade-subpage-shell {
+    background:
+      radial-gradient(
+        circle at 50% 0%,
+        rgba(134, 239, 172, 0.12),
+        transparent 30%
+      ),
+      linear-gradient(145deg, rgba(134, 239, 172, 0.06), transparent 30%),
+      rgba(5, 7, 12, 0.9);
+  }
+
+  body.trade-experience--auto .trade-subpage-shell {
+    background:
+      linear-gradient(135deg, rgba(252, 165, 165, 0.08), transparent 28%),
+      radial-gradient(
+        circle at 85% 20%,
+        rgba(252, 165, 165, 0.15),
+        transparent 24%
+      ),
+      rgba(5, 7, 12, 0.9);
+  }
+
+  body.trade-experience--msp .trade-subpage-shell {
+    background:
+      radial-gradient(
+        circle at top right,
+        rgba(196, 181, 253, 0.14),
+        transparent 26%
+      ),
+      linear-gradient(145deg, rgba(196, 181, 253, 0.06), transparent 30%),
+      rgba(5, 7, 12, 0.9);
+  }
+</style>

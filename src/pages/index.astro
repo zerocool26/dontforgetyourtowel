@@ -10,6 +10,7 @@ import {
   tradePrograms,
   totalTradeSubpages,
 } from '../data/trades';
+import { getTradeVisual } from '../data/trade-visuals';
 import { servicesExtended } from '../data/services-extended';
 import { withBasePath } from '../utils/helpers';
 
@@ -44,6 +45,11 @@ const homeSignals = [
   },
 ];
 
+const featuredTradeAtlas = tradeProfiles.slice(0, 4).map(trade => ({
+  trade,
+  visual: getTradeVisual(trade.slug),
+}));
+
 const executionBands = [
   {
     title: 'Preconstruction And Discovery',
@@ -74,6 +80,12 @@ const showcaseLinks = [
     description:
       'Keep the full MSP, security, cloud, AI, and digital systems catalog active inside the broader site.',
     href: withBasePath('services/'),
+  },
+  {
+    title: 'About the platform',
+    description:
+      'Move the broader company and architecture details into a dedicated page so trade routes can stay more exclusive.',
+    href: withBasePath('company/'),
   },
   {
     title: 'Build Studio',
@@ -174,19 +186,64 @@ const showcaseLinks = [
         </div>
 
         <div class="pointer-events-auto grid gap-4">
-          {
-            homeSignals.map(signal => (
-              <ModernCard variant="minimal" className="creative-panel p-5">
-                <p class="tone-muted text-xs uppercase tracking-[0.26em]">
-                  {signal.label}
-                </p>
-                <p class="tone-title mt-2 text-3xl font-semibold">
-                  {signal.value}
-                </p>
-                <p class="tone-body mt-2 text-sm">{signal.detail}</p>
-              </ModernCard>
-            ))
-          }
+          <ModernCard variant="minimal" className="landing-atlas-board p-6">
+            <p class="creative-kicker">Trade Atlas</p>
+            <div class="mt-5 grid gap-3 sm:grid-cols-2">
+              {
+                featuredTradeAtlas.map(item => (
+                  <a
+                    href={withBasePath(`trades/${item.trade.slug}/`)}
+                    class="landing-atlas-node rounded-[1.6rem] border border-white/10 p-4 transition hover:border-white/20"
+                    style={`--atlas-accent:${item.trade.accent};`}
+                  >
+                    <p class="tone-title text-lg font-semibold">
+                      {item.trade.shortName}
+                    </p>
+                    <p class="tone-muted mt-2 text-[0.65rem] uppercase tracking-[0.24em]">
+                      {item.visual.stageLabel}
+                    </p>
+                    <p class="tone-body mt-3 text-sm">
+                      {item.visual.stageValue}
+                    </p>
+                  </a>
+                ))
+              }
+            </div>
+          </ModernCard>
+
+          <div class="grid gap-4 sm:grid-cols-2">
+            {
+              homeSignals.slice(0, 2).map(signal => (
+                <ModernCard variant="minimal" className="creative-panel p-5">
+                  <p class="tone-muted text-xs uppercase tracking-[0.26em]">
+                    {signal.label}
+                  </p>
+                  <p class="tone-title mt-2 text-3xl font-semibold">
+                    {signal.value}
+                  </p>
+                  <p class="tone-body mt-2 text-sm">{signal.detail}</p>
+                </ModernCard>
+              ))
+            }
+          </div>
+
+          <ModernCard variant="minimal" className="creative-panel p-5">
+            <p class="tone-muted text-xs uppercase tracking-[0.26em]">
+              Platform detail
+            </p>
+            <p class="tone-title mt-2 text-2xl font-semibold">
+              About and architecture
+            </p>
+            <p class="tone-body mt-2 text-sm">
+              The broader story now lives on its own page so the landing and
+              trade routes can stay sharper.
+            </p>
+            <div class="mt-4">
+              <ModernButton href={withBasePath('company/')} variant="secondary">
+                Open About
+              </ModernButton>
+            </div>
+          </ModernCard>
         </div>
       </div>
     </div>
@@ -461,3 +518,32 @@ const showcaseLinks = [
     </div>
   </section>
 </MarketingLayout>
+
+<style is:inline>
+  .landing-atlas-board {
+    position: relative;
+    overflow: hidden;
+    background:
+      linear-gradient(
+        155deg,
+        rgba(255, 255, 255, 0.08),
+        rgba(255, 255, 255, 0.02)
+      ),
+      radial-gradient(
+        circle at top right,
+        rgba(204, 255, 0, 0.12),
+        transparent 34%
+      ),
+      rgba(5, 7, 12, 0.82);
+  }
+
+  .landing-atlas-node {
+    background:
+      linear-gradient(
+        150deg,
+        color-mix(in srgb, var(--atlas-accent) 10%, transparent),
+        rgba(255, 255, 255, 0.02)
+      ),
+      rgba(255, 255, 255, 0.02);
+  }
+</style>

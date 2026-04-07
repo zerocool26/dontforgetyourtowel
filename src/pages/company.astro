@@ -1,0 +1,212 @@
+---
+import MarketingLayout from '../layouts/MarketingLayout.astro';
+import ModernButton from '../components/ui/ModernButton.astro';
+import ModernCard from '../components/ui/ModernCard.astro';
+import {
+  tradeProfiles,
+  tradePrograms,
+  totalTradeSubpages,
+} from '../data/trades';
+import { withBasePath } from '../utils/helpers';
+
+const companySignals = [
+  {
+    label: 'Trade divisions',
+    value: String(tradeProfiles.length),
+    detail:
+      'Each presented as its own premium vertical inside one connected platform.',
+  },
+  {
+    label: 'Support routes',
+    value: String(totalTradeSubpages),
+    detail: 'Each trade has supporting pages to deepen the specialist story.',
+  },
+  {
+    label: 'Retained showcase',
+    value: 'Portfolio + studio',
+    detail: 'Existing interactive work remains part of the platform.',
+  },
+];
+
+const companySections = [
+  {
+    title: 'Why this platform exists',
+    copy: 'The site is meant to prove range without becoming generic. Instead of collapsing every service into one contractor page, it now shows each trade as its own serious vertical while still sharing one source of truth.',
+  },
+  {
+    title: 'How the architecture works',
+    copy: 'The landing page acts as the central narrative layer. The services hub bridges trade scope with retained MSP and digital capabilities. Trade pages and subpages then go deeper into each vertical with more exclusive language and visual treatment.',
+  },
+  {
+    title: 'What stayed in place',
+    copy: 'The showroom, ecommerce-style portfolio, pricing logic, planners, and technology catalog remain active. This site was extended, not flattened.',
+  },
+];
+---
+
+<MarketingLayout
+  title="About | Olive Global Systems"
+  description="About the seven-trade Olive Global Systems platform, how it is structured, and how the site connects physical delivery with retained digital capabilities."
+  bodyClass="creative-page bg-[#02040a]"
+  showFooter={true}
+>
+  <section
+    class="tone-surface relative overflow-hidden pb-14 pt-28"
+    data-reveal
+  >
+    <div
+      class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,rgba(204,255,0,0.12),transparent_52%)]"
+    >
+    </div>
+    <div class="mx-auto max-w-[1360px] px-6">
+      <div
+        class="creative-hero-shell grid gap-8 p-8 xl:grid-cols-[1.15fr_0.85fr]"
+      >
+        <div class="space-y-5">
+          <p class="creative-kicker">About The Platform</p>
+          <h1
+            class="tone-title text-5xl font-semibold tracking-tight sm:text-6xl"
+          >
+            One site architecture built to hold seven distinct businesses.
+          </h1>
+          <p class="tone-body max-w-3xl text-base leading-relaxed">
+            This page carries the broader story so the landing page can stay
+            expressive and the trade pages can stay exclusive. It explains the
+            operating model behind the site, why the trades are separated, and
+            how the retained digital work still fits the platform.
+          </p>
+          <div class="flex flex-col gap-3 sm:flex-row">
+            <ModernButton
+              href={withBasePath('trades/')}
+              variant="primary"
+              className="min-h-[48px]"
+            >
+              Browse all trade pages
+            </ModernButton>
+            <ModernButton
+              href={withBasePath('/')}
+              variant="secondary"
+              className="min-h-[48px]"
+            >
+              Return to landing page
+            </ModernButton>
+          </div>
+        </div>
+
+        <div class="grid gap-4">
+          {
+            companySignals.map(signal => (
+              <ModernCard variant="minimal" className="creative-panel p-5">
+                <p class="tone-muted text-xs uppercase tracking-[0.24em]">
+                  {signal.label}
+                </p>
+                <p class="tone-title mt-2 text-3xl font-semibold">
+                  {signal.value}
+                </p>
+                <p class="tone-body mt-2 text-sm">{signal.detail}</p>
+              </ModernCard>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="tone-surface" data-reveal>
+    <div class="mx-auto max-w-[1360px] px-6 py-12">
+      <div class="grid gap-5 xl:grid-cols-[1.05fr_0.95fr]">
+        <div class="grid gap-5">
+          {
+            companySections.map((section, index) => (
+              <ModernCard variant="minimal" className="creative-panel p-7">
+                <div class="flex items-start gap-4">
+                  <span class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 font-mono text-xs text-white/70">
+                    0{index + 1}
+                  </span>
+                  <div>
+                    <h2 class="tone-title text-3xl font-semibold">
+                      {section.title}
+                    </h2>
+                    <p class="tone-body mt-3 text-sm leading-relaxed">
+                      {section.copy}
+                    </p>
+                  </div>
+                </div>
+              </ModernCard>
+            ))
+          }
+        </div>
+
+        <ModernCard variant="minimal" className="creative-panel p-7">
+          <p class="creative-kicker">Integrated Programs</p>
+          <div class="mt-6 grid gap-4">
+            {
+              tradePrograms.map(program => (
+                <div class="rounded-3xl border border-white/10 bg-white/[0.02] p-5">
+                  <p class="tone-title text-xl font-semibold">
+                    {program.title}
+                  </p>
+                  <p class="tone-body mt-2 text-sm">{program.description}</p>
+                  <div class="mt-4 flex flex-wrap gap-2">
+                    {program.tradeSlugs.map(slug => {
+                      const trade = tradeProfiles.find(
+                        item => item.slug === slug
+                      );
+                      return trade ? (
+                        <a
+                          class="creative-chip"
+                          href={withBasePath(`trades/${trade.slug}/`)}
+                          style={`border-color: color-mix(in srgb, ${trade.accent} 28%, rgba(255,255,255,0.08));`}
+                        >
+                          {trade.shortName}
+                        </a>
+                      ) : null;
+                    })}
+                  </div>
+                </div>
+              ))
+            }
+          </div>
+        </ModernCard>
+      </div>
+    </div>
+  </section>
+
+  <section class="tone-surface pb-20" data-reveal>
+    <div class="mx-auto max-w-[1360px] px-6 py-10">
+      <div class="creative-hero-shell p-8">
+        <div
+          class="flex flex-col gap-5 border-b border-white/10 pb-6 md:flex-row md:items-end md:justify-between"
+        >
+          <div class="max-w-3xl">
+            <p class="creative-kicker">Trade Overview</p>
+            <h2 class="tone-title mt-3 text-4xl font-semibold tracking-tight">
+              Each trade is meant to feel like its own premium site.
+            </h2>
+          </div>
+          <ModernButton
+            href={withBasePath('services/')}
+            variant="secondary"
+            className="min-h-[48px]"
+          >
+            Open services hub
+          </ModernButton>
+        </div>
+
+        <div class="mt-8 grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
+          {
+            tradeProfiles.map(trade => (
+              <a
+                href={withBasePath(`trades/${trade.slug}/`)}
+                class="rounded-3xl border border-white/10 bg-white/[0.02] p-5 transition hover:border-white/20 hover:bg-white/[0.04]"
+              >
+                <p class="tone-title text-lg font-semibold">{trade.name}</p>
+                <p class="tone-body mt-2 text-sm">{trade.summary}</p>
+              </a>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+</MarketingLayout>

@@ -42,6 +42,15 @@ export async function GET() {
       tags: ['home', 'landing'],
     },
     {
+      id: 'page-company',
+      title: 'About',
+      description:
+        'About the seven-trade platform, how the site is structured, and how the trades connect back to one landing system',
+      category: 'Page',
+      url: 'company/',
+      tags: ['about', 'company', 'platform', 'trade architecture'],
+    },
+    {
       id: 'page-about',
       title: 'Portfolio Shop Demo',
       description:

@@ -1,19 +1,27 @@
 ---
 import { BASE_PATH, CONTACT_EMAIL, SITE_TITLE } from '../consts';
 import { withBasePath } from '../utils/helpers';
+import { tradeProfiles } from '../data/trades';
+import { getTradeVisual } from '../data/trade-visuals';
 import ThemeSelector from './ThemeSelector.astro';
 import ModernButton from './ui/ModernButton.astro';
 
 const homeHref = withBasePath('/');
 
 const links = [
-  { label: 'Trades', href: withBasePath('trades/') },
+  { label: 'About', href: withBasePath('company/') },
   { label: 'Services', href: withBasePath('services/') },
   { label: 'Pricing', href: withBasePath('pricing/') },
   { label: 'Build Studio', href: withBasePath('build-studio/') },
   { label: 'Portfolio', href: withBasePath('about/') },
   { label: 'Contact', href: withBasePath('contact-hq/') },
 ];
+
+const tradeLinks = tradeProfiles.map(trade => ({
+  label: getTradeVisual(trade.slug).navLabel,
+  href: withBasePath(`trades/${trade.slug}/`),
+  accent: trade.accent,
+}));
 
 const startProjectHref = `mailto:${encodeURIComponent(
   CONTACT_EMAIL
@@ -39,6 +47,23 @@ const isActiveHref = (href: string) => {
     return normalizePath(url.pathname) === currentPath;
   } catch {
     return normalizePath(href) === currentPath;
+  }
+};
+
+const isTradeActiveHref = (href: string) => {
+  try {
+    const url = Astro.site
+      ? new URL(href, Astro.site)
+      : new URL(href, 'https://local.invalid');
+    const normalized = normalizePath(url.pathname);
+    return (
+      currentPath === normalized || currentPath.startsWith(`${normalized}/`)
+    );
+  } catch {
+    const normalized = normalizePath(href);
+    return (
+      currentPath === normalized || currentPath.startsWith(`${normalized}/`)
+    );
   }
 };
 ---
@@ -209,6 +234,50 @@ const isActiveHref = (href: string) => {
     </div>
   </nav>
 
+  <div class="hidden border-t border-white/[0.05] md:block">
+    <nav
+      class="mx-auto max-w-[1400px] px-5 sm:px-6 lg:px-8"
+      aria-label="Trade navigation"
+    >
+      <div class="flex items-center gap-2 overflow-x-auto py-3 scrollbar-hide">
+        <a
+          class={`rounded-full border px-3 py-1.5 font-mono text-[0.68rem] uppercase tracking-[0.24em] transition ${
+            isActiveHref(withBasePath('trades/'))
+              ? 'border-[#ccff00]/40 bg-[#ccff00]/10 text-white'
+              : 'border-white/10 bg-white/[0.03] text-white/55 hover:border-white/20 hover:text-white'
+          }`}
+          href={withBasePath('trades/')}
+          data-astro-prefetch
+          aria-current={isActiveHref(withBasePath('trades/'))
+            ? 'page'
+            : undefined}
+        >
+          Trade Directory
+        </a>
+        {
+          tradeLinks.map(link => {
+            const active = isTradeActiveHref(link.href);
+            return (
+              <a
+                class={`rounded-full border px-3 py-1.5 font-mono text-[0.68rem] uppercase tracking-[0.22em] transition ${
+                  active
+                    ? 'text-white shadow-[0_0_20px_rgba(255,255,255,0.08)]'
+                    : 'text-white/58 hover:text-white'
+                }`}
+                style={`border-color: ${active ? `color-mix(in srgb, ${link.accent} 42%, transparent)` : 'rgba(255,255,255,0.08)'}; background:${active ? `color-mix(in srgb, ${link.accent} 14%, rgba(255,255,255,0.03))` : 'rgba(255,255,255,0.03)'};`}
+                href={link.href}
+                data-astro-prefetch
+                aria-current={active ? 'page' : undefined}
+              >
+                {link.label}
+              </a>
+            );
+          })
+        }
+      </div>
+    </nav>
+  </div>
+
   <div class="md:hidden" id="mobile-menu" hidden>
     <div
       class="tone-border tone-surface tone-body space-y-2 border-t px-4 py-5 text-sm"
@@ -246,6 +315,32 @@ const isActiveHref = (href: string) => {
           );
         })
       }
+      <div class="border-t border-white/10 pt-3">
+        <p
+          class="px-3 pb-2 font-mono text-[0.65rem] uppercase tracking-[0.24em] text-white/45"
+        >
+          Trade pages
+        </p>
+        {
+          tradeLinks.map(link => {
+            const active = isTradeActiveHref(link.href);
+            return (
+              <a
+                class={`min-h-touch mb-2 flex touch-manipulation items-center rounded-lg px-3 py-3 font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ccff00] ${
+                  active
+                    ? 'bg-white/10 text-white'
+                    : 'tone-body hover:bg-white/5'
+                }`}
+                href={link.href}
+                data-astro-prefetch
+                aria-current={active ? 'page' : undefined}
+              >
+                {link.label}
+              </a>
+            );
+          })
+        }
+      </div>
       <a
         class="tone-title min-h-touch flex touch-manipulation items-center rounded-lg px-3 py-3 font-semibold transition hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ccff00]"
         href={withBasePath('build-studio/')}

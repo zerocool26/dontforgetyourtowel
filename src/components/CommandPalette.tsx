@@ -120,6 +120,14 @@ const BASE_COMMANDS: CommandItem[] = [
     keywords: ['contact', 'intake', 'brief', 'proposal'],
   },
   {
+    id: 'nav-company',
+    label: 'Open About',
+    icon: User,
+    action: () => navigate(withBasePath('company/')),
+    category: 'Navigation',
+    keywords: ['about', 'company', 'platform', 'story'],
+  },
+  {
     id: 'nav-about',
     label: 'Go to Portfolio',
     icon: User,
