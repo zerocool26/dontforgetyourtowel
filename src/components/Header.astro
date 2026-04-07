@@ -5,6 +5,7 @@ import { tradeProfiles } from '../data/trades';
 import { getTradeVisual } from '../data/trade-visuals';
 import { getRouteContext } from '../utils/route-context';
 import ThemeSelector from './ThemeSelector.astro';
+import ExperienceModeSelector from './ExperienceModeSelector.astro';
 import ModernButton from './ui/ModernButton.astro';
 
 const homeHref = withBasePath('/');
@@ -158,6 +159,20 @@ const isTradeActiveHref = (href: string) => {
     <div class="hidden items-center gap-4 pl-6 lg:flex">
       <button
         type="button"
+        data-open-saved-routes
+        class="saved-routes-trigger tone-border tone-surface tone-muted min-h-[44px] items-center gap-2 rounded-lg border px-3 font-mono text-xs uppercase tracking-[0.2em] transition hover:border-white/20 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ccff00]"
+        hidden
+      >
+        <span>Saved</span>
+        <span
+          class="saved-routes-trigger__count rounded-full border border-white/10 px-1.5 py-0.5 text-[10px]"
+          data-saved-routes-count
+        >
+          0
+        </span>
+      </button>
+      <button
+        type="button"
         data-command-palette-trigger
         class={searchTriggerClasses}
         aria-label="Open site search"
@@ -181,6 +196,7 @@ const isTradeActiveHref = (href: string) => {
           Ctrl/⌘ K
         </kbd>
       </button>
+      <ExperienceModeSelector />
       <ThemeSelector />
       <div class="tone-border h-6 w-px"></div>
       <ModernButton
@@ -194,6 +210,21 @@ const isTradeActiveHref = (href: string) => {
     </div>
 
     <div class="flex items-center gap-2 lg:hidden">
+      <button
+        type="button"
+        data-open-saved-routes
+        class={`${searchTriggerClasses} h-12 min-w-[3.5rem] justify-center gap-1 px-3`}
+        hidden
+        aria-label="Open saved routes"
+      >
+        <span>Save</span>
+        <span
+          class="rounded-full border border-white/[0.08] bg-white/[0.04] px-1.5 py-0.5 text-[10px]"
+          data-saved-routes-count
+        >
+          0
+        </span>
+      </button>
       <button
         type="button"
         data-command-palette-trigger
@@ -348,6 +379,36 @@ const isTradeActiveHref = (href: string) => {
         <span>Search the site</span>
         <span class="text-xs text-zinc-400">Ctrl/⌘ K</span>
       </button>
+      <div class="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+        <p
+          class="px-1 font-mono text-[0.62rem] uppercase tracking-[0.24em] text-white/45"
+        >
+          Visual direction
+        </p>
+        <div class="mt-3 grid grid-cols-3 gap-2">
+          <button
+            type="button"
+            class="tone-border tone-surface tone-body rounded-lg border px-3 py-2 text-xs font-semibold transition"
+            data-mobile-experience-mode="cinematic"
+          >
+            Cinematic
+          </button>
+          <button
+            type="button"
+            class="tone-border tone-surface tone-body rounded-lg border px-3 py-2 text-xs font-semibold transition"
+            data-mobile-experience-mode="editorial"
+          >
+            Editorial
+          </button>
+          <button
+            type="button"
+            class="tone-border tone-surface tone-body rounded-lg border px-3 py-2 text-xs font-semibold transition"
+            data-mobile-experience-mode="blueprint"
+          >
+            Blueprint
+          </button>
+        </div>
+      </div>
       <a
         class="tone-body min-h-touch flex touch-manipulation items-center rounded-lg px-3 py-3 font-medium transition hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ccff00]"
         href={homeHref}
@@ -418,6 +479,8 @@ const isTradeActiveHref = (href: string) => {
 
 <script is:inline>
   (() => {
+    const globalScope = window;
+
     const bindPaletteTriggers = () => {
       document
         .querySelectorAll('[data-command-palette-trigger]')
@@ -442,15 +505,135 @@ const isTradeActiveHref = (href: string) => {
         });
     };
 
+    const bindSavedRouteTriggers = () => {
+      globalScope.__headerSavedRoutesCleanup?.();
+
+      const buttons = Array.from(
+        document.querySelectorAll('[data-open-saved-routes]')
+      ).filter(
+        (node): node is HTMLButtonElement => node instanceof HTMLButtonElement
+      );
+      const countTargets = Array.from(
+        document.querySelectorAll('[data-saved-routes-count]')
+      ).filter((node): node is HTMLElement => node instanceof HTMLElement);
+
+      const updateCounts = async () => {
+        try {
+          const mod = await import('../utils/route-memory');
+          const count = mod.readPinnedRoutes().length;
+
+          buttons.forEach(button => {
+            button.hidden = count === 0;
+            button.classList.toggle('inline-flex', count > 0);
+          });
+
+          countTargets.forEach(target => {
+            target.textContent = `${count}`;
+          });
+        } catch {
+          buttons.forEach(button => {
+            button.hidden = true;
+            button.classList.remove('inline-flex');
+          });
+        }
+      };
+
+      buttons.forEach(button => {
+        if (button.dataset.savedRoutesBound === '1') return;
+        button.dataset.savedRoutesBound = '1';
+        button.addEventListener('click', () => {
+          window.dispatchEvent(new CustomEvent('saved-routes-dock:open'));
+        });
+      });
+
+      window.addEventListener('olive:route-pins-updated', updateCounts);
+      globalScope.__headerSavedRoutesCleanup = () => {
+        window.removeEventListener('olive:route-pins-updated', updateCounts);
+      };
+      updateCounts();
+    };
+
+    const bindMobileExperienceButtons = () => {
+      globalScope.__headerExperienceCleanup?.();
+
+      const buttons = Array.from(
+        document.querySelectorAll('[data-mobile-experience-mode]')
+      ).filter(
+        (node): node is HTMLButtonElement => node instanceof HTMLButtonElement
+      );
+
+      if (!buttons.length) return;
+
+      const syncButtons = async () => {
+        try {
+          const mod = await import('../store/index');
+          const current = mod.experienceMode.get();
+
+          buttons.forEach(button => {
+            const active = button.dataset.mobileExperienceMode === current;
+            button.classList.toggle('text-white', active);
+            button.classList.toggle('border-[#ccff00]/35', active);
+            button.classList.toggle('bg-[#ccff00]/10', active);
+            button.classList.toggle('text-white/70', !active);
+          });
+        } catch {
+          // ignore
+        }
+      };
+
+      buttons.forEach(button => {
+        if (button.dataset.mobileExperienceBound === '1') return;
+        button.dataset.mobileExperienceBound = '1';
+        button.addEventListener('click', async () => {
+          try {
+            const mod = await import('../store/index');
+            const mode = button.dataset.mobileExperienceMode;
+            if (
+              mode === 'cinematic' ||
+              mode === 'editorial' ||
+              mode === 'blueprint'
+            ) {
+              mod.setExperienceMode(mode);
+            }
+          } catch {
+            // ignore
+          }
+        });
+      });
+
+      window.addEventListener('olive:experience-mode-updated', syncButtons);
+      globalScope.__headerExperienceCleanup = () => {
+        window.removeEventListener(
+          'olive:experience-mode-updated',
+          syncButtons
+        );
+      };
+      syncButtons();
+    };
+
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', bindPaletteTriggers, {
         once: true,
       });
+      document.addEventListener('DOMContentLoaded', bindSavedRouteTriggers, {
+        once: true,
+      });
+      document.addEventListener(
+        'DOMContentLoaded',
+        bindMobileExperienceButtons,
+        {
+          once: true,
+        }
+      );
     } else {
       bindPaletteTriggers();
+      bindSavedRouteTriggers();
+      bindMobileExperienceButtons();
     }
 
     document.addEventListener('astro:page-load', bindPaletteTriggers);
+    document.addEventListener('astro:page-load', bindSavedRouteTriggers);
+    document.addEventListener('astro:page-load', bindMobileExperienceButtons);
   })();
 </script>
 

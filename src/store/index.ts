@@ -12,6 +12,7 @@ import { THEME_CONFIG } from '../consts';
 
 export type Theme = 'ops-center' | 'corporate' | 'terminal';
 export type ColorScheme = 'light' | 'dark' | 'system';
+export type ExperienceMode = 'cinematic' | 'editorial' | 'blueprint';
 
 const THEME_CHROME: Record<Theme, string> = {
   'ops-center': '#05070c',
@@ -19,9 +20,12 @@ const THEME_CHROME: Record<Theme, string> = {
   terminal: '#041108',
 };
 
+const EXPERIENCE_MODE_STORAGE_KEY = 'olive-experience-mode';
+
 export const theme = atom<Theme>('ops-center');
 export const colorScheme = atom<ColorScheme>('system');
 export const accentColor = atom<string>('#3b82f6');
+export const experienceMode = atom<ExperienceMode>('cinematic');
 
 export function setTheme(newTheme: Theme) {
   theme.set(newTheme);
@@ -73,6 +77,37 @@ export function setAccentColor(color: string) {
   }
   if (typeof document !== 'undefined') {
     document.documentElement.style.setProperty('--accent-color', color);
+  }
+}
+
+export function setExperienceMode(newMode: ExperienceMode) {
+  experienceMode.set(newMode);
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem(EXPERIENCE_MODE_STORAGE_KEY, newMode);
+  }
+  if (typeof document !== 'undefined') {
+    document.documentElement.dataset.experienceMode = newMode;
+  }
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(
+      new CustomEvent('olive:experience-mode-updated', {
+        detail: { mode: newMode },
+      })
+    );
+  }
+}
+
+export function initializeExperienceMode() {
+  if (typeof localStorage !== 'undefined') {
+    const savedMode = localStorage.getItem(
+      EXPERIENCE_MODE_STORAGE_KEY
+    ) as ExperienceMode | null;
+    setExperienceMode(savedMode ?? 'cinematic');
+    return;
+  }
+
+  if (typeof document !== 'undefined') {
+    document.documentElement.dataset.experienceMode = 'cinematic';
   }
 }
 
@@ -656,6 +691,7 @@ export function clearUser() {
 
 export function initializeStores() {
   initializeTheme();
+  initializeExperienceMode();
   loadPreferences();
   loadRecentSearches();
 }

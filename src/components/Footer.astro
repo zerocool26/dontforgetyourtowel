@@ -150,6 +150,12 @@ const navSections = [
           >
             Build ID: {buildStamp}.atlas
           </p>
+          <p
+            class="mt-2 font-mono text-[10px] uppercase tracking-widest text-white/30"
+          >
+            Surface mode:
+            <span data-footer-experience-mode-label>Cinematic</span>
+          </p>
         </div>
       </div>
 
@@ -208,3 +214,47 @@ const navSections = [
     </div>
   </div>
 </footer>
+
+<script is:inline>
+  (() => {
+    const globalScope = window;
+    const labels = {
+      cinematic: 'Cinematic',
+      editorial: 'Editorial',
+      blueprint: 'Blueprint',
+    };
+
+    const syncFooterExperienceMode = () => {
+      const target = document.querySelector(
+        '[data-footer-experience-mode-label]'
+      );
+      if (!(target instanceof HTMLElement)) return;
+
+      const current =
+        document.documentElement.dataset.experienceMode || 'cinematic';
+      target.textContent = labels[current] || 'Cinematic';
+    };
+
+    globalScope.__footerExperienceCleanup?.();
+    window.addEventListener(
+      'olive:experience-mode-updated',
+      syncFooterExperienceMode
+    );
+    globalScope.__footerExperienceCleanup = () => {
+      window.removeEventListener(
+        'olive:experience-mode-updated',
+        syncFooterExperienceMode
+      );
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', syncFooterExperienceMode, {
+        once: true,
+      });
+    } else {
+      syncFooterExperienceMode();
+    }
+
+    document.addEventListener('astro:page-load', syncFooterExperienceMode);
+  })();
+</script>

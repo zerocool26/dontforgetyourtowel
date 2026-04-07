@@ -14,6 +14,35 @@ const solutionIntent = Astro.url.searchParams.get('solution')?.trim() ?? '';
 const briefIntent = Astro.url.searchParams.get('brief')?.trim() ?? '';
 const tradeIntent = Astro.url.searchParams.get('trade')?.trim() ?? '';
 const tradePageIntent = Astro.url.searchParams.get('tradePage')?.trim() ?? '';
+const workspaceTitleIntent =
+  Astro.url.searchParams.get('workspaceTitle')?.trim() ?? '';
+const workspaceSummaryIntent =
+  Astro.url.searchParams.get('workspaceSummary')?.trim() ?? '';
+const workspaceRoutesIntentRaw =
+  Astro.url.searchParams.get('workspaceRoutes')?.trim() ?? '';
+const workspaceRoutesIntent = (() => {
+  if (!workspaceRoutesIntentRaw) return [];
+
+  try {
+    const parsed = JSON.parse(workspaceRoutesIntentRaw);
+    if (!Array.isArray(parsed)) return [];
+
+    return parsed.filter(
+      item =>
+        item &&
+        typeof item.title === 'string' &&
+        typeof item.category === 'string' &&
+        typeof item.url === 'string'
+    ) as Array<{
+      title: string;
+      category: string;
+      description?: string;
+      url: string;
+    }>;
+  } catch {
+    return [];
+  }
+})();
 
 const recommendedServiceLabel: Record<string, string> = {
   msp: 'Managed IT Services',
@@ -49,6 +78,13 @@ const kickoffBodyLines = [
   tradePageIntent ? `Trade page: ${tradePageIntent}` : '',
   solutionIntentLabel ? `Build path: ${solutionIntentLabel}` : '',
   briefIntent ? `Build brief: ${briefIntent}` : '',
+  workspaceTitleIntent ? `Workspace title: ${workspaceTitleIntent}` : '',
+  workspaceSummaryIntent ? `Workspace summary: ${workspaceSummaryIntent}` : '',
+  workspaceRoutesIntent.length
+    ? `Workspace routes:\n${workspaceRoutesIntent
+        .map(route => `- ${route.title} (${route.category})`)
+        .join('\n')}`
+    : '',
 ].filter(Boolean);
 
 const kickoffMailtoParams = new URLSearchParams({
@@ -65,7 +101,10 @@ const hasIntakeContext = Boolean(
   tradePageIntent ||
   serviceIntentLabel ||
   solutionIntentLabel ||
-  briefIntent
+  briefIntent ||
+  workspaceTitleIntent ||
+  workspaceSummaryIntent ||
+  workspaceRoutesIntent.length
 );
 
 const contactChannels = [
@@ -308,6 +347,56 @@ const faqSchema = {
                   {briefIntent}
                 </p>
               </div>
+              <div
+                id="intake-context-workspace-row"
+                class:list={[
+                  !(
+                    workspaceTitleIntent ||
+                    workspaceSummaryIntent ||
+                    workspaceRoutesIntent.length
+                  ) && 'hidden',
+                ]}
+              >
+                <p class="tone-muted text-[11px] uppercase tracking-[0.18em]">
+                  Saved workspace
+                </p>
+                <div
+                  class="mt-2 rounded-2xl border border-white/10 bg-white/[0.03] p-4"
+                >
+                  <p
+                    id="intake-context-workspace-title"
+                    class="tone-title text-sm font-semibold"
+                  >
+                    {workspaceTitleIntent || 'Curated route workspace'}
+                  </p>
+                  <p
+                    id="intake-context-workspace-summary"
+                    class="tone-body mt-2 text-sm leading-relaxed"
+                  >
+                    {workspaceSummaryIntent}
+                  </p>
+                  <div
+                    id="intake-context-workspace-routes"
+                    class="mt-3 grid gap-2"
+                  >
+                    {
+                      workspaceRoutesIntent.map(route => (
+                        <a
+                          class="rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm transition hover:border-white/20 hover:bg-white/[0.05]"
+                          href={route.url}
+                        >
+                          <span class="tone-title block font-semibold">
+                            {route.title}
+                          </span>
+                          <span class="tone-muted mt-1 block text-[11px] uppercase tracking-[0.18em]">
+                            {route.category}
+                          </span>
+                        </a>
+                      ))
+                    }
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -508,6 +597,27 @@ const faqSchema = {
       const briefValue = (params.get('brief') || '').trim();
       const tradeKey = (params.get('trade') || '').trim();
       const tradePageValue = (params.get('tradePage') || '').trim();
+      const workspaceTitle = (params.get('workspaceTitle') || '').trim();
+      const workspaceSummary = (params.get('workspaceSummary') || '').trim();
+      const workspaceRoutesRaw = (params.get('workspaceRoutes') || '').trim();
+      let workspaceRoutes = [];
+
+      if (workspaceRoutesRaw) {
+        try {
+          const parsed = JSON.parse(workspaceRoutesRaw);
+          if (Array.isArray(parsed)) {
+            workspaceRoutes = parsed.filter(
+              item =>
+                item &&
+                typeof item.title === 'string' &&
+                typeof item.category === 'string' &&
+                typeof item.url === 'string'
+            );
+          }
+        } catch {
+          workspaceRoutes = [];
+        }
+      }
 
       const serviceLabel =
         serviceLabels[serviceKey.toLowerCase()] || serviceKey;
@@ -518,7 +628,10 @@ const faqSchema = {
         tradePageValue ||
         serviceLabel ||
         solutionLabel ||
-        briefValue
+        briefValue ||
+        workspaceTitle ||
+        workspaceSummary ||
+        workspaceRoutes.length
       );
 
       const panel = document.getElementById('intake-context');
@@ -538,6 +651,18 @@ const faqSchema = {
       const serviceValue = document.getElementById('intake-context-service');
       const solutionValue = document.getElementById('intake-context-solution');
       const briefValueNode = document.getElementById('intake-context-brief');
+      const workspaceRow = document.getElementById(
+        'intake-context-workspace-row'
+      );
+      const workspaceTitleNode = document.getElementById(
+        'intake-context-workspace-title'
+      );
+      const workspaceSummaryNode = document.getElementById(
+        'intake-context-workspace-summary'
+      );
+      const workspaceRoutesNode = document.getElementById(
+        'intake-context-workspace-routes'
+      );
 
       const applyField = (row, node, value) => {
         if (!(row instanceof HTMLElement) || !(node instanceof HTMLElement)) {
@@ -557,6 +682,49 @@ const faqSchema = {
       applyField(serviceRow, serviceValue, serviceLabel);
       applyField(solutionRow, solutionValue, solutionLabel);
       applyField(briefRow, briefValueNode, briefValue);
+
+      if (workspaceRow instanceof HTMLElement) {
+        const hasWorkspace =
+          Boolean(workspaceTitle || workspaceSummary) ||
+          workspaceRoutes.length > 0;
+        workspaceRow.classList.toggle('hidden', !hasWorkspace);
+
+        if (workspaceTitleNode instanceof HTMLElement) {
+          workspaceTitleNode.textContent =
+            workspaceTitle || 'Curated route workspace';
+        }
+
+        if (workspaceSummaryNode instanceof HTMLElement) {
+          workspaceSummaryNode.textContent =
+            workspaceSummary ||
+            (workspaceRoutes.length
+              ? `Workspace imported with ${workspaceRoutes.length} saved route${workspaceRoutes.length === 1 ? '' : 's'}.`
+              : '');
+        }
+
+        if (workspaceRoutesNode instanceof HTMLElement) {
+          workspaceRoutesNode.innerHTML = '';
+
+          workspaceRoutes.forEach(route => {
+            const link = document.createElement('a');
+            link.className =
+              'rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm transition hover:border-white/20 hover:bg-white/[0.05]';
+            link.href = route.url;
+
+            const title = document.createElement('span');
+            title.className = 'tone-title block font-semibold';
+            title.textContent = route.title;
+
+            const meta = document.createElement('span');
+            meta.className =
+              'tone-muted mt-1 block text-[11px] uppercase tracking-[0.18em]';
+            meta.textContent = route.category;
+
+            link.append(title, meta);
+            workspaceRoutesNode.appendChild(link);
+          });
+        }
+      }
 
       const kickoffSubject = tradeLabel
         ? `New project inquiry — ${tradeLabel}`
@@ -578,6 +746,19 @@ const faqSchema = {
       }
       if (briefValue) {
         bodyLines.push(`Build brief: ${briefValue}`);
+      }
+      if (workspaceTitle) {
+        bodyLines.push(`Workspace title: ${workspaceTitle}`);
+      }
+      if (workspaceSummary) {
+        bodyLines.push(`Workspace summary: ${workspaceSummary}`);
+      }
+      if (workspaceRoutes.length) {
+        bodyLines.push(
+          `Workspace routes:\n${workspaceRoutes
+            .map(route => `- ${route.title} (${route.category})`)
+            .join('\n')}`
+        );
       }
 
       const mailtoParams = new URLSearchParams({ subject: kickoffSubject });

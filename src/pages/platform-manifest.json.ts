@@ -13,6 +13,26 @@ export async function GET() {
       name: 'Olive Global Systems',
       description:
         'Integrated trade platform across seven trade divisions, a premium design gallery, and retained digital systems.',
+      experienceModes: [
+        {
+          id: 'cinematic',
+          label: 'Cinematic',
+          intent:
+            'High-atmosphere default with stronger glow, depth, and exhibition energy.',
+        },
+        {
+          id: 'editorial',
+          label: 'Editorial',
+          intent:
+            'Calmer surface treatment with cleaner pacing and softer visual noise.',
+        },
+        {
+          id: 'blueprint',
+          label: 'Blueprint',
+          intent:
+            'Sharper technical framing with stronger grid language and systems emphasis.',
+        },
+      ],
     },
     routes: {
       home: '/',
@@ -61,6 +81,9 @@ export async function GET() {
         'service',
         'solution',
         'brief',
+        'workspaceTitle',
+        'workspaceSummary',
+        'workspaceRoutes',
       ],
     },
   };

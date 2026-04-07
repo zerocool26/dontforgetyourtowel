@@ -651,6 +651,43 @@ const initialItem = visibleItems[0];
     }
   }
 
+  :global(html[data-experience-mode='editorial']) .page-navigator__desktop,
+  :global(html[data-experience-mode='editorial']) .page-navigator__mobile {
+    border-color: rgba(255, 255, 255, 0.08);
+    background:
+      linear-gradient(180deg, rgba(10, 12, 18, 0.86), rgba(7, 9, 14, 0.8)),
+      rgba(5, 6, 10, 0.84);
+    box-shadow:
+      0 24px 64px -38px rgba(0, 0, 0, 0.88),
+      0 0 32px -28px color-mix(in srgb, var(--page-nav-accent) 18%, transparent);
+  }
+
+  :global(html[data-experience-mode='editorial']) .page-navigator__desktop {
+    border-radius: 1.85rem;
+  }
+
+  :global(html[data-experience-mode='blueprint']) .page-navigator__desktop,
+  :global(html[data-experience-mode='blueprint']) .page-navigator__mobile {
+    border-color: rgba(148, 163, 184, 0.18);
+    background:
+      linear-gradient(180deg, rgba(4, 12, 18, 0.94), rgba(4, 10, 16, 0.9)),
+      rgba(3, 8, 14, 0.92);
+    box-shadow:
+      0 28px 80px -42px rgba(0, 0, 0, 0.92),
+      0 0 0 1px rgba(148, 163, 184, 0.06);
+  }
+
+  :global(html[data-experience-mode='blueprint']) .page-navigator__desktop {
+    border-radius: 1rem;
+  }
+
+  :global(html[data-experience-mode='blueprint']) .page-navigator__eyebrow,
+  :global(html[data-experience-mode='blueprint']) .page-navigator__mobile-label,
+  :global(html[data-experience-mode='blueprint']) .page-navigator__index,
+  :global(html[data-experience-mode='blueprint']) .page-navigator__jump {
+    font-family: var(--font-mono);
+  }
+
   @media (max-width: 639px) {
     .page-navigator__mobile {
       left: 0.6rem;

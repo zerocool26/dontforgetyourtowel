@@ -67,6 +67,8 @@ const themeChrome = {
   corporate: '#f8fafc',
   terminal: '#041108',
 } as const;
+
+const defaultExperienceMode = 'cinematic';
 ---
 
 <!-- Global Metadata -->
@@ -134,6 +136,7 @@ const themeChrome = {
   define:vars={{
     themeStorageKey: THEME_CONFIG.storageKey,
     themeChrome,
+    defaultExperienceMode,
   }}
 >
   (function () {
@@ -167,6 +170,11 @@ const themeChrome = {
       }
 
       window.__theme = theme;
+
+      const savedExperienceMode =
+        localStorage.getItem('olive-experience-mode') || defaultExperienceMode;
+      root.dataset.experienceMode = savedExperienceMode;
+      window.__experienceMode = savedExperienceMode;
     } catch (error) {
       console.error('Theme initialization failed:', error);
     }

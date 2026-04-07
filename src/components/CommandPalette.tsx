@@ -23,7 +23,7 @@ import {
   type LucideIcon,
 } from 'lucide-preact';
 // Using our new utilities
-import { setTheme } from '../store/index';
+import { setExperienceMode, setTheme } from '../store/index';
 import { onKeyboardShortcut, type KeyboardShortcut } from '../utils/events';
 import { createFocusTrap, announce } from '../utils/a11y';
 import { get as httpGet } from '../utils/http';
@@ -31,6 +31,11 @@ import { withBasePath } from '../utils/helpers';
 import { isLegacyRouteUrl } from '../utils/legacy-routes';
 import { getRouteContext } from '../utils/route-context';
 import {
+  buildWorkspaceClipboardPayload,
+  buildWorkspaceContactHref,
+  buildWorkspaceDraft,
+  buildWorkspaceJsonPayload,
+  clearPinnedRoutes,
   readPinnedRoutes,
   readRecentRoutes,
   toNavigableRouteUrl,
@@ -456,6 +461,152 @@ export default function CommandPalette() {
         category: 'Actions',
         keywords: ['top', 'scroll', 'reset', 'page'],
         description: 'Move back to the start of the current route.',
+      },
+      {
+        id: 'mode-cinematic',
+        label: 'Direction: Cinematic',
+        icon: Layout,
+        action: () => setExperienceMode('cinematic'),
+        category: 'Actions',
+        keywords: ['mode', 'visual', 'cinematic', 'gallery', 'dramatic'],
+        description: 'Use the richest, most atmospheric surface treatment.',
+      },
+      {
+        id: 'mode-editorial',
+        label: 'Direction: Editorial',
+        icon: FileText,
+        action: () => setExperienceMode('editorial'),
+        category: 'Actions',
+        keywords: ['mode', 'visual', 'editorial', 'minimal', 'magazine'],
+        description: 'Soften the atmosphere and lean into cleaner composition.',
+      },
+      {
+        id: 'mode-blueprint',
+        label: 'Direction: Blueprint',
+        icon: Compass,
+        action: () => setExperienceMode('blueprint'),
+        category: 'Actions',
+        keywords: ['mode', 'visual', 'blueprint', 'technical', 'systems'],
+        description: 'Emphasize grids, structure, and engineering logic.',
+      },
+      {
+        id: 'action-send-saved-routes-to-intake',
+        label: 'Send saved routes to intake',
+        icon: FileText,
+        action: () => {
+          const items = readPinnedRoutes();
+          if (!items.length) {
+            announce('No saved routes available for intake', 'assertive');
+            return;
+          }
+          navigate(buildWorkspaceContactHref(items));
+        },
+        category: 'Actions',
+        keywords: ['saved', 'intake', 'brief', 'workspace'],
+        description: 'Route your saved workspace directly into project intake.',
+      },
+      {
+        id: 'action-open-saved-routes',
+        label: 'Open saved routes dock',
+        icon: Compass,
+        action: () => {
+          window.dispatchEvent(new CustomEvent('saved-routes-dock:open'));
+        },
+        category: 'Actions',
+        keywords: ['saved', 'pinned', 'dock', 'workspace'],
+        description: 'Open the persistent saved-routes workspace.',
+      },
+      {
+        id: 'action-export-saved-routes',
+        label: 'Export saved routes',
+        icon: Link2,
+        action: () => {
+          const items = readPinnedRoutes();
+          if (!items.length) {
+            announce('No saved routes available to export', 'assertive');
+            return;
+          }
+
+          const payload = items
+            ? buildWorkspaceClipboardPayload(items)
+            : '';
+
+          navigator.clipboard
+            ?.writeText(payload)
+            .then(() => announce('Saved routes copied', 'polite'))
+            .catch(() =>
+              announce('Unable to export saved routes', 'assertive')
+            );
+        },
+        category: 'Actions',
+        keywords: ['saved', 'export', 'copy', 'workspace'],
+        description: 'Copy your saved route set to the clipboard.',
+      },
+      {
+        id: 'action-copy-saved-workspace-brief',
+        label: 'Copy saved workspace brief',
+        icon: Link2,
+        action: () => {
+          const items = readPinnedRoutes();
+          if (!items.length) {
+            announce('No saved routes available to summarize', 'assertive');
+            return;
+          }
+
+          navigator.clipboard
+            ?.writeText(buildWorkspaceDraft(items).summary)
+            .then(() => announce('Saved workspace brief copied', 'polite'))
+            .catch(() =>
+              announce('Unable to copy the saved workspace brief', 'assertive')
+            );
+        },
+        category: 'Actions',
+        keywords: ['saved', 'brief', 'workspace', 'summary'],
+        description: 'Copy the concise saved-route project brief.',
+      },
+      {
+        id: 'action-download-saved-routes-json',
+        label: 'Download saved routes JSON',
+        icon: Link2,
+        action: () => {
+          const items = readPinnedRoutes();
+          if (!items.length) {
+            announce('No saved routes available to download', 'assertive');
+            return;
+          }
+
+          try {
+            const blob = new Blob([buildWorkspaceJsonPayload(items)], {
+              type: 'application/json;charset=utf-8',
+            });
+            const href = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = href;
+            link.download = 'olive-route-workspace.json';
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            URL.revokeObjectURL(href);
+            announce('Saved routes JSON downloaded', 'polite');
+          } catch {
+            announce('Unable to download saved routes JSON', 'assertive');
+          }
+        },
+        category: 'Actions',
+        keywords: ['saved', 'json', 'download', 'workspace'],
+        description: 'Download the saved-route workspace as JSON.',
+      },
+      {
+        id: 'action-clear-saved-routes',
+        label: 'Clear saved routes',
+        icon: X,
+        action: () => {
+          clearPinnedRoutes();
+          announce('Saved routes cleared', 'polite');
+        },
+        category: 'Actions',
+        keywords: ['saved', 'clear', 'remove', 'workspace'],
+        description: 'Remove the current saved route set.',
       },
     ];
 

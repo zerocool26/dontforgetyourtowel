@@ -120,6 +120,21 @@
     background-color: var(--color-background);
   }
 
+  html[data-experience-mode='cinematic'] {
+    --experience-grid-size: 28px;
+    --experience-noise-opacity: 0.04;
+  }
+
+  html[data-experience-mode='editorial'] {
+    --experience-grid-size: 40px;
+    --experience-noise-opacity: 0.018;
+  }
+
+  html[data-experience-mode='blueprint'] {
+    --experience-grid-size: 18px;
+    --experience-noise-opacity: 0.03;
+  }
+
   @supports (height: 100dvh) {
     :root {
       --viewport-height: 100dvh;
@@ -155,8 +170,8 @@
     background-size:
       100% 100%,
       100% 100%,
-      28px 28px,
-      28px 28px;
+      var(--experience-grid-size, 28px) var(--experience-grid-size, 28px),
+      var(--experience-grid-size, 28px) var(--experience-grid-size, 28px);
     background-position:
       center,
       center,
@@ -184,6 +199,54 @@
       color-mix(in srgb, var(--color-primary) 24%, transparent),
       transparent 62%
     );
+  }
+
+  html[data-experience-mode='editorial'] body {
+    background-image:
+      radial-gradient(
+        circle at 16% 10%,
+        color-mix(in srgb, var(--color-primary) 14%, transparent) 0%,
+        transparent 36%
+      ),
+      radial-gradient(
+        circle at 84% 18%,
+        color-mix(in srgb, var(--color-primary-strong) 14%, transparent) 0%,
+        transparent 38%
+      ),
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--color-border) 32%, transparent) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--color-border) 18%, transparent) 1px,
+        transparent 1px
+      );
+  }
+
+  html[data-experience-mode='blueprint'] body {
+    background-image:
+      radial-gradient(
+        circle at 14% 12%,
+        color-mix(in srgb, var(--color-primary) 18%, transparent) 0%,
+        transparent 34%
+      ),
+      radial-gradient(
+        circle at 86% 18%,
+        color-mix(in srgb, #38bdf8 18%, transparent) 0%,
+        transparent 34%
+      ),
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, #94a3b8 22%, transparent) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        90deg,
+        color-mix(in srgb, #94a3b8 18%, transparent) 1px,
+        transparent 1px
+      );
   }
 
   /* When the mobile menu is open, prevent background scroll (JS sets fixed positioning). */
@@ -298,9 +361,19 @@
     z-index: 9999;
     pointer-events: none;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-    opacity: 0.04;
+    opacity: var(--experience-noise-opacity, 0.04);
     mix-blend-mode: overlay;
     animation: shift-noise 8s steps(10) infinite;
+  }
+
+  html[data-experience-mode='editorial'] .creative-noise {
+    mix-blend-mode: soft-light;
+    animation-duration: 14s;
+  }
+
+  html[data-experience-mode='blueprint'] .creative-noise {
+    mix-blend-mode: soft-light;
+    animation-duration: 10s;
   }
 
   @keyframes shift-noise {
@@ -636,6 +709,44 @@
       );
   }
 
+  html[data-experience-mode='editorial'] .creative-page::before {
+    opacity: 0.1;
+    background-size: 110px 110px;
+  }
+
+  html[data-experience-mode='editorial'] .creative-page::after {
+    opacity: 0.26;
+    filter: saturate(0.82);
+  }
+
+  html[data-experience-mode='blueprint'] .creative-page::before {
+    opacity: 0.24;
+    background-size: 48px 48px;
+    background-image:
+      linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
+  }
+
+  html[data-experience-mode='blueprint'] .creative-page::after {
+    opacity: 0.18;
+    background-image:
+      radial-gradient(
+        circle at 15% 35%,
+        rgba(56, 189, 248, 0.18),
+        transparent 30%
+      ),
+      radial-gradient(
+        circle at 85% 20%,
+        rgba(204, 255, 0, 0.08),
+        transparent 20%
+      ),
+      radial-gradient(
+        circle at 48% 42%,
+        rgba(255, 255, 255, 0.024),
+        transparent 18%
+      );
+  }
+
   .creative-hero-shell {
     position: relative;
     overflow: hidden;
@@ -697,6 +808,46 @@
       inset 0 1px 1px rgba(255, 255, 255, 0.08),
       0 40px 120px -38px rgba(0, 0, 0, 0.95),
       0 0 80px -24px rgba(204, 255, 0, 0.08);
+  }
+
+  html[data-experience-mode='editorial'] .creative-hero-shell,
+  html[data-experience-mode='editorial'] .creative-panel,
+  html[data-experience-mode='editorial'] .creative-section-shell {
+    border-radius: 1.75rem;
+    backdrop-filter: blur(28px);
+  }
+
+  html[data-experience-mode='editorial'] .creative-panel:hover {
+    transform: translateY(-2px);
+  }
+
+  html[data-experience-mode='blueprint'] .creative-hero-shell,
+  html[data-experience-mode='blueprint'] .creative-panel,
+  html[data-experience-mode='blueprint'] .creative-section-shell {
+    border-radius: 1rem;
+    border-color: rgba(148, 163, 184, 0.12);
+    background:
+      linear-gradient(
+        165deg,
+        rgba(255, 255, 255, 0.04),
+        rgba(255, 255, 255, 0)
+      ),
+      rgba(3, 8, 14, 0.84);
+  }
+
+  html[data-experience-mode='blueprint'] .creative-kicker,
+  html[data-experience-mode='blueprint'] .creative-chip,
+  html[data-experience-mode='blueprint'] .gallery-tag {
+    border-color: rgba(148, 163, 184, 0.22);
+    background: rgba(8, 18, 28, 0.84);
+    color: rgba(226, 232, 240, 0.86);
+  }
+
+  html[data-experience-mode='blueprint'] .creative-gradient-text--accent {
+    background: linear-gradient(135deg, #d9f99d 0%, #7dd3fc 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 
   .creative-panel {

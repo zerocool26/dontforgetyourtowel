@@ -100,6 +100,22 @@ const routeContext = getRouteContext(Astro.url.pathname);
           Save standout routes here to build your own cross-site shortlist.
         </p>
       </div>
+      <div class="route-atlas__workspace-actions">
+        <button
+          type="button"
+          class="route-atlas__action"
+          data-route-atlas-workspace-brief
+        >
+          Brief saved set
+        </button>
+        <button
+          type="button"
+          class="route-atlas__action"
+          data-route-atlas-workspace-copy
+        >
+          Copy workspace
+        </button>
+      </div>
     </div>
 
     <div class="route-atlas__panel">
@@ -126,6 +142,8 @@ const routeContext = getRouteContext(Astro.url.pathname);
 
 <script>
   import {
+    buildWorkspaceClipboardPayload,
+    buildWorkspaceContactHref,
     clearRecentRoutes,
     clearPinnedRoutes,
     isPinnedRoute,
@@ -174,6 +192,12 @@ const routeContext = getRouteContext(Astro.url.pathname);
     ) as HTMLButtonElement | null;
     const clearPinsButton = root.querySelector(
       '[data-route-atlas-clear-pins]'
+    ) as HTMLButtonElement | null;
+    const workspaceBriefButton = root.querySelector(
+      '[data-route-atlas-workspace-brief]'
+    ) as HTMLButtonElement | null;
+    const workspaceCopyButton = root.querySelector(
+      '[data-route-atlas-workspace-copy]'
     ) as HTMLButtonElement | null;
     const pinCurrentButton = root.querySelector(
       '[data-route-atlas-pin-current]'
@@ -353,6 +377,30 @@ const routeContext = getRouteContext(Astro.url.pathname);
       renderPins();
     };
 
+    const handleWorkspaceBrief = () => {
+      const items = readPinnedRoutes();
+      if (!items.length) return;
+      window.location.href = buildWorkspaceContactHref(items);
+    };
+
+    const handleWorkspaceCopy = async () => {
+      const items = readPinnedRoutes();
+      if (!items.length || !workspaceCopyButton) return;
+
+      try {
+        await navigator.clipboard.writeText(
+          buildWorkspaceClipboardPayload(items)
+        );
+        workspaceCopyButton.textContent = 'Copied';
+      } catch {
+        workspaceCopyButton.textContent = 'Unavailable';
+      }
+
+      window.setTimeout(() => {
+        workspaceCopyButton.textContent = 'Copy workspace';
+      }, 1200);
+    };
+
     pushRecentRoute(currentRoute);
     renderHistory();
     renderPins();
@@ -361,6 +409,8 @@ const routeContext = getRouteContext(Astro.url.pathname);
     clearPinsButton?.addEventListener('click', handleClearPins);
     pinCurrentButton?.addEventListener('click', handlePinCurrent);
     copyCurrentButton?.addEventListener('click', handleCopyCurrent);
+    workspaceBriefButton?.addEventListener('click', handleWorkspaceBrief);
+    workspaceCopyButton?.addEventListener('click', handleWorkspaceCopy);
     pinLinkButtons.forEach(button => {
       button.addEventListener('click', handlePinSuggestion);
     });
@@ -372,6 +422,8 @@ const routeContext = getRouteContext(Astro.url.pathname);
       clearPinsButton?.removeEventListener('click', handleClearPins);
       pinCurrentButton?.removeEventListener('click', handlePinCurrent);
       copyCurrentButton?.removeEventListener('click', handleCopyCurrent);
+      workspaceBriefButton?.removeEventListener('click', handleWorkspaceBrief);
+      workspaceCopyButton?.removeEventListener('click', handleWorkspaceCopy);
       pinLinkButtons.forEach(button => {
         button.removeEventListener('click', handlePinSuggestion);
       });
@@ -582,6 +634,13 @@ const routeContext = getRouteContext(Astro.url.pathname);
   .route-atlas__history {
     display: grid;
     gap: 0.7rem;
+  }
+
+  .route-atlas__workspace-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin-top: 0.85rem;
   }
 
   .route-atlas__link-shell,
