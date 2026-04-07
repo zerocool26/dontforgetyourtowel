@@ -3,6 +3,7 @@ import MarketingLayout from '../../../layouts/MarketingLayout.astro';
 import StructuredData from '../../../components/StructuredData.astro';
 import ModernButton from '../../../components/ui/ModernButton.astro';
 import ModernCard from '../../../components/ui/ModernCard.astro';
+import TradePhaseStudio from '../../../components/business/TradePhaseStudio.astro';
 import {
   tradeProfiles,
   getTradeSubpage,
@@ -33,6 +34,25 @@ const siblingSubpages = trade.subpages.filter(
 const resolvedSubpage = getTradeSubpage(trade.slug, subpage.slug) ?? subpage;
 const tradeVisual = getTradeVisual(trade.slug);
 const subpageOperations = getTradeSubpageOperations(trade.slug, subpage.slug);
+const routeExecutionPhases = subpageOperations
+  ? [
+      {
+        title: 'Required inputs',
+        items: subpageOperations.requiredInputs,
+        summary: subpageOperations.requiredInputs[0],
+      },
+      {
+        title: 'Field checklist',
+        items: subpageOperations.fieldChecklist,
+        summary: subpageOperations.fieldChecklist[0],
+      },
+      {
+        title: 'Owner deliverables',
+        items: subpageOperations.ownerDeliverables,
+        summary: subpageOperations.ownerDeliverables[0],
+      },
+    ]
+  : [];
 const subpageHref = withBasePath(`trades/${trade.slug}/${subpage.slug}/`);
 const subpageIntakeHref = `${withBasePath('contact-hq/')}?trade=${encodeURIComponent(trade.slug)}&tradePage=${encodeURIComponent(resolvedSubpage.title)}`;
 const subpageBreadcrumbItems = [
@@ -289,65 +309,17 @@ const pageNavigator = {
             </div>
           </ModernCard>
 
-          <ModernCard
-            variant="minimal"
-            className="creative-panel trade-subpage-aside p-6"
-          >
-            <p class="creative-kicker">Required inputs</p>
-            <ul class="tone-body mt-4 space-y-3 text-sm">
-              {
-                (subpageOperations?.requiredInputs ?? []).map(item => (
-                  <li class="flex items-start gap-3">
-                    <span
-                      class="mt-2 h-2 w-2 flex-shrink-0 rounded-full"
-                      style={`background:${trade.accent};`}
-                    />
-                    <span>{item}</span>
-                  </li>
-                ))
-              }
-            </ul>
-          </ModernCard>
-
-          <ModernCard
-            variant="minimal"
-            className="creative-panel trade-subpage-aside p-6"
-          >
-            <p class="creative-kicker">Field checklist</p>
-            <ul class="tone-body mt-4 space-y-3 text-sm">
-              {
-                (subpageOperations?.fieldChecklist ?? []).map(item => (
-                  <li class="flex items-start gap-3">
-                    <span
-                      class="mt-2 h-2 w-2 flex-shrink-0 rounded-full"
-                      style={`background:${trade.accent};`}
-                    />
-                    <span>{item}</span>
-                  </li>
-                ))
-              }
-            </ul>
-          </ModernCard>
-
-          <ModernCard
-            variant="minimal"
-            className="creative-panel trade-subpage-aside p-6"
-          >
-            <p class="creative-kicker">Owner deliverables</p>
-            <ul class="tone-body mt-4 space-y-3 text-sm">
-              {
-                (subpageOperations?.ownerDeliverables ?? []).map(item => (
-                  <li class="flex items-start gap-3">
-                    <span
-                      class="mt-2 h-2 w-2 flex-shrink-0 rounded-full"
-                      style={`background:${trade.accent};`}
-                    />
-                    <span>{item}</span>
-                  </li>
-                ))
-              }
-            </ul>
-          </ModernCard>
+          {
+            routeExecutionPhases.length ? (
+              <TradePhaseStudio
+                eyebrow={`${trade.shortName} Route Logic`}
+                title="Execution lens"
+                description={`${resolvedSubpage.callout.note} The route keeps the intake, field control, and owner handoff sequence visible in one surface.`}
+                accent={trade.accent}
+                phases={routeExecutionPhases}
+              />
+            ) : null
+          }
         </div>
       </div>
     </div>

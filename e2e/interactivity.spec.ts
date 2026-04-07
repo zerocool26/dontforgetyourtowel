@@ -194,4 +194,33 @@ test.describe('Interactivity Features', () => {
       );
     });
   });
+
+  test.describe('Trade execution boards', () => {
+    test('should switch the focused execution lane on trade routes', async ({
+      page,
+    }) => {
+      await page.goto('trades/mechanical/retrofit-delivery/');
+      await page.waitForLoadState('domcontentloaded');
+
+      const phaseStudio = page.locator('[data-phase-studio]').last();
+      await expect(phaseStudio).toBeVisible();
+
+      await expect(
+        phaseStudio.locator('[data-phase-studio-status-title]')
+      ).toContainText(/required inputs/i);
+
+      await phaseStudio
+        .getByRole('button', { name: /field checklist/i })
+        .click();
+
+      await expect(
+        phaseStudio.locator('[data-phase-studio-status-title]')
+      ).toContainText(/field checklist/i);
+      await expect(
+        phaseStudio.locator(
+          '[data-phase-studio-card][data-phase-key="field-checklist"]'
+        )
+      ).toHaveAttribute('data-state', 'active');
+    });
+  });
 });

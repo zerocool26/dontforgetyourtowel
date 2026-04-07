@@ -3,6 +3,7 @@ import MarketingLayout from '../../../layouts/MarketingLayout.astro';
 import StructuredData from '../../../components/StructuredData.astro';
 import ModernButton from '../../../components/ui/ModernButton.astro';
 import ModernCard from '../../../components/ui/ModernCard.astro';
+import TradePhaseStudio from '../../../components/business/TradePhaseStudio.astro';
 import { servicesExtended } from '../../../data/services-extended';
 import { tradeProfiles, type TradeProfile } from '../../../data/trades';
 import { getTradeVisual } from '../../../data/trade-visuals';
@@ -23,6 +24,11 @@ const techCategories = Array.from(
 const tradeHref = withBasePath(`trades/${trade.slug}/`);
 const tradeVisual = getTradeVisual(trade.slug);
 const tradeOperations = getTradeOperations(trade.slug);
+const overviewPhases = tradeOperations.setupGroups.map(group => ({
+  title: group.title,
+  items: group.items,
+  summary: group.items[0],
+}));
 const tradeIntakeHref = `${withBasePath('contact-hq/')}?trade=${encodeURIComponent(trade.slug)}&tradePage=${encodeURIComponent(`${trade.name} overview`)}`;
 const tradeBreadcrumbItems = [
   {
@@ -247,34 +253,13 @@ const pageNavigator = {
         </ModernCard>
 
         <div class="grid gap-5">
-          <ModernCard
-            variant="minimal"
-            className="creative-panel trade-side-panel p-6"
-          >
-            <p class="creative-kicker">Operational setup</p>
-            <div class="mt-5 grid gap-4">
-              {
-                tradeOperations.setupGroups.map(group => (
-                  <div class="trade-detail-card rounded-3xl border border-white/10 bg-white/[0.02] p-5">
-                    <p class="tone-title text-base font-semibold">
-                      {group.title}
-                    </p>
-                    <ul class="tone-body mt-3 space-y-2 text-sm">
-                      {group.items.map(item => (
-                        <li class="flex items-start gap-2">
-                          <span
-                            class="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full"
-                            style={`background:${trade.accent};`}
-                          />
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))
-              }
-            </div>
-          </ModernCard>
+          <TradePhaseStudio
+            eyebrow={`${trade.shortName} Sequence`}
+            title="Execution board"
+            description={`${tradeOperations.operatingModel}. ${tradeOperations.projectWindow}.`}
+            accent={trade.accent}
+            phases={overviewPhases}
+          />
 
           <ModernCard
             variant="minimal"
