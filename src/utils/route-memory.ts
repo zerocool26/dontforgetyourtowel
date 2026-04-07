@@ -11,7 +11,9 @@ export interface RecentRoute {
 }
 
 export const ROUTE_MEMORY_STORAGE_KEY = 'olive-recent-routes';
+export const ROUTE_PIN_STORAGE_KEY = 'olive-pinned-routes';
 const MAX_RECENT_ROUTES = 6;
+const MAX_PINNED_ROUTES = 8;
 
 const stripBasePath = (value: string): string => {
   const pathname = value || '/';
@@ -74,6 +76,22 @@ export const readRecentRoutes = (): RecentRoute[] => {
     .sort((a, b) => b.timestamp - a.timestamp);
 };
 
+export const readPinnedRoutes = (): RecentRoute[] => {
+  const items = getLocalStorage<RecentRoute[]>(ROUTE_PIN_STORAGE_KEY, []);
+  if (!Array.isArray(items)) return [];
+
+  return items
+    .filter(
+      item =>
+        item &&
+        typeof item.url === 'string' &&
+        typeof item.title === 'string' &&
+        typeof item.description === 'string' &&
+        typeof item.category === 'string'
+    )
+    .sort((a, b) => b.timestamp - a.timestamp);
+};
+
 export const pushRecentRoute = (
   route: Omit<RecentRoute, 'timestamp'> & { timestamp?: number }
 ): void => {
@@ -101,4 +119,61 @@ export const clearRecentRoutes = (): void => {
   if (typeof window === 'undefined') return;
   setLocalStorage<RecentRoute[]>(ROUTE_MEMORY_STORAGE_KEY, []);
   window.dispatchEvent(new CustomEvent('olive:route-memory-updated'));
+};
+
+export const isPinnedRoute = (url: string): boolean => {
+  const normalizedUrl = normalizeRouteUrl(url);
+  return readPinnedRoutes().some(item => item.url === normalizedUrl);
+};
+
+export const pinRoute = (
+  route: Omit<RecentRoute, 'timestamp'> & { timestamp?: number }
+): void => {
+  if (typeof window === 'undefined') return;
+
+  const normalizedUrl = normalizeRouteUrl(route.url);
+  if (!isTrackableRoute(normalizedUrl)) return;
+
+  const nextEntry: RecentRoute = {
+    ...route,
+    url: normalizedUrl,
+    timestamp: route.timestamp ?? Date.now(),
+  };
+
+  const nextItems = [
+    nextEntry,
+    ...readPinnedRoutes().filter(item => item.url !== normalizedUrl),
+  ].slice(0, MAX_PINNED_ROUTES);
+
+  setLocalStorage(ROUTE_PIN_STORAGE_KEY, nextItems);
+  window.dispatchEvent(new CustomEvent('olive:route-pins-updated'));
+};
+
+export const unpinRoute = (url: string): void => {
+  if (typeof window === 'undefined') return;
+
+  const normalizedUrl = normalizeRouteUrl(url);
+  const nextItems = readPinnedRoutes().filter(
+    item => item.url !== normalizedUrl
+  );
+  setLocalStorage(ROUTE_PIN_STORAGE_KEY, nextItems);
+  window.dispatchEvent(new CustomEvent('olive:route-pins-updated'));
+};
+
+export const togglePinnedRoute = (
+  route: Omit<RecentRoute, 'timestamp'> & { timestamp?: number }
+): boolean => {
+  if (isPinnedRoute(route.url)) {
+    unpinRoute(route.url);
+    return false;
+  }
+
+  pinRoute(route);
+  return true;
+};
+
+export const clearPinnedRoutes = (): void => {
+  if (typeof window === 'undefined') return;
+  setLocalStorage<RecentRoute[]>(ROUTE_PIN_STORAGE_KEY, []);
+  window.dispatchEvent(new CustomEvent('olive:route-pins-updated'));
 };

@@ -30,7 +30,17 @@ const initialItem = visibleItems[0];
         data-page-nav-shell
         data-state="hidden"
       >
-        <p class="page-navigator__eyebrow">{label}</p>
+        <div class="page-navigator__meta">
+          <p class="page-navigator__eyebrow">{label}</p>
+          <div class="page-navigator__stats">
+            <span class="page-navigator__stat" data-page-nav-step>
+              01 / 01
+            </span>
+            <span class="page-navigator__stat" data-page-nav-percent>
+              0%
+            </span>
+          </div>
+        </div>
         <div class="page-navigator__track" aria-hidden="true">
           <span class="page-navigator__track-fill" data-page-nav-progress />
         </div>
@@ -41,6 +51,8 @@ const initialItem = visibleItems[0];
               class={`page-navigator__link ${index === 0 ? 'is-active' : ''}`}
               data-page-nav-link
               data-page-nav-target={item.id}
+              data-page-nav-label={item.label}
+              data-page-nav-short-label={item.shortLabel ?? item.label}
               aria-current={index === 0 ? 'location' : undefined}
             >
               <span class="page-navigator__index">
@@ -61,10 +73,20 @@ const initialItem = visibleItems[0];
         data-state="hidden"
       >
         <div class="page-navigator__mobile-meta">
-          <p class="page-navigator__mobile-label">{label}</p>
-          <p class="page-navigator__mobile-current" data-page-nav-current>
-            {initialItem?.shortLabel ?? initialItem?.label}
-          </p>
+          <div class="page-navigator__mobile-copy">
+            <p class="page-navigator__mobile-label">{label}</p>
+            <p class="page-navigator__mobile-current" data-page-nav-current>
+              {initialItem?.shortLabel ?? initialItem?.label}
+            </p>
+          </div>
+          <div class="page-navigator__stats">
+            <span class="page-navigator__stat" data-page-nav-step>
+              01 / 01
+            </span>
+            <span class="page-navigator__stat" data-page-nav-percent>
+              0%
+            </span>
+          </div>
         </div>
         <div
           class="page-navigator__track page-navigator__track--mobile"
@@ -79,12 +101,17 @@ const initialItem = visibleItems[0];
               class={`page-navigator__pill ${index === 0 ? 'is-active' : ''}`}
               data-page-nav-link
               data-page-nav-target={item.id}
+              data-page-nav-label={item.label}
+              data-page-nav-short-label={item.shortLabel ?? item.label}
               aria-current={index === 0 ? 'location' : undefined}
             >
               {item.shortLabel ?? item.label}
             </a>
           ))}
         </div>
+        <button type="button" class="page-navigator__top" data-page-nav-top>
+          Back to top
+        </button>
       </div>
     </aside>
   ) : null
@@ -92,11 +119,15 @@ const initialItem = visibleItems[0];
 
 <script is:inline>
   (() => {
+    const globalScope = window;
+
     const initPageNavigator = () => {
+      if (typeof globalScope.__pageNavigatorCleanup === 'function') {
+        globalScope.__pageNavigatorCleanup();
+      }
+
       const root = document.querySelector('[data-page-navigator]');
       if (!(root instanceof HTMLElement)) return;
-      if (root.dataset.bound === '1') return;
-      root.dataset.bound = '1';
 
       const links = Array.from(
         root.querySelectorAll('[data-page-nav-link]')
@@ -112,6 +143,15 @@ const initialItem = visibleItems[0];
       const currentLabel = root.querySelector(
         '[data-page-nav-current]'
       ) as HTMLElement | null;
+      const stepIndicators = Array.from(
+        root.querySelectorAll('[data-page-nav-step]')
+      ).filter((node): node is HTMLElement => node instanceof HTMLElement);
+      const percentIndicators = Array.from(
+        root.querySelectorAll('[data-page-nav-percent]')
+      ).filter((node): node is HTMLElement => node instanceof HTMLElement);
+      const topButton = root.querySelector(
+        '[data-page-nav-top]'
+      ) as HTMLButtonElement | null;
 
       const getSections = () =>
         links
@@ -132,6 +172,20 @@ const initialItem = visibleItems[0];
 
       let sections = getSections();
       let ticking = false;
+      let observer: IntersectionObserver | null = null;
+
+      const syncStats = (activeIndex: number, ratio: number) => {
+        const stepText = `${(activeIndex + 1).toString().padStart(2, '0')} / ${sections.length.toString().padStart(2, '0')}`;
+        const percentText = `${Math.round(ratio * 100)}%`;
+
+        stepIndicators.forEach(node => {
+          node.textContent = stepText;
+        });
+
+        percentIndicators.forEach(node => {
+          node.textContent = percentText;
+        });
+      };
 
       const setActive = (activeId: string) => {
         links.forEach(link => {
@@ -154,6 +208,7 @@ const initialItem = visibleItems[0];
         progressBars.forEach(bar => {
           bar.style.transform = `scaleX(${Math.max(ratio, 0.06)})`;
         });
+        syncStats(activeIndex, ratio);
 
         const activeMobileLink = links.find(
           link =>
@@ -164,6 +219,11 @@ const initialItem = visibleItems[0];
         if (currentLabel && activeMobileLink) {
           currentLabel.textContent = activeMobileLink.textContent?.trim() || '';
         }
+
+        activeMobileLink?.scrollIntoView({
+          block: 'nearest',
+          inline: 'center',
+        });
       };
 
       const updateVisibility = () => {
@@ -190,11 +250,34 @@ const initialItem = visibleItems[0];
         setActive(activeSection.id);
       };
 
+      const updateScrollProgress = () => {
+        if (!sections.length) return;
+
+        const first = sections[0]?.element;
+        const last = sections[sections.length - 1]?.element;
+        if (!first || !last) return;
+
+        const start = Math.max(first.offsetTop - window.innerHeight * 0.28, 0);
+        const end = Math.max(
+          last.offsetTop + last.offsetHeight - window.innerHeight * 0.62,
+          start + 1
+        );
+        const ratio = Math.min(
+          Math.max((window.scrollY - start) / (end - start), 0),
+          1
+        );
+
+        percentIndicators.forEach(node => {
+          node.textContent = `${Math.round(ratio * 100)}%`;
+        });
+      };
+
       const refresh = () => {
         sections = getSections();
         if (!sections.length) return;
         updateVisibility();
         updateActiveSection();
+        updateScrollProgress();
       };
 
       const onScroll = () => {
@@ -203,9 +286,50 @@ const initialItem = visibleItems[0];
         window.requestAnimationFrame(() => {
           updateVisibility();
           updateActiveSection();
+          updateScrollProgress();
           ticking = false;
         });
       };
+
+      const handleTop = () => {
+        const prefersReducedMotion = window.matchMedia(
+          '(prefers-reduced-motion: reduce)'
+        ).matches;
+        window.scrollTo({
+          top: 0,
+          behavior: prefersReducedMotion ? 'auto' : 'smooth',
+        });
+      };
+
+      if ('IntersectionObserver' in window) {
+        observer = new IntersectionObserver(
+          entries => {
+            const visibleEntries = entries
+              .filter(entry => entry.isIntersecting)
+              .sort(
+                (a, b) =>
+                  Math.abs(a.boundingClientRect.top) -
+                  Math.abs(b.boundingClientRect.top)
+              );
+
+            const closest = visibleEntries[0];
+            if (!closest) return;
+
+            const activeSection = sections.find(
+              section => section.element === closest.target
+            );
+            if (activeSection) {
+              setActive(activeSection.id);
+            }
+          },
+          {
+            rootMargin: '-20% 0px -55% 0px',
+            threshold: [0.2, 0.45, 0.7],
+          }
+        );
+
+        sections.forEach(section => observer?.observe(section.element));
+      }
 
       links.forEach(link => {
         link.addEventListener('click', () => {
@@ -215,8 +339,15 @@ const initialItem = visibleItems[0];
         });
       });
 
+      topButton?.addEventListener('click', handleTop);
       window.addEventListener('scroll', onScroll, { passive: true });
       window.addEventListener('resize', refresh);
+      globalScope.__pageNavigatorCleanup = () => {
+        observer?.disconnect();
+        topButton?.removeEventListener('click', handleTop);
+        window.removeEventListener('scroll', onScroll);
+        window.removeEventListener('resize', refresh);
+      };
       refresh();
     };
 
@@ -280,6 +411,14 @@ const initialItem = visibleItems[0];
     padding: 1rem;
   }
 
+  .page-navigator__meta,
+  .page-navigator__stats {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.85rem;
+  }
+
   .page-navigator__eyebrow,
   .page-navigator__mobile-label {
     margin: 0;
@@ -288,6 +427,28 @@ const initialItem = visibleItems[0];
     letter-spacing: 0.22em;
     text-transform: uppercase;
     color: rgba(255, 255, 255, 0.52);
+  }
+
+  .page-navigator__stats {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .page-navigator__stat {
+    border-radius: 999px;
+    border: 1px solid
+      color-mix(in srgb, var(--page-nav-accent) 18%, rgba(255, 255, 255, 0.08));
+    background: color-mix(
+      in srgb,
+      var(--page-nav-accent) 8%,
+      rgba(255, 255, 255, 0.02)
+    );
+    padding: 0.28rem 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.72);
   }
 
   .page-navigator__track {
@@ -396,6 +557,10 @@ const initialItem = visibleItems[0];
     gap: 0.8rem;
   }
 
+  .page-navigator__mobile-copy {
+    min-width: 0;
+  }
+
   .page-navigator__mobile-current {
     margin: 0;
     color: rgba(255, 255, 255, 0.86);
@@ -412,6 +577,38 @@ const initialItem = visibleItems[0];
     gap: 0.55rem;
     overflow-x: auto;
     padding-bottom: 0.1rem;
+  }
+
+  .page-navigator__top {
+    margin-top: 0.8rem;
+    width: 100%;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
+    padding: 0.6rem 0.85rem;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.72);
+    transition:
+      border-color 180ms ease,
+      background-color 180ms ease,
+      color 180ms ease;
+  }
+
+  .page-navigator__top:hover {
+    border-color: color-mix(
+      in srgb,
+      var(--page-nav-accent) 24%,
+      rgba(255, 255, 255, 0.08)
+    );
+    background: color-mix(
+      in srgb,
+      var(--page-nav-accent) 10%,
+      rgba(255, 255, 255, 0.03)
+    );
+    color: rgba(255, 255, 255, 0.94);
   }
 
   .page-navigator__pill {

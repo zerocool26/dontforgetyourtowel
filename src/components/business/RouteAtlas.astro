@@ -30,6 +30,22 @@ const routeContext = getRouteContext(Astro.url.pathname);
         {routeContext.currentDescription}
       </p>
       <span class="route-atlas__badge">{routeContext.currentCategory}</span>
+      <div class="route-atlas__actions">
+        <button
+          type="button"
+          class="route-atlas__action"
+          data-route-atlas-pin-current
+        >
+          Save route
+        </button>
+        <button
+          type="button"
+          class="route-atlas__action"
+          data-route-atlas-copy-current
+        >
+          Copy link
+        </button>
+      </div>
     </div>
   </div>
 
@@ -42,12 +58,47 @@ const routeContext = getRouteContext(Astro.url.pathname);
       <div class="route-atlas__links">
         {
           routeContext.suggestions.map(link => (
-            <a class="route-atlas__link" href={link.href}>
-              <span class="route-atlas__link-title">{link.label}</span>
-              <span class="route-atlas__link-copy">{link.detail}</span>
-            </a>
+            <div class="route-atlas__link-shell">
+              <a class="route-atlas__link" href={link.href}>
+                <span class="route-atlas__link-title">{link.label}</span>
+                <span class="route-atlas__link-copy">{link.detail}</span>
+              </a>
+              <button
+                type="button"
+                class="route-atlas__save-link"
+                data-route-atlas-pin-link={link.href}
+                data-route-atlas-pin-title={link.label}
+                data-route-atlas-pin-description={link.detail}
+                data-route-atlas-pin-category="Suggested Route"
+                aria-label={`Save ${link.label}`}
+              >
+                Save
+              </button>
+            </div>
           ))
         }
+      </div>
+    </div>
+
+    <div class="route-atlas__panel">
+      <div class="route-atlas__panel-head">
+        <p class="route-atlas__label">Saved routes</p>
+        <button
+          type="button"
+          class="route-atlas__clear"
+          data-route-atlas-clear-pins
+          hidden
+        >
+          Clear saved
+        </button>
+      </div>
+      <div
+        class="route-atlas__history route-atlas__history--pinned"
+        data-route-atlas-pins
+      >
+        <p class="route-atlas__empty" data-route-atlas-pins-empty>
+          Save standout routes here to build your own cross-site shortlist.
+        </p>
       </div>
     </div>
 
@@ -60,7 +111,7 @@ const routeContext = getRouteContext(Astro.url.pathname);
           data-route-atlas-clear
           hidden
         >
-          Clear
+          Clear recent
         </button>
       </div>
       <div class="route-atlas__history" data-route-atlas-history>
@@ -76,9 +127,15 @@ const routeContext = getRouteContext(Astro.url.pathname);
 <script>
   import {
     clearRecentRoutes,
+    clearPinnedRoutes,
+    isPinnedRoute,
+    pinRoute,
     pushRecentRoute,
+    readPinnedRoutes,
     readRecentRoutes,
+    togglePinnedRoute,
     toNavigableRouteUrl,
+    unpinRoute,
   } from '../../utils/route-memory';
 
   declare global {
@@ -103,12 +160,37 @@ const routeContext = getRouteContext(Astro.url.pathname);
     const historyTarget = root.querySelector(
       '[data-route-atlas-history]'
     ) as HTMLElement | null;
+    const pinsTarget = root.querySelector(
+      '[data-route-atlas-pins]'
+    ) as HTMLElement | null;
     const emptyTarget = root.querySelector(
       '[data-route-atlas-empty]'
+    ) as HTMLElement | null;
+    const pinsEmptyTarget = root.querySelector(
+      '[data-route-atlas-pins-empty]'
     ) as HTMLElement | null;
     const clearButton = root.querySelector(
       '[data-route-atlas-clear]'
     ) as HTMLButtonElement | null;
+    const clearPinsButton = root.querySelector(
+      '[data-route-atlas-clear-pins]'
+    ) as HTMLButtonElement | null;
+    const pinCurrentButton = root.querySelector(
+      '[data-route-atlas-pin-current]'
+    ) as HTMLButtonElement | null;
+    const copyCurrentButton = root.querySelector(
+      '[data-route-atlas-copy-current]'
+    ) as HTMLButtonElement | null;
+    const pinLinkButtons = Array.from(
+      root.querySelectorAll<HTMLElement>('[data-route-atlas-pin-link]')
+    );
+
+    const syncPinButton = () => {
+      if (!pinCurrentButton) return;
+      const pinned = isPinnedRoute(currentRoute.url);
+      pinCurrentButton.textContent = pinned ? 'Saved route' : 'Save route';
+      pinCurrentButton.dataset.pinned = pinned ? 'true' : 'false';
+    };
 
     const renderHistory = () => {
       if (!historyTarget) return;
@@ -157,20 +239,144 @@ const routeContext = getRouteContext(Astro.url.pathname);
       if (clearButton) clearButton.hidden = false;
     };
 
+    const renderPins = () => {
+      if (!pinsTarget) return;
+
+      const items = readPinnedRoutes().slice(0, 4);
+      pinsTarget.innerHTML = '';
+
+      if (!items.length) {
+        if (pinsEmptyTarget) {
+          pinsTarget.appendChild(pinsEmptyTarget);
+        } else {
+          const placeholder = document.createElement('p');
+          placeholder.className = 'route-atlas__empty';
+          placeholder.textContent =
+            'Save standout routes to return to them quickly.';
+          pinsTarget.appendChild(placeholder);
+        }
+        if (clearPinsButton) clearPinsButton.hidden = true;
+        syncPinButton();
+        return;
+      }
+
+      items.forEach(item => {
+        const shell = document.createElement('div');
+        shell.className = 'route-atlas__saved-shell';
+
+        const link = document.createElement('a');
+        link.className = 'route-atlas__history-item';
+        link.href = toNavigableRouteUrl(item.url);
+
+        const title = document.createElement('span');
+        title.className = 'route-atlas__history-title';
+        title.textContent = item.title;
+
+        const meta = document.createElement('span');
+        meta.className = 'route-atlas__history-meta';
+        meta.textContent = item.category;
+
+        const copy = document.createElement('span');
+        copy.className = 'route-atlas__history-copy';
+        copy.textContent = item.description;
+
+        const removeButton = document.createElement('button');
+        removeButton.type = 'button';
+        removeButton.className = 'route-atlas__remove-link';
+        removeButton.textContent = 'Remove';
+        removeButton.addEventListener('click', () => {
+          unpinRoute(item.url);
+          renderPins();
+        });
+
+        link.append(title, meta, copy);
+        shell.append(link, removeButton);
+        pinsTarget.appendChild(shell);
+      });
+
+      if (clearPinsButton) clearPinsButton.hidden = false;
+      syncPinButton();
+    };
+
     const handleClear = () => {
       clearRecentRoutes();
       renderHistory();
     };
 
+    const handleClearPins = () => {
+      clearPinnedRoutes();
+      renderPins();
+    };
+
+    const handlePinCurrent = () => {
+      togglePinnedRoute(currentRoute);
+      renderPins();
+    };
+
+    const handleCopyCurrent = async () => {
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        if (copyCurrentButton) {
+          copyCurrentButton.textContent = 'Copied';
+          window.setTimeout(() => {
+            if (copyCurrentButton) {
+              copyCurrentButton.textContent = 'Copy link';
+            }
+          }, 1200);
+        }
+      } catch {
+        if (copyCurrentButton) {
+          copyCurrentButton.textContent = 'Unavailable';
+          window.setTimeout(() => {
+            if (copyCurrentButton) {
+              copyCurrentButton.textContent = 'Copy link';
+            }
+          }, 1200);
+        }
+      }
+    };
+
+    const handlePinSuggestion = (event: Event) => {
+      const button = event.currentTarget as HTMLElement | null;
+      const href = button?.dataset.routeAtlasPinLink;
+      const title = button?.dataset.routeAtlasPinTitle;
+      const description = button?.dataset.routeAtlasPinDescription;
+      const category = button?.dataset.routeAtlasPinCategory;
+      if (!href || !title || !description || !category) return;
+
+      pinRoute({
+        url: href,
+        title,
+        description,
+        category,
+      });
+      renderPins();
+    };
+
     pushRecentRoute(currentRoute);
     renderHistory();
+    renderPins();
 
     clearButton?.addEventListener('click', handleClear);
+    clearPinsButton?.addEventListener('click', handleClearPins);
+    pinCurrentButton?.addEventListener('click', handlePinCurrent);
+    copyCurrentButton?.addEventListener('click', handleCopyCurrent);
+    pinLinkButtons.forEach(button => {
+      button.addEventListener('click', handlePinSuggestion);
+    });
     window.addEventListener('olive:route-memory-updated', renderHistory);
+    window.addEventListener('olive:route-pins-updated', renderPins);
 
     window.__routeAtlasCleanup = () => {
       clearButton?.removeEventListener('click', handleClear);
+      clearPinsButton?.removeEventListener('click', handleClearPins);
+      pinCurrentButton?.removeEventListener('click', handlePinCurrent);
+      copyCurrentButton?.removeEventListener('click', handleCopyCurrent);
+      pinLinkButtons.forEach(button => {
+        button.removeEventListener('click', handlePinSuggestion);
+      });
       window.removeEventListener('olive:route-memory-updated', renderHistory);
+      window.removeEventListener('olive:route-pins-updated', renderPins);
     };
   };
 
@@ -304,6 +510,49 @@ const routeContext = getRouteContext(Astro.url.pathname);
     color: color-mix(in srgb, var(--route-atlas-accent) 74%, white 26%);
   }
 
+  .route-atlas__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1rem;
+  }
+
+  .route-atlas__action,
+  .route-atlas__save-link,
+  .route-atlas__remove-link {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 0.48rem 0.78rem;
+    color: rgba(255, 255, 255, 0.74);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition:
+      border-color 180ms ease,
+      background-color 180ms ease,
+      color 180ms ease;
+  }
+
+  .route-atlas__action:hover,
+  .route-atlas__save-link:hover,
+  .route-atlas__remove-link:hover,
+  .route-atlas__action[data-pinned='true'] {
+    border-color: color-mix(
+      in srgb,
+      var(--route-atlas-accent) 28%,
+      rgba(255, 255, 255, 0.08)
+    );
+    background: color-mix(
+      in srgb,
+      var(--route-atlas-accent) 10%,
+      rgba(255, 255, 255, 0.03)
+    );
+    color: rgba(255, 255, 255, 0.96);
+  }
+
   .route-atlas__grid {
     display: grid;
     gap: 1rem;
@@ -333,6 +582,12 @@ const routeContext = getRouteContext(Astro.url.pathname);
   .route-atlas__history {
     display: grid;
     gap: 0.7rem;
+  }
+
+  .route-atlas__link-shell,
+  .route-atlas__saved-shell {
+    display: grid;
+    gap: 0.55rem;
   }
 
   .route-atlas__link,
@@ -375,6 +630,13 @@ const routeContext = getRouteContext(Astro.url.pathname);
     color: color-mix(in srgb, var(--route-atlas-accent) 64%, white 36%);
   }
 
+  .route-atlas__save-link,
+  .route-atlas__remove-link {
+    justify-self: start;
+    font-size: 0.62rem;
+    color: rgba(255, 255, 255, 0.62);
+  }
+
   .route-atlas__clear {
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 999px;
@@ -398,7 +660,10 @@ const routeContext = getRouteContext(Astro.url.pathname);
     }
 
     .route-atlas__grid {
-      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.85fr) minmax(
+          0,
+          0.85fr
+        );
     }
   }
 </style>

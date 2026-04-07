@@ -18,6 +18,8 @@ import {
   X,
   User,
   Layout,
+  Compass,
+  Link2,
   type LucideIcon,
 } from 'lucide-preact';
 // Using our new utilities
@@ -27,7 +29,9 @@ import { createFocusTrap, announce } from '../utils/a11y';
 import { get as httpGet } from '../utils/http';
 import { withBasePath } from '../utils/helpers';
 import { isLegacyRouteUrl } from '../utils/legacy-routes';
+import { getRouteContext } from '../utils/route-context';
 import {
+  readPinnedRoutes,
   readRecentRoutes,
   toNavigableRouteUrl,
 } from '../utils/route-memory';
@@ -37,6 +41,8 @@ type CommandCategory =
   | 'Theme'
   | 'Actions'
   | 'Recent'
+  | 'Pinned'
+  | 'Route'
   | 'Page'
   | 'Case Study';
 
@@ -58,6 +64,18 @@ interface SearchIndexItem {
   url: string;
   date: string;
   tags: string[];
+}
+
+interface RoutePaletteMeta {
+  accent: string;
+  title: string;
+  description: string;
+  category: string;
+  suggestions: Array<{
+    label: string;
+    detail: string;
+    href: string;
+  }>;
 }
 
 const normalizeSearchCategory = (rawCategory: string): CommandCategory => {
@@ -246,6 +264,9 @@ export default function CommandPalette() {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [searchItems, setSearchItems] = useState<CommandItem[]>([]);
   const [recentCommands, setRecentCommands] = useState<CommandItem[]>([]);
+  const [pinnedCommands, setPinnedCommands] = useState<CommandItem[]>([]);
+  const [dynamicCommands, setDynamicCommands] = useState<CommandItem[]>([]);
+  const [routeMeta, setRouteMeta] = useState<RoutePaletteMeta | null>(null);
   const [filteredCommands, setFilteredCommands] =
     useState<CommandItem[]>(BASE_COMMANDS);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -279,6 +300,19 @@ export default function CommandPalette() {
       description: item.description,
     }));
     setRecentCommands(items);
+  }, []);
+
+  const loadPinnedCommands = useCallback(() => {
+    const items = readPinnedRoutes().slice(0, 6).map(item => ({
+      id: `pinned-${item.url}`,
+      label: item.title,
+      icon: Compass,
+      action: () => navigate(toNavigableRouteUrl(item.url)),
+      category: 'Pinned' as const,
+      keywords: [item.category.toLowerCase(), 'saved', 'pinned', item.url],
+      description: item.description,
+    }));
+    setPinnedCommands(items);
   }, []);
 
   // Fetch search index using our http utility
@@ -321,8 +355,112 @@ export default function CommandPalette() {
   useEffect(() => {
     if (isOpen) {
       loadRecentCommands();
+      loadPinnedCommands();
     }
-  }, [isOpen, loadRecentCommands]);
+  }, [isOpen, loadPinnedCommands, loadRecentCommands]);
+
+  useEffect(() => {
+    if (!isOpen || typeof window === 'undefined') return;
+
+    const routeContext = getRouteContext(window.location.pathname);
+    setRouteMeta({
+      accent: routeContext.accent,
+      title: routeContext.currentTitle,
+      description: routeContext.currentDescription,
+      category: routeContext.currentCategory,
+      suggestions: routeContext.suggestions,
+    });
+
+    const routeCommands: CommandItem[] = routeContext.suggestions
+      .slice(0, 3)
+      .map(link => ({
+        id: `route-${link.href}`,
+        label: link.label,
+        icon: Compass,
+        action: () => navigate(link.href),
+        category: 'Route',
+        keywords: [
+          routeContext.currentCategory.toLowerCase(),
+          routeContext.kicker.toLowerCase(),
+          link.href,
+        ],
+        description: link.detail,
+      }));
+
+    const uniqueSections = new Map<string, string>();
+    document
+      .querySelectorAll<HTMLElement>('[data-page-nav-link][data-page-nav-target]')
+      .forEach(node => {
+        const id = node.dataset.pageNavTarget;
+        const label =
+          node.dataset.pageNavLabel ||
+          node.dataset.pageNavShortLabel ||
+          node.textContent?.replace(/\s+/g, ' ').trim();
+        if (!id || !label || uniqueSections.has(id)) return;
+        uniqueSections.set(id, label);
+      });
+
+    const sectionCommands: CommandItem[] = Array.from(uniqueSections.entries())
+      .slice(0, 8)
+      .map(([id, label]) => ({
+        id: `section-${id}`,
+        label: `Jump to ${label}`,
+        icon: Layout,
+        action: () => {
+          const element = document.getElementById(id);
+          if (!element) return;
+          const prefersReducedMotion = window.matchMedia(
+            '(prefers-reduced-motion: reduce)'
+          ).matches;
+          element.scrollIntoView({
+            behavior: prefersReducedMotion ? 'auto' : 'smooth',
+            block: 'start',
+          });
+          window.history.replaceState({}, '', `#${id}`);
+        },
+        category: 'Page',
+        keywords: ['section', 'jump', id, label.toLowerCase()],
+        description: 'Jump to a section on the current page.',
+      }));
+
+    const utilityCommands: CommandItem[] = [
+      {
+        id: 'action-copy-route-link',
+        label: 'Copy current route link',
+        icon: Link2,
+        action: () => {
+          navigator.clipboard
+            ?.writeText(window.location.href)
+            .then(() => announce('Current route link copied', 'polite'))
+            .catch(() =>
+              announce('Unable to copy the current route link', 'assertive')
+            );
+        },
+        category: 'Actions',
+        keywords: ['copy', 'link', 'share', 'url'],
+        description: 'Copy the active page URL to the clipboard.',
+      },
+      {
+        id: 'action-return-top',
+        label: 'Return to top of page',
+        icon: Home,
+        action: () => {
+          const prefersReducedMotion = window.matchMedia(
+            '(prefers-reduced-motion: reduce)'
+          ).matches;
+          window.scrollTo({
+            top: 0,
+            behavior: prefersReducedMotion ? 'auto' : 'smooth',
+          });
+        },
+        category: 'Actions',
+        keywords: ['top', 'scroll', 'reset', 'page'],
+        description: 'Move back to the start of the current route.',
+      },
+    ];
+
+    setDynamicCommands([...routeCommands, ...sectionCommands, ...utilityCommands]);
+  }, [isOpen]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -331,9 +469,17 @@ export default function CommandPalette() {
       loadRecentCommands();
     };
 
+    const handleRoutePinsUpdate = () => {
+      loadPinnedCommands();
+    };
+
     window.addEventListener(
       'olive:route-memory-updated',
       handleRouteMemoryUpdate as EventListener
+    );
+    window.addEventListener(
+      'olive:route-pins-updated',
+      handleRoutePinsUpdate as EventListener
     );
 
     return () => {
@@ -341,8 +487,12 @@ export default function CommandPalette() {
         'olive:route-memory-updated',
         handleRouteMemoryUpdate as EventListener
       );
+      window.removeEventListener(
+        'olive:route-pins-updated',
+        handleRoutePinsUpdate as EventListener
+      );
     };
-  }, [loadRecentCommands]);
+  }, [loadPinnedCommands, loadRecentCommands]);
 
   // Debounce input to avoid running fuzzy search on every keystroke
   useEffect(() => {
@@ -352,7 +502,7 @@ export default function CommandPalette() {
 
   const allCommands = useMemo(() => {
     const seenLabels = new Set<string>();
-    return [...recentCommands, ...BASE_COMMANDS, ...searchItems].filter(
+    return [...dynamicCommands, ...pinnedCommands, ...recentCommands, ...BASE_COMMANDS, ...searchItems].filter(
       command => {
         const key = command.label.trim().toLowerCase();
         if (seenLabels.has(key)) return false;
@@ -360,7 +510,7 @@ export default function CommandPalette() {
         return true;
       }
     );
-  }, [recentCommands, searchItems]);
+  }, [dynamicCommands, pinnedCommands, recentCommands, searchItems]);
   const searchableCommands = useMemo(
     () =>
       allCommands.map(({ id, label, category, keywords, description }) => ({
@@ -721,7 +871,53 @@ export default function CommandPalette() {
         </div>
 
         {/* Results List */}
-        <div className="max-h-[60vh] overflow-y-auto p-2">
+        {routeMeta ? (
+          <div className="border-b border-white/10 px-3 py-3">
+            <div
+              className="rounded-2xl border p-3 shadow-[0_18px_54px_-36px_rgba(0,0,0,0.9)]"
+              style={{
+                borderColor: `color-mix(in srgb, ${routeMeta.accent} 24%, rgba(255,255,255,0.08))`,
+                background: `linear-gradient(180deg, color-mix(in srgb, ${routeMeta.accent} 10%, transparent), rgba(255,255,255,0.02))`,
+              }}
+            >
+              <div className="flex items-center justify-between gap-3">
+                <span
+                  className="rounded-full border px-2.5 py-1 text-[10px] font-mono uppercase tracking-[0.18em] text-white/72"
+                  style={{
+                    borderColor: `color-mix(in srgb, ${routeMeta.accent} 28%, rgba(255,255,255,0.08))`,
+                  }}
+                >
+                  {routeMeta.category}
+                </span>
+                <span className="text-[11px] font-mono uppercase tracking-[0.18em] text-white/40">
+                  Current route
+                </span>
+              </div>
+              <p className="mt-3 text-base font-semibold text-white">
+                {routeMeta.title}
+              </p>
+              <p className="mt-1 text-sm leading-relaxed text-white/60">
+                {routeMeta.description}
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {routeMeta.suggestions.slice(0, 3).map(link => (
+                  <button
+                    key={link.href}
+                    type="button"
+                    className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-2 text-left text-xs font-medium text-white/78 transition hover:border-white/20 hover:bg-white/[0.06] hover:text-white"
+                    onClick={() => {
+                      navigate(link.href);
+                      setIsOpen(false);
+                    }}
+                  >
+                    {link.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : null}
+        <div className="max-h-[52vh] overflow-y-auto p-2">
           {filteredCommands.length === 0 ? (
             <div className="tone-muted py-12 text-center">
               <p>No results found.</p>

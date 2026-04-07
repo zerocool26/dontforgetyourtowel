@@ -10,6 +10,7 @@ import MobileNav from '../components/business/MobileNav.astro';
 import PageNavigator from '../components/business/PageNavigator.astro';
 import StickyCTA from '../components/business/StickyCTA.astro';
 import RouteAtmosphere from '../components/business/RouteAtmosphere.astro';
+import SavedRoutesDock from '../components/business/SavedRoutesDock.astro';
 import LiveChat from '../components/business/LiveChat';
 import CommandPalette from '../components/CommandPalette';
 import PullToRefresh from '../components/ui/PullToRefresh.astro';
@@ -26,6 +27,7 @@ interface Props {
   showHeader?: boolean;
   showMobileNav?: boolean;
   showLiveChat?: boolean;
+  showSavedRoutesDock?: boolean;
   enableClientRouter?: boolean;
   pageNavigator?: {
     label: string;
@@ -44,6 +46,7 @@ const {
   showHeader = true,
   showMobileNav = true,
   showLiveChat = true,
+  showSavedRoutesDock = true,
   enableClientRouter = true,
   pageNavigator,
 } = Astro.props as Props;
@@ -181,6 +184,7 @@ const routeContext = getRouteContext(Astro.url.pathname);
           <PageNavigator {...pageNavigator} />
         ) : null
       }
+      {showSavedRoutesDock ? <SavedRoutesDock /> : null}
       {showStickyCTA ? <StickyCTA /> : null}
       {showMobileNav ? <MobileNav /> : null}
       <CommandPalette client:only="preact" />

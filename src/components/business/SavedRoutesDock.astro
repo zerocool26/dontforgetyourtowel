@@ -1,0 +1,462 @@
+---
+import { getRouteContext } from '../../utils/route-context';
+
+const routeContext = getRouteContext(Astro.url.pathname);
+---
+
+<aside
+  class="saved-routes-dock"
+  data-saved-routes-dock
+  style={`--saved-routes-accent:${routeContext.accent};`}
+  aria-label="Saved routes dock"
+  hidden
+>
+  <div class="saved-routes-dock__desktop">
+    <div class="saved-routes-dock__header">
+      <div>
+        <p class="saved-routes-dock__eyebrow">Saved routes</p>
+        <p class="saved-routes-dock__title">Personal route set</p>
+      </div>
+      <span class="saved-routes-dock__count" data-saved-routes-count>0</span>
+    </div>
+    <p class="saved-routes-dock__copy">
+      Build a shortlist across trades, gallery, and platform routes.
+    </p>
+    <div class="saved-routes-dock__list" data-saved-routes-list></div>
+    <div class="saved-routes-dock__actions">
+      <button
+        type="button"
+        class="saved-routes-dock__action"
+        data-saved-routes-export
+      >
+        Export
+      </button>
+      <button
+        type="button"
+        class="saved-routes-dock__action"
+        data-saved-routes-console
+      >
+        Open console
+      </button>
+      <button
+        type="button"
+        class="saved-routes-dock__action"
+        data-saved-routes-clear
+      >
+        Clear
+      </button>
+    </div>
+  </div>
+
+  <div class="saved-routes-dock__mobile">
+    <div class="saved-routes-dock__mobile-head">
+      <div>
+        <p class="saved-routes-dock__eyebrow">Saved routes</p>
+        <p class="saved-routes-dock__mobile-title">Quick return set</p>
+      </div>
+      <div class="saved-routes-dock__mobile-actions">
+        <span class="saved-routes-dock__count" data-saved-routes-count>0</span>
+        <button
+          type="button"
+          class="saved-routes-dock__mini-action"
+          data-saved-routes-console
+        >
+          Console
+        </button>
+      </div>
+    </div>
+    <div
+      class="saved-routes-dock__mobile-rail scrollbar-hide"
+      data-saved-routes-mobile-list
+    >
+    </div>
+  </div>
+</aside>
+
+<script>
+  import {
+    clearPinnedRoutes,
+    readPinnedRoutes,
+    toNavigableRouteUrl,
+  } from '../../utils/route-memory';
+
+  declare global {
+    interface Window {
+      __savedRoutesDockCleanup?: () => void;
+    }
+  }
+
+  const bindSavedRoutesDock = () => {
+    window.__savedRoutesDockCleanup?.();
+
+    const root = document.querySelector<HTMLElement>(
+      '[data-saved-routes-dock]'
+    );
+    if (!root) return;
+
+    const countTargets = Array.from(
+      root.querySelectorAll<HTMLElement>('[data-saved-routes-count]')
+    );
+    const desktopList = root.querySelector<HTMLElement>(
+      '[data-saved-routes-list]'
+    );
+    const mobileList = root.querySelector<HTMLElement>(
+      '[data-saved-routes-mobile-list]'
+    );
+    const exportButtons = Array.from(
+      root.querySelectorAll<HTMLButtonElement>('[data-saved-routes-export]')
+    );
+    const consoleButtons = Array.from(
+      root.querySelectorAll<HTMLButtonElement>('[data-saved-routes-console]')
+    );
+    const clearButtons = Array.from(
+      root.querySelectorAll<HTMLButtonElement>('[data-saved-routes-clear]')
+    );
+
+    const render = () => {
+      const items = readPinnedRoutes().slice(0, 5);
+      root.hidden = items.length === 0;
+      countTargets.forEach(node => {
+        node.textContent = `${items.length}`;
+      });
+
+      if (desktopList) desktopList.innerHTML = '';
+      if (mobileList) mobileList.innerHTML = '';
+
+      items.forEach(item => {
+        if (desktopList) {
+          const link = document.createElement('a');
+          link.className = 'saved-routes-dock__item';
+          link.href = toNavigableRouteUrl(item.url);
+
+          const title = document.createElement('span');
+          title.className = 'saved-routes-dock__item-title';
+          title.textContent = item.title;
+
+          const meta = document.createElement('span');
+          meta.className = 'saved-routes-dock__item-meta';
+          meta.textContent = item.category;
+
+          link.append(title, meta);
+          desktopList.appendChild(link);
+        }
+
+        if (mobileList) {
+          const link = document.createElement('a');
+          link.className = 'saved-routes-dock__pill';
+          link.href = toNavigableRouteUrl(item.url);
+
+          const title = document.createElement('span');
+          title.className = 'saved-routes-dock__pill-title';
+          title.textContent = item.title;
+
+          const meta = document.createElement('span');
+          meta.className = 'saved-routes-dock__pill-meta';
+          meta.textContent = item.category;
+
+          link.append(title, meta);
+          mobileList.appendChild(link);
+        }
+      });
+    };
+
+    const handleExport = async (button?: HTMLButtonElement) => {
+      const items = readPinnedRoutes();
+      if (!items.length) return;
+
+      const payload = items
+        .map(
+          item =>
+            `${item.title}\n${toNavigableRouteUrl(item.url)}\n${item.category}`
+        )
+        .join('\n\n');
+
+      try {
+        await navigator.clipboard.writeText(payload);
+        if (button) {
+          button.textContent = 'Copied';
+          window.setTimeout(() => {
+            button.textContent = 'Export';
+          }, 1200);
+        }
+      } catch {
+        if (button) {
+          button.textContent = 'Unavailable';
+          window.setTimeout(() => {
+            button.textContent = 'Export';
+          }, 1200);
+        }
+      }
+    };
+
+    const handleConsole = () => {
+      window.dispatchEvent(new CustomEvent('command-palette:open'));
+    };
+
+    const handleClear = () => {
+      clearPinnedRoutes();
+      render();
+    };
+
+    const exportHandlers = exportButtons.map(button => {
+      const handler = () => handleExport(button);
+      button.addEventListener('click', handler);
+      return { button, handler };
+    });
+
+    const consoleHandlers = consoleButtons.map(button => {
+      button.addEventListener('click', handleConsole);
+      return button;
+    });
+
+    const clearHandlers = clearButtons.map(button => {
+      button.addEventListener('click', handleClear);
+      return button;
+    });
+
+    window.addEventListener('olive:route-pins-updated', render);
+    render();
+
+    window.__savedRoutesDockCleanup = () => {
+      exportHandlers.forEach(({ button, handler }) => {
+        button.removeEventListener('click', handler);
+      });
+      consoleHandlers.forEach(button => {
+        button.removeEventListener('click', handleConsole);
+      });
+      clearHandlers.forEach(button => {
+        button.removeEventListener('click', handleClear);
+      });
+      window.removeEventListener('olive:route-pins-updated', render);
+    };
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bindSavedRoutesDock, {
+      once: true,
+    });
+  } else {
+    bindSavedRoutesDock();
+  }
+
+  document.addEventListener('astro:page-load', bindSavedRoutesDock);
+</script>
+
+<style>
+  .saved-routes-dock {
+    position: fixed;
+    left: 1rem;
+    bottom: 1rem;
+    z-index: 44;
+    pointer-events: none;
+  }
+
+  .saved-routes-dock__desktop,
+  .saved-routes-dock__mobile {
+    pointer-events: auto;
+    border: 1px solid
+      color-mix(
+        in srgb,
+        var(--saved-routes-accent) 16%,
+        rgba(255, 255, 255, 0.08)
+      );
+    background:
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--saved-routes-accent) 10%, transparent),
+        rgba(255, 255, 255, 0.02)
+      ),
+      rgba(6, 8, 12, 0.88);
+    box-shadow:
+      0 30px 74px -42px rgba(0, 0, 0, 0.96),
+      0 0 42px -24px
+        color-mix(in srgb, var(--saved-routes-accent) 24%, transparent);
+    backdrop-filter: blur(18px);
+  }
+
+  .saved-routes-dock__desktop {
+    display: none;
+    width: min(18rem, 22vw);
+    border-radius: 1.5rem;
+    padding: 1rem;
+  }
+
+  .saved-routes-dock__header,
+  .saved-routes-dock__mobile-head,
+  .saved-routes-dock__mobile-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .saved-routes-dock__eyebrow,
+  .saved-routes-dock__item-meta,
+  .saved-routes-dock__pill-meta {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.42);
+  }
+
+  .saved-routes-dock__title,
+  .saved-routes-dock__mobile-title {
+    margin: 0.25rem 0 0;
+    color: rgba(255, 255, 255, 0.94);
+    font-size: 0.95rem;
+    font-weight: 700;
+  }
+
+  .saved-routes-dock__count {
+    display: inline-flex;
+    min-width: 2rem;
+    justify-content: center;
+    border-radius: 999px;
+    border: 1px solid
+      color-mix(
+        in srgb,
+        var(--saved-routes-accent) 28%,
+        rgba(255, 255, 255, 0.08)
+      );
+    padding: 0.3rem 0.55rem;
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    color: color-mix(in srgb, var(--saved-routes-accent) 76%, white 24%);
+  }
+
+  .saved-routes-dock__copy {
+    margin: 0.8rem 0 0;
+    color: rgba(255, 255, 255, 0.58);
+    font-size: 0.82rem;
+    line-height: 1.55;
+  }
+
+  .saved-routes-dock__list {
+    display: grid;
+    gap: 0.55rem;
+    margin-top: 0.9rem;
+  }
+
+  .saved-routes-dock__item,
+  .saved-routes-dock__pill {
+    display: grid;
+    gap: 0.3rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
+    padding: 0.75rem 0.85rem;
+    transition:
+      border-color 180ms ease,
+      background-color 180ms ease,
+      transform 180ms ease;
+  }
+
+  .saved-routes-dock__item:hover,
+  .saved-routes-dock__pill:hover {
+    border-color: color-mix(
+      in srgb,
+      var(--saved-routes-accent) 24%,
+      rgba(255, 255, 255, 0.08)
+    );
+    background: color-mix(
+      in srgb,
+      var(--saved-routes-accent) 10%,
+      rgba(255, 255, 255, 0.03)
+    );
+    transform: translateY(-2px);
+  }
+
+  .saved-routes-dock__item-title,
+  .saved-routes-dock__pill-title {
+    color: rgba(255, 255, 255, 0.94);
+    font-size: 0.84rem;
+    font-weight: 700;
+    line-height: 1.35;
+  }
+
+  .saved-routes-dock__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.9rem;
+  }
+
+  .saved-routes-dock__action,
+  .saved-routes-dock__mini-action {
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
+    padding: 0.5rem 0.72rem;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.7);
+    transition:
+      border-color 180ms ease,
+      background-color 180ms ease,
+      color 180ms ease;
+  }
+
+  .saved-routes-dock__action:hover,
+  .saved-routes-dock__mini-action:hover {
+    border-color: color-mix(
+      in srgb,
+      var(--saved-routes-accent) 24%,
+      rgba(255, 255, 255, 0.08)
+    );
+    background: color-mix(
+      in srgb,
+      var(--saved-routes-accent) 10%,
+      rgba(255, 255, 255, 0.03)
+    );
+    color: rgba(255, 255, 255, 0.94);
+  }
+
+  .saved-routes-dock__mobile {
+    width: min(calc(100vw - 1rem), 34rem);
+    border-radius: 1.3rem;
+    padding: 0.85rem;
+  }
+
+  .saved-routes-dock__mobile-rail {
+    display: flex;
+    gap: 0.55rem;
+    overflow-x: auto;
+    margin-top: 0.75rem;
+    padding-bottom: 0.1rem;
+  }
+
+  .saved-routes-dock__pill {
+    flex: 0 0 min(14rem, 72vw);
+  }
+
+  @media (min-width: 1280px) {
+    .saved-routes-dock__desktop {
+      display: block;
+    }
+
+    .saved-routes-dock__mobile {
+      display: none;
+    }
+  }
+
+  @media (max-width: 1279px) {
+    .saved-routes-dock {
+      left: 0.5rem;
+      right: 0.5rem;
+      bottom: calc(12rem + env(safe-area-inset-bottom));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .saved-routes-dock__item,
+    .saved-routes-dock__pill,
+    .saved-routes-dock__action,
+    .saved-routes-dock__mini-action {
+      transition: none;
+    }
+  }
+</style>
