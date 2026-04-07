@@ -248,4 +248,32 @@ test.describe('Interactivity Features', () => {
       ).toHaveAttribute('aria-pressed', 'true');
     });
   });
+
+  test.describe('Trade coordination matrix', () => {
+    test('should switch active trade details in the directory matrix', async ({
+      page,
+    }) => {
+      await page.goto('trades/');
+      await page.waitForLoadState('domcontentloaded');
+
+      const matrix = page.locator('[data-trade-matrix]').first();
+      await expect(matrix).toBeVisible();
+
+      await expect(matrix.locator('[data-trade-matrix-name]')).toContainText(
+        /mechanical/i
+      );
+
+      await matrix.getByRole('button', { name: /electrical/i }).click();
+
+      await expect(matrix.locator('[data-trade-matrix-name]')).toContainText(
+        /electrical/i
+      );
+      await expect(
+        matrix.locator('[data-trade-matrix-operating-model]')
+      ).toContainText(/power distribution/i);
+      await expect(
+        matrix.getByRole('button', { name: /electrical/i })
+      ).toHaveAttribute('aria-pressed', 'true');
+    });
+  });
 });

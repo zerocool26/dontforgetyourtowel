@@ -4,6 +4,7 @@ import StructuredData from '../components/StructuredData.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
 import ModernCard from '../components/ui/ModernCard.astro';
 import TradeDirectoryCard from '../components/business/TradeDirectoryCard.astro';
+import TradeCoordinationMatrix from '../components/business/TradeCoordinationMatrix.astro';
 import ServiceCatalog from '../components/business/ServiceCatalog.tsx';
 import ServiceComparisonMatrix from '../components/business/ServiceComparisonMatrix.tsx';
 import ServicesQuiz from '../components/business/ServicesQuiz.tsx';
@@ -11,7 +12,8 @@ import FAQAccordion from '../components/ui/FAQAccordion.tsx';
 import { CONTACT_EMAIL } from '../consts';
 import { servicesExtended } from '../data/services-extended';
 import { servicesFaqs, pricingTiers } from '../data/pricing';
-import { tradeProfiles } from '../data/trades';
+import { tradeProfiles, tradePrograms } from '../data/trades';
+import { getTradeOperations } from '../data/trade-operations';
 import { withBasePath } from '../utils/helpers';
 
 const startProjectHref = `mailto:${encodeURIComponent(
@@ -21,6 +23,26 @@ const startProjectHref = `mailto:${encodeURIComponent(
 const serviceCategories = Array.from(
   new Set(servicesExtended.map(service => service.category))
 );
+
+const tradeMatrixItems = tradeProfiles.map(trade => {
+  const operations = getTradeOperations(trade.slug);
+  const linkedPrograms = tradePrograms
+    .filter(program => program.tradeSlugs.includes(trade.slug))
+    .map(program => program.title);
+
+  return {
+    slug: trade.slug,
+    name: trade.name,
+    badge: trade.badge,
+    accent: trade.accent,
+    operatingModel: operations.operatingModel,
+    serviceRhythm: operations.serviceRhythm,
+    ownerOutput: operations.ownerOutputs[0] ?? trade.summary,
+    integration: trade.integration.slice(0, 3),
+    programs: linkedPrograms.length ? linkedPrograms : ['Independent route'],
+    href: withBasePath(`trades/${trade.slug}/`),
+  };
+});
 
 const breadcrumbItems = [
   {
@@ -196,6 +218,15 @@ const pageNavigator = {
 
       <div class="mt-8 grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
         {tradeProfiles.map(trade => <TradeDirectoryCard trade={trade} />)}
+      </div>
+
+      <div class="mt-8">
+        <TradeCoordinationMatrix
+          eyebrow="Cross-trade routing"
+          title="The services hub can compare trade operating logic in one place."
+          description="This keeps the page from feeling like a tech-only catalog. Buyers can compare the real shape of each trade, then move into the right vertical or stay in the services workflow."
+          items={tradeMatrixItems}
+        />
       </div>
     </div>
   </section>
