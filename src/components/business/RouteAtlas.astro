@@ -576,21 +576,41 @@ const routeContext = getRouteContext(Astro.url.pathname);
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.03);
     padding: 0.48rem 0.78rem;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
     color: rgba(255, 255, 255, 0.74);
     font-family: var(--font-mono);
     font-size: 0.68rem;
     letter-spacing: 0.16em;
     text-transform: uppercase;
     cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
     transition:
       border-color 180ms ease,
       background-color 180ms ease,
       color 180ms ease;
   }
 
-  .route-atlas__action:hover,
-  .route-atlas__save-link:hover,
-  .route-atlas__remove-link:hover,
+  @media (hover: hover) {
+    .route-atlas__action:hover,
+    .route-atlas__save-link:hover,
+    .route-atlas__remove-link:hover {
+      border-color: color-mix(
+        in srgb,
+        var(--route-atlas-accent) 28%,
+        rgba(255, 255, 255, 0.08)
+      );
+      background: color-mix(
+        in srgb,
+        var(--route-atlas-accent) 10%,
+        rgba(255, 255, 255, 0.03)
+      );
+      color: rgba(255, 255, 255, 0.96);
+    }
+  }
+
   .route-atlas__action[data-pinned='true'] {
     border-color: color-mix(
       in srgb,
@@ -603,6 +623,12 @@ const routeContext = getRouteContext(Astro.url.pathname);
       rgba(255, 255, 255, 0.03)
     );
     color: rgba(255, 255, 255, 0.96);
+  }
+
+  .route-atlas__action:active,
+  .route-atlas__save-link:active,
+  .route-atlas__remove-link:active {
+    transform: scale(0.96);
   }
 
   .route-atlas__grid {
@@ -657,23 +683,37 @@ const routeContext = getRouteContext(Astro.url.pathname);
     border: 1px solid rgba(255, 255, 255, 0.08);
     background: rgba(255, 255, 255, 0.02);
     padding: 0.85rem 0.95rem;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
     transition:
       transform 180ms ease,
       border-color 180ms ease,
       background-color 180ms ease;
   }
 
-  .route-atlas__link:hover,
-  .route-atlas__history-item:hover {
-    transform: translateY(-2px);
-    border-color: color-mix(
-      in srgb,
-      var(--route-atlas-accent) 24%,
-      rgba(255, 255, 255, 0.08)
-    );
+  @media (hover: hover) {
+    .route-atlas__link:hover,
+    .route-atlas__history-item:hover {
+      transform: translateY(-2px);
+      border-color: color-mix(
+        in srgb,
+        var(--route-atlas-accent) 24%,
+        rgba(255, 255, 255, 0.08)
+      );
+      background: color-mix(
+        in srgb,
+        var(--route-atlas-accent) 9%,
+        rgba(255, 255, 255, 0.03)
+      );
+    }
+  }
+
+  .route-atlas__link:active,
+  .route-atlas__history-item:active {
+    transform: scale(0.985);
     background: color-mix(
       in srgb,
-      var(--route-atlas-accent) 9%,
+      var(--route-atlas-accent) 8%,
       rgba(255, 255, 255, 0.03)
     );
   }

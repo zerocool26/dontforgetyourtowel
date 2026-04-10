@@ -4,20 +4,15 @@ import { withBasePath } from '../utils/helpers';
 import { tradeProfiles } from '../data/trades';
 import { getTradeVisual } from '../data/trade-visuals';
 import { getRouteContext } from '../utils/route-context';
-import ThemeSelector from './ThemeSelector.astro';
-import ExperienceModeSelector from './ExperienceModeSelector.astro';
 import ModernButton from './ui/ModernButton.astro';
 
 const homeHref = withBasePath('/');
 
 const links = [
   { label: 'Trades', href: withBasePath('trades/') },
-  { label: 'Gallery', href: withBasePath('gallery/') },
-  { label: 'About', href: withBasePath('company/') },
   { label: 'Services', href: withBasePath('services/') },
   { label: 'Pricing', href: withBasePath('pricing/') },
-  { label: 'Build Studio', href: withBasePath('build-studio/') },
-  { label: 'Portfolio', href: withBasePath('about/') },
+  { label: 'Company', href: withBasePath('company/') },
   { label: 'Contact', href: withBasePath('contact-hq/') },
 ];
 
@@ -49,7 +44,7 @@ const compactContextLinks = routeContext.suggestions.slice(
 );
 
 const searchTriggerClasses =
-  'tone-border tone-surface tone-muted inline-flex min-h-[44px] items-center gap-2 rounded-lg border px-3 text-xs font-mono uppercase tracking-[0.22em] transition hover:border-white/20 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ccff00]';
+  'tone-border tone-surface tone-muted inline-flex min-h-[44px] items-center gap-2 rounded-xl border px-3 text-sm font-medium transition hover:border-white/20 hover:bg-white/[0.05] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20';
 
 const isActiveHref = (href: string) => {
   try {
@@ -81,7 +76,7 @@ const isTradeActiveHref = (href: string) => {
 ---
 
 <header
-  class="safe-area-inset-top sticky top-0 z-50 border-b border-white/[0.06] bg-[#030303]/80 backdrop-blur-2xl backdrop-saturate-150"
+  class="safe-area-inset-top bg-[#08101c]/84 sticky top-0 z-50 border-b border-white/[0.08] backdrop-blur-2xl backdrop-saturate-150"
   style={`--header-route-accent:${routeContext.accent};`}
 >
   <!-- Accent gradient line at top of header -->
@@ -101,9 +96,9 @@ const isTradeActiveHref = (href: string) => {
       aria-label={`${SITE_TITLE} home`}
     >
       <span
-        class="relative inline-flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-gradient-to-br from-white/[0.08] to-transparent text-[10px] font-bold uppercase tracking-widest text-white/90 shadow-[0_0_12px_rgba(204,255,0,0.08)] transition-all duration-300 group-hover:border-[#ccff00]/50 group-hover:text-[#ccff00] group-hover:shadow-[0_0_20px_rgba(204,255,0,0.25)]"
+        class="relative inline-flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/[0.05] text-[10px] font-bold uppercase tracking-widest text-white/90 transition-colors duration-200 group-hover:border-white/20 group-hover:text-white"
       >
-        OC
+        OGS
       </span>
       <div class="flex flex-col leading-none">
         <span
@@ -112,9 +107,9 @@ const isTradeActiveHref = (href: string) => {
           {SITE_TITLE}
         </span>
         <span
-          class="mt-0.5 font-mono text-[0.6rem] uppercase tracking-[0.22em] text-[#ccff00]"
+          class="mt-0.5 font-mono text-[0.6rem] uppercase tracking-[0.22em] text-white/55"
         >
-          TRADES • EXPERIENCES • ENGINEERING
+          Integrated trade and technology delivery
         </span>
       </div>
     </a>
@@ -204,8 +199,6 @@ const isTradeActiveHref = (href: string) => {
           Ctrl/⌘ K
         </kbd>
       </button>
-      <ExperienceModeSelector />
-      <ThemeSelector />
       <div class="tone-border h-6 w-px"></div>
       <ModernButton
         variant="primary"
@@ -384,36 +377,6 @@ const isTradeActiveHref = (href: string) => {
         <span>Search the site</span>
         <span class="text-xs text-zinc-400">Ctrl/⌘ K</span>
       </button>
-      <div class="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-        <p
-          class="px-1 font-mono text-[0.62rem] uppercase tracking-[0.24em] text-white/45"
-        >
-          Visual direction
-        </p>
-        <div class="mt-3 grid grid-cols-3 gap-2">
-          <button
-            type="button"
-            class="tone-border tone-surface tone-body rounded-lg border px-3 py-2 text-xs font-semibold transition"
-            data-mobile-experience-mode="cinematic"
-          >
-            Cinematic
-          </button>
-          <button
-            type="button"
-            class="tone-border tone-surface tone-body rounded-lg border px-3 py-2 text-xs font-semibold transition"
-            data-mobile-experience-mode="editorial"
-          >
-            Editorial
-          </button>
-          <button
-            type="button"
-            class="tone-border tone-surface tone-body rounded-lg border px-3 py-2 text-xs font-semibold transition"
-            data-mobile-experience-mode="blueprint"
-          >
-            Blueprint
-          </button>
-        </div>
-      </div>
       <a
         class="tone-body min-h-touch flex touch-manipulation items-center rounded-lg px-3 py-3 font-medium transition hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ccff00]"
         href={homeHref}
@@ -466,14 +429,7 @@ const isTradeActiveHref = (href: string) => {
         }
       </div>
       <a
-        class="tone-title min-h-touch flex touch-manipulation items-center rounded-lg px-3 py-3 font-semibold transition hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ccff00]"
-        href={withBasePath('build-studio/')}
-        data-astro-prefetch
-      >
-        Launch Build Studio
-      </a>
-      <a
-        class="min-h-touch flex touch-manipulation items-center rounded-lg bg-[rgba(99,102,241,0.15)] px-3 py-3 font-semibold text-white transition hover:bg-[rgba(99,102,241,0.25)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ccff00]"
+        class="min-h-touch flex touch-manipulation items-center rounded-lg bg-white px-3 py-3 font-semibold text-slate-900 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
         href={startProjectHref}
       >
         Start a project
@@ -515,12 +471,10 @@ const isTradeActiveHref = (href: string) => {
 
       const buttons = Array.from(
         document.querySelectorAll('[data-open-saved-routes]')
-      ).filter(
-        (node): node is HTMLButtonElement => node instanceof HTMLButtonElement
-      );
+      ).filter(node => node instanceof HTMLButtonElement);
       const countTargets = Array.from(
         document.querySelectorAll('[data-saved-routes-count]')
-      ).filter((node): node is HTMLElement => node instanceof HTMLElement);
+      ).filter(node => node instanceof HTMLElement);
 
       const updateCounts = async () => {
         try {
@@ -558,64 +512,6 @@ const isTradeActiveHref = (href: string) => {
       updateCounts();
     };
 
-    const bindMobileExperienceButtons = () => {
-      globalScope.__headerExperienceCleanup?.();
-
-      const buttons = Array.from(
-        document.querySelectorAll('[data-mobile-experience-mode]')
-      ).filter(
-        (node): node is HTMLButtonElement => node instanceof HTMLButtonElement
-      );
-
-      if (!buttons.length) return;
-
-      const syncButtons = async () => {
-        try {
-          const mod = await import('../store/index');
-          const current = mod.experienceMode.get();
-
-          buttons.forEach(button => {
-            const active = button.dataset.mobileExperienceMode === current;
-            button.classList.toggle('text-white', active);
-            button.classList.toggle('border-[#ccff00]/35', active);
-            button.classList.toggle('bg-[#ccff00]/10', active);
-            button.classList.toggle('text-white/70', !active);
-          });
-        } catch {
-          // ignore
-        }
-      };
-
-      buttons.forEach(button => {
-        if (button.dataset.mobileExperienceBound === '1') return;
-        button.dataset.mobileExperienceBound = '1';
-        button.addEventListener('click', async () => {
-          try {
-            const mod = await import('../store/index');
-            const mode = button.dataset.mobileExperienceMode;
-            if (
-              mode === 'cinematic' ||
-              mode === 'editorial' ||
-              mode === 'blueprint'
-            ) {
-              mod.setExperienceMode(mode);
-            }
-          } catch {
-            // ignore
-          }
-        });
-      });
-
-      window.addEventListener('olive:experience-mode-updated', syncButtons);
-      globalScope.__headerExperienceCleanup = () => {
-        window.removeEventListener(
-          'olive:experience-mode-updated',
-          syncButtons
-        );
-      };
-      syncButtons();
-    };
-
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', bindPaletteTriggers, {
         once: true,
@@ -623,22 +519,13 @@ const isTradeActiveHref = (href: string) => {
       document.addEventListener('DOMContentLoaded', bindSavedRouteTriggers, {
         once: true,
       });
-      document.addEventListener(
-        'DOMContentLoaded',
-        bindMobileExperienceButtons,
-        {
-          once: true,
-        }
-      );
     } else {
       bindPaletteTriggers();
       bindSavedRouteTriggers();
-      bindMobileExperienceButtons();
     }
 
     document.addEventListener('astro:page-load', bindPaletteTriggers);
     document.addEventListener('astro:page-load', bindSavedRouteTriggers);
-    document.addEventListener('astro:page-load', bindMobileExperienceButtons);
   })();
 </script>
 

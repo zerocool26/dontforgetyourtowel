@@ -45,7 +45,7 @@ const {
   showStickyCTA = true,
   showHeader = true,
   showMobileNav = true,
-  showLiveChat = true,
+  showLiveChat = false,
   showSavedRoutesDock = true,
   enableClientRouter = true,
   pageNavigator,
@@ -159,7 +159,6 @@ const routeContext = getRouteContext(Astro.url.pathname);
     style={`--route-accent:${routeContext.accent};`}
     data-route-category={routeContext.currentCategory}
   >
-    <div class="creative-noise"></div>
     <RouteAtmosphere />
     <PullToRefresh />
     <div class="relative z-[1]">

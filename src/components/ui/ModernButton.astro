@@ -44,28 +44,28 @@ const {
 } = Astro.props;
 
 const baseClasses =
-  'group inline-flex select-none touch-manipulation items-center justify-center font-semibold transition-all duration-300 ease-smooth focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transform-gpu active:scale-95 relative overflow-hidden will-change-transform motion-reduce:transition-none motion-reduce:transform-none';
+  'group inline-flex select-none touch-manipulation items-center justify-center font-semibold tracking-[-0.01em] transition-[background-color,border-color,color,box-shadow,transform] duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#0b1120] disabled:opacity-50 disabled:cursor-not-allowed motion-reduce:transition-none motion-reduce:transform-none';
 
 const variants = {
   primary:
-    'bg-gradient-to-b from-white to-white/90 text-black font-semibold hover:from-white hover:to-white hover:scale-[1.02] focus:ring-white/50 shadow-[0_0_24px_rgba(255,255,255,0.12),_0_2px_8px_rgba(255,255,255,0.1)] hover:shadow-[0_0_36px_rgba(255,255,255,0.22),_0_4px_16px_rgba(255,255,255,0.15)] transition-all duration-300 border border-white/30',
+    'border border-white/80 bg-white text-slate-900 shadow-[0_12px_32px_rgba(15,23,42,0.18)] hover:bg-slate-100 hover:shadow-[0_16px_36px_rgba(15,23,42,0.22)] focus:ring-white/40',
   secondary:
-    'bg-white/[0.04] text-white/90 border border-white/[0.08] hover:bg-white/[0.08] hover:border-white/15 backdrop-blur-xl focus:ring-white/20 shadow-[0_2px_16px_rgba(0,0,0,0.4)] hover:shadow-[0_4px_24px_rgba(0,0,0,0.5)] transition-all duration-300',
+    'border border-white/[0.12] bg-white/[0.04] text-white/92 shadow-[0_10px_24px_rgba(2,6,23,0.18)] hover:border-white/20 hover:bg-white/[0.08] hover:shadow-[0_14px_28px_rgba(2,6,23,0.24)] focus:ring-white/20',
   outline:
-    'border border-white/[0.08] text-white/70 bg-transparent hover:bg-white/[0.04] hover:border-white/15 hover:text-white focus:ring-white/20 backdrop-blur-sm transition-all duration-300',
+    'border border-white/[0.16] bg-transparent text-white/78 hover:border-white/24 hover:bg-white/[0.04] hover:text-white focus:ring-white/20',
   ghost:
-    'text-white/50 bg-transparent hover:bg-white/[0.04] hover:text-white/80 focus:ring-white/10 transition-all duration-300',
+    'bg-transparent text-white/62 hover:bg-white/[0.04] hover:text-white/88 focus:ring-white/10',
   destructive:
-    'bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 hover:text-red-300 focus:ring-red-500/50 transition-all duration-300',
+    'border border-red-400/20 bg-red-500/10 text-red-200 hover:bg-red-500/18 hover:border-red-300/30 focus:ring-red-400/40',
   success:
-    'bg-[#ccff00]/[0.08] text-[#ccff00] border border-[#ccff00]/20 hover:bg-[#ccff00]/15 hover:shadow-[0_0_24px_rgba(204,255,0,0.12)] hover:border-[#ccff00]/40 focus:ring-[#ccff00]/50 transition-all duration-300',
+    'border border-emerald-300/20 bg-emerald-500/10 text-emerald-100 hover:bg-emerald-500/18 hover:border-emerald-200/30 focus:ring-emerald-300/40',
   warning:
-    'bg-orange-500/10 text-orange-400 border border-orange-500/20 hover:bg-orange-500/20 hover:text-orange-300 focus:ring-orange-500/50 transition-all duration-300',
+    'border border-amber-300/20 bg-amber-500/10 text-amber-100 hover:bg-amber-500/18 hover:border-amber-200/30 focus:ring-amber-300/40',
   gradient:
-    'bg-gradient-to-r from-[#ccff00] via-[#b8e600] to-[#99cc00] text-black font-bold hover:opacity-95 active:scale-95 focus:ring-[#ccff00]/50 shadow-[0_0_32px_rgba(204,255,0,0.2),_0_2px_8px_rgba(204,255,0,0.3)] hover:shadow-[0_0_48px_rgba(204,255,0,0.3),_0_4px_16px_rgba(204,255,0,0.4)] border border-[#ccff00]/40 transition-all duration-300',
-  neon: 'bg-[#ccff00]/[0.06] border border-[#ccff00]/40 text-[#ccff00] shadow-[0_0_24px_rgba(204,255,0,0.15),_inset_0_0_12px_rgba(204,255,0,0.06)] hover:shadow-[0_0_40px_rgba(204,255,0,0.3),_inset_0_0_20px_rgba(204,255,0,0.1)] hover:bg-[#ccff00]/10 hover:border-[#ccff00]/60 transition-all duration-300',
+    'border border-sky-200/40 bg-gradient-to-r from-slate-50 via-sky-50 to-blue-100 text-slate-900 shadow-[0_14px_34px_rgba(37,99,235,0.16)] hover:from-white hover:to-sky-100 hover:shadow-[0_18px_38px_rgba(37,99,235,0.2)] focus:ring-sky-200/40',
+  neon: 'border border-sky-300/32 bg-sky-400/10 text-sky-100 shadow-[0_12px_28px_rgba(37,99,235,0.14)] hover:bg-sky-400/14 hover:border-sky-200/40 focus:ring-sky-200/35',
   light:
-    'bg-zinc-100 text-zinc-900 hover:bg-white border border-zinc-200 focus:ring-zinc-300 shadow-md transition-all duration-300',
+    'border border-slate-200 bg-slate-50 text-slate-900 hover:bg-white focus:ring-slate-300 shadow-[0_10px_22px_rgba(15,23,42,0.08)]',
 };
 
 const sizes = {
@@ -86,15 +86,14 @@ const roundedClasses = {
 
 const shadowClasses = {
   none: '',
-  sm: 'shadow-sm hover:shadow-md',
-  md: 'shadow-md hover:shadow-lg',
-  lg: 'shadow-lg hover:shadow-xl',
-  xl: 'shadow-xl hover:shadow-2xl',
+  sm: '',
+  md: '',
+  lg: '',
+  xl: '',
 };
 
-const hoverEffects =
-  '[@media(hover:hover)]:hover:-translate-y-1 [@media(hover:hover)]:hover:scale-[1.02] [@media(hover:hover)]:hover:brightness-110';
-const focusEffects = 'focus:translate-y-0 focus:scale-100 focus:brightness-100';
+const hoverEffects = '[@media(hover:hover)]:hover:-translate-y-px';
+const focusEffects = '';
 
 const classes =
   `${baseClasses} ${variants[variant]} ${sizes[size]} ${roundedClasses[rounded]} ${shadowClasses[shadow]} ${hoverEffects} ${focusEffects} ${className} ${disabled || loading ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''} modern-button`.trim();
@@ -115,16 +114,14 @@ const ariaProps = { 'aria-busy': loading };
   {...onClick && { onclick: onClick }}
   {...rest}
 >
-  {/* Loading spinner */}
   {
     loading && (
-      <div class="rounded-inherit absolute inset-0 flex items-center justify-center bg-inherit">
+      <div class="absolute inset-0 flex items-center justify-center bg-inherit">
         <div class="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
       </div>
     )
   }
 
-  {/* Button content */}
   <div
     class={`flex items-center gap-2 ${loading ? 'opacity-0' : 'opacity-100'} transition-opacity`}
   >
@@ -132,71 +129,9 @@ const ariaProps = { 'aria-busy': loading };
     <slot />
     {rightIcon && <span class="text-current">{rightIcon}</span>}
   </div>
-
-  {/* Shimmer effect */}
-  <div
-    class="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-1000 motion-reduce:transition-none [@media(hover:hover)]:group-hover:translate-x-full"
-  >
-  </div>
-
-  {/* Ripple effect container */}
-  <span class="rounded-inherit absolute inset-0 overflow-hidden">
-    <span
-      class="absolute inset-0 scale-0 rounded-full bg-white/20 transition-transform duration-500 ease-out group-active:scale-100"
-    ></span>
-  </span>
 </Tag>
 
-<script>
-  // Add ripple effect on click
-  document.querySelectorAll('.modern-button').forEach(button => {
-    const element = button as HTMLElement;
-    if (element.dataset.rippleBound === '1') return;
-    element.dataset.rippleBound = '1';
-
-    button.addEventListener('click', e => {
-      if (!(e instanceof MouseEvent)) return;
-      if (e.detail === 0) return;
-      const target = e.currentTarget as HTMLElement;
-      if (!target) return;
-
-      const ripple = document.createElement('span');
-      const rect = target.getBoundingClientRect();
-      const size = Math.max(rect.width, rect.height);
-      const x = e.clientX - rect.left - size / 2;
-      const y = e.clientY - rect.top - size / 2;
-
-      ripple.style.width = ripple.style.height = size + 'px';
-      ripple.style.left = x + 'px';
-      ripple.style.top = y + 'px';
-      ripple.classList.add('ripple-effect');
-
-      target.appendChild(ripple);
-
-      setTimeout(() => ripple.remove(), 600);
-    });
-  });
-</script>
-
 <style>
-  /* Ripple effect */
-  .ripple-effect {
-    position: absolute;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.6);
-    transform: scale(0);
-    animation: ripple 0.6s ease-out;
-    pointer-events: none;
-  }
-
-  @keyframes ripple {
-    to {
-      transform: scale(4);
-      opacity: 0;
-    }
-  }
-
-  /* Smooth transitions */
   .modern-button {
     transition-property: transform, box-shadow, filter, background-color;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
@@ -211,11 +146,6 @@ const ariaProps = { 'aria-busy': loading };
     .modern-button:active {
       transform: none !important;
       filter: none !important;
-    }
-
-    .ripple-effect {
-      animation: none !important;
-      opacity: 0;
     }
   }
 </style>

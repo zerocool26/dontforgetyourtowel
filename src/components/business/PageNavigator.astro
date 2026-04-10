@@ -323,8 +323,8 @@ const initialItem = visibleItems[0];
             }
           },
           {
-            rootMargin: '-20% 0px -55% 0px',
-            threshold: [0.2, 0.45, 0.7],
+            rootMargin: '-15% 0px -60% 0px',
+            threshold: [0.1, 0.3, 0.55],
           }
         );
 
@@ -348,7 +348,10 @@ const initialItem = visibleItems[0];
         window.removeEventListener('scroll', onScroll);
         window.removeEventListener('resize', refresh);
       };
+
+      // Initial refresh — deferred slightly so Astro transitions settle
       refresh();
+      window.setTimeout(refresh, 120);
     };
 
     if (document.readyState === 'loading') {
@@ -496,20 +499,38 @@ const initialItem = visibleItems[0];
       transform 180ms ease;
   }
 
-  .page-navigator__link:hover,
   .page-navigator__link.is-active {
     color: rgba(255, 255, 255, 0.96);
     border-color: color-mix(
       in srgb,
-      var(--page-nav-accent) 24%,
+      var(--page-nav-accent) 28%,
       rgba(255, 255, 255, 0.08)
     );
     background: color-mix(
       in srgb,
-      var(--page-nav-accent) 10%,
-      rgba(255, 255, 255, 0.02)
+      var(--page-nav-accent) 12%,
+      rgba(255, 255, 255, 0.03)
     );
     transform: translateX(-2px);
+    box-shadow: 0 0 20px -12px
+      color-mix(in srgb, var(--page-nav-accent) 48%, transparent);
+  }
+
+  @media (hover: hover) {
+    .page-navigator__link:hover {
+      color: rgba(255, 255, 255, 0.96);
+      border-color: color-mix(
+        in srgb,
+        var(--page-nav-accent) 24%,
+        rgba(255, 255, 255, 0.08)
+      );
+      background: color-mix(
+        in srgb,
+        var(--page-nav-accent) 10%,
+        rgba(255, 255, 255, 0.02)
+      );
+      transform: translateX(-2px);
+    }
   }
 
   .page-navigator__index {
@@ -597,18 +618,29 @@ const initialItem = visibleItems[0];
       color 180ms ease;
   }
 
-  .page-navigator__top:hover {
-    border-color: color-mix(
-      in srgb,
-      var(--page-nav-accent) 24%,
-      rgba(255, 255, 255, 0.08)
-    );
+  @media (hover: hover) {
+    .page-navigator__top:hover {
+      border-color: color-mix(
+        in srgb,
+        var(--page-nav-accent) 24%,
+        rgba(255, 255, 255, 0.08)
+      );
+      background: color-mix(
+        in srgb,
+        var(--page-nav-accent) 10%,
+        rgba(255, 255, 255, 0.03)
+      );
+      color: rgba(255, 255, 255, 0.94);
+    }
+  }
+
+  .page-navigator__top:active {
+    transform: scale(0.97);
     background: color-mix(
       in srgb,
       var(--page-nav-accent) 10%,
       rgba(255, 255, 255, 0.03)
     );
-    color: rgba(255, 255, 255, 0.94);
   }
 
   .page-navigator__pill {
@@ -616,29 +648,42 @@ const initialItem = visibleItems[0];
     border-radius: 999px;
     border: 1px solid rgba(255, 255, 255, 0.08);
     padding: 0.52rem 0.78rem;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
     font-size: 0.72rem;
     font-weight: 600;
     color: rgba(255, 255, 255, 0.68);
     white-space: nowrap;
     background: rgba(255, 255, 255, 0.03);
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
     transition:
       border-color 180ms ease,
       background-color 180ms ease,
-      color 180ms ease;
+      color 180ms ease,
+      box-shadow 180ms ease;
+  }
+
+  .page-navigator__pill:active {
+    transform: scale(0.96);
   }
 
   .page-navigator__pill.is-active {
     border-color: color-mix(
       in srgb,
-      var(--page-nav-accent) 34%,
-      rgba(255, 255, 255, 0.08)
+      var(--page-nav-accent) 42%,
+      rgba(255, 255, 255, 0.1)
     );
-    background: color-mix(
-      in srgb,
-      var(--page-nav-accent) 12%,
-      rgba(255, 255, 255, 0.03)
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--page-nav-accent) 16%, transparent),
+      color-mix(in srgb, var(--page-nav-accent) 8%, transparent)
     );
-    color: rgba(255, 255, 255, 0.94);
+    color: color-mix(in srgb, var(--page-nav-accent) 90%, white 10%);
+    box-shadow:
+      0 0 22px -14px color-mix(in srgb, var(--page-nav-accent) 56%, transparent),
+      inset 0 1px 0 color-mix(in srgb, var(--page-nav-accent) 18%, transparent);
   }
 
   @media (min-width: 1280px) {

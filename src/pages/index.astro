@@ -1,445 +1,246 @@
 ---
 import MarketingLayout from '../layouts/MarketingLayout.astro';
-import OliveUniverse from '../components/react/OliveUniverse';
 import ModernButton from '../components/ui/ModernButton.astro';
 import ModernCard from '../components/ui/ModernCard.astro';
-import SignalCabinet from '../components/business/SignalCabinet.astro';
 import { CONTACT_EMAIL } from '../consts';
 import {
   tradeProfiles,
   tradePrograms,
   totalTradeSubpages,
 } from '../data/trades';
-import { getTradeVisual } from '../data/trade-visuals';
 import { getTradeOperations } from '../data/trade-operations';
 import { servicesExtended } from '../data/services-extended';
-import { galleryInstallations } from '../data/design-gallery';
 import { withBasePath } from '../utils/helpers';
 
-const startProjectHref = `mailto:${encodeURIComponent(
+const contactHref = `mailto:${encodeURIComponent(
   CONTACT_EMAIL
-)}?subject=${encodeURIComponent('Premium multi-trade project inquiry')}`;
+)}?subject=${encodeURIComponent('Project inquiry — Olive Global Systems')}`;
 
-const landingSignals = [
+const tradeHighlights = tradeProfiles.map(trade => ({
+  trade,
+  operations: getTradeOperations(trade.slug),
+}));
+
+const operatingHighlights = [
   {
-    label: 'Trade divisions',
-    value: String(tradeProfiles.length),
-    detail: 'Seven verticals developed like their own serious brand surfaces.',
+    label: 'Service divisions',
+    value: `${tradeProfiles.length}`,
+    note: 'Mechanical, electrical, plumbing, general contracting, commercial HVAC, auto repair, and managed technology.',
   },
   {
     label: 'Specialist routes',
-    value: String(totalTradeSubpages),
-    detail:
-      'Overview pages and support subpages stay linked back to one landing model.',
+    value: `${totalTradeSubpages}+`,
+    note: 'Dedicated pages for retrofit delivery, controls, site logistics, service bays, and managed operations.',
   },
   {
-    label: 'Retained service depth',
+    label: 'Retained services',
     value: `${servicesExtended.length}+`,
-    detail:
-      'The original MSP, cloud, AI, ecommerce, and digital stack stays active.',
-  },
-  {
-    label: 'Gallery studies',
-    value: String(galleryInstallations.length),
-    detail:
-      'A new design-gallery layer now shows how the system can stretch visually.',
+    note: 'Managed IT, security, cloud, automation, ecommerce, AI, and digital systems remain part of the delivery stack.',
   },
 ];
 
-const designPillars = [
+const platformFocus = [
   {
-    title: 'Landing page as command center',
-    copy: 'Home, trades, gallery, services, about, and retained demos route from one clear index.',
+    title: 'Capital projects and phased renovations',
+    copy: 'General contracting, MEP trades, and HVAC are organized around access, shutdowns, sequencing, and turnover — not just isolated scopes.',
   },
   {
-    title: 'Each trade treated as a world',
-    copy: 'Each lane keeps shared structure but gets its own atmosphere, priorities, and trade-specific information.',
+    title: 'Occupied buildings and continuity-sensitive work',
+    copy: 'Mechanical, electrical, plumbing, and HVAC delivery are framed around keeping facilities usable while work progresses.',
   },
   {
-    title: 'Creative, but still credible',
-    copy: 'The visual system stays expressive without losing hierarchy, responsiveness, or trust.',
-  },
-];
-
-const featuredInstallations = galleryInstallations.slice(0, 4);
-
-const continuityRoutes = [
-  {
-    title: 'Design Gallery',
-    description:
-      'The new art-forward gallery of trade-exclusive visual studies and premium interface experiments.',
-    href: withBasePath('gallery/'),
-  },
-  {
-    title: 'Services Hub',
-    description:
-      'The cross-trade bridge that keeps MSP, security, cloud, AI, and digital systems integrated with the field-facing trades.',
-    href: withBasePath('services/'),
-  },
-  {
-    title: 'About The Platform',
-    description:
-      'A dedicated page for the broader story, structure, and operating model behind the site.',
-    href: withBasePath('company/'),
-  },
-  {
-    title: 'Build Studio',
-    description:
-      'The flagship interactive showroom remains part of the live experience as a retained proof point for premium digital work.',
-    href: withBasePath('build-studio/#studio'),
-  },
-  {
-    title: 'Portfolio Commerce Lab',
-    description:
-      'The ecommerce-style demo still lives on the site and now sits beside the trade architecture rather than competing with it.',
-    href: withBasePath('about/#shop-experience'),
+    title: 'Managed operations and technology delivery',
+    copy: 'MSP, security, cloud, AI, and business systems are visible alongside the field-facing trades instead of hidden on a disconnected tech page.',
   },
 ];
 
-const highlightedTrade = tradeProfiles.find(
-  trade => trade.slug === 'msp-tech-services'
-);
-const landingTradeSignals = tradeProfiles.map(trade => {
-  const operations = getTradeOperations(trade.slug);
-  const visual = getTradeVisual(trade.slug);
-  return {
-    kicker: visual.stageLabel,
-    title: trade.name,
-    detail: trade.differentiators[0] ?? trade.summary,
-    meta: [
-      operations.operatingModel,
-      operations.serviceRhythm,
-      `${trade.subpages.length} focused routes`,
-    ],
-  };
-});
+const marketSectors = Array.from(
+  new Set(
+    tradeProfiles.flatMap(trade => trade.sectors.map(sector => sector.name))
+  )
+).slice(0, 6);
 
-const pageNavigator = {
-  label: 'Landing Atlas',
-  accent: '#ccff00',
-  items: [
-    { id: 'landing-hero', label: 'Command Center', shortLabel: 'Home' },
-    { id: 'directory', label: 'Trade Worlds', shortLabel: 'Trades' },
-    { id: 'programs', label: 'Program Choreography', shortLabel: 'Programs' },
-    {
-      id: 'gallery-preview',
-      label: 'Gallery Preview',
-      shortLabel: 'Gallery',
-    },
-    { id: 'continuity', label: 'Connected Continuity', shortLabel: 'Routes' },
-  ],
-};
+const deliveryStages = [
+  {
+    step: '01',
+    title: 'Scope the work in operational terms',
+    copy: 'Start with the constraints that actually matter: access, shutdowns, occupancy, support coverage, risk, and owner outcomes.',
+  },
+  {
+    step: '02',
+    title: 'Assign the right lane and interfaces',
+    copy: 'Each trade or service lane keeps its own operating model, while connected trades are surfaced early instead of discovered late.',
+  },
+  {
+    step: '03',
+    title: 'Execute against readiness, not assumptions',
+    copy: 'Release work based on actual room readiness, outage windows, controls dependencies, field verification, and service routing.',
+  },
+  {
+    step: '04',
+    title: 'Close out with usable owner outputs',
+    copy: 'Turnover focuses on startup logs, asset information, operating documentation, punch control, and clear next actions.',
+  },
+];
 ---
 
 <MarketingLayout
-  title="Olive Global Systems | Editorial Multi-Trade Landing Platform"
-  description="Creative premium landing page for seven integrated trades, a design gallery, retained interactive demos, and a connected service architecture."
+  title="Olive Global Systems | Integrated Trade And Technology Delivery"
+  description="Integrated delivery across seven service divisions, from capital projects and occupied-building trade work to managed IT, security, cloud, and automation."
   mainClass="relative isolate overflow-x-clip"
-  bodyClass="creative-page bg-[#02040a]"
+  bodyClass="creative-page"
   showFooter={true}
-  pageNavigator={pageNavigator}
+  showStickyCTA={false}
+  showLiveChat={false}
+  showSavedRoutesDock={false}
 >
-  <OliveUniverse client:load />
-
   <section
-    class="relative min-h-[100dvh] scroll-mt-32 overflow-hidden"
+    class="relative min-h-[100dvh] overflow-hidden border-b border-white/10"
     id="landing-hero"
     data-page-section
+    data-olive-universe="ready"
+    data-olive-mobile-3d="optimized"
+    data-olive-mode="lite"
   >
-    <div class="landing-veil"></div>
-    <div
-      class="relative z-20 mx-auto max-w-[1440px] px-4 pb-16 pt-20 sm:px-6 sm:pb-20 sm:pt-32"
-    >
-      <div class="grid gap-8 xl:grid-cols-[1.1fr_0.9fr] xl:items-end">
-        <div class="pointer-events-none max-w-5xl space-y-7">
-          <div class="pointer-events-auto inline-flex flex-wrap gap-2">
-            <span class="creative-kicker">Landing Command Center</span>
-            <span class="creative-chip">7 trades</span>
-            <span class="creative-chip">Design gallery added</span>
-            <span class="creative-chip">Ecommerce + studio retained</span>
-          </div>
+    <div aria-hidden="true" class="absolute inset-0">
+      <canvas data-hero-canvas="true" class="block h-full w-full"></canvas>
+      <div
+        class="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),transparent_30%),linear-gradient(180deg,rgba(8,17,29,0.16),rgba(8,17,29,0.82)_72%,rgba(8,17,29,0.96))]"
+      >
+      </div>
+    </div>
 
-          <div class="pointer-events-auto space-y-5">
-            <h1
-              class="tone-title max-w-5xl text-[2.1rem] !leading-[0.96] tracking-[-0.045em] [text-wrap:balance] min-[400px]:text-4xl min-[500px]:text-5xl sm:text-6xl lg:text-7xl xl:text-[5.75rem]"
-            >
-              A premium
-              <span class="creative-gradient-text--accent">
-                multi-trade website
-              </span>
-              designed like a living exhibition of engineering, service, and digital
-              craft.
-            </h1>
+    <div
+      class="relative z-10 mx-auto max-w-[1240px] px-4 pb-20 pt-28 sm:px-6 sm:pb-24 sm:pt-32"
+    >
+      <div class="grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
+        <div class="space-y-7">
+          <div class="space-y-3">
             <p
-              class="creative-copy text-white/78 max-w-3xl text-lg leading-relaxed sm:text-xl"
+              class="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-white/55"
             >
-              The site now treats mechanical, electrical, plumbing, general
-              contracting, commercial HVAC, auto repair, and MSP / tech services
-              as seven distinct trade worlds tied back to one landing source of
-              truth. The gallery adds range without turning the site into noise.
+              Olive Global Systems
+            </p>
+            <h1
+              class="max-w-4xl text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl"
+            >
+              Integrated trade and technology delivery built around real
+              operating constraints.
+            </h1>
+            <p class="max-w-3xl text-base leading-8 text-slate-300 sm:text-lg">
+              This site now leads with what matters most: what each division
+              actually does, how work is delivered, where trades connect, and
+              what buyers should expect before starting a project.
             </p>
           </div>
 
-          <div
-            class="pointer-events-auto flex flex-col gap-2.5 sm:flex-row sm:gap-3"
-          >
+          <div class="flex flex-col gap-3 sm:flex-row">
             <ModernButton
               href={withBasePath('trades/')}
-              variant="gradient"
-              className="min-h-[50px]"
-            >
-              Explore all trades
-            </ModernButton>
-            <ModernButton
-              href={withBasePath('gallery/')}
-              variant="secondary"
-              className="min-h-[50px]"
-            >
-              Open design gallery
-            </ModernButton>
-            <ModernButton
-              href={startProjectHref}
-              variant="outline"
-              className="min-h-[50px]"
-            >
-              Start a premium brief
-            </ModernButton>
-          </div>
-
-          <div class="pointer-events-auto grid gap-3 md:grid-cols-2">
-            {
-              designPillars.map(pillar => (
-                <div class="landing-note-card">
-                  <p class="tone-title text-base font-semibold">
-                    {pillar.title}
-                  </p>
-                  <p class="tone-body mt-2 text-sm leading-relaxed">
-                    {pillar.copy}
-                  </p>
-                </div>
-              ))
-            }
-          </div>
-        </div>
-
-        <div class="pointer-events-auto grid gap-4">
-          <ModernCard variant="minimal" className="landing-specimen p-6">
-            <p class="creative-kicker">Specimen Board</p>
-            <div class="mt-5 grid gap-4 sm:grid-cols-2">
-              {
-                landingSignals.map(signal => (
-                  <div class="landing-specimen__tile">
-                    <p class="tone-muted text-[0.68rem] uppercase tracking-[0.25em]">
-                      {signal.label}
-                    </p>
-                    <p class="tone-title mt-2 text-3xl font-semibold">
-                      {signal.value}
-                    </p>
-                    <p class="tone-body mt-2 text-sm">{signal.detail}</p>
-                  </div>
-                ))
-              }
-            </div>
-          </ModernCard>
-
-          <ModernCard variant="minimal" className="landing-atrium p-6">
-            <div class="landing-atrium__stage">
-              <div class="landing-atrium__grid"></div>
-              <div class="landing-atrium__orb"></div>
-              <div class="landing-atrium__ribbon"></div>
-            </div>
-            <div class="space-y-3">
-              <p class="creative-kicker">New Gallery Route</p>
-              <p class="tone-title text-2xl font-semibold">
-                The gallery is not filler. It is a functional design index.
-              </p>
-              <p class="tone-body text-sm leading-relaxed">
-                The new page adds curatorial filters, view modes, and
-                trade-linked visual studies so the site can show premium design
-                range without losing structure.
-              </p>
-              <ModernButton
-                href={withBasePath('gallery/')}
-                variant="secondary"
-                className="min-h-[48px]"
-              >
-                View the gallery
-              </ModernButton>
-            </div>
-          </ModernCard>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section
-    class="relative z-20 scroll-mt-32"
-    data-reveal
-    id="directory"
-    data-page-section
-  >
-    <div class="mx-auto max-w-[1440px] px-4 py-6 sm:px-6 sm:py-10">
-      <div class="creative-hero-shell p-5 sm:p-8">
-        <div
-          class="flex flex-col gap-6 border-b border-white/10 pb-8 md:flex-row md:items-end md:justify-between"
-        >
-          <div class="max-w-3xl space-y-4">
-            <p class="creative-kicker">Trade Worlds</p>
-            <h2
-              class="tone-title text-3xl font-semibold tracking-tight [text-wrap:balance] sm:text-4xl"
-            >
-              Each trade now has enough design personality to feel like its own
-              premium site.
-            </h2>
-            <p class="tone-body text-base leading-relaxed">
-              The goal is not seven copies of the same contractor page. Each
-              lane gets its own visual accent, operating model, and route
-              structure while staying connected to the platform.
-            </p>
-          </div>
-          <ModernButton
-            href={withBasePath('trades/')}
-            variant="secondary"
-            className="min-h-[48px]"
-          >
-            Open trade directory
-          </ModernButton>
-        </div>
-
-        <div class="mt-6 grid gap-3 sm:gap-5 lg:grid-cols-2 xl:grid-cols-3">
-          {
-            tradeProfiles.map(trade => {
-              const visual = getTradeVisual(trade.slug);
-              const operations = getTradeOperations(trade.slug);
-              return (
-                <a
-                  href={withBasePath(`trades/${trade.slug}/`)}
-                  class="landing-trade-world"
-                  style={`--trade-accent:${trade.accent};`}
-                >
-                  <div class="landing-trade-world__glow" />
-                  <div class="landing-trade-world__stage">
-                    <span class="landing-trade-world__badge">
-                      {trade.badge}
-                    </span>
-                    <span class="creative-chip">{visual.stageLabel}</span>
-                  </div>
-                  <div class="space-y-3">
-                    <p class="tone-title text-2xl font-semibold">
-                      {trade.name}
-                    </p>
-                    <p class="tone-body text-sm leading-relaxed">
-                      {operations.operatingModel}
-                    </p>
-                  </div>
-                  <div class="landing-trade-world__metric">
-                    <p class="tone-muted text-[0.65rem] uppercase tracking-[0.24em]">
-                      Service rhythm
-                    </p>
-                    <p class="tone-title mt-2 text-sm font-semibold">
-                      {operations.serviceRhythm}
-                    </p>
-                  </div>
-                  <div class="flex flex-wrap gap-2">
-                    {trade.subpages.map(subpage => (
-                      <span class="landing-trade-world__tag">
-                        {subpage.shortLabel}
-                      </span>
-                    ))}
-                  </div>
-                </a>
-              );
-            })
-          }
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section
-    class="relative z-20 scroll-mt-32"
-    data-reveal
-    id="programs"
-    data-page-section
-  >
-    <div class="mx-auto max-w-[1440px] px-4 py-6 sm:px-6 sm:py-10">
-      <div class="grid gap-5 xl:grid-cols-[1fr_1fr]">
-        <SignalCabinet
-          eyebrow="Trade Evidence"
-          title="Each vertical carries its own operating logic."
-          description="This is where the site stops feeling generic. Every trade keeps a different operating model, sequencing pressure, and delivery posture instead of sharing one flat contractor voice."
-          accent="#ccff00"
-          items={landingTradeSignals}
-        />
-
-        <ModernCard variant="minimal" className="creative-panel p-7">
-          <p class="creative-kicker">MSP Shift</p>
-          <h2 class="tone-title mt-4 text-3xl font-semibold">
-            MSP / tech services now reads like trade lane seven, not an
-            unrelated side brand.
-          </h2>
-          <p class="tone-body mt-3 text-sm leading-relaxed">
-            The original technology stack stays intact, but it now sits beside
-            the field-facing trades with equivalent design weight and
-            navigational visibility. That means support, security, cloud, AI,
-            and digital systems are integrated into the same architecture
-            instead of being hidden somewhere else on the site.
-          </p>
-          <div class="mt-6 grid gap-4 sm:grid-cols-2">
-            {
-              highlightedTrade?.serviceLines.map(line => (
-                <div class="landing-note-card">
-                  <p class="tone-title text-base font-semibold">{line.title}</p>
-                  <p class="tone-body mt-2 text-sm leading-relaxed">
-                    {line.description}
-                  </p>
-                </div>
-              ))
-            }
-          </div>
-          <div class="mt-6 flex flex-col gap-3 sm:flex-row">
-            <ModernButton
-              href={withBasePath('trades/msp-tech-services/')}
               variant="primary"
-              className="min-h-[48px]"
+              className="min-h-[50px]"
             >
-              Open MSP / Tech trade
+              Explore service divisions
             </ModernButton>
             <ModernButton
               href={withBasePath('services/')}
               variant="secondary"
-              className="min-h-[48px]"
+              className="min-h-[50px]"
             >
               Open services hub
             </ModernButton>
+            <ModernButton
+              href={contactHref}
+              variant="outline"
+              className="min-h-[50px]"
+            >
+              Send a project brief
+            </ModernButton>
           </div>
-          <div class="mt-6 border-t border-white/10 pt-5">
-            <p class="creative-kicker">Program choreography</p>
-            <div class="mt-4 grid gap-3">
+
+          <div data-olive-links class="flex flex-wrap gap-2 pt-1">
+            <a
+              class="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-slate-200 transition hover:border-white/20 hover:bg-white/[0.05]"
+              href={withBasePath('trades/')}>Trades</a
+            >
+            <a
+              class="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-slate-200 transition hover:border-white/20 hover:bg-white/[0.05]"
+              href={withBasePath('services/')}>Services</a
+            >
+            <a
+              class="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-slate-200 transition hover:border-white/20 hover:bg-white/[0.05]"
+              href={withBasePath('about/')}>About</a
+            >
+            <a
+              class="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-slate-200 transition hover:border-white/20 hover:bg-white/[0.05]"
+              href={withBasePath('build-studio/')}>Build studio</a
+            >
+            <a
+              class="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-slate-200 transition hover:border-white/20 hover:bg-white/[0.05]"
+              href={withBasePath('contact-hq/')}>Contact</a
+            >
+          </div>
+
+          <dl class="grid gap-4 pt-4 sm:grid-cols-3">
+            {
+              operatingHighlights.map(item => (
+                <div class="rounded-3xl border border-white/10 bg-white/[0.03] p-5">
+                  <dt class="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-white/45">
+                    {item.label}
+                  </dt>
+                  <dd class="mt-3 text-3xl font-semibold tracking-tight text-white">
+                    {item.value}
+                  </dd>
+                  <p class="mt-3 text-sm leading-6 text-slate-300">
+                    {item.note}
+                  </p>
+                </div>
+              ))
+            }
+          </dl>
+        </div>
+
+        <ModernCard variant="glass" className="p-7 sm:p-8">
+          <div class="space-y-6">
+            <div>
+              <p
+                class="font-mono text-[0.68rem] uppercase tracking-[0.24em] text-white/50"
+              >
+                What to expect
+              </p>
+              <p class="mt-3 text-lg font-semibold text-white">
+                A simpler front door with clearer service ownership.
+              </p>
+            </div>
+
+            <div class="space-y-4">
               {
-                tradePrograms.map(program => (
-                  <div class="landing-program-row">
-                    <div class="min-w-0">
-                      <p class="tone-title text-base font-semibold">
-                        {program.title}
-                      </p>
-                      <p class="tone-body mt-1 text-sm">
-                        {program.description}
-                      </p>
-                    </div>
-                    <div class="flex flex-wrap gap-2">
-                      <span class="creative-chip">
-                        {program.tradeSlugs.length} linked trades
-                      </span>
-                      {program.outputs.slice(0, 2).map(output => (
-                        <span class="landing-program-card__output">
-                          {output}
-                        </span>
-                      ))}
-                    </div>
+                platformFocus.map(item => (
+                  <div class="border-l border-white/10 pl-4">
+                    <p class="text-sm font-semibold text-white">{item.title}</p>
+                    <p class="mt-2 text-sm leading-6 text-slate-300">
+                      {item.copy}
+                    </p>
                   </div>
                 ))
               }
+            </div>
+
+            <div class="border-t border-white/10 pt-5">
+              <p
+                class="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-white/45"
+              >
+                Common sectors
+              </p>
+              <div class="mt-3 flex flex-wrap gap-2">
+                {
+                  marketSectors.map(sector => (
+                    <span class="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-slate-200">
+                      {sector}
+                    </span>
+                  ))
+                }
+              </div>
             </div>
           </div>
         </ModernCard>
@@ -447,552 +248,422 @@ const pageNavigator = {
     </div>
   </section>
 
-  <section
-    class="relative z-20 scroll-mt-32"
-    data-reveal
-    id="gallery-preview"
-    data-page-section
-  >
-    <div class="mx-auto max-w-[1440px] px-4 py-6 sm:px-6 sm:py-10">
-      <div class="creative-hero-shell p-5 sm:p-8">
-        <div
-          class="flex flex-col gap-6 border-b border-white/10 pb-8 md:flex-row md:items-end md:justify-between"
-        >
-          <div class="max-w-3xl space-y-4">
-            <p class="creative-kicker">Gallery Preview</p>
-            <h2
-              class="tone-title text-3xl font-semibold tracking-tight [text-wrap:balance] sm:text-4xl"
-            >
-              A new page turns the site into a working mini gallery of digital
-              art direction.
-            </h2>
-            <p class="tone-body text-base leading-relaxed">
-              These studies are trade-aware visual concepts linked directly into
-              the live routes.
-            </p>
-          </div>
-          <ModernButton
-            href={withBasePath('gallery/')}
-            variant="secondary"
-            className="min-h-[48px]"
-          >
-            Open full gallery
-          </ModernButton>
-        </div>
+  <script is:inline>
+    (() => {
+      const paintHeroCanvases = () => {
+        document
+          .querySelectorAll('canvas[data-hero-canvas="true"]')
+          .forEach(node => {
+            if (!(node instanceof HTMLCanvasElement)) return;
 
-        <div class="mt-8 grid gap-5 xl:grid-cols-2">
-          {
-            featuredInstallations.map(installation => (
-              <a
-                href={withBasePath('gallery/#gallery-wall')}
-                class="landing-gallery-card"
-                style={`--gallery-accent:${installation.palette[0]};--gallery-secondary:${installation.palette[1]};--gallery-shadow:${installation.palette[2]};`}
-              >
-                <div class="landing-gallery-card__poster">
-                  <div class="landing-gallery-card__grid" />
-                  <div class="landing-gallery-card__orb" />
-                  <div class="landing-gallery-card__ribbon" />
-                </div>
-                <div class="space-y-3 p-5">
-                  <div class="flex flex-wrap gap-2">
-                    <span class="creative-chip">{installation.trade}</span>
-                    <span class="creative-chip">{installation.category}</span>
-                  </div>
-                  <p class="tone-title text-2xl font-semibold">
-                    {installation.title}
-                  </p>
-                  <p class="tone-body text-sm leading-relaxed">
-                    {installation.summary}
-                  </p>
-                </div>
-              </a>
-            ))
-          }
-        </div>
+            const rect = node.getBoundingClientRect();
+            const width = Math.max(Math.floor(rect.width), 1);
+            const height = Math.max(Math.floor(rect.height), 1);
+            const ratio = Math.min(window.devicePixelRatio || 1, 2);
+
+            node.width = Math.floor(width * ratio);
+            node.height = Math.floor(height * ratio);
+
+            const context = node.getContext('2d');
+            if (!context) return;
+
+            context.setTransform(ratio, 0, 0, ratio, 0, 0);
+            context.clearRect(0, 0, width, height);
+
+            const base = context.createLinearGradient(0, 0, 0, height);
+            base.addColorStop(0, '#102033');
+            base.addColorStop(0.52, '#0d1727');
+            base.addColorStop(1, '#08111d');
+            context.fillStyle = base;
+            context.fillRect(0, 0, width, height);
+
+            const glowLeft = context.createRadialGradient(
+              width * 0.18,
+              height * 0.14,
+              0,
+              width * 0.18,
+              height * 0.14,
+              width * 0.34
+            );
+            glowLeft.addColorStop(0, 'rgba(191, 219, 254, 0.42)');
+            glowLeft.addColorStop(1, 'rgba(191, 219, 254, 0)');
+            context.fillStyle = glowLeft;
+            context.fillRect(0, 0, width, height);
+
+            const glowRight = context.createRadialGradient(
+              width * 0.84,
+              height * 0.1,
+              0,
+              width * 0.84,
+              height * 0.1,
+              width * 0.28
+            );
+            glowRight.addColorStop(0, 'rgba(125, 211, 252, 0.24)');
+            glowRight.addColorStop(1, 'rgba(125, 211, 252, 0)');
+            context.fillStyle = glowRight;
+            context.fillRect(0, 0, width, height);
+
+            context.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+            context.lineWidth = 1;
+            const gridSize = Math.max(Math.round(width / 18), 44);
+
+            for (let x = 0; x <= width; x += gridSize) {
+              context.beginPath();
+              context.moveTo(x, 0);
+              context.lineTo(x, height);
+              context.stroke();
+            }
+
+            for (let y = 0; y <= height; y += gridSize) {
+              context.beginPath();
+              context.moveTo(0, y);
+              context.lineTo(width, y);
+              context.stroke();
+            }
+
+            context.strokeStyle = 'rgba(147, 197, 253, 0.4)';
+            context.lineWidth = 2;
+            context.beginPath();
+            context.moveTo(width * 0.08, height * 0.72);
+            context.bezierCurveTo(
+              width * 0.24,
+              height * 0.58,
+              width * 0.42,
+              height * 0.82,
+              width * 0.58,
+              height * 0.6
+            );
+            context.bezierCurveTo(
+              width * 0.68,
+              height * 0.46,
+              width * 0.8,
+              height * 0.64,
+              width * 0.92,
+              height * 0.42
+            );
+            context.stroke();
+
+            context.fillStyle = 'rgba(255, 255, 255, 0.65)';
+            [
+              [0.18, 0.32],
+              [0.38, 0.54],
+              [0.61, 0.38],
+              [0.81, 0.22],
+            ].forEach(([x, y]) => {
+              context.beginPath();
+              context.arc(width * x, height * y, 5, 0, Math.PI * 2);
+              context.fill();
+            });
+          });
+      };
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', paintHeroCanvases, {
+          once: true,
+        });
+      } else {
+        paintHeroCanvases();
+      }
+
+      window.addEventListener('resize', paintHeroCanvases);
+      document.addEventListener('astro:page-load', paintHeroCanvases);
+    })();
+  </script>
+
+  <section
+    class="border-b border-white/10"
+    id="focus"
+    data-page-section
+    data-reveal
+  >
+    <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
+      <div class="max-w-3xl space-y-4">
+        <p
+          class="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-white/55"
+        >
+          Where the platform is strongest
+        </p>
+        <h2
+          class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
+        >
+          Delivery lanes built for projects, facilities, and ongoing operations.
+        </h2>
+        <p class="text-base leading-7 text-slate-300">
+          The site now emphasizes practical fit instead of generic claims. These
+          are the main problem spaces the platform is designed to handle.
+        </p>
+      </div>
+
+      <div class="mt-10 grid gap-5 lg:grid-cols-3">
+        {
+          platformFocus.map(item => (
+            <ModernCard variant="default" className="h-full p-7">
+              <p class="text-lg font-semibold text-white">{item.title}</p>
+              <p class="mt-3 text-sm leading-7 text-slate-300">{item.copy}</p>
+            </ModernCard>
+          ))
+        }
       </div>
     </div>
   </section>
 
   <section
-    class="relative z-20 scroll-mt-32"
-    data-reveal
-    id="continuity"
+    class="border-b border-white/10"
+    id="directory"
     data-page-section
+    data-reveal
   >
-    <div class="mx-auto max-w-[1440px] px-4 py-6 sm:px-6 sm:py-10">
-      <div class="grid gap-5 xl:grid-cols-[1.04fr_0.96fr]">
-        <ModernCard variant="minimal" className="creative-panel p-7">
-          <p class="creative-kicker">Connected Continuity</p>
-          <h2 class="tone-title mt-4 text-3xl font-semibold">
-            Nothing important was deleted. The site was extended into a more
-            complete system.
-          </h2>
-          <p class="tone-body mt-3 max-w-3xl text-sm leading-relaxed">
-            The landing page points directly into the trade map, gallery,
-            services architecture, about page, portfolio lab, and build studio.
+    <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
+      <div
+        class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between"
+      >
+        <div class="max-w-3xl space-y-4">
+          <p
+            class="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-white/55"
+          >
+            Service divisions
           </p>
+          <h2
+            class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
+          >
+            Each division has its own operating model, service rhythm, and owner
+            output.
+          </h2>
+          <p class="text-base leading-7 text-slate-300">
+            Instead of hiding everything behind style, the homepage now surfaces
+            the basic operating logic for each lane so buyers can orient
+            quickly.
+          </p>
+        </div>
 
-          <div class="mt-8 grid gap-4 lg:grid-cols-2">
-            {
-              continuityRoutes.map(route => (
-                <a
-                  href={route.href}
-                  class="landing-route-card rounded-[1.6rem] border border-white/10 bg-white/[0.03] p-5 transition-all hover:border-white/20 hover:bg-white/[0.05]"
-                >
-                  <p class="tone-title text-xl font-semibold">{route.title}</p>
-                  <p class="tone-body mt-2 text-sm">{route.description}</p>
-                </a>
-              ))
-            }
-          </div>
-        </ModernCard>
+        <ModernButton
+          href={withBasePath('trades/')}
+          variant="secondary"
+          className="min-h-[48px] shrink-0"
+        >
+          View full trade directory
+        </ModernButton>
+      </div>
 
-        <ModernCard variant="minimal" className="creative-panel p-7">
-          <p class="creative-kicker">Final Read</p>
+      <div class="mt-10 grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
+        {
+          tradeHighlights.map(({ trade, operations }) => (
+            <a
+              href={withBasePath(`trades/${trade.slug}/`)}
+              class="hover:border-white/18 group rounded-3xl border border-white/10 bg-white/[0.03] p-6 transition hover:bg-white/[0.05]"
+              style={`--trade-accent:${trade.accent};`}
+            >
+              <div class="flex items-start justify-between gap-4">
+                <div>
+                  <div
+                    class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border text-sm font-semibold uppercase tracking-[0.18em] text-white"
+                    style={`border-color:color-mix(in srgb, var(--trade-accent) 40%, rgba(255,255,255,0.12)); background:color-mix(in srgb, var(--trade-accent) 16%, transparent);`}
+                  >
+                    {trade.badge}
+                  </div>
+                  <p class="mt-4 text-xs uppercase tracking-[0.22em] text-white/45">
+                    {trade.eyebrow}
+                  </p>
+                </div>
+
+                <span class="rounded-full border border-white/10 px-3 py-1 text-[0.65rem] uppercase tracking-[0.22em] text-white/55">
+                  {trade.shortName}
+                </span>
+              </div>
+
+              <h3 class="mt-4 text-xl font-semibold text-white">
+                {trade.name}
+              </h3>
+              <p class="mt-3 text-sm leading-7 text-slate-300">
+                {trade.summary}
+              </p>
+
+              <dl class="mt-6 space-y-4 border-t border-white/10 pt-5 text-sm">
+                <div>
+                  <dt class="font-mono text-[0.66rem] uppercase tracking-[0.2em] text-white/45">
+                    Operating model
+                  </dt>
+                  <dd class="mt-1 text-slate-100">
+                    {operations.operatingModel}
+                  </dd>
+                </div>
+                <div>
+                  <dt class="font-mono text-[0.66rem] uppercase tracking-[0.2em] text-white/45">
+                    Service rhythm
+                  </dt>
+                  <dd class="mt-1 text-slate-300">
+                    {operations.serviceRhythm}
+                  </dd>
+                </div>
+                <div>
+                  <dt class="font-mono text-[0.66rem] uppercase tracking-[0.2em] text-white/45">
+                    Typical project window
+                  </dt>
+                  <dd class="mt-1 text-slate-300">
+                    {operations.projectWindow}
+                  </dd>
+                </div>
+              </dl>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section
+    class="border-b border-white/10"
+    id="delivery"
+    data-page-section
+    data-reveal
+  >
+    <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
+      <div class="max-w-3xl space-y-4">
+        <p
+          class="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-white/55"
+        >
+          Delivery model
+        </p>
+        <h2
+          class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
+        >
+          The site now explains how work moves, not just what the brand says.
+        </h2>
+        <p class="text-base leading-7 text-slate-300">
+          A more professional site should help a buyer understand the workflow.
+          These four stages are the spine of the new homepage structure.
+        </p>
+      </div>
+
+      <div class="mt-10 grid gap-5 lg:grid-cols-2 xl:grid-cols-4">
+        {
+          deliveryStages.map(stage => (
+            <ModernCard variant="outline" className="h-full p-6">
+              <p class="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-white/45">
+                {stage.step}
+              </p>
+              <h3 class="mt-4 text-lg font-semibold text-white">
+                {stage.title}
+              </h3>
+              <p class="mt-3 text-sm leading-7 text-slate-300">{stage.copy}</p>
+            </ModernCard>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section
+    class="border-b border-white/10"
+    id="programs"
+    data-page-section
+    data-reveal
+  >
+    <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
+      <div class="max-w-3xl space-y-4">
+        <p
+          class="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-white/55"
+        >
+          Cross-trade programs
+        </p>
+        <h2
+          class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
+        >
+          Some client needs cross more than one lane. That relationship is now
+          visible.
+        </h2>
+        <p class="text-base leading-7 text-slate-300">
+          Rather than forcing every buyer into a single silo, the homepage now
+          shows how recurring program types combine the right trades and
+          outputs.
+        </p>
+      </div>
+
+      <div class="mt-10 grid gap-5 lg:grid-cols-3">
+        {
+          tradePrograms.map(program => (
+            <ModernCard variant="glass" className="h-full p-7">
+              <p class="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-white/45">
+                {program.tradeSlugs.length} linked trades
+              </p>
+              <h3 class="mt-4 text-xl font-semibold text-white">
+                {program.title}
+              </h3>
+              <p class="mt-3 text-sm leading-7 text-slate-300">
+                {program.description}
+              </p>
+
+              <div class="mt-6 border-t border-white/10 pt-5">
+                <p class="font-mono text-[0.66rem] uppercase tracking-[0.2em] text-white/45">
+                  Typical outputs
+                </p>
+                <ul class="mt-3 space-y-2 text-sm text-slate-300">
+                  {program.outputs.map(output => (
+                    <li class="flex items-start gap-2">
+                      <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-sky-300" />
+                      <span>{output}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </ModernCard>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="relative" id="contact" data-page-section data-reveal>
+    <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6 sm:py-20">
+      <ModernCard variant="glass" className="p-8 sm:p-10">
+        <div class="grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
           <div class="space-y-4">
-            <h2 class="tone-title text-3xl font-semibold">
-              The experience now behaves more like a premium platform than a
-              generic marketing homepage.
+            <p
+              class="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-white/55"
+            >
+              Get started
+            </p>
+            <h2
+              class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
+            >
+              Need the right division, the right starting scope, or the right
+              program shape?
             </h2>
-            <p class="tone-body text-sm leading-relaxed">
-              Buyers can route into a specific trade, explore art-directed
-              gallery concepts, study the broader company architecture, or jump
-              into the retained interactive demos.
+            <p class="max-w-2xl text-base leading-7 text-slate-300">
+              Browse the trade directory, work through the services hub, or send
+              a brief describing your facility, project, environment, or
+              operational problem. The site is now organized to make that first
+              step easier.
             </p>
           </div>
-          <div class="mt-8 flex flex-col gap-3">
+
+          <div
+            class="flex flex-col gap-3 sm:flex-row lg:flex-col lg:justify-end"
+          >
             <ModernButton
-              href={withBasePath('gallery/')}
-              variant="gradient"
+              href={withBasePath('trades/')}
+              variant="primary"
               className="min-h-[50px]"
             >
-              Enter the design gallery
+              Browse all divisions
             </ModernButton>
             <ModernButton
-              href={withBasePath('company/')}
+              href={withBasePath('pricing/')}
               variant="secondary"
               className="min-h-[50px]"
             >
-              Open About
+              Review pricing and scope
             </ModernButton>
             <ModernButton
-              href={startProjectHref}
+              href={contactHref}
               variant="outline"
               className="min-h-[50px]"
             >
               Email a project brief
             </ModernButton>
           </div>
-        </ModernCard>
-      </div>
+        </div>
+      </ModernCard>
     </div>
   </section>
 </MarketingLayout>
-
-<style is:inline>
-  .landing-veil {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background:
-      radial-gradient(
-        circle at 16% 12%,
-        rgba(204, 255, 0, 0.12),
-        transparent 28%
-      ),
-      radial-gradient(
-        circle at 82% 16%,
-        rgba(128, 214, 255, 0.16),
-        transparent 24%
-      ),
-      linear-gradient(180deg, rgba(2, 4, 10, 0.14), rgba(2, 4, 10, 0.82));
-  }
-
-  .landing-program-row {
-    display: grid;
-    gap: 0.85rem;
-    border-radius: 1.25rem;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    background: rgba(255, 255, 255, 0.025);
-    padding: 0.95rem 1rem;
-  }
-
-  @media (min-width: 900px) {
-    .landing-program-row {
-      grid-template-columns: minmax(0, 1fr) auto;
-      align-items: center;
-    }
-  }
-
-  .landing-note-card {
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 1.35rem;
-    background:
-      linear-gradient(
-        155deg,
-        rgba(255, 255, 255, 0.06),
-        rgba(255, 255, 255, 0)
-      ),
-      rgba(5, 7, 14, 0.76);
-    padding: 1rem 1.05rem;
-    box-shadow: 0 28px 70px -42px rgba(0, 0, 0, 0.9);
-  }
-
-  .landing-specimen {
-    background:
-      linear-gradient(
-        155deg,
-        rgba(255, 255, 255, 0.08),
-        rgba(255, 255, 255, 0.02)
-      ),
-      radial-gradient(
-        circle at top right,
-        rgba(204, 255, 0, 0.1),
-        transparent 34%
-      ),
-      rgba(5, 7, 12, 0.84);
-  }
-
-  .landing-specimen__tile {
-    border-radius: 1.3rem;
-    border: 1px solid rgba(255, 255, 255, 0.09);
-    background: rgba(255, 255, 255, 0.03);
-    padding: 1rem;
-  }
-
-  .landing-atrium {
-    display: grid;
-    gap: 1.2rem;
-    background:
-      linear-gradient(
-        155deg,
-        rgba(255, 255, 255, 0.08),
-        rgba(255, 255, 255, 0.02)
-      ),
-      rgba(5, 7, 12, 0.8);
-  }
-
-  .landing-atrium__stage {
-    position: relative;
-    min-height: 250px;
-    overflow: hidden;
-    border-radius: 1.5rem;
-    background:
-      radial-gradient(
-        circle at 18% 20%,
-        rgba(204, 255, 0, 0.24),
-        transparent 24%
-      ),
-      radial-gradient(
-        circle at 82% 22%,
-        rgba(112, 210, 255, 0.3),
-        transparent 24%
-      ),
-      linear-gradient(145deg, #0a1016, #080b10);
-  }
-
-  .landing-atrium__grid,
-  .landing-atrium__orb,
-  .landing-atrium__ribbon {
-    position: absolute;
-    pointer-events: none;
-  }
-
-  .landing-atrium__grid {
-    inset: 8%;
-    border-radius: 1.3rem;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    background-image:
-      linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
-    background-size: 28px 28px;
-    mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.88), transparent);
-  }
-
-  .landing-atrium__orb {
-    top: 18%;
-    right: 12%;
-    height: 140px;
-    width: 140px;
-    border-radius: 999px;
-    background: radial-gradient(
-      circle at 36% 28%,
-      rgba(255, 255, 255, 0.98),
-      rgba(204, 255, 0, 0.56) 28%,
-      transparent 72%
-    );
-  }
-
-  .landing-atrium__ribbon {
-    left: 12%;
-    right: 18%;
-    bottom: 14%;
-    height: 76px;
-    border-radius: 999px;
-    background: linear-gradient(
-      90deg,
-      rgba(204, 255, 0, 0),
-      rgba(104, 204, 255, 0.58),
-      rgba(204, 255, 0, 0.2)
-    );
-    filter: blur(28px);
-  }
-
-  .landing-trade-world {
-    position: relative;
-    display: grid;
-    gap: 1rem;
-    overflow: hidden;
-    border-radius: 1.55rem;
-    border: 1px solid rgba(255, 255, 255, 0.09);
-    background:
-      linear-gradient(
-        155deg,
-        color-mix(in srgb, var(--trade-accent) 10%, transparent),
-        rgba(255, 255, 255, 0.02)
-      ),
-      rgba(5, 7, 14, 0.84);
-    padding: 1.1rem;
-    box-shadow: 0 32px 80px -44px rgba(0, 0, 0, 0.94);
-    transition:
-      transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-      border-color 0.35s ease,
-      box-shadow 0.35s ease;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-  }
-
-  @media (min-width: 640px) {
-    .landing-trade-world {
-      padding: 1.2rem;
-    }
-  }
-
-  @media (hover: hover) {
-    .landing-trade-world:hover {
-      transform: translateY(-4px);
-      border-color: color-mix(in srgb, var(--trade-accent) 36%, transparent);
-      box-shadow:
-        0 40px 100px -48px rgba(0, 0, 0, 0.98),
-        0 0 42px -26px color-mix(in srgb, var(--trade-accent) 36%, transparent);
-    }
-  }
-
-  .landing-trade-world:active {
-    transform: scale(0.98);
-    border-color: color-mix(in srgb, var(--trade-accent) 28%, transparent);
-  }
-
-  .landing-trade-world__glow {
-    position: absolute;
-    inset: auto -12% -20% 36%;
-    height: 160px;
-    border-radius: 999px;
-    background: radial-gradient(
-      circle,
-      color-mix(in srgb, var(--trade-accent) 22%, transparent),
-      transparent 70%
-    );
-    filter: blur(22px);
-    pointer-events: none;
-  }
-
-  .landing-trade-world__stage {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem;
-  }
-
-  .landing-trade-world__badge {
-    display: inline-flex;
-    height: 2.5rem;
-    width: 2.5rem;
-    align-items: center;
-    justify-content: center;
-    border-radius: 999px;
-    border: 1px solid color-mix(in srgb, var(--trade-accent) 28%, transparent);
-    background: color-mix(
-      in srgb,
-      var(--trade-accent) 12%,
-      rgba(255, 255, 255, 0.02)
-    );
-    font-family: var(--font-mono);
-    font-size: 0.74rem;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: white;
-  }
-
-  .landing-trade-world__metric {
-    border-radius: 1.15rem;
-    border: 1px solid rgba(255, 255, 255, 0.09);
-    background: rgba(255, 255, 255, 0.03);
-    padding: 0.9rem 1rem;
-  }
-
-  .landing-trade-world__tag {
-    display: inline-flex;
-    align-items: center;
-    border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    padding: 0.44rem 0.8rem;
-    font-size: 0.72rem;
-    color: rgba(255, 255, 255, 0.68);
-  }
-
-  .landing-program-card {
-    border-radius: 1.4rem;
-    border: 1px solid rgba(255, 255, 255, 0.09);
-    background: rgba(255, 255, 255, 0.03);
-    padding: 1.2rem;
-  }
-
-  .landing-program-card__output {
-    display: inline-flex;
-    align-items: center;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.05);
-    padding: 0.48rem 0.84rem;
-    font-size: 0.74rem;
-    color: rgba(255, 255, 255, 0.72);
-  }
-
-  .landing-gallery-card {
-    display: grid;
-    overflow: hidden;
-    border-radius: 1.6rem;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    background:
-      linear-gradient(
-        155deg,
-        rgba(255, 255, 255, 0.06),
-        rgba(255, 255, 255, 0)
-      ),
-      rgba(5, 7, 14, 0.84);
-    transition:
-      transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-      border-color 0.35s ease;
-  }
-
-  @media (hover: hover) {
-    .landing-gallery-card:hover {
-      transform: translateY(-4px);
-      border-color: color-mix(in srgb, var(--gallery-accent) 32%, transparent);
-    }
-  }
-
-  .landing-gallery-card:active {
-    transform: scale(0.985);
-  }
-
-  .landing-gallery-card {
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-  }
-
-  .landing-gallery-card__poster {
-    position: relative;
-    min-height: 230px;
-    overflow: hidden;
-    background:
-      radial-gradient(
-        circle at 18% 20%,
-        color-mix(in srgb, var(--gallery-accent) 46%, transparent),
-        transparent 26%
-      ),
-      radial-gradient(
-        circle at 84% 22%,
-        color-mix(in srgb, var(--gallery-secondary) 42%, transparent),
-        transparent 24%
-      ),
-      linear-gradient(
-        145deg,
-        color-mix(in srgb, var(--gallery-shadow) 88%, black 12%),
-        rgba(7, 9, 16, 0.96)
-      );
-  }
-
-  .landing-gallery-card__grid,
-  .landing-gallery-card__orb,
-  .landing-gallery-card__ribbon {
-    position: absolute;
-    pointer-events: none;
-  }
-
-  .landing-gallery-card__grid {
-    inset: 8%;
-    border-radius: 1.35rem;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    background-image:
-      linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
-    background-size: 24px 24px;
-    mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.95), transparent 88%);
-  }
-
-  .landing-gallery-card__orb {
-    top: 18%;
-    right: 12%;
-    height: 126px;
-    width: 126px;
-    border-radius: 999px;
-    background: radial-gradient(
-      circle at 36% 28%,
-      rgba(255, 255, 255, 0.98),
-      color-mix(in srgb, var(--gallery-accent) 42%, white 58%) 28%,
-      transparent 70%
-    );
-  }
-
-  .landing-gallery-card__ribbon {
-    left: 12%;
-    right: 20%;
-    bottom: 14%;
-    height: 68px;
-    border-radius: 999px;
-    background: linear-gradient(
-      90deg,
-      color-mix(in srgb, var(--gallery-accent) 0%, transparent),
-      color-mix(in srgb, var(--gallery-secondary) 48%, transparent),
-      color-mix(in srgb, var(--gallery-accent) 18%, transparent)
-    );
-    filter: blur(24px);
-  }
-
-  .landing-route-card {
-    position: relative;
-    overflow: hidden;
-  }
-
-  .landing-route-card::after {
-    content: '';
-    position: absolute;
-    inset: auto 12% -42% 12%;
-    height: 120px;
-    border-radius: 999px;
-    background: radial-gradient(
-      circle,
-      rgba(204, 255, 0, 0.1),
-      transparent 72%
-    );
-    filter: blur(20px);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-
-  @media (hover: hover) {
-    .landing-route-card:hover::after {
-      opacity: 1;
-    }
-  }
-
-  .landing-route-card {
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-  }
-
-  .landing-route-card:active {
-    background: rgba(255, 255, 255, 0.06);
-  }
-</style>

@@ -38,24 +38,23 @@ const {
 } = Astro.props;
 
 const baseClasses =
-  'rounded-2xl transition-all duration-500 ease-smooth relative overflow-hidden group will-change-transform touch-manipulation motion-reduce:transition-none';
+  'relative overflow-hidden rounded-2xl transition-[border-color,background-color,box-shadow,transform] duration-200 ease-out touch-manipulation motion-reduce:transition-none';
 
 const variants = {
   default:
-    'bg-[#080808]/90 border border-white/[0.06] backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,0,0,0.6)] overflow-hidden transition-all duration-500 hover:border-white/[0.12] hover:shadow-[0_12px_48px_rgba(0,0,0,0.7)]',
+    'border border-white/[0.08] bg-white/[0.03] shadow-[0_18px_40px_rgba(2,6,23,0.16)]',
   outline:
-    'border border-white/[0.1] bg-transparent backdrop-blur-md hover:bg-white/[0.03] hover:border-white/15 transition-all duration-300',
+    'border border-white/[0.12] bg-transparent hover:bg-white/[0.02] hover:border-white/18',
   gradient:
-    'relative bg-[#050505] border border-white/[0.08] overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.4)] hover:shadow-[0_0_60px_rgba(204,255,0,0.04)] before:absolute before:inset-0 before:bg-gradient-to-br before:from-[#ccff00]/[0.06] before:via-white/[0.02] before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity duration-500',
+    'border border-sky-200/18 bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.03))] shadow-[0_18px_40px_rgba(37,99,235,0.08)]',
   glass:
-    'bg-white/[0.03] backdrop-blur-3xl border border-white/[0.08] shadow-[0_8px_40px_rgba(0,0,0,0.7),_inset_0_1px_0_rgba(255,255,255,0.05)] hover:bg-white/[0.06] hover:border-white/[0.12] transition-all duration-500',
-  neon: 'bg-[#050505] border border-[#ccff00]/25 shadow-[0_0_24px_rgba(204,255,0,0.08),_inset_0_0_12px_rgba(204,255,0,0.03)] hover:shadow-[0_0_40px_rgba(204,255,0,0.15),_inset_0_0_20px_rgba(204,255,0,0.06)] hover:border-[#ccff00]/50 transition-all duration-500',
+    'border border-white/[0.1] bg-white/[0.04] shadow-[0_22px_42px_rgba(2,6,23,0.18)] backdrop-blur-xl',
+  neon: 'border border-sky-300/20 bg-sky-400/8 shadow-[0_16px_34px_rgba(37,99,235,0.08)]',
   minimal:
-    'bg-transparent border border-white/[0.04] hover:border-white/[0.1] transition-colors duration-300',
+    'border border-white/[0.08] bg-transparent hover:border-white/[0.14]',
   elevated:
-    'bg-[#0a0a0a] border border-white/[0.08] shadow-[0_20px_48px_rgba(0,0,0,0.8),_0_0_0_1px_rgba(255,255,255,0.03)] hover:-translate-y-2 hover:shadow-[0_32px_64px_rgba(0,0,0,0.9),_0_0_24px_rgba(204,255,0,0.04)] transition-all duration-500',
-  bordered:
-    'bg-transparent border-t border-white/15 hover:border-white/30 transition-colors duration-300',
+    'border border-white/[0.1] bg-white/[0.05] shadow-[0_20px_44px_rgba(2,6,23,0.2)]',
+  bordered: 'border-t border-white/15 bg-transparent hover:border-white/24',
 };
 
 const sizes = {
@@ -66,9 +65,7 @@ const sizes = {
   xl: 'p-10',
 };
 
-const hoverEffects = hover
-  ? '[@media(hover:hover)]:hover:shadow-2xl [@media(hover:hover)]:hover:shadow-[#ccff00]/10 [@media(hover:hover)]:hover:-translate-y-2 [@media(hover:hover)]:hover:scale-[1.02] [@media(hover:hover)]:hover:rotate-[0.5deg]'
-  : '';
+const hoverEffects = hover ? '[@media(hover:hover)]:hover:-translate-y-px' : '';
 const glowEffects = glow
   ? 'before:absolute before:inset-0 before:rounded-2xl before:p-[2px] before:bg-gradient-to-r before:from-[#ccff00]/50 before:via-[#ccff00]/20 before:to-[#ccff00] before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-500 before:animate-gradient before:bg-[length:200%_200%]'
   : '';
@@ -88,72 +85,36 @@ const Tag = href ? 'a' : 'div';
 ---
 
 <Tag href={href} class={classes} style={combinedStyle} {...rest}>
-  {/* Spotlight effect */}
   {
     spotlight && (
       <div
-        class="pointer-events-none absolute inset-0 z-10 opacity-0 transition-opacity duration-500 motion-reduce:transition-none [@media(hover:hover)]:group-hover:opacity-100"
-        style="background: radial-gradient(600px circle at var(--mouse-x) var(--mouse-y), rgba(255,255,255,0.1), transparent 40%);"
+        class="pointer-events-none absolute inset-0 z-10 opacity-0 transition-opacity duration-300 motion-reduce:transition-none [@media(hover:hover)]:group-hover:opacity-100"
+        style="background: radial-gradient(420px circle at var(--mouse-x) var(--mouse-y), rgba(255,255,255,0.06), transparent 42%);"
       />
     )
   }
 
-  {/* Glow effect background */}
   {
     glow && (
-      <div class="absolute inset-[2px] z-10 rounded-2xl bg-white dark:bg-neutral-800" />
+      <div class="absolute inset-[1px] z-10 rounded-2xl bg-white/[0.02]" />
     )
   }
 
-  {/* Content wrapper */}
   <div class="relative z-20">
     <slot />
   </div>
 
-  {/* Animated background patterns */}
-  {
-    animated && (
-      <>
-        <div class="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-700 motion-reduce:transition-none [@media(hover:hover)]:group-hover:opacity-100">
-          <div class="bg-primary-500/10 absolute left-1/4 top-1/4 h-32 w-32 animate-float rounded-full blur-2xl" />
-          <div
-            class="bg-secondary-500/10 absolute bottom-1/4 right-1/4 h-24 w-24 animate-pulse-slow rounded-full blur-2xl"
-            style="animation-delay: 1s"
-          />
-          <div
-            class="absolute right-1/3 top-1/2 h-20 w-20 animate-float rounded-full bg-[#ccff00]/10 blur-xl"
-            style="animation-delay: 0.5s"
-          />
-        </div>
-      </>
-    )
-  }
-
-  {/* Hover shimmer effect */}
-  <div
-    class="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/[0.08] to-transparent opacity-0 transition-all duration-1000 ease-out motion-reduce:transition-none [@media(hover:hover)]:group-hover:translate-x-full [@media(hover:hover)]:group-hover:opacity-100"
-  >
-  </div>
-
-  {/* Border glow for neon variant */}
   {
     variant === 'neon' && (
-      <div class="absolute inset-0 animate-gradient rounded-2xl bg-gradient-to-r from-[#ccff00]/15 via-cyan-500/10 to-[#ccff00]/15 bg-[length:200%_200%] opacity-0 blur-lg transition-opacity duration-500 group-hover:opacity-100" />
+      <div class="from-sky-300/12 via-blue-300/8 to-sky-300/12 absolute inset-0 rounded-2xl bg-gradient-to-r opacity-0 blur-lg transition-opacity duration-300 group-hover:opacity-100" />
     )
   }
 
-  {/* Grid pattern overlay */}
   {
     variant === 'glass' && (
       <div class="pointer-events-none absolute inset-0 opacity-[0.02] pattern-grid dark:opacity-[0.05]" />
     )
   }
-
-  {/* Noise texture for depth */}
-  <div
-    class="pointer-events-none absolute inset-0 bg-noise opacity-[0.03] mix-blend-overlay dark:opacity-[0.08]"
-  >
-  </div>
 </Tag>
 
 <style>
@@ -241,3 +202,29 @@ const Tag = href ? 'a' : 'div';
     }
   }
 </style>
+
+<script>
+  function initSpotlightCards() {
+    const cards = document.querySelectorAll<HTMLElement>('.card-spotlight');
+    cards.forEach(card => {
+      if (card.dataset.spotlightBound === '1') return;
+      card.dataset.spotlightBound = '1';
+
+      card.addEventListener('mousemove', (e: MouseEvent) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        card.style.setProperty('--mouse-x', `${x}px`);
+        card.style.setProperty('--mouse-y', `${y}px`);
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSpotlightCards);
+  } else {
+    initSpotlightCards();
+  }
+
+  document.addEventListener('astro:page-load', initSpotlightCards);
+</script>
