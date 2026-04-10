@@ -315,6 +315,28 @@
     pointer-events: none;
   }
 
+  /* Mobile menu: animate open with a smooth slide-down + fade */
+  #mobile-menu:not([hidden]) {
+    animation: mobile-menu-in 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  @keyframes mobile-menu-in {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #mobile-menu:not([hidden]) {
+      animation: none;
+    }
+  }
+
   /* Loading indicator for link clicks */
   body.navigating {
     cursor: progress;
@@ -354,16 +376,24 @@
     filter: blur(0) saturate(1);
   }
 
-  /* High-end Creative Noise Base */
+  /* High-end Creative Noise Base
+   * Performance note: use inset:0 + scale() transform instead of inset:-200%
+   * to avoid creating a massive 5× viewport compositing layer on mobile.
+   * The scale(1.5) + translate keeps the noise seamless at tile edges
+   * while keeping the GPU layer to viewport size only.
+   */
   .creative-noise {
     position: fixed;
-    inset: -200%;
+    inset: 0;
     z-index: 9999;
     pointer-events: none;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
     opacity: var(--experience-noise-opacity, 0.04);
     mix-blend-mode: overlay;
     animation: shift-noise 8s steps(10) infinite;
+    will-change: transform;
+    transform: scale(1.02);
   }
 
   html[data-experience-mode='editorial'] .creative-noise {
@@ -378,37 +408,37 @@
 
   @keyframes shift-noise {
     0% {
-      transform: translate(0, 0);
+      transform: scale(1.02) translate(0, 0);
     }
     10% {
-      transform: translate(-5%, -5%);
+      transform: scale(1.02) translate(-1.5%, -1.5%);
     }
     20% {
-      transform: translate(-10%, 5%);
+      transform: scale(1.02) translate(-2%, 1.5%);
     }
     30% {
-      transform: translate(5%, -10%);
+      transform: scale(1.02) translate(1.5%, -2%);
     }
     40% {
-      transform: translate(-5%, 15%);
+      transform: scale(1.02) translate(-1%, 2%);
     }
     50% {
-      transform: translate(-10%, 5%);
+      transform: scale(1.02) translate(-2%, 1%);
     }
     60% {
-      transform: translate(15%, 0);
+      transform: scale(1.02) translate(2%, 0);
     }
     70% {
-      transform: translate(0, 15%);
+      transform: scale(1.02) translate(0, 2%);
     }
     80% {
-      transform: translate(3%, 35%);
+      transform: scale(1.02) translate(1%, 1.5%);
     }
     90% {
-      transform: translate(-10%, 10%);
+      transform: scale(1.02) translate(-1.5%, 1%);
     }
     100% {
-      transform: translate(0, 0);
+      transform: scale(1.02) translate(0, 0);
     }
   }
 
@@ -474,21 +504,21 @@
 
   /* Smooth scrollbar */
   ::-webkit-scrollbar {
-    width: 10px;
+    width: 8px;
   }
 
   ::-webkit-scrollbar-track {
-    background: rgba(15, 23, 42, 0.5);
+    background: rgba(2, 4, 10, 0.8);
   }
 
   ::-webkit-scrollbar-thumb {
-    background: rgba(99, 102, 241, 0.5);
-    border-radius: 5px;
+    background: rgba(204, 255, 0, 0.22);
+    border-radius: 4px;
     transition: background 0.3s ease;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(99, 102, 241, 0.7);
+    background: rgba(204, 255, 0, 0.42);
   }
 
   h1,
@@ -533,23 +563,23 @@
   /* Mobile typography tuning: reduce oversized headings and tighten rhythm */
   @media (max-width: 640px) {
     h1 {
-      font-size: clamp(2rem, 6vw, 2.75rem);
-      letter-spacing: -0.02em;
-      line-height: 1.1;
+      font-size: clamp(1.85rem, 7.5vw, 2.75rem);
+      letter-spacing: -0.025em;
+      line-height: 1.08;
       margin-bottom: 0.5em;
     }
 
     h2 {
-      font-size: clamp(1.75rem, 5vw, 2.25rem);
+      font-size: clamp(1.6rem, 6vw, 2.25rem);
       letter-spacing: -0.02em;
-      line-height: 1.15;
+      line-height: 1.13;
       margin-bottom: 0.55em;
     }
 
     h3 {
-      font-size: clamp(1.5rem, 4vw, 1.9rem);
+      font-size: clamp(1.35rem, 5vw, 1.9rem);
       letter-spacing: -0.015em;
-      line-height: 1.2;
+      line-height: 1.18;
       margin-bottom: 0.6em;
     }
 
@@ -618,12 +648,7 @@
     top: -24px;
     left: 18px;
     font-size: 3rem;
-    color: rgba(99, 102, 241, 0.25);
-  }
-
-  ::selection {
-    background: rgba(99, 102, 241, 0.3);
-    color: var(--color-text-primary);
+    color: rgba(204, 255, 0, 0.22);
   }
 }
 
@@ -936,11 +961,31 @@
 
   .creative-kicker::before {
     content: '';
-    width: 0.45rem;
-    height: 0.45rem;
+    width: 0.42rem;
+    height: 0.42rem;
+    flex-shrink: 0;
     border-radius: 999px;
     background: currentColor;
     box-shadow: 0 0 14px currentColor;
+    animation: kicker-pulse 2.4s ease-in-out infinite;
+  }
+
+  @keyframes kicker-pulse {
+    0%,
+    100% {
+      opacity: 1;
+      box-shadow: 0 0 8px currentColor;
+    }
+    50% {
+      opacity: 0.7;
+      box-shadow: 0 0 18px currentColor;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .creative-kicker::before {
+      animation: none;
+    }
   }
 
   .creative-chip {
@@ -976,8 +1021,15 @@
   .creative-copy {
     max-width: 66ch;
     color: rgb(184 184 192);
-    line-height: 1.82;
+    line-height: 1.78;
     font-weight: 350;
+  }
+
+  @media (max-width: 640px) {
+    .creative-copy {
+      line-height: 1.65;
+      font-size: 0.95rem;
+    }
   }
 
   .creative-title {
@@ -986,6 +1038,8 @@
     font-weight: 600;
     line-height: 1.02;
     text-wrap: balance;
+    word-break: break-word;
+    overflow-wrap: break-word;
   }
 
   .creative-section-shell {
@@ -1970,7 +2024,7 @@
   }
 
   .glass-panel:hover::after {
-    border-color: rgba(99, 102, 241, 0.2);
+    border-color: rgba(204, 255, 0, 0.14);
   }
 
   .btn {
@@ -2018,12 +2072,12 @@
       var(--color-primary-strong)
     );
     color: #f8fafc;
-    box-shadow: 0 14px 45px -25px rgba(99, 102, 241, 0.95);
+    box-shadow: 0 14px 45px -25px rgba(204, 255, 0, 0.4);
   }
 
   .btn-primary:hover {
     transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 20px 55px -25px rgba(99, 102, 241, 1);
+    box-shadow: 0 20px 55px -25px rgba(204, 255, 0, 0.55);
   }
 
   .btn-primary:active {
@@ -2039,7 +2093,7 @@
 
   .btn-secondary:hover {
     background: rgba(148, 163, 184, 0.15);
-    border-color: rgba(99, 102, 241, 0.4);
+    border-color: rgba(204, 255, 0, 0.28);
     transform: translateY(-2px);
   }
 
@@ -2048,16 +2102,16 @@
     align-items: center;
     font-size: 0.75rem;
     padding: 0.35rem 0.8rem;
-    background: rgba(99, 102, 241, 0.12);
-    border: 1px solid rgba(99, 102, 241, 0.2);
+    background: rgba(204, 255, 0, 0.06);
+    border: 1px solid rgba(204, 255, 0, 0.16);
     border-radius: 999px;
-    color: #a5b4fc;
+    color: rgba(204, 255, 0, 0.8);
     transition: all 0.3s ease;
   }
 
   .chip:hover {
-    background: rgba(99, 102, 241, 0.2);
-    border-color: rgba(99, 102, 241, 0.4);
+    background: rgba(204, 255, 0, 0.12);
+    border-color: rgba(204, 255, 0, 0.36);
     transform: scale(1.05);
   }
 
@@ -2111,7 +2165,7 @@
 
   /* Accessible focus rings (keyboard-first) */
   :focus-visible {
-    outline: 2px solid rgba(99, 102, 241, 0.95);
+    outline: 2px solid rgba(204, 255, 0, 0.9);
     outline-offset: 3px;
   }
 
@@ -2155,7 +2209,7 @@
     position: absolute;
     inset: 0;
     border-radius: inherit;
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), transparent);
+    background: linear-gradient(135deg, rgba(204, 255, 0, 0.06), transparent);
     opacity: 0;
     transition: opacity 0.3s ease;
     pointer-events: none;
@@ -2163,8 +2217,8 @@
 
   .card:hover {
     transform: translateY(-4px) scale(1.01);
-    border-color: rgba(99, 102, 241, 0.4);
-    box-shadow: 0 30px 70px -30px rgba(99, 102, 241, 0.5);
+    border-color: rgba(204, 255, 0, 0.22);
+    box-shadow: 0 30px 70px -30px rgba(204, 255, 0, 0.18);
   }
 
   .card:hover::before {
@@ -2243,15 +2297,15 @@
   /* Grid Patterns */
   .grid-highlight {
     background-image:
-      linear-gradient(0deg, rgba(99, 102, 241, 0.08) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(99, 102, 241, 0.08) 1px, transparent 1px);
+      linear-gradient(0deg, rgba(204, 255, 0, 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(204, 255, 0, 0.06) 1px, transparent 1px);
     background-size: 18px 18px;
   }
 
   .grid-dots {
     background-image: radial-gradient(
       circle,
-      rgba(99, 102, 241, 0.15) 1px,
+      rgba(204, 255, 0, 0.1) 1px,
       transparent 1px
     );
     background-size: 24px 24px;
@@ -2269,7 +2323,7 @@
     border-radius: inherit;
     background: radial-gradient(
       circle,
-      rgba(99, 102, 241, 0.35),
+      rgba(204, 255, 0, 0.22),
       transparent 65%
     );
     z-index: -1;
@@ -2277,15 +2331,15 @@
 
   .glow-subtle {
     box-shadow:
-      0 0 20px rgba(99, 102, 241, 0.15),
-      0 0 40px rgba(99, 102, 241, 0.1);
+      0 0 20px rgba(204, 255, 0, 0.1),
+      0 0 40px rgba(204, 255, 0, 0.06);
   }
 
   .glow-strong {
     box-shadow:
-      0 0 30px rgba(99, 102, 241, 0.4),
-      0 0 60px rgba(99, 102, 241, 0.2),
-      0 0 90px rgba(99, 102, 241, 0.1);
+      0 0 30px rgba(204, 255, 0, 0.28),
+      0 0 60px rgba(204, 255, 0, 0.14),
+      0 0 90px rgba(204, 255, 0, 0.06);
   }
 
   /* Glassmorphism */
@@ -2468,12 +2522,69 @@
   }
 
   .scrollbar-custom::-webkit-scrollbar-thumb {
-    background: rgba(99, 102, 241, 0.5);
+    background: rgba(204, 255, 0, 0.28);
     border-radius: 999px;
   }
 
   .scrollbar-custom::-webkit-scrollbar-thumb:hover {
-    background: rgba(99, 102, 241, 0.7);
+    background: rgba(204, 255, 0, 0.48);
+  }
+
+  /* ── Content-visibility: deferred rendering for off-screen sections ──
+   * Allows the browser to skip paint/layout for sections below the fold
+   * until they are about to scroll into view. Biggest win on mobile.
+   */
+  [data-page-section] {
+    content-visibility: auto;
+    contain-intrinsic-size: 0 600px;
+  }
+
+  /* ── Hover guards: disable translate/scale on touch devices ──
+   * Prevents "stuck hover" visual states on iOS/Android.
+   */
+  @media (hover: none) {
+    .creative-panel:hover,
+    .landing-trade-world:hover,
+    .landing-gallery-card:hover,
+    .glass-panel:hover,
+    .card:hover {
+      transform: none;
+    }
+
+    .creative-panel:hover::before {
+      opacity: 0;
+    }
+  }
+
+  /* ── Landscape phone: compact bottom nav context strip ──
+   * In landscape orientation on phones the context strip consumes too much
+   * vertical space. Hide it so the nav tabs remain usable.
+   */
+  @media (max-height: 500px) and (orientation: landscape) {
+    .bottom-nav-context {
+      display: none;
+    }
+
+    .bottom-nav {
+      border-radius: 1rem;
+      width: min(calc(100% - 1rem), 42rem);
+    }
+
+    .bottom-nav-inner {
+      padding: 4px 6px;
+    }
+
+    .bottom-nav-item {
+      padding: 6px 10px;
+      min-height: 40px;
+    }
+  }
+
+  /* ── Mobile-first reduced-motion noise override ── */
+  @media (prefers-reduced-motion: reduce) {
+    .creative-noise {
+      animation: none;
+    }
   }
 
   /* Print Styles */

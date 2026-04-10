@@ -147,7 +147,9 @@ const pageNavigator = {
     data-page-section
   >
     <div class="landing-veil"></div>
-    <div class="relative z-20 mx-auto max-w-[1440px] px-6 pb-20 pt-28 sm:pt-36">
+    <div
+      class="relative z-20 mx-auto max-w-[1440px] px-4 pb-16 pt-20 sm:px-6 sm:pb-20 sm:pt-32"
+    >
       <div class="grid gap-8 xl:grid-cols-[1.1fr_0.9fr] xl:items-end">
         <div class="pointer-events-none max-w-5xl space-y-7">
           <div class="pointer-events-auto inline-flex flex-wrap gap-2">
@@ -159,7 +161,7 @@ const pageNavigator = {
 
           <div class="pointer-events-auto space-y-5">
             <h1
-              class="tone-title max-w-5xl text-5xl !leading-[0.94] tracking-[-0.065em] sm:text-6xl lg:text-7xl xl:text-[5.75rem]"
+              class="tone-title max-w-5xl text-[2.1rem] !leading-[0.96] tracking-[-0.045em] [text-wrap:balance] min-[400px]:text-4xl min-[500px]:text-5xl sm:text-6xl lg:text-7xl xl:text-[5.75rem]"
             >
               A premium
               <span class="creative-gradient-text--accent">
@@ -178,7 +180,9 @@ const pageNavigator = {
             </p>
           </div>
 
-          <div class="pointer-events-auto flex flex-col gap-3 sm:flex-row">
+          <div
+            class="pointer-events-auto flex flex-col gap-2.5 sm:flex-row sm:gap-3"
+          >
             <ModernButton
               href={withBasePath('trades/')}
               variant="gradient"
@@ -274,14 +278,16 @@ const pageNavigator = {
     id="directory"
     data-page-section
   >
-    <div class="mx-auto max-w-[1440px] px-6 py-10">
-      <div class="creative-hero-shell p-8">
+    <div class="mx-auto max-w-[1440px] px-4 py-6 sm:px-6 sm:py-10">
+      <div class="creative-hero-shell p-5 sm:p-8">
         <div
           class="flex flex-col gap-6 border-b border-white/10 pb-8 md:flex-row md:items-end md:justify-between"
         >
           <div class="max-w-3xl space-y-4">
             <p class="creative-kicker">Trade Worlds</p>
-            <h2 class="tone-title text-4xl font-semibold tracking-tight">
+            <h2
+              class="tone-title text-3xl font-semibold tracking-tight [text-wrap:balance] sm:text-4xl"
+            >
               Each trade now has enough design personality to feel like its own
               premium site.
             </h2>
@@ -300,7 +306,7 @@ const pageNavigator = {
           </ModernButton>
         </div>
 
-        <div class="mt-8 grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
+        <div class="mt-6 grid gap-3 sm:gap-5 lg:grid-cols-2 xl:grid-cols-3">
           {
             tradeProfiles.map(trade => {
               const visual = getTradeVisual(trade.slug);
@@ -356,7 +362,7 @@ const pageNavigator = {
     id="programs"
     data-page-section
   >
-    <div class="mx-auto max-w-[1440px] px-6 py-10">
+    <div class="mx-auto max-w-[1440px] px-4 py-6 sm:px-6 sm:py-10">
       <div class="grid gap-5 xl:grid-cols-[1fr_1fr]">
         <SignalCabinet
           eyebrow="Trade Evidence"
@@ -447,14 +453,16 @@ const pageNavigator = {
     id="gallery-preview"
     data-page-section
   >
-    <div class="mx-auto max-w-[1440px] px-6 py-10">
-      <div class="creative-hero-shell p-8">
+    <div class="mx-auto max-w-[1440px] px-4 py-6 sm:px-6 sm:py-10">
+      <div class="creative-hero-shell p-5 sm:p-8">
         <div
           class="flex flex-col gap-6 border-b border-white/10 pb-8 md:flex-row md:items-end md:justify-between"
         >
           <div class="max-w-3xl space-y-4">
             <p class="creative-kicker">Gallery Preview</p>
-            <h2 class="tone-title text-4xl font-semibold tracking-tight">
+            <h2
+              class="tone-title text-3xl font-semibold tracking-tight [text-wrap:balance] sm:text-4xl"
+            >
               A new page turns the site into a working mini gallery of digital
               art direction.
             </h2>
@@ -511,7 +519,7 @@ const pageNavigator = {
     id="continuity"
     data-page-section
   >
-    <div class="mx-auto max-w-[1440px] px-6 py-10">
+    <div class="mx-auto max-w-[1440px] px-4 py-6 sm:px-6 sm:py-10">
       <div class="grid gap-5 xl:grid-cols-[1.04fr_0.96fr]">
         <ModernCard variant="minimal" className="creative-panel p-7">
           <p class="creative-kicker">Connected Continuity</p>
@@ -529,7 +537,7 @@ const pageNavigator = {
               continuityRoutes.map(route => (
                 <a
                   href={route.href}
-                  class="landing-route-card rounded-[1.6rem] border border-white/10 bg-white/[0.03] p-5 transition hover:border-white/20 hover:bg-white/[0.05]"
+                  class="landing-route-card rounded-[1.6rem] border border-white/10 bg-white/[0.03] p-5 transition-all hover:border-white/20 hover:bg-white/[0.05]"
                 >
                   <p class="tone-title text-xl font-semibold">{route.title}</p>
                   <p class="tone-body mt-2 text-sm">{route.description}</p>
@@ -744,20 +752,35 @@ const pageNavigator = {
         rgba(255, 255, 255, 0.02)
       ),
       rgba(5, 7, 14, 0.84);
-    padding: 1.2rem;
+    padding: 1.1rem;
     box-shadow: 0 32px 80px -44px rgba(0, 0, 0, 0.94);
     transition:
       transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
       border-color 0.35s ease,
       box-shadow 0.35s ease;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
 
-  .landing-trade-world:hover {
-    transform: translateY(-4px);
-    border-color: color-mix(in srgb, var(--trade-accent) 36%, transparent);
-    box-shadow:
-      0 40px 100px -48px rgba(0, 0, 0, 0.98),
-      0 0 42px -26px color-mix(in srgb, var(--trade-accent) 36%, transparent);
+  @media (min-width: 640px) {
+    .landing-trade-world {
+      padding: 1.2rem;
+    }
+  }
+
+  @media (hover: hover) {
+    .landing-trade-world:hover {
+      transform: translateY(-4px);
+      border-color: color-mix(in srgb, var(--trade-accent) 36%, transparent);
+      box-shadow:
+        0 40px 100px -48px rgba(0, 0, 0, 0.98),
+        0 0 42px -26px color-mix(in srgb, var(--trade-accent) 36%, transparent);
+    }
+  }
+
+  .landing-trade-world:active {
+    transform: scale(0.98);
+    border-color: color-mix(in srgb, var(--trade-accent) 28%, transparent);
   }
 
   .landing-trade-world__glow {
@@ -852,9 +875,20 @@ const pageNavigator = {
       border-color 0.35s ease;
   }
 
-  .landing-gallery-card:hover {
-    transform: translateY(-4px);
-    border-color: color-mix(in srgb, var(--gallery-accent) 32%, transparent);
+  @media (hover: hover) {
+    .landing-gallery-card:hover {
+      transform: translateY(-4px);
+      border-color: color-mix(in srgb, var(--gallery-accent) 32%, transparent);
+    }
+  }
+
+  .landing-gallery-card:active {
+    transform: scale(0.985);
+  }
+
+  .landing-gallery-card {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
 
   .landing-gallery-card__poster {
@@ -947,7 +981,18 @@ const pageNavigator = {
     transition: opacity 0.3s ease;
   }
 
-  .landing-route-card:hover::after {
-    opacity: 1;
+  @media (hover: hover) {
+    .landing-route-card:hover::after {
+      opacity: 1;
+    }
+  }
+
+  .landing-route-card {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  .landing-route-card:active {
+    background: rgba(255, 255, 255, 0.06);
   }
 </style>
