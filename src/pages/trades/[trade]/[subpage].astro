@@ -99,7 +99,7 @@ const pageNavigator = {
 <MarketingLayout
   title={`${resolvedSubpage.title} | ${trade.name}`}
   description={resolvedSubpage.description}
-  bodyClass={`creative-page bg-[#02040a] ${tradeVisual.themeClass}`}
+  bodyClass={`bg-[#06101d] ${tradeVisual.themeClass}`}
   showFooter={true}
   pageNavigator={pageNavigator}
 >
@@ -150,7 +150,7 @@ const pageNavigator = {
               {resolvedSubpage.shortLabel}
             </span>
           </div>
-          <p class="creative-kicker">{trade.eyebrow}</p>
+          <p class="creative-kicker">Focused delivery route</p>
           <h1
             class="tone-title text-5xl font-semibold tracking-tight sm:text-6xl"
           >
@@ -179,7 +179,7 @@ const pageNavigator = {
             </ModernButton>
             <ModernButton
               href={withBasePath('services/')}
-              variant="secondary"
+              variant="outline"
               className="min-h-[48px]"
             >
               Open services hub
@@ -187,7 +187,7 @@ const pageNavigator = {
           </div>
         </div>
 
-        <ModernCard variant="minimal" className="trade-subpage-callout p-6">
+        <ModernCard variant="glass" className="trade-subpage-callout p-6">
           <p class="creative-kicker">{tradeVisual.stageLabel}</p>
           <p class="tone-title mt-4 text-3xl font-semibold">
             {resolvedSubpage.callout.value}
@@ -236,10 +236,7 @@ const pageNavigator = {
         <div class="grid gap-5">
           {
             resolvedSubpage.sections.map((section, index) => (
-              <ModernCard
-                variant="minimal"
-                className="creative-panel trade-subpage-section p-7"
-              >
+              <ModernCard variant="glass" className="trade-subpage-section p-7">
                 <div class="flex items-start gap-4">
                   <span class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 font-mono text-xs text-white/75">
                     0{index + 1}
@@ -270,10 +267,7 @@ const pageNavigator = {
         </div>
 
         <div class="grid gap-5">
-          <ModernCard
-            variant="minimal"
-            className="creative-panel trade-subpage-aside p-6"
-          >
+          <ModernCard variant="glass" className="trade-subpage-aside p-6">
             <p class="creative-kicker">{tradeVisual.subpageLabel}</p>
             <p class="tone-title mt-4 text-2xl font-semibold">{trade.name}</p>
             <p class="tone-body mt-2 text-sm">{trade.summary}</p>
@@ -287,11 +281,8 @@ const pageNavigator = {
             </div>
           </ModernCard>
 
-          <ModernCard
-            variant="minimal"
-            className="creative-panel trade-subpage-aside p-6"
-          >
-            <p class="creative-kicker">Related Subpages</p>
+          <ModernCard variant="glass" className="trade-subpage-aside p-6">
+            <p class="creative-kicker">Other routes in this division</p>
             <div class="mt-4 grid gap-3">
               {
                 siblingSubpages.map(item => (
@@ -314,7 +305,7 @@ const pageNavigator = {
               <TradePhaseStudio
                 eyebrow={`${trade.shortName} Route Logic`}
                 title="Execution lens"
-                description={`${resolvedSubpage.callout.note} The route keeps the intake, field control, and owner handoff sequence visible in one surface.`}
+                description={`${resolvedSubpage.callout.note} Use this view to keep required inputs, field checkpoints, and owner handoff expectations in one place.`}
                 accent={trade.accent}
                 phases={routeExecutionPhases}
               />
@@ -334,6 +325,13 @@ const pageNavigator = {
   .trade-subpage-link {
     position: relative;
     overflow: hidden;
+  }
+
+  .trade-subpage-shell {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(4, 8, 12, 0.9)),
+      rgba(5, 7, 12, 0.88);
   }
 
   .trade-subpage-callout {
@@ -389,86 +387,71 @@ const pageNavigator = {
 
   body.trade-experience--mechanical .trade-subpage-shell {
     background:
-      linear-gradient(140deg, rgba(185, 242, 113, 0.09), transparent 24%),
-      repeating-linear-gradient(
-        90deg,
-        rgba(255, 255, 255, 0.025) 0,
-        rgba(255, 255, 255, 0.025) 1px,
-        transparent 1px,
-        transparent 34px
+      radial-gradient(
+        circle at top right,
+        rgba(185, 242, 113, 0.1),
+        transparent 28%
       ),
-      rgba(5, 7, 12, 0.9);
+      linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(4, 8, 12, 0.9));
   }
 
   body.trade-experience--electrical .trade-subpage-shell {
     background:
       radial-gradient(
-        circle at 82% 18%,
-        rgba(255, 224, 130, 0.16),
-        transparent 26%
+        circle at top right,
+        rgba(255, 224, 130, 0.12),
+        transparent 28%
       ),
-      linear-gradient(135deg, rgba(255, 224, 130, 0.08), transparent 34%),
-      rgba(5, 7, 12, 0.9);
+      linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(4, 8, 12, 0.9));
   }
 
   body.trade-experience--plumbing .trade-subpage-shell {
     background:
       radial-gradient(
-        circle at 18% 18%,
-        rgba(125, 211, 252, 0.16),
-        transparent 24%
+        circle at top right,
+        rgba(125, 211, 252, 0.12),
+        transparent 28%
       ),
-      radial-gradient(
-        circle at 76% 70%,
-        rgba(125, 211, 252, 0.08),
-        transparent 26%
-      ),
-      rgba(5, 7, 12, 0.9);
+      linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(4, 8, 12, 0.9));
   }
 
   body.trade-experience--gc .trade-subpage-shell {
     background:
-      linear-gradient(135deg, rgba(253, 164, 175, 0.08), transparent 36%),
-      repeating-linear-gradient(
-        0deg,
-        rgba(255, 255, 255, 0.024) 0,
-        rgba(255, 255, 255, 0.024) 1px,
-        transparent 1px,
-        transparent 28px
+      radial-gradient(
+        circle at top right,
+        rgba(253, 164, 175, 0.1),
+        transparent 28%
       ),
-      rgba(5, 7, 12, 0.9);
+      linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(4, 8, 12, 0.9));
   }
 
   body.trade-experience--hvac .trade-subpage-shell {
     background:
       radial-gradient(
-        circle at 50% 0%,
-        rgba(134, 239, 172, 0.12),
-        transparent 30%
+        circle at top right,
+        rgba(134, 239, 172, 0.1),
+        transparent 28%
       ),
-      linear-gradient(145deg, rgba(134, 239, 172, 0.06), transparent 30%),
-      rgba(5, 7, 12, 0.9);
+      linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(4, 8, 12, 0.9));
   }
 
   body.trade-experience--auto .trade-subpage-shell {
     background:
-      linear-gradient(135deg, rgba(252, 165, 165, 0.08), transparent 28%),
       radial-gradient(
-        circle at 85% 20%,
-        rgba(252, 165, 165, 0.15),
-        transparent 24%
+        circle at top right,
+        rgba(252, 165, 165, 0.1),
+        transparent 28%
       ),
-      rgba(5, 7, 12, 0.9);
+      linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(4, 8, 12, 0.9));
   }
 
   body.trade-experience--msp .trade-subpage-shell {
     background:
       radial-gradient(
         circle at top right,
-        rgba(196, 181, 253, 0.14),
-        transparent 26%
+        rgba(196, 181, 253, 0.12),
+        transparent 28%
       ),
-      linear-gradient(145deg, rgba(196, 181, 253, 0.06), transparent 30%),
-      rgba(5, 7, 12, 0.9);
+      linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(4, 8, 12, 0.9));
   }
 </style>

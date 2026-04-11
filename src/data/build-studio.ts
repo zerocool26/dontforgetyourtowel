@@ -112,7 +112,7 @@ export const studioUrgencyProfiles: StudioUrgencyProfile[] = [
     id: 'balanced',
     label: 'Balanced runway',
     summary:
-      'Best for thoughtful rollout, narrative polish, and production confidence.',
+      'Best for a measured rollout, clearer decision-making, and production confidence.',
     investmentMultiplier: 1,
     timelineMultiplier: 1,
   },
@@ -120,7 +120,7 @@ export const studioUrgencyProfiles: StudioUrgencyProfile[] = [
     id: 'accelerated',
     label: 'Accelerated launch',
     summary:
-      'Compress the timeline, add delivery leadership, and bias for fast proof.',
+      'Compress the timeline, add delivery leadership, and bias for faster proof.',
     investmentMultiplier: 1.16,
     timelineMultiplier: 0.86,
   },
@@ -128,7 +128,7 @@ export const studioUrgencyProfiles: StudioUrgencyProfile[] = [
     id: 'flagship',
     label: 'Flagship reveal',
     summary:
-      'More motion, more narrative polish, more instrumentation, and more executive theater.',
+      'Increase polish, instrumentation, and executive-facing presentation when the route needs to carry more weight.',
     investmentMultiplier: 1.32,
     timelineMultiplier: 1.1,
   },
@@ -139,7 +139,7 @@ export const studioSurfaces: StudioSurface[] = [
     id: 'surface-home',
     title: 'Landing systems',
     description:
-      'Static-first storytelling, motion design, command palette triggers, and launch CTA choreography.',
+      'Static-first storytelling, route guidance, and CTA structure anchored to the main landing page.',
     href: '/',
     tags: ['landing', 'motion', 'marketing', 'narrative'],
   },
@@ -155,7 +155,7 @@ export const studioSurfaces: StudioSurface[] = [
     id: 'surface-services',
     title: 'Service planning matrix',
     description:
-      'Interactive routing engine that maps business pressure to delivery lanes and phased rollout plans.',
+      'Interactive routing layer that maps business pressure to service lanes and phased rollout plans.',
     href: 'services/#service-planner',
     tags: ['services', 'planner', 'matrix', 'consulting'],
   },
@@ -163,7 +163,7 @@ export const studioSurfaces: StudioSurface[] = [
     id: 'surface-pricing',
     title: 'Pricing intelligence',
     description:
-      'Live plan cards, estimator tools, and ROI logic designed for real buying conversations.',
+      'Plan cards, estimator tools, and ROI logic designed for practical buying conversations.',
     href: 'pricing/#estimate',
     tags: ['pricing', 'roi', 'calculator', 'sales'],
   },
@@ -171,7 +171,7 @@ export const studioSurfaces: StudioSurface[] = [
     id: 'surface-debug',
     title: 'Diagnostics console',
     description:
-      'Debug-webgl route proving low-level diagnostics, capability detection, and production troubleshooting care.',
+      'Debug route showing low-level diagnostics, capability detection, and production troubleshooting care.',
     href: 'debug-webgl/',
     tags: ['diagnostics', 'webgl', 'debugging', 'performance'],
   },
@@ -179,7 +179,7 @@ export const studioSurfaces: StudioSurface[] = [
     id: 'surface-contact',
     title: 'Intake HQ',
     description:
-      'Project routing, kickoff framing, and client-ready intake handoff for the configured build brief.',
+      'Project routing, kickoff framing, and intake handoff for the configured planning brief.',
     href: 'contact-hq/',
     tags: ['contact', 'intake', 'brief', 'handoff'],
   },
@@ -189,12 +189,12 @@ export const engineeringSignals: StudioSignal[] = [
   {
     title: 'Static-first shell, dynamic islands',
     detail:
-      'Astro carries the marketing layer while Preact activates only the surfaces that justify real interactivity.',
+      'Astro carries the main shell while Preact activates only the surfaces that justify real interactivity.',
   },
   {
     title: 'Worker-backed search + command routing',
     detail:
-      'Command palette search is indexed, keyboard-friendly, and offloads fuzzy matching so the shell stays snappy.',
+      'Command palette search is indexed, keyboard-friendly, and offloads fuzzy matching so the shell stays fast.',
   },
   {
     title: 'Data-driven planning surfaces',
@@ -209,12 +209,12 @@ export const engineeringSignals: StudioSignal[] = [
   {
     title: 'Production validation wired in',
     detail:
-      'The repo already carries lint, typecheck, unit/e2e tests, and build gates—so showcase work proves engineering discipline too.',
+      'The repo already carries lint, typecheck, unit/e2e tests, and build gates, so planning surfaces stay tied to engineering discipline.',
   },
   {
     title: 'Accessible, mobile-aware interaction patterns',
     detail:
-      'Keyboard support, touch-safe controls, and restrained hydration make the fancy bits feel intentional rather than fragile.',
+      'Keyboard support, touch-safe controls, and restrained hydration make the interactive parts feel intentional rather than fragile.',
   },
 ];
 
@@ -222,11 +222,11 @@ export const studioPresets: StudioPreset[] = [
   {
     id: 'launch-control',
     name: 'Launch Control Room',
-    kicker: 'Flagship product reveal',
+    kicker: 'Executive launch planning',
     summary:
-      'A narrative-heavy command center for premium launches that need executive clarity, cinematic UX, and measurable readiness.',
+      'A launch-planning direction for teams that need executive clarity, visible readiness, and a structured rollout story.',
     audience:
-      'Founders, innovation teams, and launch owners who want one control surface for story, risk, and rollout.',
+      'Founders, innovation teams, and launch owners who want one planning surface for story, risk, and rollout.',
     contactService: 'cloud',
     baseInvestment: 64000,
     baseWeeks: 8,
@@ -246,19 +246,19 @@ export const studioPresets: StudioPreset[] = [
     coreCrew: ['Creative technologist', 'Product strategist'],
     surfaceIds: ['surface-home', 'surface-contact'],
     outcomes: [
-      'Executive-ready launch room with narrative sequencing',
+      'Executive-ready launch surface with narrative sequencing',
       'Live readiness signals spanning UX, delivery, and risk posture',
-      'A premium handoff surface for stakeholders and buyers',
+      'A clearer handoff surface for stakeholders and buyers',
     ],
   },
   {
     id: 'commerce-cinematic',
     name: 'Commerce Cinematic Engine',
-    kicker: 'Premium digital showroom',
+    kicker: 'Commerce planning direction',
     summary:
-      'A conversion-first experience layer that merges motion, merchandising, pricing logic, and sharp operational storytelling.',
+      'A conversion-first planning direction that merges merchandising, pricing logic, buyer confidence, and richer interaction design.',
     audience:
-      'Brands and product teams that need a showcase proving both polish and serious interaction design.',
+      'Brands and product teams that need to demonstrate both polish and serious interaction design.',
     contactService: 'cloud',
     baseInvestment: 72000,
     baseWeeks: 10,
@@ -278,7 +278,7 @@ export const studioPresets: StudioPreset[] = [
     coreCrew: ['Experience director', 'Conversion strategist'],
     surfaceIds: ['surface-portfolio', 'surface-pricing'],
     outcomes: [
-      'A premium showcase that proves real interaction depth, not just static art direction',
+      'A stronger commerce surface that proves real interaction depth, not just static art direction',
       'Pricing and conversion surfaces wired into the narrative from day one',
       'Launch assets that move from demo to production buying flow cleanly',
     ],
@@ -286,11 +286,11 @@ export const studioPresets: StudioPreset[] = [
   {
     id: 'ai-operations-room',
     name: 'AI Operations Room',
-    kicker: 'Automation + orchestration cockpit',
+    kicker: 'Automation planning direction',
     summary:
-      'An operator-facing control room showing how AI, workflow automation, diagnostics, and routing logic compound into a real product.',
+      'An operator-facing planning direction showing how AI, workflow automation, diagnostics, and routing logic combine into a real product.',
     audience:
-      'Ops, platform, and transformation leaders who want proof that AI can be instrumented—not just narrated.',
+      'Ops, platform, and transformation leaders who want proof that AI can be instrumented, not just narrated.',
     contactService: 'ai',
     baseInvestment: 69000,
     baseWeeks: 9,
@@ -312,17 +312,17 @@ export const studioPresets: StudioPreset[] = [
     outcomes: [
       'An AI-native command surface with visible orchestration logic',
       'Operational observability and diagnostics translated into product UX',
-      'A showcase that proves applied automation, not generic chatbot theater',
+      'A route that proves applied automation, not generic chatbot theater',
     ],
   },
   {
     id: 'trust-command-center',
     name: 'Trust Command Center',
-    kicker: 'Security + reliability narrative',
+    kicker: 'Trust and resilience planning',
     summary:
-      'A resilience-first showroom designed to communicate compliance posture, response readiness, and executive-grade confidence.',
+      'A resilience-first direction designed to communicate compliance posture, response readiness, and executive confidence.',
     audience:
-      'Security-minded teams who need a premium interface for proving readiness without losing design quality.',
+      'Security-minded teams that need a strong interface for proving readiness without losing design quality.',
     contactService: 'security',
     baseInvestment: 67000,
     baseWeeks: 8,
@@ -344,7 +344,7 @@ export const studioPresets: StudioPreset[] = [
     outcomes: [
       'A trust surface that turns security posture into something leaders can actually read',
       'Confidence signals for compliance, uptime, and incident rehearsal',
-      'A more serious showcase than a generic “security page” ever delivers',
+      'A more serious route than a generic security page typically delivers',
     ],
   },
 ];
@@ -355,7 +355,7 @@ export const studioModules: StudioModule[] = [
     title: 'Story Motion System',
     category: 'Experience Layer',
     description:
-      'Choreograph hero transitions, section pacing, and motion cues so the narrative feels authored instead of assembled.',
+      'Shape hero transitions, section pacing, and motion cues so the experience feels intentional instead of assembled.',
     investment: 12000,
     weeks: 2,
     deliverable:
@@ -373,7 +373,7 @@ export const studioModules: StudioModule[] = [
     title: 'Immersive Commerce Engine',
     category: 'Experience Layer',
     description:
-      'Layer merchandising, comparison, and checkout storytelling into a premium showroom that still feels operationally credible.',
+      'Layer merchandising, comparison, and checkout storytelling into a stronger commerce route that still feels operationally credible.',
     investment: 18000,
     weeks: 3,
     deliverable:
@@ -391,7 +391,7 @@ export const studioModules: StudioModule[] = [
     title: 'AI Workflow Orchestrator',
     category: 'Intelligence Layer',
     description:
-      'Expose automation logic, triage routes, and decision stages so visitors can see the thinking behind the AI surface.',
+      'Expose automation logic, triage routes, and decision stages so visitors can understand the thinking behind the AI surface.',
     investment: 21000,
     weeks: 3,
     deliverable:
@@ -409,7 +409,7 @@ export const studioModules: StudioModule[] = [
     title: 'Operator Command Palette',
     category: 'Intelligence Layer',
     description:
-      'Promote search, shortcuts, and deep-link actions into a real product control layer rather than a hidden convenience feature.',
+      'Promote search, shortcuts, and deep-link actions into a real control layer rather than a hidden convenience feature.',
     investment: 9000,
     weeks: 1,
     deliverable:
@@ -427,7 +427,7 @@ export const studioModules: StudioModule[] = [
     title: 'Pricing Decision Engine',
     category: 'Intelligence Layer',
     description:
-      'Turn estimates, ROI assumptions, and plan comparisons into a strategic buying interface instead of a dead-end calculator.',
+      'Turn estimates, ROI assumptions, and plan comparisons into a clearer buying interface instead of a dead-end calculator.',
     investment: 11000,
     weeks: 2,
     deliverable:
@@ -445,7 +445,7 @@ export const studioModules: StudioModule[] = [
     title: 'Trust Proof System',
     category: 'Trust Layer',
     description:
-      'Surface operational proof, client confidence, and compliance language in a way that feels premium and readable.',
+      'Surface operational proof, client confidence, and compliance language in a way that feels readable and credible.',
     investment: 10000,
     weeks: 2,
     deliverable:
@@ -463,7 +463,7 @@ export const studioModules: StudioModule[] = [
     title: 'Executive Briefing Layer',
     category: 'Trust Layer',
     description:
-      'Translate the build into boardroom-ready signals, milestones, and strategic context without flattening the design.',
+      'Translate the system into boardroom-ready signals, milestones, and strategic context without flattening the design.',
     investment: 13000,
     weeks: 2,
     deliverable:
@@ -481,7 +481,7 @@ export const studioModules: StudioModule[] = [
     title: 'Observability Wall',
     category: 'Platform Layer',
     description:
-      'Make runtime confidence visible through readiness metrics, monitoring concepts, and diagnostics that feel productized.',
+      'Make runtime confidence visible through readiness metrics, monitoring concepts, and diagnostics that feel usable.',
     investment: 15000,
     weeks: 2,
     deliverable:
@@ -499,7 +499,7 @@ export const studioModules: StudioModule[] = [
     title: 'Performance Guardrails',
     category: 'Platform Layer',
     description:
-      'Bias the experience toward fast, resilient delivery with motion discipline, bundle awareness, and mobile-proof constraints.',
+      'Bias the experience toward fast, resilient delivery with motion discipline, bundle awareness, and mobile-safe constraints.',
     investment: 8000,
     weeks: 1,
     deliverable:
@@ -517,7 +517,7 @@ export const studioModules: StudioModule[] = [
     title: 'Multi-Surface Launch Kit',
     category: 'Platform Layer',
     description:
-      'Connect landing, services, pricing, and intake into a cohesive sequence so every page reinforces the same thesis.',
+      'Connect landing, services, pricing, and intake into a cohesive sequence so every page reinforces the same system story.',
     investment: 14000,
     weeks: 2,
     deliverable:

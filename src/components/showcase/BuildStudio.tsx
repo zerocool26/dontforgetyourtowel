@@ -171,19 +171,19 @@ export default function BuildStudio() {
       data-testid="build-studio"
     >
       <div class="space-y-6">
-        <div class="rounded-2xl border border-white/10 bg-black/25 p-5 sm:p-6">
+        <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6">
           <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
               <p class="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-400">
                 Studio presets
               </p>
               <h2 class="mt-2 text-2xl font-semibold text-white sm:text-3xl">
-                Configure the build thesis
+                Configure the initial brief
               </h2>
             </div>
             <p class="max-w-[26rem] text-sm leading-relaxed text-zinc-300">
-              Pick the showcase direction first, then layer in the modules that
-              prove how far this codebase can be pushed.
+              Start with the planning direction, then add the modules that best
+              match the system you actually want to discuss.
             </p>
           </div>
 
@@ -194,9 +194,9 @@ export default function BuildStudio() {
                 <button
                   key={preset.id}
                   type="button"
-                  class={`rounded-2xl border p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ccff00] ${
+                  class={`rounded-2xl border p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 ${
                     active
-                      ? 'border-[#ccff00]/60 bg-[#ccff00]/10 text-white'
+                      ? 'border-sky-300/50 bg-sky-300/10 text-white'
                       : 'border-white/10 bg-white/5 text-zinc-200 hover:border-white/20 hover:bg-white/10'
                   }`}
                   onClick={() => applyPreset(preset.id)}
@@ -215,14 +215,14 @@ export default function BuildStudio() {
         </div>
 
         <div class="grid gap-4 xl:grid-cols-[0.95fr_1.05fr]">
-          <div class="rounded-2xl border border-white/10 bg-black/25 p-5">
+          <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
             <div class="flex items-center justify-between gap-3">
               <div>
                 <p class="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-400">
-                  Delivery bias
+                  Delivery pace
                 </p>
                 <p class="mt-2 text-lg font-semibold text-white">
-                  Set the operating tempo
+                  Choose the rollout tempo
                 </p>
               </div>
               <p class="text-xs text-zinc-500">{scale} scope points</p>
@@ -235,9 +235,9 @@ export default function BuildStudio() {
                   <button
                     key={profile.id}
                     type="button"
-                    class={`rounded-2xl border px-4 py-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ccff00] ${
+                    class={`rounded-2xl border px-4 py-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 ${
                       active
-                        ? 'border-[#ccff00]/60 bg-[#ccff00]/10 text-white'
+                        ? 'border-sky-300/50 bg-sky-300/10 text-white'
                         : 'border-white/10 bg-white/5 text-zinc-200 hover:border-white/20 hover:bg-white/10'
                     }`}
                     onClick={() => setUrgency(profile.id)}
@@ -251,17 +251,17 @@ export default function BuildStudio() {
 
             <label class="mt-6 block" for="studio-scale">
               <span class="text-sm font-semibold text-white">
-                Scale the room
+                Scale the scope
               </span>
               <span class="mt-2 block text-sm text-zinc-400">
-                Higher scale increases delivery depth, supporting crew, and
-                launch theater.
+                Higher scale increases delivery depth, supporting roles, and
+                implementation range.
               </span>
             </label>
             <input
               id="studio-scale"
               data-testid="build-studio-scale"
-              class="mt-4 w-full accent-[color:rgba(204,255,0,0.9)]"
+              class="mt-4 w-full accent-[color:rgba(125,211,252,0.95)]"
               type="range"
               min={scaleMin}
               max={scaleMax}
@@ -279,9 +279,9 @@ export default function BuildStudio() {
             </div>
           </div>
 
-          <div class="rounded-2xl border border-white/10 bg-black/25 p-5">
+          <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
             <p class="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-400">
-              Design audience
+              Best suited for
             </p>
             <h3 class="mt-2 text-xl font-semibold text-white">
               {selectedPreset.audience}
@@ -302,19 +302,19 @@ export default function BuildStudio() {
           </div>
         </div>
 
-        <div class="rounded-2xl border border-white/10 bg-black/25 p-5 sm:p-6">
+        <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6">
           <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
               <p class="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-400">
-                Showcase modules
+                Capability modules
               </p>
               <h3 class="mt-2 text-2xl font-semibold text-white">
-                Push the stack past “nice demo” territory
+                Select the capabilities that shape the brief
               </h3>
             </div>
             <p class="max-w-[28rem] text-sm leading-relaxed text-zinc-300">
-              Every module maps to a real capability already present—or now
-              fully surfaced—in this codebase.
+              Each module maps to a real capability already present in the
+              codebase or clearly represented by a linked live route.
             </p>
           </div>
 
@@ -340,9 +340,9 @@ export default function BuildStudio() {
                         <button
                           key={module.id}
                           type="button"
-                          class={`rounded-2xl border p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ccff00] ${
+                          class={`rounded-2xl border p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 ${
                             selected
-                              ? 'border-[#ccff00]/60 bg-[#ccff00]/10 text-white'
+                              ? 'border-sky-300/50 bg-sky-300/10 text-white'
                               : 'border-white/10 bg-white/5 text-zinc-200 hover:border-white/20 hover:bg-white/10'
                           }`}
                           onClick={() => toggleModule(module.id)}
@@ -359,7 +359,7 @@ export default function BuildStudio() {
                               </p>
                             </div>
                             {recommended ? (
-                              <span class="rounded-full border border-[#ccff00]/30 bg-[#ccff00]/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#ccff00]">
+                              <span class="rounded-full border border-sky-300/30 bg-sky-300/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-sky-200">
                                 preset
                               </span>
                             ) : null}
@@ -386,11 +386,11 @@ export default function BuildStudio() {
 
       <aside class="space-y-4">
         <div class="sticky top-24 space-y-4">
-          <div class="rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(204,255,0,0.12),rgba(8,8,8,0.96))] p-5 sm:p-6">
+          <div class="rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(125,211,252,0.12),rgba(8,12,20,0.96))] p-5 sm:p-6">
             <div class="flex items-start justify-between gap-4">
               <div>
                 <p class="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-500">
-                  Live build brief
+                  Current planning brief
                 </p>
                 <h3 class="mt-2 text-2xl font-semibold text-white">
                   {plan.preset.name}
@@ -402,7 +402,7 @@ export default function BuildStudio() {
               </div>
               <div class="rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-right">
                 <p class="text-[11px] uppercase tracking-[0.2em] text-zinc-400">
-                  Showcase score
+                  Readiness score
                 </p>
                 <p class="mt-1 text-2xl font-semibold text-white">
                   {plan.score}
@@ -420,8 +420,8 @@ export default function BuildStudio() {
                   {formatCurrency(plan.investmentHigh)}
                 </p>
                 <p class="mt-2 text-xs text-zinc-500">
-                  Includes interaction depth, polish, delivery leadership, and
-                  launch instrumentation.
+                  Includes planning depth, interaction scope, delivery support,
+                  and implementation hardening.
                 </p>
               </div>
               <div class="rounded-2xl border border-white/10 bg-black/30 p-4">
@@ -432,8 +432,8 @@ export default function BuildStudio() {
                   {plan.totalWeeks} weeks
                 </p>
                 <p class="mt-2 text-xs text-zinc-500">
-                  Long enough to feel premium, short enough to stay commercially
-                  sharp.
+                  Sized to stay commercially realistic while leaving room for
+                  meaningful implementation depth.
                 </p>
               </div>
             </div>
@@ -449,7 +449,7 @@ export default function BuildStudio() {
                   </div>
                   <div class="mt-2 h-2 rounded-full bg-white/10">
                     <div
-                      class="h-2 rounded-full bg-gradient-to-r from-[#ccff00] via-cyan-300 to-violet-400"
+                      class="h-2 rounded-full bg-gradient-to-r from-sky-300 via-cyan-300 to-indigo-300"
                       style={{ width: `${plan.readiness[key]}%` }}
                     />
                   </div>
@@ -464,13 +464,13 @@ export default function BuildStudio() {
                     ? withBasePath(primarySurface.href)
                     : withBasePath('about/')
                 }
-                class="inline-flex min-h-[48px] items-center justify-center rounded-xl border border-white/10 bg-white/10 px-4 text-sm font-semibold text-white transition hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ccff00]"
+                class="inline-flex min-h-[48px] items-center justify-center rounded-xl border border-white/10 bg-white/10 px-4 text-sm font-semibold text-white transition hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300"
               >
-                Open closest live surface
+                Open closest live route
               </a>
               <a
                 href={intakeHref}
-                class="inline-flex min-h-[48px] items-center justify-center rounded-xl bg-[#ccff00] px-4 text-sm font-semibold text-black transition hover:bg-[#d7ff4a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                class="inline-flex min-h-[48px] items-center justify-center rounded-xl bg-sky-300 px-4 text-sm font-semibold text-slate-950 transition hover:bg-sky-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
               >
                 Send build brief to intake
               </a>
@@ -479,7 +479,7 @@ export default function BuildStudio() {
             <div class="mt-3 flex items-center justify-between gap-3">
               <button
                 type="button"
-                class="inline-flex min-h-[44px] items-center justify-center rounded-xl border border-white/10 bg-black/25 px-4 text-sm font-semibold text-zinc-100 transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ccff00]"
+                class="inline-flex min-h-[44px] items-center justify-center rounded-xl border border-white/10 bg-black/25 px-4 text-sm font-semibold text-zinc-100 transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300"
                 onClick={copyShareLink}
               >
                 {copied ? 'Share link copied' : 'Copy share link'}
@@ -490,24 +490,24 @@ export default function BuildStudio() {
             </div>
           </div>
 
-          <div class="rounded-2xl border border-white/10 bg-black/25 p-5">
+          <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
             <p class="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-400">
-              What ships in the brief
+              Included outcomes
             </p>
             <ul class="mt-4 space-y-3 text-sm text-zinc-200">
               {plan.outcomes.map(outcome => (
                 <li key={outcome} class="flex items-start gap-2">
-                  <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[#ccff00]" />
+                  <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-sky-300" />
                   <span>{outcome}</span>
                 </li>
               ))}
             </ul>
           </div>
 
-          <div class="rounded-2xl border border-white/10 bg-black/25 p-5">
+          <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
             <div class="flex items-center justify-between gap-3">
               <p class="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-400">
-                Crew on deck
+                Suggested roles
               </p>
               <p class="text-xs text-zinc-500">{plan.crew.length} roles</p>
             </div>
@@ -523,7 +523,7 @@ export default function BuildStudio() {
             </div>
           </div>
 
-          <div class="rounded-2xl border border-white/10 bg-black/25 p-5">
+          <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
             <p class="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-400">
               Delivery arc
             </p>
@@ -537,7 +537,7 @@ export default function BuildStudio() {
                     <p class="text-sm font-semibold text-white">
                       {phase.label}
                     </p>
-                    <span class="text-xs uppercase tracking-[0.18em] text-[#ccff00]">
+                    <span class="text-xs uppercase tracking-[0.18em] text-sky-300">
                       {phase.weeks} wk
                     </span>
                   </div>
@@ -547,16 +547,16 @@ export default function BuildStudio() {
             </div>
           </div>
 
-          <div class="rounded-2xl border border-white/10 bg-black/25 p-5">
+          <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
             <p class="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-400">
-              Surfaces this brief lights up
+              Related live routes
             </p>
             <div class="mt-4 space-y-3">
               {plan.surfaces.map(surface => (
                 <a
                   key={surface.id}
                   href={withBasePath(surface.href)}
-                  class="block rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:border-white/20 hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ccff00]"
+                  class="block rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:border-white/20 hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300"
                 >
                   <p class="text-sm font-semibold text-white">
                     {surface.title}

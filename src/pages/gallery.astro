@@ -15,32 +15,34 @@ const gallerySignals = [
   {
     label: 'Installations',
     value: String(galleryInstallations.length),
-    detail: 'A curated wall of trade-inspired visual systems.',
+    detail: 'A filterable set of route-linked interface and layout studies.',
   },
   {
     label: 'Trade references',
     value: '7 + platform',
-    detail: 'Every major service lane gets its own design language.',
+    detail:
+      'Every service division and platform route has a grounded visual reference.',
   },
   {
     label: 'View modes',
     value: 'Poster / Salon / Index',
-    detail: 'The page can shift from immersive gallery to quick scan.',
+    detail:
+      'Move from visual exploration to fast route review without leaving the page.',
   },
 ];
 
 const galleryPrinciples = [
   {
     title: 'Built from real scope',
-    copy: 'The collection uses actual trade logic like sequencing, plantroom geometry, controls flow, balancing, phasing, and diagnostics rather than generic “creative agency” abstractions.',
+    copy: 'Every study starts with actual delivery logic such as sequencing, controls flow, diagnostics, phasing, or owner handoff instead of generic agency filler.',
   },
   {
-    title: 'Art direction with boundaries',
-    copy: 'Each study stretches visual language without losing professional credibility, which keeps the page premium, strange in the right way, and still usable on mobile.',
+    title: 'Exploration with boundaries',
+    copy: 'The page still experiments with materials, density, and composition, but the route structure remains readable and usable on smaller screens.',
   },
   {
     title: 'Tied back to the live site',
-    copy: 'Every installation routes into a live trade or platform page so the gallery remains part of the working website instead of becoming a disconnected concept board.',
+    copy: 'Each installation links back to a working trade or platform page so the gallery behaves like a reference layer instead of a disconnected mood board.',
   },
 ];
 
@@ -48,19 +50,19 @@ const galleryRoutes = [
   {
     title: 'Trade Directory',
     description:
-      'Use the source map when you want all seven divisions in one place.',
+      'See every service division in one place when you want the fastest route into the site.',
     href: withBasePath('trades/'),
   },
   {
     title: 'About The Platform',
     description:
-      'Read the broader operating model behind the multi-trade site.',
+      'Read the operating model behind the multi-division site and how the routes fit together.',
     href: withBasePath('company/'),
   },
   {
     title: 'Build Studio',
     description:
-      'Jump into the retained flagship interactive showroom experience.',
+      'Open the optional experimental demo route if you want the more expressive interactive experience.',
     href: withBasePath('build-studio/#studio'),
   },
 ];
@@ -82,8 +84,8 @@ const pageNavigator = {
 
 <MarketingLayout
   title="Design Gallery | Olive Global Systems"
-  description="Interactive design gallery featuring premium trade-inspired interface, motion, material, and spatial studies tied back to the live seven-trade site."
-  bodyClass="creative-page bg-[#02040a]"
+  description="Filterable design reference library of trade-led interface, layout, and material studies tied back to the live seven-division site."
+  bodyClass="bg-[#06101d]"
   mainClass="relative isolate overflow-x-clip"
   showFooter={true}
   pageNavigator={pageNavigator}
@@ -126,52 +128,52 @@ const pageNavigator = {
       <div class="grid gap-8 xl:grid-cols-[1.08fr_0.92fr] xl:items-end">
         <div class="space-y-6">
           <div class="inline-flex flex-wrap gap-2">
-            <span class="creative-kicker">Design Gallery</span>
-            <span class="creative-chip">Interactive curatorial filters</span>
-            <span class="creative-chip">Trade-led art direction</span>
-            <span class="creative-chip">Mobile safe</span>
+            <span class="creative-kicker">Design reference library</span>
+            <span class="creative-chip">Filterable wall</span>
+            <span class="creative-chip">Route-linked studies</span>
+            <span class="creative-chip">Mobile-ready</span>
           </div>
 
           <div class="space-y-5">
             <h1
               class="tone-title max-w-5xl text-[2.1rem] !leading-[0.96] tracking-[-0.045em] [text-wrap:balance] min-[400px]:text-4xl min-[500px]:text-5xl sm:text-6xl lg:text-7xl xl:text-[5.45rem]"
             >
-              A gallery of
+              Design references built from
               <span class="creative-gradient-text--accent">
-                trade-exclusive design worlds
+                real trade and platform work
               </span>
-              built directly into the site.
+              rather than filler concepts.
             </h1>
             <p class="creative-copy text-white/78 max-w-3xl text-lg sm:text-xl">
-              This page is a living exhibition of premium interface, motion,
-              material, and spatial ideas. Each installation is rooted in one of
-              the live trades or platform systems, so the gallery functions as
-              both digital art and a serious demonstration of how far the site
-              can go.
+              Use this page to compare interface language, material direction,
+              and layout systems that were built from live routes across the
+              site. It is meant to be a useful reference library first, with
+              enough motion and polish to stay memorable without drowning the
+              information.
             </p>
           </div>
 
           <div class="flex flex-col gap-3 sm:flex-row">
             <ModernButton
               href="#gallery-wall"
-              variant="gradient"
+              variant="primary"
               className="min-h-[50px]"
             >
-              Enter the gallery
+              Browse the wall
             </ModernButton>
             <ModernButton
               href={withBasePath('trades/')}
               variant="secondary"
               className="min-h-[50px]"
             >
-              Browse trade directory
+              Open trade directory
             </ModernButton>
             <ModernButton
               href={withBasePath('/')}
               variant="outline"
               className="min-h-[50px]"
             >
-              Return to landing page
+              Back to homepage
             </ModernButton>
           </div>
 
@@ -255,15 +257,14 @@ const pageNavigator = {
       <div class="creative-hero-shell p-5 sm:p-8">
         <div class="flex flex-col gap-6 border-b border-white/10 pb-6">
           <div class="space-y-3">
-            <p class="creative-kicker">Curatorial Controls</p>
+            <p class="creative-kicker">Browse the wall</p>
             <h2 class="tone-title text-4xl font-semibold tracking-tight">
-              Switch the wall between immersive posters, a salon hang, and a
-              fast index view.
+              Filter by discipline or switch into a faster scan mode.
             </h2>
             <p class="tone-body max-w-3xl text-sm leading-relaxed">
-              Filter by design discipline to study one mood at a time or scan
-              the full collection. The view modes are lightweight on purpose, so
-              the page stays responsive and elegant across desktop and mobile.
+              The controls are intentionally light. You can explore the visual
+              system when you want, then jump straight into the linked working
+              route without fighting the interface.
             </p>
           </div>
 
@@ -328,8 +329,8 @@ const pageNavigator = {
           </div>
 
           <div class="flex flex-wrap items-center gap-3">
-            <span class="creative-chip">Interactive wall</span>
-            <span class="creative-chip">Live route integration</span>
+            <span class="creative-chip">Filterable wall</span>
+            <span class="creative-chip">Linked working routes</span>
             <span class="creative-chip" data-gallery-active-state>
               Poster view • All disciplines
             </span>
@@ -339,7 +340,7 @@ const pageNavigator = {
           </div>
           <div class="gallery-state-bar">
             <div class="gallery-state-bar__copy">
-              <p class="tone-title text-sm font-semibold">Curatorial state</p>
+              <p class="tone-title text-sm font-semibold">Current view</p>
               <p class="tone-body text-sm" data-gallery-state-summary>
                 All disciplines in poster view.
               </p>
@@ -451,7 +452,7 @@ const pageNavigator = {
     <div class="mx-auto max-w-[1440px] px-4 py-6 sm:px-6 sm:py-10">
       <div class="grid gap-5 xl:grid-cols-[0.98fr_1.02fr]">
         <ModernCard variant="minimal" className="creative-panel p-7">
-          <p class="creative-kicker">Gallery Doctrine</p>
+          <p class="creative-kicker">Why this page exists</p>
           <div class="mt-6 space-y-5">
             {
               galleryPrinciples.map((principle, index) => (
@@ -474,7 +475,7 @@ const pageNavigator = {
         </ModernCard>
 
         <ModernCard variant="minimal" className="creative-panel p-7">
-          <p class="creative-kicker">Continue Into The Site</p>
+          <p class="creative-kicker">Where to go next</p>
           <div class="mt-6 grid gap-4">
             {
               galleryRoutes.map(route => (
@@ -715,12 +716,12 @@ const pageNavigator = {
     background:
       radial-gradient(
         circle at 15% 10%,
-        rgba(204, 255, 0, 0.12),
+        rgba(125, 211, 252, 0.08),
         transparent 26%
       ),
       radial-gradient(
         circle at 88% 14%,
-        rgba(118, 194, 255, 0.14),
+        rgba(148, 163, 184, 0.1),
         transparent 24%
       ),
       linear-gradient(180deg, rgba(2, 4, 10, 0), rgba(2, 4, 10, 0.84));
@@ -841,14 +842,14 @@ const pageNavigator = {
   }
 
   .gallery-toggle.is-active {
-    border-color: rgba(204, 255, 0, 0.32);
+    border-color: rgba(148, 163, 184, 0.34);
     background: linear-gradient(
       135deg,
-      rgba(204, 255, 0, 0.14),
-      rgba(112, 210, 255, 0.08)
+      rgba(125, 211, 252, 0.12),
+      rgba(148, 163, 184, 0.08)
     );
     color: white;
-    box-shadow: 0 0 30px -16px rgba(204, 255, 0, 0.3);
+    box-shadow: 0 0 30px -18px rgba(125, 211, 252, 0.28);
   }
 
   .gallery-grid {
@@ -1057,7 +1058,7 @@ const pageNavigator = {
     border-radius: 999px;
     background: radial-gradient(
       circle,
-      rgba(204, 255, 0, 0.1),
+      rgba(125, 211, 252, 0.1),
       transparent 72%
     );
     filter: blur(22px);

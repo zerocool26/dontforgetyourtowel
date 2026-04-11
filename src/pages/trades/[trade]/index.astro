@@ -91,7 +91,7 @@ const pageNavigator = {
 <MarketingLayout
   title={`${trade.name} | Olive Global Systems`}
   description={trade.summary}
-  bodyClass={`creative-page bg-[#02040a] ${tradeVisual.themeClass}`}
+  bodyClass={`bg-[#06101d] ${tradeVisual.themeClass}`}
   showFooter={true}
   pageNavigator={pageNavigator}
 >
@@ -136,18 +136,21 @@ const pageNavigator = {
               {trade.shortName}
             </span>
           </div>
-          <p class="creative-kicker">{trade.eyebrow}</p>
+          <p class="creative-kicker">Service division overview</p>
           <h1
             class="tone-title text-5xl font-semibold tracking-tight sm:text-6xl"
           >
-            {trade.heroTitle}
+            {trade.name}
           </h1>
           <p class="tone-body max-w-3xl text-base leading-relaxed">
+            {trade.summary}
+          </p>
+          <p class="tone-body text-white/72 max-w-3xl text-sm leading-relaxed">
             {trade.heroDescription}
           </p>
-          <p
-            class="tone-body max-w-3xl text-sm uppercase tracking-[0.16em] text-white/55"
-          >
+          <p class="tone-body text-white/62 max-w-3xl text-sm leading-relaxed">
+            <span class="text-white/84 font-semibold">Best fit:</span>
+            {' '}
             {trade.marketFocus}
           </p>
           <div class="grid gap-3 sm:grid-cols-3">
@@ -196,7 +199,7 @@ const pageNavigator = {
         </div>
 
         <div class="grid gap-4">
-          <ModernCard variant="minimal" className="trade-stage-board p-6">
+          <ModernCard variant="glass" className="trade-stage-board p-6">
             <p class="creative-kicker">{tradeVisual.stageLabel}</p>
             <p class="tone-title mt-4 text-3xl font-semibold">
               {tradeVisual.stageValue}
@@ -220,7 +223,7 @@ const pageNavigator = {
           <div class="grid gap-4 sm:grid-cols-3 xl:grid-cols-1">
             {
               trade.metrics.map(metric => (
-                <ModernCard variant="minimal" className="creative-panel p-5">
+                <ModernCard variant="glass" className="p-5">
                   <p class="tone-muted text-xs uppercase tracking-[0.24em]">
                     {metric.label}
                   </p>
@@ -245,10 +248,7 @@ const pageNavigator = {
   >
     <div class="mx-auto max-w-[1400px] px-6 py-12">
       <div class="grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
-        <ModernCard
-          variant="minimal"
-          className="creative-panel trade-service-grid p-7"
-        >
+        <ModernCard variant="glass" className="trade-service-grid p-7">
           <p class="creative-kicker">Service Lines</p>
           <div class="mt-6 grid gap-4 md:grid-cols-2">
             {
@@ -284,8 +284,8 @@ const pageNavigator = {
 
           <SignalCabinet
             eyebrow={`${trade.shortName} Signals`}
-            title="Operational character"
-            description="This trade page is meant to read like a real vertical with its own field posture, owner-facing outputs, and quality discipline."
+            title={`${trade.shortName} delivery posture`}
+            description="Use this summary to understand how the division operates in the field, what owners should expect at handoff, and which quality standards shape delivery."
             accent={trade.accent}
             items={tradeSignalItems}
           />
@@ -303,11 +303,11 @@ const pageNavigator = {
     <div class="mx-auto max-w-[1400px] px-6 py-4">
       <div class="grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
         <ModernCard
-          variant="minimal"
-          className="creative-panel trade-side-panel scroll-mt-32 p-6"
+          variant="glass"
+          className="trade-side-panel scroll-mt-32 p-6"
           id="trade-routes"
         >
-          <p class="creative-kicker">Market Fit</p>
+          <p class="creative-kicker">Best-fit sectors</p>
           <div class="mt-5 grid gap-4">
             {
               trade.sectors.map(sector => (
@@ -320,13 +320,10 @@ const pageNavigator = {
           </div>
         </ModernCard>
 
-        <ModernCard
-          variant="minimal"
-          className="creative-panel trade-side-panel p-6"
-        >
+        <ModernCard variant="glass" className="trade-side-panel p-6">
           <div class="grid gap-4 border-b border-white/10 pb-5 md:grid-cols-2">
             <div>
-              <p class="creative-kicker">Connected trades</p>
+              <p class="creative-kicker">Related divisions</p>
               <div class="mt-4 flex flex-wrap gap-2">
                 {
                   trade.integration.map(item => (
@@ -341,7 +338,7 @@ const pageNavigator = {
               </div>
             </div>
             <div>
-              <p class="creative-kicker">Market fit</p>
+              <p class="creative-kicker">Where this works best</p>
               <p class="tone-body mt-4 text-sm leading-relaxed">
                 {trade.marketFocus}
               </p>
@@ -351,9 +348,9 @@ const pageNavigator = {
             class="flex flex-col gap-4 pt-6 md:flex-row md:items-end md:justify-between"
           >
             <div>
-              <p class="creative-kicker">Subpages</p>
+              <p class="creative-kicker">Focused routes</p>
               <h2 class="tone-title mt-3 text-3xl font-semibold">
-                Focused routes for this trade.
+                Delivery routes for this division.
               </h2>
             </div>
             <a class="creative-chip" href={tradeHref}> Overview </a>
@@ -385,12 +382,12 @@ const pageNavigator = {
     trade.slug === 'msp-tech-services' && (
       <section class="tone-surface pb-20" data-reveal>
         <div class="mx-auto max-w-[1400px] px-6 py-10">
-          <ModernCard variant="minimal" className="creative-panel p-7">
+          <ModernCard variant="glass" className="p-7">
             <div class="flex flex-col gap-4 border-b border-white/10 pb-5 md:flex-row md:items-end md:justify-between">
               <div>
-                <p class="creative-kicker">Retained Tech Stack</p>
+                <p class="creative-kicker">Technology catalog</p>
                 <h2 class="tone-title mt-3 text-3xl font-semibold">
-                  The existing technology catalog still powers this trade.
+                  The deeper technology catalog still supports this division.
                 </h2>
               </div>
               <ModernButton
@@ -406,7 +403,7 @@ const pageNavigator = {
                   <p class="tone-title text-lg font-semibold">{category}</p>
                   <p class="tone-body mt-2 text-sm">
                     Preserved from the original services architecture and now
-                    linked into the seven-trade site map.
+                    connected cleanly into the seven-division site map.
                   </p>
                 </div>
               ))}
@@ -422,6 +419,10 @@ const pageNavigator = {
   .trade-hero-shell {
     position: relative;
     isolation: isolate;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(4, 8, 12, 0.9)),
+      rgba(5, 7, 12, 0.88);
   }
 
   .trade-stage-board {
@@ -492,86 +493,71 @@ const pageNavigator = {
 
   body.trade-experience--mechanical .trade-hero-shell {
     background:
-      linear-gradient(140deg, rgba(185, 242, 113, 0.09), transparent 24%),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(4, 8, 12, 0.88)),
-      repeating-linear-gradient(
-        90deg,
-        rgba(255, 255, 255, 0.025) 0,
-        rgba(255, 255, 255, 0.025) 1px,
-        transparent 1px,
-        transparent 34px
-      );
+      radial-gradient(
+        circle at top right,
+        rgba(185, 242, 113, 0.1),
+        transparent 28%
+      ),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(4, 8, 12, 0.9));
   }
 
   body.trade-experience--electrical .trade-hero-shell {
     background:
       radial-gradient(
-        circle at 82% 18%,
-        rgba(255, 224, 130, 0.16),
-        transparent 26%
+        circle at top right,
+        rgba(255, 224, 130, 0.12),
+        transparent 28%
       ),
-      linear-gradient(135deg, rgba(255, 224, 130, 0.08), transparent 34%),
-      rgba(5, 7, 12, 0.9);
+      linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(4, 8, 12, 0.9));
   }
 
   body.trade-experience--plumbing .trade-hero-shell {
     background:
       radial-gradient(
-        circle at 18% 18%,
-        rgba(125, 211, 252, 0.16),
-        transparent 24%
+        circle at top right,
+        rgba(125, 211, 252, 0.12),
+        transparent 28%
       ),
-      radial-gradient(
-        circle at 76% 70%,
-        rgba(125, 211, 252, 0.08),
-        transparent 26%
-      ),
-      rgba(5, 7, 12, 0.9);
+      linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(4, 8, 12, 0.9));
   }
 
   body.trade-experience--gc .trade-hero-shell {
     background:
-      linear-gradient(135deg, rgba(253, 164, 175, 0.08), transparent 36%),
-      repeating-linear-gradient(
-        0deg,
-        rgba(255, 255, 255, 0.024) 0,
-        rgba(255, 255, 255, 0.024) 1px,
-        transparent 1px,
-        transparent 28px
+      radial-gradient(
+        circle at top right,
+        rgba(253, 164, 175, 0.1),
+        transparent 28%
       ),
-      rgba(5, 7, 12, 0.9);
+      linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(4, 8, 12, 0.9));
   }
 
   body.trade-experience--hvac .trade-hero-shell {
     background:
       radial-gradient(
-        circle at 50% 0%,
-        rgba(134, 239, 172, 0.12),
-        transparent 30%
+        circle at top right,
+        rgba(134, 239, 172, 0.1),
+        transparent 28%
       ),
-      linear-gradient(145deg, rgba(134, 239, 172, 0.06), transparent 30%),
-      rgba(5, 7, 12, 0.9);
+      linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(4, 8, 12, 0.9));
   }
 
   body.trade-experience--auto .trade-hero-shell {
     background:
-      linear-gradient(135deg, rgba(252, 165, 165, 0.08), transparent 28%),
       radial-gradient(
-        circle at 85% 20%,
-        rgba(252, 165, 165, 0.15),
-        transparent 24%
+        circle at top right,
+        rgba(252, 165, 165, 0.1),
+        transparent 28%
       ),
-      rgba(5, 7, 12, 0.9);
+      linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(4, 8, 12, 0.9));
   }
 
   body.trade-experience--msp .trade-hero-shell {
     background:
       radial-gradient(
         circle at top right,
-        rgba(196, 181, 253, 0.14),
-        transparent 26%
+        rgba(196, 181, 253, 0.12),
+        transparent 28%
       ),
-      linear-gradient(145deg, rgba(196, 181, 253, 0.06), transparent 30%),
-      rgba(5, 7, 12, 0.9);
+      linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(4, 8, 12, 0.9));
   }
 </style>

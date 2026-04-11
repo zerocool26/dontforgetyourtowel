@@ -2,6 +2,7 @@
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
 import ModernCard from '../components/ui/ModernCard.astro';
+import SignalCabinet from '../components/business/SignalCabinet.astro';
 import { CONTACT_EMAIL } from '../consts';
 import {
   tradeProfiles,
@@ -20,6 +21,18 @@ const tradeHighlights = tradeProfiles.map(trade => ({
   trade,
   operations: getTradeOperations(trade.slug),
 }));
+
+const landingSignalItems = tradeHighlights
+  .slice(0, 4)
+  .map(({ trade, operations }) => ({
+    kicker: trade.shortName,
+    title: trade.name,
+    detail: operations.operatingModel,
+    meta: [
+      operations.serviceRhythm,
+      operations.ownerOutputs[0] ?? trade.summary,
+    ],
+  }));
 
 const operatingHighlights = [
   {
@@ -124,8 +137,8 @@ const deliveryStages = [
             <h1
               class="max-w-4xl text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl"
             >
-              Integrated trade and technology delivery built around real
-              operating constraints.
+              Creative technology and integrated trade delivery built around
+              real operating constraints.
             </h1>
             <p class="max-w-3xl text-base leading-8 text-slate-300 sm:text-lg">
               This site now leads with what matters most: what each division
@@ -191,9 +204,9 @@ const deliveryStages = [
                   <dd class="mt-3 text-3xl font-semibold tracking-tight text-white">
                     {item.value}
                   </dd>
-                  <p class="mt-3 text-sm leading-6 text-slate-300">
+                  <dd class="mt-3 text-sm leading-6 text-slate-300">
                     {item.note}
-                  </p>
+                  </dd>
                 </div>
               ))
             }
@@ -372,6 +385,23 @@ const deliveryStages = [
 
   <section
     class="border-b border-white/10"
+    id="signal-cabinet"
+    data-page-section
+    data-reveal
+  >
+    <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
+      <SignalCabinet
+        eyebrow="Operational signals"
+        title="Compare how the core divisions actually behave."
+        description="This interactive layer keeps the landing page useful: click through the lead divisions to see how operating model, service rhythm, and owner outputs differ before you go deeper."
+        accent="#93c5fd"
+        items={landingSignalItems}
+      />
+    </div>
+  </section>
+
+  <section
+    class="border-b border-white/10"
     id="focus"
     data-page-section
     data-reveal
@@ -403,6 +433,16 @@ const deliveryStages = [
             </ModernCard>
           ))
         }
+        <ModernCard variant="default" className="h-full p-7">
+          <h3 class="text-lg font-semibold text-white">
+            AI Orchestration & Advanced Dev
+          </h3>
+          <p class="mt-3 text-sm leading-7 text-slate-300">
+            The technology lane still covers AI integration, workflow
+            automation, advanced application support, and business systems work
+            when the right starting point is digital rather than field-led.
+          </p>
+        </ModernCard>
       </div>
     </div>
   </section>

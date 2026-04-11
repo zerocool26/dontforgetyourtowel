@@ -7,127 +7,160 @@ import {
   tradePrograms,
   totalTradeSubpages,
 } from '../data/trades';
+import { getTradeOperations } from '../data/trade-operations';
 import { withBasePath } from '../utils/helpers';
 
 const companySignals = [
   {
-    label: 'Trade divisions',
+    label: 'Service divisions',
     value: String(tradeProfiles.length),
     detail:
-      'Each presented as its own premium vertical inside one connected platform.',
+      'Each division keeps its own operating model, scope language, and buyer path.',
   },
   {
-    label: 'Support routes',
-    value: String(totalTradeSubpages),
-    detail: 'Each trade has supporting pages to deepen the specialist story.',
+    label: 'Specialist routes',
+    value: `${totalTradeSubpages}+`,
+    detail:
+      'Trade subpages explain the practical workflows behind retrofit delivery, controls, logistics, and managed operations.',
   },
   {
-    label: 'Retained showcase',
-    value: 'Portfolio + studio',
-    detail: 'Existing interactive work remains part of the platform.',
+    label: 'Cross-trade programs',
+    value: String(tradePrograms.length),
+    detail:
+      'The platform is designed to support combined delivery when one problem spans more than one lane.',
   },
 ];
 
-const companySections = [
+const positioningPoints = [
   {
-    title: 'Why this platform exists',
-    copy: 'The site is meant to prove range without becoming generic. Instead of collapsing every service into one contractor page, it now shows each trade as its own serious vertical while still sharing one source of truth.',
+    title: 'Built for real operational constraints',
+    copy: 'The company narrative now emphasizes what buyers actually need to understand: access, shutdowns, occupancy, service coverage, risk, and owner outcomes.',
   },
   {
-    title: 'How the architecture works',
-    copy: 'The landing page acts as the central narrative layer. The services hub bridges trade scope with retained MSP and digital capabilities. Trade pages and subpages then go deeper into each vertical with more exclusive language and visual treatment.',
+    title: 'Structured around distinct divisions',
+    copy: 'Mechanical, electrical, plumbing, general contracting, HVAC, auto repair, and managed technology are presented as real business lanes — not generic subsections of one broad page.',
   },
   {
-    title: 'What stayed in place',
-    copy: 'The showroom, ecommerce-style portfolio, pricing logic, planners, and technology catalog remain active. This site was extended, not flattened.',
+    title: 'Still capable of integrated delivery',
+    copy: 'The platform can stay in one lane when the scope is narrow, or combine trades and technology when the project or operating problem demands it.',
   },
 ];
 
-const pageNavigator = {
-  label: 'Platform Guide',
-  accent: '#f59e0b',
-  items: [
-    {
-      id: 'company-hero',
-      label: 'Why This Platform Exists',
-      shortLabel: 'Why',
-    },
-    { id: 'company-logic', label: 'Architecture Logic', shortLabel: 'Logic' },
-    { id: 'company-trades', label: 'Trade Overview', shortLabel: 'Trades' },
-  ],
-};
+const sectors = Array.from(
+  new Map(
+    tradeProfiles.flatMap(trade =>
+      trade.sectors.map(sector => [sector.name, sector.note])
+    )
+  )
+).slice(0, 8);
+
+const deliveryModel = [
+  {
+    step: '01',
+    title: 'Start with the real constraint',
+    copy: 'A good engagement starts by identifying the operational pressure: occupancy risk, support burden, timeline compression, security exposure, or maintenance continuity.',
+  },
+  {
+    step: '02',
+    title: 'Assign the lead division',
+    copy: 'One lane should own the conversation first, even when adjacent trades or technology services are likely to be involved later.',
+  },
+  {
+    step: '03',
+    title: 'Connect interfaces early',
+    copy: 'When more than one lane matters, those handoffs are surfaced at the beginning instead of getting discovered during delivery.',
+  },
+  {
+    step: '04',
+    title: 'Close with usable outputs',
+    copy: 'The site consistently emphasizes owner outputs like startup logs, asset information, service reporting, closeout packages, and next-step planning.',
+  },
+];
+
+const tradeOverview = tradeProfiles.map(trade => ({
+  trade,
+  operations: getTradeOperations(trade.slug),
+}));
 ---
 
 <MarketingLayout
-  title="About | Olive Global Systems"
-  description="About the seven-trade Olive Global Systems platform, how it is structured, and how the site connects physical delivery with retained digital capabilities."
-  bodyClass="creative-page bg-[#02040a]"
+  title="Company | Olive Global Systems"
+  description="Company overview for Olive Global Systems, including positioning, delivery model, sectors served, and the role of each service division."
+  bodyClass="creative-page"
   showFooter={true}
-  pageNavigator={pageNavigator}
+  showStickyCTA={false}
+  showLiveChat={false}
+  showSavedRoutesDock={false}
 >
   <section
-    class="tone-surface relative scroll-mt-32 overflow-hidden pb-14 pt-28"
-    data-reveal
+    class="border-b border-white/10"
     id="company-hero"
+    data-reveal
     data-page-section
   >
     <div
-      class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,rgba(204,255,0,0.12),transparent_52%)]"
+      class="mx-auto max-w-[1240px] px-4 pb-16 pt-28 sm:px-6 sm:pb-20 sm:pt-32"
     >
-    </div>
-    <div class="mx-auto max-w-[1360px] px-6">
-      <div
-        class="creative-hero-shell grid gap-8 p-8 xl:grid-cols-[1.15fr_0.85fr]"
-      >
-        <div class="space-y-5">
-          <p class="creative-kicker">About The Platform</p>
-          <h1
-            class="tone-title text-5xl font-semibold tracking-tight sm:text-6xl"
-          >
-            One site architecture built to hold seven distinct businesses.
-          </h1>
-          <p class="tone-body max-w-3xl text-base leading-relaxed">
-            This page carries the broader story so the landing page can stay
-            expressive and the trade pages can stay exclusive. It explains the
-            operating model behind the site, why the trades are separated, and
-            how the retained digital work still fits the platform.
-          </p>
+      <div class="grid gap-10 lg:grid-cols-[1.12fr_0.88fr] lg:items-end">
+        <div class="space-y-6">
+          <div class="space-y-3">
+            <p
+              class="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-white/55"
+            >
+              Company
+            </p>
+            <h1
+              class="max-w-4xl text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl"
+            >
+              A delivery platform organized to make complex service businesses
+              easier to understand.
+            </h1>
+            <p class="max-w-3xl text-base leading-8 text-slate-300 sm:text-lg">
+              Olive Global Systems is now presented as a clear operating
+              platform: distinct divisions, clearer buyer paths, visible
+              cross-trade programs, and a consistent emphasis on how work is
+              actually delivered.
+            </p>
+          </div>
+
           <div class="flex flex-col gap-3 sm:flex-row">
             <ModernButton
               href={withBasePath('trades/')}
               variant="primary"
-              className="min-h-[48px]"
+              className="min-h-[50px]"
             >
-              Browse all trade pages
+              Explore divisions
             </ModernButton>
             <ModernButton
-              href={withBasePath('gallery/')}
+              href={withBasePath('services/')}
               variant="secondary"
-              className="min-h-[48px]"
+              className="min-h-[50px]"
             >
-              Open design gallery
+              Open services hub
             </ModernButton>
             <ModernButton
-              href={withBasePath('/')}
+              href={withBasePath('contact-hq/')}
               variant="outline"
-              className="min-h-[48px]"
+              className="min-h-[50px]"
             >
-              Return to landing page
+              Start a conversation
             </ModernButton>
           </div>
         </div>
 
-        <div class="grid gap-4">
+        <div class="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
           {
             companySignals.map(signal => (
-              <ModernCard variant="minimal" className="creative-panel p-5">
-                <p class="tone-muted text-xs uppercase tracking-[0.24em]">
+              <ModernCard variant="glass" className="p-5">
+                <p class="font-mono text-[0.66rem] uppercase tracking-[0.22em] text-white/45">
                   {signal.label}
                 </p>
-                <p class="tone-title mt-2 text-3xl font-semibold">
+                <p class="mt-3 text-3xl font-semibold tracking-tight text-white">
                   {signal.value}
                 </p>
-                <p class="tone-body mt-2 text-sm">{signal.detail}</p>
+                <p class="mt-3 text-sm leading-6 text-slate-300">
+                  {signal.detail}
+                </p>
               </ModernCard>
             ))
           }
@@ -137,110 +170,250 @@ const pageNavigator = {
   </section>
 
   <section
-    class="tone-surface scroll-mt-32"
+    class="border-b border-white/10"
+    id="positioning"
     data-reveal
-    id="company-logic"
     data-page-section
   >
-    <div class="mx-auto max-w-[1360px] px-6 py-12">
-      <div class="grid gap-5 xl:grid-cols-[1.05fr_0.95fr]">
-        <div class="grid gap-5">
+    <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
+      <div class="max-w-3xl space-y-4">
+        <p
+          class="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-white/55"
+        >
+          Positioning
+        </p>
+        <h2
+          class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
+        >
+          The company page now explains the business in plain operational terms.
+        </h2>
+        <p class="text-base leading-7 text-slate-300">
+          Instead of talking about the site architecture as if it is the
+          product, this page now explains why the company is organized the way
+          it is and how that structure benefits buyers.
+        </p>
+      </div>
+
+      <div class="mt-10 grid gap-5 lg:grid-cols-3">
+        {
+          positioningPoints.map(item => (
+            <ModernCard variant="default" className="h-full p-7">
+              <p class="text-lg font-semibold text-white">{item.title}</p>
+              <p class="mt-3 text-sm leading-7 text-slate-300">{item.copy}</p>
+            </ModernCard>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section
+    class="border-b border-white/10"
+    id="delivery-model"
+    data-reveal
+    data-page-section
+  >
+    <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
+      <div class="grid gap-8 lg:grid-cols-[0.92fr_1.08fr] lg:items-start">
+        <div class="space-y-4">
+          <p
+            class="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-white/55"
+          >
+            Delivery model
+          </p>
+          <h2
+            class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
+          >
+            A clearer sequence from first conversation to usable outcome.
+          </h2>
+          <p class="text-base leading-7 text-slate-300">
+            The site now consistently describes delivery as a sequence: identify
+            the constraint, choose the lead lane, connect dependencies, and
+            finish with outputs the client can actually use.
+          </p>
+        </div>
+
+        <div class="grid gap-5 sm:grid-cols-2">
           {
-            companySections.map((section, index) => (
-              <ModernCard variant="minimal" className="creative-panel p-7">
-                <div class="flex items-start gap-4">
-                  <span class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 font-mono text-xs text-white/70">
-                    0{index + 1}
-                  </span>
-                  <div>
-                    <h2 class="tone-title text-3xl font-semibold">
-                      {section.title}
-                    </h2>
-                    <p class="tone-body mt-3 text-sm leading-relaxed">
-                      {section.copy}
-                    </p>
-                  </div>
-                </div>
+            deliveryModel.map(item => (
+              <ModernCard variant="outline" className="h-full p-6">
+                <p class="font-mono text-[0.72rem] uppercase tracking-[0.22em] text-white/45">
+                  {item.step}
+                </p>
+                <h3 class="mt-4 text-lg font-semibold text-white">
+                  {item.title}
+                </h3>
+                <p class="mt-3 text-sm leading-7 text-slate-300">{item.copy}</p>
               </ModernCard>
             ))
           }
         </div>
+      </div>
+    </div>
+  </section>
 
-        <ModernCard variant="minimal" className="creative-panel p-7">
-          <p class="creative-kicker">Integrated Programs</p>
-          <div class="mt-6 grid gap-4">
+  <section
+    class="border-b border-white/10"
+    id="sectors"
+    data-reveal
+    data-page-section
+  >
+    <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
+      <div class="max-w-3xl space-y-4">
+        <p
+          class="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-white/55"
+        >
+          Sectors and operating contexts
+        </p>
+        <h2
+          class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
+        >
+          The business is framed around the environments it is built to support.
+        </h2>
+        <p class="text-base leading-7 text-slate-300">
+          These are the types of environments repeatedly reflected across the
+          divisions: occupied buildings, service-heavy businesses, operationally
+          sensitive facilities, and organizations that need both physical and
+          digital delivery support.
+        </p>
+      </div>
+
+      <div class="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+        {
+          sectors.map(([name, note]) => (
+            <ModernCard variant="glass" className="h-full p-6">
+              <p class="text-lg font-semibold text-white">{name}</p>
+              <p class="mt-3 text-sm leading-7 text-slate-300">{note}</p>
+            </ModernCard>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section
+    class="border-b border-white/10"
+    id="trade-overview"
+    data-reveal
+    data-page-section
+  >
+    <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
+      <div
+        class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between"
+      >
+        <div class="max-w-3xl space-y-4">
+          <p
+            class="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-white/55"
+          >
+            Divisions at a glance
+          </p>
+          <h2
+            class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
+          >
+            Each division exists for a reason, and each one communicates
+            differently.
+          </h2>
+          <p class="text-base leading-7 text-slate-300">
+            The company page should not replace the trade pages, but it should
+            make it obvious where each one fits and what kind of work it is
+            built to lead.
+          </p>
+        </div>
+
+        <ModernButton
+          href={withBasePath('trades/')}
+          variant="secondary"
+          className="min-h-[48px] shrink-0"
+        >
+          Open all division pages
+        </ModernButton>
+      </div>
+
+      <div class="mt-10 grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
+        {
+          tradeOverview.map(({ trade, operations }) => (
+            <a
+              href={withBasePath(`trades/${trade.slug}/`)}
+              class="hover:border-white/18 group rounded-3xl border border-white/10 bg-white/[0.03] p-6 transition hover:bg-white/[0.05]"
+              style={`--trade-accent:${trade.accent};`}
+            >
+              <div class="flex items-start justify-between gap-4">
+                <div>
+                  <div
+                    class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border text-sm font-semibold uppercase tracking-[0.18em] text-white"
+                    style={`border-color:color-mix(in srgb, var(--trade-accent) 40%, rgba(255,255,255,0.12)); background:color-mix(in srgb, var(--trade-accent) 16%, transparent);`}
+                  >
+                    {trade.badge}
+                  </div>
+                  <p class="mt-4 text-xs uppercase tracking-[0.22em] text-white/45">
+                    {trade.eyebrow}
+                  </p>
+                </div>
+
+                <span class="rounded-full border border-white/10 px-3 py-1 text-[0.65rem] uppercase tracking-[0.22em] text-white/55">
+                  {trade.shortName}
+                </span>
+              </div>
+
+              <h3 class="mt-4 text-xl font-semibold text-white">
+                {trade.name}
+              </h3>
+              <p class="mt-3 text-sm leading-7 text-slate-300">
+                {trade.summary}
+              </p>
+
+              <div class="mt-6 border-t border-white/10 pt-5 text-sm">
+                <p class="font-mono text-[0.66rem] uppercase tracking-[0.2em] text-white/45">
+                  Lead delivery pattern
+                </p>
+                <p class="mt-1 text-slate-200">{operations.operatingModel}</p>
+              </div>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section id="programs" data-reveal data-page-section>
+    <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6 sm:py-20">
+      <ModernCard variant="glass" className="p-8 sm:p-10">
+        <div class="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
+          <div class="space-y-4">
+            <p
+              class="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-white/55"
+            >
+              Cross-trade programs
+            </p>
+            <h2
+              class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
+            >
+              The platform is strongest when it makes multi-lane work easier to
+              understand.
+            </h2>
+            <p class="text-base leading-7 text-slate-300">
+              These recurring program types show how the company can combine
+              physical trades and technology support without turning the buyer
+              experience into a maze.
+            </p>
+          </div>
+
+          <div class="grid gap-4">
             {
               tradePrograms.map(program => (
-                <div class="rounded-3xl border border-white/10 bg-white/[0.02] p-5">
-                  <p class="tone-title text-xl font-semibold">
+                <div class="rounded-3xl border border-white/10 bg-white/[0.03] p-5">
+                  <p class="text-lg font-semibold text-white">
                     {program.title}
                   </p>
-                  <p class="tone-body mt-2 text-sm">{program.description}</p>
-                  <div class="mt-4 flex flex-wrap gap-2">
-                    {program.tradeSlugs.map(slug => {
-                      const trade = tradeProfiles.find(
-                        item => item.slug === slug
-                      );
-                      return trade ? (
-                        <a
-                          class="creative-chip"
-                          href={withBasePath(`trades/${trade.slug}/`)}
-                          style={`border-color: color-mix(in srgb, ${trade.accent} 28%, rgba(255,255,255,0.08));`}
-                        >
-                          {trade.shortName}
-                        </a>
-                      ) : null;
-                    })}
-                  </div>
+                  <p class="mt-2 text-sm leading-7 text-slate-300">
+                    {program.description}
+                  </p>
                 </div>
               ))
             }
           </div>
-        </ModernCard>
-      </div>
-    </div>
-  </section>
-
-  <section
-    class="tone-surface scroll-mt-32 pb-20"
-    data-reveal
-    id="company-trades"
-    data-page-section
-  >
-    <div class="mx-auto max-w-[1360px] px-6 py-10">
-      <div class="creative-hero-shell p-8">
-        <div
-          class="flex flex-col gap-5 border-b border-white/10 pb-6 md:flex-row md:items-end md:justify-between"
-        >
-          <div class="max-w-3xl">
-            <p class="creative-kicker">Trade Overview</p>
-            <h2 class="tone-title mt-3 text-4xl font-semibold tracking-tight">
-              Each trade is meant to feel like its own premium site.
-            </h2>
-          </div>
-          <ModernButton
-            href={withBasePath('gallery/')}
-            variant="secondary"
-            className="min-h-[48px]"
-          >
-            Open design gallery
-          </ModernButton>
         </div>
-
-        <div class="mt-8 grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
-          {
-            tradeProfiles.map(trade => (
-              <a
-                href={withBasePath(`trades/${trade.slug}/`)}
-                class="rounded-3xl border border-white/10 bg-white/[0.02] p-5 transition hover:border-white/20 hover:bg-white/[0.04]"
-              >
-                <p class="tone-title text-lg font-semibold">{trade.name}</p>
-                <p class="tone-body mt-2 text-sm">{trade.summary}</p>
-              </a>
-            ))
-          }
-        </div>
-      </div>
+      </ModernCard>
     </div>
   </section>
 </MarketingLayout>

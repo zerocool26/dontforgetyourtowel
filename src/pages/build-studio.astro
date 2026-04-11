@@ -13,11 +13,17 @@ import { withBasePath } from '../utils/helpers';
 
 <MarketingLayout
   title="Build Studio | Olive Global Systems"
-  description="Configure a flagship digital system in real time: presets, capability modules, launch sequencing, and a live build brief that proves what this codebase can really do."
+  description="Interactive planning route for shaping a digital system brief around scope, priorities, rollout pace, and linked live surfaces."
+  bodyClass="bg-[#06101d]"
+  showStickyCTA={false}
+  showLiveChat={false}
 >
-  <section class="tone-surface relative overflow-hidden" data-reveal>
+  <section
+    class="relative overflow-hidden border-b border-white/10"
+    data-reveal
+  >
     <div
-      class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_right,_rgba(204,255,0,0.16),_transparent_48%),radial-gradient(circle_at_bottom_left,_rgba(99,102,241,0.22),_transparent_42%)]"
+      class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_right,_rgba(125,211,252,0.12),_transparent_48%),radial-gradient(circle_at_bottom_left,_rgba(148,163,184,0.14),_transparent_42%)]"
     >
     </div>
 
@@ -26,18 +32,16 @@ import { withBasePath } from '../utils/helpers';
         class="creative-hero-shell grid gap-10 p-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center"
       >
         <div class="space-y-6">
-          <span class="creative-kicker">Flagship showcase route</span>
+          <span class="creative-kicker">Interactive planning route</span>
           <h1 class="creative-title tone-title text-4xl font-bold sm:text-5xl">
-            Build a premium digital system
-            <span class="text-[#ccff00]">
-              instead of browsing another generic demo.</span
-            >
+            Shape a digital system brief around real scope, rollout pace, and
+            buyer priorities.
           </h1>
           <p class="creative-copy text-base sm:text-lg">
-            This is the interactive showroom for what this codebase can actually
-            become at the high end: cinematic interfaces, AI-native workflows,
-            diagnostics, pricing intelligence, launch sequencing, and
-            stakeholder-ready proof—configured in one live brief.
+            Build Studio now works better as a planning surface than a bragging
+            surface. Use it to combine capabilities, compare rollout pace,
+            generate a cleaner intake brief, and see which live routes already
+            support the system you have in mind.
           </p>
 
           <div class="flex flex-col gap-3 sm:flex-row">
@@ -46,20 +50,20 @@ import { withBasePath } from '../utils/helpers';
               variant="primary"
               className="min-h-[48px]"
             >
-              Jump into Build Studio
+              Open planning studio
             </ModernButton>
             <ModernButton
               href={withBasePath('about/')}
               variant="secondary"
               className="min-h-[48px]"
             >
-              Open live commerce engine
+              View portfolio demo
             </ModernButton>
           </div>
         </div>
 
         <div class="grid gap-4 sm:grid-cols-2">
-          <ModernCard variant="minimal" className="creative-panel p-5">
+          <ModernCard variant="glass" className="p-5">
             <p class="tone-muted text-xs uppercase tracking-[0.22em]">
               Presets
             </p>
@@ -67,11 +71,11 @@ import { withBasePath } from '../utils/helpers';
               {studioPresets.length}
             </p>
             <p class="tone-body mt-2 text-sm">
-              Flagship build directions spanning launch rooms, AI ops, premium
-              commerce, and trust-first command centers.
+              Starting directions for planning launch, operations, trust, or
+              commerce-oriented systems.
             </p>
           </ModernCard>
-          <ModernCard variant="minimal" className="creative-panel p-5">
+          <ModernCard variant="glass" className="p-5">
             <p class="tone-muted text-xs uppercase tracking-[0.22em]">
               Live surfaces
             </p>
@@ -79,25 +83,21 @@ import { withBasePath } from '../utils/helpers';
               {studioSurfaces.length}
             </p>
             <p class="tone-body mt-2 text-sm">
-              Existing routes already wired with the patterns this studio can
-              amplify into a premium system.
+              Existing routes already carrying the patterns this planner can
+              extend into a fuller system.
             </p>
           </ModernCard>
-          <ModernCard
-            variant="minimal"
-            className="creative-panel p-5 sm:col-span-2"
-          >
+          <ModernCard variant="glass" className="p-5 sm:col-span-2">
             <p class="tone-muted text-xs uppercase tracking-[0.22em]">
-              Why this matters
+              Why this route matters
             </p>
             <p class="tone-title mt-2 text-xl font-semibold">
-              It proves architecture, product sense, and launch discipline in
-              one interaction.
+              It turns a vague request into a more structured system brief.
             </p>
             <p class="tone-body mt-2 text-sm">
-              Instead of showing isolated widgets, Build Studio demonstrates how
-              motion, orchestration, trust, pricing, diagnostics, and buyer flow
-              can be composed into a coherent high-end product system.
+              Instead of showing isolated widgets, Build Studio helps explain
+              how planning, capability choices, linked routes, and rollout
+              discipline fit together.
             </p>
           </ModernCard>
         </div>
@@ -107,7 +107,7 @@ import { withBasePath } from '../utils/helpers';
 
   <section
     id="studio"
-    class="tone-border tone-surface scroll-mt-28 border-y"
+    class="scroll-mt-28 border-b border-white/10"
     data-reveal
   >
     <div class="mx-auto max-w-[1240px] px-6 py-16 sm:py-20">
@@ -117,22 +117,21 @@ import { withBasePath } from '../utils/helpers';
 
   <section class="mx-auto max-w-[1240px] px-6 py-16 sm:py-20" data-reveal>
     <div class="max-w-3xl space-y-4">
-      <span class="creative-kicker">Engineering proof</span>
+      <span class="creative-kicker">Why this route is useful</span>
       <h2 class="creative-title tone-title text-3xl font-semibold sm:text-4xl">
-        What this route proves technically
+        What this planning route proves technically
       </h2>
       <p class="creative-copy text-sm sm:text-base">
-        The cool part is not the chrome. It’s how the chrome is backed by
-        modular data, deterministic planning logic, client-safe state,
-        deployment-safe routing, and validation that keeps the premium feel from
-        becoming fragile.
+        The point is not the interface chrome. The useful part is that the
+        planner is backed by modular data, deterministic logic, client-safe
+        state, deployment-safe routing, and validation that keeps it stable.
       </p>
     </div>
 
     <div class="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
       {
         engineeringSignals.map(signal => (
-          <ModernCard variant="minimal" className="creative-panel p-5">
+          <ModernCard variant="glass" className="p-5">
             <p class="tone-title text-sm font-semibold">{signal.title}</p>
             <p class="tone-body mt-3 text-sm leading-relaxed">
               {signal.detail}
@@ -143,28 +142,26 @@ import { withBasePath } from '../utils/helpers';
     </div>
   </section>
 
-  <section class="tone-border tone-surface border-y" data-reveal>
+  <section class="border-y border-white/10" data-reveal>
     <div class="mx-auto max-w-[1240px] px-6 py-16 sm:py-20">
       <div class="max-w-3xl space-y-4">
-        <span class="creative-kicker">Live surfaces</span>
+        <span class="creative-kicker">Linked routes</span>
         <h2
           class="creative-title tone-title text-3xl font-semibold sm:text-4xl"
         >
-          Routes already carrying the advanced patterns
+          Live routes already supporting parts of the system
         </h2>
         <p class="creative-copy text-sm sm:text-base">
-          Build Studio is not vapor. Every recommendation points at a live
-          surface in this repo that already demonstrates part of the stack.
+          Every recommendation points at a real route in the repo so the studio
+          remains tied to working product surfaces instead of imaginary future
+          pages.
         </p>
       </div>
 
       <div class="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {
           studioSurfaces.map(surface => (
-            <ModernCard
-              variant="minimal"
-              className="creative-panel flex h-full flex-col p-5"
-            >
+            <ModernCard variant="glass" className="flex h-full flex-col p-5">
               <p class="tone-title text-lg font-semibold">{surface.title}</p>
               <p class="tone-body mt-3 flex-1 text-sm leading-relaxed">
                 {surface.description}
@@ -178,9 +175,9 @@ import { withBasePath } from '../utils/helpers';
               </div>
               <a
                 href={withBasePath(surface.href)}
-                class="mt-5 inline-flex items-center text-sm font-semibold text-[#ccff00] hover:underline"
+                class="mt-5 inline-flex items-center text-sm font-semibold text-sky-300 hover:underline"
               >
-                Open surface →
+                Open route →
               </a>
             </ModernCard>
           ))

@@ -4,6 +4,7 @@ import MarketingLayout from '../layouts/MarketingLayout.astro';
 import StructuredData from '../components/StructuredData.astro';
 import ModernCard from '../components/ui/ModernCard.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
+import FAQAccordion from '../components/ui/FAQAccordion.tsx';
 import { withBasePath } from '../utils/helpers';
 import { CONTACT_EMAIL } from '../consts';
 import { studioPresets } from '../data/build-studio';
@@ -107,80 +108,84 @@ const hasIntakeContext = Boolean(
   workspaceRoutesIntent.length
 );
 
-const contactChannels = [
+const channels = [
   {
-    title: 'New Project / Sales',
-    note: 'Scope alignment, proposal framing, and delivery sequencing.',
-    email: CONTACT_EMAIL,
+    title: 'New project / sales',
+    note: 'Scope review, sequencing, planning assumptions, and next-step recommendations.',
     subject: 'New project inquiry',
   },
   {
-    title: 'Managed Services Support',
-    note: 'Operational support, escalations, and continuity requests.',
-    email: CONTACT_EMAIL,
+    title: 'Managed operations and support',
+    note: 'Ongoing support questions, service requests, and operating-model discussions.',
     subject: 'Managed services support request',
   },
   {
-    title: 'Security Advisory',
-    note: 'Risk reviews, architecture guidance, and response readiness.',
-    email: CONTACT_EMAIL,
+    title: 'Security and advisory',
+    note: 'Architecture guidance, security posture reviews, and compliance-oriented planning.',
     subject: 'Security advisory request',
   },
   {
-    title: 'Partnerships',
-    note: 'Strategic collaboration and co-delivery opportunities.',
-    email: CONTACT_EMAIL,
+    title: 'Partnerships and collaboration',
+    note: 'Strategic collaboration, co-delivery opportunities, and long-term alignment conversations.',
     subject: 'Partnership inquiry',
   },
 ];
 
-const intakeChecklist = [
-  'What outcome you want in plain language',
-  'Current stack and system constraints',
-  'Security/compliance boundaries (if relevant)',
-  'Timeline expectations and decision dates',
-  'Known blockers or operational pressure points',
+const firstMessageChecklist = [
+  'What you are trying to achieve in plain language',
+  'The current system, facility, or operational context',
+  'Known constraints such as occupancy, timeline, support hours, or compliance needs',
+  'Any urgent issues, blockers, or decision deadlines',
+  'Who needs to review or approve the next step',
 ];
 
 const engagementSteps = [
   {
-    phase: '01 • Discovery',
+    phase: '01',
+    title: 'Align on the problem',
     detail:
-      'We align on intent, urgency, constraints, and architectural context before solutions are proposed.',
+      'The first conversation should confirm the real pressure point before anyone jumps to a solution.',
   },
   {
-    phase: '02 • Design',
+    phase: '02',
+    title: 'Recommend the right lane',
     detail:
-      'We frame options, sequencing, and operating model tradeoffs around your real delivery environment.',
+      'We identify the lead division, the likely interfaces, and whether the scope should stay narrow or expand into a program.',
   },
   {
-    phase: '03 • Plan',
+    phase: '03',
+    title: 'Shape the first plan',
     detail:
-      'You receive a right-sized plan with milestones, owners, and confidence checkpoints.',
+      'The next step becomes a right-sized plan: discovery, pricing, a scoped sprint, phased rollout, or direct project intake.',
   },
   {
-    phase: '04 • Kickoff',
+    phase: '04',
+    title: 'Start with clear ownership',
     detail:
-      'Once approved, we activate onboarding, workflows, and the first implementation cycle.',
+      'Once approved, onboarding and execution begin with named owners, agreed milestones, and visible outputs.',
   },
 ];
 
 const faqs = [
   {
-    q: 'How quickly do you respond?',
-    a: 'Most first responses happen same business day. Critical operational escalations are prioritized immediately.',
+    title: 'How quickly do you usually respond?',
+    content:
+      'Most first responses happen within the same business day. Time-sensitive operational issues are prioritized faster when the first message clearly explains urgency.',
   },
   {
-    q: 'Do you support co-managed engagements?',
-    a: 'Yes. We commonly embed with internal teams and fill specialist capability gaps where needed.',
+    title: 'Can we start with a narrow scope instead of a big engagement?',
+    content:
+      'Yes. Many engagements begin with discovery, a stabilization sprint, a focused trade package, or a single operational priority before expanding.',
   },
   {
-    q: 'Can we start with a narrow scope?',
-    a: 'Absolutely. Many clients begin with discovery or hardening sprints, then scale into broader programs.',
+    title: 'Do you work with internal teams or existing vendors?',
+    content:
+      'Yes. Co-managed delivery is common. The goal is to clarify ownership and close capability gaps, not force unnecessary replacement of existing teams.',
   },
   {
-    q: 'Do you offer fixed-price and recurring options?',
-    a: 'Yes. The model is chosen based on scope volatility, risk profile, and desired operating cadence.',
+    title: 'What if we are not sure which division should lead?',
+    content:
+      'That is a normal starting point. Send the context you have, and we will help identify the right lead lane and the likely supporting interfaces.',
   },
 ];
 
@@ -208,10 +213,10 @@ const faqSchema = {
   '@type': 'FAQPage',
   mainEntity: faqs.map(item => ({
     '@type': 'Question',
-    name: item.q,
+    name: item.title,
     acceptedAnswer: {
       '@type': 'Answer',
-      text: item.a,
+      text: item.content,
     },
   })),
 };
@@ -219,7 +224,12 @@ const faqSchema = {
 
 <MarketingLayout
   title="Contact | Olive Global Systems"
-  description="Creative intake hub for project discovery, operational support, security advisory, and partnership conversations."
+  description="Contact and intake page for project discovery, support conversations, security advisory, and partnership inquiries."
+  bodyClass="creative-page"
+  showFooter={true}
+  showStickyCTA={false}
+  showLiveChat={false}
+  showSavedRoutesDock={false}
 >
   <StructuredData type="contact" />
   <StructuredData type="organization" />
@@ -227,177 +237,231 @@ const faqSchema = {
     type="breadcrumbs"
     data={{ items: contactBreadcrumbSchema.itemListElement }}
   />
-  <!-- eslint-disable-next-line astro/no-set-html-directive -->
   <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
 
-  <section class="tone-surface relative overflow-hidden" data-reveal>
+  <section
+    class="border-b border-white/10"
+    data-reveal
+    id="contact-hero"
+    data-page-section
+  >
     <div
-      class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(204,255,0,0.14),_transparent_52%)]"
+      class="mx-auto max-w-[1240px] px-4 pb-16 pt-28 sm:px-6 sm:pb-20 sm:pt-32"
     >
-    </div>
-    <div class="relative mx-auto max-w-[1220px] px-6 pb-16 pt-28">
-      <div class="creative-hero-shell p-8 sm:p-10">
-        <div class="max-w-3xl space-y-6">
-          <span class="creative-kicker">Contact HQ</span>
-          <h1 class="creative-title tone-title text-4xl font-bold sm:text-5xl">
-            Let’s scope your next initiative
-            <span class="text-[#ccff00]">—with speed and clarity.</span>
-          </h1>
-          <p class="creative-copy text-base">
-            This is the fastest way to route a serious request. Share context
-            once, and we’ll map it to the right team, the right delivery path,
-            and the right pace.
-          </p>
+      <div class="grid gap-10 lg:grid-cols-[1.08fr_0.92fr] lg:items-end">
+        <div class="space-y-6">
+          <div class="space-y-3">
+            <p
+              class="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-white/55"
+            >
+              Contact HQ
+            </p>
+            <h1
+              class="max-w-4xl text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl"
+            >
+              Let’s scope your next initiative with enough context to make the
+              next step obvious.
+            </h1>
+            <p class="max-w-3xl text-base leading-8 text-slate-300 sm:text-lg">
+              This page is now built around one job: helping you route a request
+              clearly, whether it is a new project, an operational issue, a
+              security advisory need, or a partnership conversation.
+            </p>
+          </div>
+
           <div class="flex flex-col gap-3 sm:flex-row">
             <ModernButton
               href={kickoffHref}
               data-kickoff-mailto
               variant="primary"
-              className="min-h-[48px]"
+              className="min-h-[50px]"
             >
-              Start a project
+              Email project details
             </ModernButton>
             <ModernButton
               href={withBasePath('services/')}
               variant="secondary"
-              className="min-h-[48px]"
+              className="min-h-[50px]"
             >
-              Review services
+              Review services first
             </ModernButton>
           </div>
+        </div>
 
-          <div
-            id="intake-context"
-            class:list={[
-              'tone-border tone-surface mt-6 rounded-xl border px-4 py-4',
-              !hasIntakeContext && 'hidden',
-            ]}
-          >
-            <p class="tone-muted text-xs uppercase tracking-[0.22em]">
-              Live intake context
-            </p>
-            <div class="mt-3 grid gap-3">
-              <div
-                id="intake-context-trade-row"
-                class:list={[!tradeIntentLabel && 'hidden']}
+        <ModernCard variant="glass" className="p-7 sm:p-8">
+          <div class="space-y-5">
+            <div>
+              <p
+                class="font-mono text-[0.68rem] uppercase tracking-[0.24em] text-white/50"
               >
-                <p class="tone-muted text-[11px] uppercase tracking-[0.18em]">
-                  Trade focus
-                </p>
-                <p
-                  id="intake-context-trade"
-                  class="tone-title mt-1 text-sm font-semibold"
-                >
-                  {tradeIntentLabel}
-                </p>
-              </div>
-              <div
-                id="intake-context-trade-page-row"
-                class:list={[!tradePageIntent && 'hidden']}
-              >
-                <p class="tone-muted text-[11px] uppercase tracking-[0.18em]">
-                  Trade route
-                </p>
-                <p
-                  id="intake-context-trade-page"
-                  class="tone-body mt-1 text-sm leading-relaxed"
-                >
-                  {tradePageIntent}
-                </p>
-              </div>
-              <div
-                id="intake-context-service-row"
-                class:list={[!serviceIntentLabel && 'hidden']}
-              >
-                <p class="tone-muted text-[11px] uppercase tracking-[0.18em]">
-                  Recommended service
-                </p>
-                <p
-                  id="intake-context-service"
-                  class="tone-title mt-1 text-sm font-semibold"
-                >
-                  {serviceIntentLabel}
-                </p>
-              </div>
-              <div
-                id="intake-context-solution-row"
-                class:list={[!solutionIntentLabel && 'hidden']}
-              >
-                <p class="tone-muted text-[11px] uppercase tracking-[0.18em]">
-                  Selected build path
-                </p>
-                <p
-                  id="intake-context-solution"
-                  class="tone-title mt-1 text-sm font-semibold"
-                >
-                  {solutionIntentLabel}
-                </p>
-              </div>
-              <div
-                id="intake-context-brief-row"
-                class:list={[!briefIntent && 'hidden']}
-              >
-                <p class="tone-muted text-[11px] uppercase tracking-[0.18em]">
-                  Build brief
-                </p>
-                <p
-                  id="intake-context-brief"
-                  class="tone-body mt-1 text-sm leading-relaxed"
-                >
-                  {briefIntent}
-                </p>
-              </div>
-              <div
-                id="intake-context-workspace-row"
-                class:list={[
-                  !(
-                    workspaceTitleIntent ||
-                    workspaceSummaryIntent ||
-                    workspaceRoutesIntent.length
-                  ) && 'hidden',
-                ]}
-              >
-                <p class="tone-muted text-[11px] uppercase tracking-[0.18em]">
-                  Saved workspace
-                </p>
-                <div
-                  class="mt-2 rounded-2xl border border-white/10 bg-white/[0.03] p-4"
-                >
-                  <p
-                    id="intake-context-workspace-title"
-                    class="tone-title text-sm font-semibold"
-                  >
-                    {workspaceTitleIntent || 'Curated route workspace'}
-                  </p>
-                  <p
-                    id="intake-context-workspace-summary"
-                    class="tone-body mt-2 text-sm leading-relaxed"
-                  >
-                    {workspaceSummaryIntent}
-                  </p>
-                  <div
-                    id="intake-context-workspace-routes"
-                    class="mt-3 grid gap-2"
-                  >
-                    {
-                      workspaceRoutesIntent.map(route => (
-                        <a
-                          class="rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm transition hover:border-white/20 hover:bg-white/[0.05]"
-                          href={route.url}
-                        >
-                          <span class="tone-title block font-semibold">
-                            {route.title}
-                          </span>
-                          <span class="tone-muted mt-1 block text-[11px] uppercase tracking-[0.18em]">
-                            {route.category}
-                          </span>
-                        </a>
-                      ))
-                    }
-                  </div>
-                </div>
-              </div>
+                Primary contact
+              </p>
+              <p class="mt-3 text-lg font-semibold text-white">
+                {CONTACT_EMAIL}
+              </p>
+              <p class="mt-3 text-sm leading-6 text-slate-300">
+                Use email when you want the fastest way to capture context,
+                routes, and next-step questions in one place.
+              </p>
             </div>
+
+            <div class="border-t border-white/10 pt-5">
+              <p
+                class="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-white/45"
+              >
+                Best first message includes
+              </p>
+              <ul class="mt-3 space-y-2 text-sm text-slate-300">
+                {
+                  firstMessageChecklist.slice(0, 3).map(item => (
+                    <li class="flex items-start gap-2">
+                      <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-sky-300" />
+                      <span>{item}</span>
+                    </li>
+                  ))
+                }
+              </ul>
+            </div>
+          </div>
+        </ModernCard>
+      </div>
+
+      <div
+        id="intake-context"
+        class:list={[
+          'mt-8 rounded-3xl border border-white/10 bg-white/[0.03] p-6',
+          !hasIntakeContext && 'hidden',
+        ]}
+      >
+        <p
+          class="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-white/45"
+        >
+          Routed context
+        </p>
+        <div class="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div
+            id="intake-context-trade-row"
+            class:list={[!tradeIntentLabel && 'hidden']}
+          >
+            <p
+              class="font-mono text-[0.64rem] uppercase tracking-[0.18em] text-white/40"
+            >
+              Trade focus
+            </p>
+            <p
+              id="intake-context-trade"
+              class="mt-2 text-sm font-semibold text-white"
+            >
+              {tradeIntentLabel}
+            </p>
+          </div>
+          <div
+            id="intake-context-trade-page-row"
+            class:list={[!tradePageIntent && 'hidden']}
+          >
+            <p
+              class="font-mono text-[0.64rem] uppercase tracking-[0.18em] text-white/40"
+            >
+              Trade route
+            </p>
+            <p
+              id="intake-context-trade-page"
+              class="mt-2 text-sm text-slate-300"
+            >
+              {tradePageIntent}
+            </p>
+          </div>
+          <div
+            id="intake-context-service-row"
+            class:list={[!serviceIntentLabel && 'hidden']}
+          >
+            <p
+              class="font-mono text-[0.64rem] uppercase tracking-[0.18em] text-white/40"
+            >
+              Recommended service
+            </p>
+            <p
+              id="intake-context-service"
+              class="mt-2 text-sm font-semibold text-white"
+            >
+              {serviceIntentLabel}
+            </p>
+          </div>
+          <div
+            id="intake-context-solution-row"
+            class:list={[!solutionIntentLabel && 'hidden']}
+          >
+            <p
+              class="font-mono text-[0.64rem] uppercase tracking-[0.18em] text-white/40"
+            >
+              Build path
+            </p>
+            <p
+              id="intake-context-solution"
+              class="mt-2 text-sm font-semibold text-white"
+            >
+              {solutionIntentLabel}
+            </p>
+          </div>
+          <div
+            id="intake-context-brief-row"
+            class:list={[!briefIntent && 'hidden']}
+          >
+            <p
+              class="font-mono text-[0.64rem] uppercase tracking-[0.18em] text-white/40"
+            >
+              Brief
+            </p>
+            <p id="intake-context-brief" class="mt-2 text-sm text-slate-300">
+              {briefIntent}
+            </p>
+          </div>
+        </div>
+
+        <div
+          id="intake-context-workspace-row"
+          class:list={[
+            'mt-5 rounded-2xl border border-white/10 bg-black/20 p-5',
+            !(
+              workspaceTitleIntent ||
+              workspaceSummaryIntent ||
+              workspaceRoutesIntent.length
+            ) && 'hidden',
+          ]}
+        >
+          <p
+            class="font-mono text-[0.64rem] uppercase tracking-[0.18em] text-white/40"
+          >
+            Workspace context
+          </p>
+          <p
+            id="intake-context-workspace-title"
+            class="mt-3 text-sm font-semibold text-white"
+          >
+            {workspaceTitleIntent || 'Curated route workspace'}
+          </p>
+          <p
+            id="intake-context-workspace-summary"
+            class="mt-2 text-sm leading-6 text-slate-300"
+          >
+            {workspaceSummaryIntent}
+          </p>
+          <div id="intake-context-workspace-routes" class="mt-4 grid gap-2">
+            {
+              workspaceRoutesIntent.map(route => (
+                <a
+                  class="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3 text-sm transition hover:border-white/20 hover:bg-white/[0.05]"
+                  href={route.url}
+                >
+                  <span class="block font-semibold text-white">
+                    {route.title}
+                  </span>
+                  <span class="mt-1 block font-mono text-[11px] uppercase tracking-[0.18em] text-white/45">
+                    {route.category}
+                  </span>
+                </a>
+              ))
+            }
           </div>
         </div>
       </div>
@@ -405,45 +469,40 @@ const faqSchema = {
   </section>
 
   <section
-    class="tone-border tone-surface sticky top-16 z-20 border-y backdrop-blur-xl"
-    data-reveal
-  >
-    <div class="mx-auto max-w-[1220px] px-6 py-4 sm:py-5">
-      <div class="flex flex-wrap items-center gap-2">
-        <span class="creative-kicker">Navigator</span>
-        <a class="creative-chip" href="#channels">Channels</a>
-        <a class="creative-chip" href="#intake">Intake Checklist</a>
-        <a class="creative-chip" href="#engagement">Engagement Model</a>
-        <a class="creative-chip" href="#faq">FAQ</a>
-      </div>
-    </div>
-  </section>
-
-  <section
+    class="border-b border-white/10"
     id="channels"
-    class="tone-border tone-surface scroll-mt-32 border-y"
     data-reveal
+    data-page-section
   >
-    <div class="mx-auto max-w-[1220px] px-6 py-16">
-      <div class="max-w-3xl space-y-3">
-        <h2 class="creative-title tone-title text-3xl font-semibold">
-          Choose the right channel
+    <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
+      <div class="max-w-3xl space-y-4">
+        <p
+          class="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-white/55"
+        >
+          Contact lanes
+        </p>
+        <h2
+          class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
+        >
+          Choose the right channel for the conversation you need to have.
         </h2>
-        <p class="creative-copy text-sm">
-          Picking the correct lane means faster first response and fewer
-          handoffs.
+        <p class="text-base leading-7 text-slate-300">
+          Picking the right channel helps reduce handoffs and gets the
+          conversation in front of the right people faster.
         </p>
       </div>
 
-      <div class="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+      <div class="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         {
-          contactChannels.map(channel => (
-            <ModernCard variant="minimal" className="creative-panel p-6">
-              <p class="tone-title text-sm font-semibold">{channel.title}</p>
-              <p class="tone-body mt-3 text-sm">{channel.note}</p>
+          channels.map(channel => (
+            <ModernCard variant="default" className="h-full p-6">
+              <p class="text-lg font-semibold text-white">{channel.title}</p>
+              <p class="mt-3 text-sm leading-7 text-slate-300">
+                {channel.note}
+              </p>
               <a
-                class="mt-5 inline-flex text-sm font-semibold text-[#ccff00] hover:underline"
-                href={`mailto:${encodeURIComponent(channel.email)}?subject=${encodeURIComponent(channel.subject)}`}
+                class="mt-5 inline-flex text-sm font-semibold text-sky-300 hover:underline"
+                href={`mailto:${encodeURIComponent(CONTACT_EMAIL)}?subject=${encodeURIComponent(channel.subject)}`}
               >
                 Email this channel
               </a>
@@ -454,28 +513,37 @@ const faqSchema = {
     </div>
   </section>
 
-  <section id="intake" class="tone-surface scroll-mt-32" data-reveal>
-    <div class="mx-auto max-w-[1220px] px-6 py-20">
-      <div class="grid gap-10 lg:grid-cols-2 lg:items-start">
+  <section
+    class="border-b border-white/10"
+    id="intake"
+    data-reveal
+    data-page-section
+  >
+    <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
+      <div class="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
         <div class="space-y-4">
-          <h2 class="creative-title tone-title text-3xl font-semibold">
-            What to include in your first message
+          <p
+            class="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-white/55"
+          >
+            First message guidance
+          </p>
+          <h2
+            class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
+          >
+            What to include in your first message.
           </h2>
-          <p class="creative-copy text-sm">
-            Better context on day one creates better recommendations in the
-            first call.
+          <p class="text-base leading-7 text-slate-300">
+            Most intake friction comes from missing context. A simple, direct
+            summary usually does more than a polished but vague request.
           </p>
         </div>
 
-        <ModernCard
-          variant="minimal"
-          className="creative-panel tone-elevated p-6"
-        >
-          <ul class="tone-body space-y-3 text-sm">
+        <ModernCard variant="glass" className="p-7">
+          <ul class="space-y-3 text-sm text-slate-300">
             {
-              intakeChecklist.map(item => (
+              firstMessageChecklist.map(item => (
                 <li class="flex items-start gap-2">
-                  <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 bg-[#ccff00]" />
+                  <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-sky-300" />
                   <span>{item}</span>
                 </li>
               ))
@@ -487,28 +555,41 @@ const faqSchema = {
   </section>
 
   <section
+    class="border-b border-white/10"
     id="engagement"
-    class="tone-border tone-surface scroll-mt-32 border-y"
     data-reveal
+    data-page-section
   >
-    <div class="mx-auto max-w-[1220px] px-6 py-20">
-      <div class="max-w-3xl space-y-3">
-        <h2 class="creative-title tone-title text-3xl font-semibold">
-          How engagement starts
+    <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
+      <div class="max-w-3xl space-y-4">
+        <p
+          class="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-white/55"
+        >
+          Engagement sequence
+        </p>
+        <h2
+          class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
+        >
+          A straightforward path from intake to active work.
         </h2>
-        <p class="creative-copy text-sm">
-          A clear kickoff sequence from first message to active execution.
+        <p class="text-base leading-7 text-slate-300">
+          The point of the contact page is not to sell theatrics. It is to help
+          a serious request move into the right decision path quickly and
+          clearly.
         </p>
       </div>
 
-      <div class="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+      <div class="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         {
           engagementSteps.map(step => (
-            <ModernCard variant="minimal" className="creative-panel p-6">
-              <p class="tone-muted text-xs uppercase tracking-[0.24em]">
+            <ModernCard variant="outline" className="h-full p-6">
+              <p class="font-mono text-[0.72rem] uppercase tracking-[0.22em] text-white/45">
                 {step.phase}
               </p>
-              <p class="tone-body mt-3 text-sm">{step.detail}</p>
+              <h3 class="mt-4 text-lg font-semibold text-white">
+                {step.title}
+              </h3>
+              <p class="mt-3 text-sm leading-7 text-slate-300">{step.detail}</p>
             </ModernCard>
           ))
         }
@@ -516,68 +597,88 @@ const faqSchema = {
     </div>
   </section>
 
-  <section class="tone-surface" id="faq" data-reveal>
-    <div class="mx-auto max-w-[1220px] px-6 py-20">
-      <div class="max-w-3xl space-y-4">
-        <h2 class="creative-title tone-title text-3xl font-semibold">FAQs</h2>
-        <p class="creative-copy text-sm">Quick answers before kickoff.</p>
-      </div>
+  <section
+    class="border-b border-white/10"
+    id="faq"
+    data-reveal
+    data-page-section
+  >
+    <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
+      <div class="grid gap-8 lg:grid-cols-[0.88fr_1.12fr] lg:items-start">
+        <div class="space-y-4">
+          <p
+            class="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-white/55"
+          >
+            FAQ
+          </p>
+          <h2
+            class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
+          >
+            Common questions before kickoff.
+          </h2>
+          <p class="text-base leading-7 text-slate-300">
+            These cover the most common uncertainties around response timing,
+            scope sizing, internal-team collaboration, and figuring out the
+            right lead division.
+          </p>
+        </div>
 
-      <div class="mt-10 grid gap-4">
-        {
-          faqs.map(item => (
-            <details class="creative-panel tone-elevated p-6">
-              <summary class="tone-title cursor-pointer select-none text-sm font-semibold">
-                {item.q}
-              </summary>
-              <p class="tone-body mt-3 text-sm leading-relaxed">{item.a}</p>
-            </details>
-          ))
-        }
+        <div>
+          <FAQAccordion client:visible items={faqs} />
+        </div>
       </div>
     </div>
   </section>
 
-  <section class="tone-border tone-surface border-t" data-reveal>
-    <div class="mx-auto max-w-[1220px] px-6 py-20">
-      <div class="creative-hero-shell p-8">
-        <div
-          class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between"
-        >
-          <div class="max-w-2xl">
-            <h2 class="creative-title tone-title text-2xl font-semibold">
+  <section data-reveal data-page-section>
+    <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6 sm:py-20">
+      <ModernCard variant="glass" className="p-8 sm:p-10">
+        <div class="grid gap-8 lg:grid-cols-[1.08fr_0.92fr] lg:items-center">
+          <div class="space-y-4">
+            <p
+              class="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-white/55"
+            >
               Primary contact
-            </h2>
-            <p class="tone-body mt-3 text-sm">
-              Send your intake summary and we’ll reply with the recommended next
-              step.
             </p>
-            <p class="tone-body mt-3 text-sm">
+            <h2
+              class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
+            >
+              Ready to send the first message?
+            </h2>
+            <p class="max-w-2xl text-base leading-7 text-slate-300">
+              Email the context you have, even if the scope is not fully shaped
+              yet. The immediate goal is to identify the right lead lane and the
+              right next decision.
+            </p>
+            <p class="text-sm text-slate-300">
               <a
-                class="text-[#ccff00] hover:underline"
+                class="font-semibold text-sky-300 hover:underline"
                 href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a
               >
             </p>
           </div>
-          <div class="flex flex-col gap-3 sm:flex-row">
+
+          <div
+            class="flex flex-col gap-3 sm:flex-row lg:flex-col lg:justify-end"
+          >
             <ModernButton
               href={kickoffHref}
               data-kickoff-mailto
               variant="primary"
-              className="min-h-[48px]"
+              className="min-h-[50px]"
             >
               Email now
             </ModernButton>
             <ModernButton
-              href={withBasePath('services/')}
+              href={withBasePath('trades/')}
               variant="secondary"
-              className="min-h-[48px]"
+              className="min-h-[50px]"
             >
-              Browse services
+              Browse divisions first
             </ModernButton>
           </div>
         </div>
-      </div>
+      </ModernCard>
     </div>
   </section>
 
@@ -708,16 +809,16 @@ const faqSchema = {
           workspaceRoutes.forEach(route => {
             const link = document.createElement('a');
             link.className =
-              'rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm transition hover:border-white/20 hover:bg-white/[0.05]';
+              'rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3 text-sm transition hover:border-white/20 hover:bg-white/[0.05]';
             link.href = route.url;
 
             const title = document.createElement('span');
-            title.className = 'tone-title block font-semibold';
+            title.className = 'block font-semibold text-white';
             title.textContent = route.title;
 
             const meta = document.createElement('span');
             meta.className =
-              'tone-muted mt-1 block text-[11px] uppercase tracking-[0.18em]';
+              'mt-1 block font-mono text-[11px] uppercase tracking-[0.18em] text-white/45';
             meta.textContent = route.category;
 
             link.append(title, meta);
@@ -766,11 +867,11 @@ const faqSchema = {
         mailtoParams.set('body', bodyLines.join('\n\n'));
       }
 
-      const kickoffHref = `mailto:${encodeURIComponent(contactEmail)}?${mailtoParams.toString()}`;
+      const dynamicKickoffHref = `mailto:${encodeURIComponent(contactEmail)}?${mailtoParams.toString()}`;
 
       document.querySelectorAll('[data-kickoff-mailto]').forEach(link => {
         if (link instanceof HTMLAnchorElement) {
-          link.href = kickoffHref;
+          link.href = dynamicKickoffHref;
         }
       });
     })();

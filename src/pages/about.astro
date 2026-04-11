@@ -12,105 +12,117 @@ const supportHref = `mailto:${encodeURIComponent(
 ---
 
 <MarketingLayout
-  title="Portfolio | Interactive E-Commerce Demo"
-  description="Interactive portfolio storefront with search, filters, compare, wishlist, cart persistence, and simulated checkout flow."
+  title="Portfolio | Interactive Commerce Demo"
+  description="Interactive commerce demo route for portfolio reviews, implementation walkthroughs, and buyer-facing storefront exploration."
+  bodyClass="creative-page"
+  showFooter={true}
+  showStickyCTA={false}
+  showLiveChat={false}
+  showSavedRoutesDock={false}
 >
-  <div class="creative-page shop-demo-page">
-    <section class="tone-surface relative overflow-hidden" data-reveal>
+  <div class="shop-demo-page">
+    <section
+      class="border-b border-white/10"
+      data-reveal
+      id="portfolio-hero"
+      data-page-section
+    >
       <div
-        class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(204,255,0,0.15),_transparent_52%)]"
+        class="mx-auto max-w-[1240px] px-4 pb-16 pt-28 sm:px-6 sm:pb-20 sm:pt-32"
       >
-      </div>
-      <div class="mx-auto max-w-[1220px] px-6 pb-14 pt-28">
-        <div
-          class="creative-hero-shell grid gap-8 p-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-center"
-        >
+        <div class="grid gap-10 lg:grid-cols-[1.08fr_0.92fr] lg:items-end">
           <div class="space-y-6">
-            <span class="creative-kicker">Portfolio • Live Commerce Engine</span
+            <p
+              class="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-white/55"
             >
+              Portfolio demo
+            </p>
             <h1
-              class="creative-title tone-title text-4xl font-bold sm:text-5xl"
+              class="max-w-4xl text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl"
             >
-              Full demo e-commerce setup,
-              <span class="text-[#ccff00]">
-                now embedded in the portfolio route.</span
-              >
+              Full demo e-commerce setup for portfolio reviews, buyer demos, and
+              implementation walkthroughs.
             </h1>
-            <p class="creative-copy tone-body text-base">
-              This is no longer a static showcase. You now have a complete
-              interactive commerce lab on this page with product discovery,
-              merchandising controls, and a simulated checkout workflow.
+            <p class="max-w-3xl text-base leading-8 text-slate-300 sm:text-lg">
+              This route keeps the interactive storefront, but the framing is
+              now more useful: what the demo proves, what buyers can review, and
+              how the experience maps to a real implementation discussion.
             </p>
             <div class="flex flex-col gap-3 sm:flex-row">
               <ModernButton
                 href={withBasePath('contact-hq/')}
                 variant="primary"
-                className="min-h-[48px]"
+                className="min-h-[50px]"
               >
-                Request this build
+                Request this demo build
               </ModernButton>
               <ModernButton
                 href={supportHref}
                 variant="secondary"
-                className="min-h-[48px]"
+                className="min-h-[50px]"
               >
                 Ask implementation details
               </ModernButton>
             </div>
           </div>
 
-          <ModernCard
-            variant="minimal"
-            className="creative-panel tone-elevated p-6"
-          >
-            <p class="tone-muted text-xs uppercase tracking-[0.24em]">
-              Enabled capabilities
+          <ModernCard variant="glass" className="p-7 sm:p-8">
+            <p
+              class="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-white/45"
+            >
+              Demo capabilities
             </p>
-            <ul class="tone-body mt-4 space-y-2 text-sm">
+            <ul class="mt-4 space-y-3 text-sm text-slate-300">
               <li class="flex items-start gap-2">
-                <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 bg-[#ccff00]"
+                <span
+                  class="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-sky-300"
                 ></span>
                 <span>Instant search + smart filtering + sorting</span>
               </li>
               <li class="flex items-start gap-2">
-                <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 bg-[#ccff00]"
+                <span
+                  class="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-sky-300"
                 ></span>
                 <span>Wishlist, compare view, and quick product previews</span>
               </li>
               <li class="flex items-start gap-2">
-                <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 bg-[#ccff00]"
+                <span
+                  class="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-sky-300"
                 ></span>
                 <span>Cart persistence + promo flow + checkout simulation</span>
               </li>
               <li class="flex items-start gap-2">
-                <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 bg-[#ccff00]"
+                <span
+                  class="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-sky-300"
                 ></span>
                 <span>Safety console for pause/reduced-motion/perf mode</span>
               </li>
             </ul>
 
-            <div class="tone-border mt-5 border-t pt-4">
-              <p class="tone-muted text-xs uppercase tracking-[0.24em]">
-                Launch scenarios
+            <div class="mt-6 border-t border-white/10 pt-5">
+              <p
+                class="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-white/45"
+              >
+                Quick launch scenarios
               </p>
               <div class="mt-3 grid gap-2 sm:grid-cols-2">
                 <button
                   type="button"
-                  class="demo-launch tone-border tone-surface tone-title inline-flex h-10 items-center justify-center rounded-lg border px-3 text-xs font-semibold uppercase tracking-[0.12em] transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-[#ccff00]"
+                  class="demo-launch inline-flex h-11 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] px-3 text-xs font-semibold uppercase tracking-[0.12em] text-white transition hover:border-white/20 hover:bg-white/[0.05] focus:outline-none focus:ring-2 focus:ring-white/20"
                   data-demo-command="open-cart"
                 >
                   Open cart
                 </button>
                 <button
                   type="button"
-                  class="demo-launch tone-border tone-surface tone-title inline-flex h-10 items-center justify-center rounded-lg border px-3 text-xs font-semibold uppercase tracking-[0.12em] transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-[#ccff00]"
+                  class="demo-launch inline-flex h-11 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] px-3 text-xs font-semibold uppercase tracking-[0.12em] text-white transition hover:border-white/20 hover:bg-white/[0.05] focus:outline-none focus:ring-2 focus:ring-white/20"
                   data-demo-command="open-compare"
                 >
                   Open compare
                 </button>
                 <button
                   type="button"
-                  class="demo-launch tone-border tone-surface tone-title inline-flex h-10 items-center justify-center rounded-lg border px-3 text-xs font-semibold uppercase tracking-[0.12em] transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-[#ccff00]"
+                  class="demo-launch inline-flex h-11 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] px-3 text-xs font-semibold uppercase tracking-[0.12em] text-white transition hover:border-white/20 hover:bg-white/[0.05] focus:outline-none focus:ring-2 focus:ring-white/20"
                   data-demo-command="open-quick-view"
                   data-demo-product="spectral-sneaker"
                 >
@@ -118,7 +130,7 @@ const supportHref = `mailto:${encodeURIComponent(
                 </button>
                 <button
                   type="button"
-                  class="demo-launch tone-border tone-surface tone-title inline-flex h-10 items-center justify-center rounded-lg border px-3 text-xs font-semibold uppercase tracking-[0.12em] transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-[#ccff00]"
+                  class="demo-launch inline-flex h-11 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] px-3 text-xs font-semibold uppercase tracking-[0.12em] text-white transition hover:border-white/20 hover:bg-white/[0.05] focus:outline-none focus:ring-2 focus:ring-white/20"
                   data-demo-command="start-checkout"
                   data-demo-product="aurora-hoodie"
                 >
@@ -131,19 +143,27 @@ const supportHref = `mailto:${encodeURIComponent(
       </div>
     </section>
 
-    <section class="tone-border tone-surface border-y" data-reveal>
-      <div class="mx-auto max-w-[1220px] px-6 py-10">
-        <ModernCard
-          className="creative-panel tone-elevated p-6"
-          variant="minimal"
-        >
+    <section
+      class="border-b border-white/10"
+      data-reveal
+      id="safety-console"
+      data-page-section
+    >
+      <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
+        <ModernCard className="p-7" variant="glass">
           <div class="grid gap-6 md:grid-cols-[1.2fr_1fr] md:items-start">
             <div class="space-y-3">
-              <h2 class="tone-title text-2xl font-semibold">Safety Console</h2>
-              <p class="tone-body text-sm leading-relaxed">
+              <p
+                class="font-mono text-[0.72rem] uppercase tracking-[0.22em] text-white/45"
+              >
+                Controls
+              </p>
+              <h2 class="text-2xl font-semibold text-white">Safety Console</h2>
+              <p class="text-sm leading-7 text-slate-300">
                 Toggle pause, reduced motion, and perf mode. These controls
                 apply through
-                <code class="tone-border tone-surface rounded px-1.5 py-0.5"
+                <code
+                  class="rounded border border-white/10 bg-white/[0.03] px-1.5 py-0.5 text-slate-200"
                   >data-demo-*</code
                 >
                 attributes and are respected by the interactive showcase.
@@ -153,7 +173,7 @@ const supportHref = `mailto:${encodeURIComponent(
             <div class="grid gap-2 sm:grid-cols-3 md:w-auto">
               <button
                 type="button"
-                class="demo-toggle tone-border tone-surface tone-title inline-flex h-11 items-center justify-center rounded-lg border px-4 text-sm font-semibold transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-[#ccff00]"
+                class="demo-toggle inline-flex h-11 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] px-4 text-sm font-semibold text-white transition hover:border-white/20 hover:bg-white/[0.05] focus:outline-none focus:ring-2 focus:ring-white/20"
                 data-demo-toggle="paused"
                 aria-pressed="false"
               >
@@ -161,7 +181,7 @@ const supportHref = `mailto:${encodeURIComponent(
               </button>
               <button
                 type="button"
-                class="demo-toggle tone-border tone-surface tone-title inline-flex h-11 items-center justify-center rounded-lg border px-4 text-sm font-semibold transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-[#ccff00]"
+                class="demo-toggle inline-flex h-11 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] px-4 text-sm font-semibold text-white transition hover:border-white/20 hover:bg-white/[0.05] focus:outline-none focus:ring-2 focus:ring-white/20"
                 data-demo-toggle="reduced"
                 aria-pressed="false"
               >
@@ -169,7 +189,7 @@ const supportHref = `mailto:${encodeURIComponent(
               </button>
               <button
                 type="button"
-                class="demo-toggle tone-border tone-surface tone-title inline-flex h-11 items-center justify-center rounded-lg border px-4 text-sm font-semibold transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-[#ccff00]"
+                class="demo-toggle inline-flex h-11 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] px-4 text-sm font-semibold text-white transition hover:border-white/20 hover:bg-white/[0.05] focus:outline-none focus:ring-2 focus:ring-white/20"
                 data-demo-toggle="perf"
                 aria-pressed="false"
               >
@@ -178,7 +198,7 @@ const supportHref = `mailto:${encodeURIComponent(
             </div>
 
             <p
-              class="tone-muted mt-2 font-mono text-xs"
+              class="mt-2 font-mono text-xs text-white/55"
               data-demo-status
               data-testid="demo-safety-status"
             >
@@ -189,8 +209,13 @@ const supportHref = `mailto:${encodeURIComponent(
       </div>
     </section>
 
-    <section class="pb-20 pt-10" data-reveal id="shop-experience">
-      <div class="mx-auto max-w-[1220px] scroll-mt-24 px-6">
+    <section
+      class="pb-20 pt-10"
+      data-reveal
+      id="shop-experience"
+      data-page-section
+    >
+      <div class="mx-auto max-w-[1240px] scroll-mt-24 px-4 sm:px-6">
         <div class="demo-module" data-demo-module="ecommerce-showcase">
           <EcommerceShowcase client:visible />
         </div>

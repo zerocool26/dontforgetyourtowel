@@ -75,7 +75,7 @@ const pageNavigator = {
 <MarketingLayout
   title="Trade Directory | Olive Global Systems"
   description="Browse the seven trade divisions and their supporting subpages across the integrated Olive Global Systems website."
-  bodyClass="creative-page bg-[#02040a]"
+  bodyClass="creative-page"
   showFooter={true}
   pageNavigator={pageNavigator}
 >
@@ -107,43 +107,42 @@ const pageNavigator = {
     }}
   />
   <section
-    class="tone-surface relative scroll-mt-32 overflow-hidden pb-14 pt-28"
+    class="scroll-mt-32 overflow-hidden border-b border-white/10 pb-14 pt-28"
     data-reveal
     id="trade-directory-hero"
     data-page-section
   >
-    <div
-      class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,rgba(204,255,0,0.12),transparent_52%)]"
-    >
-    </div>
-    <div class="mx-auto max-w-[1400px] px-6">
-      <div
-        class="creative-hero-shell grid gap-8 p-8 xl:grid-cols-[1.15fr_0.85fr]"
-      >
+    <div class="mx-auto max-w-[1240px] px-4 sm:px-6">
+      <div class="grid gap-8 pb-2 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
         <div class="space-y-5">
-          <p class="creative-kicker">Trade Directory</p>
-          <h1
-            class="tone-title text-5xl font-semibold tracking-tight sm:text-6xl"
+          <p
+            class="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-white/55"
           >
-            Seven trade lanes. One shared navigation system.
+            Trade Directory
+          </p>
+          <h1
+            class="text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl"
+          >
+            Seven service divisions with clearer operating logic and faster
+            routing.
           </h1>
-          <p class="tone-body max-w-3xl text-base leading-relaxed">
-            This directory is the structured browse layer for the new site
-            architecture. Each trade has its own overview page, tailored
-            subpages, and links back into the homepage and services hub.
+          <p class="max-w-3xl text-base leading-8 text-slate-300 sm:text-lg">
+            The directory now works best as a decision layer: compare the
+            divisions, understand how they operate, and move into the right
+            overview page without wading through generic contractor language.
           </p>
           <div class="flex flex-col gap-3 sm:flex-row">
             <ModernButton
               href={withBasePath('/')}
               variant="primary"
-              className="min-h-[48px]"
+              className="min-h-[50px]"
             >
-              Return to landing page
+              Return to homepage
             </ModernButton>
             <ModernButton
               href={withBasePath('services/')}
               variant="secondary"
-              className="min-h-[48px]"
+              className="min-h-[50px]"
             >
               Open services hub
             </ModernButton>
@@ -153,12 +152,19 @@ const pageNavigator = {
         <div class="grid gap-4 sm:grid-cols-3 xl:grid-cols-1">
           {
             tradeSignals.map(signal => (
-              <ModernCard variant="minimal" className="creative-panel p-5">
-                <p class="tone-muted text-xs uppercase tracking-[0.24em]">
+              <ModernCard variant="glass" className="p-5">
+                <p class="font-mono text-[0.66rem] uppercase tracking-[0.22em] text-white/45">
                   {signal.label}
                 </p>
-                <p class="tone-title mt-2 text-3xl font-semibold">
+                <p class="mt-3 text-3xl font-semibold text-white">
                   {signal.value}
+                </p>
+                <p class="mt-2 text-sm text-slate-300">
+                  {signal.label === 'Trade overviews'
+                    ? 'Each lead division has its own overview page.'
+                    : signal.label === 'Trade subpages'
+                      ? 'Specialist routes extend the main division pages.'
+                      : 'Homepage and services stay connected to every lane.'}
                 </p>
               </ModernCard>
             ))
@@ -169,12 +175,12 @@ const pageNavigator = {
   </section>
 
   <section
-    class="tone-surface scroll-mt-32"
+    class="scroll-mt-32 border-b border-white/10"
     id="coordination-matrix"
     data-reveal
     data-page-section
   >
-    <div class="mx-auto max-w-[1400px] px-6 py-4">
+    <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
       <TradeCoordinationMatrix
         eyebrow="Coordination Matrix"
         title="Compare how the trades actually operate."
@@ -185,12 +191,12 @@ const pageNavigator = {
   </section>
 
   <section
-    class="tone-surface scroll-mt-32"
+    class="scroll-mt-32 border-b border-white/10"
     id="directory"
     data-reveal
     data-page-section
   >
-    <div class="mx-auto max-w-[1400px] px-6 py-12">
+    <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
       <div class="grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
         {
           tradeProfiles.map(trade => (
@@ -202,26 +208,49 @@ const pageNavigator = {
   </section>
 
   <section
-    class="tone-surface scroll-mt-32 pb-20"
+    class="scroll-mt-32 pb-20 pt-2"
     data-reveal
     id="trade-programs"
     data-page-section
   >
-    <div class="mx-auto max-w-[1400px] px-6">
+    <div class="mx-auto max-w-[1240px] px-4 sm:px-6">
+      <div class="max-w-3xl space-y-4 pb-8">
+        <p
+          class="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-white/55"
+        >
+          Integrated programs
+        </p>
+        <h2
+          class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
+        >
+          Some scopes belong to one division. Others need a coordinated stack.
+        </h2>
+        <p class="text-base leading-7 text-slate-300">
+          These recurring programs show where the directory should help buyers
+          think across connected lanes instead of treating every project as a
+          single-trade problem.
+        </p>
+      </div>
       <div class="grid gap-5 xl:grid-cols-3">
         {
           tradePrograms.map(program => (
-            <ModernCard variant="minimal" className="creative-panel p-6">
-              <p class="creative-kicker">{program.title}</p>
-              <p class="tone-body mt-4 text-sm">{program.description}</p>
+            <ModernCard variant="glass" className="p-6">
+              <p class="font-mono text-[0.66rem] uppercase tracking-[0.22em] text-white/45">
+                {program.tradeSlugs.length} linked trades
+              </p>
+              <p class="mt-4 text-xl font-semibold text-white">
+                {program.title}
+              </p>
+              <p class="mt-4 text-sm leading-7 text-slate-300">
+                {program.description}
+              </p>
               <div class="mt-5 flex flex-wrap gap-2">
                 {program.tradeSlugs.map(slug => {
                   const trade = tradeProfiles.find(item => item.slug === slug);
                   return trade ? (
                     <a
-                      class="creative-chip"
+                      class="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-slate-200 transition hover:border-white/20 hover:bg-white/[0.05]"
                       href={withBasePath(`trades/${trade.slug}/`)}
-                      style={`border-color: color-mix(in srgb, ${trade.accent} 28%, rgba(255,255,255,0.08));`}
                     >
                       {trade.shortName}
                     </a>
