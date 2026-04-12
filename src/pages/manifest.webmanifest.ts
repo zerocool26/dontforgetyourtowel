@@ -7,12 +7,12 @@ export const prerender = true;
 export const GET: APIRoute = () => {
   const manifest = {
     name: SITE_TITLE,
-    short_name: 'GPP',
+    short_name: 'OGS',
     description: SITE_DESCRIPTION,
     start_url: withBasePath(''),
     scope: withBasePath(''),
     display: 'standalone',
-    background_color: '#0f172a',
+    background_color: '#070807',
     theme_color: '#d7f75b',
     orientation: 'portrait-primary',
     categories: ['business', 'productivity', 'portfolio'],

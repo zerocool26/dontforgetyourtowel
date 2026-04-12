@@ -11,6 +11,8 @@ describe('Runtime routes', () => {
     expect(res.status).toBe(200);
 
     const manifest = await res.json();
+    expect(manifest.short_name).toBe('OGS');
+    expect(manifest.background_color).toBe('#070807');
     expect(typeof manifest.start_url).toBe('string');
     expect(typeof manifest.scope).toBe('string');
     expect(manifest.start_url.startsWith('/')).toBe(true);

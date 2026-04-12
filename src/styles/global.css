@@ -670,6 +670,15 @@
     mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.45), transparent 50%);
   }
 
+  .creative-page :where(.rounded-xl, .rounded-2xl, .rounded-3xl) {
+    border-radius: 8px;
+  }
+
+  .creative-page :where(.before\:rounded-2xl)::before,
+  .creative-page :where(.after\:rounded-2xl)::after {
+    border-radius: 8px;
+  }
+
   html[data-experience-mode='editorial'] .creative-page::before {
     opacity: 0.1;
     background-size: 110px 110px;
@@ -712,7 +721,7 @@
     position: relative;
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 1.5rem;
+    border-radius: 8px;
     background:
       linear-gradient(
         150deg,
@@ -774,7 +783,7 @@
   html[data-experience-mode='editorial'] .creative-hero-shell,
   html[data-experience-mode='editorial'] .creative-panel,
   html[data-experience-mode='editorial'] .creative-section-shell {
-    border-radius: 1.75rem;
+    border-radius: 8px;
     backdrop-filter: blur(28px);
   }
 
@@ -785,7 +794,7 @@
   html[data-experience-mode='blueprint'] .creative-hero-shell,
   html[data-experience-mode='blueprint'] .creative-panel,
   html[data-experience-mode='blueprint'] .creative-section-shell {
-    border-radius: 1rem;
+    border-radius: 8px;
     border-color: rgba(148, 163, 184, 0.12);
     background:
       linear-gradient(
@@ -815,7 +824,7 @@
     position: relative;
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 1.25rem;
+    border-radius: 8px;
     background:
       radial-gradient(
         circle at 0% 0%,
