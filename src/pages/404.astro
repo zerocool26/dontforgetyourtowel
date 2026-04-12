@@ -47,16 +47,17 @@ const legacyRedirectMap = Object.fromEntries(
 <MarketingLayout
   title="Page Not Found | Olive Global Systems"
   description="The page you're looking for doesn't exist. Use the links below to navigate."
-  bodyClass="bg-[#06101d]"
+  bodyClass="creative-page"
   showStickyCTA={false}
   showLiveChat={false}
+  showSavedRoutesDock={false}
 >
   <section
     class="relative flex min-h-[80vh] items-center justify-center overflow-hidden border-b border-white/10"
     aria-labelledby="error-title"
   >
     <div
-      class="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(125,211,252,0.08),transparent_40%),linear-gradient(to_right,rgba(148,163,184,0.08)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.08)_1px,transparent_1px)] bg-[size:auto,32px_32px,32px_32px]"
+      class="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(215,247,91,0.08),transparent_40%),linear-gradient(to_right,rgba(148,163,184,0.08)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.08)_1px,transparent_1px)] bg-[size:auto,32px_32px,32px_32px]"
       aria-hidden="true"
     >
     </div>
@@ -71,7 +72,7 @@ const legacyRedirectMap = Object.fromEntries(
         <div class="mb-8 flex justify-center">
           <ModernCard
             variant="outline"
-            className="inline-flex h-24 w-24 items-center justify-center border font-mono text-4xl font-bold text-sky-200"
+            className="inline-flex h-24 w-24 items-center justify-center border font-mono text-4xl font-bold text-[#d7f75b]"
             aria-hidden="true"
           >
             404
@@ -109,7 +110,7 @@ const legacyRedirectMap = Object.fromEntries(
         <p class="mt-6 font-mono text-sm text-white/55">
           <span class="sr-only">Requested URL:</span>
           Requested: <code
-            class="break-all rounded border border-white/10 bg-white/[0.03] px-2 py-1 text-sky-200"
+            class="break-all rounded border border-white/10 bg-white/[0.03] px-2 py-1 text-[#d7f75b]"
             id="current-url"
             aria-label="Current URL path"></code>
         </p>

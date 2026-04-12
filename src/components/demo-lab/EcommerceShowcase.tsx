@@ -1589,7 +1589,7 @@ export default function EcommerceShowcase() {
             aria-hidden="true"
           />
           <div
-            class="safe-area-inset-bottom absolute inset-x-0 bottom-0 max-h-[92vh] rounded-t-3xl border border-white/10 bg-zinc-950/95 md:inset-0 md:m-auto md:max-h-[84vh] md:w-[min(980px,92vw)] md:rounded-3xl"
+            class="safe-area-inset-bottom absolute inset-x-0 bottom-0 max-h-[92vh] rounded-t-lg border border-white/10 bg-zinc-950/95 md:inset-0 md:m-auto md:max-h-[84vh] md:w-[min(980px,92vw)] md:rounded-lg"
             role="dialog"
             aria-modal="true"
             aria-label="Compare products"
@@ -1606,14 +1606,14 @@ export default function EcommerceShowcase() {
               <div class="flex items-center gap-2">
                 <button
                   type="button"
-                  class="min-h-touch rounded-xl border border-white/10 bg-white/5 px-4 text-sm font-semibold text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-accent-400"
+                  class="min-h-touch rounded-lg border border-white/10 bg-white/5 px-4 text-sm font-semibold text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-accent-400"
                   onClick={() => setCompareIds([])}
                 >
                   Clear
                 </button>
                 <button
                   type="button"
-                  class="min-h-touch min-w-touch rounded-xl border border-white/10 bg-white/5 px-4 text-sm font-semibold text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-accent-400"
+                  class="min-h-touch min-w-touch rounded-lg border border-white/10 bg-white/5 px-4 text-sm font-semibold text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-accent-400"
                   onClick={() => setCompareOpen(false)}
                 >
                   Close
@@ -1801,7 +1801,7 @@ export default function EcommerceShowcase() {
             aria-hidden="true"
           />
           <div
-            class="safe-area-inset-bottom absolute inset-x-0 bottom-0 max-h-[92vh] rounded-t-3xl border border-white/10 bg-zinc-950/95 md:inset-0 md:m-auto md:max-h-[84vh] md:w-[min(980px,92vw)] md:rounded-3xl"
+            class="safe-area-inset-bottom absolute inset-x-0 bottom-0 max-h-[92vh] rounded-t-lg border border-white/10 bg-zinc-950/95 md:inset-0 md:m-auto md:max-h-[84vh] md:w-[min(980px,92vw)] md:rounded-lg"
             role="dialog"
             aria-modal="true"
             aria-label={`${quickViewProduct.name} quick view`}
@@ -1816,7 +1816,7 @@ export default function EcommerceShowcase() {
               </div>
               <button
                 type="button"
-                class="min-h-touch min-w-touch rounded-xl border border-white/10 bg-white/5 px-4 text-sm font-semibold text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-accent-400"
+                class="min-h-touch min-w-touch rounded-lg border border-white/10 bg-white/5 px-4 text-sm font-semibold text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-accent-400"
                 onClick={closeQuickView}
               >
                 Close

@@ -194,9 +194,9 @@ export default function BuildStudio() {
                 <button
                   key={preset.id}
                   type="button"
-                  class={`rounded-2xl border p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 ${
+                  class={`rounded-2xl border p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d7f75b] ${
                     active
-                      ? 'border-sky-300/50 bg-sky-300/10 text-white'
+                      ? 'border-[#d7f75b]/50 bg-[#d7f75b]/10 text-white'
                       : 'border-white/10 bg-white/5 text-zinc-200 hover:border-white/20 hover:bg-white/10'
                   }`}
                   onClick={() => applyPreset(preset.id)}
@@ -235,9 +235,9 @@ export default function BuildStudio() {
                   <button
                     key={profile.id}
                     type="button"
-                    class={`rounded-2xl border px-4 py-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 ${
+                    class={`rounded-2xl border px-4 py-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d7f75b] ${
                       active
-                        ? 'border-sky-300/50 bg-sky-300/10 text-white'
+                        ? 'border-[#d7f75b]/50 bg-[#d7f75b]/10 text-white'
                         : 'border-white/10 bg-white/5 text-zinc-200 hover:border-white/20 hover:bg-white/10'
                     }`}
                     onClick={() => setUrgency(profile.id)}
@@ -261,7 +261,7 @@ export default function BuildStudio() {
             <input
               id="studio-scale"
               data-testid="build-studio-scale"
-              class="mt-4 w-full accent-[color:rgba(125,211,252,0.95)]"
+              class="mt-4 w-full accent-[#12b5a6]"
               type="range"
               min={scaleMin}
               max={scaleMax}
@@ -340,9 +340,9 @@ export default function BuildStudio() {
                         <button
                           key={module.id}
                           type="button"
-                          class={`rounded-2xl border p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 ${
+                          class={`rounded-2xl border p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d7f75b] ${
                             selected
-                              ? 'border-sky-300/50 bg-sky-300/10 text-white'
+                              ? 'border-[#d7f75b]/50 bg-[#d7f75b]/10 text-white'
                               : 'border-white/10 bg-white/5 text-zinc-200 hover:border-white/20 hover:bg-white/10'
                           }`}
                           onClick={() => toggleModule(module.id)}
@@ -359,7 +359,7 @@ export default function BuildStudio() {
                               </p>
                             </div>
                             {recommended ? (
-                              <span class="rounded-full border border-sky-300/30 bg-sky-300/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-sky-200">
+                              <span class="rounded-full border border-[#d7f75b]/30 bg-[#d7f75b]/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#d7f75b]">
                                 preset
                               </span>
                             ) : null}
@@ -386,7 +386,7 @@ export default function BuildStudio() {
 
       <aside class="space-y-4">
         <div class="sticky top-24 space-y-4">
-          <div class="rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(125,211,252,0.12),rgba(8,12,20,0.96))] p-5 sm:p-6">
+          <div class="rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(215,247,91,0.12),rgba(8,12,20,0.96))] p-5 sm:p-6">
             <div class="flex items-start justify-between gap-4">
               <div>
                 <p class="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-500">
@@ -449,7 +449,7 @@ export default function BuildStudio() {
                   </div>
                   <div class="mt-2 h-2 rounded-full bg-white/10">
                     <div
-                      class="h-2 rounded-full bg-gradient-to-r from-sky-300 via-cyan-300 to-indigo-300"
+                      class="h-2 rounded-full bg-gradient-to-r from-[#d7f75b] via-[#12b5a6] to-[#7dd3fc]"
                       style={{ width: `${plan.readiness[key]}%` }}
                     />
                   </div>
@@ -464,13 +464,13 @@ export default function BuildStudio() {
                     ? withBasePath(primarySurface.href)
                     : withBasePath('about/')
                 }
-                class="inline-flex min-h-[48px] items-center justify-center rounded-xl border border-white/10 bg-white/10 px-4 text-sm font-semibold text-white transition hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300"
+                class="inline-flex min-h-[48px] items-center justify-center rounded-lg border border-white/10 bg-white/10 px-4 text-sm font-semibold text-white transition hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d7f75b]"
               >
                 Open closest live route
               </a>
               <a
                 href={intakeHref}
-                class="inline-flex min-h-[48px] items-center justify-center rounded-xl bg-sky-300 px-4 text-sm font-semibold text-slate-950 transition hover:bg-sky-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                class="inline-flex min-h-[48px] items-center justify-center rounded-lg bg-[#d7f75b] px-4 text-sm font-semibold text-slate-950 transition hover:bg-[#e7ff8a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
               >
                 Send build brief to intake
               </a>
@@ -479,7 +479,7 @@ export default function BuildStudio() {
             <div class="mt-3 flex items-center justify-between gap-3">
               <button
                 type="button"
-                class="inline-flex min-h-[44px] items-center justify-center rounded-xl border border-white/10 bg-black/25 px-4 text-sm font-semibold text-zinc-100 transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300"
+                class="inline-flex min-h-[44px] items-center justify-center rounded-lg border border-white/10 bg-black/25 px-4 text-sm font-semibold text-zinc-100 transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d7f75b]"
                 onClick={copyShareLink}
               >
                 {copied ? 'Share link copied' : 'Copy share link'}
@@ -497,7 +497,7 @@ export default function BuildStudio() {
             <ul class="mt-4 space-y-3 text-sm text-zinc-200">
               {plan.outcomes.map(outcome => (
                 <li key={outcome} class="flex items-start gap-2">
-                  <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-sky-300" />
+                  <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[#12b5a6]" />
                   <span>{outcome}</span>
                 </li>
               ))}
@@ -537,7 +537,7 @@ export default function BuildStudio() {
                     <p class="text-sm font-semibold text-white">
                       {phase.label}
                     </p>
-                    <span class="text-xs uppercase tracking-[0.18em] text-sky-300">
+                    <span class="text-xs uppercase tracking-[0.18em] text-[#d7f75b]">
                       {phase.weeks} wk
                     </span>
                   </div>
@@ -556,7 +556,7 @@ export default function BuildStudio() {
                 <a
                   key={surface.id}
                   href={withBasePath(surface.href)}
-                  class="block rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:border-white/20 hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300"
+                  class="block rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:border-white/20 hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d7f75b]"
                 >
                   <p class="text-sm font-semibold text-white">
                     {surface.title}
