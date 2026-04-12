@@ -13,7 +13,7 @@ export const GET: APIRoute = () => {
     scope: withBasePath(''),
     display: 'standalone',
     background_color: '#0f172a',
-    theme_color: '#ccff00',
+    theme_color: '#d7f75b',
     orientation: 'portrait-primary',
     categories: ['business', 'productivity', 'portfolio'],
     icons: [

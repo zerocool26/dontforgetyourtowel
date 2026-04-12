@@ -50,7 +50,7 @@ const tradeMatrixItems = tradeProfiles.map(trade => {
 
 const pageNavigator = {
   label: 'Trade Directory',
-  accent: '#ccff00',
+  accent: '#d7f75b',
   items: [
     {
       id: 'trade-directory-hero',
@@ -78,6 +78,8 @@ const pageNavigator = {
   bodyClass="creative-page"
   showFooter={true}
   pageNavigator={pageNavigator}
+  mainClass="relative isolate overflow-x-clip"
+  showSavedRoutesDock={false}
 >
   <StructuredData
     type="collection"
@@ -107,7 +109,7 @@ const pageNavigator = {
     }}
   />
   <section
-    class="scroll-mt-32 overflow-hidden border-b border-white/10 pb-14 pt-28"
+    class="scroll-mt-32 overflow-hidden border-b border-white/10 pb-12 pt-20 sm:pb-14 sm:pt-28"
     data-reveal
     id="trade-directory-hero"
     data-page-section
@@ -149,7 +151,7 @@ const pageNavigator = {
           </div>
         </div>
 
-        <div class="grid gap-4 sm:grid-cols-3 xl:grid-cols-1">
+        <div class="hidden gap-4 sm:grid sm:grid-cols-3 xl:grid-cols-1">
           {
             tradeSignals.map(signal => (
               <ModernCard variant="glass" className="p-5">

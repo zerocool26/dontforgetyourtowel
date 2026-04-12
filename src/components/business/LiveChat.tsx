@@ -85,11 +85,24 @@ export default function LiveChat() {
       >
         <span class="livechat-trigger__icon" aria-hidden="true">
           {open ? (
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            >
               <path d="M18 6L6 18M6 6l12 12" />
             </svg>
           ) : (
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
             </svg>
           )}
@@ -111,11 +124,16 @@ export default function LiveChat() {
           {/* Header */}
           <div class="livechat-panel__header">
             <div class="livechat-panel__header-left">
-              <span class={`livechat-status livechat-status--${status}`} aria-hidden="true" />
+              <span
+                class={`livechat-status livechat-status--${status}`}
+                aria-hidden="true"
+              />
               <div>
                 <p class="livechat-panel__title">Get in touch</p>
                 <p class="livechat-panel__subtitle">
-                  {status === 'online' ? 'We\'re online — reply in minutes' : 'Leave a message — we\'ll reply soon'}
+                  {status === 'online'
+                    ? "We're online — reply in minutes"
+                    : "Leave a message — we'll reply soon"}
                 </p>
               </div>
             </div>
@@ -125,7 +143,15 @@ export default function LiveChat() {
               aria-label="Close chat"
               onClick={() => setOpen(false)}
             >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="16" height="16">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                width="16"
+                height="16"
+              >
                 <path d="M18 6L6 18M6 6l12 12" />
               </svg>
             </button>
@@ -134,14 +160,24 @@ export default function LiveChat() {
           {/* Body */}
           {submitted ? (
             <div class="livechat-panel__success">
-              <div class="livechat-panel__success-icon" aria-hidden="true">✓</div>
+              <div class="livechat-panel__success-icon" aria-hidden="true">
+                ✓
+              </div>
               <p class="livechat-panel__success-title">Message received</p>
-              <p class="livechat-panel__success-copy">We'll be in touch shortly.</p>
+              <p class="livechat-panel__success-copy">
+                We'll be in touch shortly.
+              </p>
             </div>
           ) : (
-            <form class="livechat-panel__form" onSubmit={handleSubmit} noValidate>
+            <form
+              class="livechat-panel__form"
+              onSubmit={handleSubmit}
+              noValidate
+            >
               <div class="livechat-panel__field">
-                <label class="sr-only" htmlFor={nameId}>Name (optional)</label>
+                <label class="sr-only" htmlFor={nameId}>
+                  Name (optional)
+                </label>
                 <input
                   class="livechat-panel__input"
                   id={nameId}
@@ -155,7 +191,9 @@ export default function LiveChat() {
               </div>
 
               <div class="livechat-panel__field">
-                <label class="sr-only" htmlFor={emailId}>Email address</label>
+                <label class="sr-only" htmlFor={emailId}>
+                  Email address
+                </label>
                 <input
                   class="livechat-panel__input"
                   id={emailId}
@@ -170,13 +208,17 @@ export default function LiveChat() {
               </div>
 
               <div class="livechat-panel__field">
-                <label class="sr-only" htmlFor={messageId}>Message</label>
+                <label class="sr-only" htmlFor={messageId}>
+                  Message
+                </label>
                 <textarea
                   class="livechat-panel__input livechat-panel__input--textarea"
                   id={messageId}
                   placeholder="How can we help?"
                   value={message}
-                  onInput={e => setMessage((e.target as HTMLTextAreaElement).value)}
+                  onInput={e =>
+                    setMessage((e.target as HTMLTextAreaElement).value)
+                  }
                   required
                 />
               </div>
@@ -188,7 +230,17 @@ export default function LiveChat() {
                 aria-disabled={!canSubmit}
               >
                 Send message
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  width="14"
+                  height="14"
+                  aria-hidden="true"
+                >
                   <path d="M22 2L11 13M22 2L15 22 11 13 2 9l20-7z" />
                 </svg>
               </button>
@@ -209,11 +261,11 @@ export default function LiveChat() {
           height: 3.25rem;
           padding: 0 1.1rem 0 0.9rem;
           border-radius: 999px;
-          border: 1px solid rgba(204, 255, 0, 0.32);
+          border: 1px solid rgba(215, 247, 91, 0.32);
           background:
-            linear-gradient(135deg, rgba(204, 255, 0, 0.14), rgba(204, 255, 0, 0.06)),
+            linear-gradient(135deg, rgba(215, 247, 91, 0.14), rgba(18, 181, 166, 0.08)),
             rgba(5, 7, 12, 0.94);
-          color: rgba(204, 255, 0, 0.9);
+          color: rgba(215, 247, 91, 0.9);
           font-family: var(--font-mono);
           font-size: 0.7rem;
           font-weight: 600;
@@ -222,7 +274,7 @@ export default function LiveChat() {
           cursor: pointer;
           box-shadow:
             0 20px 48px -24px rgba(0, 0, 0, 0.96),
-            0 0 32px -16px rgba(204, 255, 0, 0.2);
+            0 0 32px -16px rgba(215, 247, 91, 0.2);
           backdrop-filter: blur(16px);
           -webkit-backdrop-filter: blur(16px);
           transition:
@@ -236,12 +288,12 @@ export default function LiveChat() {
 
         .livechat-trigger:hover {
           background:
-            linear-gradient(135deg, rgba(204, 255, 0, 0.2), rgba(204, 255, 0, 0.1)),
+            linear-gradient(135deg, rgba(215, 247, 91, 0.2), rgba(18, 181, 166, 0.12)),
             rgba(5, 7, 12, 0.96);
-          border-color: rgba(204, 255, 0, 0.5);
+          border-color: rgba(215, 247, 91, 0.5);
           box-shadow:
             0 24px 56px -24px rgba(0, 0, 0, 0.98),
-            0 0 42px -12px rgba(204, 255, 0, 0.28);
+            0 0 42px -12px rgba(215, 247, 91, 0.28);
           transform: translateY(-2px);
         }
 
@@ -268,7 +320,7 @@ export default function LiveChat() {
           bottom: calc(100% + 0.75rem);
           right: 0;
           width: min(92vw, 360px);
-          border-radius: 1.5rem;
+          border-radius: 0.5rem;
           border: 1px solid rgba(255, 255, 255, 0.1);
           background:
             linear-gradient(160deg, rgba(12, 14, 22, 0.97), rgba(8, 10, 16, 0.98));
@@ -277,7 +329,7 @@ export default function LiveChat() {
           box-shadow:
             0 40px 100px -40px rgba(0, 0, 0, 0.98),
             0 0 0 1px rgba(255, 255, 255, 0.04),
-            0 0 60px -30px rgba(204, 255, 0, 0.12);
+            0 0 60px -30px rgba(215, 247, 91, 0.12);
           overflow: hidden;
           animation: livechat-panel-in 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
@@ -294,7 +346,7 @@ export default function LiveChat() {
           gap: 0.75rem;
           border-bottom: 1px solid rgba(255, 255, 255, 0.07);
           padding: 0.95rem 1rem;
-          background: linear-gradient(90deg, rgba(204, 255, 0, 0.06), transparent 60%);
+          background: linear-gradient(90deg, rgba(215, 247, 91, 0.06), transparent 60%);
         }
 
         .livechat-panel__header-left {
@@ -377,7 +429,7 @@ export default function LiveChat() {
 
         .livechat-panel__input {
           width: 100%;
-          border-radius: 0.875rem;
+          border-radius: 0.5rem;
           border: 1px solid rgba(255, 255, 255, 0.09);
           background: rgba(255, 255, 255, 0.04);
           padding: 0.75rem 1rem;
@@ -394,8 +446,8 @@ export default function LiveChat() {
         }
 
         .livechat-panel__input:focus {
-          border-color: rgba(204, 255, 0, 0.4);
-          background: rgba(204, 255, 0, 0.03);
+          border-color: rgba(215, 247, 91, 0.4);
+          background: rgba(215, 247, 91, 0.03);
         }
 
         .livechat-panel__input--textarea {
@@ -429,14 +481,14 @@ export default function LiveChat() {
         }
 
         .livechat-panel__submit--active {
-          background: linear-gradient(135deg, #ccff00, #b8e600);
+          background: linear-gradient(135deg, #d7f75b, #12b5a6);
           color: #000;
-          border-color: rgba(204, 255, 0, 0.4);
-          box-shadow: 0 0 24px rgba(204, 255, 0, 0.22);
+          border-color: rgba(215, 247, 91, 0.4);
+          box-shadow: 0 0 24px rgba(215, 247, 91, 0.22);
         }
 
         .livechat-panel__submit--active:hover {
-          box-shadow: 0 0 36px rgba(204, 255, 0, 0.35);
+          box-shadow: 0 0 36px rgba(215, 247, 91, 0.35);
           transform: translateY(-1px);
         }
 
@@ -478,12 +530,12 @@ export default function LiveChat() {
           width: 2.5rem;
           height: 2.5rem;
           border-radius: 999px;
-          background: rgba(204, 255, 0, 0.12);
-          border: 1px solid rgba(204, 255, 0, 0.3);
-          color: #ccff00;
+          background: rgba(215, 247, 91, 0.12);
+          border: 1px solid rgba(215, 247, 91, 0.3);
+          color: #d7f75b;
           font-size: 1.1rem;
           font-weight: 700;
-          box-shadow: 0 0 20px rgba(204, 255, 0, 0.18);
+          box-shadow: 0 0 20px rgba(215, 247, 91, 0.18);
         }
 
         .livechat-panel__success-title {

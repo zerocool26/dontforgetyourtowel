@@ -11,7 +11,7 @@ const cta = getRouteStickyCTA(Astro.url.pathname);
   style="bottom: calc(8.85rem + env(safe-area-inset-bottom)); --sticky-accent: var(--color-primary);"
 >
   <div
-    class="tone-border tone-elevated sticky-cta-shell pointer-events-auto mx-auto flex max-w-[760px] items-center justify-between gap-4 rounded-[1.4rem] border px-4 py-3 backdrop-blur"
+    class="tone-border tone-elevated sticky-cta-shell pointer-events-auto mx-auto flex max-w-[760px] items-center justify-between gap-4 rounded-2xl border px-4 py-3 backdrop-blur"
     style={`--sticky-accent:${cta.accent};`}
   >
     <div class="sticky-cta-shell__progress" aria-hidden="true">

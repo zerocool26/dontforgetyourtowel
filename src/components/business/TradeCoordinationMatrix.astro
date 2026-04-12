@@ -26,8 +26,8 @@ const initialItem = items[0];
 {
   items.length ? (
     <section
-      class="trade-coordination-matrix creative-panel rounded-[2rem] p-6 md:p-7"
-      style={`--matrix-accent:${initialItem?.accent ?? '#ccff00'};`}
+      class="trade-coordination-matrix creative-panel rounded-2xl p-6 md:p-7"
+      style={`--matrix-accent:${initialItem?.accent ?? '#d7f75b'};`}
       data-trade-matrix
     >
       <div class="trade-coordination-matrix__header">
@@ -202,7 +202,7 @@ const initialItem = items[0];
             node.setAttribute('aria-pressed', String(isActive));
           });
 
-          const accent = tab.dataset.tradeAccent || '#ccff00';
+          const accent = tab.dataset.tradeAccent || '#d7f75b';
           root.style.setProperty('--matrix-accent', accent);
 
           if (nameTarget) {
@@ -351,7 +351,7 @@ const initialItem = items[0];
   .trade-coordination-matrix__tab {
     min-width: 10.5rem;
     flex: 0 0 auto;
-    border-radius: 1.3rem;
+    border-radius: 0.5rem;
     border: 1px solid rgba(255, 255, 255, 0.08);
     background: rgba(255, 255, 255, 0.025);
     padding: 0.95rem 1rem;
@@ -385,7 +385,7 @@ const initialItem = items[0];
     justify-content: center;
     width: 2.2rem;
     height: 2.2rem;
-    border-radius: 0.9rem;
+    border-radius: 0.5rem;
     border: 1px solid
       color-mix(in srgb, var(--matrix-accent) 20%, rgba(255, 255, 255, 0.08));
     background: rgba(255, 255, 255, 0.03);
@@ -413,7 +413,7 @@ const initialItem = items[0];
   .trade-coordination-matrix__signal,
   .trade-coordination-matrix__panel,
   .trade-coordination-matrix__meta-panel {
-    border-radius: 1.5rem;
+    border-radius: 0.5rem;
     border: 1px solid rgba(255, 255, 255, 0.08);
     background: rgba(255, 255, 255, 0.03);
     padding: 1rem 1.05rem;

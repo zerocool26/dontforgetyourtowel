@@ -18,7 +18,7 @@ const {
   eyebrow,
   title,
   description,
-  accent = '#ccff00',
+  accent = '#d7f75b',
   items = [],
 } = Astro.props as Props;
 
@@ -31,7 +31,7 @@ const initialItem = normalizedItems[0];
 {
   normalizedItems.length ? (
     <section
-      class="signal-cabinet creative-panel rounded-[2rem] p-6 md:p-7"
+      class="signal-cabinet creative-panel rounded-2xl p-6 md:p-7"
       style={`--signal-cabinet-accent:${accent};`}
       data-signal-cabinet
     >
@@ -218,7 +218,7 @@ const initialItem = normalizedItems[0];
   }
 
   .signal-cabinet__preview {
-    border-radius: 1.5rem;
+    border-radius: 8px;
     border: 1px solid
       color-mix(
         in srgb,
@@ -285,9 +285,9 @@ const initialItem = normalizedItems[0];
   }
 
   .signal-cabinet__item {
-    min-width: 11.5rem;
+    min-width: min(11.5rem, calc(100vw - 3rem));
     flex: 0 0 auto;
-    border-radius: 1.3rem;
+    border-radius: 8px;
     border: 1px solid rgba(255, 255, 255, 0.08);
     background: rgba(255, 255, 255, 0.025);
     padding: 0.95rem 1rem;
@@ -321,6 +321,8 @@ const initialItem = normalizedItems[0];
     font-size: 0.98rem;
     font-weight: 600;
     color: rgba(255, 255, 255, 0.95);
+    overflow-wrap: anywhere;
+    white-space: normal;
   }
 
   @media (min-width: 960px) {

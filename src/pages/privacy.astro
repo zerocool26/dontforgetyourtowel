@@ -10,6 +10,8 @@ import { withBasePath } from '../utils/helpers';
   bodyClass="bg-[#06101d]"
   showStickyCTA={false}
   showLiveChat={false}
+  mainClass="relative isolate overflow-x-clip"
+  showSavedRoutesDock={false}
 >
   <section
     class="border-b border-white/10"
@@ -18,7 +20,7 @@ import { withBasePath } from '../utils/helpers';
     data-page-section
   >
     <div
-      class="mx-auto max-w-[1240px] px-4 pb-16 pt-28 sm:px-6 sm:pb-20 sm:pt-32"
+      class="mx-auto max-w-[1240px] px-4 pb-14 pt-20 sm:px-6 sm:pb-20 sm:pt-28"
     >
       <div class="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-end">
         <div class="space-y-5">
@@ -43,13 +45,13 @@ import { withBasePath } from '../utils/helpers';
           <div class="flex flex-col gap-3 sm:flex-row">
             <a
               href={withBasePath('contact-hq/')}
-              class="inline-flex min-h-[48px] items-center justify-center rounded-xl border border-white/10 bg-white px-5 text-sm font-semibold text-slate-950 transition hover:bg-slate-100"
+              class="inline-flex min-h-[48px] items-center justify-center rounded-lg border border-white/10 bg-white px-5 text-sm font-semibold text-slate-950 transition hover:bg-slate-100"
             >
               Contact HQ
             </a>
             <a
               href={`mailto:${CONTACT_EMAIL}`}
-              class="inline-flex min-h-[48px] items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] px-5 text-sm font-semibold text-white transition hover:border-white/20 hover:bg-white/[0.08]"
+              class="inline-flex min-h-[48px] items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] px-5 text-sm font-semibold text-white transition hover:border-white/20 hover:bg-white/[0.08]"
             >
               Email privacy questions
             </a>
@@ -57,7 +59,7 @@ import { withBasePath } from '../utils/helpers';
         </div>
 
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-          <div class="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+          <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
             <p
               class="font-mono text-[0.66rem] uppercase tracking-[0.22em] text-white/45"
             >
@@ -68,7 +70,7 @@ import { withBasePath } from '../utils/helpers';
               example by email or project intake communication.
             </p>
           </div>
-          <div class="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+          <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
             <p
               class="font-mono text-[0.66rem] uppercase tracking-[0.22em] text-white/45"
             >
@@ -93,7 +95,7 @@ import { withBasePath } from '../utils/helpers';
   >
     <div class="mx-auto max-w-[960px] px-4 sm:px-6">
       <div class="grid gap-6">
-        <article class="rounded-3xl border border-white/10 bg-white/[0.03] p-7">
+        <article class="rounded-2xl border border-white/10 bg-white/[0.03] p-7">
           <h2 class="text-2xl font-semibold text-white">
             Information we collect
           </h2>
@@ -104,7 +106,7 @@ import { withBasePath } from '../utils/helpers';
           </p>
         </article>
 
-        <article class="rounded-3xl border border-white/10 bg-white/[0.03] p-7">
+        <article class="rounded-2xl border border-white/10 bg-white/[0.03] p-7">
           <h2 class="text-2xl font-semibold text-white">
             Contact communications
           </h2>
@@ -116,7 +118,7 @@ import { withBasePath } from '../utils/helpers';
           </p>
         </article>
 
-        <article class="rounded-3xl border border-white/10 bg-white/[0.03] p-7">
+        <article class="rounded-2xl border border-white/10 bg-white/[0.03] p-7">
           <h2 class="text-2xl font-semibold text-white">Third-party hosting</h2>
           <p>
             This site is delivered via static hosting. Hosting providers may log
@@ -125,7 +127,7 @@ import { withBasePath } from '../utils/helpers';
           </p>
         </article>
 
-        <article class="rounded-3xl border border-white/10 bg-white/[0.03] p-7">
+        <article class="rounded-2xl border border-white/10 bg-white/[0.03] p-7">
           <h2 class="text-2xl font-semibold text-white">
             Cookies and local storage
           </h2>
@@ -136,7 +138,7 @@ import { withBasePath } from '../utils/helpers';
           </p>
         </article>
 
-        <article class="rounded-3xl border border-white/10 bg-white/[0.03] p-7">
+        <article class="rounded-2xl border border-white/10 bg-white/[0.03] p-7">
           <h2 class="text-2xl font-semibold text-white">Policy updates</h2>
           <p>
             We may revise this policy as the site evolves. Any updates appear on
@@ -144,13 +146,13 @@ import { withBasePath } from '../utils/helpers';
           </p>
         </article>
 
-        <article class="rounded-3xl border border-white/10 bg-white/[0.03] p-7">
+        <article class="rounded-2xl border border-white/10 bg-white/[0.03] p-7">
           <h2 class="text-2xl font-semibold text-white">Contact</h2>
           <p>
             Questions about this privacy policy can be sent to
             <a
               href={`mailto:${CONTACT_EMAIL}`}
-              class="text-sky-300 hover:text-sky-200 hover:underline"
+              class="text-[#d7f75b] hover:text-white hover:underline"
             >
               {CONTACT_EMAIL}
             </a>.

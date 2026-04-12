@@ -18,7 +18,7 @@ const {
   eyebrow,
   title,
   description,
-  accent = '#ccff00',
+  accent = '#d7f75b',
   phases = [],
 } = Astro.props as Props;
 
@@ -47,7 +47,7 @@ const initialPhase = normalizedPhases[0];
 {
   normalizedPhases.length ? (
     <section
-      class="trade-phase-studio creative-panel rounded-[2rem] p-6 md:p-7"
+      class="trade-phase-studio creative-panel rounded-2xl p-6 md:p-7"
       style={`--trade-phase-accent:${accent};`}
       data-phase-studio
     >
@@ -268,7 +268,7 @@ const initialPhase = normalizedPhases[0];
   }
 
   .trade-phase-studio__status-shell {
-    border-radius: 1.4rem;
+    border-radius: 0.5rem;
     border: 1px solid
       color-mix(
         in srgb,
@@ -314,7 +314,7 @@ const initialPhase = normalizedPhases[0];
   .trade-phase-studio__tab {
     min-width: 12rem;
     flex: 0 0 auto;
-    border-radius: 1.3rem;
+    border-radius: 0.5rem;
     border: 1px solid rgba(255, 255, 255, 0.08);
     background: rgba(255, 255, 255, 0.03);
     padding: 0.95rem 1rem 1rem;
@@ -376,7 +376,7 @@ const initialPhase = normalizedPhases[0];
 
   .trade-phase-studio__card {
     position: relative;
-    border-radius: 1.55rem;
+    border-radius: 0.5rem;
     border: 1px solid rgba(255, 255, 255, 0.08);
     background: rgba(255, 255, 255, 0.028);
     padding: 1.05rem;

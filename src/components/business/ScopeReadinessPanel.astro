@@ -1,0 +1,288 @@
+---
+import ModernButton from '../ui/ModernButton.astro';
+import { CONTACT_EMAIL } from '../../consts';
+
+export interface Props {
+  title?: string;
+  description?: string;
+  compact?: boolean;
+}
+
+const {
+  title = 'Check project readiness before discovery.',
+  description = 'Answer three practical questions and the panel will recommend the strongest next step.',
+  compact = false,
+} = Astro.props as Props;
+
+const emailHref = `mailto:${encodeURIComponent(
+  CONTACT_EMAIL
+)}?subject=${encodeURIComponent('Scope readiness review')}`;
+
+const checks = [
+  {
+    id: 'owner',
+    label: 'Decision owner is clear',
+    detail: 'One person can confirm priorities, timing, and tradeoffs.',
+    weight: 30,
+  },
+  {
+    id: 'constraints',
+    label: 'Constraints are documented',
+    detail:
+      'Access, systems, users, outages, compliance, or occupancy needs are known.',
+    weight: 35,
+  },
+  {
+    id: 'window',
+    label: 'Target window is real',
+    detail:
+      'There is a meaningful date, event, renewal, audit, shutdown, or budget cycle.',
+    weight: 35,
+  },
+];
+---
+
+<section
+  class={`premium-card scope-readiness ${compact ? 'scope-readiness--compact' : ''}`}
+  data-scope-readiness
+>
+  <div class="scope-readiness__content">
+    <div>
+      <p class="premium-eyebrow">Readiness score</p>
+      <h3
+        class="mt-3 text-2xl font-semibold tracking-normal text-white sm:text-3xl"
+      >
+        {title}
+      </h3>
+      <p class="premium-copy mt-3 text-sm sm:text-base">{description}</p>
+    </div>
+
+    <div
+      class="scope-readiness__checks"
+      role="group"
+      aria-label="Readiness checks"
+    >
+      {
+        checks.map(check => (
+          <label class="scope-readiness__check">
+            <input
+              type="checkbox"
+              value={check.weight}
+              data-scope-check
+              aria-describedby={`scope-check-${check.id}`}
+            />
+            <span>
+              <span class="scope-readiness__check-title">{check.label}</span>
+              <span
+                id={`scope-check-${check.id}`}
+                class="scope-readiness__check-copy"
+              >
+                {check.detail}
+              </span>
+            </span>
+          </label>
+        ))
+      }
+    </div>
+  </div>
+
+  <div class="scope-readiness__result" aria-live="polite">
+    <div class="scope-readiness__dial" aria-hidden="true">
+      <span data-scope-score>0</span>
+      <small>/100</small>
+    </div>
+    <div>
+      <p class="scope-readiness__status" data-scope-status>
+        Start with a fit call.
+      </p>
+      <p class="scope-readiness__copy" data-scope-copy>
+        Capture the owner, constraints, and deadline first. Discovery will move
+        faster once those basics are clear.
+      </p>
+    </div>
+    <ModernButton
+      href={emailHref}
+      variant="primary"
+      className="mt-5 min-h-[48px] w-full"
+    >
+      Send readiness notes
+    </ModernButton>
+  </div>
+</section>
+
+<style>
+  .scope-readiness {
+    display: grid;
+    gap: 1.25rem;
+    padding: clamp(1.25rem, 3vw, 2rem);
+  }
+
+  .scope-readiness__content {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  .scope-readiness__checks {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .scope-readiness__check {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.75rem;
+    min-height: 58px;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.035);
+    padding: 0.85rem;
+    color: rgba(226, 232, 240, 0.82);
+  }
+
+  .scope-readiness__check input {
+    margin-top: 0.2rem;
+    width: 1.05rem;
+    height: 1.05rem;
+    accent-color: #12b5a6;
+  }
+
+  .scope-readiness__check-title {
+    display: block;
+    color: #ffffff;
+    font-weight: 700;
+    line-height: 1.25;
+  }
+
+  .scope-readiness__check-copy {
+    display: block;
+    margin-top: 0.35rem;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    color: rgba(203, 213, 225, 0.72);
+  }
+
+  .scope-readiness__result {
+    display: flex;
+    min-height: 100%;
+    flex-direction: column;
+    justify-content: space-between;
+    border-radius: 8px;
+    background:
+      linear-gradient(
+        150deg,
+        rgba(215, 247, 91, 0.12),
+        rgba(18, 181, 166, 0.08)
+      ),
+      rgba(0, 0, 0, 0.22);
+    padding: 1.25rem;
+  }
+
+  .scope-readiness__dial {
+    display: flex;
+    align-items: baseline;
+    gap: 0.15rem;
+    color: #ffffff;
+    font-family: var(--font-display);
+    line-height: 1;
+  }
+
+  .scope-readiness__dial span {
+    font-size: clamp(3rem, 9vw, 5.5rem);
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+
+  .scope-readiness__dial small {
+    color: rgba(255, 255, 255, 0.52);
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .scope-readiness__status {
+    margin: 0;
+    color: #ffffff;
+    font-size: 1.05rem;
+    font-weight: 800;
+  }
+
+  .scope-readiness__copy {
+    margin: 0.45rem 0 0;
+    color: rgba(226, 232, 240, 0.76);
+    font-size: 0.92rem;
+    line-height: 1.6;
+  }
+
+  @media (min-width: 900px) {
+    .scope-readiness {
+      grid-template-columns: 1.15fr 0.85fr;
+      align-items: stretch;
+    }
+  }
+</style>
+
+<script is:inline>
+  (() => {
+    const states = [
+      {
+        min: 0,
+        status: 'Start with a fit call.',
+        copy: 'Capture the owner, constraints, and deadline first. Discovery will move faster once those basics are clear.',
+      },
+      {
+        min: 30,
+        status: 'Good discovery candidate.',
+        copy: 'You have enough signal to route the work. Bring the missing constraint into the first conversation.',
+      },
+      {
+        min: 65,
+        status: 'Ready for scope shaping.',
+        copy: 'The work can move into a sharper estimate, delivery lane, or phased roadmap with fewer surprises.',
+      },
+      {
+        min: 100,
+        status: 'Ready for execution planning.',
+        copy: 'The core inputs are clear. The next move is a route, schedule, and operating owner for the first phase.',
+      },
+    ];
+
+    const init = () => {
+      document.querySelectorAll('[data-scope-readiness]').forEach(panel => {
+        if (!(panel instanceof HTMLElement)) return;
+        if (panel.dataset.bound === '1') return;
+        panel.dataset.bound = '1';
+
+        const checks = Array.from(panel.querySelectorAll('[data-scope-check]'));
+        const score = panel.querySelector('[data-scope-score]');
+        const status = panel.querySelector('[data-scope-status]');
+        const copy = panel.querySelector('[data-scope-copy]');
+
+        const update = () => {
+          const total = checks.reduce((sum, node) => {
+            if (!(node instanceof HTMLInputElement) || !node.checked)
+              return sum;
+            return sum + Number(node.value || 0);
+          }, 0);
+          const next = states.reduce((current, item) => {
+            return total >= item.min ? item : current;
+          }, states[0]);
+
+          if (score) score.textContent = String(total);
+          if (status) status.textContent = next.status;
+          if (copy) copy.textContent = next.copy;
+        };
+
+        checks.forEach(node => node.addEventListener('change', update));
+        update();
+      });
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init, { once: true });
+    } else {
+      init();
+    }
+
+    document.addEventListener('astro:page-load', init);
+  })();
+</script>

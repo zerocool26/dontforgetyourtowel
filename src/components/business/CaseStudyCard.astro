@@ -16,15 +16,15 @@ const { title, industry, summary, results, href } = Astro.props as Props;
   href ? (
     <a
       href={href}
-      class="block h-full rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ccff00] focus-visible:ring-offset-2"
+      class="block h-full rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d7f75b] focus-visible:ring-offset-2"
     >
       <ModernCard
         variant="minimal"
-        className="creative-panel tone-elevated tone-border h-full border p-6 hover:border-[#ccff00]/50 transition-colors"
+        className="creative-panel tone-elevated tone-border h-full border p-6 transition-colors hover:border-[#d7f75b]/50"
       >
         <div class="flex items-start justify-between gap-4">
           <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-[#ccff00]">
+            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-[#d7f75b]">
               {industry}
             </p>
             <h3 class="tone-title mt-2 text-lg font-semibold">{title}</h3>
@@ -50,11 +50,11 @@ const { title, industry, summary, results, href } = Astro.props as Props;
   ) : (
     <ModernCard
       variant="minimal"
-      className="creative-panel tone-elevated tone-border h-full border p-6 hover:border-[#ccff00]/50 transition-colors"
+      className="creative-panel tone-elevated tone-border h-full border p-6 transition-colors hover:border-[#d7f75b]/50"
     >
       <div class="flex items-start justify-between gap-4">
         <div>
-          <p class="text-xs font-semibold uppercase tracking-[0.3em] text-[#ccff00]">
+          <p class="text-xs font-semibold uppercase tracking-[0.3em] text-[#d7f75b]">
             {industry}
           </p>
           <h3 class="tone-title mt-2 text-lg font-semibold">{title}</h3>

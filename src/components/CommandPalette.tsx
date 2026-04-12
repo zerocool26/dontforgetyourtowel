@@ -295,28 +295,32 @@ export default function CommandPalette() {
   const shortcutText = isMac ? 'Command K' : 'Control K';
 
   const loadRecentCommands = useCallback(() => {
-    const items = readRecentRoutes().slice(0, 4).map(item => ({
-      id: `recent-${item.url}`,
-      label: item.title,
-      icon: Layout,
-      action: () => navigate(toNavigableRouteUrl(item.url)),
-      category: 'Recent' as const,
-      keywords: [item.category.toLowerCase(), 'recent', item.url],
-      description: item.description,
-    }));
+    const items = readRecentRoutes()
+      .slice(0, 4)
+      .map(item => ({
+        id: `recent-${item.url}`,
+        label: item.title,
+        icon: Layout,
+        action: () => navigate(toNavigableRouteUrl(item.url)),
+        category: 'Recent' as const,
+        keywords: [item.category.toLowerCase(), 'recent', item.url],
+        description: item.description,
+      }));
     setRecentCommands(items);
   }, []);
 
   const loadPinnedCommands = useCallback(() => {
-    const items = readPinnedRoutes().slice(0, 6).map(item => ({
-      id: `pinned-${item.url}`,
-      label: item.title,
-      icon: Compass,
-      action: () => navigate(toNavigableRouteUrl(item.url)),
-      category: 'Pinned' as const,
-      keywords: [item.category.toLowerCase(), 'saved', 'pinned', item.url],
-      description: item.description,
-    }));
+    const items = readPinnedRoutes()
+      .slice(0, 6)
+      .map(item => ({
+        id: `pinned-${item.url}`,
+        label: item.title,
+        icon: Compass,
+        action: () => navigate(toNavigableRouteUrl(item.url)),
+        category: 'Pinned' as const,
+        keywords: [item.category.toLowerCase(), 'saved', 'pinned', item.url],
+        description: item.description,
+      }));
     setPinnedCommands(items);
   }, []);
 
@@ -394,7 +398,9 @@ export default function CommandPalette() {
 
     const uniqueSections = new Map<string, string>();
     document
-      .querySelectorAll<HTMLElement>('[data-page-nav-link][data-page-nav-target]')
+      .querySelectorAll<HTMLElement>(
+        '[data-page-nav-link][data-page-nav-target]'
+      )
       .forEach(node => {
         const id = node.dataset.pageNavTarget;
         const label =
@@ -527,9 +533,7 @@ export default function CommandPalette() {
             return;
           }
 
-          const payload = items
-            ? buildWorkspaceClipboardPayload(items)
-            : '';
+          const payload = items ? buildWorkspaceClipboardPayload(items) : '';
 
           navigator.clipboard
             ?.writeText(payload)
@@ -610,7 +614,11 @@ export default function CommandPalette() {
       },
     ];
 
-    setDynamicCommands([...routeCommands, ...sectionCommands, ...utilityCommands]);
+    setDynamicCommands([
+      ...routeCommands,
+      ...sectionCommands,
+      ...utilityCommands,
+    ]);
   }, [isOpen]);
 
   useEffect(() => {
@@ -653,14 +661,18 @@ export default function CommandPalette() {
 
   const allCommands = useMemo(() => {
     const seenLabels = new Set<string>();
-    return [...dynamicCommands, ...pinnedCommands, ...recentCommands, ...BASE_COMMANDS, ...searchItems].filter(
-      command => {
-        const key = command.label.trim().toLowerCase();
-        if (seenLabels.has(key)) return false;
-        seenLabels.add(key);
-        return true;
-      }
-    );
+    return [
+      ...dynamicCommands,
+      ...pinnedCommands,
+      ...recentCommands,
+      ...BASE_COMMANDS,
+      ...searchItems,
+    ].filter(command => {
+      const key = command.label.trim().toLowerCase();
+      if (seenLabels.has(key)) return false;
+      seenLabels.add(key);
+      return true;
+    });
   }, [dynamicCommands, pinnedCommands, recentCommands, searchItems]);
   const searchableCommands = useMemo(
     () =>
@@ -1033,14 +1045,14 @@ export default function CommandPalette() {
             >
               <div className="flex items-center justify-between gap-3">
                 <span
-                  className="rounded-full border px-2.5 py-1 text-[10px] font-mono uppercase tracking-[0.18em] text-white/72"
+                  className="text-white/72 rounded-full border px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.18em]"
                   style={{
                     borderColor: `color-mix(in srgb, ${routeMeta.accent} 28%, rgba(255,255,255,0.08))`,
                   }}
                 >
                   {routeMeta.category}
                 </span>
-                <span className="text-[11px] font-mono uppercase tracking-[0.18em] text-white/40">
+                <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-white/40">
                   Current route
                 </span>
               </div>
@@ -1055,7 +1067,7 @@ export default function CommandPalette() {
                   <button
                     key={link.href}
                     type="button"
-                    className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-2 text-left text-xs font-medium text-white/78 transition hover:border-white/20 hover:bg-white/[0.06] hover:text-white"
+                    className="text-white/78 rounded-full border border-white/10 bg-white/[0.03] px-3 py-2 text-left text-xs font-medium transition hover:border-white/20 hover:bg-white/[0.06] hover:text-white"
                     onClick={() => {
                       navigate(link.href);
                       setIsOpen(false);
@@ -1094,7 +1106,7 @@ export default function CommandPalette() {
                     aria-selected={isSelected}
                     className={`flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 transition-all ${
                       isSelected
-                        ? 'border-[#ccff00]/30 bg-[#ccff00]/10 text-white shadow-[0_0_28px_rgba(204,255,0,0.08)]'
+                        ? 'border-[#d7f75b]/30 bg-[#d7f75b]/10 text-white shadow-[0_0_28px_rgba(215,247,91,0.08)]'
                         : 'tone-body border-transparent hover:border-white/10 hover:bg-white/[0.04]'
                     }`}
                     onClick={() => {
@@ -1104,15 +1116,15 @@ export default function CommandPalette() {
                     onMouseEnter={() => setSelectedIndex(index)}
                   >
                     <Icon
-                      className={`mt-1 h-5 w-5 ${isSelected ? 'text-[#ccff00]' : 'tone-muted'}`}
+                      className={`mt-1 h-5 w-5 ${isSelected ? 'text-[#d7f75b]' : 'tone-muted'}`}
                     />
                     <div className="flex flex-1 flex-col">
                       <div className="flex items-center justify-between gap-3">
                         <span className="font-medium">{command.label}</span>
                         <span
-                          className={`rounded-full border px-2 py-0.5 text-[10px] font-mono uppercase tracking-[0.18em] ${
+                          className={`rounded-full border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.18em] ${
                             isSelected
-                              ? 'border-[#ccff00]/30 text-[#ccff00]'
+                              ? 'border-[#d7f75b]/30 text-[#d7f75b]'
                               : 'border-white/10 text-zinc-500'
                           }`}
                         >
@@ -1130,7 +1142,7 @@ export default function CommandPalette() {
                       ) : null}
                     </div>
                     {isSelected && (
-                      <Command className="mt-1 h-4 w-4 text-[#ccff00]" />
+                      <Command className="mt-1 h-4 w-4 text-[#d7f75b]" />
                     )}
                   </li>
                 );

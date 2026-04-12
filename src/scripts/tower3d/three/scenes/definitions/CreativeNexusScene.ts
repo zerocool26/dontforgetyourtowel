@@ -36,7 +36,7 @@ export class CreativeNexusScene extends SceneBase {
       blending: THREE.AdditiveBlending,
       uniforms: {
         uTime: { value: 0 },
-        uColorA: { value: new THREE.Color('#ccff00') },
+        uColorA: { value: new THREE.Color('#d7f75b') },
         uColorB: { value: new THREE.Color('#ff00cc') },
         uPointer: { value: new THREE.Vector3(0, 0, 0) },
         uPress: { value: 0.0 },
@@ -177,7 +177,7 @@ export class CreativeNexusScene extends SceneBase {
         uTime: { value: 0 },
         uPointer: { value: new THREE.Vector3(0, 0, 0) },
         uColorA: { value: new THREE.Color('#00ffff') },
-        uColorB: { value: new THREE.Color('#ccff00') },
+        uColorB: { value: new THREE.Color('#d7f75b') },
         uPress: { value: 0.0 },
       },
       vertexShader: `

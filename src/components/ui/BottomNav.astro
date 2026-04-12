@@ -26,7 +26,7 @@ export interface Props {
 const {
   items,
   class: className = '',
-  accent = '#ccff00',
+  accent = '#d7f75b',
   contextTitle,
   contextAction,
 } = Astro.props;
@@ -113,11 +113,11 @@ const isActiveItem = (item: NavItem) => {
     transform: translateX(-50%);
     z-index: 100;
     width: min(calc(100% - 1rem), 34rem);
-    border-radius: 1.55rem;
+    border-radius: 0.5rem;
     background: linear-gradient(
       180deg,
-      rgba(10, 12, 18, 0.96),
-      rgba(6, 8, 12, 0.98)
+      rgba(9, 12, 10, 0.96),
+      rgba(5, 7, 6, 0.98)
     );
     backdrop-filter: blur(20px) saturate(160%);
     -webkit-backdrop-filter: blur(20px) saturate(160%);
@@ -170,7 +170,7 @@ const isActiveItem = (item: NavItem) => {
     display: grid;
     gap: 0.4rem;
     margin: 0 0 0.45rem;
-    border-radius: 1.25rem;
+    border-radius: 0.5rem;
     border: 1px solid
       color-mix(in srgb, var(--bottom-nav-accent) 20%, transparent);
     background:
@@ -205,7 +205,7 @@ const isActiveItem = (item: NavItem) => {
   .bottom-nav-context__meta,
   .bottom-nav-context__cta {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     justify-content: space-between;
     gap: 0.75rem;
   }
@@ -236,6 +236,45 @@ const isActiveItem = (item: NavItem) => {
     font-weight: 500;
   }
 
+  @media (max-width: 480px) {
+    .bottom-nav-context {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.35rem;
+      padding: 0.6rem 0.75rem;
+    }
+
+    .bottom-nav-context__meta,
+    .bottom-nav-context__cta {
+      min-width: 0;
+      display: block;
+    }
+
+    .bottom-nav-context__label,
+    .bottom-nav-context__detail {
+      display: none;
+    }
+
+    .bottom-nav-context__title,
+    .bottom-nav-context__cta span:first-child {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .bottom-nav-context__title {
+      font-size: 0.76rem;
+    }
+
+    .bottom-nav-context__cta {
+      max-width: 9rem;
+      text-align: right;
+      font-size: 0.72rem;
+    }
+  }
+
   .bottom-nav-item {
     display: flex;
     flex-direction: column;
@@ -243,7 +282,7 @@ const isActiveItem = (item: NavItem) => {
     justify-content: center;
     gap: 4px;
     padding: 10px 12px;
-    border-radius: 1rem;
+    border-radius: 0.5rem;
     color: color-mix(in srgb, var(--color-text-muted) 90%, transparent);
     text-decoration: none;
     transition:

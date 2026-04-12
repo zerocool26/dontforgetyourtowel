@@ -4,7 +4,7 @@
 }
 
 .landing-scene-preview-stage {
-  --landing-preview-accent: #ccff00;
+  --landing-preview-accent: #d7f75b;
   --landing-preview-secondary: #38bdf8;
   position: relative;
   min-height: 320px;
@@ -14,7 +14,7 @@
   background:
     radial-gradient(
       circle at 50% 20%,
-      rgba(204, 255, 0, 0.08),
+      rgba(215, 247, 91, 0.08),
       transparent 36%
     ),
     linear-gradient(180deg, #03060c 0%, #050913 100%);

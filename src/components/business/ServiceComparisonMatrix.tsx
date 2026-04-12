@@ -191,7 +191,7 @@ export default function ServiceComparisonMatrix({ services }: Props) {
   }, [matches]);
 
   return (
-    <section class="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.24)] sm:p-8">
+    <section class="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.24)] sm:p-8">
       <div class="grid gap-8 xl:grid-cols-[0.9fr_1.1fr]">
         <div class="space-y-6">
           <div class="space-y-3">
@@ -272,7 +272,7 @@ export default function ServiceComparisonMatrix({ services }: Props) {
             <ul class="tone-body mt-4 space-y-2 text-sm">
               {focusProfile.outcomes.map(outcome => (
                 <li class="flex items-start gap-2" key={outcome}>
-                  <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[#ccff00]" />
+                  <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[#d7f75b]" />
                   <span>{outcome}</span>
                 </li>
               ))}

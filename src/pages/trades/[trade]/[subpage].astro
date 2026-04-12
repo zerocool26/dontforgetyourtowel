@@ -102,6 +102,8 @@ const pageNavigator = {
   bodyClass={`bg-[#06101d] ${tradeVisual.themeClass}`}
   showFooter={true}
   pageNavigator={pageNavigator}
+  mainClass="relative isolate overflow-x-clip"
+  showSavedRoutesDock={false}
 >
   <StructuredData
     type="service"
@@ -118,7 +120,7 @@ const pageNavigator = {
   />
   <StructuredData type="breadcrumbs" data={{ items: subpageBreadcrumbItems }} />
   <section
-    class="tone-surface relative scroll-mt-32 overflow-hidden pb-14 pt-28"
+    class="tone-surface relative scroll-mt-32 overflow-hidden pb-12 pt-20 sm:pb-14 sm:pt-28"
     data-reveal
     id="route-hero"
     data-page-section
@@ -128,9 +130,9 @@ const pageNavigator = {
       style={`background: radial-gradient(circle at top, color-mix(in srgb, ${trade.accent} 18%, transparent), transparent 54%);`}
     >
     </div>
-    <div class="mx-auto max-w-[1320px] px-6">
+    <div class="mx-auto max-w-[1320px] px-4 sm:px-6">
       <div
-        class="creative-hero-shell trade-subpage-shell grid gap-8 p-8 xl:grid-cols-[1.1fr_0.9fr]"
+        class="creative-hero-shell trade-subpage-shell grid gap-8 p-5 sm:p-8 xl:grid-cols-[1.1fr_0.9fr]"
         style={`--trade-accent:${trade.accent};`}
       >
         <div class="space-y-5">
@@ -152,7 +154,7 @@ const pageNavigator = {
           </div>
           <p class="creative-kicker">Focused delivery route</p>
           <h1
-            class="tone-title text-5xl font-semibold tracking-tight sm:text-6xl"
+            class="tone-title text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl"
           >
             {resolvedSubpage.title}
           </h1>
@@ -177,13 +179,15 @@ const pageNavigator = {
             >
               Back to {trade.shortName}
             </ModernButton>
-            <ModernButton
-              href={withBasePath('services/')}
-              variant="outline"
-              className="min-h-[48px]"
-            >
-              Open services hub
-            </ModernButton>
+            <span class="hidden sm:block">
+              <ModernButton
+                href={withBasePath('services/')}
+                variant="outline"
+                className="min-h-[48px]"
+              >
+                Open services hub
+              </ModernButton>
+            </span>
           </div>
         </div>
 
@@ -231,7 +235,7 @@ const pageNavigator = {
     id="route-playbook"
     data-page-section
   >
-    <div class="mx-auto max-w-[1320px] px-6 py-12">
+    <div class="mx-auto max-w-[1320px] px-4 py-12 sm:px-6">
       <div class="grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
         <div class="grid gap-5">
           {
@@ -288,7 +292,7 @@ const pageNavigator = {
                 siblingSubpages.map(item => (
                   <a
                     href={withBasePath(`trades/${trade.slug}/${item.slug}/`)}
-                    class="trade-subpage-link rounded-3xl border border-white/10 bg-white/[0.02] p-4 transition hover:border-white/20 hover:bg-white/[0.04]"
+                    class="trade-subpage-link rounded-2xl border border-white/10 bg-white/[0.02] p-4 transition hover:border-white/20 hover:bg-white/[0.04]"
                   >
                     <p class="tone-title text-base font-semibold">
                       {item.title}
@@ -364,7 +368,7 @@ const pageNavigator = {
   }
 
   .trade-subpage-mini {
-    border-radius: 1rem;
+    border-radius: 0.5rem;
     border: 1px solid rgba(255, 255, 255, 0.08);
     background: rgba(255, 255, 255, 0.03);
     padding: 0.85rem 0.9rem;

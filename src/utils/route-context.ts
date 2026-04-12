@@ -50,7 +50,7 @@ export function getRouteContext(pathname: string): RouteContext {
       : undefined;
 
   let context: RouteContext = {
-    accent: '#ccff00',
+    accent: '#d7f75b',
     kicker: 'Site Atlas',
     title: 'One connected route system for every trade and platform page.',
     description:
@@ -113,7 +113,7 @@ export function getRouteContext(pathname: string): RouteContext {
     };
   } else if (currentPath.startsWith('/services')) {
     context = {
-      accent: '#ccff00',
+      accent: '#d7f75b',
       kicker: 'Services Atlas',
       title:
         'Trade delivery and retained tech systems now share one service map.',
@@ -230,7 +230,7 @@ export function getRouteContext(pathname: string): RouteContext {
     };
   } else if (currentPath.startsWith('/trades')) {
     context = {
-      accent: '#ccff00',
+      accent: '#d7f75b',
       kicker: 'Trade Atlas',
       title: 'The trade directory is the source map for the seven verticals.',
       description:
@@ -281,7 +281,7 @@ export function getRouteStickyCTA(pathname: string): RouteStickyCTA {
     `mailto:${encodeURIComponent(CONTACT_EMAIL)}?subject=${encodeURIComponent(subject)}`;
 
   let cta: RouteStickyCTA = {
-    accent: '#ccff00',
+    accent: '#d7f75b',
     eyebrow: 'Project intake',
     copy: 'Want a flagship build brief in two minutes?',
     detail: 'Launch the build studio or route directly into intake.',
@@ -305,7 +305,7 @@ export function getRouteStickyCTA(pathname: string): RouteStickyCTA {
           primaryLabel: 'Discuss concept',
         }
       : {
-          accent: '#ccff00',
+          accent: '#d7f75b',
           eyebrow: 'Landing intake',
           copy: 'Use the command center to route into the right trade or flagship build path.',
           detail:
@@ -317,7 +317,7 @@ export function getRouteStickyCTA(pathname: string): RouteStickyCTA {
         };
   } else if (currentPath.startsWith('/services')) {
     cta = {
-      accent: '#ccff00',
+      accent: '#d7f75b',
       eyebrow: 'Services intake',
       copy: 'Need the right mix of trade delivery, retained systems, and technical support?',
       detail:
