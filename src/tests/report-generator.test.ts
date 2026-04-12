@@ -182,8 +182,8 @@ describe('ReportGenerator', () => {
       const md = ReportGenerator.generateMarkdownReport(analysis);
 
       expect(md).toContain('Deployment Readiness');
-      expect(md).toContain('✅ Pass');
-      expect(md).toContain('❌ Fail');
+      expect(md).toContain('Pass');
+      expect(md).toContain('Fail');
     });
 
     it('should include timestamp', () => {
@@ -243,14 +243,14 @@ describe('ReportGenerator', () => {
       expect(terminal).toContain('85');
     });
 
-    it('should include severity icons', () => {
+    it('should include severity labels', () => {
       const analysis = createMockAnalysis();
       const terminal = ReportGenerator.generateTerminalReport(analysis);
 
-      expect(terminal).toContain('🔴');
-      expect(terminal).toContain('🟠');
-      expect(terminal).toContain('🟡');
-      expect(terminal).toContain('🟢');
+      expect(terminal).toContain('Critical');
+      expect(terminal).toContain('High');
+      expect(terminal).toContain('Medium');
+      expect(terminal).toContain('Low');
     });
 
     it('should truncate long issue lists', () => {
@@ -568,7 +568,7 @@ describe('ReportGenerator', () => {
       expect(badHtml).toContain('#dc2626');
     });
 
-    it('should use correct icons for health scores', () => {
+    it('should use correct labels for health scores', () => {
       const excellent = createMockAnalysis({
         health: { ...createMockAnalysis().health, score: 90 },
       });
@@ -579,8 +579,8 @@ describe('ReportGenerator', () => {
       const excellentMd = ReportGenerator.generateMarkdownReport(excellent);
       const poorMd = ReportGenerator.generateMarkdownReport(poor);
 
-      expect(excellentMd).toContain('✅');
-      expect(poorMd).toContain('🔴');
+      expect(excellentMd).toContain('PASS');
+      expect(poorMd).toContain('FAIL');
     });
   });
 });

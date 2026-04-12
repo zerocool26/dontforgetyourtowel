@@ -13,11 +13,11 @@ export class ReportGenerator {
   } as const;
 
   private static readonly SEVERITY_ICONS = {
-    critical: '🔴',
-    high: '🟠',
-    medium: '🟡',
-    low: '🟢',
-    info: '🔵',
+    critical: 'CRITICAL',
+    high: 'HIGH',
+    medium: 'MEDIUM',
+    low: 'LOW',
+    info: 'INFO',
   } as const;
 
   /**
@@ -113,7 +113,7 @@ export class ReportGenerator {
 </head>
 <body>
   <div class="container">
-    <h1>🔍 Project Health Report</h1>
+    <h1>Project Health Report</h1>
 
     <div class="score-card">
       <div>
@@ -159,14 +159,14 @@ export class ReportGenerator {
             </div>
             <div class="issue-desc">${this.escapeHtml(issue.description)}</div>
             <div class="issue-meta">
-              📁 ${this.escapeHtml(issue.file)} ${issue.line ? `• Line ${issue.line}` : ''} ${issue.column ? `:${issue.column}` : ''}
+              ${this.escapeHtml(issue.file)} ${issue.line ? `- Line ${issue.line}` : ''} ${issue.column ? `:${issue.column}` : ''}
             </div>
           </li>
         `
           )
           .join('')}
       </ul>`
-        : '<div class="empty-state">✅ No issues found!</div>'
+        : '<div class="empty-state">No issues found.</div>'
     }
   </div>
 </body>
@@ -208,7 +208,7 @@ export class ReportGenerator {
         report += `- ${icon} **${issue.title}** - ${issue.description}\n`;
         report += `  - File: \`${issue.file}\`${issue.line ? ` (line ${issue.line})` : ''}\n`;
         if (issue.suggestion) {
-          report += `  - 💡 Suggestion: ${issue.suggestion}\n`;
+          report += `  - Suggestion: ${issue.suggestion}\n`;
         }
         report += '\n';
       }
@@ -288,9 +288,9 @@ export class ReportGenerator {
       '╠══════════════════════════════════════════════════════════════╣'
     );
     lines.push(
-      `║  🔴 Critical: ${health.criticalIssues.toString().padEnd(5)} 🟠 High: ${health.highIssues.toString().padEnd(5)} 🟡 Medium: ${health.mediumIssues.toString().padEnd(5)}     ║`
+      `║  Critical: ${health.criticalIssues.toString().padEnd(5)} High: ${health.highIssues.toString().padEnd(5)} Medium: ${health.mediumIssues.toString().padEnd(5)}        ║`
     );
-    lines.push(`║  🟢 Low: ${health.lowIssues.toString().padEnd(55)}║`);
+    lines.push(`║  Low: ${health.lowIssues.toString().padEnd(59)}║`);
     lines.push(
       '╚══════════════════════════════════════════════════════════════╝'
     );
@@ -311,7 +311,7 @@ export class ReportGenerator {
         lines.push(`  ... and ${issues.length - 20} more issues`);
       }
     } else {
-      lines.push('  ✅ No issues found!');
+      lines.push('  No issues found.');
     }
 
     lines.push('');
@@ -336,22 +336,22 @@ export class ReportGenerator {
   }
 
   private static getHealthIcon(score: number): string {
-    if (score >= 80) return '✅';
-    if (score >= 60) return '⚠️';
-    if (score >= 40) return '🟠';
-    return '🔴';
+    if (score >= 80) return 'PASS';
+    if (score >= 60) return 'WARN';
+    if (score >= 40) return 'RISK';
+    return 'FAIL';
   }
 
   private static getStatusEmoji(status: string): string {
     switch (status) {
       case 'pass':
-        return '✅ Pass';
+        return 'Pass';
       case 'fail':
-        return '❌ Fail';
+        return 'Fail';
       case 'warning':
-        return '⚠️ Warning';
+        return 'Warning';
       default:
-        return '❓ Unknown';
+        return 'Unknown';
     }
   }
 

@@ -14,7 +14,7 @@ const description = 'This page is available offline thanks to service workers';
   <head>
     <BaseHead title={title} description={description} />
   </head>
-  <body class="flex min-h-screen flex-col bg-zinc-950 text-zinc-100">
+  <body class="creative-page flex min-h-screen flex-col text-zinc-100">
     <a
       href="#main-content"
       class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-sm focus:bg-[#d7f75b] focus:px-4 focus:py-2 focus:text-[#0a0a0a] focus:outline-none focus:ring-2 focus:ring-[#d7f75b]"
@@ -25,10 +25,10 @@ const description = 'This page is available offline thanks to service workers';
     <main
       id="main-content"
       tabindex="-1"
-      class="relative flex flex-1 items-center overflow-hidden px-4"
+      class="relative flex flex-1 items-center overflow-hidden px-4 py-12"
     >
       <div
-        class="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"
+        class="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(215,247,91,0.08),transparent_42%),radial-gradient(circle_at_bottom_right,rgba(18,181,166,0.08),transparent_36%),linear-gradient(to_right,#80808010_1px,transparent_1px),linear-gradient(to_bottom,#80808010_1px,transparent_1px)] bg-[size:auto,auto,24px_24px,24px_24px]"
       >
       </div>
       <div class="relative z-10 mx-auto w-full max-w-2xl text-center">
@@ -38,11 +38,11 @@ const description = 'This page is available offline thanks to service workers';
             className="relative inline-flex h-32 w-32 items-center justify-center rounded-full"
           >
             <div
-              class="absolute inset-0 animate-pulse rounded-full border border-zinc-700 opacity-50"
+              class="absolute inset-0 animate-pulse rounded-full border border-[#d7f75b]/35 opacity-70"
             >
             </div>
             <svg
-              class="h-16 w-16 text-zinc-500"
+              class="h-16 w-16 text-[#d7f75b]"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -58,43 +58,43 @@ const description = 'This page is available offline thanks to service workers';
         </div>
 
         <h1
-          class="mb-4 font-display text-4xl font-bold uppercase tracking-tight text-[#0a0a0a]"
+          class="mb-4 font-display text-4xl font-bold tracking-normal text-white"
         >
-          OFFLINE_MODE
+          You are offline
         </h1>
-        <p class="mb-8 font-mono text-xl text-zinc-400">
-          // Don't worry! Thanks to our service worker, you can still browse
-          cached pages.
+        <p class="mb-8 text-lg leading-8 text-zinc-300">
+          Cached pages may still be available. When the connection comes back,
+          reload and the live site will take over again.
         </p>
 
         <div class="mb-12 space-y-4">
           <ModernCard variant="minimal" className="relative p-6 text-left">
             <div
-              class="absolute left-0 top-0 h-2 w-2 border-l border-t border-zinc-700"
+              class="absolute left-0 top-0 h-2 w-2 border-l border-t border-white/20"
             >
             </div>
             <div
-              class="absolute right-0 top-0 h-2 w-2 border-r border-t border-zinc-700"
+              class="absolute right-0 top-0 h-2 w-2 border-r border-t border-white/20"
             >
             </div>
             <div
-              class="absolute bottom-0 left-0 h-2 w-2 border-b border-l border-zinc-700"
+              class="absolute bottom-0 left-0 h-2 w-2 border-b border-l border-white/20"
             >
             </div>
             <div
-              class="absolute bottom-0 right-0 h-2 w-2 border-b border-r border-zinc-700"
+              class="absolute bottom-0 right-0 h-2 w-2 border-b border-r border-white/20"
             >
             </div>
 
             <h2
-              class="mb-2 font-mono text-lg font-bold uppercase tracking-wider text-[#0a0a0a]"
+              class="mb-2 font-mono text-sm font-bold uppercase tracking-[0.2em] text-white/55"
             >
-              AVAILABLE_ACTIONS:
+              Available actions
             </h2>
             <ul class="space-y-2 font-mono text-sm text-zinc-300">
               <li class="flex items-start gap-2">
                 <svg
-                  class="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-400"
+                  class="mt-0.5 h-5 w-5 flex-shrink-0 text-[#12b5a6]"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -109,7 +109,7 @@ const description = 'This page is available offline thanks to service workers';
               </li>
               <li class="flex items-start gap-2">
                 <svg
-                  class="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-400"
+                  class="mt-0.5 h-5 w-5 flex-shrink-0 text-[#12b5a6]"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -124,7 +124,7 @@ const description = 'This page is available offline thanks to service workers';
               </li>
               <li class="flex items-start gap-2">
                 <svg
-                  class="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-400"
+                  class="mt-0.5 h-5 w-5 flex-shrink-0 text-[#12b5a6]"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -142,10 +142,10 @@ const description = 'This page is available offline thanks to service workers';
 
           <div
             id="connection-status"
-            class="rounded-xl border border-amber-800/30 bg-amber-900/20 p-4"
+            class="rounded-lg border border-amber-300/20 bg-amber-500/10 p-4"
           >
             <p class="font-medium text-amber-200">
-              <span id="status-icon">⚠️</span>
+              <span id="status-icon">!</span>
               <span id="status-text">Checking connection...</span>
             </p>
           </div>
@@ -209,19 +209,19 @@ const description = 'This page is available offline thanks to service workers';
 
         if (navigator.onLine) {
           if (statusIcon && statusText && statusDiv) {
-            statusIcon.textContent = '✅';
+            statusIcon.textContent = 'OK';
             statusText.textContent =
               'Connection restored! You can reload the page.';
             statusDiv.className =
-              'p-4 bg-green-900/20 border border-green-800/30 rounded-xl';
+              'rounded-lg border border-[#12b5a6]/30 bg-[#12b5a6]/10 p-4';
           }
         } else {
           if (statusIcon && statusText && statusDiv) {
-            statusIcon.textContent = '⚠️';
+            statusIcon.textContent = '!';
             statusText.textContent =
               'Still offline. Please check your connection.';
             statusDiv.className =
-              'p-4 bg-amber-900/20 border border-amber-800/30 rounded-xl';
+              'rounded-lg border border-amber-300/20 bg-amber-500/10 p-4';
           }
         }
       }

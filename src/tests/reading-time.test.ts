@@ -188,19 +188,19 @@ title: Empty Post
   /* ==================== getReadingTimeEmoji TESTS ==================== */
 
   describe('getReadingTimeEmoji', () => {
-    it('should return lightning for quick reads', () => {
-      expect(getReadingTimeEmoji(1)).toBe('⚡');
-      expect(getReadingTimeEmoji(3)).toBe('⚡');
+    it('should return a compact label for quick reads', () => {
+      expect(getReadingTimeEmoji(1)).toBe('Quick');
+      expect(getReadingTimeEmoji(3)).toBe('Quick');
     });
 
-    it('should return book for medium reads', () => {
-      expect(getReadingTimeEmoji(5)).toBe('📖');
-      expect(getReadingTimeEmoji(10)).toBe('📖');
+    it('should return a compact label for medium reads', () => {
+      expect(getReadingTimeEmoji(5)).toBe('Medium');
+      expect(getReadingTimeEmoji(10)).toBe('Medium');
     });
 
-    it('should return books for long reads', () => {
-      expect(getReadingTimeEmoji(15)).toBe('📚');
-      expect(getReadingTimeEmoji(60)).toBe('📚');
+    it('should return a compact label for long reads', () => {
+      expect(getReadingTimeEmoji(15)).toBe('Long');
+      expect(getReadingTimeEmoji(60)).toBe('Long');
     });
   });
 });

@@ -113,10 +113,10 @@ export function getReadingTimeCategory(
 }
 
 /**
- * Get reading time emoji indicator
+ * Get reading time compact indicator
  */
 export function getReadingTimeEmoji(minutes: number): string {
-  if (minutes <= 3) return '⚡'; // Quick read
-  if (minutes <= 10) return '📖'; // Medium read
-  return '📚'; // Long read
+  if (minutes <= 3) return 'Quick';
+  if (minutes <= 10) return 'Medium';
+  return 'Long';
 }

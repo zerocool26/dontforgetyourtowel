@@ -117,7 +117,7 @@ const maxCategoryCount =
   <!-- Dashboard Header -->
   <div class="dashboard-header">
     <div class="header-content">
-      <h1 class="dashboard-title">🛡️ Elite Error Dashboard</h1>
+      <h1 class="dashboard-title">Elite Error Dashboard</h1>
       <div class="last-updated">
         Last updated: {new Date().toLocaleString()}
       </div>
@@ -147,7 +147,7 @@ const maxCategoryCount =
             <span
               class={`trend-icon ${mockHealth.trends.improving ? 'improving' : 'declining'}`}
             >
-              {mockHealth.trends.improving ? '📈' : '📉'}
+              {mockHealth.trends.improving ? 'UP' : 'DOWN'}
             </span>
             <span class="trend-text">
               {mockHealth.trends.improving ? 'Improving' : 'Declining'}
@@ -163,22 +163,22 @@ const maxCategoryCount =
     <!-- Issue Summary Cards -->
     <div class="issue-summary">
       <div class="issue-card critical">
-        <div class="issue-icon">🚨</div>
+        <div class="issue-icon">CR</div>
         <div class="issue-count">{mockHealth.criticalIssues}</div>
         <div class="issue-label">Critical</div>
       </div>
       <div class="issue-card high">
-        <div class="issue-icon">⚠️</div>
+        <div class="issue-icon">HI</div>
         <div class="issue-count">{mockHealth.highIssues}</div>
         <div class="issue-label">High</div>
       </div>
       <div class="issue-card medium">
-        <div class="issue-icon">📋</div>
+        <div class="issue-icon">MD</div>
         <div class="issue-count">{mockHealth.mediumIssues}</div>
         <div class="issue-label">Medium</div>
       </div>
       <div class="issue-card low">
-        <div class="issue-icon">ℹ️</div>
+        <div class="issue-icon">LO</div>
         <div class="issue-count">{mockHealth.lowIssues}</div>
         <div class="issue-label">Low</div>
       </div>
@@ -195,16 +195,16 @@ const maxCategoryCount =
             <div class="category-header">
               <span class="category-icon">
                 {category === 'TypeScript'
-                  ? '🏷️'
+                  ? 'TS'
                   : category === 'Security'
-                    ? '🔒'
+                    ? 'SEC'
                     : category === 'Performance'
-                      ? '⚡'
+                      ? 'PERF'
                       : category === 'Accessibility'
-                        ? '♿'
+                        ? 'A11Y'
                         : category === 'Git'
-                          ? '📝'
-                          : '📂'}
+                          ? 'GIT'
+                          : 'GEN'}
               </span>
               <span class="category-name">{category}</span>
             </div>
@@ -223,7 +223,7 @@ const maxCategoryCount =
 
   <!-- Critical Issues List -->
   <div class="critical-issues">
-    <h2>🚨 Critical Issues</h2>
+    <h2>Critical Issues</h2>
     <div class="issues-list">
       {
         mockIssues
@@ -241,18 +241,20 @@ const maxCategoryCount =
                   </Badge>
                   {issue.autoFixable && (
                     <Badge variant="success" size="sm">
-                      🔧 Auto-fix
+                      Auto-fix
                     </Badge>
                   )}
                 </div>
               </div>
               <div class="issue-description">{issue.description}</div>
               <div class="issue-location">
-                📁 {issue.file}
+                {issue.file}
                 {issue.line ? `:${issue.line}` : ''}
               </div>
               {issue.suggestion && (
-                <div class="issue-suggestion">💡 {issue.suggestion}</div>
+                <div class="issue-suggestion">
+                  Suggestion: {issue.suggestion}
+                </div>
               )}
             </div>
           ))
@@ -291,26 +293,26 @@ const maxCategoryCount =
                 <td>
                   <span class={`severity-indicator ${issue.severity.level}`}>
                     {issue.severity.level === 'critical'
-                      ? '🚨'
+                      ? 'CR'
                       : issue.severity.level === 'high'
-                        ? '⚠️'
+                        ? 'HI'
                         : issue.severity.level === 'medium'
-                          ? '📋'
-                          : 'ℹ️'}
+                          ? 'MD'
+                          : 'LO'}
                     {issue.severity.level}
                   </span>
                 </td>
                 <td>
                   <span class="type-indicator">
                     {issue.type === 'type'
-                      ? '🏷️'
+                      ? 'TS'
                       : issue.type === 'security'
-                        ? '🔒'
+                        ? 'SEC'
                         : issue.type === 'performance'
-                          ? '⚡'
+                          ? 'PERF'
                           : issue.type === 'accessibility'
-                            ? '♿'
-                            : '🐛'}
+                            ? 'A11Y'
+                            : 'BUG'}
                     {issue.type}
                   </span>
                 </td>
@@ -318,7 +320,7 @@ const maxCategoryCount =
                 <td class="file-cell">{issue.file}</td>
                 <td class="line-cell">{issue.line || 'N/A'}</td>
                 <td class="category-cell">{issue.category}</td>
-                <td class="autofix-cell">{issue.autoFixable ? '✅' : '❌'}</td>
+                <td class="autofix-cell">{issue.autoFixable ? 'Yes' : 'No'}</td>
               </tr>
             ))
           }
@@ -333,27 +335,27 @@ const maxCategoryCount =
     <div class="action-buttons">
       <ModernButton
         variant="gradient"
-        onClick="alert('🔍 Running comprehensive analysis...\\nThis would trigger the error reviewer in a real implementation.');"
+        onClick="alert('Running comprehensive analysis...\\nThis would trigger the error reviewer in a real implementation.');"
       >
-        🔍 Run Analysis
+        Run Analysis
       </ModernButton>
       <ModernButton
         variant="light"
-        onClick="alert('🔧 Auto-fixing issues...\\nThis would apply automatic fixes to fixable issues.');"
+        onClick="alert('Auto-fixing issues...\\nThis would apply automatic fixes to fixable issues.');"
       >
-        🔧 Auto-fix Issues
+        Auto-fix Issues
       </ModernButton>
       <ModernButton
         variant="light"
-        onClick="alert('📊 Exporting report...\\nThis would generate and download a detailed report.');"
+        onClick="alert('Exporting report...\\nThis would generate and download a detailed report.');"
       >
-        📊 Export Report
+        Export Report
       </ModernButton>
       <ModernButton
         variant="light"
-        onClick="alert('🚀 Checking deployment readiness...\\nThis would run pre-deployment validation.');"
+        onClick="alert('Checking deployment readiness...\\nThis would run pre-deployment validation.');"
       >
-        🚀 Deployment Check
+        Deployment Check
       </ModernButton>
     </div>
   </div>

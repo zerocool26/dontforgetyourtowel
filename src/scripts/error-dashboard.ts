@@ -1,5 +1,5 @@
 /**
- * ⚠️ NOTICE: This file is not compatible with static GitHub Pages deployment.
+ * NOTICE: This file is not compatible with static GitHub Pages deployment.
  *
  * The error dashboard was designed for a dynamic environment with API endpoints.
  * It makes calls to:
@@ -54,10 +54,10 @@ declare global {
 }
 
 const STATUS_ICONS: Record<StatusType, string> = {
-  info: 'ℹ️',
-  success: '✅',
-  error: '❌',
-  warning: '⚠️',
+  info: 'INFO',
+  success: 'OK',
+  error: 'ERR',
+  warning: 'WARN',
 };
 
 const STATUS_COLORS: Record<StatusType, string> = {

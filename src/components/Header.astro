@@ -7,6 +7,7 @@ import { getRouteContext } from '../utils/route-context';
 import ModernButton from './ui/ModernButton.astro';
 
 const homeHref = withBasePath('/');
+const mobileSiteTitle = SITE_TITLE.replace(/\s+Systems$/i, '');
 
 const links = [
   { label: 'Trades', href: withBasePath('trades/') },
@@ -88,27 +89,32 @@ const isTradeActiveHref = (href: string) => {
   >
   </div>
   <nav
-    class="mx-auto flex h-16 max-w-[1400px] items-center justify-between px-5 py-0 sm:px-6 lg:px-8"
+    class="mx-auto flex h-16 max-w-[1400px] items-center justify-between gap-3 px-4 py-0 sm:px-6 lg:px-8"
     aria-label="Main navigation"
   >
     <a
-      class="tone-title group flex h-full items-center gap-3 rounded-md py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d7f75b] focus-visible:ring-offset-0"
+      class="tone-title group flex h-full min-w-0 flex-1 items-center gap-2 rounded-md py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d7f75b] focus-visible:ring-offset-0 sm:gap-3 lg:flex-none"
       href={homeHref}
       aria-label={`${SITE_TITLE} home`}
     >
       <span
-        class="relative inline-flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/[0.05] text-[10px] font-bold uppercase tracking-widest text-white/90 transition-colors duration-200 group-hover:border-white/20 group-hover:text-white"
+        class="relative inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.05] text-[10px] font-bold uppercase tracking-widest text-white/90 transition-colors duration-200 group-hover:border-white/20 group-hover:text-white"
       >
         OGS
       </span>
-      <div class="flex flex-col leading-none">
+      <div class="flex min-w-0 flex-col leading-none">
         <span
-          class="tone-title font-display text-sm font-bold uppercase tracking-tight"
+          class="tone-title block whitespace-nowrap font-display text-xs font-bold uppercase tracking-tight sm:hidden"
+        >
+          {mobileSiteTitle}
+        </span>
+        <span
+          class="tone-title hidden truncate whitespace-nowrap font-display text-sm font-bold uppercase tracking-tight sm:block"
         >
           {SITE_TITLE}
         </span>
         <span
-          class="mt-0.5 font-mono text-[0.6rem] uppercase tracking-[0.22em] text-white/55"
+          class="mt-0.5 hidden max-w-[19rem] truncate whitespace-nowrap font-mono text-[0.6rem] uppercase tracking-[0.22em] text-white/55 sm:block"
         >
           Integrated trade and technology delivery
         </span>
@@ -211,7 +217,7 @@ const isTradeActiveHref = (href: string) => {
       </ModernButton>
     </div>
 
-    <div class="flex items-center gap-2 lg:hidden">
+    <div class="flex flex-shrink-0 items-center gap-2 lg:hidden">
       <button
         type="button"
         data-open-saved-routes
