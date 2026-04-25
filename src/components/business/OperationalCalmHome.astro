@@ -1,0 +1,1058 @@
+---
+import ModernButton from '../ui/ModernButton.astro';
+import { CONTACT_EMAIL } from '../../consts';
+import { withBasePath } from '../../utils/helpers';
+import { tradeProfiles, tradePrograms } from '../../data/trades';
+import { getTradeOperations } from '../../data/trade-operations';
+import {
+  deliveryRhythm,
+  homeCopy,
+  needPaths,
+  operatingLayers,
+  proofSignals,
+} from '../../data/operational-calm';
+
+const contactHref = `mailto:${encodeURIComponent(
+  CONTACT_EMAIL
+)}?subject=${encodeURIComponent('Project brief — Olive Global Systems')}`;
+
+const prioritySlugs = [
+  'general-contracting',
+  'mechanical',
+  'electrical',
+  'plumbing',
+  'commercial-hvac',
+  'auto-repair',
+];
+
+const laneProfiles = prioritySlugs
+  .map(slug => tradeProfiles.find(trade => trade.slug === slug))
+  .filter(Boolean)
+  .map((trade, index) => ({
+    trade: trade!,
+    operations: getTradeOperations(trade!.slug),
+    index,
+  }));
+
+const technologyLane = {
+  slug: 'managed-technology',
+  badge: 'IT',
+  name: 'Managed technology',
+  shortName: 'Technology',
+  eyebrow: 'Security, cloud, automation, AI, ecommerce, and business systems',
+  accent: '#d7f75b',
+  summary:
+    'Digital operations support for teams that need secure infrastructure, cleaner workflows, better visibility, and systems that keep working after launch.',
+  operations: {
+    operatingModel: 'Support-led systems delivery',
+    serviceRhythm: 'Assessment, implementation, monitoring, and continuous improvement',
+    ownerOutputs: ['Support path', 'Systems map', 'Workflow documentation'],
+  },
+};
+
+const serviceLanes = [
+  ...laneProfiles.map(({ trade, operations, index }) => ({
+    slug: trade.slug,
+    badge: trade.badge,
+    name: trade.name,
+    shortName: trade.shortName,
+    eyebrow: trade.eyebrow,
+    accent: trade.accent,
+    summary: trade.summary,
+    operations,
+    index,
+  })),
+  { ...technologyLane, index: 6 },
+];
+
+const featuredPrograms = tradePrograms.slice(0, 3);
+---
+
+<div class="ops-home" data-ops-home>
+  <section class="ops-hero" id="landing-hero" data-page-section>
+    <div class="ops-ambient" aria-hidden="true">
+      <span class="ops-ambient__glow ops-ambient__glow--one"></span>
+      <span class="ops-ambient__glow ops-ambient__glow--two"></span>
+      <span class="ops-grid"></span>
+    </div>
+
+    <div class="ops-shell ops-hero__grid">
+      <div class="ops-hero__copy" data-reveal>
+        <p class="ops-kicker">{homeCopy.hero.eyebrow}</p>
+        <h1>{homeCopy.hero.headline}</h1>
+        <p class="ops-lede">{homeCopy.hero.subheadline}</p>
+
+        <div class="ops-actions" aria-label="Primary actions">
+          <ModernButton href={contactHref} variant="primary" className="ops-button min-h-[52px]">
+            {homeCopy.hero.primaryCta}
+          </ModernButton>
+          <a class="ops-link-button" href="#scanner">{homeCopy.hero.secondaryCta}</a>
+        </div>
+      </div>
+
+      <div class="ops-map" aria-label="Field-to-cloud operating map" data-reveal data-reveal-delay="90">
+        <div class="ops-map__topline">
+          <span>FIELD</span>
+          <span>OWNER OUTPUT</span>
+        </div>
+        <div class="ops-map__core">
+          {
+            operatingLayers.map((layer, index) => (
+              <article class="ops-layer" style={`--layer-index:${index}`}>
+                <span class="ops-layer__id">0{index + 1}</span>
+                <div>
+                  <h2>{layer.label}</h2>
+                  <p>{layer.description}</p>
+                </div>
+              </article>
+            ))
+          }
+          <div class="ops-map__signal" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+        <div class="ops-map__caption">
+          <strong>One operating view.</strong>
+          <span>Trades, technology, constraints, and handoff stay connected.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="ops-section ops-section--tight" id="proof-strip" data-page-section data-reveal>
+    <div class="ops-shell">
+      <div class="ops-proof-strip" aria-label="Operating proof points">
+        {
+          proofSignals.map(signal => (
+            <article>
+              <p>{signal.label}</p>
+              <strong>{signal.value}</strong>
+              <span>{signal.note}</span>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="ops-section" id="scope-stack" data-page-section data-reveal>
+    <div class="ops-shell">
+      <div class="ops-section__intro">
+        <p class="ops-kicker">{homeCopy.service.eyebrow}</p>
+        <h2>{homeCopy.service.headline}</h2>
+        <p>{homeCopy.service.body}</p>
+      </div>
+
+      <div class="ops-stack" aria-label="Service scope stack">
+        {
+          serviceLanes.map(lane => (
+            <a
+              class="ops-lane"
+              href={lane.slug === 'managed-technology' ? withBasePath('services/') : withBasePath(`trades/${lane.slug}/`)}
+              style={`--lane-accent:${lane.accent}; --lane-index:${lane.index};`}
+            >
+              <span class="ops-lane__rail" aria-hidden="true"></span>
+              <span class="ops-lane__badge">{lane.badge}</span>
+              <span class="ops-lane__body">
+                <span class="ops-lane__eyebrow">{lane.eyebrow}</span>
+                <strong>{lane.name}</strong>
+                <span>{lane.summary}</span>
+              </span>
+              <span class="ops-lane__meta">
+                <span>{lane.operations.operatingModel}</span>
+                <span>{lane.operations.serviceRhythm}</span>
+              </span>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="ops-section ops-section--scanner" id="scanner" data-page-section data-reveal>
+    <div class="ops-shell">
+      <div class="ops-section__intro">
+        <p class="ops-kicker">{homeCopy.scanner.eyebrow}</p>
+        <h2>{homeCopy.scanner.headline}</h2>
+        <p>{homeCopy.scanner.body}</p>
+      </div>
+
+      <div class="ops-scanner" data-need-scanner>
+        <div class="ops-scanner__tabs" role="tablist" aria-label="Choose a project need">
+          {
+            needPaths.map((path, index) => (
+              <button
+                type="button"
+                class="ops-scan-tab"
+                role="tab"
+                aria-selected={index === 0 ? 'true' : 'false'}
+                aria-controls={`scan-panel-${path.id}`}
+                id={`scan-tab-${path.id}`}
+                data-scan-tab={path.id}
+              >
+                {path.label}
+              </button>
+            ))
+          }
+        </div>
+
+        <div class="ops-scanner__panels">
+          {
+            needPaths.map((path, index) => (
+              <article
+                class="ops-scan-panel"
+                id={`scan-panel-${path.id}`}
+                role="tabpanel"
+                aria-labelledby={`scan-tab-${path.id}`}
+                data-scan-panel={path.id}
+                hidden={index !== 0}
+              >
+                <p class="ops-scan-panel__label">Recommended start</p>
+                <h3>{path.title}</h3>
+                <p>{path.description}</p>
+                <div class="ops-scan-panel__question">
+                  <span>First question</span>
+                  <strong>{path.ownerQuestion}</strong>
+                </div>
+                <div class="ops-scan-panel__lanes" aria-label="Relevant lanes">
+                  {path.lanes.map(slug => {
+                    const lane = serviceLanes.find(item => item.slug === slug);
+                    return lane ? <span>{lane.shortName}</span> : null;
+                  })}
+                </div>
+                <a class="ops-text-link" href={contactHref}>{path.actionLabel}</a>
+              </article>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="ops-section" id="premium-proof" data-page-section data-reveal>
+    <div class="ops-shell ops-proof-grid">
+      <div class="ops-section__intro ops-section__intro--sticky">
+        <p class="ops-kicker">{homeCopy.proof.eyebrow}</p>
+        <h2>{homeCopy.proof.headline}</h2>
+        <p>{homeCopy.proof.body}</p>
+      </div>
+
+      <div class="ops-proof-board">
+        {
+          featuredPrograms.map((program, index) => (
+            <article class="ops-program" style={`--program-index:${index}`}>
+              <p>{program.tradeSlugs.length} connected lanes</p>
+              <h3>{program.title}</h3>
+              <span>{program.description}</span>
+              <ul>
+                {program.outputs.slice(0, 3).map(output => <li>{output}</li>)}
+              </ul>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="ops-section" id="delivery" data-page-section data-reveal>
+    <div class="ops-shell">
+      <div class="ops-section__intro">
+        <p class="ops-kicker">{homeCopy.process.eyebrow}</p>
+        <h2>{homeCopy.process.headline}</h2>
+        <p>{homeCopy.process.body}</p>
+      </div>
+
+      <div class="ops-rhythm" aria-label="Delivery rhythm">
+        {
+          deliveryRhythm.map(step => (
+            <article>
+              <span>{step.step}</span>
+              <h3>{step.title}</h3>
+              <p>{step.copy}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="ops-section ops-section--final" id="contact" data-page-section data-reveal>
+    <div class="ops-shell">
+      <div class="ops-final-card">
+        <p class="ops-kicker">{homeCopy.cta.eyebrow}</p>
+        <h2>{homeCopy.cta.headline}</h2>
+        <p>{homeCopy.cta.body}</p>
+        <div class="ops-actions">
+          <ModernButton href={contactHref} variant="primary" className="ops-button min-h-[52px]">
+            Send a project brief
+          </ModernButton>
+          <a class="ops-link-button" href={withBasePath('services/')}>Explore services</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script is:inline>
+  (() => {
+    const bindScanner = () => {
+      document.querySelectorAll('[data-need-scanner]').forEach(scanner => {
+        if (!(scanner instanceof HTMLElement) || scanner.dataset.bound === 'true') return;
+        scanner.dataset.bound = 'true';
+
+        const tabs = Array.from(scanner.querySelectorAll('[data-scan-tab]'));
+        const panels = Array.from(scanner.querySelectorAll('[data-scan-panel]'));
+
+        const activate = id => {
+          tabs.forEach(tab => {
+            if (!(tab instanceof HTMLButtonElement)) return;
+            const selected = tab.dataset.scanTab === id;
+            tab.setAttribute('aria-selected', selected ? 'true' : 'false');
+          });
+
+          panels.forEach(panel => {
+            if (!(panel instanceof HTMLElement)) return;
+            panel.hidden = panel.dataset.scanPanel !== id;
+          });
+        };
+
+        tabs.forEach(tab => {
+          if (!(tab instanceof HTMLButtonElement)) return;
+          tab.addEventListener('click', () => activate(tab.dataset.scanTab || ''));
+        });
+      });
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', bindScanner, { once: true });
+    } else {
+      bindScanner();
+    }
+
+    document.addEventListener('astro:page-load', bindScanner);
+  })();
+</script>
+
+<style>
+  :global(:root) {
+    --ogs-bg: #070807;
+    --ogs-bg-deep: #030403;
+    --ogs-ink: #f5f4ec;
+    --ogs-muted: #a8b0a3;
+    --ogs-soft: #d7ddcb;
+    --ogs-accent: #d7f75b;
+    --ogs-accent-2: #12b5a6;
+    --ogs-line: rgba(245, 244, 236, 0.12);
+    --ogs-line-strong: rgba(215, 247, 91, 0.28);
+    --ogs-panel: rgba(15, 18, 14, 0.78);
+    --ogs-panel-strong: rgba(22, 27, 21, 0.92);
+    --ogs-shadow: 0 30px 80px -52px rgba(0, 0, 0, 0.9);
+  }
+
+  .ops-home {
+    position: relative;
+    isolation: isolate;
+    overflow: clip;
+    color: var(--ogs-ink);
+    background:
+      radial-gradient(circle at 12% 0%, rgba(215, 247, 91, 0.1), transparent 30rem),
+      radial-gradient(circle at 88% 8%, rgba(18, 181, 166, 0.12), transparent 28rem),
+      linear-gradient(180deg, var(--ogs-bg-deep), var(--ogs-bg) 30%, #0c100c 100%);
+  }
+
+  .ops-home::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+    opacity: 0.22;
+    background-image:
+      linear-gradient(rgba(245, 244, 236, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(245, 244, 236, 0.045) 1px, transparent 1px);
+    background-size: 52px 52px;
+    mask-image: linear-gradient(180deg, black, transparent 76%);
+  }
+
+  .ops-home::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.055;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.78' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.62'/%3E%3C/svg%3E");
+    mix-blend-mode: soft-light;
+  }
+
+  .ops-shell {
+    width: min(100% - 2rem, 1180px);
+    margin-inline: auto;
+  }
+
+  .ops-hero {
+    position: relative;
+    min-height: calc(100svh - 4rem);
+    padding: clamp(5.5rem, 14vw, 8rem) 0 3.5rem;
+    display: grid;
+    align-items: end;
+    border-bottom: 1px solid var(--ogs-line);
+  }
+
+  .ops-ambient,
+  .ops-grid,
+  .ops-ambient__glow {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .ops-grid {
+    background:
+      linear-gradient(115deg, transparent 0 42%, rgba(215, 247, 91, 0.1) 42.2%, transparent 42.6% 100%),
+      radial-gradient(circle at 50% 12%, rgba(245, 244, 236, 0.08), transparent 36rem);
+    opacity: 0.8;
+  }
+
+  .ops-ambient__glow {
+    width: 18rem;
+    height: 18rem;
+    border-radius: 999px;
+    filter: blur(44px);
+    opacity: 0.38;
+    background: var(--ogs-accent);
+  }
+
+  .ops-ambient__glow--one {
+    inset: 8% auto auto -8rem;
+  }
+
+  .ops-ambient__glow--two {
+    inset: auto -9rem 6% auto;
+    background: var(--ogs-accent-2);
+  }
+
+  .ops-hero__grid {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: 2rem;
+  }
+
+  .ops-hero__copy {
+    max-width: 45rem;
+  }
+
+  .ops-kicker {
+    margin: 0 0 1rem;
+    font: 700 0.68rem/1 var(--font-mono);
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--ogs-accent) 76%, white 24%);
+  }
+
+  .ops-hero h1,
+  .ops-section h2,
+  .ops-final-card h2 {
+    margin: 0;
+    color: var(--ogs-ink);
+    font-family: var(--font-display);
+    letter-spacing: -0.055em;
+    line-height: 0.96;
+  }
+
+  .ops-hero h1 {
+    max-width: 12ch;
+    font-size: clamp(3rem, 15vw, 6.8rem);
+  }
+
+  .ops-lede,
+  .ops-section__intro > p:not(.ops-kicker),
+  .ops-final-card > p:not(.ops-kicker) {
+    margin: 1.25rem 0 0;
+    max-width: 44rem;
+    color: var(--ogs-soft);
+    font-size: clamp(1rem, 2.4vw, 1.22rem);
+    line-height: 1.68;
+  }
+
+  .ops-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1.7rem;
+  }
+
+  :global(.ops-button) {
+    width: 100%;
+  }
+
+  .ops-link-button,
+  .ops-text-link {
+    min-height: 52px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--ogs-line);
+    background: rgba(245, 244, 236, 0.04);
+    color: var(--ogs-ink);
+    font-weight: 760;
+    letter-spacing: -0.01em;
+    transition:
+      transform 180ms ease,
+      border-color 180ms ease,
+      background 180ms ease;
+  }
+
+  .ops-link-button:hover,
+  .ops-text-link:hover {
+    transform: translateY(-1px);
+    border-color: var(--ogs-line-strong);
+    background: rgba(215, 247, 91, 0.08);
+    color: var(--ogs-ink);
+  }
+
+  .ops-map {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--ogs-line);
+    background:
+      linear-gradient(160deg, rgba(245, 244, 236, 0.1), transparent 30%),
+      rgba(6, 8, 6, 0.8);
+    box-shadow: var(--ogs-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(18px);
+  }
+
+  .ops-map__topline,
+  .ops-map__caption {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--ogs-line);
+    color: var(--ogs-muted);
+    font: 700 0.63rem/1 var(--font-mono);
+    letter-spacing: 0.2em;
+  }
+
+  .ops-map__caption {
+    display: grid;
+    border-top: 1px solid var(--ogs-line);
+    border-bottom: 0;
+    font-family: var(--font-sans);
+    letter-spacing: 0;
+    line-height: 1.45;
+  }
+
+  .ops-map__caption strong {
+    color: var(--ogs-ink);
+  }
+
+  .ops-map__core {
+    position: relative;
+    display: grid;
+    gap: 0.7rem;
+    padding: 1rem;
+  }
+
+  .ops-layer {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 2rem 1fr;
+    gap: 0.8rem;
+    padding: 0.95rem;
+    border: 1px solid rgba(245, 244, 236, 0.1);
+    background: color-mix(in srgb, var(--ogs-panel) 82%, transparent);
+    transform: translateX(calc(var(--layer-index) * 0.28rem));
+  }
+
+  .ops-layer__id {
+    color: var(--ogs-accent);
+    font: 700 0.68rem/1 var(--font-mono);
+  }
+
+  .ops-layer h2 {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+  }
+
+  .ops-layer p {
+    margin: 0.35rem 0 0;
+    color: var(--ogs-muted);
+    font-size: 0.82rem;
+    line-height: 1.55;
+  }
+
+  .ops-map__signal {
+    position: absolute;
+    inset: 1.4rem 1.6rem;
+    display: grid;
+    grid-template-rows: repeat(3, 1fr);
+    z-index: 0;
+    opacity: 0.5;
+  }
+
+  .ops-map__signal span {
+    border-top: 1px solid rgba(215, 247, 91, 0.22);
+    transform: skewY(-11deg);
+  }
+
+  .ops-section {
+    position: relative;
+    padding: clamp(4.5rem, 12vw, 7.5rem) 0;
+    border-bottom: 1px solid var(--ogs-line);
+  }
+
+  .ops-section--tight {
+    padding: 1rem 0;
+  }
+
+  .ops-section__intro {
+    max-width: 45rem;
+  }
+
+  .ops-section__intro h2,
+  .ops-final-card h2 {
+    font-size: clamp(2.15rem, 10vw, 4.8rem);
+  }
+
+  .ops-proof-strip {
+    display: grid;
+    gap: 0.7rem;
+  }
+
+  .ops-proof-strip article,
+  .ops-lane,
+  .ops-scanner,
+  .ops-program,
+  .ops-rhythm article,
+  .ops-final-card {
+    border: 1px solid var(--ogs-line);
+    background:
+      linear-gradient(145deg, rgba(245, 244, 236, 0.07), transparent 42%),
+      var(--ogs-panel);
+    box-shadow: var(--ogs-shadow);
+  }
+
+  .ops-proof-strip article {
+    padding: 1rem;
+  }
+
+  .ops-proof-strip p,
+  .ops-program p {
+    margin: 0 0 0.55rem;
+    color: var(--ogs-muted);
+    font: 700 0.66rem/1 var(--font-mono);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .ops-proof-strip strong {
+    display: block;
+    color: var(--ogs-ink);
+    font: 800 1.25rem/1.05 var(--font-display);
+    letter-spacing: -0.035em;
+  }
+
+  .ops-proof-strip span,
+  .ops-program span {
+    display: block;
+    margin-top: 0.55rem;
+    color: var(--ogs-soft);
+    font-size: 0.9rem;
+    line-height: 1.55;
+  }
+
+  .ops-stack {
+    position: relative;
+    display: grid;
+    gap: 0.72rem;
+    margin-top: 2rem;
+  }
+
+  .ops-stack::before {
+    content: '';
+    position: absolute;
+    left: 1.18rem;
+    top: 1rem;
+    bottom: 1rem;
+    width: 1px;
+    background: linear-gradient(180deg, transparent, rgba(215, 247, 91, 0.55), transparent);
+  }
+
+  .ops-lane {
+    position: relative;
+    display: grid;
+    grid-template-columns: 2.4rem 1fr;
+    gap: 0.9rem;
+    padding: 1rem;
+    color: var(--ogs-ink);
+    transition:
+      transform 180ms ease,
+      border-color 180ms ease,
+      background 180ms ease;
+  }
+
+  .ops-lane:hover {
+    transform: translateX(3px);
+    border-color: color-mix(in srgb, var(--lane-accent) 45%, var(--ogs-line));
+    color: var(--ogs-ink);
+  }
+
+  .ops-lane__rail {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    background: var(--lane-accent);
+    opacity: 0.7;
+  }
+
+  .ops-lane__badge {
+    display: grid;
+    place-items: center;
+    width: 2.4rem;
+    height: 2.4rem;
+    border: 1px solid color-mix(in srgb, var(--lane-accent) 48%, transparent);
+    background: color-mix(in srgb, var(--lane-accent) 12%, transparent);
+    color: var(--ogs-ink);
+    font: 800 0.72rem/1 var(--font-mono);
+  }
+
+  .ops-lane__body {
+    display: grid;
+    gap: 0.38rem;
+  }
+
+  .ops-lane__body strong {
+    font: 800 1.1rem/1.05 var(--font-display);
+    letter-spacing: -0.035em;
+  }
+
+  .ops-lane__body span:not(.ops-lane__eyebrow),
+  .ops-lane__meta span {
+    color: var(--ogs-soft);
+    font-size: 0.88rem;
+    line-height: 1.55;
+  }
+
+  .ops-lane__eyebrow {
+    color: var(--ogs-muted);
+    font: 700 0.62rem/1.25 var(--font-mono);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .ops-lane__meta {
+    display: none;
+  }
+
+  .ops-section--scanner {
+    background:
+      radial-gradient(circle at 0% 12%, rgba(215, 247, 91, 0.08), transparent 24rem),
+      linear-gradient(180deg, transparent, rgba(245, 244, 236, 0.02));
+  }
+
+  .ops-scanner {
+    margin-top: 2rem;
+    overflow: hidden;
+  }
+
+  .ops-scanner__tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--ogs-line);
+  }
+
+  .ops-scan-tab {
+    min-height: 54px;
+    border: 0;
+    background: rgba(10, 13, 10, 0.92);
+    color: var(--ogs-muted);
+    padding: 0.85rem;
+    font: 760 0.84rem/1.2 var(--font-sans);
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .ops-scan-tab[aria-selected='true'] {
+    background: rgba(215, 247, 91, 0.12);
+    color: var(--ogs-ink);
+  }
+
+  .ops-scanner__panels {
+    padding: 1.1rem;
+  }
+
+  .ops-scan-panel h3,
+  .ops-program h3,
+  .ops-rhythm h3 {
+    margin: 0;
+    color: var(--ogs-ink);
+    font-family: var(--font-display);
+    font-size: clamp(1.45rem, 7vw, 2.25rem);
+    line-height: 1.02;
+    letter-spacing: -0.045em;
+  }
+
+  .ops-scan-panel p:not(.ops-scan-panel__label) {
+    margin: 0.9rem 0 0;
+    color: var(--ogs-soft);
+    line-height: 1.65;
+  }
+
+  .ops-scan-panel__label {
+    margin: 0 0 0.7rem;
+    color: var(--ogs-accent);
+    font: 700 0.66rem/1 var(--font-mono);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .ops-scan-panel__question {
+    display: grid;
+    gap: 0.45rem;
+    margin-top: 1.25rem;
+    padding: 1rem;
+    border-left: 3px solid var(--ogs-accent);
+    background: rgba(215, 247, 91, 0.07);
+  }
+
+  .ops-scan-panel__question span {
+    color: var(--ogs-muted);
+    font: 700 0.63rem/1 var(--font-mono);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .ops-scan-panel__question strong {
+    color: var(--ogs-ink);
+    line-height: 1.35;
+  }
+
+  .ops-scan-panel__lanes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-top: 1rem;
+  }
+
+  .ops-scan-panel__lanes span {
+    border: 1px solid var(--ogs-line);
+    padding: 0.45rem 0.65rem;
+    color: var(--ogs-soft);
+    font-size: 0.76rem;
+    line-height: 1;
+  }
+
+  .ops-text-link {
+    margin-top: 1.2rem;
+    padding: 0 1rem;
+  }
+
+  .ops-proof-grid {
+    display: grid;
+    gap: 2rem;
+  }
+
+  .ops-proof-board {
+    display: grid;
+    gap: 0.85rem;
+  }
+
+  .ops-program {
+    padding: 1.1rem;
+  }
+
+  .ops-program ul {
+    display: grid;
+    gap: 0.6rem;
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .ops-program li {
+    position: relative;
+    padding-left: 1rem;
+    color: var(--ogs-soft);
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+
+  .ops-program li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.62em;
+    width: 0.36rem;
+    height: 0.36rem;
+    background: var(--ogs-accent);
+  }
+
+  .ops-rhythm {
+    display: grid;
+    gap: 0.8rem;
+    margin-top: 2rem;
+  }
+
+  .ops-rhythm article {
+    padding: 1.1rem;
+  }
+
+  .ops-rhythm span {
+    display: block;
+    margin-bottom: 1rem;
+    color: var(--ogs-accent);
+    font: 800 0.75rem/1 var(--font-mono);
+    letter-spacing: 0.16em;
+  }
+
+  .ops-rhythm p {
+    margin: 0.75rem 0 0;
+    color: var(--ogs-soft);
+    line-height: 1.6;
+  }
+
+  .ops-section--final {
+    border-bottom: 0;
+    padding-bottom: clamp(5.5rem, 18vw, 9rem);
+  }
+
+  .ops-final-card {
+    position: relative;
+    overflow: hidden;
+    padding: clamp(1.4rem, 6vw, 3rem);
+  }
+
+  .ops-final-card::after {
+    content: '';
+    position: absolute;
+    inset: auto -20% -55% 30%;
+    height: 18rem;
+    background: radial-gradient(circle, rgba(215, 247, 91, 0.18), transparent 70%);
+    pointer-events: none;
+  }
+
+  @media (min-width: 680px) {
+    .ops-actions {
+      flex-direction: row;
+      align-items: center;
+    }
+
+    :global(.ops-button),
+    .ops-link-button {
+      width: auto;
+      padding-inline: 1.25rem;
+    }
+
+    .ops-proof-strip,
+    .ops-rhythm {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .ops-rhythm {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .ops-scanner__tabs {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  @media (min-width: 980px) {
+    .ops-hero__grid,
+    .ops-proof-grid {
+      grid-template-columns: minmax(0, 1fr) minmax(24rem, 0.82fr);
+      align-items: end;
+    }
+
+    .ops-map {
+      min-height: 34rem;
+    }
+
+    .ops-map__core {
+      min-height: 28rem;
+      align-content: center;
+    }
+
+    .ops-stack {
+      gap: 0;
+    }
+
+    .ops-lane {
+      grid-template-columns: 3rem minmax(0, 1fr) minmax(14rem, 0.48fr);
+      align-items: center;
+      margin-left: calc(var(--lane-index) * 0.72rem);
+      margin-right: calc((6 - var(--lane-index)) * 0.72rem);
+    }
+
+    .ops-lane__meta {
+      display: grid;
+      gap: 0.4rem;
+      padding-left: 1rem;
+      border-left: 1px solid var(--ogs-line);
+    }
+
+    .ops-section__intro--sticky {
+      position: sticky;
+      top: 7rem;
+      align-self: start;
+    }
+
+    .ops-program {
+      min-height: 15rem;
+      transform: translateY(calc(var(--program-index) * 1.5rem));
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .ops-ambient__glow--one {
+      animation: ops-drift 14s ease-in-out infinite;
+    }
+
+    .ops-ambient__glow--two {
+      animation: ops-drift 18s ease-in-out infinite reverse;
+    }
+
+    .ops-map__signal span {
+      animation: ops-signal 4.8s ease-in-out infinite;
+      animation-delay: calc(var(--layer-index, 0) * 140ms);
+    }
+  }
+
+  @keyframes ops-drift {
+    50% {
+      transform: translate3d(1.2rem, -1.8rem, 0) scale(1.08);
+    }
+  }
+
+  @keyframes ops-signal {
+    0%,
+    100% {
+      opacity: 0.25;
+      transform: translateX(-0.4rem) skewY(-11deg);
+    }
+    50% {
+      opacity: 0.75;
+      transform: translateX(0.4rem) skewY(-11deg);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ops-ambient__glow,
+    .ops-map__signal span,
+    .ops-lane,
+    .ops-link-button,
+    .ops-text-link {
+      animation: none !important;
+      transition: none !important;
+      transform: none !important;
+    }
+  }
+</style>
