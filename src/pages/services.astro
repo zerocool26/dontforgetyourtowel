@@ -32,15 +32,29 @@ const entryLanes = [
   {
     title: 'Facility and building work',
     copy: 'Start here for renovations, retrofits, shutdown-sensitive MEP work, equipment replacement, or phased turnover.',
+    href: withBasePath('trades/'),
+    cta: 'Browse trade lanes',
   },
   {
     title: 'Managed technology and business systems',
     copy: 'Use this path for IT support, security, cloud, automation, ecommerce, reporting, and day-to-day operational tooling.',
+    href: '#technology-catalog',
+    cta: 'Open technology catalog',
   },
   {
     title: 'Cross-trade planning and comparisons',
     copy: 'If you are not sure which lane should lead, use the comparison tools and quiz to find the right starting point.',
+    href: '#service-planner',
+    cta: 'Compare service options',
   },
+];
+
+const serviceSections = [
+  { label: 'Trade lanes', href: '#trade-surface' },
+  { label: 'Tech catalog', href: '#technology-catalog' },
+  { label: 'Comparison', href: '#service-planner' },
+  { label: 'Quiz', href: '#service-quiz' },
+  { label: 'FAQ', href: '#faq' },
 ];
 
 const breadcrumbItems = [
@@ -80,7 +94,7 @@ const breadcrumbItems = [
   <StructuredData type="breadcrumbs" data={{ items: breadcrumbItems }} />
 
   <section
-    class="border-b border-white/10"
+    class="tone-section-divider border-b"
     id="services-hero"
     data-reveal
     data-page-section
@@ -130,9 +144,22 @@ const breadcrumbItems = [
               Start service intake
             </ModernButton>
           </div>
+
+          <div class="flex flex-wrap gap-2 pt-1">
+            {
+              serviceSections.map(section => (
+                <a
+                  href={section.href}
+                  class="tone-chip-soft tone-chip-jump tone-focus-accent inline-flex items-center justify-center"
+                >
+                  {section.label}
+                </a>
+              ))
+            }
+          </div>
         </div>
 
-        <div class="hidden gap-4 md:grid md:grid-cols-2">
+        <div class="grid gap-3 sm:grid-cols-2 lg:gap-4">
           <ModernCard variant="glass" className="p-5">
             <p
               class="font-mono text-[0.66rem] uppercase tracking-[0.22em] text-white/45"
@@ -192,7 +219,7 @@ const breadcrumbItems = [
   </section>
 
   <section
-    class="border-b border-white/10"
+    class="tone-section-divider border-b"
     id="service-entry"
     data-reveal
     data-page-section
@@ -217,9 +244,18 @@ const breadcrumbItems = [
       <div class="mt-10 grid gap-5 lg:grid-cols-3">
         {
           entryLanes.map(item => (
-            <ModernCard variant="default" className="h-full p-7">
+            <ModernCard
+              href={item.href}
+              variant="default"
+              className="h-full p-7"
+            >
               <p class="text-lg font-semibold text-white">{item.title}</p>
               <p class="mt-3 text-sm leading-7 text-slate-300">{item.copy}</p>
+              <div class="tone-divider-top mt-6 pt-4">
+                <span class="tone-accent-link text-sm font-semibold">
+                  {item.cta} →
+                </span>
+              </div>
             </ModernCard>
           ))
         }
@@ -228,7 +264,7 @@ const breadcrumbItems = [
   </section>
 
   <section
-    class="border-b border-white/10"
+    class="tone-section-divider border-b"
     id="trade-surface"
     data-reveal
     data-page-section
@@ -281,7 +317,7 @@ const breadcrumbItems = [
                     {trade.eyebrow}
                   </p>
                 </div>
-                <span class="rounded-full border border-white/10 px-3 py-1 text-[0.65rem] uppercase tracking-[0.22em] text-white/55">
+                <span class="tone-chip-neutral rounded-full border px-3 py-1 text-[0.65rem] uppercase tracking-[0.22em] text-white/55">
                   {trade.shortName}
                 </span>
               </div>
@@ -293,7 +329,7 @@ const breadcrumbItems = [
                 {trade.summary}
               </p>
 
-              <dl class="mt-6 space-y-4 border-t border-white/10 pt-5 text-sm">
+              <dl class="tone-divider-top mt-6 space-y-4 pt-5 text-sm">
                 <div>
                   <dt class="font-mono text-[0.66rem] uppercase tracking-[0.2em] text-white/45">
                     Operating model
@@ -319,7 +355,7 @@ const breadcrumbItems = [
   </section>
 
   <section
-    class="border-b border-white/10"
+    class="tone-section-divider border-b"
     id="service-programs"
     data-reveal
     data-page-section
@@ -371,7 +407,7 @@ const breadcrumbItems = [
   </section>
 
   <section
-    class="border-b border-white/10"
+    class="tone-section-divider border-b"
     id="technology-catalog"
     data-reveal
     data-page-section
@@ -394,7 +430,7 @@ const breadcrumbItems = [
           <div class="mt-6 flex flex-wrap gap-2">
             {
               serviceCategories.map(category => (
-                <span class="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-slate-200">
+                <span class="tone-chip-soft rounded-full px-3 py-1.5 text-xs font-medium text-slate-200">
                   {category}
                 </span>
               ))
@@ -434,7 +470,7 @@ const breadcrumbItems = [
   </section>
 
   <section
-    class="border-b border-white/10"
+    class="tone-section-divider border-b"
     id="service-planner"
     data-reveal
     data-page-section
@@ -463,7 +499,7 @@ const breadcrumbItems = [
   </section>
 
   <section
-    class="border-b border-white/10"
+    class="tone-section-divider border-b"
     id="service-quiz"
     data-reveal
     data-page-section
@@ -487,7 +523,7 @@ const breadcrumbItems = [
           </p>
         </div>
 
-        <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+        <div class="tone-panel-soft rounded-2xl p-6">
           <ServicesQuiz client:only="preact" />
         </div>
       </div>
@@ -495,7 +531,7 @@ const breadcrumbItems = [
   </section>
 
   <section
-    class="border-b border-white/10"
+    class="tone-section-divider border-b"
     id="readiness"
     data-reveal
     data-page-section

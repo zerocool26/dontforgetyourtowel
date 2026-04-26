@@ -96,4 +96,92 @@ test.describe('Demo Lab', () => {
       /default showcase loaded/i
     );
   });
+
+  test('scenario proof board should sync with active launch state', async ({
+    page,
+  }) => {
+    await page.goto(
+      './about/?demo=quickview&product=spectral-sneaker#shop-experience'
+    );
+
+    await expect(page.locator('[data-demo-metric-focus]')).toContainText(
+      /product storytelling/i
+    );
+    await expect(page.locator('[data-demo-metric-audience]')).toContainText(
+      /merchandising reviews/i
+    );
+    await expect(page.locator('[data-demo-share-url]')).toContainText(
+      /demo=quickview/
+    );
+    await expect(page.locator('[data-demo-share-title]')).toContainText(
+      /quick view review active/i
+    );
+    await expect(page.locator('[data-demo-native-share]')).toBeVisible();
+    await expect(
+      page.locator('[data-demo-share-platforms] .share-button')
+    ).toHaveCount(3);
+
+    await page.locator('[data-demo-command="open-compare"]').click();
+
+    await expect(page.locator('[data-demo-metric-focus]')).toContainText(
+      /decision support/i
+    );
+    await expect(page.locator('[data-demo-metric-proof]')).toContainText(
+      /comparison states stay easy to scan/i
+    );
+    await expect(page.locator('[data-demo-share-title]')).toContainText(
+      /compare review active/i
+    );
+  });
+
+  test('live proof board should track showcase progress and shortcuts', async ({
+    page,
+  }) => {
+    await page.goto('./about/#shop-experience');
+
+    await expect(page.locator('[data-ecom="root"]')).toHaveAttribute(
+      'data-hydrated',
+      'true'
+    );
+
+    await expect(page.locator('[data-ecom="review-board"]')).toContainText(
+      /0 of 4 buyer checks triggered/i
+    );
+    await expect(
+      page.locator('[data-ecom-review="discovery"]')
+    ).toHaveAttribute('data-state', 'pending');
+
+    await page.locator('[data-ecom="review-shortcut-discovery"]').click();
+
+    await expect(
+      page.locator('[data-ecom-review="discovery"]')
+    ).toHaveAttribute('data-state', 'complete');
+    await expect(page.locator('#demo-ecom-search')).toBeFocused();
+
+    await page.locator('[data-ecom="review-shortcut-decision"]').click();
+
+    await expect(page.locator('[data-ecom="compare"]')).toBeVisible();
+    await expect(page.locator('[data-ecom-review="decision"]')).toHaveAttribute(
+      'data-state',
+      'complete'
+    );
+    await page.getByRole('button', { name: /^close$/i }).click();
+
+    await page.locator('[data-ecom="product-open"]').first().click();
+
+    await expect(
+      page.locator('[data-ecom-review="product-story"]')
+    ).toHaveAttribute('data-state', 'complete');
+    await page.getByRole('button', { name: /^close$/i }).click();
+
+    await page.locator('[data-ecom="review-shortcut-conversion"]').click();
+
+    await expect(page.locator('[data-ecom="cart"]')).toBeVisible();
+    await expect(
+      page.locator('[data-ecom-review="conversion"]')
+    ).toHaveAttribute('data-state', 'complete');
+    await expect(page.locator('[data-ecom="review-board"]')).toContainText(
+      /4 of 4 buyer checks triggered/i
+    );
+  });
 });

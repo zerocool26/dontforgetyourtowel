@@ -36,7 +36,7 @@ const navSections = [
 ];
 ---
 
-<footer class="border-t border-white/10 bg-[#07101c]" role="contentinfo">
+<footer class="tone-shell-footer tone-border border-t" role="contentinfo">
   <div class="mx-auto max-w-[1240px] px-4 py-12 sm:px-6 sm:py-16">
     <div
       class="grid gap-8 sm:gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]"
@@ -44,7 +44,7 @@ const navSections = [
       <div class="space-y-6">
         <div class="flex items-center gap-3">
           <span
-            class="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-sm font-semibold uppercase tracking-[0.24em] text-white"
+            class="tone-border tone-surface inline-flex h-10 w-10 items-center justify-center rounded-lg border text-sm font-semibold uppercase tracking-[0.24em] text-white"
           >
             OGS
           </span>
@@ -55,13 +55,13 @@ const navSections = [
               Olive Global Systems
             </p>
             <p
-              class="font-mono text-[11px] uppercase tracking-[0.2em] text-white/45"
+              class="tone-muted font-mono text-[11px] uppercase tracking-[0.2em]"
             >
               Integrated trade and technology delivery
             </p>
           </div>
         </div>
-        <p class="max-w-xl text-sm leading-7 text-slate-300 sm:text-[0.95rem]">
+        <p class="tone-body max-w-xl text-sm leading-7 sm:text-[0.95rem]">
           Olive Global Systems helps teams route building work, managed
           technology, security, and operational change with clearer scope and
           clearer ownership.
@@ -83,11 +83,11 @@ const navSections = [
           </ModernButton>
         </div>
         <div
-          class="grid gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-sm text-slate-300 sm:max-w-xl sm:grid-cols-2"
+          class="tone-border tone-elevated tone-body grid gap-3 rounded-2xl border p-5 text-sm sm:max-w-xl sm:grid-cols-2"
         >
           <div>
             <p
-              class="font-mono text-[11px] uppercase tracking-[0.2em] text-white/45"
+              class="tone-muted font-mono text-[11px] uppercase tracking-[0.2em]"
             >
               Where we help most
             </p>
@@ -98,7 +98,7 @@ const navSections = [
           </div>
           <div>
             <p
-              class="font-mono text-[11px] uppercase tracking-[0.2em] text-white/45"
+              class="tone-muted font-mono text-[11px] uppercase tracking-[0.2em]"
             >
               Working model
             </p>
@@ -114,17 +114,17 @@ const navSections = [
         {
           navSections.map(section => (
             <ModernCard variant="minimal" className="p-6">
-              <p class="mb-4 border-b border-white/10 pb-3 font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-white/45">
+              <p class="tone-muted tone-border mb-4 border-b pb-3 font-mono text-[11px] font-semibold uppercase tracking-[0.22em]">
                 {section.title}
               </p>
-              <ul class="space-y-3 text-sm">
+              <ul class="tone-body space-y-3 text-sm">
                 {section.items.map(item => (
                   <li>
                     <a
-                      class="inline-flex items-center gap-2 text-slate-300 transition hover:text-white"
+                      class="inline-flex items-center gap-2 transition hover:text-white"
                       href={item.href}
                     >
-                      <span class="h-1.5 w-1.5 rounded-full bg-[#12b5a6]" />
+                      <span class="tone-accent-dot h-1.5 w-1.5 rounded-full" />
                       {item.label}
                     </a>
                   </li>
@@ -137,14 +137,14 @@ const navSections = [
           <div class="grid gap-6 md:grid-cols-[1fr_auto] md:items-end">
             <div>
               <p
-                class="text-xs font-semibold uppercase tracking-[0.32em] text-white/45"
+                class="tone-muted text-xs font-semibold uppercase tracking-[0.32em]"
               >
                 HQ
               </p>
               <p class="mt-4 text-base font-semibold text-white">
                 Start with contact, then route into the right lane.
               </p>
-              <p class="mt-3 text-sm leading-7 text-slate-300">
+              <p class="tone-body mt-3 text-sm leading-7">
                 Best for discovery, support questions, security advisory, and
                 cross-functional planning.
               </p>
@@ -166,7 +166,7 @@ const navSections = [
     </div>
 
     <div
-      class="mt-10 flex flex-col gap-2 border-t border-white/10 pt-6 text-xs text-white/40 sm:flex-row sm:items-center sm:justify-between"
+      class="tone-border tone-muted mt-10 flex flex-col gap-2 border-t pt-6 text-xs sm:flex-row sm:items-center sm:justify-between"
     >
       <p>
         &copy; {today.getFullYear()} Olive Global Systems. All rights reserved.

@@ -174,14 +174,14 @@ import { withBasePath } from '../utils/helpers';
               </p>
               <div class="mt-4 flex flex-wrap gap-2">
                 {surface.tags.slice(0, 3).map(tag => (
-                  <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-300">
+                  <span class="tone-chip-neutral rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em]">
                     {tag}
                   </span>
                 ))}
               </div>
               <a
                 href={withBasePath(surface.href)}
-                class="mt-5 inline-flex items-center text-sm font-semibold text-[#d7f75b] hover:underline"
+                class="tone-accent-link mt-5 inline-flex items-center text-sm font-semibold"
               >
                 Open route →
               </a>

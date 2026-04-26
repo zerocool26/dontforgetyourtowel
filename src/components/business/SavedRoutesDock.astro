@@ -312,7 +312,7 @@ const routeContext = getRouteContext(Astro.url.pathname);
       });
 
       categoryTargets.forEach(node => {
-        node.innerHTML = '';
+        node.replaceChildren();
         workspace.categories.slice(0, 4).forEach(category => {
           const chip = document.createElement('span');
           chip.className = 'saved-routes-dock__chip';
@@ -336,8 +336,8 @@ const routeContext = getRouteContext(Astro.url.pathname);
 
       renderSummary();
 
-      if (desktopList) desktopList.innerHTML = '';
-      if (mobileList) mobileList.innerHTML = '';
+      desktopList?.replaceChildren();
+      mobileList?.replaceChildren();
 
       items.forEach((item, index) => {
         if (desktopList) {
@@ -463,7 +463,19 @@ const routeContext = getRouteContext(Astro.url.pathname);
     const handleBrief = () => {
       const items = readPinnedRoutes();
       if (!items.length) return;
-      window.location.href = buildWorkspaceContactHref(items);
+
+      const nextHref = buildWorkspaceContactHref(items);
+      try {
+        const nextUrl = new URL(nextHref, window.location.href);
+        if (
+          nextUrl.protocol === 'mailto:' ||
+          nextUrl.origin === window.location.origin
+        ) {
+          window.location.assign(nextUrl.toString());
+        }
+      } catch {
+        // ignore invalid or blocked navigation targets
+      }
     };
 
     const handleConsole = () => {

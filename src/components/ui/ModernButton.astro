@@ -44,28 +44,19 @@ const {
 } = Astro.props;
 
 const baseClasses =
-  'group inline-flex select-none touch-manipulation items-center justify-center font-semibold tracking-normal transition-[background-color,border-color,color,box-shadow,transform] duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#d7f75b]/40 focus:ring-offset-[#11140f] disabled:opacity-50 disabled:cursor-not-allowed motion-reduce:transition-none motion-reduce:transform-none';
+  'modern-button group relative inline-flex select-none touch-manipulation items-center justify-center overflow-hidden font-semibold tracking-normal focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed motion-reduce:transition-none motion-reduce:transform-none';
 
 const variants = {
-  primary:
-    'border border-white/85 bg-white text-slate-900 shadow-[0_10px_24px_rgba(15,23,42,0.14)] hover:bg-slate-100 hover:shadow-[0_12px_28px_rgba(15,23,42,0.16)] focus:ring-white/40',
-  secondary:
-    'border border-white/[0.12] bg-white/[0.035] text-white/92 shadow-[0_8px_18px_rgba(2,6,23,0.14)] hover:border-white/18 hover:bg-white/[0.06] hover:shadow-[0_10px_22px_rgba(2,6,23,0.18)] focus:ring-white/20',
-  outline:
-    'border border-white/[0.14] bg-transparent text-white/78 hover:border-white/22 hover:bg-white/[0.035] hover:text-white focus:ring-white/20',
-  ghost:
-    'bg-transparent text-white/62 hover:bg-white/[0.04] hover:text-white/88 focus:ring-white/10',
-  destructive:
-    'border border-red-400/20 bg-red-500/10 text-red-200 hover:bg-red-500/18 hover:border-red-300/30 focus:ring-red-400/40',
-  success:
-    'border border-emerald-300/20 bg-emerald-500/10 text-emerald-100 hover:bg-emerald-500/18 hover:border-emerald-200/30 focus:ring-emerald-300/40',
-  warning:
-    'border border-amber-300/20 bg-amber-500/10 text-amber-100 hover:bg-amber-500/18 hover:border-amber-200/30 focus:ring-amber-300/40',
-  gradient:
-    'border border-[#d7f75b]/40 bg-gradient-to-r from-slate-50 via-[#f3ffd0] to-[#d7fff8] text-slate-950 shadow-[0_14px_34px_rgba(18,181,166,0.14)] hover:from-white hover:to-[#e7ff8a] hover:shadow-[0_18px_38px_rgba(18,181,166,0.18)] focus:ring-[#d7f75b]/40',
-  neon: 'border border-[#12b5a6]/32 bg-[#12b5a6]/10 text-teal-100 shadow-[0_12px_28px_rgba(18,181,166,0.14)] hover:bg-[#12b5a6]/14 hover:border-[#d7f75b]/40 focus:ring-[#d7f75b]/35',
-  light:
-    'border border-slate-200 bg-slate-50 text-slate-900 hover:bg-white focus:ring-slate-300 shadow-[0_10px_22px_rgba(15,23,42,0.08)]',
+  primary: 'modern-button--primary',
+  secondary: 'modern-button--secondary',
+  outline: 'modern-button--outline',
+  ghost: 'modern-button--ghost',
+  destructive: 'modern-button--destructive',
+  success: 'modern-button--success',
+  warning: 'modern-button--warning',
+  gradient: 'modern-button--gradient',
+  neon: 'modern-button--neon',
+  light: 'modern-button--light',
 };
 
 const sizes = {
@@ -92,11 +83,8 @@ const shadowClasses = {
   xl: '',
 };
 
-const hoverEffects = '[@media(hover:hover)]:hover:-translate-y-[1px]';
-const focusEffects = '';
-
 const classes =
-  `${baseClasses} ${variants[variant]} ${sizes[size]} ${roundedClasses[rounded]} ${shadowClasses[shadow]} ${hoverEffects} ${focusEffects} ${className} ${disabled || loading ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''} modern-button`.trim();
+  `${baseClasses} ${variants[variant]} ${sizes[size]} ${roundedClasses[rounded]} ${shadowClasses[shadow]} ${className} ${disabled || loading ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}`.trim();
 
 const Tag = href ? 'a' : 'button';
 const linkProps = href
@@ -133,8 +121,180 @@ const ariaProps = { 'aria-busy': loading };
 
 <style>
   .modern-button {
-    transition-property: transform, box-shadow, filter, background-color;
+    isolation: isolate;
+    border: 1px solid transparent;
+    transition-property:
+      transform, box-shadow, filter, background-color, border-color, color;
+    transition-duration: 0.2s;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .modern-button:focus-visible {
+    box-shadow:
+      0 0 0 2px color-mix(in srgb, var(--color-primary) 32%, transparent),
+      0 0 0 5px color-mix(in srgb, var(--color-surface) 96%, transparent),
+      var(--button-shadow, none);
+  }
+
+  .modern-button--primary {
+    --button-shadow: 0 10px 24px -14px
+      color-mix(in srgb, black 42%, transparent);
+    border-color: color-mix(in srgb, white 82%, transparent);
+    background: color-mix(in srgb, var(--color-text-primary) 96%, white 4%);
+    color: color-mix(in srgb, var(--color-background) 86%, black 14%);
+    box-shadow: var(--button-shadow);
+  }
+
+  .modern-button--primary:hover {
+    background: color-mix(in srgb, white 92%, var(--color-primary) 8%);
+    box-shadow: 0 14px 30px -16px color-mix(in srgb, black 46%, transparent);
+  }
+
+  .modern-button--secondary {
+    --button-shadow: 0 8px 18px -14px color-mix(in srgb, black 40%, transparent);
+    border-color: color-mix(in srgb, var(--color-border) 74%, transparent);
+    background: color-mix(in srgb, var(--color-surface) 84%, transparent);
+    color: color-mix(in srgb, var(--color-text-primary) 92%, transparent);
+    box-shadow: var(--button-shadow);
+  }
+
+  .modern-button--secondary:hover {
+    border-color: color-mix(
+      in srgb,
+      var(--color-text-primary) 18%,
+      transparent
+    );
+    background: color-mix(in srgb, var(--color-surface) 92%, white 8%);
+    box-shadow: 0 10px 22px -14px color-mix(in srgb, black 44%, transparent);
+  }
+
+  .modern-button--outline {
+    border-color: color-mix(in srgb, var(--color-border) 84%, transparent);
+    background: transparent;
+    color: color-mix(in srgb, var(--color-text-primary) 78%, transparent);
+  }
+
+  .modern-button--outline:hover {
+    border-color: color-mix(
+      in srgb,
+      var(--color-text-primary) 22%,
+      transparent
+    );
+    background: color-mix(in srgb, var(--color-surface) 72%, transparent);
+    color: var(--color-text-primary);
+  }
+
+  .modern-button--ghost {
+    background: transparent;
+    color: color-mix(in srgb, var(--color-text-primary) 64%, transparent);
+  }
+
+  .modern-button--ghost:hover {
+    background: color-mix(in srgb, var(--color-surface) 72%, transparent);
+    color: color-mix(in srgb, var(--color-text-primary) 88%, transparent);
+  }
+
+  .modern-button--destructive {
+    border-color: color-mix(in srgb, var(--color-danger) 28%, transparent);
+    background: color-mix(in srgb, var(--color-danger) 10%, transparent);
+    color: color-mix(in srgb, white 84%, var(--color-danger) 16%);
+  }
+
+  .modern-button--destructive:hover {
+    border-color: color-mix(in srgb, var(--color-danger) 38%, transparent);
+    background: color-mix(in srgb, var(--color-danger) 16%, transparent);
+  }
+
+  .modern-button--success {
+    border-color: color-mix(in srgb, var(--color-success) 28%, transparent);
+    background: color-mix(in srgb, var(--color-success) 10%, transparent);
+    color: color-mix(in srgb, white 84%, var(--color-success) 16%);
+  }
+
+  .modern-button--success:hover {
+    border-color: color-mix(in srgb, var(--color-success) 38%, transparent);
+    background: color-mix(in srgb, var(--color-success) 16%, transparent);
+  }
+
+  .modern-button--warning {
+    border-color: color-mix(in srgb, var(--color-warning) 28%, transparent);
+    background: color-mix(in srgb, var(--color-warning) 10%, transparent);
+    color: color-mix(in srgb, white 82%, var(--color-warning) 18%);
+  }
+
+  .modern-button--warning:hover {
+    border-color: color-mix(in srgb, var(--color-warning) 38%, transparent);
+    background: color-mix(in srgb, var(--color-warning) 16%, transparent);
+  }
+
+  .modern-button--gradient {
+    --button-shadow: 0 14px 34px -18px
+      color-mix(in srgb, var(--color-primary-strong) 36%, transparent);
+    border-color: color-mix(in srgb, var(--color-primary) 40%, transparent);
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, white 94%, var(--color-primary) 6%),
+      color-mix(in srgb, white 78%, var(--color-primary) 22%),
+      color-mix(in srgb, white 84%, var(--color-primary-strong) 16%)
+    );
+    color: color-mix(in srgb, var(--color-background) 88%, black 12%);
+    box-shadow: var(--button-shadow);
+  }
+
+  .modern-button--gradient:hover {
+    background: linear-gradient(
+      90deg,
+      white,
+      color-mix(in srgb, white 72%, var(--color-primary) 28%),
+      color-mix(in srgb, white 80%, var(--color-primary-strong) 20%)
+    );
+    box-shadow: 0 18px 38px -18px
+      color-mix(in srgb, var(--color-primary-strong) 42%, transparent);
+  }
+
+  .modern-button--neon {
+    --button-shadow: 0 12px 28px -18px
+      color-mix(in srgb, var(--color-primary-strong) 40%, transparent);
+    border-color: color-mix(
+      in srgb,
+      var(--color-primary-strong) 32%,
+      transparent
+    );
+    background: color-mix(
+      in srgb,
+      var(--color-primary-strong) 10%,
+      transparent
+    );
+    color: color-mix(in srgb, white 86%, var(--color-primary-strong) 14%);
+    box-shadow: var(--button-shadow);
+  }
+
+  .modern-button--neon:hover {
+    border-color: color-mix(in srgb, var(--color-primary) 38%, transparent);
+    background: color-mix(
+      in srgb,
+      var(--color-primary-strong) 14%,
+      transparent
+    );
+  }
+
+  .modern-button--light {
+    --button-shadow: 0 10px 22px -16px
+      color-mix(in srgb, black 28%, transparent);
+    border-color: color-mix(in srgb, var(--color-border) 88%, white 12%);
+    background: color-mix(in srgb, white 90%, var(--color-surface) 10%);
+    color: color-mix(in srgb, var(--color-background) 86%, black 14%);
+    box-shadow: var(--button-shadow);
+  }
+
+  .modern-button--light:hover {
+    background: white;
+  }
+
+  @media (hover: hover) {
+    .modern-button:not(:disabled):not([aria-disabled='true']):hover {
+      transform: translateY(-1px);
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {

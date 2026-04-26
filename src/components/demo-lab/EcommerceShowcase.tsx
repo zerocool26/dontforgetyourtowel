@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
+import { createLiveRegion } from '../../utils/a11y';
 import { getEffectiveDemoFlags } from '@/utils/demo-lab';
 import { useGesture } from '@/utils/gestures';
 import { demoProducts, type DemoProduct } from '../../data/demo-ecommerce';
@@ -370,11 +371,41 @@ export default function EcommerceShowcase() {
   const runDemoCommandRef = useRef<(command: DemoCommand) => void>(
     () => undefined
   );
+  const liveRegionRef = useRef<ReturnType<typeof createLiveRegion> | null>(
+    null
+  );
+  const announcedMilestonesRef = useRef('');
+
+  const announceShowcase = (message: string) => {
+    const liveRegion = liveRegionRef.current;
+    if (!liveRegion || !message) return;
+
+    liveRegion.clear();
+    window.requestAnimationFrame(() => {
+      liveRegion.update(message);
+    });
+  };
 
   useBodyScrollLock(cartOpen || quickViewProductId !== null || compareOpen);
   useFocusTrap(cartOpen, cartDialogRef);
   useFocusTrap(quickViewProductId !== null, quickViewDialogRef);
   useFocusTrap(compareOpen, compareDialogRef);
+
+  useEffect(() => {
+    const liveRegion = createLiveRegion({
+      role: 'status',
+      ariaLive: 'polite',
+      ariaAtomic: true,
+      ariaRelevant: 'text',
+    });
+
+    liveRegionRef.current = liveRegion;
+
+    return () => {
+      liveRegion.destroy();
+      liveRegionRef.current = null;
+    };
+  }, []);
 
   // Load persisted state once.
   useEffect(() => {
@@ -465,6 +496,11 @@ export default function EcommerceShowcase() {
     if (!toast) return;
     const t = window.setTimeout(() => setToast(null), 1800);
     return () => window.clearTimeout(t);
+  }, [toast]);
+
+  useEffect(() => {
+    if (!toast) return;
+    announceShowcase(toast);
   }, [toast]);
 
   // Keyboard shortcuts: '/' focuses search, 'c' opens cart, Esc closes overlays.
@@ -614,6 +650,23 @@ export default function EcommerceShowcase() {
     [cartLines]
   );
 
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (query.trim()) count += 1;
+    if (selectedTags.length) count += 1;
+    if (priceMinCents !== priceFloor || priceMaxCents !== priceCeil) count += 1;
+    if (sort !== 'featured') count += 1;
+    return count;
+  }, [
+    query,
+    selectedTags,
+    priceMinCents,
+    priceFloor,
+    priceMaxCents,
+    priceCeil,
+    sort,
+  ]);
+
   const storefrontStats = useMemo(() => {
     const totalProducts = demoProducts.length;
     const totalReviews = demoProducts.reduce(
@@ -697,6 +750,44 @@ export default function EcommerceShowcase() {
     return Math.max(0, Math.floor(subtotalCents / 100));
   }, [subtotalCents]);
 
+  const openSearch = () => {
+    searchRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    searchRef.current?.focus?.();
+  };
+
+  const resetShowcaseControls = () => {
+    setQuery('');
+    setSelectedTags([]);
+    setSort('featured');
+    setPriceMinCents(priceFloor);
+    setPriceMaxCents(priceCeil);
+  };
+
+  const launchDiscoveryShortcut = () => {
+    resetShowcaseControls();
+    setQuery('featured');
+    setSelectedTags(['featured']);
+    openSearch();
+  };
+
+  const launchDecisionShortcut = () => {
+    setCompareIds(prev => {
+      if (prev.length > 0) return prev;
+      return demoProducts
+        .filter(product => product.featured)
+        .slice(0, 2)
+        .map(product => product.id);
+    });
+    setCompareOpen(true);
+  };
+
+  const launchConversionShortcut = () => {
+    runDemoCommand({
+      action: 'start-checkout',
+      productId: demoProducts.find(product => product.featured)?.id,
+    });
+  };
+
   const money = useMemo(() => {
     // Fixed demo conversion (not a live rate).
     const rate = currency === 'EUR' ? 0.92 : 1;
@@ -740,6 +831,7 @@ export default function EcommerceShowcase() {
     setQuickViewImageIndex(0);
     setQuickViewColorId(product.colors[0]?.id ?? '');
     setQuickViewSizeId(product.sizes[0]?.id ?? '');
+    announceShowcase(`Opened quick view for ${product.name}.`);
 
     setRecent(prev => {
       const next = [product.id, ...prev.filter(id => id !== product.id)];
@@ -857,6 +949,7 @@ export default function EcommerceShowcase() {
     };
 
     window.addEventListener('demo:ecom-command', onDemoCommand);
+    window.dispatchEvent(new CustomEvent('demo:ecom-ready'));
 
     if (window.__pendingDemoCommand?.action) {
       runDemoCommandRef.current(window.__pendingDemoCommand);
@@ -893,6 +986,7 @@ export default function EcommerceShowcase() {
     });
 
     vibrateLight();
+    announceShowcase(`${product.name} added to cart.`);
   }
 
   function setLineQty(index: number, qty: number) {
@@ -962,6 +1056,93 @@ export default function EcommerceShowcase() {
     [recent]
   );
 
+  const reviewMilestones = useMemo(
+    () => [
+      {
+        id: 'discovery',
+        title: 'Discovery path proven',
+        detail:
+          'Search, tags, or filters show the catalog can be navigated intentionally.',
+        complete: activeFilterCount > 0,
+      },
+      {
+        id: 'product-story',
+        title: 'Product story opened',
+        detail:
+          'Quick view or recent-product history proves the detail layer is reviewable.',
+        complete: quickViewProductId !== null || recentProducts.length > 0,
+      },
+      {
+        id: 'decision',
+        title: 'Decision support engaged',
+        detail:
+          'Compare or wishlist activity proves buyers can shortlist confidently.',
+        complete: compareIds.length > 0 || wishlist.length > 0,
+      },
+      {
+        id: 'conversion',
+        title: 'Conversion path engaged',
+        detail:
+          'Cart and checkout state prove the handoff toward purchase is credible.',
+        complete:
+          cartLines.length > 0 ||
+          cartOpen ||
+          checkoutStep === 'shipping' ||
+          checkoutStep === 'payment' ||
+          checkoutStep === 'confirm',
+      },
+    ],
+    [
+      activeFilterCount,
+      quickViewProductId,
+      recentProducts.length,
+      compareIds.length,
+      wishlist.length,
+      cartLines.length,
+      cartOpen,
+      checkoutStep,
+    ]
+  );
+
+  const completedReviewMilestones = useMemo(
+    () => reviewMilestones.filter(step => step.complete).length,
+    [reviewMilestones]
+  );
+
+  useEffect(() => {
+    if (!hasHydrated) return;
+
+    const previousIds = announcedMilestonesRef.current
+      ? announcedMilestonesRef.current.split('|').filter(Boolean)
+      : [];
+    const completedIds = reviewMilestones
+      .filter(step => step.complete)
+      .map(step => step.id);
+    const signature = completedIds.join('|');
+
+    if (signature === announcedMilestonesRef.current) return;
+
+    announcedMilestonesRef.current = signature;
+    const newlyCompletedIds = completedIds.filter(
+      id => !previousIds.includes(id)
+    );
+
+    if (!newlyCompletedIds.length) return;
+
+    const completedTitles = reviewMilestones
+      .filter(step => newlyCompletedIds.includes(step.id))
+      .map(step => step.title)
+      .join(', ');
+
+    announceShowcase(
+      `Buyer proof updated. ${completedReviewMilestones} of ${reviewMilestones.length} checks complete. ${completedTitles}.`
+    );
+  }, [
+    completedReviewMilestones,
+    hasHydrated,
+    reviewMilestones,
+  ]);
+
   const bundleProducts = useMemo(() => {
     const cartProducts = cartLines
       .map(line => getProductById(line.productId))
@@ -999,6 +1180,7 @@ export default function EcommerceShowcase() {
       data-ecom="root"
       data-reduced-motion={flags.reducedMotion ? 'true' : 'false'}
       data-perf={flags.perfMode ? 'true' : 'false'}
+      data-hydrated={hasHydrated ? 'true' : 'false'}
       class="relative"
     >
       <div class="rounded-2xl border border-white/10 bg-zinc-950/40 p-5">
@@ -1059,13 +1241,7 @@ export default function EcommerceShowcase() {
             <button
               type="button"
               class="min-h-touch inline-flex items-center justify-center rounded-lg border border-white/10 bg-white/5 px-4 text-sm font-semibold text-white transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-accent-400"
-              onClick={() => {
-                setQuery('');
-                setSelectedTags([]);
-                setSort('featured');
-                setPriceMinCents(priceFloor);
-                setPriceMaxCents(priceCeil);
-              }}
+              onClick={resetShowcaseControls}
             >
               Reset
             </button>
@@ -1151,6 +1327,91 @@ export default function EcommerceShowcase() {
             </select>
           </div>
         </div>
+
+        <div class="mt-4 grid gap-3 rounded-2xl border border-white/10 bg-black/20 p-4 sm:grid-cols-3">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-widest text-zinc-400">
+              Showing
+            </p>
+            <p class="mt-2 text-lg font-semibold text-white">
+              {filteredProducts.length} products
+            </p>
+          </div>
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-widest text-zinc-400">
+              Active filters
+            </p>
+            <p class="mt-2 text-lg font-semibold text-white">
+              {activeFilterCount}
+            </p>
+          </div>
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-widest text-zinc-400">
+              View mode
+            </p>
+            <p class="mt-2 text-lg font-semibold text-white">
+              {view === 'grid' ? 'Grid' : 'List'}
+            </p>
+          </div>
+        </div>
+
+        {!cartOpen && !compareOpen && quickViewProductId === null ? (
+          <div class="sticky bottom-3 z-20 mt-5 md:hidden">
+            <div
+              class="grid grid-cols-4 gap-2 rounded-2xl border border-white/10 bg-zinc-950/90 p-2 shadow-[0_16px_36px_rgba(0,0,0,0.35)] backdrop-blur"
+              data-ecom="mobile-quick-tray"
+            >
+              <button
+                type="button"
+                class="min-h-touch rounded-xl border border-white/10 bg-white/5 px-2 py-3 text-xs font-semibold text-white transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-accent-400"
+                onClick={openSearch}
+                data-ecom="mobile-search"
+              >
+                Search
+              </button>
+              <button
+                type="button"
+                class="min-h-touch rounded-xl border border-white/10 bg-white/5 px-2 py-3 text-xs font-semibold text-white transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-accent-400"
+                onClick={() =>
+                  setView(current => (current === 'grid' ? 'list' : 'grid'))
+                }
+                data-ecom="mobile-view-toggle"
+              >
+                {view === 'grid' ? 'List' : 'Grid'}
+              </button>
+              <button
+                type="button"
+                class="min-h-touch rounded-xl border border-white/10 bg-white/5 px-2 py-3 text-xs font-semibold text-white transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-accent-400"
+                onClick={() => setCartOpen(true)}
+                data-ecom="mobile-cart"
+              >
+                Cart ({cartCount})
+              </button>
+              <button
+                type="button"
+                class="min-h-touch rounded-xl border border-white/10 bg-white/5 px-2 py-3 text-xs font-semibold text-white transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-accent-400"
+                onClick={() => {
+                  if (compareIds.length === 0) {
+                    setToast('Pick 1–3 items to compare.');
+                    return;
+                  }
+                  setCompareOpen(true);
+                }}
+                data-ecom="mobile-compare"
+              >
+                Compare ({compareIds.length})
+              </button>
+            </div>
+            <button
+              type="button"
+              class="min-h-touch mt-2 w-full rounded-xl border border-white/10 bg-black/50 px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-zinc-200 transition hover:bg-black/60 focus:outline-none focus:ring-2 focus:ring-accent-400"
+              onClick={resetShowcaseControls}
+              data-ecom="mobile-reset"
+            >
+              Reset showcase filters
+            </button>
+          </div>
+        ) : null}
 
         <div class="mt-4 grid gap-3 rounded-2xl border border-white/10 bg-black/20 p-4 md:grid-cols-2">
           <div>
@@ -1293,6 +1554,86 @@ export default function EcommerceShowcase() {
               <li>• Real-time inventory signals</li>
               <li>• Loyalty points on every order</li>
             </ul>
+          </div>
+        </div>
+
+        <div
+          class="mt-5 rounded-2xl border border-white/10 bg-black/20 p-4 sm:p-5"
+          data-ecom="review-board"
+        >
+          <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div class="space-y-2">
+              <p class="text-xs font-semibold uppercase tracking-widest text-zinc-400">
+                Live buyer proof board
+              </p>
+              <p class="text-lg font-semibold text-white">
+                {completedReviewMilestones} of {reviewMilestones.length} buyer
+                checks triggered
+              </p>
+              <p class="max-w-3xl text-sm leading-6 text-zinc-300">
+                Use the shortcuts or interact naturally—the board tracks whether
+                this demo has proven discovery, product detail, decision
+                support, and conversion readiness.
+              </p>
+            </div>
+
+            <div class="grid gap-2 sm:grid-cols-3">
+              <button
+                type="button"
+                class="min-h-touch rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-accent-400"
+                onClick={launchDiscoveryShortcut}
+                data-ecom="review-shortcut-discovery"
+              >
+                Prove discovery
+              </button>
+              <button
+                type="button"
+                class="min-h-touch rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-accent-400"
+                onClick={launchDecisionShortcut}
+                data-ecom="review-shortcut-decision"
+              >
+                Open decision proof
+              </button>
+              <button
+                type="button"
+                class="min-h-touch rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-accent-400"
+                onClick={launchConversionShortcut}
+                data-ecom="review-shortcut-conversion"
+              >
+                Launch checkout proof
+              </button>
+            </div>
+          </div>
+
+          <div class="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            {reviewMilestones.map(step => (
+              <div
+                key={step.id}
+                class={
+                  step.complete
+                    ? 'rounded-2xl border border-emerald-400/30 bg-emerald-500/10 p-4'
+                    : 'rounded-2xl border border-white/10 bg-white/[0.03] p-4'
+                }
+                data-ecom-review={step.id}
+                data-state={step.complete ? 'complete' : 'pending'}
+              >
+                <div class="flex items-start justify-between gap-3">
+                  <p class="text-sm font-semibold text-white">{step.title}</p>
+                  <span
+                    class={
+                      step.complete
+                        ? 'rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-emerald-200'
+                        : 'rounded-full border border-white/10 bg-black/20 px-2 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-zinc-300'
+                    }
+                  >
+                    {step.complete ? 'Done' : 'Pending'}
+                  </span>
+                </div>
+                <p class="mt-3 text-sm leading-6 text-zinc-300">
+                  {step.detail}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
 

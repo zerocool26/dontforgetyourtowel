@@ -2,7 +2,21 @@ import { createDeploymentConfig } from '../../config/deployment.js';
 
 const deployment = createDeploymentConfig();
 
-const analyticsFlag = process.env.NEXT_PUBLIC_ENABLE_ANALYTICS;
+const readPublicEnv = (...keys: string[]) => {
+  for (const key of keys) {
+    const value = process.env[key];
+    if (value !== undefined && value !== '') {
+      return value;
+    }
+  }
+
+  return undefined;
+};
+
+const analyticsFlag = readPublicEnv(
+  'PUBLIC_ENABLE_ANALYTICS',
+  'NEXT_PUBLIC_ENABLE_ANALYTICS'
+);
 const analyticsEnabled = analyticsFlag === 'true' || analyticsFlag === '1';
 
 export const SITE_TITLE = 'Olive Global Systems';
@@ -11,7 +25,8 @@ export const SITE_DESCRIPTION =
 export const SITE_URL = deployment.siteUrl;
 export const BASE_PATH = deployment.basePath;
 export const CONTACT_EMAIL =
-  process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'hello@example.com';
+  readPublicEnv('PUBLIC_CONTACT_EMAIL', 'NEXT_PUBLIC_CONTACT_EMAIL') ||
+  'hello@example.com';
 
 export const SITE_CONFIG = {
   title: SITE_TITLE,
@@ -34,7 +49,7 @@ export const THEME_CONFIG = {
 } as const;
 
 export const API_CONFIG = {
-  baseUrl: process.env.NEXT_PUBLIC_API_URL || '',
+  baseUrl: readPublicEnv('PUBLIC_API_URL', 'NEXT_PUBLIC_API_URL') || '',
   timeout: 10000,
   retryAttempts: 3,
 } as const;

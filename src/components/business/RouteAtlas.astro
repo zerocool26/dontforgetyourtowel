@@ -223,7 +223,7 @@ const routeContext = getRouteContext(Astro.url.pathname);
         .filter(item => item.url !== currentRoute.url)
         .slice(0, 3);
 
-      historyTarget.innerHTML = '';
+      historyTarget.replaceChildren();
 
       if (!items.length) {
         if (emptyTarget) {
@@ -267,7 +267,7 @@ const routeContext = getRouteContext(Astro.url.pathname);
       if (!pinsTarget) return;
 
       const items = readPinnedRoutes().slice(0, 4);
-      pinsTarget.innerHTML = '';
+      pinsTarget.replaceChildren();
 
       if (!items.length) {
         if (pinsEmptyTarget) {
@@ -380,7 +380,19 @@ const routeContext = getRouteContext(Astro.url.pathname);
     const handleWorkspaceBrief = () => {
       const items = readPinnedRoutes();
       if (!items.length) return;
-      window.location.href = buildWorkspaceContactHref(items);
+
+      const nextHref = buildWorkspaceContactHref(items);
+      try {
+        const nextUrl = new URL(nextHref, window.location.href);
+        if (
+          nextUrl.protocol === 'mailto:' ||
+          nextUrl.origin === window.location.origin
+        ) {
+          window.location.assign(nextUrl.toString());
+        }
+      } catch {
+        // ignore invalid or blocked navigation targets
+      }
     };
 
     const handleWorkspaceCopy = async () => {

@@ -182,6 +182,7 @@ export default function LiveChat() {
                   class="livechat-panel__input"
                   id={nameId}
                   type="text"
+                  aria-label="Name (optional)"
                   placeholder="Name (optional)"
                   value={name}
                   onInput={e => setName((e.target as HTMLInputElement).value)}
@@ -198,6 +199,7 @@ export default function LiveChat() {
                   class="livechat-panel__input"
                   id={emailId}
                   type="email"
+                  aria-label="Email address"
                   placeholder="Email address"
                   value={email}
                   onInput={e => setEmail((e.target as HTMLInputElement).value)}
@@ -214,6 +216,7 @@ export default function LiveChat() {
                 <textarea
                   class="livechat-panel__input livechat-panel__input--textarea"
                   id={messageId}
+                  aria-label="Message"
                   placeholder="How can we help?"
                   value={message}
                   onInput={e =>

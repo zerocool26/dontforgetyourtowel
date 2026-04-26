@@ -427,15 +427,15 @@
 
   /* Structural Typography and Colors Update */
   body {
-    background-color: #030303;
-    color: #fafafa;
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   ::selection {
-    background: rgba(215, 247, 91, 0.98);
-    color: #07100a;
+    background: color-mix(in srgb, var(--color-primary) 92%, white 8%);
+    color: var(--color-text-inverse);
   }
 
   .pro-surface {
@@ -1866,6 +1866,130 @@
         color-mix(in srgb, var(--color-surface) 82%, transparent)
       ),
       color-mix(in srgb, var(--color-surface) 84%, transparent);
+  }
+
+  .tone-app-shell {
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
+  }
+
+  .tone-shell-header {
+    background:
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--color-background) 84%, transparent),
+        color-mix(in srgb, var(--color-surface) 86%, transparent)
+      ),
+      color-mix(in srgb, var(--color-surface) 76%, transparent);
+    border-color: color-mix(in srgb, var(--color-border) 80%, transparent);
+  }
+
+  .tone-shell-footer {
+    background:
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--color-surface) 76%, black 24%),
+        color-mix(in srgb, var(--color-background) 96%, transparent)
+      ),
+      color-mix(in srgb, var(--color-background) 92%, transparent);
+  }
+
+  .tone-focus-accent {
+    outline: none;
+  }
+
+  .tone-focus-accent:focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--color-primary) 62%, transparent);
+    outline-offset: 3px;
+  }
+
+  .tone-skip-link {
+    border: 1px solid color-mix(in srgb, var(--color-primary) 28%, transparent);
+    background: color-mix(in srgb, var(--color-primary) 88%, white 12%);
+    color: var(--color-text-inverse);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .tone-kbd {
+    border: 1px solid color-mix(in srgb, var(--color-border) 80%, transparent);
+    background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+    color: var(--color-text-muted);
+  }
+
+  .tone-chip-neutral {
+    border-color: color-mix(in srgb, var(--color-border) 74%, transparent);
+    background: color-mix(in srgb, var(--color-surface) 82%, transparent);
+    color: color-mix(in srgb, var(--color-text-primary) 58%, transparent);
+  }
+
+  .tone-chip-active {
+    border-color: color-mix(in srgb, var(--color-primary) 38%, transparent);
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--color-primary) 12%, transparent),
+      color-mix(in srgb, var(--color-surface) 94%, transparent)
+    );
+    color: var(--color-text-primary);
+    box-shadow: 0 0 20px -8px
+      color-mix(in srgb, var(--color-primary) 36%, transparent);
+  }
+
+  .tone-panel-subtle {
+    background: color-mix(in srgb, var(--color-surface) 82%, transparent);
+  }
+
+  .tone-section-divider {
+    border-color: color-mix(in srgb, var(--color-border) 78%, transparent);
+  }
+
+  .tone-panel-soft {
+    border: 1px solid color-mix(in srgb, var(--color-border) 74%, transparent);
+    background:
+      linear-gradient(
+        165deg,
+        color-mix(in srgb, var(--color-surface) 90%, white 4%),
+        color-mix(in srgb, var(--color-surface) 82%, transparent)
+      ),
+      color-mix(in srgb, var(--color-surface) 84%, transparent);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, white 4%, transparent);
+  }
+
+  .tone-divider-top {
+    border-top: 1px solid
+      color-mix(in srgb, var(--color-border) 78%, transparent);
+  }
+
+  .tone-chip-soft {
+    border: 1px solid color-mix(in srgb, var(--color-border) 74%, transparent);
+    background: color-mix(in srgb, var(--color-surface) 82%, transparent);
+    color: color-mix(in srgb, var(--color-text-primary) 72%, transparent);
+  }
+
+  .tone-chip-soft:hover {
+    border-color: color-mix(in srgb, var(--color-primary) 28%, transparent);
+    background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+    color: var(--color-text-primary);
+  }
+
+  .tone-chip-jump {
+    min-height: 44px;
+    border-radius: 999px;
+    padding: 0.7rem 1rem;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .tone-table-shell {
+    border: 1px solid color-mix(in srgb, var(--color-border) 74%, transparent);
+    background:
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--color-surface) 88%, white 4%),
+        color-mix(in srgb, var(--color-surface) 82%, transparent)
+      ),
+      color-mix(in srgb, var(--color-surface) 86%, transparent);
   }
 
   [data-theme='corporate'] .creative-hero-shell,

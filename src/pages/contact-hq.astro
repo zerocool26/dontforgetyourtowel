@@ -167,6 +167,15 @@ const engagementSteps = [
   },
 ];
 
+const contactSections = [
+  { label: 'Channels', href: '#channels' },
+  { label: 'Message checklist', href: '#intake' },
+  { label: 'Readiness', href: '#readiness' },
+  { label: 'FAQ', href: '#faq' },
+];
+
+const heroChecklist = firstMessageChecklist.slice(0, 3);
+
 const faqs = [
   {
     title: 'How quickly do you usually respond?',
@@ -242,7 +251,7 @@ const faqSchema = {
   <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
 
   <section
-    class="border-b border-white/10"
+    class="tone-section-divider border-b"
     data-reveal
     id="contact-hero"
     data-page-section
@@ -261,11 +270,10 @@ const faqSchema = {
             <h1
               class="max-w-4xl text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl"
             >
-              Let’s scope your next initiative with enough context to make the
-              next step obvious.
+              Send the right context once and make the next step obvious.
             </h1>
             <p class="max-w-3xl text-base leading-8 text-slate-300 sm:text-lg">
-              Route a new project, operational issue, security advisory need, or
+              Route a project, operating issue, security advisory need, or
               partnership conversation without unnecessary back-and-forth.
             </p>
           </div>
@@ -287,9 +295,22 @@ const faqSchema = {
               Review services first
             </ModernButton>
           </div>
+
+          <div class="flex flex-wrap gap-2 pt-1">
+            {
+              contactSections.map(section => (
+                <a
+                  class="tone-chip-neutral tone-chip-jump tone-focus-accent inline-flex items-center justify-center"
+                  href={section.href}
+                >
+                  {section.label}
+                </a>
+              ))
+            }
+          </div>
         </div>
 
-        <ModernCard variant="glass" className="hidden p-7 sm:p-8 md:block">
+        <ModernCard variant="glass" className="tone-panel-soft p-7 sm:p-8">
           <div class="space-y-5">
             <div>
               <p
@@ -314,7 +335,7 @@ const faqSchema = {
               </p>
               <ul class="mt-3 space-y-2 text-sm text-slate-300">
                 {
-                  firstMessageChecklist.slice(0, 3).map(item => (
+                  heroChecklist.map(item => (
                     <li class="flex items-start gap-2">
                       <span class="tone-accent-dot mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full" />
                       <span>{item}</span>
@@ -330,7 +351,7 @@ const faqSchema = {
       <div
         id="intake-context"
         class:list={[
-          'mt-8 rounded-2xl border border-white/10 bg-white/[0.03] p-6',
+          'tone-panel-soft mt-8 rounded-2xl p-6',
           !hasIntakeContext && 'hidden',
         ]}
       >
@@ -422,7 +443,7 @@ const faqSchema = {
         <div
           id="intake-context-workspace-row"
           class:list={[
-            'mt-5 rounded-2xl border border-white/10 bg-black/20 p-5',
+            'tone-panel-subtle tone-border mt-5 rounded-2xl border p-5',
             !(
               workspaceTitleIntent ||
               workspaceSummaryIntent ||
@@ -470,7 +491,7 @@ const faqSchema = {
   </section>
 
   <section
-    class="border-b border-white/10"
+    class="tone-section-divider border-b"
     id="channels"
     data-reveal
     data-page-section
@@ -485,18 +506,21 @@ const faqSchema = {
         <h2
           class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
         >
-          Choose the right channel for the conversation you need to have.
+          Choose the lane that matches the conversation.
         </h2>
         <p class="text-base leading-7 text-slate-300">
-          The right channel reduces handoffs and gets the request in front of
-          the right people faster.
+          Clear routing reduces handoffs and gets the request in front of the
+          right people faster.
         </p>
       </div>
 
       <div class="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         {
           channels.map(channel => (
-            <ModernCard variant="default" className="h-full p-6">
+            <ModernCard
+              variant="default"
+              className="h-full p-6 tone-panel-soft"
+            >
               <p class="text-lg font-semibold text-white">{channel.title}</p>
               <p class="mt-3 text-sm leading-7 text-slate-300">
                 {channel.note}
@@ -515,7 +539,7 @@ const faqSchema = {
   </section>
 
   <section
-    class="border-b border-white/10"
+    class="tone-section-divider border-b"
     id="intake"
     data-reveal
     data-page-section
@@ -531,15 +555,15 @@ const faqSchema = {
           <h2
             class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
           >
-            What to include in your first message.
+            Keep the first message short, direct, and useful.
           </h2>
           <p class="text-base leading-7 text-slate-300">
             Most intake friction comes from missing context. A direct summary is
-            usually better than a polished but vague request.
+            better than a polished but vague request.
           </p>
         </div>
 
-        <ModernCard variant="glass" className="p-7">
+        <ModernCard variant="glass" className="tone-panel-soft p-7">
           <ul class="space-y-3 text-sm text-slate-300">
             {
               firstMessageChecklist.map(item => (
@@ -556,7 +580,7 @@ const faqSchema = {
   </section>
 
   <section
-    class="border-b border-white/10"
+    class="tone-section-divider border-b"
     id="readiness"
     data-reveal
     data-page-section
@@ -570,7 +594,7 @@ const faqSchema = {
   </section>
 
   <section
-    class="border-b border-white/10"
+    class="tone-section-divider border-b"
     id="engagement"
     data-reveal
     data-page-section
@@ -585,18 +609,21 @@ const faqSchema = {
         <h2
           class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
         >
-          A straightforward path from intake to active work.
+          From intake to active work, without mystery.
         </h2>
         <p class="text-base leading-7 text-slate-300">
-          The point of this page is simple: move a serious request into the
-          right decision path quickly and clearly.
+          The goal is simple: move a serious request into the right decision
+          path quickly and clearly.
         </p>
       </div>
 
       <div class="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         {
           engagementSteps.map(step => (
-            <ModernCard variant="outline" className="h-full p-6">
+            <ModernCard
+              variant="outline"
+              className="h-full p-6 tone-panel-soft"
+            >
               <p class="font-mono text-[0.72rem] uppercase tracking-[0.22em] text-white/45">
                 {step.phase}
               </p>
@@ -612,7 +639,7 @@ const faqSchema = {
   </section>
 
   <section
-    class="border-b border-white/10"
+    class="tone-section-divider border-b"
     id="faq"
     data-reveal
     data-page-section
@@ -816,12 +843,12 @@ const faqSchema = {
         }
 
         if (workspaceRoutesNode instanceof HTMLElement) {
-          workspaceRoutesNode.innerHTML = '';
+          workspaceRoutesNode.replaceChildren();
 
           workspaceRoutes.forEach(route => {
             const link = document.createElement('a');
             link.className =
-              'rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3 text-sm transition hover:border-white/20 hover:bg-white/[0.05]';
+              'tone-panel-soft rounded-xl px-3 py-3 text-sm transition hover:border-white/20 hover:bg-white/[0.05]';
             link.href = route.url;
 
             const title = document.createElement('span');

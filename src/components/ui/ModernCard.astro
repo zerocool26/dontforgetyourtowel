@@ -41,20 +41,14 @@ const baseClasses =
   'relative overflow-hidden rounded-2xl transition-[border-color,background-color,box-shadow,transform] duration-150 ease-out touch-manipulation motion-reduce:transition-none';
 
 const variants = {
-  default:
-    'border border-white/[0.08] bg-white/[0.028] shadow-[0_14px_34px_rgba(0,0,0,0.18)]',
-  outline:
-    'border border-white/[0.12] bg-transparent hover:bg-white/[0.02] hover:border-white/18',
-  gradient:
-    'border border-teal-200/16 bg-[linear-gradient(180deg,rgba(255,255,255,0.055),rgba(18,181,166,0.035))] shadow-[0_14px_34px_rgba(18,181,166,0.08)]',
-  glass:
-    'border border-white/[0.09] bg-white/[0.04] shadow-[0_18px_38px_rgba(0,0,0,0.2)] backdrop-blur-lg',
-  neon: 'border border-teal-300/20 bg-teal-400/8 shadow-[0_16px_34px_rgba(18,181,166,0.1)]',
-  minimal:
-    'border border-white/[0.08] bg-transparent hover:border-white/[0.14]',
-  elevated:
-    'border border-white/[0.09] bg-white/[0.045] shadow-[0_16px_34px_rgba(2,6,23,0.18)]',
-  bordered: 'border-t border-white/15 bg-transparent hover:border-white/24',
+  default: 'modern-card--default',
+  outline: 'modern-card--outline',
+  gradient: 'modern-card--gradient',
+  glass: 'modern-card--glass',
+  neon: 'modern-card--neon',
+  minimal: 'modern-card--minimal',
+  elevated: 'modern-card--elevated',
+  bordered: 'modern-card--bordered',
 };
 
 const sizes = {
@@ -68,17 +62,17 @@ const sizes = {
 const hoverEffects = hover
   ? '[@media(hover:hover)]:hover:-translate-y-[1px]'
   : '';
-const glowEffects = glow
-  ? 'before:absolute before:inset-0 before:rounded-2xl before:p-[2px] before:bg-gradient-to-r before:from-[#d7f75b]/45 before:via-[#12b5a6]/28 before:to-[#f472b6]/24 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-500 before:animate-gradient before:bg-[length:200%_200%]'
+const glowEffects = glow ? 'modern-card--glow' : '';
+const spotlightEffects = spotlight
+  ? 'card-spotlight modern-card--spotlight'
   : '';
-const spotlightEffects = spotlight ? 'card-spotlight' : '';
 
 const animationClasses = animated ? `animate-slide-${direction}` : '';
 const delayStyle = delay > 0 ? `animation-delay: ${delay}s` : '';
 const combinedStyle = [delayStyle, style].filter(Boolean).join('; ');
 
 const interactiveClasses = href
-  ? 'block cursor-pointer active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-[#d7f75b]/45 focus:ring-offset-2 focus:ring-offset-black/40 motion-reduce:transform-none'
+  ? 'modern-card--interactive block cursor-pointer active:scale-[0.98] focus:outline-none motion-reduce:transform-none'
   : '';
 
 const classes = `${baseClasses} modern-card ${interactiveClasses} ${variants[variant]} ${sizes[size]} ${hoverEffects} ${glowEffects} ${spotlightEffects} ${animationClasses} ${className}`;
@@ -91,14 +85,17 @@ const Tag = href ? 'a' : 'div';
     spotlight && (
       <div
         class="pointer-events-none absolute inset-0 z-10 opacity-0 transition-opacity duration-300 motion-reduce:transition-none [@media(hover:hover)]:group-hover:opacity-100"
-        style="background: radial-gradient(420px circle at var(--mouse-x) var(--mouse-y), rgba(255,255,255,0.06), transparent 42%);"
+        style="background: radial-gradient(420px circle at var(--mouse-x) var(--mouse-y), color-mix(in srgb, var(--color-text-primary) 6%, transparent), transparent 42%);"
       />
     )
   }
 
   {
     glow && (
-      <div class="absolute inset-[1px] z-10 rounded-2xl bg-white/[0.02]" />
+      <div
+        class="absolute inset-[1px] z-10 rounded-2xl"
+        style="background: color-mix(in srgb, var(--color-surface) 72%, transparent);"
+      />
     )
   }
 
@@ -108,7 +105,7 @@ const Tag = href ? 'a' : 'div';
 
   {
     variant === 'neon' && (
-      <div class="from-[#d7f75b]/12 via-[#12b5a6]/8 to-[#7dd3fc]/12 absolute inset-0 rounded-2xl bg-gradient-to-r opacity-0 blur-lg transition-opacity duration-300 group-hover:opacity-100" />
+      <div class="modern-card__neon-overlay absolute inset-0 rounded-2xl opacity-0 blur-lg transition-opacity duration-300 group-hover:opacity-100" />
     )
   }
 
@@ -120,6 +117,132 @@ const Tag = href ? 'a' : 'div';
 </Tag>
 
 <style>
+  .modern-card {
+    border: 1px solid color-mix(in srgb, var(--color-border) 68%, transparent);
+  }
+
+  .modern-card--interactive:focus-visible {
+    box-shadow: 0 0 0 2px
+      color-mix(in srgb, var(--color-primary) 34%, transparent);
+  }
+
+  .modern-card--default {
+    background: color-mix(in srgb, var(--color-surface) 82%, transparent);
+    box-shadow: 0 14px 34px -22px color-mix(in srgb, black 54%, transparent);
+  }
+
+  .modern-card--outline {
+    background: transparent;
+  }
+
+  .modern-card--outline:hover {
+    border-color: color-mix(
+      in srgb,
+      var(--color-text-primary) 18%,
+      transparent
+    );
+    background: color-mix(in srgb, var(--color-surface) 68%, transparent);
+  }
+
+  .modern-card--gradient {
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-text-primary) 6%, transparent),
+      color-mix(in srgb, var(--color-primary-strong) 8%, transparent)
+    );
+    box-shadow: 0 14px 34px -22px
+      color-mix(in srgb, var(--color-primary-strong) 28%, transparent);
+  }
+
+  .modern-card--glass {
+    background: color-mix(in srgb, var(--color-surface) 76%, transparent);
+    box-shadow: 0 18px 38px -24px color-mix(in srgb, black 58%, transparent);
+    backdrop-filter: blur(18px);
+  }
+
+  .modern-card--neon {
+    border-color: color-mix(
+      in srgb,
+      var(--color-primary-strong) 24%,
+      transparent
+    );
+    background: color-mix(in srgb, var(--color-primary-strong) 8%, transparent);
+    box-shadow: 0 16px 34px -22px
+      color-mix(in srgb, var(--color-primary-strong) 34%, transparent);
+  }
+
+  .modern-card--minimal {
+    background: transparent;
+  }
+
+  .modern-card--minimal:hover {
+    border-color: color-mix(
+      in srgb,
+      var(--color-text-primary) 14%,
+      transparent
+    );
+  }
+
+  .modern-card--elevated {
+    background:
+      linear-gradient(
+        165deg,
+        color-mix(in srgb, var(--color-surface) 94%, white 6%),
+        color-mix(in srgb, var(--color-surface) 82%, transparent)
+      ),
+      color-mix(in srgb, var(--color-surface) 84%, transparent);
+    box-shadow: 0 16px 34px -22px color-mix(in srgb, black 52%, transparent);
+  }
+
+  .modern-card--bordered {
+    border-top: 1px solid
+      color-mix(in srgb, var(--color-border) 88%, transparent);
+    border-right: 0;
+    border-bottom: 0;
+    border-left: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .modern-card--glow::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: inherit;
+    padding: 2px;
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--color-primary) 45%, transparent),
+      color-mix(in srgb, var(--color-primary-strong) 28%, transparent),
+      color-mix(in srgb, var(--color-text-primary) 18%, transparent)
+    );
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+  }
+
+  .modern-card--glow:hover::before {
+    opacity: 1;
+  }
+
+  .modern-card__neon-overlay {
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--color-primary) 12%, transparent),
+      color-mix(in srgb, var(--color-primary-strong) 10%, transparent),
+      color-mix(in srgb, var(--color-text-primary) 12%, transparent)
+    );
+  }
+
   @media (max-width: 768px) {
     .modern-card {
       -webkit-tap-highlight-color: transparent;

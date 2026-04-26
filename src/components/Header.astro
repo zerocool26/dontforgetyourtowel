@@ -46,7 +46,13 @@ const compactContextLinks = routeContext.suggestions.slice(
 );
 
 const searchTriggerClasses =
-  'tone-border tone-surface tone-muted inline-flex min-h-[44px] items-center gap-2 rounded-xl border px-3 text-sm font-medium transition hover:border-white/20 hover:bg-white/[0.05] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20';
+  'tone-border tone-surface tone-focus-accent tone-muted inline-flex min-h-[44px] items-center gap-2 rounded-xl border px-3 text-sm font-medium transition hover:border-white/20 hover:bg-white/[0.05] hover:text-white';
+
+const desktopNavLinkClasses =
+  'header-desktop-link tone-focus-accent relative flex h-full items-center border-l border-white/[0.06] px-4 font-mono text-xs uppercase tracking-wide transition-all duration-300';
+
+const mobileMenuLinkClasses =
+  'tone-focus-accent min-h-touch flex touch-manipulation items-center rounded-lg px-3 py-3 font-medium transition hover:bg-white/5';
 
 const isActiveHref = (href: string) => {
   try {
@@ -78,7 +84,7 @@ const isTradeActiveHref = (href: string) => {
 ---
 
 <header
-  class="safe-area-inset-top bg-[#08101c]/84 sticky top-0 z-50 border-b border-white/[0.08] backdrop-blur-2xl backdrop-saturate-150"
+  class="tone-shell-header safe-area-inset-top sticky top-0 z-50 border-b backdrop-blur-2xl backdrop-saturate-150"
   style={`--header-route-accent:${routeContext.accent};`}
 >
   <!-- Accent gradient line at top of header -->
@@ -93,12 +99,12 @@ const isTradeActiveHref = (href: string) => {
     aria-label="Main navigation"
   >
     <a
-      class="tone-title group flex h-full min-w-0 flex-1 items-center gap-2 rounded-md py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d7f75b] focus-visible:ring-offset-0 sm:gap-3 lg:flex-none"
+      class="tone-focus-accent tone-title group flex h-full min-w-0 flex-1 items-center gap-2 rounded-md py-3 sm:gap-3 lg:flex-none"
       href={homeHref}
       aria-label={`${SITE_TITLE} home`}
     >
       <span
-        class="relative inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.05] text-[10px] font-bold uppercase tracking-widest text-white/90 transition-colors duration-200 group-hover:border-white/20 group-hover:text-white"
+        class="header-brand-mark relative inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-[10px] font-bold uppercase tracking-widest transition-colors duration-200"
       >
         OGS
       </span>
@@ -127,11 +133,7 @@ const isTradeActiveHref = (href: string) => {
           const active = isActiveHref(homeHref);
           return (
             <a
-              class={`relative flex h-full items-center border-l border-white/[0.06] px-4 font-mono text-xs uppercase tracking-wide transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d7f75b] focus-visible:ring-offset-0 ${
-                active
-                  ? 'text-white after:absolute after:inset-x-3 after:bottom-0 after:h-[2px] after:rounded-full after:bg-[#d7f75b] after:shadow-[0_0_8px_rgba(215,247,91,0.45)]'
-                  : 'text-white/50 after:absolute after:inset-x-3 after:bottom-0 after:h-[2px] after:scale-x-0 after:rounded-full after:bg-[#d7f75b]/60 after:transition-transform after:duration-300 hover:text-white hover:after:scale-x-100'
-              }`}
+              class={`${desktopNavLinkClasses} ${active ? 'is-active' : ''}`}
               href={homeHref}
               data-astro-prefetch
               aria-current={active ? 'page' : undefined}
@@ -146,11 +148,7 @@ const isTradeActiveHref = (href: string) => {
           const active = isActiveHref(link.href);
           return (
             <a
-              class={`relative flex h-full items-center border-l border-white/[0.06] px-4 font-mono text-xs uppercase tracking-wide transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d7f75b] focus-visible:ring-offset-0 ${
-                active
-                  ? 'text-white after:absolute after:inset-x-3 after:bottom-0 after:h-[2px] after:rounded-full after:bg-[#d7f75b] after:shadow-[0_0_8px_rgba(215,247,91,0.45)]'
-                  : 'text-white/50 after:absolute after:inset-x-3 after:bottom-0 after:h-[2px] after:scale-x-0 after:rounded-full after:bg-[#d7f75b]/60 after:transition-transform after:duration-300 hover:text-white hover:after:scale-x-100'
-              }`}
+              class={`${desktopNavLinkClasses} ${active ? 'is-active' : ''}`}
               href={link.href}
               data-astro-prefetch
               aria-current={active ? 'page' : undefined}
@@ -170,7 +168,7 @@ const isTradeActiveHref = (href: string) => {
       <button
         type="button"
         data-open-saved-routes
-        class="saved-routes-trigger tone-border tone-surface tone-muted min-h-[44px] items-center gap-2 rounded-lg border px-3 font-mono text-xs uppercase tracking-[0.2em] transition hover:border-white/20 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d7f75b]"
+        class="saved-routes-trigger tone-border tone-surface tone-focus-accent tone-muted min-h-[44px] items-center gap-2 rounded-lg border px-3 font-mono text-xs uppercase tracking-[0.2em] transition hover:border-white/20 hover:text-white"
         hidden
       >
         <span>Saved</span>
@@ -200,11 +198,7 @@ const isTradeActiveHref = (href: string) => {
             stroke-width="1.5"></path>
         </svg>
         <span>Search</span>
-        <kbd
-          class="rounded border border-white/[0.08] bg-white/[0.04] px-1.5 py-0.5 text-[10px] text-zinc-500"
-        >
-          Ctrl/⌘ K
-        </kbd>
+        <kbd class="tone-kbd rounded px-1.5 py-0.5 text-[10px]"> Ctrl/⌘ K </kbd>
       </button>
       <div class="tone-border h-6 w-px"></div>
       <ModernButton
@@ -287,10 +281,10 @@ const isTradeActiveHref = (href: string) => {
         >
           <div class="flex items-center gap-2 overflow-x-auto py-2.5 scrollbar-hide">
             <a
-              class={`rounded-full border px-3 py-1.5 font-mono text-[0.68rem] uppercase tracking-[0.24em] transition ${
+              class={`tone-focus-accent rounded-full border px-3 py-1.5 font-mono text-[0.68rem] uppercase tracking-[0.24em] transition ${
                 isActiveHref(withBasePath('trades/'))
-                  ? 'border-[#d7f75b]/40 bg-[#d7f75b]/10 text-white'
-                  : 'border-white/10 bg-white/[0.03] text-white/55 hover:border-white/20 hover:text-white'
+                  ? 'tone-chip-active'
+                  : 'tone-chip-neutral hover:border-white/20 hover:text-white'
               }`}
               href={withBasePath('trades/')}
               data-astro-prefetch
@@ -304,7 +298,7 @@ const isTradeActiveHref = (href: string) => {
               const active = isTradeActiveHref(link.href);
               return (
                 <a
-                  class={`rounded-full border px-3 py-1.5 font-mono text-[0.68rem] uppercase tracking-[0.22em] transition ${
+                  class={`tone-focus-accent rounded-full border px-3 py-1.5 font-mono text-[0.68rem] uppercase tracking-[0.22em] transition ${
                     active
                       ? 'text-white shadow-[0_0_20px_rgba(255,255,255,0.08)]'
                       : 'text-white/58 hover:text-white'
@@ -379,13 +373,13 @@ const isTradeActiveHref = (href: string) => {
       <button
         type="button"
         data-command-palette-trigger
-        class="tone-border tone-surface tone-title min-h-touch flex w-full touch-manipulation items-center justify-between rounded-lg border px-3 py-3 font-medium transition hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d7f75b]"
+        class="tone-border tone-surface tone-focus-accent tone-title min-h-touch flex w-full touch-manipulation items-center justify-between rounded-lg border px-3 py-3 font-medium transition hover:bg-white/5"
       >
         <span>Search the site</span>
-        <span class="text-xs text-zinc-400">Ctrl/⌘ K</span>
+        <span class="tone-muted text-xs">Ctrl/⌘ K</span>
       </button>
       <a
-        class="tone-body min-h-touch flex touch-manipulation items-center rounded-lg px-3 py-3 font-medium transition hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d7f75b]"
+        class={`${mobileMenuLinkClasses} tone-body`}
         href={homeHref}
         data-astro-prefetch
         aria-current={isActiveHref(homeHref) ? 'page' : undefined}
@@ -397,7 +391,7 @@ const isTradeActiveHref = (href: string) => {
           const active = isActiveHref(link.href);
           return (
             <a
-              class={`min-h-touch flex touch-manipulation items-center rounded-lg px-3 py-3 font-medium transition hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d7f75b] ${
+              class={`${mobileMenuLinkClasses} ${
                 active ? 'bg-white/10 text-white' : 'tone-body'
               }`}
               href={link.href}
@@ -420,7 +414,7 @@ const isTradeActiveHref = (href: string) => {
             const active = isTradeActiveHref(link.href);
             return (
               <a
-                class={`min-h-touch mb-2 flex touch-manipulation items-center rounded-lg px-3 py-3 font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d7f75b] ${
+                class={`${mobileMenuLinkClasses} mb-2 ${
                   active
                     ? 'bg-white/10 text-white'
                     : 'tone-body hover:bg-white/5'
@@ -436,7 +430,7 @@ const isTradeActiveHref = (href: string) => {
         }
       </div>
       <a
-        class="min-h-touch flex touch-manipulation items-center rounded-lg bg-white px-3 py-3 font-semibold text-slate-900 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
+        class="tone-focus-accent min-h-touch flex touch-manipulation items-center rounded-lg bg-white px-3 py-3 font-semibold text-slate-900 transition hover:bg-slate-100"
         href={startProjectHref}
       >
         Start a project
@@ -444,6 +438,56 @@ const isTradeActiveHref = (href: string) => {
     </div>
   </div>
 </header>
+
+<style>
+  .header-brand-mark {
+    border: 1px solid color-mix(in srgb, var(--color-border) 68%, transparent);
+    background: color-mix(in srgb, var(--color-surface) 86%, transparent);
+    color: color-mix(in srgb, var(--color-text-primary) 90%, transparent);
+  }
+
+  .group:hover .header-brand-mark {
+    border-color: color-mix(
+      in srgb,
+      var(--color-text-primary) 18%,
+      transparent
+    );
+    color: var(--color-text-primary);
+  }
+
+  .header-desktop-link {
+    color: color-mix(in srgb, var(--color-text-primary) 50%, transparent);
+  }
+
+  .header-desktop-link::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0.75rem;
+    bottom: 0;
+    height: 2px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-primary) 88%, white 12%);
+    box-shadow: 0 0 8px
+      color-mix(in srgb, var(--color-primary) 45%, transparent);
+    transform: scaleX(0);
+    transform-origin: center;
+    opacity: 0.7;
+    transition:
+      transform 0.3s ease,
+      opacity 0.3s ease;
+  }
+
+  .header-desktop-link:hover,
+  .header-desktop-link.is-active {
+    color: var(--color-text-primary);
+  }
+
+  .header-desktop-link:hover::after,
+  .header-desktop-link.is-active::after {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+</style>
 
 <script is:inline>
   (() => {

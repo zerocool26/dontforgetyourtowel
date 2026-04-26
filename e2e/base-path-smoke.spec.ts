@@ -12,7 +12,7 @@ test.describe('Base path smoke', () => {
     await expect(
       page.getByRole('heading', {
         level: 1,
-        name: /creative systems delivery across ai, security, and cloud\./i,
+        name: /choose the right lane across trades, cloud, ai, and security\./i,
       })
     ).toBeVisible();
 

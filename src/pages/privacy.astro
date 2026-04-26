@@ -1,5 +1,6 @@
 ---
 import MarketingLayout from '../layouts/MarketingLayout.astro';
+import ModernButton from '../components/ui/ModernButton.astro';
 import { CONTACT_EMAIL } from '../consts';
 import { withBasePath } from '../utils/helpers';
 ---
@@ -43,40 +44,42 @@ import { withBasePath } from '../utils/helpers';
           <p class="text-sm text-white/55">Last updated: February 15, 2026</p>
 
           <div class="flex flex-col gap-3 sm:flex-row">
-            <a
+            <ModernButton
               href={withBasePath('contact-hq/')}
-              class="inline-flex min-h-[48px] items-center justify-center rounded-lg border border-white/10 bg-white px-5 text-sm font-semibold text-slate-950 transition hover:bg-slate-100"
+              variant="primary"
+              className="min-h-[48px]"
             >
               Contact HQ
-            </a>
-            <a
+            </ModernButton>
+            <ModernButton
               href={`mailto:${CONTACT_EMAIL}`}
-              class="inline-flex min-h-[48px] items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] px-5 text-sm font-semibold text-white transition hover:border-white/20 hover:bg-white/[0.08]"
+              variant="secondary"
+              className="min-h-[48px]"
             >
               Email privacy questions
-            </a>
+            </ModernButton>
           </div>
         </div>
 
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-          <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+          <div class="tone-border tone-surface rounded-2xl border p-6">
             <p
-              class="font-mono text-[0.66rem] uppercase tracking-[0.22em] text-white/45"
+              class="tone-muted font-mono text-[0.66rem] uppercase tracking-[0.22em]"
             >
               In short
             </p>
-            <p class="mt-3 text-sm leading-7 text-slate-300">
+            <p class="tone-body mt-3 text-sm leading-7">
               We only receive personal information when you send it to us, for
               example by email or project intake communication.
             </p>
           </div>
-          <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+          <div class="tone-border tone-surface rounded-2xl border p-6">
             <p
-              class="font-mono text-[0.66rem] uppercase tracking-[0.22em] text-white/45"
+              class="tone-muted font-mono text-[0.66rem] uppercase tracking-[0.22em]"
             >
               What to expect
             </p>
-            <p class="mt-3 text-sm leading-7 text-slate-300">
+            <p class="tone-body mt-3 text-sm leading-7">
               Hosting providers may still collect technical request logs for
               reliability and security, even when the site itself is largely
               static.
@@ -95,7 +98,7 @@ import { withBasePath } from '../utils/helpers';
   >
     <div class="mx-auto max-w-[960px] px-4 sm:px-6">
       <div class="grid gap-6">
-        <article class="rounded-2xl border border-white/10 bg-white/[0.03] p-7">
+        <article class="tone-border tone-surface rounded-2xl border p-7">
           <h2 class="text-2xl font-semibold text-white">
             Information we collect
           </h2>
@@ -106,7 +109,7 @@ import { withBasePath } from '../utils/helpers';
           </p>
         </article>
 
-        <article class="rounded-2xl border border-white/10 bg-white/[0.03] p-7">
+        <article class="tone-border tone-surface rounded-2xl border p-7">
           <h2 class="text-2xl font-semibold text-white">
             Contact communications
           </h2>
@@ -118,7 +121,7 @@ import { withBasePath } from '../utils/helpers';
           </p>
         </article>
 
-        <article class="rounded-2xl border border-white/10 bg-white/[0.03] p-7">
+        <article class="tone-border tone-surface rounded-2xl border p-7">
           <h2 class="text-2xl font-semibold text-white">Third-party hosting</h2>
           <p>
             This site is delivered via static hosting. Hosting providers may log
@@ -127,7 +130,7 @@ import { withBasePath } from '../utils/helpers';
           </p>
         </article>
 
-        <article class="rounded-2xl border border-white/10 bg-white/[0.03] p-7">
+        <article class="tone-border tone-surface rounded-2xl border p-7">
           <h2 class="text-2xl font-semibold text-white">
             Cookies and local storage
           </h2>
@@ -138,7 +141,7 @@ import { withBasePath } from '../utils/helpers';
           </p>
         </article>
 
-        <article class="rounded-2xl border border-white/10 bg-white/[0.03] p-7">
+        <article class="tone-border tone-surface rounded-2xl border p-7">
           <h2 class="text-2xl font-semibold text-white">Policy updates</h2>
           <p>
             We may revise this policy as the site evolves. Any updates appear on
@@ -146,14 +149,11 @@ import { withBasePath } from '../utils/helpers';
           </p>
         </article>
 
-        <article class="rounded-2xl border border-white/10 bg-white/[0.03] p-7">
+        <article class="tone-border tone-surface rounded-2xl border p-7">
           <h2 class="text-2xl font-semibold text-white">Contact</h2>
           <p>
             Questions about this privacy policy can be sent to
-            <a
-              href={`mailto:${CONTACT_EMAIL}`}
-              class="text-[#d7f75b] hover:text-white hover:underline"
-            >
+            <a href={`mailto:${CONTACT_EMAIL}`} class="tone-accent-link">
               {CONTACT_EMAIL}
             </a>.
           </p>

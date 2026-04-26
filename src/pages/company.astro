@@ -77,6 +77,13 @@ const deliveryModel = [
   },
 ];
 
+const companySections = [
+  { label: 'Buyer fit', href: '#positioning' },
+  { label: 'Delivery flow', href: '#delivery-model' },
+  { label: 'Divisions', href: '#trade-overview' },
+  { label: 'Programs', href: '#programs' },
+];
+
 const tradeOverview = tradeProfiles.map(trade => ({
   trade,
   operations: getTradeOperations(trade.slug),
@@ -94,7 +101,7 @@ const tradeOverview = tradeProfiles.map(trade => ({
   mainClass="relative isolate overflow-x-clip"
 >
   <section
-    class="border-b border-white/10"
+    class="tone-section-divider border-b"
     id="company-hero"
     data-reveal
     data-page-section
@@ -113,12 +120,13 @@ const tradeOverview = tradeProfiles.map(trade => ({
             <h1
               class="max-w-4xl text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl"
             >
-              A delivery platform built to make complex service businesses
-              easier to understand.
+              A clearer front door for complex divisions, programs, and buyer
+              paths.
             </h1>
             <p class="max-w-3xl text-base leading-8 text-slate-300 sm:text-lg">
-              Olive Global Systems is organized around distinct divisions,
-              clearer buyer paths, and visible cross-trade programs.
+              Olive Global Systems is structured so buyers can find the right
+              lane, understand how work moves, and see where cross-trade
+              coordination fits.
             </p>
           </div>
 
@@ -147,12 +155,28 @@ const tradeOverview = tradeProfiles.map(trade => ({
               </ModernButton>
             </span>
           </div>
+
+          <div class="flex flex-wrap gap-2 pt-1">
+            {
+              companySections.map(section => (
+                <a
+                  class="tone-chip-neutral tone-chip-jump tone-focus-accent inline-flex items-center justify-center"
+                  href={section.href}
+                >
+                  {section.label}
+                </a>
+              ))
+            }
+          </div>
         </div>
 
-        <div class="hidden gap-4 sm:grid sm:grid-cols-3 lg:grid-cols-1">
+        <div class="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
           {
             companySignals.map(signal => (
-              <ModernCard variant="glass" className="p-5">
+              <ModernCard
+                variant="glass"
+                className="h-full p-5 tone-panel-soft"
+              >
                 <p class="font-mono text-[0.66rem] uppercase tracking-[0.22em] text-white/45">
                   {signal.label}
                 </p>
@@ -171,7 +195,7 @@ const tradeOverview = tradeProfiles.map(trade => ({
   </section>
 
   <section
-    class="border-b border-white/10"
+    class="tone-section-divider border-b"
     id="positioning"
     data-reveal
     data-page-section
@@ -186,18 +210,21 @@ const tradeOverview = tradeProfiles.map(trade => ({
         <h2
           class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
         >
-          The company page now explains the business in plain operational terms.
+          Why the company is organized this way.
         </h2>
         <p class="text-base leading-7 text-slate-300">
-          It explains why the company is organized this way and how that helps
-          buyers move faster.
+          Distinct divisions reduce guesswork, surface the right lead lane
+          sooner, and keep multi-lane work from feeling vague.
         </p>
       </div>
 
       <div class="mt-10 grid gap-5 lg:grid-cols-3">
         {
           positioningPoints.map(item => (
-            <ModernCard variant="default" className="h-full p-7">
+            <ModernCard
+              variant="default"
+              className="h-full p-7 tone-panel-soft"
+            >
               <p class="text-lg font-semibold text-white">{item.title}</p>
               <p class="mt-3 text-sm leading-7 text-slate-300">{item.copy}</p>
             </ModernCard>
@@ -208,7 +235,7 @@ const tradeOverview = tradeProfiles.map(trade => ({
   </section>
 
   <section
-    class="border-b border-white/10"
+    class="tone-section-divider border-b"
     id="delivery-model"
     data-reveal
     data-page-section
@@ -224,18 +251,21 @@ const tradeOverview = tradeProfiles.map(trade => ({
           <h2
             class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
           >
-            A clearer sequence from first conversation to usable outcome.
+            The delivery flow is simple on purpose.
           </h2>
           <p class="text-base leading-7 text-slate-300">
-            Delivery is framed as a sequence: identify the constraint, choose
-            the lead lane, connect dependencies, and finish with usable outputs.
+            Start with the constraint, assign the lead lane, connect interfaces,
+            and close with outputs the owner can actually use.
           </p>
         </div>
 
         <div class="grid gap-5 sm:grid-cols-2">
           {
             deliveryModel.map(item => (
-              <ModernCard variant="outline" className="h-full p-6">
+              <ModernCard
+                variant="outline"
+                className="h-full p-6 tone-panel-soft"
+              >
                 <p class="font-mono text-[0.72rem] uppercase tracking-[0.22em] text-white/45">
                   {item.step}
                 </p>
@@ -252,7 +282,7 @@ const tradeOverview = tradeProfiles.map(trade => ({
   </section>
 
   <section
-    class="border-b border-white/10"
+    class="tone-section-divider border-b"
     id="sectors"
     data-reveal
     data-page-section
@@ -267,17 +297,18 @@ const tradeOverview = tradeProfiles.map(trade => ({
         <h2
           class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
         >
-          The business is framed around the environments it is built to support.
+          Built for operating environments with real constraints.
         </h2>
         <p class="text-base leading-7 text-slate-300">
-          These are the environments repeatedly reflected across the divisions.
+          These sectors show up repeatedly because the operating context shapes
+          sequencing, access, support, and closeout.
         </p>
       </div>
 
       <div class="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         {
           sectors.map(([name, note]) => (
-            <ModernCard variant="glass" className="h-full p-6">
+            <ModernCard variant="glass" className="h-full p-6 tone-panel-soft">
               <p class="text-lg font-semibold text-white">{name}</p>
               <p class="mt-3 text-sm leading-7 text-slate-300">{note}</p>
             </ModernCard>
@@ -288,7 +319,7 @@ const tradeOverview = tradeProfiles.map(trade => ({
   </section>
 
   <section
-    class="border-b border-white/10"
+    class="tone-section-divider border-b"
     id="trade-overview"
     data-reveal
     data-page-section
@@ -306,12 +337,11 @@ const tradeOverview = tradeProfiles.map(trade => ({
           <h2
             class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
           >
-            Each division exists for a reason, and each one leads different
-            work.
+            Each division leads a different kind of work.
           </h2>
           <p class="text-base leading-7 text-slate-300">
-            This page should make it obvious where each one fits before you go
-            deeper.
+            You should be able to orient fast before opening a deeper trade
+            page.
           </p>
         </div>
 
@@ -345,7 +375,7 @@ const tradeOverview = tradeProfiles.map(trade => ({
                   </p>
                 </div>
 
-                <span class="rounded-full border border-white/10 px-3 py-1 text-[0.65rem] uppercase tracking-[0.22em] text-white/55">
+                <span class="tone-chip-neutral inline-flex rounded-full border px-3 py-1 text-[0.65rem] uppercase tracking-[0.22em]">
                   {trade.shortName}
                 </span>
               </div>
@@ -357,7 +387,7 @@ const tradeOverview = tradeProfiles.map(trade => ({
                 {trade.summary}
               </p>
 
-              <div class="mt-6 border-t border-white/10 pt-5 text-sm">
+              <div class="tone-divider-top mt-6 pt-5 text-sm">
                 <p class="font-mono text-[0.66rem] uppercase tracking-[0.2em] text-white/45">
                   Lead delivery pattern
                 </p>
@@ -371,7 +401,7 @@ const tradeOverview = tradeProfiles.map(trade => ({
   </section>
 
   <section
-    class="border-b border-white/10"
+    class="tone-section-divider border-b"
     id="scope-readiness"
     data-reveal
     data-page-section
@@ -397,20 +427,19 @@ const tradeOverview = tradeProfiles.map(trade => ({
             <h2
               class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
             >
-              The platform is strongest when it makes multi-lane work easier to
-              understand.
+              Cross-trade programs make multi-lane work easier to read.
             </h2>
             <p class="text-base leading-7 text-slate-300">
-              These recurring program types show how the company combines
-              physical trades and technology support without turning the buyer
-              experience into a maze.
+              These recurring program types show how the platform combines
+              trades and technology support without turning the buyer journey
+              into a maze.
             </p>
           </div>
 
           <div class="grid gap-4">
             {
               tradePrograms.map(program => (
-                <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+                <div class="tone-panel-soft rounded-2xl p-5">
                   <p class="text-lg font-semibold text-white">
                     {program.title}
                   </p>

@@ -155,7 +155,7 @@ const routeContext = getRouteContext(Astro.url.pathname);
     </script>
   </head>
   <body
-    class={`antialiased bg-[#030303] text-neutral-50 ${bodyClass}`.trim()}
+    class={`tone-app-shell antialiased ${bodyClass}`.trim()}
     style={`--route-accent:${routeContext.accent};`}
     data-route-category={routeContext.currentCategory}
   >
@@ -164,7 +164,7 @@ const routeContext = getRouteContext(Astro.url.pathname);
     <div class="relative z-[1]">
       <a
         href="#main-content"
-        class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-sm focus:bg-[#d7f75b] focus:px-4 focus:py-2 focus:text-[#08110d] focus:outline-none focus:ring-2 focus:ring-[#d7f75b]"
+        class="tone-focus-accent tone-skip-link sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-sm focus:px-4 focus:py-2"
       >
         Skip to main content
       </a>

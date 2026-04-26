@@ -388,6 +388,16 @@ declare global {
   // Environment variables with proper typing
   interface ImportMetaEnv {
     readonly SITE_URL: string;
+    readonly PUBLIC_CONTACT_EMAIL?: string;
+    readonly PUBLIC_ENABLE_ANALYTICS?: string | boolean;
+    readonly PUBLIC_API_URL?: string;
+    readonly PUBLIC_SITE_URL?: string;
+    readonly PUBLIC_BASE_PATH?: string;
+    readonly NEXT_PUBLIC_CONTACT_EMAIL?: string;
+    readonly NEXT_PUBLIC_ENABLE_ANALYTICS?: string | boolean;
+    readonly NEXT_PUBLIC_API_URL?: string;
+    readonly NEXT_PUBLIC_SITE_URL?: string;
+    readonly NEXT_PUBLIC_BASE_PATH?: string;
     readonly PUBLIC_GOOGLE_ANALYTICS_ID?: string;
     readonly PUBLIC_ALGOLIA_APP_ID?: string;
     readonly PUBLIC_ALGOLIA_SEARCH_KEY?: string;

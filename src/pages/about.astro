@@ -55,6 +55,10 @@ const quickActions = [
     note: 'Check drawer layout, promo handling, and persistence.',
     reviewPath:
       'Buyer reviews basket clarity, savings, and friction before checkout.',
+    focus: 'Basket clarity',
+    audience: 'Sales demos and buyer review calls',
+    proof:
+      'Promo logic, quantity changes, and cart persistence feel deliberate on mobile.',
   },
   {
     label: 'Open compare',
@@ -63,6 +67,10 @@ const quickActions = [
     note: 'Review selection logic and side-by-side merchandising.',
     reviewPath:
       'Stakeholders compare product density, decision support, and mobile scanability.',
+    focus: 'Decision support',
+    audience: 'Stakeholder workshops and product strategy reviews',
+    proof:
+      'Comparison states stay easy to scan without collapsing into desktop-only patterns.',
   },
   {
     label: 'Quick view',
@@ -72,6 +80,10 @@ const quickActions = [
     note: 'See detail density without forcing a full product-page jump.',
     reviewPath:
       'Teams inspect the product-detail layer without losing catalog context.',
+    focus: 'Product storytelling',
+    audience: 'Merchandising reviews and mobile UX audits',
+    proof:
+      'Product details, variants, and imagery stay rich without creating route churn.',
   },
   {
     label: 'Jump to checkout',
@@ -81,6 +93,25 @@ const quickActions = [
     note: 'Validate the final conversion path and friction points fast.',
     reviewPath:
       'Leadership reviews the handoff from product discovery into a credible checkout flow.',
+    focus: 'Conversion handoff',
+    audience: 'Leadership reviews and launch readiness checks',
+    proof:
+      'Checkout steps, shipping decisions, and confidence cues read like a shippable flow.',
+  },
+];
+
+const guidedReviewSteps = [
+  {
+    title: 'Pick the buyer path',
+    copy: 'Launch the cart, compare, quick-view, or checkout scenario first so the review starts with a real business question.',
+  },
+  {
+    title: 'Stress the mobile moments',
+    copy: 'Check how product density, speed, controls, and conversion cues behave on a handheld screen instead of a roomy desktop monitor.',
+  },
+  {
+    title: 'Map it to delivery',
+    copy: 'Use the implementation lanes below to turn what stakeholders liked into a real build plan instead of a vague “looks good.”',
   },
 ];
 
@@ -197,11 +228,12 @@ const featuredProducts = demoProducts
                   quickActions.map(action => (
                     <button
                       type="button"
-                      class="demo-launch flex min-h-[48px] flex-col items-start justify-center rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-left transition hover:border-white/20 hover:bg-white/[0.05] focus:outline-none focus:ring-2 focus:ring-[#d7f75b]/40"
+                      class="demo-launch flex min-h-[48px] flex-col items-start justify-center rounded-xl px-4 py-3 text-left transition"
                       data-demo-command={action.command}
                       data-demo-param={action.demoParam}
                       data-demo-product={action.productId}
                       data-demo-label={action.label}
+                      aria-pressed="false"
                     >
                       <span class="text-xs font-semibold uppercase tracking-[0.12em] text-white">
                         {action.label}
@@ -238,18 +270,112 @@ const featuredProducts = demoProducts
                 <div class="mt-4 flex flex-wrap gap-2">
                   <button
                     type="button"
-                    class="demo-link-action inline-flex min-h-[44px] items-center justify-center rounded-full border border-white/10 bg-white/[0.03] px-4 text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-white transition hover:border-white/20 hover:bg-white/[0.05] focus:outline-none focus:ring-2 focus:ring-[#d7f75b]/40"
+                    class="demo-link-action inline-flex min-h-[44px] items-center justify-center rounded-full px-4 text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-white transition"
                     data-demo-copy-link
                   >
                     Copy launch link
                   </button>
                   <button
                     type="button"
-                    class="demo-link-action inline-flex min-h-[44px] items-center justify-center rounded-full border border-white/10 bg-white/[0.03] px-4 text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-white transition hover:border-white/20 hover:bg-white/[0.05] focus:outline-none focus:ring-2 focus:ring-[#d7f75b]/40"
+                    class="demo-link-action inline-flex min-h-[44px] items-center justify-center rounded-full px-4 text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-white transition"
                     data-demo-reset-link
                   >
                     Reset launch state
                   </button>
+                </div>
+
+                <div class="mt-4 grid gap-3 sm:grid-cols-3">
+                  <div class="demo-token-card rounded-2xl p-3">
+                    <p
+                      class="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-white/45"
+                    >
+                      Focus
+                    </p>
+                    <p
+                      class="mt-2 text-sm font-semibold text-white"
+                      data-demo-metric-focus
+                    >
+                      Mobile walkthrough
+                    </p>
+                  </div>
+                  <div class="demo-token-card rounded-2xl p-3">
+                    <p
+                      class="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-white/45"
+                    >
+                      Best for
+                    </p>
+                    <p
+                      class="mt-2 text-sm font-semibold text-white"
+                      data-demo-metric-audience
+                    >
+                      First-call reviews
+                    </p>
+                  </div>
+                  <div class="demo-token-card rounded-2xl p-3">
+                    <p
+                      class="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-white/45"
+                    >
+                      Proof
+                    </p>
+                    <p
+                      class="mt-2 text-sm font-semibold text-white"
+                      data-demo-metric-proof
+                    >
+                      Share a scenario to reveal the strongest proof point.
+                    </p>
+                  </div>
+                </div>
+
+                <div
+                  class="demo-token-card demo-share-readout mt-4 rounded-2xl border border-dashed px-3 py-2"
+                >
+                  <p
+                    class="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-white/45"
+                  >
+                    Shareable URL
+                  </p>
+                  <p
+                    class="mt-2 break-all text-xs leading-5 text-slate-300"
+                    data-demo-share-url
+                  >
+                    {withBasePath('about/')}#shop-experience
+                  </p>
+                </div>
+
+                <div
+                  class="demo-token-card demo-share-panel mt-4 rounded-2xl p-4"
+                  data-demo-share-actions
+                >
+                  <div class="space-y-2">
+                    <p
+                      class="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-white/45"
+                    >
+                      Share review path
+                    </p>
+                    <p
+                      class="text-sm leading-6 text-slate-300"
+                      data-demo-share-title
+                    >
+                      Default showcase loaded.
+                    </p>
+                  </div>
+
+                  <div
+                    class="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center"
+                  >
+                    <button
+                      type="button"
+                      class="demo-link-action inline-flex min-h-[44px] items-center justify-center rounded-full px-4 text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-white transition"
+                      data-demo-native-share
+                    >
+                      Share or copy link
+                    </button>
+                    <div
+                      class="demo-share-platforms flex flex-wrap gap-2"
+                      data-demo-share-platforms
+                    >
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -309,12 +435,101 @@ const featuredProducts = demoProducts
           }
         </div>
 
+        <div class="mt-10 grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
+          <ModernCard variant="glass" className="p-6 sm:p-7">
+            <p
+              class="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-white/45"
+            >
+              Guided review
+            </p>
+            <h3 class="mt-3 text-2xl font-semibold text-white">
+              A cleaner walkthrough for busy buyers and stakeholders.
+            </h3>
+            <div class="mt-6 grid gap-3">
+              {
+                guidedReviewSteps.map((step, index) => (
+                  <div class="demo-token-card rounded-2xl p-4">
+                    <div class="flex items-start gap-3">
+                      <span class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-white/10 bg-black/20 text-sm font-semibold text-white">
+                        {index + 1}
+                      </span>
+                      <div>
+                        <p class="text-sm font-semibold text-white">
+                          {step.title}
+                        </p>
+                        <p class="mt-2 text-sm leading-6 text-slate-300">
+                          {step.copy}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              }
+            </div>
+          </ModernCard>
+
+          <ModernCard variant="glass" className="p-6 sm:p-7">
+            <p
+              class="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-white/45"
+            >
+              Delivery proof
+            </p>
+            <h3 class="mt-3 text-2xl font-semibold text-white">
+              The route already connects demo review to real build depth.
+            </h3>
+            <div class="mt-6 grid gap-3 sm:grid-cols-2">
+              <div class="demo-token-card rounded-2xl p-4">
+                <p
+                  class="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-white/45"
+                >
+                  Featured proof states
+                </p>
+                <p class="mt-2 text-2xl font-semibold text-white">
+                  {featuredProducts.length}
+                </p>
+                <p class="mt-2 text-sm leading-6 text-slate-300">
+                  Real featured products already wired into quick-view and
+                  checkout paths.
+                </p>
+              </div>
+              <div class="demo-token-card rounded-2xl p-4">
+                <p
+                  class="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-white/45"
+                >
+                  Delivery lanes
+                </p>
+                <p class="mt-2 text-2xl font-semibold text-white">
+                  {implementationTracks.length}
+                </p>
+                <p class="mt-2 text-sm leading-6 text-slate-300">
+                  Service tracks that turn stakeholder feedback into an actual
+                  execution plan.
+                </p>
+              </div>
+              <div class="demo-token-card rounded-2xl p-4 sm:col-span-2">
+                <p
+                  class="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-white/45"
+                >
+                  Scenario coverage
+                </p>
+                <p class="mt-2 text-2xl font-semibold text-white">
+                  {quickActions.length}
+                </p>
+                <p class="mt-2 text-sm leading-6 text-slate-300">
+                  Shareable review paths for merchandising, product detail,
+                  decision support, and checkout confidence.
+                </p>
+              </div>
+            </div>
+          </ModernCard>
+        </div>
+
         <div class="mt-10 grid gap-4 lg:grid-cols-2">
           {
             quickActions.map(action => (
               <a
                 href={`${withBasePath('about/')}?demo=${action.demoParam}${action.productId ? `&product=${action.productId}` : ''}#shop-experience`}
-                class="rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition hover:border-white/20 hover:bg-white/[0.05]"
+                class="demo-token-card demo-scenario-link rounded-2xl p-5 transition"
               >
                 <p class="font-mono text-[0.64rem] uppercase tracking-[0.18em] text-white/45">
                   Review path
@@ -343,7 +558,7 @@ const featuredProducts = demoProducts
             <div class="mt-6 grid gap-3">
               {
                 implementationTracks.map(track => (
-                  <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                  <div class="demo-token-card rounded-2xl p-4">
                     <p class="text-sm font-semibold text-white">{track.name}</p>
                     <p class="mt-2 text-sm leading-6 text-slate-300">
                       {track.description}
@@ -421,7 +636,7 @@ const featuredProducts = demoProducts
             <div class="grid gap-2 sm:grid-cols-3 md:w-auto">
               <button
                 type="button"
-                class="demo-toggle inline-flex h-11 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03] px-4 text-sm font-semibold text-white transition hover:border-white/20 hover:bg-white/[0.05] focus:outline-none focus:ring-2 focus:ring-[#d7f75b]/40"
+                class="demo-toggle demo-console-toggle inline-flex h-11 items-center justify-center rounded-lg px-4 text-sm font-semibold text-white transition"
                 data-demo-toggle="paused"
                 aria-pressed="false"
               >
@@ -429,7 +644,7 @@ const featuredProducts = demoProducts
               </button>
               <button
                 type="button"
-                class="demo-toggle inline-flex h-11 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03] px-4 text-sm font-semibold text-white transition hover:border-white/20 hover:bg-white/[0.05] focus:outline-none focus:ring-2 focus:ring-[#d7f75b]/40"
+                class="demo-toggle demo-console-toggle inline-flex h-11 items-center justify-center rounded-lg px-4 text-sm font-semibold text-white transition"
                 data-demo-toggle="reduced"
                 aria-pressed="false"
               >
@@ -437,7 +652,7 @@ const featuredProducts = demoProducts
               </button>
               <button
                 type="button"
-                class="demo-toggle inline-flex h-11 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03] px-4 text-sm font-semibold text-white transition hover:border-white/20 hover:bg-white/[0.05] focus:outline-none focus:ring-2 focus:ring-[#d7f75b]/40"
+                class="demo-toggle demo-console-toggle inline-flex h-11 items-center justify-center rounded-lg px-4 text-sm font-semibold text-white transition"
                 data-demo-toggle="perf"
                 aria-pressed="false"
               >
@@ -496,6 +711,91 @@ const featuredProducts = demoProducts
     contain-intrinsic-size: 900px;
   }
 
+  .demo-token-card,
+  .demo-launch,
+  .demo-link-action,
+  .demo-scenario-link,
+  .demo-console-toggle {
+    border: 1px solid color-mix(in srgb, var(--color-border) 78%, transparent);
+    background: color-mix(in srgb, var(--color-surface) 82%, transparent);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, white 4%, transparent);
+  }
+
+  .demo-launch,
+  .demo-link-action,
+  .demo-scenario-link,
+  .demo-console-toggle {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .demo-launch:hover,
+  .demo-link-action:hover,
+  .demo-scenario-link:hover,
+  .demo-console-toggle:hover {
+    border-color: color-mix(
+      in srgb,
+      var(--color-text-primary) 18%,
+      transparent
+    );
+    background: color-mix(in srgb, var(--color-surface) 92%, white 8%);
+  }
+
+  .demo-launch:focus-visible,
+  .demo-link-action:focus-visible,
+  .demo-scenario-link:focus-visible,
+  .demo-console-toggle:focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--color-primary) 62%, transparent);
+    outline-offset: 3px;
+  }
+
+  .demo-launch[data-active='true'],
+  .demo-console-toggle[aria-pressed='true'] {
+    border-color: color-mix(in srgb, var(--color-primary) 38%, transparent);
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--color-primary) 12%, transparent),
+      color-mix(in srgb, var(--color-surface) 94%, transparent)
+    );
+    box-shadow: 0 0 20px -10px
+      color-mix(in srgb, var(--color-primary) 44%, transparent);
+  }
+
+  .demo-share-readout {
+    background: color-mix(in srgb, black 16%, var(--color-surface) 84%);
+  }
+
+  .demo-share-panel {
+    background: linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--color-surface) 88%, white 6%),
+      color-mix(in srgb, var(--color-surface) 76%, transparent)
+    );
+  }
+
+  .demo-share-platforms :global(.share-button) {
+    min-height: 44px;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--color-border) 78%, transparent);
+    background: color-mix(in srgb, var(--color-surface) 86%, transparent);
+    padding: 0.7rem 1rem;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-text-primary);
+    transition:
+      border-color 0.2s ease,
+      background-color 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .demo-share-platforms :global(.share-button:hover) {
+    border-color: color-mix(in srgb, var(--color-primary) 28%, transparent);
+    background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+    transform: translateY(-1px);
+  }
+
   .demo-module[data-demo-paused='true'] * {
     animation-play-state: paused !important;
   }
@@ -509,6 +809,8 @@ const featuredProducts = demoProducts
 
 <script>
   import '../scripts/demo-lab';
+  import { announce } from '../utils/a11y';
+  import { createShareButtons, share } from '../utils/share';
 
   const ACTIVE_LABELS = {
     cart: {
@@ -533,116 +835,321 @@ const featuredProducts = demoProducts
     },
   };
 
-  const commandButtons = document.querySelectorAll(
-    '[data-demo-command]'
-  ) as NodeListOf<HTMLButtonElement>;
-  const activeState = document.querySelector(
-    '[data-demo-active-state]'
-  ) as HTMLElement | null;
-  const activeCopy = document.querySelector(
-    '[data-demo-active-copy]'
-  ) as HTMLElement | null;
-  const copyLinkButton = document.querySelector(
-    '[data-demo-copy-link]'
-  ) as HTMLButtonElement | null;
-  const resetLinkButton = document.querySelector(
-    '[data-demo-reset-link]'
-  ) as HTMLButtonElement | null;
-
-  const syncActiveState = () => {
-    const params = new URLSearchParams(window.location.search);
-    const rawMode = (params.get('demo') || '').toLowerCase();
-    const state =
-      ACTIVE_LABELS[rawMode as keyof typeof ACTIVE_LABELS] ||
-      ACTIVE_LABELS.default;
-
-    if (activeState) {
-      activeState.textContent = state.title;
-    }
-
-    if (activeCopy) {
-      activeCopy.textContent = state.copy;
-    }
+  const REVIEW_CARDS = {
+    cart: {
+      focus: 'Basket clarity',
+      audience: 'Sales demos and buyer review calls',
+      proof:
+        'Promo logic, quantity changes, and cart persistence feel deliberate on mobile.',
+    },
+    compare: {
+      focus: 'Decision support',
+      audience: 'Stakeholder workshops and product strategy reviews',
+      proof:
+        'Comparison states stay easy to scan without collapsing into desktop-only patterns.',
+    },
+    quickview: {
+      focus: 'Product storytelling',
+      audience: 'Merchandising reviews and mobile UX audits',
+      proof:
+        'Product details, variants, and imagery stay rich without creating route churn.',
+    },
+    checkout: {
+      focus: 'Conversion handoff',
+      audience: 'Leadership reviews and launch readiness checks',
+      proof:
+        'Checkout steps, shipping decisions, and confidence cues read like a shippable flow.',
+    },
+    default: {
+      focus: 'Mobile walkthrough',
+      audience: 'First-call reviews',
+      proof: 'Share a scenario to reveal the strongest proof point.',
+    },
   };
 
-  const syncUrlState = (demoParam?: string, productId?: string) => {
-    const url = new URL(window.location.href);
+  const globalScope = window as Window & {
+    __aboutDemoCleanup?: () => void;
+  };
 
-    if (!demoParam) {
-      url.searchParams.delete('demo');
-      url.searchParams.delete('product');
-    } else {
-      url.searchParams.set('demo', demoParam);
-      if (productId) {
-        url.searchParams.set('product', productId);
-      } else {
-        url.searchParams.delete('product');
+  const initPortfolioDemo = () => {
+    globalScope.__aboutDemoCleanup?.();
+
+    const cleanups: Array<() => void> = [];
+    const commandButtons = Array.from(
+      document.querySelectorAll('[data-demo-command]')
+    ) as HTMLButtonElement[];
+    const activeState = document.querySelector(
+      '[data-demo-active-state]'
+    ) as HTMLElement | null;
+    const activeCopy = document.querySelector(
+      '[data-demo-active-copy]'
+    ) as HTMLElement | null;
+    const activeFocus = document.querySelector(
+      '[data-demo-metric-focus]'
+    ) as HTMLElement | null;
+    const activeAudience = document.querySelector(
+      '[data-demo-metric-audience]'
+    ) as HTMLElement | null;
+    const activeProof = document.querySelector(
+      '[data-demo-metric-proof]'
+    ) as HTMLElement | null;
+    const shareUrl = document.querySelector(
+      '[data-demo-share-url]'
+    ) as HTMLElement | null;
+    const shareTitle = document.querySelector(
+      '[data-demo-share-title]'
+    ) as HTMLElement | null;
+    const copyLinkButton = document.querySelector(
+      '[data-demo-copy-link]'
+    ) as HTMLButtonElement | null;
+    const resetLinkButton = document.querySelector(
+      '[data-demo-reset-link]'
+    ) as HTMLButtonElement | null;
+    const nativeShareButton = document.querySelector(
+      '[data-demo-native-share]'
+    ) as HTMLButtonElement | null;
+    const sharePlatformsHost = document.querySelector(
+      '[data-demo-share-platforms]'
+    ) as HTMLElement | null;
+
+    let buttonTimer = 0;
+
+    const setTemporaryButtonLabel = (
+      button: HTMLButtonElement | null,
+      idleText: string,
+      nextText: string
+    ) => {
+      if (!button) return;
+
+      button.textContent = nextText;
+      window.clearTimeout(buttonTimer);
+      buttonTimer = window.setTimeout(() => {
+        button.textContent = idleText;
+      }, 1400);
+    };
+
+    const getActiveShareData = () => ({
+      title: `Portfolio demo review — ${
+        activeState?.textContent?.trim() || 'Olive Global Systems'
+      }`,
+      text: [activeCopy?.textContent?.trim(), activeProof?.textContent?.trim()]
+        .filter(Boolean)
+        .join(' '),
+      url: window.location.href,
+    });
+
+    const syncActiveState = () => {
+      const params = new URLSearchParams(window.location.search);
+      const rawMode = (params.get('demo') || '').toLowerCase();
+      const state =
+        ACTIVE_LABELS[rawMode as keyof typeof ACTIVE_LABELS] ||
+        ACTIVE_LABELS.default;
+      const reviewState =
+        REVIEW_CARDS[rawMode as keyof typeof REVIEW_CARDS] ||
+        REVIEW_CARDS.default;
+
+      if (activeState) {
+        activeState.textContent = state.title;
       }
-    }
 
-    url.hash = 'shop-experience';
-    window.history.replaceState({}, '', url.toString());
-    syncActiveState();
-  };
+      if (activeCopy) {
+        activeCopy.textContent = state.copy;
+      }
 
-  const dispatchDemoCommand = (payload: {
-    action: 'open-cart' | 'open-compare' | 'open-quick-view' | 'start-checkout';
-    productId?: string;
-  }) => {
-    window.__pendingDemoCommand = payload;
+      if (activeFocus) {
+        activeFocus.textContent = reviewState.focus;
+      }
 
-    window.dispatchEvent(
-      new CustomEvent('demo:ecom-command', {
-        detail: payload,
-      })
+      if (activeAudience) {
+        activeAudience.textContent = reviewState.audience;
+      }
+
+      if (activeProof) {
+        activeProof.textContent = reviewState.proof;
+      }
+
+      if (shareUrl) {
+        shareUrl.textContent = window.location.href;
+      }
+
+      if (shareTitle) {
+        shareTitle.textContent = `${state.title} ${state.copy}`;
+      }
+
+      commandButtons.forEach(button => {
+        const isActive =
+          (button.dataset.demoParam || '').toLowerCase() === rawMode;
+        button.dataset.active = isActive ? 'true' : 'false';
+        button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+      });
+    };
+
+    const syncUrlState = (demoParam?: string, productId?: string) => {
+      const url = new URL(window.location.href);
+
+      if (!demoParam) {
+        url.searchParams.delete('demo');
+        url.searchParams.delete('product');
+      } else {
+        url.searchParams.set('demo', demoParam);
+        if (productId) {
+          url.searchParams.set('product', productId);
+        } else {
+          url.searchParams.delete('product');
+        }
+      }
+
+      url.hash = 'shop-experience';
+      window.history.replaceState({}, '', url.toString());
+      syncActiveState();
+    };
+
+    const scrollToShowcase = () => {
+      const demoModule = document.querySelector(
+        '[data-demo-module="ecommerce-showcase"]'
+      );
+      const demoSection = document.getElementById('shop-experience');
+      const scrollTarget = demoModule || demoSection;
+      if (scrollTarget instanceof HTMLElement) {
+        scrollTarget.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    };
+
+    const dispatchDemoCommand = (payload: {
+      action:
+        | 'open-cart'
+        | 'open-compare'
+        | 'open-quick-view'
+        | 'start-checkout';
+      productId?: string;
+    }) => {
+      window.__pendingDemoCommand = payload;
+
+      window.dispatchEvent(
+        new CustomEvent('demo:ecom-command', {
+          detail: payload,
+        })
+      );
+
+      scrollToShowcase();
+    };
+
+    const onEcomReady = () => {
+      if (!window.__pendingDemoCommand) return;
+
+      window.dispatchEvent(
+        new CustomEvent('demo:ecom-command', {
+          detail: window.__pendingDemoCommand,
+        })
+      );
+    };
+
+    window.addEventListener('demo:ecom-ready', onEcomReady);
+    cleanups.push(() =>
+      window.removeEventListener('demo:ecom-ready', onEcomReady)
     );
 
-    const demoSection = document.getElementById('shop-experience');
-    if (demoSection) {
-      demoSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    commandButtons.forEach(button => {
+      const onClick = () => {
+        const action = button.dataset.demoCommand;
+        if (!action) return;
+
+        syncUrlState(button.dataset.demoParam, button.dataset.demoProduct);
+
+        dispatchDemoCommand({
+          action: action as
+            | 'open-cart'
+            | 'open-compare'
+            | 'open-quick-view'
+            | 'start-checkout',
+          productId: button.dataset.demoProduct,
+        });
+
+        announce(`${button.dataset.demoLabel || 'Demo'} scenario ready.`);
+      };
+
+      button.addEventListener('click', onClick);
+      cleanups.push(() => button.removeEventListener('click', onClick));
+    });
+
+    if (sharePlatformsHost) {
+      const destroyShareButtons = createShareButtons(
+        sharePlatformsHost,
+        getActiveShareData,
+        ['linkedin', 'email', 'twitter']
+      );
+      cleanups.push(() => destroyShareButtons());
     }
+
+    if (nativeShareButton) {
+      const onShare = async () => {
+        const shared = await share(getActiveShareData(), {
+          copySuccessMessage: 'Scenario link copied.',
+          onSuccess: () => announce('Review link shared or copied.'),
+          onCancel: () => announce('Share dismissed.'),
+        });
+
+        setTemporaryButtonLabel(
+          nativeShareButton,
+          'Share or copy link',
+          shared ? 'Link ready' : 'Unavailable'
+        );
+      };
+
+      nativeShareButton.addEventListener('click', onShare);
+      cleanups.push(() =>
+        nativeShareButton.removeEventListener('click', onShare)
+      );
+    }
+
+    if (copyLinkButton) {
+      const onCopy = async () => {
+        try {
+          await navigator.clipboard.writeText(window.location.href);
+          announce('Launch link copied.');
+          setTemporaryButtonLabel(copyLinkButton, 'Copy launch link', 'Copied');
+        } catch {
+          announce('Launch link unavailable for copying.');
+          setTemporaryButtonLabel(
+            copyLinkButton,
+            'Copy launch link',
+            'Unavailable'
+          );
+        }
+      };
+
+      copyLinkButton.addEventListener('click', onCopy);
+      cleanups.push(() => copyLinkButton.removeEventListener('click', onCopy));
+    }
+
+    if (resetLinkButton) {
+      const onReset = () => {
+        syncUrlState();
+        scrollToShowcase();
+        announce('Demo launch state reset.');
+      };
+
+      resetLinkButton.addEventListener('click', onReset);
+      cleanups.push(() =>
+        resetLinkButton.removeEventListener('click', onReset)
+      );
+    }
+
+    syncActiveState();
+
+    globalScope.__aboutDemoCleanup = () => {
+      cleanups.forEach(cleanup => cleanup());
+      window.clearTimeout(buttonTimer);
+    };
   };
 
-  commandButtons.forEach(button => {
-    button.addEventListener('click', () => {
-      const action = button.dataset.demoCommand;
-      if (!action) return;
-
-      syncUrlState(button.dataset.demoParam, button.dataset.demoProduct);
-
-      dispatchDemoCommand({
-        action: action as
-          | 'open-cart'
-          | 'open-compare'
-          | 'open-quick-view'
-          | 'start-checkout',
-        productId: button.dataset.demoProduct,
-      });
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPortfolioDemo, {
+      once: true,
     });
-  });
+  } else {
+    initPortfolioDemo();
+  }
 
-  copyLinkButton?.addEventListener('click', async () => {
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      copyLinkButton.textContent = 'Copied';
-    } catch {
-      copyLinkButton.textContent = 'Unavailable';
-    }
-
-    window.setTimeout(() => {
-      if (copyLinkButton) {
-        copyLinkButton.textContent = 'Copy launch link';
-      }
-    }, 1200);
-  });
-
-  resetLinkButton?.addEventListener('click', () => {
-    syncUrlState();
-    const demoSection = document.getElementById('shop-experience');
-    if (demoSection) {
-      demoSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  });
-
-  syncActiveState();
+  document.addEventListener('astro:page-load', initPortfolioDemo);
 </script>

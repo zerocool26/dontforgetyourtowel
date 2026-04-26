@@ -10,10 +10,25 @@ import { createDeploymentConfig } from '../config/deployment.js';
 const DEPLOYMENT = createDeploymentConfig(
   import.meta.env as unknown as Record<string, string>
 );
-const analyticsFlag =
-  typeof import.meta.env !== 'undefined'
-    ? import.meta.env.PUBLIC_ENABLE_ANALYTICS
-    : process.env.PUBLIC_ENABLE_ANALYTICS;
+const readPublicEnv = (...keys: string[]) => {
+  for (const key of keys) {
+    const value =
+      typeof import.meta.env !== 'undefined'
+        ? import.meta.env[key as keyof ImportMetaEnv]
+        : process.env[key];
+
+    if (value !== undefined && value !== '') {
+      return value;
+    }
+  }
+
+  return undefined;
+};
+
+const analyticsFlag = readPublicEnv(
+  'PUBLIC_ENABLE_ANALYTICS',
+  'NEXT_PUBLIC_ENABLE_ANALYTICS'
+);
 const analyticsEnabled =
   analyticsFlag === 'true' ||
   analyticsFlag === '1' ||
@@ -31,8 +46,9 @@ export const DEPLOYMENT_CONFIG = DEPLOYMENT;
 
 // Static site contact: uses a mailto: link (configurable via env for later)
 export const CONTACT_EMAIL =
-  (import.meta.env.PUBLIC_CONTACT_EMAIL as string | undefined) ||
-  'hello@example.com';
+  (readPublicEnv('PUBLIC_CONTACT_EMAIL', 'NEXT_PUBLIC_CONTACT_EMAIL') as
+    | string
+    | undefined) || 'hello@example.com';
 
 export const SITE_CONFIG = {
   title: SITE_TITLE,
@@ -68,7 +84,8 @@ export const THEME_CONFIG = {
  * API/Integration configuration
  */
 export const API_CONFIG = {
-  baseUrl: import.meta.env.PUBLIC_API_URL || '',
+  baseUrl:
+    (readPublicEnv('PUBLIC_API_URL', 'NEXT_PUBLIC_API_URL') as string) || '',
   timeout: 10000,
   retryAttempts: 3,
 } as const;

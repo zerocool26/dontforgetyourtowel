@@ -70,4 +70,47 @@ test.describe('Navigation', () => {
     await menuButton.click();
     await expect(mobileMenu).not.toBeVisible();
   });
+
+  test('should expose jump rails and buyer-entry shortcuts on services and pricing', async ({
+    page,
+  }) => {
+    await page.goto('./services/');
+
+    await page.getByRole('link', { name: /^tech catalog$/i }).click();
+    await expect(page).toHaveURL(/\/services\/#technology-catalog$/);
+    await expect(page.locator('#technology-catalog')).toBeVisible();
+
+    await page.getByRole('link', { name: /open technology catalog/i }).click();
+    await expect(page).toHaveURL(/\/services\/#technology-catalog$/);
+
+    await page.goto('./pricing/');
+
+    await page.getByRole('link', { name: /^sla matrix$/i }).click();
+    await expect(page).toHaveURL(/\/pricing\/#sla$/);
+    await expect(page.locator('#sla')).toBeVisible();
+
+    await page.getByRole('link', { name: /^estimate$/i }).click();
+    await expect(page).toHaveURL(/\/pricing\/#estimate$/);
+    await expect(page.locator('#estimate')).toBeVisible();
+  });
+
+  test('should expose calmer jump rails on company and contact HQ', async ({
+    page,
+  }) => {
+    await page.goto('./company/');
+
+    await page.getByRole('link', { name: /^delivery flow$/i }).click();
+    await expect(page).toHaveURL(/\/company\/#delivery-model$/);
+    await expect(page.locator('#delivery-model')).toBeVisible();
+
+    await page.goto('./contact-hq/');
+
+    await page.getByRole('link', { name: /^faq$/i }).click();
+    await expect(page).toHaveURL(/\/contact-hq\/#faq$/);
+    await expect(page.locator('#faq')).toBeVisible();
+
+    await page.getByRole('link', { name: /^message checklist$/i }).click();
+    await expect(page).toHaveURL(/\/contact-hq\/#intake$/);
+    await expect(page.locator('#intake')).toBeVisible();
+  });
 });

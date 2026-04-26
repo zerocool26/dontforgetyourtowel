@@ -76,7 +76,12 @@ const isUserPagesRepo = (owner, repo) => {
 
 export const deriveBasePath = (env = defaultEnv) => {
   const explicitBase =
-    getEnvValue(env, ['BASE_PATH', 'PUBLIC_BASE_PATH', 'BASE_URL']) || '';
+    getEnvValue(env, [
+      'BASE_PATH',
+      'PUBLIC_BASE_PATH',
+      'NEXT_PUBLIC_BASE_PATH',
+      'BASE_URL',
+    ]) || '';
   if (explicitBase) {
     // Some environments use BASE_URL as a full URL, not a path.
     // Accept either shape and always normalize to a pathname base.
@@ -91,7 +96,12 @@ export const deriveBasePath = (env = defaultEnv) => {
     return normalizeBasePath(explicitBase);
   }
 
-  const siteUrl = getEnvValue(env, ['SITE_URL', 'PUBLIC_SITE_URL', 'URL']);
+  const siteUrl = getEnvValue(env, [
+    'SITE_URL',
+    'PUBLIC_SITE_URL',
+    'NEXT_PUBLIC_SITE_URL',
+    'URL',
+  ]);
   if (siteUrl) {
     try {
       const url = new URL(siteUrl);
@@ -118,7 +128,11 @@ export const deriveSiteUrl = (
   env = defaultEnv,
   basePath = deriveBasePath(env)
 ) => {
-  const explicitSite = getEnvValue(env, ['SITE_URL', 'PUBLIC_SITE_URL']);
+  const explicitSite = getEnvValue(env, [
+    'SITE_URL',
+    'PUBLIC_SITE_URL',
+    'NEXT_PUBLIC_SITE_URL',
+  ]);
   if (explicitSite) {
     return normalizeUrl(explicitSite);
   }
