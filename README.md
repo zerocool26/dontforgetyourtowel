@@ -3,6 +3,29 @@
 Astro static site with base-path-safe routing, premium marketing UI, and
 Playwright/Vitest quality gates.
 
+### Environment
+
+- Node `>=22`
+- npm `11.6.1`
+- Astro 5 static output
+- Preact as the primary interactive UI layer for public-facing experiences
+
+### Development workflow
+
+- Install dependencies with `npm install`
+- Start local development with `npm run dev`
+- Use `npm run lint` and `npm run typecheck` for fast static validation
+- Use `npm test` for unit coverage and `npm run test:e2e` for browser flows
+- Use `npm run deploy-ready` before release-quality changes
+
+### Workspace instruction system
+
+- Base project guidance lives in `.github/copilot-instructions.md`
+- Route-specific guidance lives in `.github/instructions/marketing-pages.instructions.md`
+- Shared-component guidance lives in `.github/instructions/design-system.instructions.md`
+
+These workspace instruction files are intended to reduce drift between human edits, Copilot-assisted edits, and future agent passes.
+
 ### Key routes
 
 - `/` Home
@@ -27,3 +50,5 @@ hard-deleted from git history.
 - `npm run typecheck`
 - `npm test`
 - `npm run test:e2e`
+- `npm run build`
+- `npm run deploy-ready`

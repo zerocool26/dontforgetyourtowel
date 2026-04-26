@@ -51,24 +51,36 @@ const quickActions = [
   {
     label: 'Open cart',
     command: 'open-cart',
+    demoParam: 'cart',
     note: 'Check drawer layout, promo handling, and persistence.',
+    reviewPath:
+      'Buyer reviews basket clarity, savings, and friction before checkout.',
   },
   {
     label: 'Open compare',
     command: 'open-compare',
+    demoParam: 'compare',
     note: 'Review selection logic and side-by-side merchandising.',
+    reviewPath:
+      'Stakeholders compare product density, decision support, and mobile scanability.',
   },
   {
     label: 'Quick view',
     command: 'open-quick-view',
+    demoParam: 'quickview',
     productId: 'spectral-sneaker',
     note: 'See detail density without forcing a full product-page jump.',
+    reviewPath:
+      'Teams inspect the product-detail layer without losing catalog context.',
   },
   {
     label: 'Jump to checkout',
     command: 'start-checkout',
+    demoParam: 'checkout',
     productId: 'aurora-hoodie',
     note: 'Validate the final conversion path and friction points fast.',
+    reviewPath:
+      'Leadership reviews the handoff from product discovery into a credible checkout flow.',
   },
 ];
 
@@ -187,7 +199,9 @@ const featuredProducts = demoProducts
                       type="button"
                       class="demo-launch flex min-h-[48px] flex-col items-start justify-center rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-left transition hover:border-white/20 hover:bg-white/[0.05] focus:outline-none focus:ring-2 focus:ring-[#d7f75b]/40"
                       data-demo-command={action.command}
+                      data-demo-param={action.demoParam}
                       data-demo-product={action.productId}
+                      data-demo-label={action.label}
                     >
                       <span class="text-xs font-semibold uppercase tracking-[0.12em] text-white">
                         {action.label}
@@ -198,6 +212,45 @@ const featuredProducts = demoProducts
                     </button>
                   ))
                 }
+              </div>
+
+              <div
+                class="mt-4 rounded-2xl border border-white/10 bg-black/20 p-4"
+              >
+                <p
+                  class="font-mono text-[0.64rem] uppercase tracking-[0.18em] text-white/45"
+                >
+                  Active review path
+                </p>
+                <p
+                  class="mt-2 text-sm font-semibold text-white"
+                  data-demo-active-state
+                >
+                  Default showcase loaded.
+                </p>
+                <p
+                  class="mt-2 text-xs leading-5 text-slate-300"
+                  data-demo-active-copy
+                >
+                  Choose a launch scenario to turn this portfolio route into a
+                  shareable customer review path.
+                </p>
+                <div class="mt-4 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    class="demo-link-action inline-flex min-h-[44px] items-center justify-center rounded-full border border-white/10 bg-white/[0.03] px-4 text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-white transition hover:border-white/20 hover:bg-white/[0.05] focus:outline-none focus:ring-2 focus:ring-[#d7f75b]/40"
+                    data-demo-copy-link
+                  >
+                    Copy launch link
+                  </button>
+                  <button
+                    type="button"
+                    class="demo-link-action inline-flex min-h-[44px] items-center justify-center rounded-full border border-white/10 bg-white/[0.03] px-4 text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-white transition hover:border-white/20 hover:bg-white/[0.05] focus:outline-none focus:ring-2 focus:ring-[#d7f75b]/40"
+                    data-demo-reset-link
+                  >
+                    Reset launch state
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -256,6 +309,27 @@ const featuredProducts = demoProducts
           }
         </div>
 
+        <div class="mt-10 grid gap-4 lg:grid-cols-2">
+          {
+            quickActions.map(action => (
+              <a
+                href={`${withBasePath('about/')}?demo=${action.demoParam}${action.productId ? `&product=${action.productId}` : ''}#shop-experience`}
+                class="rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition hover:border-white/20 hover:bg-white/[0.05]"
+              >
+                <p class="font-mono text-[0.64rem] uppercase tracking-[0.18em] text-white/45">
+                  Review path
+                </p>
+                <p class="mt-3 text-lg font-semibold text-white">
+                  {action.label}
+                </p>
+                <p class="mt-2 text-sm leading-6 text-slate-300">
+                  {action.reviewPath}
+                </p>
+              </a>
+            ))
+          }
+        </div>
+
         <div class="mt-10 grid gap-5 xl:grid-cols-[1.05fr_0.95fr]">
           <ModernCard variant="glass" className="p-6 sm:p-7">
             <p
@@ -304,7 +378,7 @@ const featuredProducts = demoProducts
                   <ul class="mt-4 space-y-2 text-sm text-slate-300">
                     {product.bullets.slice(0, 2).map(bullet => (
                       <li class="flex items-start gap-2">
-                        <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[#12b5a6]" />
+                        <span class="tone-accent-dot mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full" />
                         <span>{bullet}</span>
                       </li>
                     ))}
@@ -436,14 +510,87 @@ const featuredProducts = demoProducts
 <script>
   import '../scripts/demo-lab';
 
+  const ACTIVE_LABELS = {
+    cart: {
+      title: 'Cart review active.',
+      copy: 'Share this launch when you want buyers to review pricing clarity, savings, and the basket experience first.',
+    },
+    compare: {
+      title: 'Compare review active.',
+      copy: 'Share this launch when stakeholders need to inspect product comparison logic and decision support.',
+    },
+    quickview: {
+      title: 'Quick view review active.',
+      copy: 'Share this launch when the product-detail layer needs to be assessed without leaving catalog context.',
+    },
+    checkout: {
+      title: 'Checkout review active.',
+      copy: 'Share this launch when leadership needs to review the conversion path and final handoff experience.',
+    },
+    default: {
+      title: 'Default showcase loaded.',
+      copy: 'Choose a launch scenario to turn this portfolio route into a shareable customer review path.',
+    },
+  };
+
   const commandButtons = document.querySelectorAll(
     '[data-demo-command]'
   ) as NodeListOf<HTMLButtonElement>;
+  const activeState = document.querySelector(
+    '[data-demo-active-state]'
+  ) as HTMLElement | null;
+  const activeCopy = document.querySelector(
+    '[data-demo-active-copy]'
+  ) as HTMLElement | null;
+  const copyLinkButton = document.querySelector(
+    '[data-demo-copy-link]'
+  ) as HTMLButtonElement | null;
+  const resetLinkButton = document.querySelector(
+    '[data-demo-reset-link]'
+  ) as HTMLButtonElement | null;
+
+  const syncActiveState = () => {
+    const params = new URLSearchParams(window.location.search);
+    const rawMode = (params.get('demo') || '').toLowerCase();
+    const state =
+      ACTIVE_LABELS[rawMode as keyof typeof ACTIVE_LABELS] ||
+      ACTIVE_LABELS.default;
+
+    if (activeState) {
+      activeState.textContent = state.title;
+    }
+
+    if (activeCopy) {
+      activeCopy.textContent = state.copy;
+    }
+  };
+
+  const syncUrlState = (demoParam?: string, productId?: string) => {
+    const url = new URL(window.location.href);
+
+    if (!demoParam) {
+      url.searchParams.delete('demo');
+      url.searchParams.delete('product');
+    } else {
+      url.searchParams.set('demo', demoParam);
+      if (productId) {
+        url.searchParams.set('product', productId);
+      } else {
+        url.searchParams.delete('product');
+      }
+    }
+
+    url.hash = 'shop-experience';
+    window.history.replaceState({}, '', url.toString());
+    syncActiveState();
+  };
 
   const dispatchDemoCommand = (payload: {
     action: 'open-cart' | 'open-compare' | 'open-quick-view' | 'start-checkout';
     productId?: string;
   }) => {
+    window.__pendingDemoCommand = payload;
+
     window.dispatchEvent(
       new CustomEvent('demo:ecom-command', {
         detail: payload,
@@ -461,6 +608,8 @@ const featuredProducts = demoProducts
       const action = button.dataset.demoCommand;
       if (!action) return;
 
+      syncUrlState(button.dataset.demoParam, button.dataset.demoProduct);
+
       dispatchDemoCommand({
         action: action as
           | 'open-cart'
@@ -471,4 +620,29 @@ const featuredProducts = demoProducts
       });
     });
   });
+
+  copyLinkButton?.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      copyLinkButton.textContent = 'Copied';
+    } catch {
+      copyLinkButton.textContent = 'Unavailable';
+    }
+
+    window.setTimeout(() => {
+      if (copyLinkButton) {
+        copyLinkButton.textContent = 'Copy launch link';
+      }
+    }, 1200);
+  });
+
+  resetLinkButton?.addEventListener('click', () => {
+    syncUrlState();
+    const demoSection = document.getElementById('shop-experience');
+    if (demoSection) {
+      demoSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+
+  syncActiveState();
 </script>

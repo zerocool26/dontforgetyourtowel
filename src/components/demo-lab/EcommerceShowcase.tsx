@@ -25,6 +25,12 @@ type DemoCommand = {
   productId?: string;
 };
 
+declare global {
+  interface Window {
+    __pendingDemoCommand?: DemoCommand | null;
+  }
+}
+
 type DemoFlags = {
   reducedMotion: boolean;
   perfMode: boolean;
@@ -847,9 +853,16 @@ export default function EcommerceShowcase() {
       const detail = (event as CustomEvent<DemoCommand | undefined>).detail;
       if (!detail || !detail.action) return;
       runDemoCommandRef.current(detail);
+      window.__pendingDemoCommand = null;
     };
 
     window.addEventListener('demo:ecom-command', onDemoCommand);
+
+    if (window.__pendingDemoCommand?.action) {
+      runDemoCommandRef.current(window.__pendingDemoCommand);
+      window.__pendingDemoCommand = null;
+    }
+
     return () => window.removeEventListener('demo:ecom-command', onDemoCommand);
   }, []);
 

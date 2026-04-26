@@ -316,7 +316,7 @@ const faqSchema = {
                 {
                   firstMessageChecklist.slice(0, 3).map(item => (
                     <li class="flex items-start gap-2">
-                      <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[#12b5a6]" />
+                      <span class="tone-accent-dot mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full" />
                       <span>{item}</span>
                     </li>
                   ))
@@ -502,7 +502,7 @@ const faqSchema = {
                 {channel.note}
               </p>
               <a
-                class="mt-5 inline-flex text-sm font-semibold text-[#d7f75b] hover:underline"
+                class="tone-accent-link mt-5 inline-flex text-sm hover:underline"
                 href={`mailto:${encodeURIComponent(CONTACT_EMAIL)}?subject=${encodeURIComponent(channel.subject)}`}
               >
                 Email this channel
@@ -544,7 +544,7 @@ const faqSchema = {
             {
               firstMessageChecklist.map(item => (
                 <li class="flex items-start gap-2">
-                  <span class="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[#12b5a6]" />
+                  <span class="tone-accent-dot mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full" />
                   <span>{item}</span>
                 </li>
               ))
@@ -664,7 +664,7 @@ const faqSchema = {
             </p>
             <p class="text-sm text-slate-300">
               <a
-                class="font-semibold text-[#d7f75b] hover:underline"
+                class="tone-accent-link hover:underline"
                 href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a
               >
             </p>
