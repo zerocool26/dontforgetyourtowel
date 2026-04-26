@@ -131,27 +131,21 @@ const initialItem = visibleItems[0];
 
       const links = Array.from(
         root.querySelectorAll('[data-page-nav-link]')
-      ).filter(
-        (node): node is HTMLAnchorElement => node instanceof HTMLAnchorElement
-      );
+      ).filter(node => node instanceof HTMLAnchorElement);
       const progressBars = Array.from(
         root.querySelectorAll('[data-page-nav-progress]')
-      ).filter((node): node is HTMLElement => node instanceof HTMLElement);
+      ).filter(node => node instanceof HTMLElement);
       const shells = Array.from(
         root.querySelectorAll('[data-page-nav-shell]')
-      ).filter((node): node is HTMLElement => node instanceof HTMLElement);
-      const currentLabel = root.querySelector(
-        '[data-page-nav-current]'
-      ) as HTMLElement | null;
+      ).filter(node => node instanceof HTMLElement);
+      const currentLabel = root.querySelector('[data-page-nav-current]');
       const stepIndicators = Array.from(
         root.querySelectorAll('[data-page-nav-step]')
-      ).filter((node): node is HTMLElement => node instanceof HTMLElement);
+      ).filter(node => node instanceof HTMLElement);
       const percentIndicators = Array.from(
         root.querySelectorAll('[data-page-nav-percent]')
-      ).filter((node): node is HTMLElement => node instanceof HTMLElement);
-      const topButton = root.querySelector(
-        '[data-page-nav-top]'
-      ) as HTMLButtonElement | null;
+      ).filter(node => node instanceof HTMLElement);
+      const topButton = root.querySelector('[data-page-nav-top]');
 
       const getSections = () =>
         links
@@ -161,20 +155,13 @@ const initialItem = visibleItems[0];
             const element = document.getElementById(id);
             return element ? { id, element } : null;
           })
-          .filter(
-            (
-              value
-            ): value is {
-              id: string;
-              element: HTMLElement;
-            } => Boolean(value)
-          );
+          .filter(Boolean);
 
       let sections = getSections();
       let ticking = false;
-      let observer: IntersectionObserver | null = null;
+      let observer = null;
 
-      const syncStats = (activeIndex: number, ratio: number) => {
+      const syncStats = (activeIndex, ratio) => {
         const stepText = `${(activeIndex + 1).toString().padStart(2, '0')} / ${sections.length.toString().padStart(2, '0')}`;
         const percentText = `${Math.round(ratio * 100)}%`;
 
@@ -187,7 +174,7 @@ const initialItem = visibleItems[0];
         });
       };
 
-      const setActive = (activeId: string) => {
+      const setActive = activeId => {
         links.forEach(link => {
           const isActive = link.dataset.pageNavTarget === activeId;
           link.classList.toggle('is-active', isActive);
@@ -368,6 +355,7 @@ const initialItem = visibleItems[0];
 
 <style>
   .page-navigator {
+    display: none;
     position: fixed;
     right: 1.1rem;
     top: 50%;
@@ -687,6 +675,10 @@ const initialItem = visibleItems[0];
   }
 
   @media (min-width: 1280px) {
+    .page-navigator {
+      display: block;
+    }
+
     .page-navigator__desktop {
       display: block;
     }

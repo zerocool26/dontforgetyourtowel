@@ -161,7 +161,9 @@ const pageNavigator = {
           <p class="tone-body max-w-3xl text-base leading-relaxed">
             {resolvedSubpage.description}
           </p>
-          <p class="tone-body max-w-3xl text-sm leading-relaxed">
+          <p
+            class="tone-body hidden max-w-3xl text-sm leading-relaxed md:block"
+          >
             {resolvedSubpage.intro}
           </p>
           <div class="flex flex-col gap-3 sm:flex-row">
@@ -246,7 +248,7 @@ const pageNavigator = {
                     0{index + 1}
                   </span>
                   <div class="min-w-0">
-                    <h2 class="tone-title text-3xl font-semibold">
+                    <h2 class="tone-title text-2xl font-semibold">
                       {section.title}
                     </h2>
                     <p class="tone-body mt-3 text-sm leading-relaxed">
@@ -309,7 +311,7 @@ const pageNavigator = {
               <TradePhaseStudio
                 eyebrow={`${trade.shortName} Route Logic`}
                 title="Execution lens"
-                description={`${resolvedSubpage.callout.note} Use this view to keep required inputs, field checkpoints, and owner handoff expectations in one place.`}
+                description={`${resolvedSubpage.callout.note} Keep required inputs, field checkpoints, and owner handoff expectations in one place.`}
                 accent={trade.accent}
                 phases={routeExecutionPhases}
               />

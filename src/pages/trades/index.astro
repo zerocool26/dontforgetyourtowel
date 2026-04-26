@@ -129,9 +129,9 @@ const pageNavigator = {
             routing.
           </h1>
           <p class="max-w-3xl text-base leading-8 text-slate-300 sm:text-lg">
-            The directory now works best as a decision layer: compare the
-            divisions, understand how they operate, and move into the right
-            overview page without wading through generic contractor language.
+            Compare the divisions, understand how they operate, and move into
+            the right overview page without wading through generic contractor
+            language.
           </p>
           <div class="flex flex-col gap-3 sm:flex-row">
             <ModernButton
@@ -166,7 +166,7 @@ const pageNavigator = {
                     ? 'Each lead division has its own overview page.'
                     : signal.label === 'Trade subpages'
                       ? 'Specialist routes extend the main division pages.'
-                      : 'Homepage and services stay connected to every lane.'}
+                      : 'Homepage and services stay connected.'}
                 </p>
               </ModernCard>
             ))
@@ -186,7 +186,7 @@ const pageNavigator = {
       <TradeCoordinationMatrix
         eyebrow="Coordination Matrix"
         title="Compare how the trades actually operate."
-        description="This layer shows what makes each vertical meaningfully different: operating model, service rhythm, owner outputs, and the trade/program connections that sit behind the visual surface."
+        description="Compare operating model, service rhythm, owner outputs, and trade-program connections without leaving the directory."
         items={tradeMatrixItems}
       />
     </div>
@@ -202,7 +202,7 @@ const pageNavigator = {
       <div class="grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
         {
           tradeProfiles.map(trade => (
-            <TradeDirectoryCard trade={trade} showMarketFocus={true} />
+            <TradeDirectoryCard trade={trade} showMarketFocus={false} />
           ))
         }
       </div>
@@ -228,9 +228,8 @@ const pageNavigator = {
           Some scopes belong to one division. Others need a coordinated stack.
         </h2>
         <p class="text-base leading-7 text-slate-300">
-          These recurring programs show where the directory should help buyers
-          think across connected lanes instead of treating every project as a
-          single-trade problem.
+          These recurring programs help buyers think across connected lanes
+          instead of treating every project as a single-trade problem.
         </p>
       </div>
       <div class="grid gap-5 xl:grid-cols-3">

@@ -55,19 +55,19 @@ const faqSchema = {
 const pricingDrivers = [
   {
     title: 'User and device count',
-    copy: 'Seats, endpoints, servers, and site complexity are still the most direct cost inputs for recurring managed services.',
+    copy: 'Seats, endpoints, servers, and site complexity are the clearest pricing inputs.',
   },
   {
     title: 'Coverage and response expectations',
-    copy: 'Business-hours support, after-hours response, security triage, and escalation depth materially change the operating model.',
+    copy: 'Business-hours support, after-hours response, and escalation depth change the operating model fast.',
   },
   {
     title: 'Security and compliance depth',
-    copy: 'Identity hardening, audit readiness, managed response, and evidence habits increase the amount of ongoing operational work.',
+    copy: 'Identity hardening, audit readiness, and managed response increase ongoing operational work.',
   },
   {
     title: 'Project and platform workstreams',
-    copy: 'Cloud modernization, automation, application support, and engineering tracks sit on top of the monthly operating baseline when needed.',
+    copy: 'Cloud modernization, automation, and engineering work sit on top of the monthly baseline when needed.',
   },
 ];
 ---
@@ -115,9 +115,8 @@ const pricingDrivers = [
               operations.
             </h1>
             <p class="max-w-3xl text-base leading-8 text-slate-300 sm:text-lg">
-              The goal of this page is simple: help buyers understand the plan
-              levels, the cost drivers, and the planning tools available before
-              they ask for a tailored quote.
+              Compare plan levels, major cost drivers, and planning tools before
+              you ask for a tailored quote.
             </p>
           </div>
 
@@ -148,7 +147,7 @@ const pricingDrivers = [
           <p
             class="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-white/45"
           >
-            Illustrative pricing — final scope is validated in discovery
+            Guide pricing only — final scope is confirmed in discovery
           </p>
         </div>
 
@@ -161,7 +160,7 @@ const pricingDrivers = [
                 What changes price most
               </p>
               <p class="mt-3 text-lg font-semibold text-white">
-                Pricing is tied to operating reality, not vague package names.
+                Pricing follows operating reality, not vague package names.
               </p>
             </div>
 
@@ -222,9 +221,8 @@ const pricingDrivers = [
             Choose the operating lane that matches your current pressure.
           </h2>
           <p class="text-base leading-7 text-slate-300">
-            Start with the level of support, security, and strategic involvement
-            you actually need. The deeper engineering and modernization work can
-            be layered in once the baseline is stable.
+            Start with the level of support and security you actually need, then
+            layer in deeper engineering later.
           </p>
         </div>
 
@@ -306,9 +304,8 @@ const pricingDrivers = [
           Four things that tend to move pricing the most.
         </h2>
         <p class="text-base leading-7 text-slate-300">
-          This is the practical context behind the plan table. If your
-          environment is changing quickly, these are usually the levers that
-          explain why one scope lands in Growth, Secure+, or Custom.
+          These are the levers that usually explain why a scope lands in Growth,
+          Secure+, or Custom.
         </p>
       </div>
 
@@ -339,9 +336,8 @@ const pricingDrivers = [
           Compare the depth of support, security, and strategic coverage.
         </h2>
         <p class="text-base leading-7 text-slate-300">
-          The matrix below helps clarify what changes as you move from a
-          baseline support plan into stronger security coverage or a custom
-          operating model.
+          The matrix below shows what changes as you move from baseline support
+          to deeper security coverage or a custom model.
         </p>
       </div>
 
@@ -398,9 +394,7 @@ const pricingDrivers = [
           Estimate cost and business impact before you ask for a tailored quote.
         </h2>
         <p class="text-base leading-7 text-slate-300">
-          These calculators stay on the site because they help buyers
-          pressure-test assumptions before discovery. They are not a replacement
-          for scoping, but they do make the conversation better.
+          Use these calculators to pressure-test assumptions before discovery.
         </p>
       </div>
 
@@ -410,14 +404,14 @@ const pricingDrivers = [
           ctaHref={requestQuoteHref}
           ctaLabel="Email for a quote"
           title="Estimate monthly cost"
-          description="Use the model to sanity-check budget before discovery. We will validate the assumptions once we understand your users, devices, response expectations, and project scope."
+          description="Use the model to sanity-check budget before discovery. We validate the assumptions once we understand your users, devices, and response expectations."
         />
         <ROICalculator
           client:visible
           ctaHref={requestQuoteHref}
           ctaLabel="Request ROI review"
           title="Model business impact"
-          description="Translate stronger support coverage, fewer emergency escalations, and better security hygiene into a rough payback story for leadership."
+          description="Translate stronger support coverage and fewer escalations into a rough payback story for leadership."
         />
       </div>
     </div>
@@ -438,9 +432,8 @@ const pricingDrivers = [
             Common questions around scope, onboarding, and fit.
           </h2>
           <p class="text-base leading-7 text-slate-300">
-            These answers focus on the practical buying questions that typically
-            come up before discovery, especially for co-managed environments and
-            teams with compliance pressure.
+            These answers focus on the practical buying questions that usually
+            come up before discovery.
           </p>
           <ModernButton
             href={withBasePath('services/#faq')}
@@ -474,10 +467,8 @@ const pricingDrivers = [
               Need a best-fit quote instead of a rough estimate?
             </h2>
             <p class="max-w-2xl text-base leading-7 text-slate-300">
-              Send over user counts, critical systems, compliance needs, support
-              hours, and any major cloud or security priorities. That is usually
-              enough to recommend the right lane and shape the next
-              conversation.
+              Send over user counts, critical systems, support hours, and any
+              major security or cloud priorities.
             </p>
           </div>
 

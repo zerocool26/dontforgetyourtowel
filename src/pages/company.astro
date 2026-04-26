@@ -15,35 +15,34 @@ const companySignals = [
   {
     label: 'Service divisions',
     value: String(tradeProfiles.length),
-    detail:
-      'Each division keeps its own operating model, scope language, and buyer path.',
+    detail: 'Each division keeps its own operating model and buyer path.',
   },
   {
     label: 'Specialist routes',
     value: `${totalTradeSubpages}+`,
     detail:
-      'Trade subpages explain the practical workflows behind retrofit delivery, controls, logistics, and managed operations.',
+      'Specialist routes cover retrofit delivery, controls, logistics, and managed operations.',
   },
   {
     label: 'Cross-trade programs',
     value: String(tradePrograms.length),
     detail:
-      'The platform is designed to support combined delivery when one problem spans more than one lane.',
+      'The platform supports combined delivery when one problem spans more than one lane.',
   },
 ];
 
 const positioningPoints = [
   {
     title: 'Built for real operational constraints',
-    copy: 'The company narrative now emphasizes what buyers actually need to understand: access, shutdowns, occupancy, service coverage, risk, and owner outcomes.',
+    copy: 'The company story centers on access, shutdowns, occupancy, service coverage, risk, and owner outcomes.',
   },
   {
     title: 'Structured around distinct divisions',
-    copy: 'Mechanical, electrical, plumbing, general contracting, HVAC, auto repair, and managed technology are presented as real business lanes — not generic subsections of one broad page.',
+    copy: 'Each trade and technology lane is presented as a real business function, not a subsection of one broad page.',
   },
   {
     title: 'Still capable of integrated delivery',
-    copy: 'The platform can stay in one lane when the scope is narrow, or combine trades and technology when the project or operating problem demands it.',
+    copy: 'The platform can stay in one lane or combine trades and technology when the scope demands it.',
   },
 ];
 
@@ -59,22 +58,22 @@ const deliveryModel = [
   {
     step: '01',
     title: 'Start with the real constraint',
-    copy: 'A good engagement starts by identifying the operational pressure: occupancy risk, support burden, timeline compression, security exposure, or maintenance continuity.',
+    copy: 'Start with the operational pressure: occupancy risk, support burden, timeline compression, or security exposure.',
   },
   {
     step: '02',
     title: 'Assign the lead division',
-    copy: 'One lane should own the conversation first, even when adjacent trades or technology services are likely to be involved later.',
+    copy: 'One lane should own the conversation first, even when adjacent services will matter later.',
   },
   {
     step: '03',
     title: 'Connect interfaces early',
-    copy: 'When more than one lane matters, those handoffs are surfaced at the beginning instead of getting discovered during delivery.',
+    copy: 'When more than one lane matters, the handoffs are surfaced early instead of during delivery.',
   },
   {
     step: '04',
     title: 'Close with usable outputs',
-    copy: 'The site consistently emphasizes owner outputs like startup logs, asset information, service reporting, closeout packages, and next-step planning.',
+    copy: 'Close with usable outputs like startup records, asset information, reporting, and next-step planning.',
   },
 ];
 
@@ -114,14 +113,12 @@ const tradeOverview = tradeProfiles.map(trade => ({
             <h1
               class="max-w-4xl text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl"
             >
-              A delivery platform organized to make complex service businesses
+              A delivery platform built to make complex service businesses
               easier to understand.
             </h1>
             <p class="max-w-3xl text-base leading-8 text-slate-300 sm:text-lg">
-              Olive Global Systems is now presented as a clear operating
-              platform: distinct divisions, clearer buyer paths, visible
-              cross-trade programs, and a consistent emphasis on how work is
-              actually delivered.
+              Olive Global Systems is organized around distinct divisions,
+              clearer buyer paths, and visible cross-trade programs.
             </p>
           </div>
 
@@ -192,9 +189,8 @@ const tradeOverview = tradeProfiles.map(trade => ({
           The company page now explains the business in plain operational terms.
         </h2>
         <p class="text-base leading-7 text-slate-300">
-          Instead of talking about the site architecture as if it is the
-          product, this page now explains why the company is organized the way
-          it is and how that structure benefits buyers.
+          It explains why the company is organized this way and how that helps
+          buyers move faster.
         </p>
       </div>
 
@@ -231,9 +227,8 @@ const tradeOverview = tradeProfiles.map(trade => ({
             A clearer sequence from first conversation to usable outcome.
           </h2>
           <p class="text-base leading-7 text-slate-300">
-            The site now consistently describes delivery as a sequence: identify
-            the constraint, choose the lead lane, connect dependencies, and
-            finish with outputs the client can actually use.
+            Delivery is framed as a sequence: identify the constraint, choose
+            the lead lane, connect dependencies, and finish with usable outputs.
           </p>
         </div>
 
@@ -275,10 +270,7 @@ const tradeOverview = tradeProfiles.map(trade => ({
           The business is framed around the environments it is built to support.
         </h2>
         <p class="text-base leading-7 text-slate-300">
-          These are the types of environments repeatedly reflected across the
-          divisions: occupied buildings, service-heavy businesses, operationally
-          sensitive facilities, and organizations that need both physical and
-          digital delivery support.
+          These are the environments repeatedly reflected across the divisions.
         </p>
       </div>
 
@@ -314,13 +306,12 @@ const tradeOverview = tradeProfiles.map(trade => ({
           <h2
             class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
           >
-            Each division exists for a reason, and each one communicates
-            differently.
+            Each division exists for a reason, and each one leads different
+            work.
           </h2>
           <p class="text-base leading-7 text-slate-300">
-            The company page should not replace the trade pages, but it should
-            make it obvious where each one fits and what kind of work it is
-            built to lead.
+            This page should make it obvious where each one fits before you go
+            deeper.
           </p>
         </div>
 
@@ -410,7 +401,7 @@ const tradeOverview = tradeProfiles.map(trade => ({
               understand.
             </h2>
             <p class="text-base leading-7 text-slate-300">
-              These recurring program types show how the company can combine
+              These recurring program types show how the company combines
               physical trades and technology support without turning the buyer
               experience into a maze.
             </p>

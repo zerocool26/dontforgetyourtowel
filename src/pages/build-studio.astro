@@ -16,6 +16,7 @@ import { withBasePath } from '../utils/helpers';
   description="Interactive planning route for shaping a digital system brief around scope, priorities, rollout pace, and linked live surfaces."
   bodyClass="creative-page"
   mainClass="relative isolate overflow-x-clip"
+  showFooter={true}
   showStickyCTA={false}
   showLiveChat={false}
   showSavedRoutesDock={false}
@@ -38,14 +39,13 @@ import { withBasePath } from '../utils/helpers';
         <div class="space-y-6">
           <span class="creative-kicker">Interactive planning route</span>
           <h1 class="creative-title tone-title text-4xl font-bold sm:text-5xl">
-            Shape a digital system brief around real scope, rollout pace, and
-            buyer priorities.
+            Shape a digital system brief around scope, rollout pace, and buyer
+            priorities.
           </h1>
           <p class="creative-copy text-base sm:text-lg">
-            Build Studio now works better as a planning surface than a bragging
-            surface. Use it to combine capabilities, compare rollout pace,
-            generate a cleaner intake brief, and see which live routes already
-            support the system you have in mind.
+            Use Build Studio to combine capabilities, compare rollout pace,
+            generate a cleaner intake brief, and jump into the live routes that
+            already support the system you have in mind.
           </p>
 
           <div class="flex flex-col gap-3 sm:flex-row">
@@ -54,7 +54,7 @@ import { withBasePath } from '../utils/helpers';
               variant="primary"
               className="min-h-[48px]"
             >
-              Open planning studio
+              Open studio
             </ModernButton>
             <ModernButton
               href={withBasePath('about/')}
@@ -75,8 +75,8 @@ import { withBasePath } from '../utils/helpers';
               {studioPresets.length}
             </p>
             <p class="tone-body mt-2 text-sm">
-              Starting directions for planning launch, operations, trust, or
-              commerce-oriented systems.
+              Starting directions for launch, operations, trust, or commerce
+              systems.
             </p>
           </ModernCard>
           <ModernCard variant="glass" className="p-5">
@@ -88,7 +88,7 @@ import { withBasePath } from '../utils/helpers';
             </p>
             <p class="tone-body mt-2 text-sm">
               Existing routes already carrying the patterns this planner can
-              extend into a fuller system.
+              extend.
             </p>
           </ModernCard>
           <ModernCard variant="glass" className="p-5 sm:col-span-2">
@@ -99,9 +99,9 @@ import { withBasePath } from '../utils/helpers';
               It turns a vague request into a more structured system brief.
             </p>
             <p class="tone-body mt-2 text-sm">
-              Instead of showing isolated widgets, Build Studio helps explain
-              how planning, capability choices, linked routes, and rollout
-              discipline fit together.
+              Instead of showing isolated widgets, it shows how planning,
+              capability choices, linked routes, and rollout discipline fit
+              together.
             </p>
           </ModernCard>
         </div>
@@ -126,12 +126,12 @@ import { withBasePath } from '../utils/helpers';
     <div class="max-w-3xl space-y-4">
       <span class="creative-kicker">Why this route is useful</span>
       <h2 class="creative-title tone-title text-3xl font-semibold sm:text-4xl">
-        What this planning route proves technically
+        What this route proves technically
       </h2>
       <p class="creative-copy text-sm sm:text-base">
-        The point is not the interface chrome. The useful part is that the
-        planner is backed by modular data, deterministic logic, client-safe
-        state, deployment-safe routing, and validation that keeps it stable.
+        The point is not the chrome. The useful part is the modular data,
+        deterministic logic, client-safe state, deployment-safe routing, and
+        validation behind it.
       </p>
     </div>
 
@@ -159,9 +159,8 @@ import { withBasePath } from '../utils/helpers';
           Live routes already supporting parts of the system
         </h2>
         <p class="creative-copy text-sm sm:text-base">
-          Every recommendation points at a real route in the repo so the studio
-          remains tied to working product surfaces instead of imaginary future
-          pages.
+          Every recommendation points at a real route so the studio stays tied
+          to working product surfaces instead of imaginary future pages.
         </p>
       </div>
 

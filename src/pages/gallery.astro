@@ -15,7 +15,7 @@ const gallerySignals = [
   {
     label: 'Installations',
     value: String(galleryInstallations.length),
-    detail: 'A filterable set of route-linked interface and layout studies.',
+    detail: 'Filterable route-linked interface and layout studies.',
   },
   {
     label: 'Trade references',
@@ -26,23 +26,22 @@ const gallerySignals = [
   {
     label: 'View modes',
     value: 'Poster / Salon / Index',
-    detail:
-      'Move from visual exploration to fast route review without leaving the page.',
+    detail: 'Move from visual exploration to fast route review.',
   },
 ];
 
 const galleryPrinciples = [
   {
     title: 'Built from real scope',
-    copy: 'Every study starts with actual delivery logic such as sequencing, controls flow, diagnostics, phasing, or owner handoff instead of generic agency filler.',
+    copy: 'Each study starts with real delivery logic instead of agency filler.',
   },
   {
     title: 'Exploration with boundaries',
-    copy: 'The page still experiments with materials, density, and composition, but the route structure remains readable and usable on smaller screens.',
+    copy: 'The page still experiments, but the route structure stays readable on smaller screens.',
   },
   {
     title: 'Tied back to the live site',
-    copy: 'Each installation links back to a working trade or platform page so the gallery behaves like a reference layer instead of a disconnected mood board.',
+    copy: 'Every installation links back to a working route instead of floating as a disconnected mood board.',
   },
 ];
 
@@ -50,19 +49,18 @@ const galleryRoutes = [
   {
     title: 'Trade Directory',
     description:
-      'See every service division in one place when you want the fastest route into the site.',
+      'See every division in one place when you want the fastest route into the site.',
     href: withBasePath('trades/'),
   },
   {
     title: 'About The Platform',
-    description:
-      'Read the operating model behind the multi-division site and how the routes fit together.',
+    description: 'Read the operating model behind the multi-division site.',
     href: withBasePath('company/'),
   },
   {
     title: 'Build Studio',
     description:
-      'Open the optional experimental demo route if you want the more expressive interactive experience.',
+      'Open the planning route if you want a more interactive system brief.',
     href: withBasePath('build-studio/#studio'),
   },
 ];
@@ -142,14 +140,12 @@ const pageNavigator = {
               <span class="creative-gradient-text--accent">
                 real trade and platform work
               </span>
-              rather than filler concepts.
+              instead of filler concepts.
             </h1>
             <p class="creative-copy text-white/78 max-w-3xl text-lg sm:text-xl">
-              Use this page to compare interface language, material direction,
-              and layout systems that were built from live routes across the
-              site. It is meant to be a useful reference library first, with
-              enough motion and polish to stay memorable without drowning the
-              information.
+              Compare interface language, material direction, and layout systems
+              built from live routes across the site — memorable, but still easy
+              to scan.
             </p>
           </div>
 
@@ -262,9 +258,8 @@ const pageNavigator = {
               Filter by discipline or switch into a faster scan mode.
             </h2>
             <p class="tone-body max-w-3xl text-sm leading-relaxed">
-              The controls are intentionally light. You can explore the visual
-              system when you want, then jump straight into the linked working
-              route without fighting the interface.
+              The controls stay intentionally light so you can explore fast,
+              then jump into the linked route without fighting the interface.
             </p>
           </div>
 
@@ -739,7 +734,7 @@ const pageNavigator = {
 
   .gallery-feature-stage {
     position: relative;
-    min-height: 320px;
+    min-height: 280px;
     overflow: hidden;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     background:
@@ -875,7 +870,7 @@ const pageNavigator = {
     gap: 0;
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 1.75rem;
+    border-radius: 1.35rem;
     background:
       linear-gradient(
         160deg,
@@ -883,7 +878,7 @@ const pageNavigator = {
         rgba(255, 255, 255, 0)
       ),
       rgba(5, 7, 14, 0.88);
-    box-shadow: 0 36px 90px -44px rgba(0, 0, 0, 0.96);
+    box-shadow: 0 20px 54px -32px rgba(0, 0, 0, 0.88);
     transition:
       transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
       border-color 0.35s ease,
@@ -894,10 +889,10 @@ const pageNavigator = {
 
   @media (hover: hover) {
     .gallery-card:hover {
-      transform: translateY(-4px);
+      transform: translateY(-2px);
       border-color: color-mix(in srgb, var(--gallery-accent) 32%, transparent);
       box-shadow:
-        0 42px 110px -48px rgba(0, 0, 0, 0.98),
+        0 28px 68px -36px rgba(0, 0, 0, 0.9),
         0 0 42px -24px
           color-mix(in srgb, var(--gallery-accent) 36%, transparent);
     }
@@ -997,7 +992,7 @@ const pageNavigator = {
   .gallery-card__content {
     display: grid;
     gap: 1.1rem;
-    padding: 1.3rem;
+    padding: 1.15rem;
   }
 
   .gallery-card__metric {
@@ -1236,12 +1231,12 @@ const pageNavigator = {
   /* Tighten card content padding on small screens */
   @media (max-width: 480px) {
     .gallery-card__content {
-      padding: 1rem;
-      gap: 0.85rem;
+      padding: 0.95rem;
+      gap: 0.8rem;
     }
 
     .gallery-card__poster {
-      min-height: 200px;
+      min-height: 180px;
     }
   }
 

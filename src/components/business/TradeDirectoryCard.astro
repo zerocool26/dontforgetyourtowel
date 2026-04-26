@@ -24,7 +24,7 @@ const tradeOperations = getTradeOperations(trade.slug);
 ---
 
 <ModernCard
-  variant="glass"
+  variant="elevated"
   className="h-full p-6"
   style={`--trade-accent: ${trade.accent};`}
 >
@@ -87,7 +87,7 @@ const tradeOperations = getTradeOperations(trade.slug);
 
   <ul class="tone-body mt-3 space-y-2 text-sm">
     {
-      trade.serviceLines.slice(0, 3).map(line => (
+      trade.serviceLines.slice(0, 2).map(line => (
         <li class="flex items-start gap-2">
           <span
             class="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full"
@@ -102,9 +102,6 @@ const tradeOperations = getTradeOperations(trade.slug);
   <div class="mt-6 flex flex-wrap gap-3">
     <ModernButton href={tradeHref} variant="primary" className="min-h-[46px]">
       {tradeVisual.cardCta}
-    </ModernButton>
-    <ModernButton href={withBasePath('services/')} variant="secondary">
-      Services hub
     </ModernButton>
   </div>
 

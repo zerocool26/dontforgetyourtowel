@@ -39,32 +39,32 @@ const operatingHighlights = [
   {
     label: 'Service divisions',
     value: `${tradeProfiles.length}`,
-    note: 'Mechanical, electrical, plumbing, general contracting, commercial HVAC, auto repair, and managed technology.',
+    note: 'Mechanical, electrical, plumbing, general contracting, HVAC, auto repair, and managed technology.',
   },
   {
     label: 'Specialist routes',
     value: `${totalTradeSubpages}+`,
-    note: 'Dedicated pages for retrofit delivery, controls, site logistics, service bays, and managed operations.',
+    note: 'Dedicated routes for retrofit delivery, controls, logistics, service bays, and managed operations.',
   },
   {
     label: 'Retained services',
     value: `${servicesExtended.length}+`,
-    note: 'Managed IT, security, cloud, automation, ecommerce, AI, and digital systems remain part of the delivery stack.',
+    note: 'Managed IT, security, cloud, automation, ecommerce, AI, and digital systems remain in view.',
   },
 ];
 
 const platformFocus = [
   {
     title: 'Capital projects and phased renovations',
-    copy: 'General contracting, MEP trades, and HVAC are organized around access, shutdowns, sequencing, and turnover — not just isolated scopes.',
+    copy: 'Built around access, shutdowns, sequencing, and clean turnover.',
   },
   {
     title: 'Occupied buildings and continuity-sensitive work',
-    copy: 'Mechanical, electrical, plumbing, and HVAC delivery are framed around keeping facilities usable while work progresses.',
+    copy: 'Keeps facilities usable while trade work moves in controlled phases.',
   },
   {
-    title: 'Managed operations and technology delivery',
-    copy: 'MSP, security, cloud, AI, and business systems are visible alongside the field-facing trades instead of hidden on a disconnected tech page.',
+    title: 'AI Orchestration & Advanced Dev',
+    copy: 'AI, cloud, security, automation, and business systems stay connected to the field-facing delivery picture.',
   },
 ];
 
@@ -90,22 +90,22 @@ const deliveryStages = [
   {
     step: '01',
     title: 'Scope the work in operational terms',
-    copy: 'Start with the constraints that actually matter: access, shutdowns, occupancy, support coverage, risk, and owner outcomes.',
+    copy: 'Start with access, occupancy, risk, support coverage, and owner outcomes.',
   },
   {
     step: '02',
     title: 'Assign the right lane and interfaces',
-    copy: 'Each trade or service lane keeps its own operating model, while connected trades are surfaced early instead of discovered late.',
+    copy: 'Pick the lead lane early and surface connected trades before execution starts.',
   },
   {
     step: '03',
     title: 'Execute against readiness, not assumptions',
-    copy: 'Release work based on actual room readiness, outage windows, controls dependencies, field verification, and service routing.',
+    copy: 'Release work against readiness, outage windows, verification, and real dependencies.',
   },
   {
     step: '04',
     title: 'Close out with usable owner outputs',
-    copy: 'Turnover focuses on startup logs, asset information, operating documentation, punch control, and clear next actions.',
+    copy: 'Close with documentation, startup records, punch control, and clear next steps.',
   },
 ];
 ---
@@ -121,7 +121,7 @@ const deliveryStages = [
   showSavedRoutesDock={false}
 >
   <section
-    class="relative overflow-hidden border-b border-white/10"
+    class="relative min-h-[100svh] overflow-hidden border-b border-white/10"
     id="landing-hero"
     data-page-section
     data-olive-universe="ready"
@@ -137,7 +137,7 @@ const deliveryStages = [
     </div>
 
     <div
-      class="premium-container relative z-10 pb-8 pt-18 sm:pb-16 sm:pt-28 lg:pb-18 lg:pt-32"
+      class="premium-container relative z-10 flex min-h-[100svh] items-end pb-8 pt-18 sm:pb-16 sm:pt-28 lg:pb-18 lg:pt-32"
     >
       <div class="grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
         <div class="space-y-7">
@@ -146,14 +146,13 @@ const deliveryStages = [
             <h1
               class="premium-title text-4xl font-semibold sm:text-5xl lg:text-6xl"
             >
-              Creative technology and integrated trade delivery built around
-              real operating constraints.
+              Creative technology and integrated trade delivery for complex
+              operating environments.
               <span class="sr-only"> Immersive landing experience.</span>
             </h1>
             <p class="premium-copy text-base sm:text-lg">
-              This site now leads with what matters most: what each division
-              actually does, how work is delivered, where trades connect, and
-              what buyers should expect before starting a project.
+              See the divisions, delivery logic, and cross-trade programs
+              without digging through generic marketing filler.
             </p>
           </div>
 
@@ -455,8 +454,8 @@ const deliveryStages = [
     <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
       <SignalCabinet
         eyebrow="Operational signals"
-        title="Compare how the core divisions actually behave."
-        description="This interactive layer keeps the landing page useful: click through the lead divisions to see how operating model, service rhythm, and owner outputs differ before you go deeper."
+        title="Compare how the core divisions operate."
+        description="Click through the lead divisions to see their operating model, rhythm, and owner outputs before you go deeper."
         accent="#93c5fd"
         items={landingSignalItems}
       />
@@ -479,11 +478,10 @@ const deliveryStages = [
         <h2
           class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
         >
-          Delivery lanes built for projects, facilities, and ongoing operations.
+          Delivery lanes for projects, facilities, and ongoing operations.
         </h2>
         <p class="text-base leading-7 text-slate-300">
-          The site now emphasizes practical fit instead of generic claims. These
-          are the main problem spaces the platform is designed to handle.
+          These are the problem spaces the platform is built to handle best.
         </p>
       </div>
 
@@ -491,21 +489,11 @@ const deliveryStages = [
         {
           platformFocus.map(item => (
             <ModernCard variant="default" className="h-full p-7">
-              <p class="text-lg font-semibold text-white">{item.title}</p>
+              <h3 class="text-lg font-semibold text-white">{item.title}</h3>
               <p class="mt-3 text-sm leading-7 text-slate-300">{item.copy}</p>
             </ModernCard>
           ))
         }
-        <ModernCard variant="default" className="h-full p-7">
-          <h3 class="text-lg font-semibold text-white">
-            AI Orchestration & Advanced Dev
-          </h3>
-          <p class="mt-3 text-sm leading-7 text-slate-300">
-            The technology lane still covers AI integration, workflow
-            automation, advanced application support, and business systems work
-            when the right starting point is digital rather than field-led.
-          </p>
-        </ModernCard>
       </div>
     </div>
   </section>
@@ -529,13 +517,10 @@ const deliveryStages = [
           <h2
             class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
           >
-            Each division has its own operating model, service rhythm, and owner
-            output.
+            Each division has its own operating model and owner output.
           </h2>
           <p class="text-base leading-7 text-slate-300">
-            Instead of hiding everything behind style, the homepage now surfaces
-            the basic operating logic for each lane so buyers can orient
-            quickly.
+            The homepage surfaces the basics fast so buyers can orient quickly.
           </p>
         </div>
 
@@ -598,14 +583,6 @@ const deliveryStages = [
                     {operations.serviceRhythm}
                   </dd>
                 </div>
-                <div>
-                  <dt class="font-mono text-[0.66rem] uppercase tracking-[0.2em] text-white/45">
-                    Typical project window
-                  </dt>
-                  <dd class="mt-1 text-slate-300">
-                    {operations.projectWindow}
-                  </dd>
-                </div>
               </dl>
             </a>
           ))
@@ -630,11 +607,10 @@ const deliveryStages = [
         <h2
           class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
         >
-          The site now explains how work moves, not just what the brand says.
+          The site explains how work moves, not just what the brand says.
         </h2>
         <p class="text-base leading-7 text-slate-300">
-          A more professional site should help a buyer understand the workflow.
-          These four stages are the spine of the new homepage structure.
+          These four stages are the spine of the buyer journey.
         </p>
       </div>
 
@@ -683,13 +659,11 @@ const deliveryStages = [
         <h2
           class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
         >
-          Some client needs cross more than one lane. That relationship is now
-          visible.
+          Some scopes cross more than one lane.
         </h2>
         <p class="text-base leading-7 text-slate-300">
-          Rather than forcing every buyer into a single silo, the homepage now
-          shows how recurring program types combine the right trades and
-          outputs.
+          These recurring programs show where the right answer is coordinated,
+          not siloed.
         </p>
       </div>
 
@@ -740,14 +714,11 @@ const deliveryStages = [
             <h2
               class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
             >
-              Need the right division, the right starting scope, or the right
-              program shape?
+              Need the right division or a cleaner starting scope?
             </h2>
             <p class="max-w-2xl text-base leading-7 text-slate-300">
-              Browse the trade directory, work through the services hub, or send
-              a brief describing your facility, project, environment, or
-              operational problem. The site is now organized to make that first
-              step easier.
+              Browse the directory, use the services hub, or send a short brief
+              with the problem you need solved.
             </p>
           </div>
 

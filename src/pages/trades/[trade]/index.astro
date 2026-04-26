@@ -147,7 +147,9 @@ const pageNavigator = {
           <p class="tone-body max-w-3xl text-base leading-relaxed">
             {trade.summary}
           </p>
-          <p class="tone-body text-white/72 max-w-3xl text-sm leading-relaxed">
+          <p
+            class="tone-body text-white/72 hidden max-w-3xl text-sm leading-relaxed md:block"
+          >
             {trade.heroDescription}
           </p>
           <p class="tone-body text-white/62 max-w-3xl text-sm leading-relaxed">
@@ -280,7 +282,7 @@ const pageNavigator = {
         <div class="grid gap-5">
           <TradePhaseStudio
             eyebrow={`${trade.shortName} Sequence`}
-            title="Execution board"
+            title="Execution sequence"
             description={`${tradeOperations.operatingModel}. ${tradeOperations.projectWindow}.`}
             accent={trade.accent}
             phases={overviewPhases}
@@ -289,7 +291,7 @@ const pageNavigator = {
           <SignalCabinet
             eyebrow={`${trade.shortName} Signals`}
             title={`${trade.shortName} delivery posture`}
-            description="Use this summary to understand how the division operates in the field, what owners should expect at handoff, and which quality standards shape delivery."
+            description="Use this summary to understand field posture, owner expectations, and the quality standards shaping delivery."
             accent={trade.accent}
             items={tradeSignalItems}
           />
@@ -406,8 +408,8 @@ const pageNavigator = {
                 <div class="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
                   <p class="tone-title text-lg font-semibold">{category}</p>
                   <p class="tone-body mt-2 text-sm">
-                    Preserved from the original services architecture and now
-                    connected cleanly into the seven-division site map.
+                    Preserved from the services architecture and now connected
+                    cleanly into the seven-division site map.
                   </p>
                 </div>
               ))}
