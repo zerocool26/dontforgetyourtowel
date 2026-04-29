@@ -19,7 +19,9 @@ test.describe('Base path smoke', () => {
     await page.goto('contact-hq/');
     await expect(page).toHaveURL(/.*\/contact-hq\/?$/);
     await expect(
-      page.getByRole('heading', { name: /scope your next initiative/i })
+      page.getByRole('heading', {
+        name: /send the right context once and make the next step obvious\./i,
+      })
     ).toBeVisible();
 
     await page.goto('about/?demo=cart#shop-experience');

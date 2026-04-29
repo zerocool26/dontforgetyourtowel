@@ -22,6 +22,24 @@ test.describe('Homepage immersive landing', () => {
     );
   });
 
+  test('should expose homepage section shortcuts from the landing hero', async ({
+    page,
+  }) => {
+    await page.goto('./');
+
+    const jumpLinks = page.locator('[data-home-jump-links]');
+    await expect(jumpLinks.getByRole('link', { name: /^proof$/i })).toHaveCount(
+      1
+    );
+    await expect(
+      jumpLinks.getByRole('link', { name: /^divisions$/i })
+    ).toHaveCount(1);
+
+    await jumpLinks.getByRole('link', { name: /^divisions$/i }).click();
+    await expect(page).toHaveURL(/#directory$/);
+    await expect(page.locator('#directory')).toBeVisible();
+  });
+
   test('desktop sessions should resolve the 3D scene', async ({
     browser,
     baseURL,

@@ -161,33 +161,41 @@ const routeContext = getRouteContext(Astro.url.pathname);
   >
     <RouteAtmosphere />
     <PullToRefresh />
-    <div class="relative z-[1]">
-      <a
-        href="#main-content"
-        class="tone-focus-accent tone-skip-link sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-sm focus:px-4 focus:py-2"
-      >
-        Skip to main content
-      </a>
-      {showHeader ? <Header /> : null}
-      <main
-        id="main-content"
-        class={`${mainClass} ${showMobileNav ? 'pb-[calc(8.5rem+env(safe-area-inset-bottom))] md:pb-24' : ''}`.trim()}
-        tabindex="-1"
-      >
-        <slot />
-      </main>
-      {showFooter ? <Footer /> : null}
+    <div class="tone-site-shell">
+      <div class="tone-site-shell__ambient" aria-hidden="true">
+        <div class="tone-site-shell__grid"></div>
+        <div class="tone-site-shell__orb tone-site-shell__orb--primary"></div>
+        <div class="tone-site-shell__orb tone-site-shell__orb--secondary"></div>
+        <div class="tone-site-shell__orb tone-site-shell__orb--tertiary"></div>
+      </div>
+      <div class="relative z-[1]">
+        <a
+          href="#main-content"
+          class="tone-focus-accent tone-skip-link sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-sm focus:px-4 focus:py-2"
+        >
+          Skip to main content
+        </a>
+        {showHeader ? <Header /> : null}
+        <main
+          id="main-content"
+          class={`tone-main-shell ${mainClass} ${showMobileNav ? 'pb-[calc(8.5rem+env(safe-area-inset-bottom))] md:pb-24' : ''}`.trim()}
+          tabindex="-1"
+        >
+          <slot />
+        </main>
+        {showFooter ? <Footer /> : null}
 
-      {
-        pageNavigator?.items?.length ? (
-          <PageNavigator {...pageNavigator} />
-        ) : null
-      }
-      {showSavedRoutesDock ? <SavedRoutesDock /> : null}
-      {showStickyCTA ? <StickyCTA /> : null}
-      {showMobileNav ? <MobileNav /> : null}
-      <CommandPalette client:only="preact" />
-      {showLiveChat ? <LiveChat client:idle /> : null}
+        {
+          pageNavigator?.items?.length ? (
+            <PageNavigator {...pageNavigator} />
+          ) : null
+        }
+        {showSavedRoutesDock ? <SavedRoutesDock /> : null}
+        {showStickyCTA ? <StickyCTA /> : null}
+        {showMobileNav ? <MobileNav /> : null}
+        <CommandPalette client:only="preact" />
+        {showLiveChat ? <LiveChat client:idle /> : null}
+      </div>
     </div>
 
     <script is:inline>

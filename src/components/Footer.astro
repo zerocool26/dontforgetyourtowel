@@ -34,144 +34,283 @@ const navSections = [
     ],
   },
 ];
+
+const footerSignals = [
+  {
+    label: 'Delivery model',
+    value: '7 divisions',
+    detail:
+      'Field execution, facilities work, and retained systems are mapped together.',
+  },
+  {
+    label: 'Support rhythm',
+    value: 'Project + retained',
+    detail:
+      'One-off scopes can grow into managed support without losing continuity.',
+  },
+  {
+    label: 'Best starting point',
+    value: 'Scope first',
+    detail:
+      'Lead with the operational problem, then route into the right lane.',
+  },
+];
 ---
 
 <footer class="tone-shell-footer tone-border border-t" role="contentinfo">
   <div class="mx-auto max-w-[1240px] px-4 py-12 sm:px-6 sm:py-16">
-    <div
-      class="grid gap-8 sm:gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]"
-    >
-      <div class="space-y-6">
-        <div class="flex items-center gap-3">
-          <span
-            class="tone-border tone-surface inline-flex h-10 w-10 items-center justify-center rounded-lg border text-sm font-semibold uppercase tracking-[0.24em] text-white"
-          >
-            OGS
-          </span>
-          <div class="leading-tight">
-            <p
-              class="tone-title font-display text-sm font-bold uppercase tracking-[0.16em]"
+    <div class="footer-shell tone-panel-soft rounded-[2rem] p-6 sm:p-8 lg:p-10">
+      <div
+        class="grid gap-8 sm:gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]"
+      >
+        <div class="space-y-6">
+          <div class="flex items-center gap-3">
+            <span
+              class="tone-border tone-surface inline-flex h-10 w-10 items-center justify-center rounded-lg border text-sm font-semibold uppercase tracking-[0.24em] text-white"
             >
-              Olive Global Systems
-            </p>
-            <p
-              class="tone-muted font-mono text-[11px] uppercase tracking-[0.2em]"
-            >
-              Integrated trade and technology delivery
-            </p>
-          </div>
-        </div>
-        <p class="tone-body max-w-xl text-sm leading-7 sm:text-[0.95rem]">
-          Olive Global Systems helps teams route building work, managed
-          technology, security, and operational change with clearer scope and
-          clearer ownership.
-        </p>
-        <div class="flex flex-wrap gap-4">
-          <ModernButton
-            href={withBasePath('contact-hq/')}
-            variant="primary"
-            className="min-h-[48px]"
-          >
-            Start a conversation
-          </ModernButton>
-          <ModernButton
-            href={withBasePath('services/')}
-            variant="secondary"
-            className="min-h-[48px]"
-          >
-            Review services
-          </ModernButton>
-        </div>
-        <div
-          class="tone-border tone-elevated tone-body grid gap-3 rounded-2xl border p-5 text-sm sm:max-w-xl sm:grid-cols-2"
-        >
-          <div>
-            <p
-              class="tone-muted font-mono text-[11px] uppercase tracking-[0.2em]"
-            >
-              Where we help most
-            </p>
-            <p class="mb-0 mt-2">
-              Multi-trade delivery, managed IT, cybersecurity, and operational
-              modernization.
-            </p>
-          </div>
-          <div>
-            <p
-              class="tone-muted font-mono text-[11px] uppercase tracking-[0.2em]"
-            >
-              Working model
-            </p>
-            <p class="mb-0 mt-2">
-              Remote-first planning with on-site coordination and retained
-              support when needed.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div class="grid gap-5 sm:grid-cols-2 sm:gap-6">
-        {
-          navSections.map(section => (
-            <ModernCard variant="minimal" className="p-6">
-              <p class="tone-muted tone-border mb-4 border-b pb-3 font-mono text-[11px] font-semibold uppercase tracking-[0.22em]">
-                {section.title}
+              OGS
+            </span>
+            <div class="leading-tight">
+              <p
+                class="tone-title font-display text-sm font-bold uppercase tracking-[0.16em]"
+              >
+                Olive Global Systems
               </p>
-              <ul class="tone-body space-y-3 text-sm">
-                {section.items.map(item => (
-                  <li>
-                    <a
-                      class="inline-flex items-center gap-2 transition hover:text-white"
-                      href={item.href}
-                    >
-                      <span class="tone-accent-dot h-1.5 w-1.5 rounded-full" />
-                      {item.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </ModernCard>
-          ))
-        }
-        <ModernCard variant="glass" className="p-6 sm:col-span-2">
-          <div class="grid gap-6 md:grid-cols-[1fr_auto] md:items-end">
+              <p
+                class="tone-muted font-mono text-[11px] uppercase tracking-[0.2em]"
+              >
+                Integrated trade and technology delivery
+              </p>
+            </div>
+          </div>
+
+          <p class="tone-body max-w-xl text-sm leading-7 sm:text-[0.95rem]">
+            Olive Global Systems helps teams route building work, managed
+            technology, security, and operational change with clearer scope and
+            clearer ownership.
+          </p>
+
+          <div class="flex flex-wrap gap-2">
+            <span class="footer-chip">Capital projects</span>
+            <span class="footer-chip">Managed technology</span>
+            <span class="footer-chip">Cybersecurity</span>
+            <span class="footer-chip">Operational modernization</span>
+          </div>
+
+          <div class="flex flex-wrap gap-4">
+            <ModernButton
+              href={withBasePath('contact-hq/')}
+              variant="primary"
+              className="min-h-[48px]"
+            >
+              Start a conversation
+            </ModernButton>
+            <ModernButton
+              href={withBasePath('services/')}
+              variant="secondary"
+              className="min-h-[48px]"
+            >
+              Review services
+            </ModernButton>
+          </div>
+
+          <div
+            class="tone-border tone-elevated tone-body grid gap-3 rounded-2xl border p-5 text-sm sm:max-w-xl sm:grid-cols-2"
+          >
             <div>
               <p
-                class="tone-muted text-xs font-semibold uppercase tracking-[0.32em]"
+                class="tone-muted font-mono text-[11px] uppercase tracking-[0.2em]"
               >
-                HQ
+                Where we help most
               </p>
-              <p class="mt-4 text-base font-semibold text-white">
-                Start with contact, then route into the right lane.
-              </p>
-              <p class="tone-body mt-3 text-sm leading-7">
-                Best for discovery, support questions, security advisory, and
-                cross-functional planning.
+              <p class="mb-0 mt-2">
+                Multi-trade delivery, managed IT, cybersecurity, and operational
+                modernization.
               </p>
             </div>
-            <div class="flex flex-wrap gap-3 md:justify-end">
-              <ModernButton
-                href={withBasePath('contact-hq/')}
-                variant="primary"
+            <div>
+              <p
+                class="tone-muted font-mono text-[11px] uppercase tracking-[0.2em]"
               >
-                Contact HQ
-              </ModernButton>
-              <ModernButton href={withBasePath('pricing/')} variant="secondary">
-                Pricing
-              </ModernButton>
+                Working model
+              </p>
+              <p class="mb-0 mt-2">
+                Remote-first planning with on-site coordination and retained
+                support when needed.
+              </p>
             </div>
           </div>
-        </ModernCard>
-      </div>
-    </div>
+        </div>
 
-    <div
-      class="tone-border tone-muted mt-10 flex flex-col gap-2 border-t pt-6 text-xs sm:flex-row sm:items-center sm:justify-between"
-    >
-      <p>
-        &copy; {today.getFullYear()} Olive Global Systems. All rights reserved.
-      </p>
-      <p>Built with Astro for speed, clarity, and accessibility.</p>
+        <div class="grid gap-5 sm:grid-cols-2 sm:gap-6">
+          {
+            navSections.map(section => (
+              <ModernCard variant="minimal" className="footer-nav-card p-6">
+                <p class="tone-muted tone-border mb-4 border-b pb-3 font-mono text-[11px] font-semibold uppercase tracking-[0.22em]">
+                  {section.title}
+                </p>
+                <ul class="tone-body space-y-3 text-sm">
+                  {section.items.map(item => (
+                    <li>
+                      <a
+                        class="footer-link inline-flex items-center gap-2 transition hover:text-white"
+                        href={item.href}
+                      >
+                        <span class="tone-accent-dot h-1.5 w-1.5 rounded-full" />
+                        {item.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </ModernCard>
+            ))
+          }
+
+          <ModernCard variant="glass" className="p-6 sm:col-span-2">
+            <div class="grid gap-6 md:grid-cols-[1fr_auto] md:items-end">
+              <div>
+                <p
+                  class="tone-muted text-xs font-semibold uppercase tracking-[0.32em]"
+                >
+                  HQ
+                </p>
+                <p class="mt-4 text-base font-semibold text-white">
+                  Start with contact, then route into the right lane.
+                </p>
+                <p class="tone-body mt-3 text-sm leading-7">
+                  Best for discovery, support questions, security advisory, and
+                  cross-functional planning.
+                </p>
+              </div>
+              <div class="flex flex-wrap gap-3 md:justify-end">
+                <ModernButton
+                  href={withBasePath('contact-hq/')}
+                  variant="primary"
+                >
+                  Contact HQ
+                </ModernButton>
+                <ModernButton
+                  href={withBasePath('pricing/')}
+                  variant="secondary"
+                >
+                  Pricing
+                </ModernButton>
+              </div>
+            </div>
+          </ModernCard>
+        </div>
+      </div>
+
+      <div class="mt-8 grid gap-3 md:grid-cols-3">
+        {
+          footerSignals.map(item => (
+            <div class="footer-signal-card">
+              <p class="footer-signal-card__label">{item.label}</p>
+              <p class="footer-signal-card__value">{item.value}</p>
+              <p class="footer-signal-card__detail">{item.detail}</p>
+            </div>
+          ))
+        }
+      </div>
+
+      <div
+        class="tone-border tone-muted mt-8 flex flex-col gap-2 border-t pt-6 text-xs sm:flex-row sm:items-center sm:justify-between"
+      >
+        <p>
+          &copy; {today.getFullYear()} Olive Global Systems. All rights reserved.
+        </p>
+        <p>Built with Astro for speed, clarity, and accessibility.</p>
+      </div>
     </div>
   </div>
 </footer>
+
+<style>
+  .footer-shell {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .footer-shell::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(
+      circle at top right,
+      color-mix(
+        in srgb,
+        var(--route-accent, var(--color-primary)) 10%,
+        transparent
+      ),
+      transparent 34%
+    );
+    opacity: 0.85;
+  }
+
+  .footer-chip {
+    display: inline-flex;
+    min-height: 2rem;
+    align-items: center;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--color-border) 74%, transparent);
+    background: color-mix(in srgb, var(--color-surface) 82%, transparent);
+    padding: 0 0.8rem;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--color-text-primary) 70%, transparent);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, white 4%, transparent);
+  }
+
+  .footer-nav-card {
+    min-height: 100%;
+  }
+
+  .footer-link {
+    color: color-mix(in srgb, var(--color-text-secondary) 92%, transparent);
+  }
+
+  .footer-link:hover {
+    transform: translateX(2px);
+  }
+
+  .footer-signal-card {
+    border-radius: 1.25rem;
+    border: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
+    background:
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--color-surface) 90%, white 3%),
+        color-mix(in srgb, var(--color-surface) 80%, transparent)
+      ),
+      color-mix(in srgb, var(--color-surface) 82%, transparent);
+    padding: 1rem 1.05rem;
+    box-shadow: inset 0 1px 0 color-mix(in srgb, white 4%, transparent);
+  }
+
+  .footer-signal-card__label {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--color-text-muted) 88%, transparent);
+  }
+
+  .footer-signal-card__value {
+    margin: 0.5rem 0 0;
+    color: var(--color-text-primary);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+  }
+
+  .footer-signal-card__detail {
+    margin: 0.45rem 0 0;
+    color: color-mix(in srgb, var(--color-text-secondary) 92%, transparent);
+    font-size: 0.84rem;
+    line-height: 1.6;
+  }
+</style>
