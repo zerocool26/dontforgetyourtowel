@@ -12,7 +12,7 @@ export async function GET() {
     platform: {
       name: 'Olive Global Systems',
       description:
-        'Integrated trade platform across seven trade divisions, a premium design gallery, and retained digital systems.',
+        'Design-forward MSP+ platform for managed operations, security, cloud, AI, premium proof routes, and supporting gallery references.',
       experienceModes: [
         {
           id: 'cinematic',
@@ -36,11 +36,14 @@ export async function GET() {
     },
     routes: {
       home: '/',
-      about: 'company/',
+      about: 'about/',
+      company: 'company/',
+      proof: 'about/',
       gallery: 'gallery/',
       galleryStateQueryParams: ['discipline', 'galleryView'],
       services: 'services/',
       pricing: 'pricing/',
+      studio: 'build-studio/',
       contact: 'contact-hq/',
       trades: 'trades/',
     },

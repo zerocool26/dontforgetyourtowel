@@ -8,7 +8,7 @@ test.describe('Demo Lab', () => {
     await expect(
       page.getByRole('heading', {
         level: 1,
-        name: /full demo e-commerce setup/i,
+        name: /interactive proof for premium product, portal, and client-facing experiences/i,
       })
     ).toBeVisible();
     await expect(
@@ -51,12 +51,28 @@ test.describe('Demo Lab', () => {
   }) => {
     await page.goto('./about/?demo=cart#shop-experience');
 
+    await page
+      .locator('[data-demo-module="ecommerce-showcase"]')
+      .scrollIntoViewIfNeeded();
+    await expect(page.locator('[data-ecom="root"]')).toHaveAttribute(
+      'data-hydrated',
+      'true'
+    );
+
     await expect(page.locator('[data-demo-active-state]')).toContainText(
       /cart review active/i
     );
     await expect(page.locator('[data-ecom="cart"]')).toBeVisible();
 
     await page.goto('./about/?demo=compare#shop-experience');
+
+    await page
+      .locator('[data-demo-module="ecommerce-showcase"]')
+      .scrollIntoViewIfNeeded();
+    await expect(page.locator('[data-ecom="root"]')).toHaveAttribute(
+      'data-hydrated',
+      'true'
+    );
 
     await expect(page.locator('[data-demo-active-state]')).toContainText(
       /compare review active/i
@@ -65,6 +81,14 @@ test.describe('Demo Lab', () => {
 
     await page.goto(
       './about/?demo=checkout&product=aurora-hoodie#shop-experience'
+    );
+
+    await page
+      .locator('[data-demo-module="ecommerce-showcase"]')
+      .scrollIntoViewIfNeeded();
+    await expect(page.locator('[data-ecom="root"]')).toHaveAttribute(
+      'data-hydrated',
+      'true'
     );
 
     await expect(page.locator('[data-demo-active-state]')).toContainText(

@@ -12,7 +12,7 @@ const supportHref = `mailto:${encodeURIComponent(
   CONTACT_EMAIL
 )}?subject=${encodeURIComponent('Proof lab walkthrough request')}`;
 
-const portfolioSignals = [
+const proofSignals = [
   {
     label: 'Proof states',
     value: String(demoProducts.length),
@@ -131,7 +131,7 @@ const featuredProducts = demoProducts
 ---
 
 <MarketingLayout
-  title="Portfolio | Interactive Commerce Demo"
+  title="Proof Lab | Interactive Commerce Demo"
   description="Interactive proof lab for portfolio reviews, premium digital walkthroughs, and buyer-facing product experience exploration."
   bodyClass="creative-page"
   showFooter={true}
@@ -144,7 +144,7 @@ const featuredProducts = demoProducts
     <section
       class="border-b border-white/10"
       data-reveal
-      id="portfolio-hero"
+      id="proof-hero"
       data-page-section
     >
       <div
@@ -188,7 +188,7 @@ const featuredProducts = demoProducts
 
             <div class="grid gap-3 sm:grid-cols-3">
               {
-                portfolioSignals.map(signal => (
+                proofSignals.map(signal => (
                   <ModernCard variant="glass" className="p-4 sm:p-5">
                     <p class="font-mono text-[0.64rem] uppercase tracking-[0.18em] text-white/45">
                       {signal.label}
@@ -264,7 +264,7 @@ const featuredProducts = demoProducts
                   class="mt-2 text-xs leading-5 text-slate-300"
                   data-demo-active-copy
                 >
-                  Choose a launch scenario to turn this portfolio route into a
+                  Choose a launch scenario to turn this proof route into a
                   shareable customer review path.
                 </p>
                 <div class="mt-4 flex flex-wrap gap-2">
@@ -400,7 +400,7 @@ const featuredProducts = demoProducts
     <section
       class="border-b border-white/10"
       data-reveal
-      id="portfolio-proof"
+      id="proof-overview"
       data-page-section
     >
       <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
@@ -831,7 +831,7 @@ const featuredProducts = demoProducts
     },
     default: {
       title: 'Default showcase loaded.',
-      copy: 'Choose a launch scenario to turn this portfolio route into a shareable customer review path.',
+      copy: 'Choose a launch scenario to turn this proof route into a shareable customer review path.',
     },
   };
 
@@ -871,7 +871,7 @@ const featuredProducts = demoProducts
     __aboutDemoCleanup?: () => void;
   };
 
-  const initPortfolioDemo = () => {
+  const initProofLabDemo = () => {
     globalScope.__aboutDemoCleanup?.();
 
     const cleanups: Array<() => void> = [];
@@ -929,7 +929,7 @@ const featuredProducts = demoProducts
     };
 
     const getActiveShareData = () => ({
-      title: `Portfolio demo review — ${
+      title: `Proof lab review — ${
         activeState?.textContent?.trim() || 'Olive Global Systems'
       }`,
       text: [activeCopy?.textContent?.trim(), activeProof?.textContent?.trim()]
@@ -1144,12 +1144,12 @@ const featuredProducts = demoProducts
   };
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initPortfolioDemo, {
+    document.addEventListener('DOMContentLoaded', initProofLabDemo, {
       once: true,
     });
   } else {
-    initPortfolioDemo();
+    initProofLabDemo();
   }
 
-  document.addEventListener('astro:page-load', initPortfolioDemo);
+  document.addEventListener('astro:page-load', initProofLabDemo);
 </script>
