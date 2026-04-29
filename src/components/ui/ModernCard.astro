@@ -38,7 +38,7 @@ const {
 } = Astro.props;
 
 const baseClasses =
-  'modern-card-shell group relative overflow-hidden rounded-2xl transition-[border-color,background-color,box-shadow,transform] duration-150 ease-out touch-manipulation motion-reduce:transition-none';
+  'modern-card-shell group relative overflow-hidden rounded-[1.75rem] transition-[border-color,background-color,box-shadow,transform] duration-150 ease-out touch-manipulation motion-reduce:transition-none';
 
 const variants = {
   default: 'modern-card--default',
@@ -95,7 +95,7 @@ const Tag = href ? 'a' : 'div';
   {
     glow && (
       <div
-        class="absolute inset-[1px] z-10 rounded-2xl"
+        class="absolute inset-[1px] z-10 rounded-[calc(1.75rem-1px)]"
         style="background: color-mix(in srgb, var(--color-surface) 72%, transparent);"
       />
     )
@@ -156,8 +156,14 @@ const Tag = href ? 'a' : 'div';
   }
 
   .modern-card--default {
-    background: color-mix(in srgb, var(--color-surface) 82%, transparent);
-    box-shadow: 0 20px 46px -30px color-mix(in srgb, black 54%, transparent);
+    background:
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--color-surface) 94%, white 3%),
+        color-mix(in srgb, var(--color-surface) 82%, transparent)
+      ),
+      color-mix(in srgb, var(--color-surface) 82%, transparent);
+    box-shadow: 0 24px 56px -34px color-mix(in srgb, black 58%, transparent);
   }
 
   .modern-card--outline {
@@ -187,12 +193,17 @@ const Tag = href ? 'a' : 'div';
     background:
       linear-gradient(
         180deg,
-        color-mix(in srgb, var(--color-surface) 84%, white 3%),
-        color-mix(in srgb, var(--color-surface) 72%, transparent)
+        color-mix(in srgb, var(--color-surface) 88%, white 4%),
+        color-mix(in srgb, var(--color-surface) 74%, transparent)
+      ),
+      linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--color-primary-strong) 5%, transparent),
+        transparent 60%
       ),
       color-mix(in srgb, var(--color-surface) 76%, transparent);
-    box-shadow: 0 24px 54px -34px color-mix(in srgb, black 58%, transparent);
-    backdrop-filter: blur(18px);
+    box-shadow: 0 28px 64px -38px color-mix(in srgb, black 62%, transparent);
+    backdrop-filter: blur(22px);
   }
 
   .modern-card--neon {
@@ -288,7 +299,9 @@ const Tag = href ? 'a' : 'div';
     }
 
     .modern-card--interactive:hover {
-      box-shadow: 0 28px 58px -34px rgba(2, 6, 23, 0.84);
+      box-shadow:
+        0 30px 70px -38px rgba(2, 6, 23, 0.88),
+        0 0 32px -24px color-mix(in srgb, var(--color-primary) 20%, transparent);
     }
   }
 

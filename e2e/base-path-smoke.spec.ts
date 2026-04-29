@@ -12,7 +12,7 @@ test.describe('Base path smoke', () => {
     await expect(
       page.getByRole('heading', {
         level: 1,
-        name: /choose the right lane across trades, cloud, ai, and security\./i,
+        name: /choose the right lane across support, security, cloud, ai, and premium digital delivery\./i,
       })
     ).toBeVisible();
 
@@ -20,7 +20,7 @@ test.describe('Base path smoke', () => {
     await expect(page).toHaveURL(/.*\/contact-hq\/?$/);
     await expect(
       page.getByRole('heading', {
-        name: /send the right context once and make the next step obvious\./i,
+        name: /send the right context once and make the next move obvious\./i,
       })
     ).toBeVisible();
 
@@ -41,12 +41,12 @@ test.describe('Base path smoke', () => {
       await menuButton.click();
 
       const mobileMenu = page.locator('#mobile-menu');
-      await mobileMenu.getByRole('link', { name: /^services$/i }).click();
+      await mobileMenu.getByRole('link', { name: /^solutions$/i }).click();
     } else {
       const headerNav = page.getByRole('navigation', {
         name: /main navigation/i,
       });
-      await headerNav.getByRole('link', { name: /^services$/i }).click();
+      await headerNav.getByRole('link', { name: /^solutions$/i }).click();
     }
 
     await expect(page).toHaveURL(/.*\/services\/?$/);

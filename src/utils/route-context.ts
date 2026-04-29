@@ -50,32 +50,31 @@ export function getRouteContext(pathname: string): RouteContext {
       : undefined;
 
   let context: RouteContext = {
-    accent: '#d7f75b',
+    accent: '#d1b37a',
     kicker: 'Site Atlas',
-    title: 'One connected route system for every trade and platform page.',
+    title:
+      'A calmer route system for MSP+, security, cloud, AI, and premium client experiences.',
     description:
-      'The site now behaves like a structured platform. Use this atlas to keep moving through related routes instead of bouncing between disconnected pages.',
-    currentTitle: 'Current route',
+      'Use this atlas to move between solutions, pricing, proof, and strategy routes without falling into bloated brochure navigation.',
+    currentTitle: 'Landing page',
     currentDescription:
-      'You are inside the live seven-trade platform with shared navigation, search, and route-aware UX.',
-    currentCategory: 'Platform',
+      'Design-forward MSP+ shell with route-aware navigation, proof surfaces, and mobile-first buyer flows.',
+    currentCategory: 'Home',
     suggestions: [
       {
-        label: 'Open trade directory',
-        detail: 'Jump straight into the seven-trade map.',
-        href: withBasePath('trades/'),
+        label: 'Explore solutions',
+        detail: 'Open the MSP+, security, cloud, AI, and automation hub.',
+        href: withBasePath('services/'),
       },
       {
-        label: 'Enter design gallery',
-        detail:
-          'Study the premium visual experiments tied back to live routes.',
-        href: withBasePath('gallery/'),
+        label: 'Review pricing',
+        detail: 'Compare plans, SLAs, and planning tools without guesswork.',
+        href: withBasePath('pricing/'),
       },
       {
-        label: 'Read platform story',
-        detail:
-          'See how the site is structured from landing page to trade vertical.',
-        href: withBasePath('company/'),
+        label: 'Open proof lab',
+        detail: 'See the premium interactive work that backs the pitch.',
+        href: withBasePath('about/'),
       },
     ],
   };
@@ -84,19 +83,18 @@ export function getRouteContext(pathname: string): RouteContext {
     context = {
       accent: '#7dd3fc',
       kicker: 'Gallery Atlas',
-      title: 'Gallery concepts stay wired into the real site map.',
+      title: 'Gallery concepts stay wired into the real client experience map.',
       description:
-        'The gallery is not isolated art direction. It routes directly back into the working trades, services, and build experiences.',
+        'This gallery is not isolated art direction. It routes back into the live MSP+, proof, and studio surfaces that actually sell the work.',
       currentTitle: 'Design Gallery',
       currentDescription:
-        'Interactive gallery mode for premium visual studies, curatorial filters, and route-linked concepts.',
+        'Interactive gallery mode for cinematic visual studies, curatorial filters, and route-linked concepts.',
       currentCategory: 'Gallery',
       suggestions: [
         {
-          label: 'Browse trade directory',
-          detail:
-            'Move from visual studies into the live seven-trade structure.',
-          href: withBasePath('trades/'),
+          label: 'Explore solutions',
+          detail: 'Move from visual studies into the live solution stack.',
+          href: withBasePath('services/'),
         },
         {
           label: 'Open Build Studio',
@@ -105,23 +103,24 @@ export function getRouteContext(pathname: string): RouteContext {
           href: withBasePath('build-studio/#studio'),
         },
         {
-          label: 'Read platform architecture',
-          detail: 'See how the gallery fits the broader site system.',
-          href: withBasePath('company/'),
+          label: 'Open proof lab',
+          detail:
+            'See the interactive proof route that complements the gallery.',
+          href: withBasePath('about/'),
         },
       ],
     };
   } else if (currentPath.startsWith('/services')) {
     context = {
-      accent: '#d7f75b',
+      accent: '#d1b37a',
       kicker: 'Services Atlas',
       title:
-        'Trade delivery and retained tech systems now share one service map.',
+        'One solution hub for operations, security, cloud, AI, and build work.',
       description:
-        'The services hub is the bridge between the field-facing trades and the deeper digital catalog. The route logic should stay visible here.',
+        'The services hub leads with buyer pressure and keeps the deeper catalog available only when it is genuinely useful.',
       currentTitle: 'Services Hub',
       currentDescription:
-        'Cross-trade bridge page for MSP, cloud, AI, pricing, planning tools, and seven-trade routing.',
+        'Solution hub for MSP+, cloud, AI, security, pricing, and planning tools.',
       currentCategory: 'Services',
       suggestions: [
         {
@@ -130,13 +129,19 @@ export function getRouteContext(pathname: string): RouteContext {
           href: withBasePath('services/#service-planner'),
         },
         {
-          label: 'Browse all trades',
-          detail: 'Move from broad service mapping into specific trade worlds.',
-          href: withBasePath('trades/'),
+          label: 'Compare pricing',
+          detail: 'Review plans, SLAs, and budget-shaping drivers.',
+          href: withBasePath('pricing/'),
+        },
+        {
+          label: 'Open proof lab',
+          detail:
+            'See the interactive proof route behind the design direction.',
+          href: withBasePath('about/'),
         },
         {
           label: 'Start intake',
-          detail: 'Route a trade-aware or services-aware project brief.',
+          detail: 'Route a project brief with the right context attached.',
           href: withBasePath('contact-hq/'),
         },
       ],
@@ -144,15 +149,15 @@ export function getRouteContext(pathname: string): RouteContext {
   } else if (currentPath.startsWith('/company')) {
     context = {
       accent: '#f59e0b',
-      kicker: 'Platform Atlas',
+      kicker: 'Company Atlas',
       title:
-        'The about page explains the operating logic behind the whole site.',
+        'The company page explains how the firm thinks, scopes, and ships.',
       description:
-        'This page holds the higher-level structure so the landing page can stay expressive and the trade routes can stay specialized.',
-      currentTitle: 'About The Platform',
+        'This route holds the higher-level operating logic so the landing page can stay expressive while the service routes stay practical.',
+      currentTitle: 'Company',
       currentDescription:
-        'Broader site architecture, trade positioning, and system logic for the seven-trade build.',
-      currentCategory: 'About',
+        'Operating model, buyer fit, delivery logic, and positioning for the MSP+ firm.',
+      currentCategory: 'Company',
       suggestions: [
         {
           label: 'Return to landing page',
@@ -160,16 +165,14 @@ export function getRouteContext(pathname: string): RouteContext {
           href: withBasePath('/'),
         },
         {
-          label: 'Study the gallery',
-          detail:
-            'See the design system stretched into higher-expression territory.',
-          href: withBasePath('gallery/'),
+          label: 'Review solutions',
+          detail: 'Open the solution stack and planning tools.',
+          href: withBasePath('services/'),
         },
         {
-          label: 'Browse trade worlds',
-          detail:
-            'Move from platform logic into the specialized vertical pages.',
-          href: withBasePath('trades/'),
+          label: 'Open Build Studio',
+          detail: 'Translate the company story into a scoped roadmap.',
+          href: withBasePath('build-studio/#studio'),
         },
       ],
     };
@@ -296,48 +299,48 @@ export function getRouteStickyCTA(pathname: string): RouteStickyCTA {
       ? {
           accent: '#7dd3fc',
           eyebrow: 'Gallery route',
-          copy: 'Want one of these gallery directions translated into a live build?',
+          copy: 'Want this direction translated into a live client experience?',
           detail:
-            'The gallery stays connected to the trade platform instead of living as isolated art direction.',
-          secondaryHref: '#gallery-wall',
-          secondaryLabel: 'View wall',
+            'The gallery stays connected to real proof and solution routes instead of floating as isolated art direction.',
+          secondaryHref: withBasePath('about/'),
+          secondaryLabel: 'Open proof lab',
           primaryHref: `${withBasePath('contact-hq/')}?tradePage=${encodeURIComponent('Design Gallery')}&brief=${encodeURIComponent('I want to discuss a gallery-inspired site direction.')}`,
           primaryLabel: 'Discuss concept',
         }
       : {
-          accent: '#d7f75b',
-          eyebrow: 'Landing intake',
-          copy: 'Use the command center to route into the right trade or flagship build path.',
+          accent: '#d1b37a',
+          eyebrow: 'Strategy intake',
+          copy: 'Need calmer operations, better security, or a premium digital surface that actually converts?',
           detail:
-            'Trades, gallery, services, and studio stay tied together instead of branching into disconnected funnels.',
-          secondaryHref: withBasePath('build-studio/#studio'),
-          secondaryLabel: 'Launch studio',
-          primaryHref: `${withBasePath('contact-hq/')}?brief=${encodeURIComponent('I want to scope a premium multi-trade website or project.')}`,
+            'Solutions, pricing, proof, and studio stay tied together instead of branching into disconnected funnels.',
+          secondaryHref: withBasePath('services/'),
+          secondaryLabel: 'Explore solutions',
+          primaryHref: `${withBasePath('contact-hq/')}?brief=${encodeURIComponent('I want to scope MSP+, security, cloud, AI, or a premium client-facing system.')}`,
           primaryLabel: 'Start brief',
         };
   } else if (currentPath.startsWith('/services')) {
     cta = {
-      accent: '#d7f75b',
+      accent: '#d1b37a',
       eyebrow: 'Services intake',
-      copy: 'Need the right mix of trade delivery, retained systems, and technical support?',
+      copy: 'Need the right mix of support, security, cloud, AI, and custom delivery?',
       detail:
-        'The services hub, planner, and seven-trade structure all feed the same intake path.',
-      secondaryHref: withBasePath('services/#service-planner'),
-      secondaryLabel: 'Open planner',
-      primaryHref: `${withBasePath('contact-hq/')}?trade=${encodeURIComponent('msp-tech-services')}&tradePage=${encodeURIComponent('Services Hub')}`,
+        'The solution hub, planner, and pricing routes all feed the same intake path.',
+      secondaryHref: withBasePath('pricing/'),
+      secondaryLabel: 'Review pricing',
+      primaryHref: `${withBasePath('contact-hq/')}?service=${encodeURIComponent('msp')}&brief=${encodeURIComponent('I want to discuss support, security, cloud, AI, or a custom delivery plan.')}`,
       primaryLabel: 'Start service intake',
     };
   } else if (currentPath.startsWith('/company')) {
     cta = {
       accent: '#f59e0b',
-      eyebrow: 'Platform discussion',
-      copy: 'Want to turn this platform architecture into a live rollout?',
+      eyebrow: 'Company discussion',
+      copy: 'Need a partner that can stabilize today and build what is next?',
       detail:
-        'The company route explains the structure. Intake turns it into a concrete brief.',
-      secondaryHref: withBasePath('trades/'),
-      secondaryLabel: 'Browse trades',
-      primaryHref: `${withBasePath('contact-hq/')}?brief=${encodeURIComponent('I want to discuss the multi-trade platform structure and rollout.')}`,
-      primaryLabel: 'Discuss platform',
+        'The company route explains the thinking. Intake turns it into a concrete scope and next-step plan.',
+      secondaryHref: withBasePath('services/'),
+      secondaryLabel: 'Review solutions',
+      primaryHref: `${withBasePath('contact-hq/')}?brief=${encodeURIComponent('I want to discuss a roadmap that blends support, security, modernization, and premium digital execution.')}`,
+      primaryLabel: 'Discuss roadmap',
     };
   } else if (activeTrade) {
     const tradePageLabel = activeSubpage

@@ -18,10 +18,10 @@ const gallerySignals = [
     detail: 'Filterable route-linked interface and layout studies.',
   },
   {
-    label: 'Trade references',
-    value: '7 + platform',
+    label: 'Art direction',
+    value: 'Chicago + cinema',
     detail:
-      'Every service division and platform route has a grounded visual reference.',
+      'A moody, architectural visual system without losing clarity or professionalism.',
   },
   {
     label: 'View modes',
@@ -33,11 +33,11 @@ const gallerySignals = [
 const galleryPrinciples = [
   {
     title: 'Built from real scope',
-    copy: 'Each study starts with real delivery logic instead of agency filler.',
+    copy: 'Each study starts with real service and product logic instead of agency filler.',
   },
   {
     title: 'Exploration with boundaries',
-    copy: 'The page still experiments, but the route structure stays readable on smaller screens.',
+    copy: 'The page still experiments, but the route structure stays readable and mobile-friendly.',
   },
   {
     title: 'Tied back to the live site',
@@ -47,15 +47,16 @@ const galleryPrinciples = [
 
 const galleryRoutes = [
   {
-    title: 'Trade Directory',
+    title: 'Solutions Hub',
     description:
-      'See every division in one place when you want the fastest route into the site.',
-    href: withBasePath('trades/'),
+      'Open the main MSP+, security, cloud, AI, and automation entry point.',
+    href: withBasePath('services/'),
   },
   {
-    title: 'About The Platform',
-    description: 'Read the operating model behind the multi-division site.',
-    href: withBasePath('company/'),
+    title: 'Proof Lab',
+    description:
+      'See the interactive route that turns visual taste into working buyer proof.',
+    href: withBasePath('about/'),
   },
   {
     title: 'Build Studio',
@@ -82,7 +83,7 @@ const pageNavigator = {
 
 <MarketingLayout
   title="Design Gallery | Olive Global Systems"
-  description="Filterable design reference library of trade-led interface, layout, and material studies tied back to the live seven-division site."
+  description="Filterable design reference library of cinematic interface, layout, and material studies tied back to the live MSP+ site."
   bodyClass="creative-page"
   mainClass="relative isolate overflow-x-clip"
   showFooter={true}
@@ -93,7 +94,7 @@ const pageNavigator = {
     data={{
       name: 'Design Gallery',
       description:
-        'Interactive gallery of trade-inspired visual studies tied to the live site architecture.',
+        'Interactive gallery of cinematic visual studies tied to the live MSP+ site architecture.',
     }}
   />
   <StructuredData
@@ -138,14 +139,14 @@ const pageNavigator = {
             >
               Design references built from
               <span class="creative-gradient-text--accent">
-                real trade and platform work
+                real systems and client experience work
               </span>
               instead of filler concepts.
             </h1>
             <p class="creative-copy text-white/78 max-w-3xl text-lg sm:text-xl">
               Compare interface language, material direction, and layout systems
-              built from live routes across the site — memorable, but still easy
-              to scan.
+              shaped by Chicago architecture, gallery pacing, and cinematic
+              restraint—memorable, but still easy to scan.
             </p>
           </div>
 
@@ -158,11 +159,11 @@ const pageNavigator = {
               Browse the wall
             </ModernButton>
             <ModernButton
-              href={withBasePath('trades/')}
+              href={withBasePath('services/')}
               variant="secondary"
               className="min-h-[50px]"
             >
-              Open trade directory
+              Open solution hub
             </ModernButton>
             <ModernButton
               href={withBasePath('/')}
@@ -259,7 +260,7 @@ const pageNavigator = {
             </h2>
             <p class="tone-body max-w-3xl text-sm leading-relaxed">
               The controls stay intentionally light so you can explore fast,
-              then jump into the linked route without fighting the interface.
+              then jump into a linked route without fighting the interface.
             </p>
           </div>
 

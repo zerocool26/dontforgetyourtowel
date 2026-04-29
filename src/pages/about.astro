@@ -10,14 +10,14 @@ import { withBasePath } from '../utils/helpers';
 
 const supportHref = `mailto:${encodeURIComponent(
   CONTACT_EMAIL
-)}?subject=${encodeURIComponent('E-commerce demo request')}`;
+)}?subject=${encodeURIComponent('Proof lab walkthrough request')}`;
 
 const portfolioSignals = [
   {
-    label: 'Catalog states',
+    label: 'Proof states',
     value: String(demoProducts.length),
     detail:
-      'Products, pricing, variants, reviews, and cart states come from real data.',
+      'Products, pricing, variants, reviews, and cart states come from real data instead of made-up mockups.',
   },
   {
     label: 'Fast mobile actions',
@@ -34,15 +34,15 @@ const portfolioSignals = [
 
 const proofPoints = [
   {
-    title: 'Merchandising clarity',
-    copy: 'Use the route to show how product cards, filters, quick views, and comparison states hold together under real catalog pressure.',
+    title: 'Premium client-facing polish',
+    copy: 'Use the route to show how cards, filters, quick views, and conversion moments hold together under real catalog pressure.',
   },
   {
-    title: 'Conversion readiness',
-    copy: 'Cart persistence, promo logic, and checkout simulation make the handoff from discovery to buying feel intentional instead of decorative.',
+    title: 'Conversion-ready interaction design',
+    copy: 'Cart persistence, promo logic, and checkout simulation make the handoff from discovery to action feel intentional instead of decorative.',
   },
   {
-    title: 'Operational depth',
+    title: 'Engineering discipline underneath',
     copy: 'Performance and reduced-motion controls prove the experience can stay polished while still respecting real device and accessibility constraints.',
   },
 ];
@@ -132,7 +132,7 @@ const featuredProducts = demoProducts
 
 <MarketingLayout
   title="Portfolio | Interactive Commerce Demo"
-  description="Interactive commerce demo route for portfolio reviews, implementation walkthroughs, and buyer-facing storefront exploration."
+  description="Interactive proof lab for portfolio reviews, premium digital walkthroughs, and buyer-facing product experience exploration."
   bodyClass="creative-page"
   showFooter={true}
   showStickyCTA={false}
@@ -155,19 +155,19 @@ const featuredProducts = demoProducts
             <p
               class="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-white/55"
             >
-              Portfolio demo
+              Proof lab
             </p>
             <h1
               class="max-w-4xl text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl"
             >
-              Full demo e-commerce setup for portfolio reviews, buyer demos, and
-              implementation walkthroughs that need more than surface polish.
+              Interactive proof for premium product, portal, and client-facing
+              experiences that need more than surface polish.
             </h1>
             <p class="max-w-3xl text-base leading-8 text-slate-300 sm:text-lg">
-              This route is designed to help future customers understand what is
-              actually being sold: stronger merchandising, clearer mobile buying
-              paths, safer interaction design, and an implementation system that
-              can move from concept to production.
+              This route helps future clients understand what is actually being
+              sold: stronger mobile UX, higher-end digital presentation, cleaner
+              decision support, and engineering that can move from concept to
+              production.
             </p>
             <div class="flex flex-col gap-3 sm:flex-row">
               <ModernButton
@@ -175,14 +175,14 @@ const featuredProducts = demoProducts
                 variant="primary"
                 className="min-h-[50px]"
               >
-                Request this demo build
+                Request a proof-led build
               </ModernButton>
               <ModernButton
                 href={supportHref}
                 variant="secondary"
                 className="min-h-[50px]"
               >
-                Ask implementation details
+                Ask for the walkthrough
               </ModernButton>
             </div>
 
@@ -213,7 +213,7 @@ const featuredProducts = demoProducts
             </p>
             <p class="mt-4 text-sm leading-7 text-slate-300">
               Start with the four flows buyers care about most on mobile: cart,
-              compare, quick view, and checkout. This keeps the demo in proof
+              compare, quick view, and checkout. This keeps the proof in review
               mode instead of turning it into a scavenger hunt.
             </p>
 
@@ -413,11 +413,11 @@ const featuredProducts = demoProducts
           <h2
             class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
           >
-            This showcase now sells the implementation behind the visuals.
+            This proof lab sells the implementation behind the visuals.
           </h2>
           <p class="text-base leading-7 text-slate-300">
             The goal is not just to look advanced. The goal is to show future
-            customers how discovery, product storytelling, cart logic, mobile
+            customers how discovery, storytelling, conversion logic, mobile
             ergonomics, and production-safe delivery all connect.
           </p>
         </div>
@@ -688,12 +688,12 @@ const featuredProducts = demoProducts
           <h2
             class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
           >
-            Review the storefront itself once the framing is clear.
+            Review the live experience once the framing is clear.
           </h2>
           <p class="text-sm leading-7 text-slate-300 sm:text-base">
             After the signals, proof points, and quick actions above, this live
             module becomes easier to assess like a serious product surface—not
-            just a flashy demo.
+            just a flashy demo shell.
           </p>
         </div>
         <div class="demo-module" data-demo-module="ecommerce-showcase">

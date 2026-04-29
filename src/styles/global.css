@@ -21,25 +21,25 @@
     --viewport-height: 100vh;
     --viewport-height-dynamic: 100vh;
 
-    --color-background: #070807;
-    --color-surface: #101411;
-    --color-surface-subtle: rgba(16, 20, 17, 0.72);
-    --color-border: rgba(148, 163, 184, 0.16);
-    --color-primary: #d7f75b;
-    --color-primary-strong: #12b5a6;
+    --color-background: #090d12;
+    --color-surface: #121821;
+    --color-surface-subtle: rgba(18, 24, 33, 0.78);
+    --color-border: rgba(134, 153, 179, 0.18);
+    --color-primary: #d1b37a;
+    --color-primary-strong: #68b4d5;
     --color-success: #10b981;
     --color-warning: #f59e0b;
     --color-danger: #ef4444;
-    --color-text-primary: #fafafa;
-    --color-text-secondary: #cbd5e1;
-    --color-text-muted: #94a3b8;
-    --color-text-inverse: #09090b;
-    --shadow-soft: 0 14px 34px -20px rgba(2, 6, 23, 0.36);
-    --shadow-strong: 0 30px 70px -28px rgba(2, 6, 23, 0.44);
+    --color-text-primary: #f8fafc;
+    --color-text-secondary: #d4dde8;
+    --color-text-muted: #8fa1b6;
+    --color-text-inverse: #090d12;
+    --shadow-soft: 0 20px 44px -28px rgba(2, 6, 23, 0.56);
+    --shadow-strong: 0 34px 90px -36px rgba(2, 6, 23, 0.68);
     --radius-sm: 8px;
-    --radius-md: 14px;
-    --radius-lg: 22px;
-    --blur-soft: blur(8px);
+    --radius-md: 18px;
+    --radius-lg: 28px;
+    --blur-soft: blur(14px);
     --font-sans:
       'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
       sans-serif;
@@ -148,16 +148,16 @@
     background-color: var(--color-background);
     background-image:
       radial-gradient(
-        circle at 18% 0%,
-        rgba(215, 247, 91, 0.1),
-        transparent 32%
+        circle at 14% 0%,
+        rgba(209, 179, 122, 0.13),
+        transparent 34%
       ),
       radial-gradient(
-        circle at 86% 4%,
-        rgba(18, 181, 166, 0.12),
-        transparent 28%
+        circle at 86% 6%,
+        rgba(104, 180, 213, 0.16),
+        transparent 30%
       ),
-      linear-gradient(180deg, #070807 0%, #0c110e 44%, #090b0a 100%);
+      linear-gradient(180deg, #090d12 0%, #0d1219 46%, #080b10 100%);
     background-size:
       100% 100%,
       100% 100%,
@@ -179,12 +179,37 @@
     inset: 0;
     pointer-events: none;
     z-index: -1;
-    opacity: 0.08;
+    opacity: 0.12;
     background-image: radial-gradient(
       circle at 50% 0%,
       color-mix(in srgb, var(--color-primary) 24%, transparent),
       transparent 62%
     );
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+    opacity: 0.16;
+    background-image:
+      linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.04),
+        transparent 14%,
+        transparent 82%,
+        rgba(255, 255, 255, 0.03)
+      ),
+      repeating-linear-gradient(
+        90deg,
+        transparent 0,
+        transparent 2px,
+        rgba(255, 255, 255, 0.018) 3px,
+        transparent 4px
+      );
+    mix-blend-mode: soft-light;
   }
 
   html[data-experience-mode='editorial'] body {
@@ -678,12 +703,12 @@
   }
 
   .creative-page :where(.rounded-xl, .rounded-2xl, .rounded-3xl) {
-    border-radius: 8px;
+    border-radius: 1.35rem;
   }
 
   .creative-page :where(.before\:rounded-2xl)::before,
   .creative-page :where(.after\:rounded-2xl)::after {
-    border-radius: 8px;
+    border-radius: 1.35rem;
   }
 
   html[data-experience-mode='editorial'] .creative-page::before {
@@ -728,7 +753,7 @@
     position: relative;
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 8px;
+    border-radius: 1.75rem;
     background:
       linear-gradient(
         150deg,
@@ -790,7 +815,7 @@
   html[data-experience-mode='editorial'] .creative-hero-shell,
   html[data-experience-mode='editorial'] .creative-panel,
   html[data-experience-mode='editorial'] .creative-section-shell {
-    border-radius: 8px;
+    border-radius: 1.6rem;
     backdrop-filter: blur(28px);
   }
 
@@ -801,7 +826,7 @@
   html[data-experience-mode='blueprint'] .creative-hero-shell,
   html[data-experience-mode='blueprint'] .creative-panel,
   html[data-experience-mode='blueprint'] .creative-section-shell {
-    border-radius: 8px;
+    border-radius: 1.6rem;
     border-color: rgba(148, 163, 184, 0.12);
     background:
       linear-gradient(
@@ -831,7 +856,7 @@
     position: relative;
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 8px;
+    border-radius: 1.45rem;
     background:
       radial-gradient(
         circle at 0% 0%,
@@ -1872,18 +1897,25 @@
     position: relative;
     background:
       radial-gradient(
-        circle at 50% -12%,
+        circle at 46% -14%,
         color-mix(
           in srgb,
           var(--route-accent, var(--color-primary)) 16%,
           transparent
         ),
-        transparent 36%
+        transparent 34%
       ),
       radial-gradient(
-        circle at 92% 4%,
-        color-mix(in srgb, var(--color-primary-strong) 10%, transparent),
-        transparent 26%
+        circle at 90% 4%,
+        color-mix(in srgb, var(--color-primary-strong) 14%, transparent),
+        transparent 28%
+      ),
+      linear-gradient(
+        120deg,
+        rgba(255, 255, 255, 0.02),
+        transparent 28%,
+        rgba(255, 255, 255, 0.015) 68%,
+        transparent 100%
       ),
       linear-gradient(
         180deg,
@@ -1910,7 +1942,7 @@
   .tone-site-shell__grid {
     position: absolute;
     inset: 0;
-    opacity: 0.22;
+    opacity: 0.16;
     background-image:
       linear-gradient(
         180deg,
@@ -1929,6 +1961,46 @@
       rgba(0, 0, 0, 0.14) 38%,
       transparent 88%
     );
+  }
+
+  .tone-site-shell__beam,
+  .tone-site-shell__grain {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .tone-site-shell__beam--north {
+    inset: -12% auto auto 8%;
+    width: min(32rem, 48vw);
+    height: 22rem;
+    background: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--color-primary) 18%, transparent),
+      transparent 68%
+    );
+    filter: blur(36px);
+    opacity: 0.85;
+  }
+
+  .tone-site-shell__beam--south {
+    inset: auto 2% 12% auto;
+    width: min(28rem, 42vw);
+    height: 20rem;
+    background: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--color-primary-strong) 16%, transparent),
+      transparent 70%
+    );
+    filter: blur(42px);
+    opacity: 0.74;
+  }
+
+  .tone-site-shell__grain {
+    opacity: 0.14;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.42'/%3E%3C/svg%3E");
+    background-size: 180px 180px;
+    mix-blend-mode: soft-light;
   }
 
   .tone-site-shell__orb {

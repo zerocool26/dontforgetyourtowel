@@ -10,10 +10,11 @@ const navSections = [
     title: 'Company',
     items: [
       { label: 'Company', href: withBasePath('company/') },
-      { label: 'Trade Directory', href: withBasePath('trades/') },
-      { label: 'Portfolio', href: withBasePath('about/') },
-      { label: 'Services', href: withBasePath('services/') },
+      { label: 'Solutions', href: withBasePath('services/') },
       { label: 'Pricing', href: withBasePath('pricing/') },
+      { label: 'Proof Lab', href: withBasePath('about/') },
+      { label: 'Studio', href: withBasePath('build-studio/') },
+      { label: 'Gallery', href: withBasePath('gallery/') },
       { label: 'Contact', href: withBasePath('contact-hq/') },
     ],
   },
@@ -27,32 +28,32 @@ const navSections = [
   {
     title: 'Get started',
     items: [
-      { label: 'Request a quote', href: withBasePath('contact-hq/') },
-      { label: 'Explore services', href: withBasePath('services/') },
+      { label: 'Start intake', href: withBasePath('contact-hq/') },
+      { label: 'Explore solutions', href: withBasePath('services/') },
       { label: 'Review pricing', href: withBasePath('pricing/') },
-      { label: 'Browse divisions', href: withBasePath('trades/') },
+      { label: 'Open proof lab', href: withBasePath('about/') },
     ],
   },
 ];
 
 const footerSignals = [
   {
-    label: 'Delivery model',
-    value: '7 divisions',
+    label: 'Response model',
+    value: 'Calm + fast',
     detail:
-      'Field execution, facilities work, and retained systems are mapped together.',
+      'Operational support, roadmap guidance, and special projects stay coordinated.',
   },
   {
-    label: 'Support rhythm',
-    value: 'Project + retained',
+    label: 'Coverage lanes',
+    value: 'MSP+ stack',
     detail:
-      'One-off scopes can grow into managed support without losing continuity.',
+      'Managed IT, security, cloud, AI, automation, and premium digital builds.',
   },
   {
-    label: 'Best starting point',
-    value: 'Scope first',
+    label: 'Best first move',
+    value: 'Short brief',
     detail:
-      'Lead with the operational problem, then route into the right lane.',
+      'Lead with the pressure point and we shape the smartest next step from there.',
   },
 ];
 ---
@@ -79,22 +80,22 @@ const footerSignals = [
               <p
                 class="tone-muted font-mono text-[11px] uppercase tracking-[0.2em]"
               >
-                Integrated trade and technology delivery
+                Chicago-inspired MSP+ systems studio
               </p>
             </div>
           </div>
 
           <p class="tone-body max-w-xl text-sm leading-7 sm:text-[0.95rem]">
-            Olive Global Systems helps teams route building work, managed
-            technology, security, and operational change with clearer scope and
-            clearer ownership.
+            Olive Global Systems helps teams stabilize operations, sharpen
+            security, modernize cloud and AI workflows, and launch digital
+            experiences that feel more premium than the usual MSP brochureware.
           </p>
 
           <div class="flex flex-wrap gap-2">
-            <span class="footer-chip">Capital projects</span>
-            <span class="footer-chip">Managed technology</span>
+            <span class="footer-chip">Managed IT</span>
             <span class="footer-chip">Cybersecurity</span>
-            <span class="footer-chip">Operational modernization</span>
+            <span class="footer-chip">Cloud + AI</span>
+            <span class="footer-chip">Client-facing builds</span>
           </div>
 
           <div class="flex flex-wrap gap-4">
@@ -103,14 +104,14 @@ const footerSignals = [
               variant="primary"
               className="min-h-[48px]"
             >
-              Start a conversation
+              Start a strategy call
             </ModernButton>
             <ModernButton
               href={withBasePath('services/')}
               variant="secondary"
               className="min-h-[48px]"
             >
-              Review services
+              Explore solutions
             </ModernButton>
           </div>
 
@@ -124,8 +125,8 @@ const footerSignals = [
                 Where we help most
               </p>
               <p class="mb-0 mt-2">
-                Multi-trade delivery, managed IT, cybersecurity, and operational
-                modernization.
+                Support coverage, security posture, cloud modernization,
+                automation, and premium customer-facing systems.
               </p>
             </div>
             <div>
@@ -135,8 +136,8 @@ const footerSignals = [
                 Working model
               </p>
               <p class="mb-0 mt-2">
-                Remote-first planning with on-site coordination and retained
-                support when needed.
+                Remote-first delivery with executive-level clarity, mobile-first
+                proofs, and retainers that can extend into custom build work.
               </p>
             </div>
           </div>
@@ -175,11 +176,11 @@ const footerSignals = [
                   HQ
                 </p>
                 <p class="mt-4 text-base font-semibold text-white">
-                  Start with contact, then route into the right lane.
+                  Start with the problem, then route into the right stack.
                 </p>
                 <p class="tone-body mt-3 text-sm leading-7">
-                  Best for discovery, support questions, security advisory, and
-                  cross-functional planning.
+                  Best for discovery, support escalation, roadmap questions,
+                  security advisory, or premium build discussions.
                 </p>
               </div>
               <div class="flex flex-wrap gap-3 md:justify-end">

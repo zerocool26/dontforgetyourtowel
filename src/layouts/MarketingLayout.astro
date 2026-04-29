@@ -39,7 +39,7 @@ interface Props {
 const {
   title,
   description,
-  mainClass = 'space-y-24 pb-24',
+  mainClass = 'space-y-20 pb-24',
   bodyClass = '',
   showFooter = false,
   showStickyCTA = true,
@@ -164,9 +164,12 @@ const routeContext = getRouteContext(Astro.url.pathname);
     <div class="tone-site-shell">
       <div class="tone-site-shell__ambient" aria-hidden="true">
         <div class="tone-site-shell__grid"></div>
+        <div class="tone-site-shell__beam tone-site-shell__beam--north"></div>
+        <div class="tone-site-shell__beam tone-site-shell__beam--south"></div>
         <div class="tone-site-shell__orb tone-site-shell__orb--primary"></div>
         <div class="tone-site-shell__orb tone-site-shell__orb--secondary"></div>
         <div class="tone-site-shell__orb tone-site-shell__orb--tertiary"></div>
+        <div class="tone-site-shell__grain"></div>
       </div>
       <div class="relative z-[1]">
         <a

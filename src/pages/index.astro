@@ -5,142 +5,232 @@ import ModernCard from '../components/ui/ModernCard.astro';
 import SignalCabinet from '../components/business/SignalCabinet.astro';
 import ScopeReadinessPanel from '../components/business/ScopeReadinessPanel.astro';
 import { CONTACT_EMAIL } from '../consts';
-import {
-  tradeProfiles,
-  tradePrograms,
-  totalTradeSubpages,
-} from '../data/trades';
-import { getTradeOperations } from '../data/trade-operations';
 import { servicesExtended } from '../data/services-extended';
 import { withBasePath } from '../utils/helpers';
 
 const contactHref = `mailto:${encodeURIComponent(
   CONTACT_EMAIL
-)}?subject=${encodeURIComponent('Project inquiry — Olive Global Systems')}`;
+)}?subject=${encodeURIComponent('Strategy intake — Olive Global Systems')}`;
 
-const tradeHighlights = tradeProfiles.map(trade => ({
-  trade,
-  operations: getTradeOperations(trade.slug),
-}));
+const serviceCategories = Array.from(
+  new Set(servicesExtended.map(service => service.category))
+);
 
-const landingSignalItems = tradeHighlights
-  .slice(0, 4)
-  .map(({ trade, operations }) => ({
-    kicker: trade.shortName,
-    title: trade.name,
-    detail: operations.operatingModel,
-    meta: [
-      operations.serviceRhythm,
-      operations.ownerOutputs[0] ?? trade.summary,
-    ],
-  }));
+const landingSignalItems = [
+  {
+    kicker: 'OPS',
+    title: 'Managed operations',
+    detail:
+      'Coverage, onboarding, vendor wrangling, and support ownership that feels calm instead of reactive.',
+    meta: ['Daily support rhythm', 'Clear reporting + accountability'],
+  },
+  {
+    kicker: 'SEC',
+    title: 'Security and compliance',
+    detail:
+      'Identity, endpoint, awareness, and audit posture shaped for real business pressure—not fear marketing.',
+    meta: ['Right-sized controls', 'Leadership-ready guidance'],
+  },
+  {
+    kicker: 'CLD',
+    title: 'Cloud, AI, and automation',
+    detail:
+      'Modernization tracks that reduce drag, improve visibility, and create leverage across the stack.',
+    meta: ['Cloud + workflow design', 'Automation where it earns its place'],
+  },
+  {
+    kicker: 'LAB',
+    title: 'Premium digital surfaces',
+    detail:
+      'Proof-driven launches, portals, and product experiences that look polished on a phone and hold up in production.',
+    meta: ['Client-facing polish', 'Interactive proof routes'],
+  },
+];
 
 const operatingHighlights = [
   {
-    label: 'Service divisions',
-    value: `${tradeProfiles.length}`,
-    note: 'Mechanical, electrical, plumbing, general contracting, HVAC, auto repair, and managed technology.',
+    label: 'Coverage model',
+    value: 'MSP+',
+    note: 'Managed IT, security, cloud, AI, automation, and premium digital execution under one roof.',
   },
   {
-    label: 'Specialist routes',
-    value: `${totalTradeSubpages}+`,
-    note: 'Dedicated routes for retrofit delivery, controls, logistics, service bays, and managed operations.',
+    label: 'Service lanes',
+    value: `${serviceCategories.length}`,
+    note: 'Clear entry points so buyers can orient quickly without scrolling through a giant service dump.',
   },
   {
-    label: 'Retained services',
+    label: 'Depth on demand',
     value: `${servicesExtended.length}+`,
-    note: 'Managed IT, security, cloud, automation, ecommerce, AI, and digital systems remain in view.',
+    note: 'The full catalog is there when needed, but the main story stays concise and mobile-friendly.',
   },
 ];
 
 const platformFocus = [
   {
-    title: 'Capital projects and phased renovations',
-    copy: 'Built around access, shutdowns, sequencing, and clean turnover.',
+    title: 'Calmer managed operations',
+    copy: 'Support coverage, onboarding, device health, and vendor coordination with cleaner ownership from day one.',
   },
   {
-    title: 'Occupied buildings and continuity-sensitive work',
-    copy: 'Keeps facilities usable while trade work moves in controlled phases.',
+    title: 'Security without theater',
+    copy: 'Practical hardening, identity controls, compliance momentum, and leadership-level guidance that still moves fast.',
   },
   {
-    title: 'AI Orchestration & Advanced Dev',
-    copy: 'AI, cloud, security, automation, and business systems stay connected to the field-facing delivery picture.',
+    title: 'Modern systems with style',
+    copy: 'Cloud, automation, AI, and client-facing builds that feel sharper, simpler, and more premium than generic MSP work.',
   },
 ];
 
 const heroMedia = [
   {
     src: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=900&q=82',
-    alt: 'Modern commercial building facade viewed from below',
-    label: 'Built environment',
+    alt: 'Downtown city architecture viewed from below at night',
+    label: 'Chicago energy',
   },
   {
     src: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=82',
-    alt: 'Premium operations workspace with desks and collaborative planning areas',
-    label: 'Operations systems',
+    alt: 'Editorial modern workspace with premium lighting and clean desk layout',
+    label: 'Operations clarity',
   },
   {
     src: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=900&q=82',
-    alt: 'Industrial technician reviewing equipment in a modern facility',
-    label: 'Field execution',
+    alt: 'Technical specialist reviewing a digital system on a mobile device',
+    label: 'Hands-on delivery',
   },
 ];
 
 const deliveryStages = [
   {
     step: '01',
-    title: 'Scope the work in operational terms',
-    copy: 'Start with access, occupancy, risk, support coverage, and owner outcomes.',
+    title: 'Find the real pressure point',
+    copy: 'Start with the current friction: support chaos, security risk, outdated tooling, or a weak customer-facing surface.',
   },
   {
     step: '02',
-    title: 'Assign the right lane and interfaces',
-    copy: 'Pick the lead lane early and surface connected trades before execution starts.',
+    title: 'Recommend the right lane',
+    copy: 'Pick the lead service early, then keep the adjacent capabilities visible without overwhelming the buyer.',
   },
   {
     step: '03',
-    title: 'Execute against readiness, not assumptions',
-    copy: 'Release work against readiness, outage windows, verification, and real dependencies.',
+    title: 'Stabilize before you decorate',
+    copy: 'Fix the foundations first, then layer in security, automation, and experience work with fewer surprises.',
   },
   {
     step: '04',
-    title: 'Close out with usable owner outputs',
-    copy: 'Close with documentation, startup records, punch control, and clear next steps.',
+    title: 'Ship proof and a next move',
+    copy: 'Every engagement should end with visible gains, usable documentation, and a smarter follow-on plan.',
   },
 ];
 
 const landingSections = [
   { label: 'Proof', href: '#front-door-proof' },
   { label: 'Signals', href: '#signal-cabinet' },
-  { label: 'Divisions', href: '#directory' },
-  { label: 'Programs', href: '#programs' },
+  { label: 'Solutions', href: '#directory' },
+  { label: 'Approach', href: '#programs' },
 ];
 
 const frontDoorPaths = [
   {
-    title: 'Find the lead division',
-    copy: 'Start with the trade directory when sequencing, field ownership, and operating constraints matter first.',
-    href: withBasePath('trades/'),
-    cta: 'Browse divisions',
-  },
-  {
-    title: 'Compare retained services',
-    copy: 'Open the services hub when cloud, security, automation, AI, or managed support will shape the work.',
+    title: 'Need day-to-day coverage?',
+    copy: 'Open the solution hub when support ownership, security posture, cloud planning, or automation is the real need.',
     href: withBasePath('services/'),
-    cta: 'Open services hub',
+    cta: 'Explore solutions',
   },
   {
-    title: 'Price the next step',
-    copy: 'Use pricing to align scope, cadence, and estimate range before the brief turns into a long thread.',
+    title: 'Need pricing clarity?',
+    copy: 'Use pricing to compare plan levels, budget drivers, and calculators before the conversation turns into a long email thread.',
     href: withBasePath('pricing/'),
     cta: 'Review pricing',
+  },
+  {
+    title: 'Need proof the work can feel premium?',
+    copy: 'Open the proof lab when you want to see how strong mobile design, interaction polish, and production discipline come together.',
+    href: withBasePath('about/'),
+    cta: 'Open proof lab',
+  },
+];
+
+const solutionCards = [
+  {
+    badge: 'OPS',
+    eyebrow: 'Managed operations',
+    title: 'Support that feels organized',
+    summary:
+      'Help desk, onboarding, endpoint health, vendor coordination, and operational visibility without the usual MSP sprawl.',
+    operatingModel:
+      'Retained coverage with reporting, ownership, and executive-friendly communication.',
+    rhythm: 'Daily support, weekly signals, monthly roadmap clarity.',
+    href: withBasePath('services/#technology-catalog'),
+  },
+  {
+    badge: 'SEC',
+    eyebrow: 'Security and compliance',
+    title: 'Trust built into the core stack',
+    summary:
+      'Identity, device, response, compliance, and security advisory shaped for real-world pressure instead of box-checking theatrics.',
+    operatingModel:
+      'Security posture that matures at the same speed the business can actually absorb.',
+    rhythm:
+      'Baseline hardening, evidence habits, and leadership-ready escalation paths.',
+    href: withBasePath('services/#technology-catalog'),
+  },
+  {
+    badge: 'CLD',
+    eyebrow: 'Cloud and automation',
+    title: 'Modernization that earns its keep',
+    summary:
+      'Cloud migration, automation, observability, and AI-assisted workflows tied back to cost, clarity, and team leverage.',
+    operatingModel:
+      'Roadmap-led delivery with focused milestones instead of endless transformation language.',
+    rhythm: 'Audit, stabilize, modernize, then expand with confidence.',
+    href: withBasePath('build-studio/#studio'),
+  },
+  {
+    badge: 'LAB',
+    eyebrow: 'Proof and experience',
+    title: 'Client-facing work with taste',
+    summary:
+      'Launch surfaces, portals, demos, and product experiences that feel cinematic, minimal, and persuasive on mobile.',
+    operatingModel:
+      'Design-led proof work backed by production-safe engineering and measurable buyer intent.',
+    rhythm:
+      'Prototype, validate, ship, and keep refining with real usage data.',
+    href: withBasePath('about/'),
+  },
+];
+
+const proofPrograms = [
+  {
+    title: 'Foundation first',
+    description:
+      'Stabilize support, identity, device hygiene, and reporting before anything flashy gets added on top.',
+    outputs: [
+      'Support ownership',
+      'Core security baseline',
+      'Reporting rhythm',
+    ],
+  },
+  {
+    title: 'Modernize with purpose',
+    description:
+      'Bring in cloud, automation, and AI only where they create visible leverage for the team and the buyer journey.',
+    outputs: ['Workflow lift', 'Automation map', 'Cloud modernization plan'],
+  },
+  {
+    title: 'Show the work beautifully',
+    description:
+      'Use the proof lab, gallery, and studio routes to make the next conversation feel sharper, simpler, and more premium.',
+    outputs: [
+      'Mobile-first proof',
+      'Interactive demos',
+      'Executive-ready direction',
+    ],
   },
 ];
 ---
 
 <MarketingLayout
-  title="Olive Global Systems | Integrated Trade And Technology Delivery"
-  description="Integrated delivery across seven service divisions, from capital projects and occupied-building trade work to managed IT, security, cloud, and automation."
+  title="Olive Global Systems | Design-Forward MSP+ Systems"
+  description="Design-forward MSP+ firm for managed IT, security, cloud, AI, automation, and premium client-facing systems."
   mainClass="relative isolate overflow-x-clip"
   bodyClass="creative-page"
   showFooter={true}
@@ -174,56 +264,57 @@ const frontDoorPaths = [
             <h1
               class="premium-title text-4xl font-semibold sm:text-5xl lg:text-6xl"
             >
-              Integrated trade and technology delivery for operating
-              environments that cannot afford guesswork.
+              A design-forward MSP+ firm for teams that want calmer operations
+              and sharper digital systems.
               <span class="sr-only"> Immersive landing experience.</span>
             </h1>
             <p class="premium-copy text-base sm:text-lg">
-              See the lead divisions, delivery logic, and next steps without
-              digging through generic filler.
+              Managed IT, security, cloud, AI, automation, and premium digital
+              execution—organized to read fast on a phone and still feel high
+              end.
             </p>
           </div>
 
           <div class="flex flex-col gap-3 sm:flex-row">
             <ModernButton
-              href={withBasePath('trades/')}
+              href={withBasePath('services/')}
               variant="primary"
               className="min-h-[50px]"
             >
-              Explore service divisions
+              Explore solutions
             </ModernButton>
             <ModernButton
-              href={withBasePath('services/')}
+              href={withBasePath('pricing/')}
               variant="secondary"
               className="min-h-[50px]"
             >
-              Open services hub
+              Review pricing
             </ModernButton>
             <ModernButton
               href={contactHref}
               variant="outline"
               className="hidden min-h-[50px] sm:inline-flex"
             >
-              Send a project brief
+              Start a strategy brief
             </ModernButton>
           </div>
 
           <div data-olive-links class="flex flex-wrap gap-2 pt-1">
             <a
               class="tone-chip-neutral tone-chip-jump tone-focus-accent inline-flex items-center justify-center"
-              href={withBasePath('trades/')}>Trades</a
+              href={withBasePath('services/')}>Solutions</a
             >
             <a
               class="tone-chip-neutral tone-chip-jump tone-focus-accent inline-flex items-center justify-center"
-              href={withBasePath('services/')}>Services</a
+              href={withBasePath('pricing/')}>Pricing</a
             >
             <a
               class="tone-chip-neutral tone-chip-jump tone-focus-accent inline-flex items-center justify-center"
-              href={withBasePath('about/')}>About</a
+              href={withBasePath('about/')}>Proof</a
             >
             <a
               class="tone-chip-neutral tone-chip-jump tone-focus-accent inline-flex items-center justify-center"
-              href={withBasePath('build-studio/')}>Build studio</a
+              href={withBasePath('build-studio/')}>Studio</a
             >
             <a
               class="tone-chip-neutral tone-chip-jump tone-focus-accent inline-flex items-center justify-center"
@@ -290,23 +381,45 @@ const frontDoorPaths = [
               ))
             }
           </div>
-          <figure class="premium-media min-h-[320px]">
-            <img
-              src={heroMedia[2].src}
-              alt={heroMedia[2].alt}
-              loading="eager"
-              decoding="async"
-            />
-            <figcaption class="absolute bottom-4 left-4 right-4 z-10">
-              <span class="premium-chip">{heroMedia[2].label}</span>
+
+          <div class="grid gap-4">
+            <figure class="premium-media min-h-[220px]">
+              <img
+                src={heroMedia[2].src}
+                alt={heroMedia[2].alt}
+                loading="lazy"
+                decoding="async"
+              />
+              <figcaption class="premium-chip absolute bottom-3 left-3 z-10">
+                {heroMedia[2].label}
+              </figcaption>
+            </figure>
+
+            <ModernCard variant="glass" className="tone-panel-soft p-5">
               <p
-                class="mt-3 max-w-sm text-xl font-semibold leading-tight text-white"
+                class="font-mono text-[0.66rem] uppercase tracking-[0.22em] text-white/45"
               >
-                Field work, managed systems, and owner-ready closeout in one
-                operating view.
+                At a glance
               </p>
-            </figcaption>
-          </figure>
+              <div class="mt-4 grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+                {
+                  operatingHighlights.map(item => (
+                    <div class="tone-panel-subtle tone-border rounded-2xl border p-4">
+                      <p class="font-mono text-[0.62rem] uppercase tracking-[0.18em] text-white/45">
+                        {item.label}
+                      </p>
+                      <p class="mt-2 text-2xl font-semibold tracking-tight text-white">
+                        {item.value}
+                      </p>
+                      <p class="mt-2 text-xs leading-5 text-slate-300">
+                        {item.note}
+                      </p>
+                    </div>
+                  ))
+                }
+              </div>
+            </ModernCard>
+          </div>
         </div>
       </div>
     </div>
@@ -314,149 +427,118 @@ const frontDoorPaths = [
 
   <script is:inline>
     (() => {
-      const initializeHeroState = () => {
-        const hero = document.querySelector('[data-olive-universe="ready"]');
-        if (!(hero instanceof HTMLElement)) return;
+      const heroSelector = '[data-olive-universe]';
+      const canvasSelector = '[data-hero-canvas="true"]';
 
+      const paintHeroCanvases = () => {
         const reducedMotion = window.matchMedia(
           '(prefers-reduced-motion: reduce)'
         ).matches;
-        const forceStability = window.__OLIVE_FORCE_STABILITY_ASSIST__ === true;
 
-        hero.setAttribute('data-current-chapter', 'singularity');
-        hero.setAttribute(
-          'data-olive-runtime',
-          forceStability ? 'stability' : 'default'
-        );
-        hero.setAttribute(
-          'data-olive-mode',
-          reducedMotion
-            ? 'reduced'
-            : hero.getAttribute('data-olive-mode') || 'lite'
-        );
-        hero.setAttribute(
-          'data-olive-scene',
-          reducedMotion ? 'ambient' : 'interactive'
-        );
-
-        if (hero.dataset.oliveInteractionBound === '1') return;
-        hero.dataset.oliveInteractionBound = '1';
-        hero.setAttribute('data-olive-interaction', 'idle');
-        hero.addEventListener('click', () => {
-          if (reducedMotion) return;
-          hero.setAttribute('data-olive-interaction', 'burst');
-          window.setTimeout(() => {
-            hero.setAttribute('data-olive-interaction', 'idle');
-          }, 450);
+        document.querySelectorAll(heroSelector).forEach(hero => {
+          hero.setAttribute(
+            'data-olive-mode',
+            reducedMotion ? 'ambient' : 'interactive'
+          );
         });
-      };
 
-      const paintHeroCanvases = () => {
-        initializeHeroState();
-        document
-          .querySelectorAll('canvas[data-hero-canvas="true"]')
-          .forEach(node => {
-            if (!(node instanceof HTMLCanvasElement)) return;
+        document.querySelectorAll(canvasSelector).forEach(node => {
+          if (!(node instanceof HTMLCanvasElement)) return;
+          const context = node.getContext('2d');
+          if (!context) return;
 
-            const rect = node.getBoundingClientRect();
-            const width = Math.max(Math.floor(rect.width), 1);
-            const height = Math.max(Math.floor(rect.height), 1);
-            const ratio = Math.min(window.devicePixelRatio || 1, 2);
+          const ratio = Math.min(window.devicePixelRatio || 1, 2);
+          const width = Math.max(node.clientWidth, 320);
+          const height = Math.max(node.clientHeight, 520);
+          node.width = Math.floor(width * ratio);
+          node.height = Math.floor(height * ratio);
+          context.setTransform(ratio, 0, 0, ratio, 0, 0);
 
-            node.width = Math.floor(width * ratio);
-            node.height = Math.floor(height * ratio);
+          const base = context.createLinearGradient(0, 0, width, height);
+          base.addColorStop(0, '#09111c');
+          base.addColorStop(0.52, '#0d1727');
+          base.addColorStop(1, '#08111d');
+          context.fillStyle = base;
+          context.fillRect(0, 0, width, height);
 
-            const context = node.getContext('2d');
-            if (!context) return;
+          const glowLeft = context.createRadialGradient(
+            width * 0.18,
+            height * 0.14,
+            0,
+            width * 0.18,
+            height * 0.14,
+            width * 0.34
+          );
+          glowLeft.addColorStop(0, 'rgba(191, 219, 254, 0.42)');
+          glowLeft.addColorStop(1, 'rgba(191, 219, 254, 0)');
+          context.fillStyle = glowLeft;
+          context.fillRect(0, 0, width, height);
 
-            context.setTransform(ratio, 0, 0, ratio, 0, 0);
-            context.clearRect(0, 0, width, height);
+          const glowRight = context.createRadialGradient(
+            width * 0.84,
+            height * 0.1,
+            0,
+            width * 0.84,
+            height * 0.1,
+            width * 0.28
+          );
+          glowRight.addColorStop(0, 'rgba(125, 211, 252, 0.24)');
+          glowRight.addColorStop(1, 'rgba(125, 211, 252, 0)');
+          context.fillStyle = glowRight;
+          context.fillRect(0, 0, width, height);
 
-            const base = context.createLinearGradient(0, 0, 0, height);
-            base.addColorStop(0, '#102033');
-            base.addColorStop(0.52, '#0d1727');
-            base.addColorStop(1, '#08111d');
-            context.fillStyle = base;
-            context.fillRect(0, 0, width, height);
+          context.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+          context.lineWidth = 1;
+          const gridSize = Math.max(Math.round(width / 18), 44);
 
-            const glowLeft = context.createRadialGradient(
-              width * 0.18,
-              height * 0.14,
-              0,
-              width * 0.18,
-              height * 0.14,
-              width * 0.34
-            );
-            glowLeft.addColorStop(0, 'rgba(191, 219, 254, 0.42)');
-            glowLeft.addColorStop(1, 'rgba(191, 219, 254, 0)');
-            context.fillStyle = glowLeft;
-            context.fillRect(0, 0, width, height);
-
-            const glowRight = context.createRadialGradient(
-              width * 0.84,
-              height * 0.1,
-              0,
-              width * 0.84,
-              height * 0.1,
-              width * 0.28
-            );
-            glowRight.addColorStop(0, 'rgba(125, 211, 252, 0.24)');
-            glowRight.addColorStop(1, 'rgba(125, 211, 252, 0)');
-            context.fillStyle = glowRight;
-            context.fillRect(0, 0, width, height);
-
-            context.strokeStyle = 'rgba(255, 255, 255, 0.08)';
-            context.lineWidth = 1;
-            const gridSize = Math.max(Math.round(width / 18), 44);
-
-            for (let x = 0; x <= width; x += gridSize) {
-              context.beginPath();
-              context.moveTo(x, 0);
-              context.lineTo(x, height);
-              context.stroke();
-            }
-
-            for (let y = 0; y <= height; y += gridSize) {
-              context.beginPath();
-              context.moveTo(0, y);
-              context.lineTo(width, y);
-              context.stroke();
-            }
-
-            context.strokeStyle = 'rgba(147, 197, 253, 0.4)';
-            context.lineWidth = 2;
+          for (let x = 0; x <= width; x += gridSize) {
             context.beginPath();
-            context.moveTo(width * 0.08, height * 0.72);
-            context.bezierCurveTo(
-              width * 0.24,
-              height * 0.58,
-              width * 0.42,
-              height * 0.82,
-              width * 0.58,
-              height * 0.6
-            );
-            context.bezierCurveTo(
-              width * 0.68,
-              height * 0.46,
-              width * 0.8,
-              height * 0.64,
-              width * 0.92,
-              height * 0.42
-            );
+            context.moveTo(x, 0);
+            context.lineTo(x, height);
             context.stroke();
+          }
 
-            context.fillStyle = 'rgba(255, 255, 255, 0.65)';
-            [
-              [0.18, 0.32],
-              [0.38, 0.54],
-              [0.61, 0.38],
-              [0.81, 0.22],
-            ].forEach(([x, y]) => {
-              context.beginPath();
-              context.arc(width * x, height * y, 5, 0, Math.PI * 2);
-              context.fill();
-            });
+          for (let y = 0; y <= height; y += gridSize) {
+            context.beginPath();
+            context.moveTo(0, y);
+            context.lineTo(width, y);
+            context.stroke();
+          }
+
+          context.strokeStyle = 'rgba(147, 197, 253, 0.4)';
+          context.lineWidth = 2;
+          context.beginPath();
+          context.moveTo(width * 0.08, height * 0.72);
+          context.bezierCurveTo(
+            width * 0.24,
+            height * 0.58,
+            width * 0.42,
+            height * 0.82,
+            width * 0.58,
+            height * 0.6
+          );
+          context.bezierCurveTo(
+            width * 0.68,
+            height * 0.46,
+            width * 0.8,
+            height * 0.64,
+            width * 0.92,
+            height * 0.42
+          );
+          context.stroke();
+
+          context.fillStyle = 'rgba(255, 255, 255, 0.65)';
+          [
+            [0.18, 0.32],
+            [0.38, 0.54],
+            [0.61, 0.38],
+            [0.81, 0.22],
+          ].forEach(([x, y]) => {
+            context.beginPath();
+            context.arc(width * x, height * y, 5, 0, Math.PI * 2);
+            context.fill();
           });
+        });
       };
 
       if (document.readyState === 'loading') {
@@ -513,9 +595,9 @@ const frontDoorPaths = [
   >
     <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
       <SignalCabinet
-        eyebrow="Operational signals"
-        title="Compare how the core divisions operate."
-        description="Click through the lead divisions to see their operating model, rhythm, and owner outputs before you go deeper."
+        eyebrow="Operating signals"
+        title="Start with the pressure, not a giant service list."
+        description="Use these four signals to find the right starting lane fast—then go deeper only where it matters."
         accent="#93c5fd"
         items={landingSignalItems}
       />
@@ -538,10 +620,11 @@ const frontDoorPaths = [
         <h2
           class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
         >
-          Delivery lanes for projects, facilities, and ongoing operations.
+          Where this firm creates value fastest.
         </h2>
         <p class="text-base leading-7 text-slate-300">
-          These are the problems the platform is built to handle best.
+          The homepage stays focused on the highest-value problems instead of
+          shouting every capability at once.
         </p>
       </div>
 
@@ -569,64 +652,65 @@ const frontDoorPaths = [
   >
     <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
       <div
-        class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between"
+        class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between"
       >
         <div class="max-w-3xl space-y-4">
           <p
             class="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-white/55"
           >
-            Service divisions
+            Solution lanes
           </p>
           <h2
             class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
           >
-            Each division has its own operating model and owner output.
+            Four lanes that explain the business in one screen.
           </h2>
           <p class="text-base leading-7 text-slate-300">
-            The homepage surfaces the basics fast so buyers can orient quickly.
+            You should know what kind of partner Olive is within seconds—not
+            after digging through dozens of pages.
           </p>
         </div>
 
         <ModernButton
-          href={withBasePath('trades/')}
+          href={withBasePath('services/')}
           variant="secondary"
           className="min-h-[48px] shrink-0"
         >
-          View full trade directory
+          Open solution hub
         </ModernButton>
       </div>
 
-      <div class="mt-10 grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
+      <div class="mt-10 grid gap-5 lg:grid-cols-2 xl:grid-cols-4">
         {
-          tradeHighlights.map(({ trade, operations }) => (
+          solutionCards.map(card => (
             <a
-              href={withBasePath(`trades/${trade.slug}/`)}
+              href={card.href}
               class="premium-card premium-card--interactive group block p-6"
-              style={`--trade-accent:${trade.accent};`}
+              style="--trade-accent:var(--color-primary);"
             >
               <div class="flex items-start justify-between gap-4">
                 <div>
                   <div
                     class="inline-flex h-11 w-11 items-center justify-center rounded-lg border text-sm font-semibold uppercase tracking-[0.18em] text-white"
-                    style={`border-color:color-mix(in srgb, var(--trade-accent) 40%, rgba(255,255,255,0.12)); background:color-mix(in srgb, var(--trade-accent) 16%, transparent);`}
+                    style="border-color:color-mix(in srgb, var(--trade-accent) 40%, rgba(255,255,255,0.12)); background:color-mix(in srgb, var(--trade-accent) 16%, transparent);"
                   >
-                    {trade.badge}
+                    {card.badge}
                   </div>
                   <p class="mt-4 text-xs uppercase tracking-[0.22em] text-white/45">
-                    {trade.eyebrow}
+                    {card.eyebrow}
                   </p>
                 </div>
 
                 <span class="tone-chip-neutral inline-flex rounded-full border px-3 py-1 text-[0.65rem] uppercase tracking-[0.22em]">
-                  {trade.shortName}
+                  {card.badge}
                 </span>
               </div>
 
               <h3 class="mt-4 text-xl font-semibold text-white">
-                {trade.name}
+                {card.title}
               </h3>
               <p class="mt-3 text-sm leading-7 text-slate-300">
-                {trade.summary}
+                {card.summary}
               </p>
 
               <dl class="tone-divider-top mt-6 space-y-4 pt-5 text-sm">
@@ -634,17 +718,13 @@ const frontDoorPaths = [
                   <dt class="font-mono text-[0.66rem] uppercase tracking-[0.2em] text-white/45">
                     Operating model
                   </dt>
-                  <dd class="mt-1 text-slate-100">
-                    {operations.operatingModel}
-                  </dd>
+                  <dd class="mt-1 text-slate-100">{card.operatingModel}</dd>
                 </div>
                 <div>
                   <dt class="font-mono text-[0.66rem] uppercase tracking-[0.2em] text-white/45">
-                    Service rhythm
+                    Best rhythm
                   </dt>
-                  <dd class="mt-1 text-slate-300">
-                    {operations.serviceRhythm}
-                  </dd>
+                  <dd class="mt-1 text-slate-300">{card.rhythm}</dd>
                 </div>
               </dl>
             </a>
@@ -670,10 +750,11 @@ const frontDoorPaths = [
         <h2
           class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
         >
-          The site explains how work moves, not just what the brand says.
+          The process is simple on purpose.
         </h2>
         <p class="text-base leading-7 text-slate-300">
-          These four stages are the spine of the buyer journey.
+          Great design matters, but the real differentiator is how clearly the
+          work moves from first pressure point to visible proof.
         </p>
       </div>
 
@@ -720,26 +801,24 @@ const frontDoorPaths = [
         <p
           class="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-white/55"
         >
-          Cross-trade programs
+          What stays connected
         </p>
         <h2
           class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
         >
-          Some scopes cross more than one lane.
+          The best engagements connect operations, trust, and presentation.
         </h2>
         <p class="text-base leading-7 text-slate-300">
-          These recurring programs show where the right answer is coordinated,
-          not siloed.
+          Even when the starting point is support or security, the strongest
+          outcomes often include modernization, automation, and better client
+          experience.
         </p>
       </div>
 
       <div class="mt-10 grid gap-5 lg:grid-cols-3">
         {
-          tradePrograms.map(program => (
+          proofPrograms.map(program => (
             <ModernCard variant="glass" className="h-full p-7 tone-panel-soft">
-              <p class="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-white/45">
-                {program.tradeSlugs.length} linked trades
-              </p>
               <h3 class="mt-4 text-xl font-semibold text-white">
                 {program.title}
               </h3>
@@ -780,11 +859,11 @@ const frontDoorPaths = [
             <h2
               class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
             >
-              Need the right division or a cleaner starting scope?
+              Need the right starting lane and a cleaner next step?
             </h2>
             <p class="max-w-2xl text-base leading-7 text-slate-300">
-              Browse the directory, use the services hub, or send a short brief
-              with the problem you need solved.
+              Explore the solution hub, review pricing, or send a short brief
+              with the pressure point you need solved first.
             </p>
           </div>
 
@@ -792,25 +871,25 @@ const frontDoorPaths = [
             class="flex flex-col gap-3 sm:flex-row lg:flex-col lg:justify-end"
           >
             <ModernButton
-              href={withBasePath('trades/')}
+              href={withBasePath('services/')}
               variant="primary"
               className="min-h-[50px]"
             >
-              Browse all divisions
+              Explore solutions
             </ModernButton>
             <ModernButton
-              href={withBasePath('pricing/')}
+              href={withBasePath('about/')}
               variant="secondary"
               className="min-h-[50px]"
             >
-              Review pricing and scope
+              Open proof lab
             </ModernButton>
             <ModernButton
               href={contactHref}
               variant="outline"
               className="min-h-[50px]"
             >
-              Email a project brief
+              Email a strategy brief
             </ModernButton>
           </div>
         </div>

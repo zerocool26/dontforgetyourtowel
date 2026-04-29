@@ -76,8 +76,8 @@ const kickoffSubject = tradeIntentLabel
       : 'New project inquiry';
 
 const kickoffBodyLines = [
-  tradeIntentLabel ? `Trade focus: ${tradeIntentLabel}` : '',
-  tradePageIntent ? `Trade page: ${tradePageIntent}` : '',
+  tradeIntentLabel ? `Context focus: ${tradeIntentLabel}` : '',
+  tradePageIntent ? `Context route: ${tradePageIntent}` : '',
   solutionIntentLabel ? `Build path: ${solutionIntentLabel}` : '',
   briefIntent ? `Build brief: ${briefIntent}` : '',
   workspaceTitleIntent ? `Workspace title: ${workspaceTitleIntent}` : '',
@@ -111,59 +111,59 @@ const hasIntakeContext = Boolean(
 
 const channels = [
   {
-    title: 'New project / sales',
-    note: 'Scope review, sequencing, planning assumptions, and next-step recommendations.',
-    subject: 'New project inquiry',
+    title: 'Strategy and discovery',
+    note: 'Scope review, planning assumptions, buying questions, and next-step recommendations.',
+    subject: 'Strategy and discovery inquiry',
   },
   {
     title: 'Managed operations and support',
-    note: 'Support questions, service requests, and operating-model discussions.',
+    note: 'Support questions, operational friction, service requests, and coverage discussions.',
     subject: 'Managed services support request',
   },
   {
     title: 'Security and advisory',
-    note: 'Architecture guidance, security posture reviews, and compliance planning.',
+    note: 'Architecture guidance, security posture reviews, compliance planning, and leadership support.',
     subject: 'Security advisory request',
   },
   {
-    title: 'Partnerships and collaboration',
-    note: 'Strategic collaboration, co-delivery opportunities, and alignment conversations.',
-    subject: 'Partnership inquiry',
+    title: 'Build and collaboration',
+    note: 'Premium digital builds, studio planning, co-delivery opportunities, and design-forward product conversations.',
+    subject: 'Build and collaboration inquiry',
   },
 ];
 
 const firstMessageChecklist = [
-  'What you are trying to achieve',
-  'The current system, facility, or operating context',
-  'Key constraints such as timeline, occupancy, support hours, or compliance needs',
-  'Any urgent issues or deadlines',
-  'Who needs to review the next step',
+  'The main problem you want fixed or improved',
+  'What your current environment looks like today',
+  'Key constraints such as timing, compliance, budget, or team capacity',
+  'Anything urgent or customer-visible',
+  'Who needs to approve the next step',
 ];
 
 const engagementSteps = [
   {
     phase: '01',
-    title: 'Align on the problem',
+    title: 'Confirm the pressure point',
     detail:
-      'Confirm the real pressure point before anyone jumps to a solution.',
+      'Make sure the real issue is clear before anyone jumps into solution mode.',
   },
   {
     phase: '02',
     title: 'Recommend the right lane',
     detail:
-      'Identify the lead division, the likely interfaces, and whether the scope stays narrow or expands.',
+      'Identify the best starting lane and the adjacent work that actually belongs in view.',
   },
   {
     phase: '03',
     title: 'Shape the first plan',
     detail:
-      'Turn the next step into a right-sized plan: discovery, pricing, sprint, rollout, or direct intake.',
+      'Turn the next move into a right-sized plan: discovery, pricing, sprint, stabilization, or rollout.',
   },
   {
     phase: '04',
     title: 'Start with clear ownership',
     detail:
-      'Once approved, onboarding and execution begin with named owners, milestones, and visible outputs.',
+      'Once approved, execution starts with named owners, visible milestones, and useful outputs.',
   },
 ];
 
@@ -180,12 +180,12 @@ const faqs = [
   {
     title: 'How quickly do you usually respond?',
     content:
-      'Most first responses happen within the same business day. Time-sensitive operational issues are prioritized faster when the first message clearly explains urgency.',
+      'Most first responses happen within the same business day. Time-sensitive issues move faster when the first note is short, direct, and clearly marks urgency.',
   },
   {
     title: 'Can we start with a narrow scope instead of a big engagement?',
     content:
-      'Yes. Many engagements begin with discovery, a stabilization sprint, a focused trade package, or a single operational priority before expanding.',
+      'Yes. Many engagements start with discovery, a stabilization sprint, a focused security scope, or one urgent priority before expanding.',
   },
   {
     title: 'Do you work with internal teams or existing vendors?',
@@ -193,9 +193,9 @@ const faqs = [
       'Yes. Co-managed delivery is common. The goal is to clarify ownership and close capability gaps, not force unnecessary replacement of existing teams.',
   },
   {
-    title: 'What if we are not sure which division should lead?',
+    title: 'What if we are not sure which service should lead?',
     content:
-      'That is a normal starting point. Send the context you have, and we will help identify the right lead lane and the likely supporting interfaces.',
+      'That is a normal starting point. Send the context you have, and we will help identify the right lead lane and any supporting work that should stay attached.',
   },
 ];
 
@@ -234,7 +234,7 @@ const faqSchema = {
 
 <MarketingLayout
   title="Contact | Olive Global Systems"
-  description="Contact and intake page for project discovery, support conversations, security advisory, and partnership inquiries."
+  description="Contact and intake page for strategy, support, security advisory, roadmap conversations, and premium digital build inquiries."
   bodyClass="creative-page"
   showFooter={true}
   showStickyCTA={false}
@@ -270,11 +270,11 @@ const faqSchema = {
             <h1
               class="max-w-4xl text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl"
             >
-              Send the right context once and make the next step obvious.
+              Send the right context once and make the next move obvious.
             </h1>
             <p class="max-w-3xl text-base leading-8 text-slate-300 sm:text-lg">
-              Route a project, operating issue, security advisory need, or
-              partnership conversation without unnecessary back-and-forth.
+              Start a strategy conversation, support escalation, security
+              review, or build inquiry without unnecessary back-and-forth.
             </p>
           </div>
 
@@ -292,7 +292,7 @@ const faqSchema = {
               variant="secondary"
               className="min-h-[50px]"
             >
-              Review services first
+              Review solutions first
             </ModernButton>
           </div>
 
@@ -322,8 +322,8 @@ const faqSchema = {
                 {CONTACT_EMAIL}
               </p>
               <p class="mt-3 text-sm leading-6 text-slate-300">
-                Email is still the fastest way to capture context and next-step
-                questions in one place.
+                Email is still the fastest way to capture context, constraints,
+                and next-step questions in one place.
               </p>
             </div>
 
@@ -368,7 +368,7 @@ const faqSchema = {
             <p
               class="font-mono text-[0.64rem] uppercase tracking-[0.18em] text-white/40"
             >
-              Trade focus
+              Context focus
             </p>
             <p
               id="intake-context-trade"
@@ -384,7 +384,7 @@ const faqSchema = {
             <p
               class="font-mono text-[0.64rem] uppercase tracking-[0.18em] text-white/40"
             >
-              Trade route
+              Context route
             </p>
             <p
               id="intake-context-trade-page"
@@ -559,7 +559,7 @@ const faqSchema = {
           </h2>
           <p class="text-base leading-7 text-slate-300">
             Most intake friction comes from missing context. A direct summary is
-            better than a polished but vague request.
+            much better than a polished but vague request.
           </p>
         </div>
 
@@ -613,7 +613,7 @@ const faqSchema = {
         </h2>
         <p class="text-base leading-7 text-slate-300">
           The goal is simple: move a serious request into the right decision
-          path quickly and clearly.
+          path quickly, clearly, and with far less noise.
         </p>
       </div>
 
@@ -659,7 +659,7 @@ const faqSchema = {
           </h2>
           <p class="text-base leading-7 text-slate-300">
             These cover the most common uncertainties around timing, scope,
-            collaboration, and picking the right lead division.
+            collaboration, and choosing the right starting lane.
           </p>
         </div>
 
@@ -687,7 +687,7 @@ const faqSchema = {
             </h2>
             <p class="max-w-2xl text-base leading-7 text-slate-300">
               Email the context you have, even if the scope is not fully shaped
-              yet. The immediate goal is to identify the right lead lane.
+              yet. The immediate goal is to identify the right next move.
             </p>
             <p class="text-sm text-slate-300">
               <a
@@ -709,11 +709,11 @@ const faqSchema = {
               Email now
             </ModernButton>
             <ModernButton
-              href={withBasePath('trades/')}
+              href={withBasePath('services/')}
               variant="secondary"
               className="min-h-[50px]"
             >
-              Browse divisions first
+              Explore solutions first
             </ModernButton>
           </div>
         </div>
@@ -876,10 +876,10 @@ const faqSchema = {
 
       const bodyLines = [];
       if (tradeLabel) {
-        bodyLines.push(`Trade focus: ${tradeLabel}`);
+        bodyLines.push(`Context focus: ${tradeLabel}`);
       }
       if (tradePageValue) {
-        bodyLines.push(`Trade page: ${tradePageValue}`);
+        bodyLines.push(`Context route: ${tradePageValue}`);
       }
       if (solutionLabel) {
         bodyLines.push(`Build path: ${solutionLabel}`);

@@ -3,96 +3,164 @@ import MarketingLayout from '../layouts/MarketingLayout.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
 import ModernCard from '../components/ui/ModernCard.astro';
 import ScopeReadinessPanel from '../components/business/ScopeReadinessPanel.astro';
-import {
-  tradeProfiles,
-  tradePrograms,
-  totalTradeSubpages,
-} from '../data/trades';
-import { getTradeOperations } from '../data/trade-operations';
 import { withBasePath } from '../utils/helpers';
 
 const companySignals = [
   {
-    label: 'Service divisions',
-    value: String(tradeProfiles.length),
-    detail: 'Each division keeps its own operating model and buyer path.',
+    label: 'Operating style',
+    value: 'Calm + design-led',
+    detail: 'Clear ownership, sharper taste, and less generic MSP noise.',
   },
   {
-    label: 'Specialist routes',
-    value: `${totalTradeSubpages}+`,
+    label: 'Coverage depth',
+    value: 'MSP+',
     detail:
-      'Specialist routes cover retrofit delivery, controls, logistics, and managed operations.',
+      'Managed IT, security, cloud, AI, automation, and client-facing delivery.',
   },
   {
-    label: 'Cross-trade programs',
-    value: String(tradePrograms.length),
-    detail:
-      'The platform supports combined delivery when one problem spans more than one lane.',
+    label: 'Best fit',
+    value: 'Growth-minded teams',
+    detail: 'Ideal when operations and presentation both need to level up.',
   },
 ];
 
 const positioningPoints = [
   {
-    title: 'Built for real operational constraints',
-    copy: 'The company story centers on access, shutdowns, occupancy, service coverage, risk, and owner outcomes.',
+    title: 'Operator-led, not theater-led',
+    copy: 'The business starts with real pressures—support chaos, security drift, cloud sprawl, slow processes, or a weak digital front door.',
   },
   {
-    title: 'Structured around distinct divisions',
-    copy: 'Each trade and technology lane is presented as a real business function, not a subsection of one broad page.',
+    title: 'Minimal, but not generic',
+    copy: 'The visual system stays restrained and premium while still carrying personality, motion, and art-direction where it earns the space.',
   },
   {
-    title: 'Still capable of integrated delivery',
-    copy: 'The platform can stay in one lane or combine trades and technology when the scope demands it.',
+    title: 'One partner from support to standout builds',
+    copy: 'Retained operations, security work, modernization tracks, and premium proof surfaces all stay inside one clear operating model.',
   },
 ];
 
-const sectors = Array.from(
-  new Map(
-    tradeProfiles.flatMap(trade =>
-      trade.sectors.map(sector => [sector.name, sector.note])
-    )
-  )
-).slice(0, 8);
+const sectors = [
+  [
+    'Founder-led companies',
+    'Need a strategic partner that can stabilize operations without slowing momentum.',
+  ],
+  [
+    'Professional services teams',
+    'Want cleaner systems, better support, and a front door that feels more premium.',
+  ],
+  [
+    'Healthcare and regulated teams',
+    'Need stronger security posture, calmer compliance habits, and trustworthy guidance.',
+  ],
+  [
+    'Multi-site and hybrid teams',
+    'Need device, access, and support models that work across locations.',
+  ],
+  [
+    'Retail and lifestyle brands',
+    'Need operations to stay sharp while customer-facing experiences level up.',
+  ],
+  [
+    'Real estate and hospitality groups',
+    'Need better systems, stronger trust signals, and mobile-friendly client experiences.',
+  ],
+  [
+    'SaaS and product teams',
+    'Need support, cloud clarity, and product-adjacent execution without adding five vendors.',
+  ],
+  [
+    'Teams in transition',
+    'Need an easier bridge from “barely coping” to “actually operating well.”',
+  ],
+];
 
 const deliveryModel = [
   {
     step: '01',
-    title: 'Start with the real constraint',
-    copy: 'Start with the operational pressure: occupancy risk, support burden, timeline compression, or security exposure.',
+    title: 'Diagnose the pressure',
+    copy: 'Start with the friction that is actually costing time, trust, or opportunity right now.',
   },
   {
     step: '02',
-    title: 'Assign the lead division',
-    copy: 'One lane should own the conversation first, even when adjacent services will matter later.',
+    title: 'Set the lead lane',
+    copy: 'Choose the first service lane clearly, then only add the adjacent work that genuinely helps the outcome.',
   },
   {
     step: '03',
-    title: 'Connect interfaces early',
-    copy: 'When more than one lane matters, the handoffs are surfaced early instead of during delivery.',
+    title: 'Stabilize and modernize',
+    copy: 'Fix the foundations first, then expand into modernization, automation, or premium digital work.',
   },
   {
     step: '04',
-    title: 'Close with usable outputs',
-    copy: 'Close with usable outputs like startup records, asset information, reporting, and next-step planning.',
+    title: 'Leave a sharper next move',
+    copy: 'Every engagement should end with visible proof, usable documentation, and a smarter next-step roadmap.',
   },
 ];
 
 const companySections = [
-  { label: 'Buyer fit', href: '#positioning' },
+  { label: 'Why us', href: '#positioning' },
   { label: 'Delivery flow', href: '#delivery-model' },
-  { label: 'Divisions', href: '#trade-overview' },
-  { label: 'Programs', href: '#programs' },
+  { label: 'Capabilities', href: '#trade-overview' },
+  { label: 'Proof', href: '#programs' },
 ];
 
-const tradeOverview = tradeProfiles.map(trade => ({
-  trade,
-  operations: getTradeOperations(trade.slug),
-}));
+const capabilityOverview = [
+  {
+    eyebrow: 'Managed operations',
+    title: 'Support and ownership',
+    summary:
+      'Help desk, onboarding, endpoint hygiene, vendor coordination, and executive-friendly reporting that finally feel organized.',
+    detail:
+      'Best when the team needs steadier operations before anything more ambitious can land.',
+  },
+  {
+    eyebrow: 'Security and compliance',
+    title: 'Trust and control',
+    summary:
+      'Identity, device posture, awareness, response readiness, and compliance habits that build confidence without bureaucracy overload.',
+    detail:
+      'Best when leadership wants sharper security without turning the whole company into a security department.',
+  },
+  {
+    eyebrow: 'Cloud, AI, and automation',
+    title: 'Modernization and leverage',
+    summary:
+      'Cloud cleanup, automation, AI workflows, observability, and systems thinking that remove operational drag.',
+    detail:
+      'Best when the business needs lift, not another stack of half-used tools.',
+  },
+  {
+    eyebrow: 'Proof and experience',
+    title: 'Premium digital surfaces',
+    summary:
+      'Proof labs, launch surfaces, portals, and product experiences that feel cinematic, simple, and persuasive on mobile.',
+    detail:
+      'Best when the front door matters as much as the infrastructure behind it.',
+  },
+];
+
+const proofModes = [
+  {
+    title: 'Live proof routes',
+    description:
+      'Interactive routes show the work as a working system instead of a flat case-study paragraph.',
+  },
+  {
+    title: 'Pricing without fog',
+    description:
+      'Plan levels, budget drivers, and calculators keep buying conversations calmer and more transparent.',
+  },
+  {
+    title: 'Studio-led planning',
+    description:
+      'The studio turns a vague idea into a tighter roadmap with priorities, surfaces, and realistic rollout pace.',
+  },
+];
 ---
 
 <MarketingLayout
   title="Company | Olive Global Systems"
-  description="Company overview for Olive Global Systems, including positioning, delivery model, sectors served, and the role of each service division."
+  description="Company overview for Olive Global Systems, including positioning, delivery model, buyer fit, and how the MSP+ stack stays connected."
   bodyClass="creative-page"
   showFooter={true}
   showStickyCTA={false}
@@ -120,30 +188,30 @@ const tradeOverview = tradeProfiles.map(trade => ({
             <h1
               class="max-w-4xl text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl"
             >
-              A clearer front door for complex divisions, programs, and buyer
-              paths.
+              A design-led MSP+ firm built to make technology feel calmer,
+              sharper, and easier to buy.
             </h1>
             <p class="max-w-3xl text-base leading-8 text-slate-300 sm:text-lg">
-              Olive Global Systems is structured so buyers can find the right
-              lane, understand how work moves, and see where cross-trade
-              coordination fits.
+              Olive Global Systems blends support, security, modernization, and
+              premium digital execution into one operating model that reads
+              clearly on mobile and still feels distinctive.
             </p>
           </div>
 
           <div class="flex flex-col gap-3 sm:flex-row">
             <ModernButton
-              href={withBasePath('trades/')}
+              href={withBasePath('services/')}
               variant="primary"
               className="min-h-[50px]"
             >
-              Explore divisions
+              Explore solutions
             </ModernButton>
             <ModernButton
-              href={withBasePath('services/')}
+              href={withBasePath('pricing/')}
               variant="secondary"
               className="min-h-[50px]"
             >
-              Open services hub
+              Review pricing
             </ModernButton>
             <span class="hidden sm:block">
               <ModernButton
@@ -210,11 +278,11 @@ const tradeOverview = tradeProfiles.map(trade => ({
         <h2
           class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
         >
-          Why the company is organized this way.
+          Why the company is built this way.
         </h2>
         <p class="text-base leading-7 text-slate-300">
-          Distinct divisions reduce guesswork, surface the right lead lane
-          sooner, and keep multi-lane work from feeling vague.
+          The goal is not to look bigger than necessary. The goal is to make a
+          high-trust partner easier to understand and easier to choose.
         </p>
       </div>
 
@@ -251,11 +319,11 @@ const tradeOverview = tradeProfiles.map(trade => ({
           <h2
             class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
           >
-            The delivery flow is simple on purpose.
+            The delivery flow is deliberately simple.
           </h2>
           <p class="text-base leading-7 text-slate-300">
-            Start with the constraint, assign the lead lane, connect interfaces,
-            and close with outputs the owner can actually use.
+            Diagnose the pressure, set the lead lane, stabilize the stack, and
+            leave the client with visible proof plus a smarter next move.
           </p>
         </div>
 
@@ -292,16 +360,16 @@ const tradeOverview = tradeProfiles.map(trade => ({
         <p
           class="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-white/55"
         >
-          Sectors and operating contexts
+          Buyer fit
         </p>
         <h2
           class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
         >
-          Built for operating environments with real constraints.
+          Best for teams with real pressure and no patience for fluff.
         </h2>
         <p class="text-base leading-7 text-slate-300">
-          These sectors show up repeatedly because the operating context shapes
-          sequencing, access, support, and closeout.
+          These are the kinds of clients who benefit most from calmer systems,
+          stronger trust signals, and a more polished digital front door.
         </p>
       </div>
 
@@ -332,68 +400,51 @@ const tradeOverview = tradeProfiles.map(trade => ({
           <p
             class="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-white/55"
           >
-            Divisions at a glance
+            Capability clusters
           </p>
           <h2
             class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
           >
-            Each division leads a different kind of work.
+            Four capability clusters explain the whole business.
           </h2>
           <p class="text-base leading-7 text-slate-300">
-            You should be able to orient fast before opening a deeper trade
-            page.
+            Buyers should be able to orient quickly before they ever need the
+            deeper catalog or proof routes.
           </p>
         </div>
 
         <ModernButton
-          href={withBasePath('trades/')}
+          href={withBasePath('services/')}
           variant="secondary"
           className="min-h-[48px] shrink-0"
         >
-          Open all division pages
+          Open solution hub
         </ModernButton>
       </div>
 
-      <div class="mt-10 grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
+      <div class="mt-10 grid gap-5 lg:grid-cols-2 xl:grid-cols-4">
         {
-          tradeOverview.map(({ trade, operations }) => (
-            <a
-              href={withBasePath(`trades/${trade.slug}/`)}
-              class="premium-card premium-card--interactive group block h-full p-6"
-              style={`--trade-accent:${trade.accent};`}
+          capabilityOverview.map(item => (
+            <ModernCard
+              variant="default"
+              className="h-full p-6 tone-panel-soft"
             >
-              <div class="flex items-start justify-between gap-4">
-                <div>
-                  <div
-                    class="inline-flex h-11 w-11 items-center justify-center rounded-lg border text-sm font-semibold uppercase tracking-[0.18em] text-white"
-                    style={`border-color:color-mix(in srgb, var(--trade-accent) 40%, rgba(255,255,255,0.12)); background:color-mix(in srgb, var(--trade-accent) 16%, transparent);`}
-                  >
-                    {trade.badge}
-                  </div>
-                  <p class="mt-4 text-xs uppercase tracking-[0.22em] text-white/45">
-                    {trade.eyebrow}
-                  </p>
-                </div>
-
-                <span class="tone-chip-neutral inline-flex rounded-full border px-3 py-1 text-[0.65rem] uppercase tracking-[0.22em]">
-                  {trade.shortName}
-                </span>
-              </div>
-
+              <p class="font-mono text-[0.66rem] uppercase tracking-[0.22em] text-white/45">
+                {item.eyebrow}
+              </p>
               <h3 class="mt-4 text-xl font-semibold text-white">
-                {trade.name}
+                {item.title}
               </h3>
               <p class="mt-3 text-sm leading-7 text-slate-300">
-                {trade.summary}
+                {item.summary}
               </p>
-
               <div class="tone-divider-top mt-6 pt-5 text-sm">
                 <p class="font-mono text-[0.66rem] uppercase tracking-[0.2em] text-white/45">
-                  Lead delivery pattern
+                  Best fit
                 </p>
-                <p class="mt-1 text-slate-200">{operations.operatingModel}</p>
+                <p class="mt-2 text-slate-200">{item.detail}</p>
               </div>
-            </a>
+            </ModernCard>
           ))
         }
       </div>
@@ -409,7 +460,7 @@ const tradeOverview = tradeProfiles.map(trade => ({
     <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
       <ScopeReadinessPanel
         title="Pressure-test the first company conversation."
-        description="Use the same three checks we use to route work into a lead division, a cross-trade program, or a narrower discovery path."
+        description="Use the same three checks we use to route work into the right lane, the right scope, and a smarter first step."
       />
     </div>
   </section>
@@ -422,23 +473,23 @@ const tradeOverview = tradeProfiles.map(trade => ({
             <p
               class="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-white/55"
             >
-              Cross-trade programs
+              Proof modes
             </p>
             <h2
               class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
             >
-              Cross-trade programs make multi-lane work easier to read.
+              The company story works because the proof does too.
             </h2>
             <p class="text-base leading-7 text-slate-300">
-              These recurring program types show how the platform combines
-              trades and technology support without turning the buyer journey
-              into a maze.
+              A stronger firm narrative needs more than a promise. It needs live
+              proof, pricing clarity, and a planning surface that turns ideas
+              into scope.
             </p>
           </div>
 
           <div class="grid gap-4">
             {
-              tradePrograms.map(program => (
+              proofModes.map(program => (
                 <div class="tone-panel-soft rounded-2xl p-5">
                   <p class="text-lg font-semibold text-white">
                     {program.title}

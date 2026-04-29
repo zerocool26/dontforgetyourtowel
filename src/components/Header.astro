@@ -10,11 +10,12 @@ const homeHref = withBasePath('/');
 const mobileSiteTitle = SITE_TITLE.replace(/\s+Systems$/i, '');
 
 const links = [
-  { label: 'Trades', href: withBasePath('trades/') },
-  { label: 'Services', href: withBasePath('services/') },
+  { label: 'Solutions', href: withBasePath('services/') },
   { label: 'Pricing', href: withBasePath('pricing/') },
   { label: 'Company', href: withBasePath('company/') },
-  { label: 'Portfolio', href: withBasePath('about/') },
+  { label: 'Proof', href: withBasePath('about/') },
+  { label: 'Studio', href: withBasePath('build-studio/') },
+  { label: 'Gallery', href: withBasePath('gallery/') },
   { label: 'Contact', href: withBasePath('contact-hq/') },
 ];
 
@@ -26,7 +27,7 @@ const tradeLinks = tradeProfiles.map(trade => ({
 
 const startProjectHref = `mailto:${encodeURIComponent(
   CONTACT_EMAIL
-)}?subject=${encodeURIComponent('New project inquiry')}`;
+)}?subject=${encodeURIComponent('Strategy intake — Olive Global Systems')}`;
 
 const normalizePath = (value: string) => {
   const strippedBase =
@@ -42,7 +43,7 @@ const isTradePage =
   currentPath === '/trades' || currentPath.startsWith('/trades/');
 const compactContextLinks = routeContext.suggestions.slice(
   0,
-  isTradePage ? 2 : 1
+  isTradePage ? 2 : 2
 );
 
 const searchTriggerClasses =
@@ -123,7 +124,7 @@ const isTradeActiveHref = (href: string) => {
           <span
             class="max-w-[19rem] truncate whitespace-nowrap font-mono text-[0.6rem] uppercase tracking-[0.22em] text-white/55"
           >
-            Integrated trade and technology delivery
+            MSP+ • security • cloud • AI • custom systems
           </span>
           {
             !isHomePage ? (
@@ -216,7 +217,7 @@ const isTradeActiveHref = (href: string) => {
         rounded="sm"
         href={startProjectHref}
       >
-        Start a Project
+        Start Intake
       </ModernButton>
     </div>
 
@@ -286,7 +287,7 @@ const isTradeActiveHref = (href: string) => {
       <div class="hidden border-t border-white/[0.05] lg:block">
         <nav
           class="mx-auto max-w-[1400px] px-5 sm:px-6 lg:px-8"
-          aria-label="Trade navigation"
+          aria-label="Specialized route navigation"
         >
           <div class="flex items-center gap-2 overflow-x-auto py-2.5 scrollbar-hide">
             <a
@@ -301,7 +302,7 @@ const isTradeActiveHref = (href: string) => {
                 isActiveHref(withBasePath('trades/')) ? 'page' : undefined
               }
             >
-              Trade Directory
+              Specialized routes
             </a>
             {tradeLinks.map(link => {
               const active = isTradeActiveHref(link.href);
@@ -412,37 +413,37 @@ const isTradeActiveHref = (href: string) => {
           );
         })
       }
-      <div class="border-t border-white/10 pt-3">
-        <p
-          class="px-3 pb-2 font-mono text-[0.65rem] uppercase tracking-[0.24em] text-white/45"
-        >
-          Trade pages
-        </p>
-        {
-          tradeLinks.map(link => {
-            const active = isTradeActiveHref(link.href);
-            return (
-              <a
-                class={`${mobileMenuLinkClasses} mb-2 ${
-                  active
-                    ? 'bg-white/10 text-white'
-                    : 'tone-body hover:bg-white/5'
-                }`}
-                href={link.href}
-                data-astro-prefetch
-                aria-current={active ? 'page' : undefined}
-              >
-                {link.label}
-              </a>
-            );
-          })
-        }
-      </div>
+      {
+        isTradePage ? (
+          <div class="border-t border-white/10 pt-3">
+            <p class="px-3 pb-2 font-mono text-[0.65rem] uppercase tracking-[0.24em] text-white/45">
+              Specialized routes
+            </p>
+            {tradeLinks.map(link => {
+              const active = isTradeActiveHref(link.href);
+              return (
+                <a
+                  class={`${mobileMenuLinkClasses} mb-2 ${
+                    active
+                      ? 'bg-white/10 text-white'
+                      : 'tone-body hover:bg-white/5'
+                  }`}
+                  href={link.href}
+                  data-astro-prefetch
+                  aria-current={active ? 'page' : undefined}
+                >
+                  {link.label}
+                </a>
+              );
+            })}
+          </div>
+        ) : null
+      }
       <a
         class="tone-focus-accent min-h-touch flex touch-manipulation items-center rounded-lg bg-white px-3 py-3 font-semibold text-slate-900 transition hover:bg-slate-100"
         href={startProjectHref}
       >
-        Start a project
+        Book strategy intake
       </a>
     </div>
   </div>

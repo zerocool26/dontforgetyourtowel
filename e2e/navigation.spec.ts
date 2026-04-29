@@ -19,12 +19,12 @@ test.describe('Navigation', () => {
       name: /main navigation/i,
     });
 
-    // Portfolio page
+    // Proof page
     if (isMobile) {
       const mobileMenu = await openMobileMenuIfNeeded();
-      await mobileMenu!.getByRole('link', { name: /^portfolio$/i }).click();
+      await mobileMenu!.getByRole('link', { name: /^proof$/i }).click();
     } else {
-      await headerNav.getByRole('link', { name: /^portfolio$/i }).click();
+      await headerNav.getByRole('link', { name: /^proof$/i }).click();
     }
     await expect(page).toHaveURL(/.*\/about\/?$/);
     await expect(page.locator('main')).toBeVisible();
@@ -33,9 +33,9 @@ test.describe('Navigation', () => {
     await page.goto('./');
     if (isMobile) {
       const mobileMenu = await openMobileMenuIfNeeded();
-      await mobileMenu!.getByRole('link', { name: /^services$/i }).click();
+      await mobileMenu!.getByRole('link', { name: /^solutions$/i }).click();
     } else {
-      await headerNav.getByRole('link', { name: /^services$/i }).click();
+      await headerNav.getByRole('link', { name: /^solutions$/i }).click();
     }
     await expect(page).toHaveURL(/.*\/services\/?$/);
 
@@ -76,11 +76,11 @@ test.describe('Navigation', () => {
   }) => {
     await page.goto('./services/');
 
-    await page.getByRole('link', { name: /^tech catalog$/i }).click();
+    await page.getByRole('link', { name: /^catalog$/i }).click();
     await expect(page).toHaveURL(/\/services\/#technology-catalog$/);
     await expect(page.locator('#technology-catalog')).toBeVisible();
 
-    await page.getByRole('link', { name: /open technology catalog/i }).click();
+    await page.getByRole('link', { name: /open capability catalog/i }).click();
     await expect(page).toHaveURL(/\/services\/#technology-catalog$/);
 
     await page.goto('./pricing/');
