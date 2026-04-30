@@ -117,13 +117,13 @@ const pageNavigator = {
     }}
   />
   <section
-    class="relative scroll-mt-32 overflow-hidden pb-12 pt-20 sm:pb-14 sm:pt-28"
+    class="tone-page-hero relative scroll-mt-32 overflow-hidden pb-12 pt-20 sm:pb-14 sm:pt-28"
     data-reveal
     id="gallery-hero"
     data-page-section
   >
     <div class="gallery-ambient"></div>
-    <div class="mx-auto max-w-[1440px] px-4 sm:px-6">
+    <div class="tone-page-hero__inner mx-auto max-w-[1440px] px-4 sm:px-6">
       <div class="grid gap-8 xl:grid-cols-[1.08fr_0.92fr] xl:items-end">
         <div class="space-y-6">
           <div class="inline-flex flex-wrap gap-2">
@@ -133,9 +133,9 @@ const pageNavigator = {
             <span class="creative-chip">Mobile-ready</span>
           </div>
 
-          <div class="space-y-5">
+          <div class="tone-page-header space-y-5">
             <h1
-              class="tone-title max-w-5xl text-[2.1rem] !leading-[0.96] tracking-normal [text-wrap:balance] min-[400px]:text-4xl min-[500px]:text-5xl sm:text-6xl lg:text-7xl xl:text-[5.45rem]"
+              class="tone-page-title max-w-5xl text-[2.1rem] !leading-[0.96] tracking-normal min-[400px]:text-4xl min-[500px]:text-5xl sm:text-6xl lg:text-7xl xl:text-[5.45rem]"
             >
               Design references built from
               <span class="creative-gradient-text--accent">
@@ -143,14 +143,16 @@ const pageNavigator = {
               </span>
               instead of filler concepts.
             </h1>
-            <p class="creative-copy text-white/78 max-w-3xl text-lg sm:text-xl">
+            <p
+              class="tone-page-copy text-white/78 max-w-3xl text-lg sm:text-xl"
+            >
               Compare interface language, material direction, and layout systems
               shaped by Chicago architecture, gallery pacing, and cinematic
               restraint—memorable, but still easy to scan.
             </p>
           </div>
 
-          <div class="flex flex-col gap-3 sm:flex-row">
+          <div class="tone-page-actions">
             <ModernButton
               href="#gallery-wall"
               variant="primary"
@@ -177,14 +179,13 @@ const pageNavigator = {
           <div class="grid gap-4 md:grid-cols-3">
             {
               gallerySignals.map(signal => (
-                <ModernCard variant="minimal" className="creative-panel p-5">
-                  <p class="tone-muted text-xs uppercase tracking-[0.26em]">
-                    {signal.label}
-                  </p>
-                  <p class="tone-title mt-2 text-3xl font-semibold">
-                    {signal.value}
-                  </p>
-                  <p class="tone-body mt-2 text-sm">{signal.detail}</p>
+                <ModernCard
+                  variant="minimal"
+                  className="creative-panel tone-metric-card p-5"
+                >
+                  <p class="tone-metric-card__label">{signal.label}</p>
+                  <p class="tone-metric-card__value">{signal.value}</p>
+                  <p class="tone-metric-card__detail">{signal.detail}</p>
                 </ModernCard>
               ))
             }
@@ -253,12 +254,12 @@ const pageNavigator = {
     <div class="mx-auto max-w-[1440px] px-4 py-6 sm:px-6 sm:py-10">
       <div class="creative-hero-shell p-5 sm:p-8">
         <div class="flex flex-col gap-6 border-b border-white/10 pb-6">
-          <div class="space-y-3">
-            <p class="creative-kicker">Browse the wall</p>
-            <h2 class="tone-title text-4xl font-semibold tracking-tight">
+          <div class="tone-section-heading">
+            <p class="tone-section-kicker">Browse the wall</p>
+            <h2 class="tone-section-title">
               Filter by discipline or switch into a faster scan mode.
             </h2>
-            <p class="tone-body max-w-3xl text-sm leading-relaxed">
+            <p class="tone-section-copy text-sm leading-relaxed">
               The controls stay intentionally light so you can explore fast,
               then jump into a linked route without fighting the interface.
             </p>

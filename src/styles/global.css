@@ -21,31 +21,34 @@
     --viewport-height: 100vh;
     --viewport-height-dynamic: 100vh;
 
-    --color-background: #090d12;
-    --color-surface: #121821;
-    --color-surface-subtle: rgba(18, 24, 33, 0.78);
-    --color-border: rgba(134, 153, 179, 0.18);
-    --color-primary: #d1b37a;
-    --color-primary-strong: #68b4d5;
+    --color-background: #070b10;
+    --color-surface: #111923;
+    --color-surface-subtle: rgba(17, 25, 35, 0.8);
+    --color-border: rgba(143, 163, 188, 0.18);
+    --color-primary: #c7b07b;
+    --color-primary-strong: #6aaec9;
     --color-success: #10b981;
     --color-warning: #f59e0b;
     --color-danger: #ef4444;
-    --color-text-primary: #f8fafc;
-    --color-text-secondary: #d4dde8;
-    --color-text-muted: #8fa1b6;
-    --color-text-inverse: #090d12;
-    --shadow-soft: 0 20px 44px -28px rgba(2, 6, 23, 0.56);
-    --shadow-strong: 0 34px 90px -36px rgba(2, 6, 23, 0.68);
+    --color-text-primary: #f5f7fb;
+    --color-text-secondary: #d8e0ea;
+    --color-text-muted: #8ea1b5;
+    --color-text-inverse: #070b10;
+    --shadow-soft: 0 24px 56px -32px rgba(2, 6, 23, 0.62);
+    --shadow-strong: 0 40px 110px -42px rgba(2, 6, 23, 0.76);
     --radius-sm: 8px;
-    --radius-md: 18px;
-    --radius-lg: 28px;
-    --blur-soft: blur(14px);
+    --radius-md: 20px;
+    --radius-lg: 30px;
+    --blur-soft: blur(16px);
     --font-sans:
       'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
       sans-serif;
     --font-display:
       'Space Grotesk', 'JetBrains Mono', 'Inter', system-ui, sans-serif;
     --font-mono: 'JetBrains Mono', 'SFMono-Regular', Menlo, monospace;
+    --shell-max-width: 1240px;
+    --shell-gutter: clamp(1rem, 2vw, 1.5rem);
+    --section-space: clamp(4.5rem, 9vw, 7rem);
   }
 
   [data-theme='corporate'] {
@@ -149,15 +152,20 @@
     background-image:
       radial-gradient(
         circle at 14% 0%,
-        rgba(209, 179, 122, 0.13),
-        transparent 34%
+        rgba(199, 176, 123, 0.16),
+        transparent 32%
       ),
       radial-gradient(
-        circle at 86% 6%,
-        rgba(104, 180, 213, 0.16),
+        circle at 88% 8%,
+        rgba(106, 174, 201, 0.18),
         transparent 30%
       ),
-      linear-gradient(180deg, #090d12 0%, #0d1219 46%, #080b10 100%);
+      radial-gradient(
+        circle at 50% -20%,
+        rgba(255, 255, 255, 0.05),
+        transparent 42%
+      ),
+      linear-gradient(180deg, #070b10 0%, #0c1219 44%, #06090e 100%);
     background-size:
       100% 100%,
       100% 100%,
@@ -179,11 +187,11 @@
     inset: 0;
     pointer-events: none;
     z-index: -1;
-    opacity: 0.12;
+    opacity: 0.14;
     background-image: radial-gradient(
       circle at 50% 0%,
-      color-mix(in srgb, var(--color-primary) 24%, transparent),
-      transparent 62%
+      color-mix(in srgb, var(--color-primary) 28%, transparent),
+      transparent 60%
     );
   }
 
@@ -193,11 +201,11 @@
     inset: 0;
     pointer-events: none;
     z-index: -1;
-    opacity: 0.16;
+    opacity: 0.18;
     background-image:
       linear-gradient(
         180deg,
-        rgba(255, 255, 255, 0.04),
+        rgba(255, 255, 255, 0.05),
         transparent 14%,
         transparent 82%,
         rgba(255, 255, 255, 0.03)
@@ -1840,6 +1848,7 @@
 
   .tone-title {
     color: var(--color-text-primary);
+    text-wrap: balance;
   }
 
   .tone-body {
@@ -1862,11 +1871,20 @@
     color: color-mix(in srgb, var(--color-primary) 80%, white 20%);
     font-weight: 600;
     text-underline-offset: 0.18em;
+    transition:
+      color 0.2s ease,
+      text-decoration-color 0.2s ease,
+      transform 0.2s ease;
   }
 
   .tone-accent-link:hover {
     color: var(--color-text-primary);
     text-decoration: underline;
+    text-decoration-color: color-mix(
+      in srgb,
+      var(--color-primary) 74%,
+      transparent
+    );
   }
 
   .tone-accent-dot {
@@ -1900,15 +1918,20 @@
         circle at 46% -14%,
         color-mix(
           in srgb,
-          var(--route-accent, var(--color-primary)) 16%,
+          var(--route-accent, var(--color-primary)) 18%,
           transparent
         ),
-        transparent 34%
+        transparent 32%
       ),
       radial-gradient(
         circle at 90% 4%,
-        color-mix(in srgb, var(--color-primary-strong) 14%, transparent),
-        transparent 28%
+        color-mix(in srgb, var(--color-primary-strong) 16%, transparent),
+        transparent 26%
+      ),
+      radial-gradient(
+        circle at 50% -26%,
+        rgba(255, 255, 255, 0.045),
+        transparent 42%
       ),
       linear-gradient(
         120deg,
@@ -1942,19 +1965,19 @@
   .tone-site-shell__grid {
     position: absolute;
     inset: 0;
-    opacity: 0.16;
+    opacity: 0.14;
     background-image:
       linear-gradient(
         180deg,
-        color-mix(in srgb, var(--color-border) 26%, transparent) 1px,
+        color-mix(in srgb, var(--color-border) 24%, transparent) 1px,
         transparent 1px
       ),
       linear-gradient(
         90deg,
-        color-mix(in srgb, var(--color-border) 18%, transparent) 1px,
+        color-mix(in srgb, var(--color-border) 16%, transparent) 1px,
         transparent 1px
       );
-    background-size: clamp(48px, 6vw, 86px) clamp(48px, 6vw, 86px);
+    background-size: clamp(52px, 6vw, 92px) clamp(52px, 6vw, 92px);
     mask-image: linear-gradient(
       180deg,
       rgba(0, 0, 0, 0.78),
@@ -1972,28 +1995,28 @@
 
   .tone-site-shell__beam--north {
     inset: -12% auto auto 8%;
-    width: min(32rem, 48vw);
-    height: 22rem;
+    width: min(36rem, 52vw);
+    height: 24rem;
     background: radial-gradient(
       circle,
-      color-mix(in srgb, var(--color-primary) 18%, transparent),
+      color-mix(in srgb, var(--color-primary) 20%, transparent),
       transparent 68%
     );
-    filter: blur(36px);
-    opacity: 0.85;
+    filter: blur(44px);
+    opacity: 0.88;
   }
 
   .tone-site-shell__beam--south {
     inset: auto 2% 12% auto;
-    width: min(28rem, 42vw);
-    height: 20rem;
+    width: min(31rem, 44vw);
+    height: 22rem;
     background: radial-gradient(
       circle,
-      color-mix(in srgb, var(--color-primary-strong) 16%, transparent),
+      color-mix(in srgb, var(--color-primary-strong) 18%, transparent),
       transparent 70%
     );
-    filter: blur(42px);
-    opacity: 0.74;
+    filter: blur(50px);
+    opacity: 0.76;
   }
 
   .tone-site-shell__grain {
@@ -2006,8 +2029,8 @@
   .tone-site-shell__orb {
     position: absolute;
     border-radius: 999px;
-    filter: blur(72px);
-    opacity: 0.52;
+    filter: blur(82px);
+    opacity: 0.5;
     transform: translate3d(0, 0, 0);
   }
 
@@ -2047,6 +2070,7 @@
   .tone-main-shell {
     position: relative;
     z-index: 1;
+    padding-inline: 0;
   }
 
   .tone-shell-header {
@@ -2069,7 +2093,7 @@
       color-mix(in srgb, var(--color-surface) 78%, transparent);
     border-color: color-mix(in srgb, var(--color-border) 80%, transparent);
     box-shadow:
-      0 18px 48px -34px rgba(2, 6, 23, 0.72),
+      0 24px 60px -38px rgba(2, 6, 23, 0.78),
       inset 0 -1px 0 color-mix(in srgb, white 4%, transparent);
   }
 
@@ -2086,7 +2110,7 @@
       ),
       linear-gradient(
         180deg,
-        color-mix(in srgb, var(--color-surface) 78%, black 22%),
+        color-mix(in srgb, var(--color-surface) 82%, black 18%),
         color-mix(in srgb, var(--color-background) 98%, transparent)
       ),
       color-mix(in srgb, var(--color-background) 94%, transparent);
@@ -2123,7 +2147,7 @@
         color-mix(in srgb, var(--color-surface) 78%, transparent)
       ),
       color-mix(in srgb, var(--color-surface) 82%, transparent);
-    color: color-mix(in srgb, var(--color-text-primary) 62%, transparent);
+    color: color-mix(in srgb, var(--color-text-primary) 68%, transparent);
     box-shadow: inset 0 1px 0 color-mix(in srgb, white 4%, transparent);
   }
 
@@ -2158,14 +2182,14 @@
     background:
       linear-gradient(
         165deg,
-        color-mix(in srgb, var(--color-surface) 92%, white 4%),
-        color-mix(in srgb, var(--color-surface) 82%, transparent)
+        color-mix(in srgb, var(--color-surface) 94%, white 4%),
+        color-mix(in srgb, var(--color-surface) 84%, transparent)
       ),
       linear-gradient(
         180deg,
         color-mix(
           in srgb,
-          var(--route-accent, var(--color-primary)) 4%,
+          var(--route-accent, var(--color-primary)) 6%,
           transparent
         ),
         transparent 36%
@@ -2173,8 +2197,8 @@
       color-mix(in srgb, var(--color-surface) 84%, transparent);
     box-shadow:
       inset 0 1px 0 color-mix(in srgb, white 5%, transparent),
-      0 20px 52px -34px rgba(2, 6, 23, 0.72);
-    backdrop-filter: blur(18px);
+      0 24px 62px -36px rgba(2, 6, 23, 0.74);
+    backdrop-filter: blur(20px);
   }
 
   .tone-divider-top {
@@ -2226,6 +2250,242 @@
         color-mix(in srgb, var(--color-surface) 82%, transparent)
       ),
       color-mix(in srgb, var(--color-surface) 86%, transparent);
+    box-shadow:
+      inset 0 1px 0 color-mix(in srgb, white 4%, transparent),
+      0 24px 58px -38px rgba(2, 6, 23, 0.78);
+  }
+
+  .tone-page-hero {
+    position: relative;
+    overflow: clip;
+  }
+
+  .tone-page-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(
+        circle at 15% 0%,
+        color-mix(
+          in srgb,
+          var(--route-accent, var(--color-primary)) 12%,
+          transparent
+        ),
+        transparent 30%
+      ),
+      radial-gradient(
+        circle at 82% 12%,
+        color-mix(in srgb, var(--color-primary-strong) 10%, transparent),
+        transparent 26%
+      );
+    opacity: 0.9;
+  }
+
+  .tone-page-hero__inner {
+    position: relative;
+    z-index: 1;
+  }
+
+  .tone-page-header,
+  .tone-section-heading {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .tone-page-header {
+    max-width: 48rem;
+  }
+
+  .tone-section-heading {
+    max-width: 44rem;
+  }
+
+  .tone-page-eyebrow,
+  .tone-section-kicker {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--color-text-primary) 46%, transparent);
+  }
+
+  .tone-page-title,
+  .tone-section-title {
+    margin: 0;
+    color: var(--color-text-primary);
+    letter-spacing: -0.045em;
+    line-height: 0.98;
+    text-wrap: balance;
+  }
+
+  .tone-page-title {
+    font-size: clamp(3rem, 6vw, 5.3rem);
+  }
+
+  .tone-section-title {
+    font-size: clamp(2rem, 4vw, 3.4rem);
+  }
+
+  .tone-page-copy,
+  .tone-section-copy {
+    margin: 0;
+    color: color-mix(in srgb, var(--color-text-secondary) 94%, transparent);
+    line-height: 1.72;
+  }
+
+  .tone-page-copy {
+    max-width: 62ch;
+    font-size: clamp(1rem, 1.35vw, 1.12rem);
+  }
+
+  .tone-section-copy {
+    max-width: 60ch;
+    font-size: 1rem;
+  }
+
+  .tone-page-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+  }
+
+  .tone-page-jump-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+  }
+
+  .tone-metric-card {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tone-metric-card::after {
+    content: '';
+    position: absolute;
+    inset: auto -12% -48% auto;
+    width: 9rem;
+    height: 9rem;
+    border-radius: 999px;
+    background: radial-gradient(
+      circle,
+      color-mix(
+        in srgb,
+        var(--route-accent, var(--color-primary)) 14%,
+        transparent
+      ),
+      transparent 70%
+    );
+    filter: blur(22px);
+    pointer-events: none;
+    opacity: 0.74;
+  }
+
+  .tone-metric-card__label {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--color-text-primary) 42%, transparent);
+  }
+
+  .tone-metric-card__value {
+    margin: 0.7rem 0 0;
+    color: var(--color-text-primary);
+    font-size: clamp(1.7rem, 3.2vw, 2.55rem);
+    font-weight: 700;
+    letter-spacing: -0.05em;
+    line-height: 1;
+  }
+
+  .tone-metric-card__detail {
+    margin: 0.65rem 0 0;
+    color: color-mix(in srgb, var(--color-text-secondary) 90%, transparent);
+    font-size: 0.88rem;
+    line-height: 1.65;
+  }
+
+  .tone-cta-band {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--color-border) 74%, transparent);
+    background:
+      linear-gradient(
+        160deg,
+        color-mix(in srgb, var(--color-surface) 94%, white 4%),
+        color-mix(in srgb, var(--color-surface) 82%, transparent)
+      ),
+      linear-gradient(
+        120deg,
+        color-mix(
+          in srgb,
+          var(--route-accent, var(--color-primary)) 10%,
+          transparent
+        ),
+        transparent 44%,
+        color-mix(in srgb, var(--color-primary-strong) 8%, transparent)
+      );
+    box-shadow:
+      inset 0 1px 0 color-mix(in srgb, white 5%, transparent),
+      0 28px 72px -40px rgba(2, 6, 23, 0.84);
+    backdrop-filter: blur(22px);
+  }
+
+  .tone-cta-band::after {
+    content: '';
+    position: absolute;
+    inset: auto -4rem -5rem auto;
+    width: 16rem;
+    height: 16rem;
+    border-radius: 999px;
+    background: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--color-primary) 18%, transparent),
+      transparent 68%
+    );
+    filter: blur(28px);
+    pointer-events: none;
+  }
+
+  .tone-section-divider {
+    position: relative;
+  }
+
+  .tone-section-divider::before {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(
+        in srgb,
+        var(--route-accent, var(--color-primary)) 28%,
+        transparent
+      ),
+      transparent
+    );
+    pointer-events: none;
+    opacity: 0.7;
+  }
+
+  @media (max-width: 767px) {
+    .tone-page-title {
+      max-width: 100%;
+      line-height: 1.02;
+    }
+
+    .tone-page-actions {
+      flex-direction: column;
+    }
   }
 
   [data-theme='corporate'] .creative-hero-shell,
@@ -3061,13 +3321,21 @@
     background: rgba(215, 247, 91, 0.48);
   }
 
-  /* ── Content-visibility: deferred rendering for off-screen sections ──
-   * Allows the browser to skip paint/layout for sections below the fold
-   * until they are about to scroll into view. Biggest win on mobile.
+  /* ── Content-visibility: opt-in only ──
+   * The previous global rule caused rendering gaps in screenshot and
+   * full-page capture flows. Keep the optimization available, but only
+   * when a section explicitly opts in.
    */
   [data-page-section] {
-    content-visibility: auto;
-    contain-intrinsic-size: 0 600px;
+    content-visibility: visible;
+    contain-intrinsic-size: auto;
+  }
+
+  @supports (content-visibility: auto) {
+    [data-page-section][data-defer-render='true'] {
+      content-visibility: auto;
+      contain-intrinsic-size: 0 600px;
+    }
   }
 
   /* ── Hover guards: disable translate/scale on touch devices ──

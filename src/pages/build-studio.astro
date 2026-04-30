@@ -22,7 +22,7 @@ import { withBasePath } from '../utils/helpers';
   showSavedRoutesDock={false}
 >
   <section
-    class="relative overflow-hidden border-b border-white/10"
+    class="tone-page-hero relative overflow-hidden border-b border-white/10"
     data-reveal
   >
     <div
@@ -31,24 +31,26 @@ import { withBasePath } from '../utils/helpers';
     </div>
 
     <div
-      class="mx-auto max-w-[1240px] px-4 pb-14 pt-20 sm:px-6 sm:pb-20 sm:pt-28"
+      class="tone-page-hero__inner mx-auto max-w-[1240px] px-4 pb-14 pt-20 sm:px-6 sm:pb-20 sm:pt-28"
     >
       <div
         class="creative-hero-shell grid gap-8 p-5 sm:p-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center"
       >
         <div class="space-y-6">
-          <span class="creative-kicker">Interactive planning route</span>
-          <h1 class="creative-title tone-title text-4xl font-bold sm:text-5xl">
-            Shape a calmer MSP+, modernization, or premium digital brief around
-            scope, rollout pace, and buyer priorities.
-          </h1>
-          <p class="creative-copy text-base sm:text-lg">
-            Use Build Studio to combine capabilities, compare rollout pace,
-            generate a cleaner intake brief, and jump into the live proof routes
-            that already support the system you have in mind.
-          </p>
+          <div class="tone-page-header">
+            <p class="tone-page-eyebrow">Interactive planning route</p>
+            <h1 class="tone-page-title max-w-5xl">
+              Shape a calmer MSP+, modernization, or premium digital brief
+              around scope, rollout pace, and buyer priorities.
+            </h1>
+            <p class="tone-page-copy max-w-3xl">
+              Use Build Studio to combine capabilities, compare rollout pace,
+              generate a cleaner intake brief, and jump into the live proof
+              routes that already support the system you have in mind.
+            </p>
+          </div>
 
-          <div class="flex flex-col gap-3 sm:flex-row">
+          <div class="tone-page-actions">
             <ModernButton
               href="#studio"
               variant="primary"
@@ -67,26 +69,18 @@ import { withBasePath } from '../utils/helpers';
         </div>
 
         <div class="hidden gap-4 md:grid md:grid-cols-2">
-          <ModernCard variant="glass" className="p-5">
-            <p class="tone-muted text-xs uppercase tracking-[0.22em]">
-              Presets
-            </p>
-            <p class="tone-title mt-2 text-3xl font-semibold">
-              {studioPresets.length}
-            </p>
-            <p class="tone-body mt-2 text-sm">
+          <ModernCard variant="glass" className="tone-metric-card p-5">
+            <p class="tone-metric-card__label">Presets</p>
+            <p class="tone-metric-card__value">{studioPresets.length}</p>
+            <p class="tone-metric-card__detail">
               Starting directions for launch, operations, trust, and premium
               product systems.
             </p>
           </ModernCard>
-          <ModernCard variant="glass" className="p-5">
-            <p class="tone-muted text-xs uppercase tracking-[0.22em]">
-              Live surfaces
-            </p>
-            <p class="tone-title mt-2 text-3xl font-semibold">
-              {studioSurfaces.length}
-            </p>
-            <p class="tone-body mt-2 text-sm">
+          <ModernCard variant="glass" className="tone-metric-card p-5">
+            <p class="tone-metric-card__label">Live surfaces</p>
+            <p class="tone-metric-card__value">{studioSurfaces.length}</p>
+            <p class="tone-metric-card__detail">
               Existing routes already carrying the patterns this planner can
               extend without inventing fake future pages.
             </p>
@@ -123,12 +117,10 @@ import { withBasePath } from '../utils/helpers';
     class="mx-auto max-w-[1240px] px-4 py-14 sm:px-6 sm:py-20"
     data-reveal
   >
-    <div class="max-w-3xl space-y-4">
-      <span class="creative-kicker">Why this route is useful</span>
-      <h2 class="creative-title tone-title text-3xl font-semibold sm:text-4xl">
-        What this route proves technically
-      </h2>
-      <p class="creative-copy text-sm sm:text-base">
+    <div class="tone-section-heading">
+      <p class="tone-section-kicker">Why this route is useful</p>
+      <h2 class="tone-section-title">What this route proves technically</h2>
+      <p class="tone-section-copy text-sm sm:text-base">
         The point is not the chrome. The useful part is the modular data,
         deterministic logic, client-safe state, deployment-safe routing, and
         validation discipline behind it.
@@ -151,14 +143,12 @@ import { withBasePath } from '../utils/helpers';
 
   <section class="border-y border-white/10" data-reveal>
     <div class="mx-auto max-w-[1240px] px-4 py-14 sm:px-6 sm:py-20">
-      <div class="max-w-3xl space-y-4">
-        <span class="creative-kicker">Linked routes</span>
-        <h2
-          class="creative-title tone-title text-3xl font-semibold sm:text-4xl"
-        >
+      <div class="tone-section-heading">
+        <p class="tone-section-kicker">Linked routes</p>
+        <h2 class="tone-section-title">
           Live routes already supporting parts of the system
         </h2>
-        <p class="creative-copy text-sm sm:text-base">
+        <p class="tone-section-copy text-sm sm:text-base">
           Every recommendation points at a real route so the studio stays tied
           to working product surfaces instead of imaginary future pages.
         </p>

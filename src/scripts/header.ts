@@ -129,6 +129,10 @@ class EnhancedHeader {
     const scrollCleanup = onScroll(({ y }) => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
+          const desktopNavigation = window.innerWidth >= breakpoints.lg;
+          const scrollingDown = y > lastScrollY + 8;
+          const revealThreshold = 144;
+
           // Add/remove shadow based on scroll position
           if (y > 0) {
             this.header!.classList.add('scrolled');
@@ -136,9 +140,10 @@ class EnhancedHeader {
             this.header!.classList.remove('scrolled');
           }
 
-          // Optional: Hide header on scroll down, show on scroll up
+          // Keep the header calmer on mobile and only hide it on larger screens
+          // once the reader is clearly moving down the page.
           if (!this.isMenuOpen()) {
-            if (y > lastScrollY && y > 100) {
+            if (desktopNavigation && scrollingDown && y > revealThreshold) {
               this.header!.classList.add('header-hidden');
             } else {
               this.header!.classList.remove('header-hidden');

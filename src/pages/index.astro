@@ -16,6 +16,56 @@ const serviceCategories = Array.from(
   new Set(servicesExtended.map(service => service.category))
 );
 
+const landingSections = [
+  { label: 'Proof', href: '#front-door-proof' },
+  { label: 'Signals', href: '#signal-cabinet' },
+  { label: 'Divisions', href: '#directory' },
+  { label: 'Programs', href: '#programs' },
+];
+
+const heroMetrics = [
+  {
+    label: 'Coverage model',
+    value: 'MSP+',
+    detail:
+      'Managed IT, security, cloud, AI, automation, and premium delivery in one operating lane.',
+  },
+  {
+    label: 'Service lanes',
+    value: `${serviceCategories.length}`,
+    detail:
+      'Focused navigation up front so buyers can orient fast before going deep.',
+  },
+  {
+    label: 'Catalog depth',
+    value: `${servicesExtended.length}+`,
+    detail:
+      'A broad catalog is still there when needed, but the front door stays calm.',
+  },
+];
+
+const heroBoardSignals = [
+  {
+    label: 'Ops ownership',
+    title:
+      'Support, onboarding, vendors, and endpoint health stay coordinated.',
+  },
+  {
+    label: 'Trust posture',
+    title:
+      'Security and compliance mature at a pace leadership can actually absorb.',
+  },
+  {
+    label: 'Modern stack',
+    title: 'Cloud, automation, and AI are introduced where they remove drag.',
+  },
+  {
+    label: 'Client surface',
+    title:
+      'Proof routes, demos, and launches feel premium instead of brochure-like.',
+  },
+];
+
 const landingSignalItems = [
   {
     kicker: 'OPS',
@@ -28,7 +78,7 @@ const landingSignalItems = [
     kicker: 'SEC',
     title: 'Security and compliance',
     detail:
-      'Identity, endpoint, awareness, and audit posture shaped for real business pressure—not fear marketing.',
+      'Identity, endpoint, awareness, and audit posture shaped for real business pressure instead of fear marketing.',
     meta: ['Right-sized controls', 'Leadership-ready guidance'],
   },
   {
@@ -44,39 +94,6 @@ const landingSignalItems = [
     detail:
       'Proof-driven launches, portals, and product experiences that look polished on a phone and hold up in production.',
     meta: ['Client-facing polish', 'Interactive proof routes'],
-  },
-];
-
-const operatingHighlights = [
-  {
-    label: 'Coverage model',
-    value: 'MSP+',
-    note: 'Managed IT, security, cloud, AI, automation, and premium digital execution under one roof.',
-  },
-  {
-    label: 'Service lanes',
-    value: `${serviceCategories.length}`,
-    note: 'Clear entry points so buyers can orient quickly without scrolling through a giant service dump.',
-  },
-  {
-    label: 'Depth on demand',
-    value: `${servicesExtended.length}+`,
-    note: 'The full catalog is there when needed, but the main story stays concise and mobile-friendly.',
-  },
-];
-
-const platformFocus = [
-  {
-    title: 'Calmer managed operations',
-    copy: 'Support coverage, onboarding, device health, and vendor coordination with cleaner ownership from day one.',
-  },
-  {
-    title: 'Security without theater',
-    copy: 'Practical hardening, identity controls, compliance momentum, and leadership-level guidance that still moves fast.',
-  },
-  {
-    title: 'Modern systems with style',
-    copy: 'Cloud, automation, AI, and client-facing builds that feel sharper, simpler, and more premium than generic MSP work.',
   },
 ];
 
@@ -98,54 +115,84 @@ const heroMedia = [
   },
 ];
 
-const deliveryStages = [
-  {
-    step: '01',
-    title: 'Find the real pressure point',
-    copy: 'Start with the current friction: support chaos, security risk, outdated tooling, or a weak customer-facing surface.',
-  },
-  {
-    step: '02',
-    title: 'Recommend the right lane',
-    copy: 'Pick the lead service early, then keep the adjacent capabilities visible without overwhelming the buyer.',
-  },
-  {
-    step: '03',
-    title: 'Stabilize before you decorate',
-    copy: 'Fix the foundations first, then layer in security, automation, and experience work with fewer surprises.',
-  },
-  {
-    step: '04',
-    title: 'Ship proof and a next move',
-    copy: 'Every engagement should end with visible gains, usable documentation, and a smarter follow-on plan.',
-  },
-];
-
-const landingSections = [
-  { label: 'Proof', href: '#front-door-proof' },
-  { label: 'Signals', href: '#signal-cabinet' },
-  { label: 'Solutions', href: '#directory' },
-  { label: 'Approach', href: '#programs' },
-];
-
 const frontDoorPaths = [
   {
-    title: 'Need day-to-day coverage?',
-    copy: 'Open the solution hub when support ownership, security posture, cloud planning, or automation is the real need.',
+    eyebrow: 'Need day-to-day coverage?',
+    title:
+      'Open the solution hub when support ownership is the first pressure point.',
+    copy: 'Best for support chaos, security posture, vendor coordination, device lifecycle, or “we need one team to own this.”',
     href: withBasePath('services/'),
     cta: 'Explore solutions',
   },
   {
-    title: 'Need pricing clarity?',
-    copy: 'Use pricing to compare plan levels, budget drivers, and calculators before the conversation turns into a long email thread.',
+    eyebrow: 'Need pricing clarity?',
+    title:
+      'Use the pricing route when the conversation is about scope, tiers, or budget tradeoffs.',
+    copy: 'Compare plan levels, budget drivers, and calculators before the conversation turns into a long email thread.',
     href: withBasePath('pricing/'),
     cta: 'Review pricing',
   },
   {
-    title: 'Need proof the work can feel premium?',
-    copy: 'Open the proof lab when you want to see how strong mobile design, interaction polish, and production discipline come together.',
+    eyebrow: 'Need proof the work can feel premium?',
+    title:
+      'Open the proof lab when you want to see design discipline and engineering taste together.',
+    copy: 'Great for buyer-facing polish, mobile interaction quality, and showing what “premium but practical” can look like.',
     href: withBasePath('about/'),
     cta: 'Open proof lab',
+  },
+];
+
+const engagementModes = [
+  {
+    eyebrow: 'Retained coverage',
+    title: 'Calmer day-to-day operations',
+    copy: 'Best when support, security, vendors, onboarding, and roadmap guidance need one accountable operating team.',
+    bullets: [
+      'Help desk + endpoint ownership',
+      'Executive-level visibility',
+      'Room to add security and automation later',
+    ],
+    href: withBasePath('services/'),
+    cta: 'Explore retained support',
+  },
+  {
+    eyebrow: 'Focused modernization',
+    title: 'A defined sprint with a practical end state',
+    copy: 'Best for migrations, hardening, compliance readiness, workflow automation, and technical cleanups with a clear finish line.',
+    bullets: [
+      'Defined scope and milestones',
+      'Clear handoff or retained extension',
+      'Modernization without transformation theater',
+    ],
+    href: withBasePath('pricing/'),
+    cta: 'Review project pricing',
+  },
+  {
+    eyebrow: 'Proof-led builds',
+    title: 'Client-facing experiences that carry business weight',
+    copy: 'Best for launch surfaces, portals, demos, and premium digital systems that need both taste and production discipline.',
+    bullets: [
+      'Mobile-first presentation quality',
+      'Interaction polish that still performs',
+      'Proof routes for leadership or buyers',
+    ],
+    href: withBasePath('build-studio/'),
+    cta: 'Open build studio',
+  },
+];
+
+const platformFocus = [
+  {
+    title: 'Calmer managed operations',
+    copy: 'Support coverage, onboarding, device health, and vendor coordination with cleaner ownership from day one.',
+  },
+  {
+    title: 'Security without theater',
+    copy: 'Practical hardening, identity controls, compliance momentum, and leadership-level guidance that still moves fast.',
+  },
+  {
+    title: 'Modern systems with style',
+    copy: 'Cloud, automation, AI, and client-facing builds that feel sharper, simpler, and more premium than generic MSP work.',
   },
 ];
 
@@ -198,6 +245,29 @@ const solutionCards = [
   },
 ];
 
+const deliveryStages = [
+  {
+    step: '01',
+    title: 'Find the real pressure point',
+    copy: 'Start with the current friction: support chaos, security risk, outdated tooling, or a weak customer-facing surface.',
+  },
+  {
+    step: '02',
+    title: 'Recommend the right lane',
+    copy: 'Pick the lead service early, then keep the adjacent capabilities visible without overwhelming the buyer.',
+  },
+  {
+    step: '03',
+    title: 'Stabilize before you decorate',
+    copy: 'Fix the foundations first, then layer in security, automation, and experience work with fewer surprises.',
+  },
+  {
+    step: '04',
+    title: 'Ship proof and a next move',
+    copy: 'Every engagement should end with visible gains, usable documentation, and a smarter follow-on plan.',
+  },
+];
+
 const proofPrograms = [
   {
     title: 'Foundation first',
@@ -226,6 +296,26 @@ const proofPrograms = [
     ],
   },
 ];
+
+const executiveBoard = [
+  {
+    label: 'Response rhythm',
+    value: 'Daily visibility',
+    detail: 'Short loops, clear ownership, and fewer “who has this?” moments.',
+  },
+  {
+    label: 'Decision support',
+    value: 'Leadership-ready',
+    detail:
+      'Enough technical depth for delivery and enough translation for decision-makers.',
+  },
+  {
+    label: 'Presentation standard',
+    value: 'Phone-first polish',
+    detail:
+      'Routes, proof, and product surfaces are built to feel sharp on small screens first.',
+  },
+];
 ---
 
 <MarketingLayout
@@ -244,34 +334,41 @@ const proofPrograms = [
     data-page-section
     data-olive-universe="ready"
     data-olive-mobile-3d="optimized"
-    data-olive-mode="lite"
+    data-olive-mode="booting"
+    data-olive-runtime="default"
+    data-olive-scene="booting"
+    data-olive-interaction="idle"
+    data-current-chapter="singularity"
   >
     <div aria-hidden="true" class="absolute inset-0">
       <canvas data-hero-canvas="true" class="block h-full w-full"></canvas>
       <div
-        class="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),transparent_30%),linear-gradient(180deg,rgba(8,17,29,0.16),rgba(8,17,29,0.82)_72%,rgba(8,17,29,0.96))]"
+        class="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_30%),linear-gradient(180deg,rgba(8,17,29,0.08),rgba(8,17,29,0.72)_56%,rgba(8,17,29,0.96))]"
       >
       </div>
+      <div class="home-hero__vignette"></div>
     </div>
 
-    <div
-      class="premium-container relative z-10 flex min-h-[100svh] items-end pb-8 pt-18 sm:pb-16 sm:pt-28 lg:pb-18 lg:pt-32"
-    >
-      <div class="grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
-        <div class="space-y-7">
-          <div class="space-y-3">
+    <div class="premium-container home-hero__shell relative z-10">
+      <div class="home-hero__grid">
+        <div class="home-hero__content">
+          <div class="home-hero__announce">
             <p class="premium-eyebrow">Olive Global Systems</p>
+            <span class="home-status-pill">Chicago operating studio</span>
+          </div>
+
+          <div class="space-y-5">
             <h1
-              class="premium-title text-4xl font-semibold sm:text-5xl lg:text-6xl"
+              class="premium-title home-hero__title text-4xl font-semibold sm:text-5xl lg:text-6xl"
             >
               A design-forward MSP+ firm for teams that want calmer operations
               and sharper digital systems.
               <span class="sr-only"> Immersive landing experience.</span>
             </h1>
-            <p class="premium-copy text-base sm:text-lg">
+            <p class="premium-copy home-hero__copy text-base sm:text-lg">
               Managed IT, security, cloud, AI, automation, and premium digital
-              execution—organized to read fast on a phone and still feel high
-              end.
+              execution organized to read fast on a phone, lead clearly in a
+              boardroom, and still feel high-end in production.
             </p>
           </div>
 
@@ -279,21 +376,21 @@ const proofPrograms = [
             <ModernButton
               href={withBasePath('services/')}
               variant="primary"
-              className="min-h-[50px]"
+              className="min-h-[52px]"
             >
               Explore solutions
             </ModernButton>
             <ModernButton
               href={withBasePath('pricing/')}
               variant="secondary"
-              className="min-h-[50px]"
+              className="min-h-[52px]"
             >
               Review pricing
             </ModernButton>
             <ModernButton
               href={contactHref}
               variant="outline"
-              className="hidden min-h-[50px] sm:inline-flex"
+              className="min-h-[52px] sm:inline-flex"
             >
               Start a strategy brief
             </ModernButton>
@@ -302,24 +399,40 @@ const proofPrograms = [
           <div data-olive-links class="flex flex-wrap gap-2 pt-1">
             <a
               class="tone-chip-neutral tone-chip-jump tone-focus-accent inline-flex items-center justify-center"
-              href={withBasePath('services/')}>Solutions</a
+              href={withBasePath('services/')}
             >
+              Solutions
+            </a>
             <a
               class="tone-chip-neutral tone-chip-jump tone-focus-accent inline-flex items-center justify-center"
-              href={withBasePath('pricing/')}>Pricing</a
+              href={withBasePath('pricing/')}
             >
+              Pricing
+            </a>
             <a
               class="tone-chip-neutral tone-chip-jump tone-focus-accent inline-flex items-center justify-center"
-              href={withBasePath('about/')}>Proof</a
+              href={withBasePath('trades/')}
             >
+              Routes
+            </a>
             <a
               class="tone-chip-neutral tone-chip-jump tone-focus-accent inline-flex items-center justify-center"
-              href={withBasePath('build-studio/')}>Studio</a
+              href={withBasePath('about/')}
             >
+              Proof
+            </a>
             <a
               class="tone-chip-neutral tone-chip-jump tone-focus-accent inline-flex items-center justify-center"
-              href={withBasePath('contact-hq/')}>Contact</a
+              href={withBasePath('build-studio/')}
             >
+              Studio
+            </a>
+            <a
+              class="tone-chip-neutral tone-chip-jump tone-focus-accent inline-flex items-center justify-center"
+              href={withBasePath('contact-hq/')}
+            >
+              Contact
+            </a>
           </div>
 
           <div data-home-jump-links class="flex flex-wrap gap-2 pt-1">
@@ -335,55 +448,96 @@ const proofPrograms = [
             }
           </div>
 
-          <ModernCard variant="glass" className="tone-panel-soft p-5 lg:hidden">
-            <p
-              class="font-mono text-[0.66rem] uppercase tracking-[0.22em] text-white/45"
+          <div class="home-metrics-grid">
+            {
+              heroMetrics.map(item => (
+                <ModernCard
+                  variant="glass"
+                  className="home-metric-card tone-panel-soft p-4"
+                >
+                  <p class="home-metric-card__label">{item.label}</p>
+                  <p class="home-metric-card__value">{item.value}</p>
+                  <p class="home-metric-card__detail">{item.detail}</p>
+                </ModernCard>
+              ))
+            }
+          </div>
+        </div>
+
+        <div class="home-hero__board">
+          <ModernCard variant="glass" className="home-command-board p-6 sm:p-7">
+            <div
+              class="flex flex-col gap-3 border-b border-white/[0.08] pb-5 sm:flex-row sm:items-end sm:justify-between"
             >
-              At a glance
+              <div class="space-y-2">
+                <p class="home-section-kicker">Operating board</p>
+                <h2
+                  class="text-2xl font-semibold tracking-tight text-white sm:text-[2rem]"
+                >
+                  The stack is built to feel calm, sharp, and accountable.
+                </h2>
+              </div>
+              <div class="home-board-tag">
+                <span class="home-board-tag__dot"></span>
+                live alignment
+              </div>
+            </div>
+
+            <p class="home-command-board__copy">
+              Strong support and strong presentation should not be separate
+              personalities. The front door, delivery rhythm, and technical
+              stack should reinforce the same standard.
             </p>
-            <div class="mt-4 grid gap-3 sm:grid-cols-3">
+
+            <div class="home-command-board__grid">
               {
-                operatingHighlights.map(item => (
-                  <div class="tone-panel-subtle tone-border rounded-2xl border p-4">
-                    <p class="font-mono text-[0.62rem] uppercase tracking-[0.18em] text-white/45">
-                      {item.label}
-                    </p>
-                    <p class="mt-2 text-2xl font-semibold tracking-tight text-white">
-                      {item.value}
-                    </p>
-                    <p class="mt-2 text-xs leading-5 text-slate-300">
-                      {item.note}
-                    </p>
+                heroBoardSignals.map(signal => (
+                  <div class="home-board-signal">
+                    <p class="home-board-signal__label">{signal.label}</p>
+                    <p class="home-board-signal__title">{signal.title}</p>
                   </div>
                 ))
               }
             </div>
+
+            <div class="home-command-board__footer">
+              <div class="home-board-footer__row">
+                <span>Best entry points</span>
+                <span>Support, security, modernization, proof builds</span>
+              </div>
+              <div class="home-board-footer__row">
+                <span>Delivery feel</span>
+                <span>Editorial clarity with operational discipline</span>
+              </div>
+            </div>
           </ModernCard>
-        </div>
 
-        <div
-          class="hidden grid-cols-[0.8fr_1fr] gap-4 lg:grid lg:min-h-[430px]"
-        >
-          <div class="grid gap-4">
-            {
-              heroMedia.slice(0, 2).map(item => (
-                <figure class="premium-media min-h-[150px]">
-                  <img
-                    src={item.src}
-                    alt={item.alt}
-                    loading="lazy"
-                    decoding="async"
-                  />
-                  <figcaption class="premium-chip absolute bottom-3 left-3 z-10">
-                    {item.label}
-                  </figcaption>
-                </figure>
-              ))
-            }
-          </div>
+          <div class="home-media-grid">
+            <figure class="premium-media home-media-grid__tall">
+              <img
+                src={heroMedia[0].src}
+                alt={heroMedia[0].alt}
+                loading="eager"
+                decoding="async"
+              />
+              <figcaption class="premium-chip absolute bottom-3 left-3 z-10">
+                {heroMedia[0].label}
+              </figcaption>
+            </figure>
 
-          <div class="grid gap-4">
-            <figure class="premium-media min-h-[220px]">
+            <figure class="premium-media">
+              <img
+                src={heroMedia[1].src}
+                alt={heroMedia[1].alt}
+                loading="lazy"
+                decoding="async"
+              />
+              <figcaption class="premium-chip absolute bottom-3 left-3 z-10">
+                {heroMedia[1].label}
+              </figcaption>
+            </figure>
+
+            <figure class="premium-media">
               <img
                 src={heroMedia[2].src}
                 alt={heroMedia[2].alt}
@@ -394,31 +548,6 @@ const proofPrograms = [
                 {heroMedia[2].label}
               </figcaption>
             </figure>
-
-            <ModernCard variant="glass" className="tone-panel-soft p-5">
-              <p
-                class="font-mono text-[0.66rem] uppercase tracking-[0.22em] text-white/45"
-              >
-                At a glance
-              </p>
-              <div class="mt-4 grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
-                {
-                  operatingHighlights.map(item => (
-                    <div class="tone-panel-subtle tone-border rounded-2xl border p-4">
-                      <p class="font-mono text-[0.62rem] uppercase tracking-[0.18em] text-white/45">
-                        {item.label}
-                      </p>
-                      <p class="mt-2 text-2xl font-semibold tracking-tight text-white">
-                        {item.value}
-                      </p>
-                      <p class="mt-2 text-xs leading-5 text-slate-300">
-                        {item.note}
-                      </p>
-                    </div>
-                  ))
-                }
-              </div>
-            </ModernCard>
           </div>
         </div>
       </div>
@@ -430,16 +559,42 @@ const proofPrograms = [
       const heroSelector = '[data-olive-universe]';
       const canvasSelector = '[data-hero-canvas="true"]';
 
-      const paintHeroCanvases = () => {
+      const getMode = () => {
         const reducedMotion = window.matchMedia(
           '(prefers-reduced-motion: reduce)'
         ).matches;
+        const forcedStability = Boolean(
+          window.__OLIVE_FORCE_STABILITY_ASSIST__
+        );
+        const deviceMemory = Number(window.navigator.deviceMemory || 8);
+        const mobileViewport = window.innerWidth < 900;
+        const liteMode = forcedStability || deviceMemory <= 2 || mobileViewport;
+
+        if (reducedMotion) {
+          return {
+            mode: 'reduced',
+            runtime: forcedStability ? 'stability' : 'default',
+            scene: 'ambient',
+            mobile3d: 'optimized',
+          };
+        }
+
+        return {
+          mode: liteMode ? 'lite' : 'immersive',
+          runtime: forcedStability ? 'stability' : 'default',
+          scene: 'interactive',
+          mobile3d: liteMode ? 'optimized' : 'full',
+        };
+      };
+
+      const paintHeroCanvases = () => {
+        const mode = getMode();
 
         document.querySelectorAll(heroSelector).forEach(hero => {
-          hero.setAttribute(
-            'data-olive-mode',
-            reducedMotion ? 'ambient' : 'interactive'
-          );
+          hero.setAttribute('data-olive-mode', mode.mode);
+          hero.setAttribute('data-olive-runtime', mode.runtime);
+          hero.setAttribute('data-olive-scene', mode.scene);
+          hero.setAttribute('data-olive-mobile-3d', mode.mobile3d);
         });
 
         document.querySelectorAll(canvasSelector).forEach(node => {
@@ -449,47 +604,47 @@ const proofPrograms = [
 
           const ratio = Math.min(window.devicePixelRatio || 1, 2);
           const width = Math.max(node.clientWidth, 320);
-          const height = Math.max(node.clientHeight, 520);
+          const height = Math.max(node.clientHeight, 620);
           node.width = Math.floor(width * ratio);
           node.height = Math.floor(height * ratio);
           context.setTransform(ratio, 0, 0, ratio, 0, 0);
 
           const base = context.createLinearGradient(0, 0, width, height);
-          base.addColorStop(0, '#09111c');
-          base.addColorStop(0.52, '#0d1727');
-          base.addColorStop(1, '#08111d');
+          base.addColorStop(0, '#111b2b');
+          base.addColorStop(0.45, '#091322');
+          base.addColorStop(1, '#060c15');
           context.fillStyle = base;
           context.fillRect(0, 0, width, height);
 
           const glowLeft = context.createRadialGradient(
             width * 0.18,
-            height * 0.14,
+            height * 0.18,
             0,
             width * 0.18,
-            height * 0.14,
-            width * 0.34
+            height * 0.18,
+            width * 0.38
           );
-          glowLeft.addColorStop(0, 'rgba(191, 219, 254, 0.42)');
-          glowLeft.addColorStop(1, 'rgba(191, 219, 254, 0)');
+          glowLeft.addColorStop(0, 'rgba(209, 179, 122, 0.22)');
+          glowLeft.addColorStop(1, 'rgba(209, 179, 122, 0)');
           context.fillStyle = glowLeft;
           context.fillRect(0, 0, width, height);
 
           const glowRight = context.createRadialGradient(
-            width * 0.84,
+            width * 0.82,
             height * 0.1,
             0,
-            width * 0.84,
+            width * 0.82,
             height * 0.1,
-            width * 0.28
+            width * 0.3
           );
-          glowRight.addColorStop(0, 'rgba(125, 211, 252, 0.24)');
-          glowRight.addColorStop(1, 'rgba(125, 211, 252, 0)');
+          glowRight.addColorStop(0, 'rgba(104, 180, 213, 0.26)');
+          glowRight.addColorStop(1, 'rgba(104, 180, 213, 0)');
           context.fillStyle = glowRight;
           context.fillRect(0, 0, width, height);
 
-          context.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+          context.strokeStyle = 'rgba(255, 255, 255, 0.06)';
           context.lineWidth = 1;
-          const gridSize = Math.max(Math.round(width / 18), 44);
+          const gridSize = Math.max(Math.round(width / 18), 48);
 
           for (let x = 0; x <= width; x += gridSize) {
             context.beginPath();
@@ -505,34 +660,34 @@ const proofPrograms = [
             context.stroke();
           }
 
-          context.strokeStyle = 'rgba(147, 197, 253, 0.4)';
+          context.strokeStyle = 'rgba(226, 232, 240, 0.2)';
           context.lineWidth = 2;
           context.beginPath();
-          context.moveTo(width * 0.08, height * 0.72);
+          context.moveTo(width * 0.08, height * 0.7);
           context.bezierCurveTo(
             width * 0.24,
-            height * 0.58,
-            width * 0.42,
-            height * 0.82,
+            height * 0.54,
+            width * 0.44,
+            height * 0.78,
             width * 0.58,
-            height * 0.6
+            height * 0.56
           );
           context.bezierCurveTo(
-            width * 0.68,
-            height * 0.46,
-            width * 0.8,
-            height * 0.64,
+            width * 0.66,
+            height * 0.42,
+            width * 0.82,
+            height * 0.62,
             width * 0.92,
-            height * 0.42
+            height * 0.38
           );
           context.stroke();
 
-          context.fillStyle = 'rgba(255, 255, 255, 0.65)';
+          context.fillStyle = 'rgba(255, 255, 255, 0.44)';
           [
-            [0.18, 0.32],
-            [0.38, 0.54],
-            [0.61, 0.38],
-            [0.81, 0.22],
+            [0.18, 0.3],
+            [0.38, 0.52],
+            [0.62, 0.36],
+            [0.8, 0.18],
           ].forEach(([x, y]) => {
             context.beginPath();
             context.arc(width * x, height * y, 5, 0, Math.PI * 2);
@@ -541,16 +696,36 @@ const proofPrograms = [
         });
       };
 
+      const bindInteractions = () => {
+        document.querySelectorAll(heroSelector).forEach(hero => {
+          if (!(hero instanceof HTMLElement)) return;
+          if (hero.dataset.oliveInteractionBound === '1') return;
+
+          hero.dataset.oliveInteractionBound = '1';
+          hero.addEventListener('click', () => {
+            hero.setAttribute('data-olive-interaction', 'burst');
+            window.setTimeout(() => {
+              hero.setAttribute('data-olive-interaction', 'idle');
+            }, 1200);
+          });
+        });
+      };
+
+      const boot = () => {
+        paintHeroCanvases();
+        bindInteractions();
+      };
+
       if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', paintHeroCanvases, {
+        document.addEventListener('DOMContentLoaded', boot, {
           once: true,
         });
       } else {
-        paintHeroCanvases();
+        boot();
       }
 
       window.addEventListener('resize', paintHeroCanvases);
-      document.addEventListener('astro:page-load', paintHeroCanvases);
+      document.addEventListener('astro:page-load', boot);
     })();
   </script>
 
@@ -560,25 +735,106 @@ const proofPrograms = [
     data-page-section
     data-reveal
   >
-    <div class="premium-container py-10 sm:py-12">
+    <div class="premium-container py-12 sm:py-14">
+      <div class="mb-8 max-w-3xl space-y-4">
+        <p class="home-section-kicker">Front door</p>
+        <h2
+          class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
+        >
+          The homepage should route the conversation, not slow it down.
+        </h2>
+        <p class="text-base leading-7 text-slate-300">
+          Start with the buyer’s first need, then let the adjacent capabilities
+          show up as support instead of noise.
+        </p>
+      </div>
+
       <div class="grid gap-4 md:grid-cols-3">
         {
           frontDoorPaths.map(item => (
-            <ModernCard variant="glass" className="h-full p-5 tone-panel-soft">
-              <p class="font-mono text-[0.64rem] uppercase tracking-[0.2em] text-white/45">
-                Start path
-              </p>
-              <h2 class="mt-3 text-2xl font-semibold tracking-tight text-white sm:text-[1.65rem]">
+            <ModernCard
+              variant="glass"
+              className="home-proof-card h-full p-5 tone-panel-soft"
+            >
+              <p class="home-proof-card__eyebrow">{item.eyebrow}</p>
+              <h3 class="mt-3 text-2xl font-semibold tracking-tight text-white sm:text-[1.6rem]">
                 {item.title}
-              </h2>
+              </h3>
               <p class="mb-0 mt-3 text-sm leading-6 text-slate-300">
                 {item.copy}
               </p>
               <a
-                class="tone-accent-link mt-5 inline-flex text-sm hover:underline"
+                class="tone-accent-link mt-6 inline-flex text-sm hover:underline"
                 href={item.href}
               >
                 {item.cta}
+              </a>
+            </ModernCard>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section
+    class="tone-section-divider border-b"
+    id="engagement-modes"
+    data-page-section
+    data-reveal
+  >
+    <div class="premium-container py-16 sm:py-18">
+      <div
+        class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between"
+      >
+        <div class="max-w-3xl space-y-4">
+          <p class="home-section-kicker">Engagement modes</p>
+          <h2
+            class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
+          >
+            Different pressure points need different operating shapes.
+          </h2>
+          <p class="text-base leading-7 text-slate-300">
+            Buyers should be able to see whether they need retained coverage, a
+            defined project, or a proof-led build without guessing.
+          </p>
+        </div>
+
+        <ModernButton
+          href={withBasePath('contact-hq/')}
+          variant="secondary"
+          className="min-h-[48px] shrink-0"
+        >
+          Route the work with us
+        </ModernButton>
+      </div>
+
+      <div class="mt-10 grid gap-5 lg:grid-cols-3">
+        {
+          engagementModes.map(mode => (
+            <ModernCard
+              variant="glass"
+              className="home-mode-card h-full p-6 tone-panel-soft"
+            >
+              <p class="home-proof-card__eyebrow">{mode.eyebrow}</p>
+              <h3 class="mt-3 text-xl font-semibold text-white">
+                {mode.title}
+              </h3>
+              <p class="mt-3 text-sm leading-7 text-slate-300">{mode.copy}</p>
+
+              <ul class="mt-6 space-y-3 text-sm text-slate-200">
+                {mode.bullets.map(bullet => (
+                  <li class="flex items-start gap-2">
+                    <span class="tone-accent-dot mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full" />
+                    <span>{bullet}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <a
+                class="tone-accent-link mt-6 inline-flex text-sm"
+                href={mode.href}
+              >
+                {mode.cta}
               </a>
             </ModernCard>
           ))
@@ -597,7 +853,7 @@ const proofPrograms = [
       <SignalCabinet
         eyebrow="Operating signals"
         title="Start with the pressure, not a giant service list."
-        description="Use these four signals to find the right starting lane fast—then go deeper only where it matters."
+        description="Use these four signals to find the right starting lane fast, then go deeper only where it matters."
         accent="#93c5fd"
         items={landingSignalItems}
       />
@@ -612,11 +868,7 @@ const proofPrograms = [
   >
     <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
       <div class="max-w-3xl space-y-4">
-        <p
-          class="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-white/55"
-        >
-          Where the platform is strongest
-        </p>
+        <p class="home-section-kicker">Where the platform is strongest</p>
         <h2
           class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
         >
@@ -655,18 +907,14 @@ const proofPrograms = [
         class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between"
       >
         <div class="max-w-3xl space-y-4">
-          <p
-            class="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-white/55"
-          >
-            Solution lanes
-          </p>
+          <p class="home-section-kicker">Solution lanes</p>
           <h2
             class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
           >
-            Four lanes that explain the business in one screen.
+            Four divisions that explain the business in one screen.
           </h2>
           <p class="text-base leading-7 text-slate-300">
-            You should know what kind of partner Olive is within seconds—not
+            You should know what kind of partner Olive is within seconds, not
             after digging through dozens of pages.
           </p>
         </div>
@@ -742,11 +990,7 @@ const proofPrograms = [
   >
     <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
       <div class="max-w-3xl space-y-4">
-        <p
-          class="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-white/55"
-        >
-          Delivery model
-        </p>
+        <p class="home-section-kicker">Delivery model</p>
         <h2
           class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
         >
@@ -798,11 +1042,7 @@ const proofPrograms = [
   >
     <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
       <div class="max-w-3xl space-y-4">
-        <p
-          class="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-white/55"
-        >
-          What stays connected
-        </p>
+        <p class="home-section-kicker">What stays connected</p>
         <h2
           class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
         >
@@ -846,16 +1086,46 @@ const proofPrograms = [
     </div>
   </section>
 
+  <section
+    class="tone-section-divider border-b"
+    id="executive-pulse"
+    data-page-section
+    data-reveal
+  >
+    <div class="premium-container py-16 sm:py-18">
+      <div class="mb-8 max-w-3xl space-y-4">
+        <p class="home-section-kicker">Executive pulse</p>
+        <h2
+          class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
+        >
+          A stronger site should also show how the work feels to run.
+        </h2>
+        <p class="text-base leading-7 text-slate-300">
+          These are the qualities the platform is signaling before anyone books
+          the first call.
+        </p>
+      </div>
+
+      <div class="grid gap-4 lg:grid-cols-3">
+        {
+          executiveBoard.map(item => (
+            <ModernCard variant="glass" className="home-pulse-card p-6">
+              <p class="home-pulse-card__label">{item.label}</p>
+              <p class="home-pulse-card__value">{item.value}</p>
+              <p class="home-pulse-card__detail">{item.detail}</p>
+            </ModernCard>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
   <section class="relative" id="contact" data-page-section data-reveal>
     <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6 sm:py-20">
       <ModernCard variant="glass" className="tone-panel-soft p-8 sm:p-10">
         <div class="grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
           <div class="space-y-4">
-            <p
-              class="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-white/55"
-            >
-              Get started
-            </p>
+            <p class="home-section-kicker">Get started</p>
             <h2
               class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
             >
@@ -896,4 +1166,327 @@ const proofPrograms = [
       </ModernCard>
     </div>
   </section>
+
+  <style is:inline>
+    .home-hero__shell {
+      display: flex;
+      align-items: center;
+      min-height: 100svh;
+      padding-top: clamp(6rem, 10vw, 8rem);
+      padding-bottom: clamp(3rem, 8vw, 5rem);
+    }
+
+    .home-hero__grid {
+      display: grid;
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    .home-hero__content {
+      display: grid;
+      gap: 1.15rem;
+    }
+
+    .home-hero__announce {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .home-status-pill,
+    .home-board-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      min-height: 2rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background:
+        linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.08),
+          rgba(255, 255, 255, 0.03)
+        ),
+        rgba(255, 255, 255, 0.03);
+      padding: 0.35rem 0.8rem;
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(241, 245, 249, 0.72);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+
+    .home-board-tag__dot {
+      width: 0.45rem;
+      height: 0.45rem;
+      border-radius: 999px;
+      background: color-mix(
+        in srgb,
+        var(--color-primary-strong) 88%,
+        white 12%
+      );
+      box-shadow: 0 0 14px
+        color-mix(in srgb, var(--color-primary-strong) 34%, transparent);
+    }
+
+    .home-hero__title {
+      max-width: 11ch;
+      text-wrap: balance;
+    }
+
+    .home-hero__copy {
+      max-width: 60ch;
+    }
+
+    .home-metrics-grid {
+      display: grid;
+      gap: 0.9rem;
+    }
+
+    .home-metric-card__label,
+    .home-proof-card__eyebrow,
+    .home-section-kicker,
+    .home-board-signal__label,
+    .home-pulse-card__label {
+      margin: 0;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.48);
+    }
+
+    .home-metric-card__value,
+    .home-pulse-card__value {
+      margin: 0.6rem 0 0;
+      color: #ffffff;
+      font-size: clamp(1.65rem, 3vw, 2.35rem);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+    }
+
+    .home-metric-card__detail,
+    .home-pulse-card__detail {
+      margin: 0.55rem 0 0;
+      color: rgba(226, 232, 240, 0.72);
+      font-size: 0.84rem;
+      line-height: 1.6;
+    }
+
+    .home-hero__board {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .home-command-board {
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(
+          165deg,
+          rgba(255, 255, 255, 0.08),
+          rgba(255, 255, 255, 0.02)
+        ),
+        linear-gradient(
+          145deg,
+          color-mix(in srgb, var(--color-primary-strong) 10%, transparent),
+          transparent 52%
+        ),
+        rgba(10, 15, 23, 0.76);
+    }
+
+    .home-command-board::after {
+      content: '';
+      position: absolute;
+      inset: auto -12% -20% auto;
+      width: 18rem;
+      height: 18rem;
+      border-radius: 999px;
+      background: radial-gradient(
+        circle,
+        rgba(209, 179, 122, 0.14),
+        transparent 68%
+      );
+      filter: blur(24px);
+      pointer-events: none;
+    }
+
+    .home-command-board__copy {
+      margin: 1rem 0 0;
+      color: rgba(226, 232, 240, 0.78);
+      line-height: 1.7;
+    }
+
+    .home-command-board__grid {
+      display: grid;
+      gap: 0.85rem;
+      margin-top: 1.35rem;
+    }
+
+    .home-board-signal {
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 1rem;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 1rem;
+      backdrop-filter: blur(18px);
+    }
+
+    .home-board-signal__title {
+      margin: 0.55rem 0 0;
+      color: rgba(248, 250, 252, 0.92);
+      font-size: 0.96rem;
+      line-height: 1.55;
+    }
+
+    .home-command-board__footer {
+      display: grid;
+      gap: 0.7rem;
+      margin-top: 1.25rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .home-board-footer__row {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      font-size: 0.82rem;
+      line-height: 1.5;
+      color: rgba(226, 232, 240, 0.72);
+    }
+
+    .home-board-footer__row span:first-child {
+      color: rgba(255, 255, 255, 0.44);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .home-media-grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .home-media-grid__tall {
+      grid-row: span 2;
+      min-height: 21rem;
+    }
+
+    .home-proof-card,
+    .home-mode-card,
+    .home-pulse-card {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .home-proof-card::after,
+    .home-mode-card::after,
+    .home-pulse-card::after {
+      content: '';
+      position: absolute;
+      inset: auto auto -3.5rem -2rem;
+      width: 9rem;
+      height: 9rem;
+      border-radius: 999px;
+      background: radial-gradient(
+        circle,
+        color-mix(
+          in srgb,
+          var(--route-accent, var(--color-primary)) 14%,
+          transparent
+        ),
+        transparent 70%
+      );
+      filter: blur(16px);
+      pointer-events: none;
+      opacity: 0.8;
+    }
+
+    .home-pulse-card__value {
+      font-size: clamp(1.4rem, 2vw, 1.9rem);
+    }
+
+    .home-hero__vignette {
+      position: absolute;
+      inset: auto 0 0;
+      height: 28%;
+      background: linear-gradient(
+        180deg,
+        transparent,
+        rgba(6, 10, 17, 0.22) 28%,
+        rgba(6, 10, 17, 0.86) 100%
+      );
+    }
+
+    @media (min-width: 860px) {
+      .home-metrics-grid,
+      .home-command-board__grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (min-width: 1100px) {
+      .home-hero__grid {
+        grid-template-columns: minmax(0, 1.02fr) minmax(0, 0.98fr);
+        gap: 2rem;
+      }
+
+      .home-hero__board {
+        padding-left: 1rem;
+      }
+    }
+
+    @media (max-width: 1099px) {
+      .home-hero__title {
+        max-width: 14ch;
+      }
+    }
+
+    @media (max-width: 767px) {
+      .home-hero__shell {
+        align-items: start;
+        padding-top: calc(5.6rem + env(safe-area-inset-top));
+        padding-bottom: 2rem;
+      }
+
+      .home-hero__content {
+        gap: 1rem;
+      }
+
+      .home-hero__title {
+        max-width: 100%;
+      }
+
+      .home-board-footer__row {
+        flex-direction: column;
+        gap: 0.35rem;
+      }
+
+      .home-media-grid__tall {
+        min-height: 16rem;
+      }
+    }
+
+    @media (max-width: 639px) {
+      .home-status-pill,
+      .home-board-tag {
+        width: fit-content;
+      }
+
+      .home-media-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .home-media-grid__tall {
+        grid-row: auto;
+      }
+    }
+  </style>
 </MarketingLayout>
