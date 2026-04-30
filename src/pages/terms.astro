@@ -15,33 +15,27 @@ import { withBasePath } from '../utils/helpers';
   showSavedRoutesDock={false}
 >
   <section
-    class="border-b border-white/10"
+    class="tone-page-hero border-b border-white/10"
     data-reveal
     id="terms-hero"
     data-page-section
   >
     <div
-      class="mx-auto max-w-[1240px] px-4 pb-14 pt-20 sm:px-6 sm:pb-20 sm:pt-28"
+      class="tone-page-hero__inner mx-auto max-w-[1240px] px-4 pb-14 pt-20 sm:px-6 sm:pb-20 sm:pt-28"
     >
       <div class="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-end">
         <div class="space-y-5">
-          <p
-            class="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-white/55"
-          >
-            Legal
-          </p>
-          <h1
-            class="max-w-4xl text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl"
-          >
-            Terms of Service
-          </h1>
-          <p class="max-w-3xl text-base leading-8 text-slate-300 sm:text-lg">
-            These terms explain how this website should be used and clarify that
-            service work only begins through a separate signed agreement.
-          </p>
+          <div class="tone-page-header">
+            <p class="tone-page-eyebrow">Legal</p>
+            <h1 class="tone-page-title max-w-4xl">Terms of Service</h1>
+            <p class="tone-page-copy max-w-3xl">
+              These terms explain how this website should be used and clarify
+              that service work only begins through a separate signed agreement.
+            </p>
+          </div>
           <p class="text-sm text-white/55">Last updated: February 15, 2026</p>
 
-          <div class="flex flex-col gap-3 sm:flex-row">
+          <div class="tone-page-actions">
             <ModernButton
               href={withBasePath('contact-hq/')}
               variant="primary"
@@ -60,7 +54,7 @@ import { withBasePath } from '../utils/helpers';
         </div>
 
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-          <div class="tone-border tone-surface rounded-2xl border p-6">
+          <div class="tone-panel-soft rounded-2xl p-6">
             <p
               class="tone-muted font-mono text-[0.66rem] uppercase tracking-[0.22em]"
             >
@@ -71,7 +65,7 @@ import { withBasePath } from '../utils/helpers';
               conversations, but it does not create a contract by itself.
             </p>
           </div>
-          <div class="tone-border tone-surface rounded-2xl border p-6">
+          <div class="tone-panel-soft rounded-2xl p-6">
             <p
               class="tone-muted font-mono text-[0.66rem] uppercase tracking-[0.22em]"
             >
@@ -95,7 +89,7 @@ import { withBasePath } from '../utils/helpers';
   >
     <div class="mx-auto max-w-[960px] px-4 sm:px-6">
       <div class="grid gap-6">
-        <article class="tone-border tone-surface rounded-2xl border p-7">
+        <article class="tone-panel-soft rounded-2xl p-7">
           <h2 class="text-2xl font-semibold text-white">1. Acceptance</h2>
           <p>
             By using this website, you agree to these terms. If you do not
@@ -103,7 +97,7 @@ import { withBasePath } from '../utils/helpers';
           </p>
         </article>
 
-        <article class="tone-border tone-surface rounded-2xl border p-7">
+        <article class="tone-panel-soft rounded-2xl p-7">
           <h2 class="text-2xl font-semibold text-white">
             2. Informational use
           </h2>
@@ -114,7 +108,7 @@ import { withBasePath } from '../utils/helpers';
           </p>
         </article>
 
-        <article class="tone-border tone-surface rounded-2xl border p-7">
+        <article class="tone-panel-soft rounded-2xl p-7">
           <h2 class="text-2xl font-semibold text-white">3. Engagement scope</h2>
           <p>
             Nothing on this site creates a service contract by itself. Formal
@@ -123,7 +117,7 @@ import { withBasePath } from '../utils/helpers';
           </p>
         </article>
 
-        <article class="tone-border tone-surface rounded-2xl border p-7">
+        <article class="tone-panel-soft rounded-2xl p-7">
           <h2 class="text-2xl font-semibold text-white">4. Acceptable use</h2>
           <p>
             You agree not to misuse, disrupt, probe, or attempt unauthorized
@@ -131,7 +125,7 @@ import { withBasePath } from '../utils/helpers';
           </p>
         </article>
 
-        <article class="tone-border tone-surface rounded-2xl border p-7">
+        <article class="tone-panel-soft rounded-2xl p-7">
           <h2 class="text-2xl font-semibold text-white">
             5. Third-party services
           </h2>
@@ -142,7 +136,7 @@ import { withBasePath } from '../utils/helpers';
           </p>
         </article>
 
-        <article class="tone-border tone-surface rounded-2xl border p-7">
+        <article class="tone-panel-soft rounded-2xl p-7">
           <h2 class="text-2xl font-semibold text-white">
             6. Warranty disclaimer
           </h2>
@@ -152,7 +146,7 @@ import { withBasePath } from '../utils/helpers';
           </p>
         </article>
 
-        <article class="tone-border tone-surface rounded-2xl border p-7">
+        <article class="tone-panel-soft rounded-2xl p-7">
           <h2 class="text-2xl font-semibold text-white">
             7. Limitation of liability
           </h2>
@@ -163,7 +157,7 @@ import { withBasePath } from '../utils/helpers';
           </p>
         </article>
 
-        <article class="tone-border tone-surface rounded-2xl border p-7">
+        <article class="tone-panel-soft rounded-2xl p-7">
           <h2 class="text-2xl font-semibold text-white">8. Contact</h2>
           <p>
             Questions regarding these terms can be sent to

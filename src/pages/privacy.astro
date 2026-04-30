@@ -15,35 +15,29 @@ import { withBasePath } from '../utils/helpers';
   showSavedRoutesDock={false}
 >
   <section
-    class="border-b border-white/10"
+    class="tone-page-hero border-b border-white/10"
     data-reveal
     id="privacy-hero"
     data-page-section
   >
     <div
-      class="mx-auto max-w-[1240px] px-4 pb-14 pt-20 sm:px-6 sm:pb-20 sm:pt-28"
+      class="tone-page-hero__inner mx-auto max-w-[1240px] px-4 pb-14 pt-20 sm:px-6 sm:pb-20 sm:pt-28"
     >
       <div class="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-end">
         <div class="space-y-5">
-          <p
-            class="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-white/55"
-          >
-            Legal
-          </p>
-          <h1
-            class="max-w-4xl text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl"
-          >
-            Privacy Policy
-          </h1>
-          <p class="max-w-3xl text-base leading-8 text-slate-300 sm:text-lg">
-            This site is primarily a static marketing and intake surface. In
-            plain terms, we do not run account-based product tracking here, and
-            most personal information only appears when you choose to contact
-            us.
-          </p>
+          <div class="tone-page-header">
+            <p class="tone-page-eyebrow">Legal</p>
+            <h1 class="tone-page-title max-w-4xl">Privacy Policy</h1>
+            <p class="tone-page-copy max-w-3xl">
+              This site is primarily a static marketing and intake surface. In
+              plain terms, we do not run account-based product tracking here,
+              and most personal information only appears when you choose to
+              contact us.
+            </p>
+          </div>
           <p class="text-sm text-white/55">Last updated: February 15, 2026</p>
 
-          <div class="flex flex-col gap-3 sm:flex-row">
+          <div class="tone-page-actions">
             <ModernButton
               href={withBasePath('contact-hq/')}
               variant="primary"
@@ -62,7 +56,7 @@ import { withBasePath } from '../utils/helpers';
         </div>
 
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-          <div class="tone-border tone-surface rounded-2xl border p-6">
+          <div class="tone-panel-soft rounded-2xl p-6">
             <p
               class="tone-muted font-mono text-[0.66rem] uppercase tracking-[0.22em]"
             >
@@ -73,7 +67,7 @@ import { withBasePath } from '../utils/helpers';
               example by email or project intake communication.
             </p>
           </div>
-          <div class="tone-border tone-surface rounded-2xl border p-6">
+          <div class="tone-panel-soft rounded-2xl p-6">
             <p
               class="tone-muted font-mono text-[0.66rem] uppercase tracking-[0.22em]"
             >
@@ -98,7 +92,7 @@ import { withBasePath } from '../utils/helpers';
   >
     <div class="mx-auto max-w-[960px] px-4 sm:px-6">
       <div class="grid gap-6">
-        <article class="tone-border tone-surface rounded-2xl border p-7">
+        <article class="tone-panel-soft rounded-2xl p-7">
           <h2 class="text-2xl font-semibold text-white">
             Information we collect
           </h2>
@@ -109,7 +103,7 @@ import { withBasePath } from '../utils/helpers';
           </p>
         </article>
 
-        <article class="tone-border tone-surface rounded-2xl border p-7">
+        <article class="tone-panel-soft rounded-2xl p-7">
           <h2 class="text-2xl font-semibold text-white">
             Contact communications
           </h2>
@@ -121,7 +115,7 @@ import { withBasePath } from '../utils/helpers';
           </p>
         </article>
 
-        <article class="tone-border tone-surface rounded-2xl border p-7">
+        <article class="tone-panel-soft rounded-2xl p-7">
           <h2 class="text-2xl font-semibold text-white">Third-party hosting</h2>
           <p>
             This site is delivered via static hosting. Hosting providers may log
@@ -130,7 +124,7 @@ import { withBasePath } from '../utils/helpers';
           </p>
         </article>
 
-        <article class="tone-border tone-surface rounded-2xl border p-7">
+        <article class="tone-panel-soft rounded-2xl p-7">
           <h2 class="text-2xl font-semibold text-white">
             Cookies and local storage
           </h2>
@@ -141,7 +135,7 @@ import { withBasePath } from '../utils/helpers';
           </p>
         </article>
 
-        <article class="tone-border tone-surface rounded-2xl border p-7">
+        <article class="tone-panel-soft rounded-2xl p-7">
           <h2 class="text-2xl font-semibold text-white">Policy updates</h2>
           <p>
             We may revise this policy as the site evolves. Any updates appear on
@@ -149,7 +143,7 @@ import { withBasePath } from '../utils/helpers';
           </p>
         </article>
 
-        <article class="tone-border tone-surface rounded-2xl border p-7">
+        <article class="tone-panel-soft rounded-2xl p-7">
           <h2 class="text-2xl font-semibold text-white">Contact</h2>
           <p>
             Questions about this privacy policy can be sent to
