@@ -3,18 +3,21 @@ interface Props {
   className?: string;
   title?: string;
   decorative?: boolean;
+  style?: string;
 }
 
 const {
   className = '',
   title = 'Chicago skyline illustration',
   decorative = true,
+  style = '',
 } = Astro.props as Props;
 ---
 
 <svg
   viewBox="0 0 1200 220"
   class:list={['chicago-skyline', className]}
+  style={style}
   aria-hidden={decorative ? 'true' : undefined}
   role={decorative ? undefined : 'img'}
   fill="none"
@@ -42,8 +45,8 @@ const {
 <style>
   .chicago-skyline {
     display: block;
-    width: 100%;
-    height: auto;
+    width: var(--skyline-width, 100%);
+    height: var(--skyline-height, auto);
     color: currentColor;
   }
 

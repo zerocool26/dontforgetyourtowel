@@ -21,34 +21,33 @@
     --viewport-height: 100vh;
     --viewport-height-dynamic: 100vh;
 
-    --color-background: #0f1214;
-    --color-surface: #171b1e;
-    --color-surface-subtle: rgba(23, 27, 30, 0.82);
-    --color-border: rgba(231, 224, 214, 0.1);
-    --color-primary: #c8ab77;
-    --color-primary-strong: #8d988b;
+    --color-background: #111416;
+    --color-surface: #191e21;
+    --color-surface-subtle: rgba(25, 30, 33, 0.84);
+    --color-border: rgba(231, 224, 214, 0.11);
+    --color-primary: #d1b17a;
+    --color-primary-strong: #92a08f;
     --color-success: #10b981;
     --color-warning: #f59e0b;
     --color-danger: #ef4444;
     --color-text-primary: #f3eee7;
-    --color-text-secondary: #c9c1b6;
-    --color-text-muted: #948b7f;
+    --color-text-secondary: #d2c9be;
+    --color-text-muted: #8f877b;
     --color-text-inverse: #0b0d10;
-    --shadow-soft: 0 22px 50px -36px rgba(0, 0, 0, 0.55);
-    --shadow-strong: 0 36px 90px -48px rgba(0, 0, 0, 0.68);
-    --radius-sm: 10px;
-    --radius-md: 18px;
-    --radius-lg: 28px;
+    --shadow-soft: 0 24px 52px -38px rgba(0, 0, 0, 0.58);
+    --shadow-strong: 0 40px 92px -56px rgba(0, 0, 0, 0.72);
+    --radius-sm: 8px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
     --blur-soft: blur(14px);
     --font-sans:
-      'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+      'Manrope', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
       sans-serif;
-    --font-display:
-      'Space Grotesk', 'JetBrains Mono', 'Inter', system-ui, sans-serif;
+    --font-display: 'Manrope', 'Space Grotesk', system-ui, sans-serif;
     --font-mono: 'JetBrains Mono', 'SFMono-Regular', Menlo, monospace;
     --shell-max-width: 1240px;
     --shell-gutter: clamp(1rem, 2vw, 1.5rem);
-    --section-space: clamp(4.5rem, 9vw, 7rem);
+    --section-space: clamp(4.75rem, 8vw, 7.5rem);
   }
 
   [data-theme='corporate'] {
@@ -71,7 +70,7 @@
     --radius-md: 8px;
     --radius-lg: 12px;
     --blur-soft: blur(12px);
-    --font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+    --font-display: 'Manrope', 'Space Grotesk', system-ui, sans-serif;
   }
 
   [data-theme='corporate'] body {
@@ -162,7 +161,7 @@
     background-position: center, center;
     color: var(--color-text-primary);
     font-family: var(--font-sans);
-    line-height: 1.65;
+    line-height: 1.68;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     transition:
@@ -190,22 +189,14 @@
     inset: 0;
     pointer-events: none;
     z-index: -1;
-    opacity: 0.03;
-    background-image:
-      linear-gradient(
-        180deg,
-        rgba(255, 255, 255, 0.05),
-        transparent 14%,
-        transparent 82%,
-        rgba(255, 255, 255, 0.03)
-      ),
-      repeating-linear-gradient(
-        90deg,
-        transparent 0,
-        transparent 4px,
-        rgba(255, 255, 255, 0.008) 5px,
-        transparent 6px
-      );
+    opacity: 0.018;
+    background-image: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.035),
+      transparent 14%,
+      transparent 82%,
+      rgba(255, 255, 255, 0.02)
+    );
     mix-blend-mode: normal;
   }
 
@@ -812,23 +803,23 @@ header.header-hidden {
     position: relative;
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 1.75rem;
+    border-radius: 1.55rem;
     background:
       linear-gradient(
         150deg,
-        rgba(255, 255, 255, 0.06),
-        rgba(255, 255, 255, 0)
+        rgba(255, 255, 255, 0.05),
+        rgba(255, 255, 255, 0.01)
       ),
       radial-gradient(
         circle at top right,
-        rgba(215, 247, 91, 0.08),
-        transparent 28%
+        rgba(209, 177, 122, 0.05),
+        transparent 26%
       ),
-      rgba(3, 3, 3, 0.82);
+      rgba(8, 10, 12, 0.82);
     box-shadow:
       inset 0 1px 1px rgba(255, 255, 255, 0.05),
-      0 40px 120px -48px rgba(0, 0, 0, 0.92);
-    backdrop-filter: blur(24px);
+      0 40px 100px -58px rgba(0, 0, 0, 0.82);
+    backdrop-filter: blur(20px);
     transition:
       box-shadow 0.4s ease,
       border-color 0.4s ease,
@@ -853,22 +844,22 @@ header.header-hidden {
   }
 
   .creative-hero-shell::after {
-    inset: auto -12% -24% 36%;
-    height: 240px;
-    background: radial-gradient(
-      circle,
-      rgba(215, 247, 91, 0.12),
-      transparent 70%
+    inset: auto 8% 0 48%;
+    height: 140px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.05),
+      transparent
     );
-    filter: blur(24px);
+    opacity: 0.35;
   }
 
   .creative-hero-shell:hover {
-    border-color: rgba(215, 247, 91, 0.18);
+    border-color: rgba(255, 255, 255, 0.12);
     box-shadow:
-      inset 0 1px 1px rgba(255, 255, 255, 0.08),
-      0 40px 120px -38px rgba(0, 0, 0, 0.95),
-      0 0 80px -24px rgba(215, 247, 91, 0.08);
+      inset 0 1px 1px rgba(255, 255, 255, 0.06),
+      0 40px 100px -52px rgba(0, 0, 0, 0.86);
   }
 
   html[data-experience-mode='editorial'] .creative-hero-shell,
@@ -1899,11 +1890,14 @@ header.header-hidden {
 
   .tone-title {
     color: var(--color-text-primary);
+    font-family: var(--font-display);
+    letter-spacing: -0.035em;
     text-wrap: balance;
   }
 
   .tone-body {
     color: var(--color-text-secondary);
+    line-height: 1.72;
   }
 
   .tone-muted {
@@ -1994,13 +1988,13 @@ header.header-hidden {
     z-index: 0;
     overflow: hidden;
     pointer-events: none;
-    opacity: 0.22;
+    opacity: 0.14;
   }
 
   .tone-site-shell__grid {
     position: absolute;
     inset: 0;
-    opacity: 0.03;
+    opacity: 0.02;
     background-image:
       linear-gradient(
         180deg,
@@ -2112,18 +2106,18 @@ header.header-hidden {
     background:
       linear-gradient(
         180deg,
-        color-mix(in srgb, var(--color-background) 94%, transparent),
-        color-mix(in srgb, var(--color-surface) 98%, transparent)
+        color-mix(in srgb, var(--color-background) 96%, transparent),
+        color-mix(in srgb, var(--color-surface) 99%, transparent)
       ),
       linear-gradient(
         90deg,
         color-mix(
           in srgb,
-          var(--route-accent, var(--color-primary)) 2%,
+          var(--route-accent, var(--color-primary)) 1.5%,
           transparent
         ),
         transparent 32%,
-        color-mix(in srgb, var(--color-primary-strong) 1%, transparent)
+        color-mix(in srgb, var(--color-primary-strong) 0.75%, transparent)
       ),
       color-mix(in srgb, var(--color-surface) 94%, transparent);
     border-color: color-mix(in srgb, var(--color-border) 80%, transparent);
@@ -2249,11 +2243,11 @@ header.header-hidden {
 
   .tone-chip-jump {
     min-height: 44px;
-    border-radius: 999px;
+    border-radius: 0.95rem;
     padding: 0.7rem 1rem;
-    font-size: 0.68rem;
+    font-size: 0.7rem;
     font-weight: 600;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
   }
 
@@ -2302,7 +2296,7 @@ header.header-hidden {
   .tone-page-header,
   .tone-section-heading {
     display: grid;
-    gap: 1rem;
+    gap: 0.9rem;
   }
 
   .tone-page-header {
@@ -2316,10 +2310,10 @@ header.header-hidden {
   .tone-page-eyebrow,
   .tone-section-kicker {
     margin: 0;
-    font-family: var(--font-mono);
-    font-size: 0.68rem;
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
     font-weight: 700;
-    letter-spacing: 0.24em;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
     color: color-mix(in srgb, var(--color-text-muted) 92%, transparent);
   }
@@ -2328,35 +2322,37 @@ header.header-hidden {
   .tone-section-title {
     margin: 0;
     color: var(--color-text-primary);
-    letter-spacing: -0.045em;
-    line-height: 0.98;
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.05em;
+    line-height: 0.96;
     text-wrap: balance;
   }
 
   .tone-page-title {
-    font-size: clamp(2.65rem, 5.8vw, 4.9rem);
-    max-width: 12ch;
+    font-size: clamp(2.7rem, 5.8vw, 5rem);
+    max-width: 11ch;
   }
 
   .tone-section-title {
-    font-size: clamp(1.85rem, 3.8vw, 3rem);
+    font-size: clamp(1.9rem, 3.7vw, 3.1rem);
   }
 
   .tone-page-copy,
   .tone-section-copy {
     margin: 0;
-    color: color-mix(in srgb, var(--color-text-secondary) 94%, transparent);
-    line-height: 1.72;
+    color: color-mix(in srgb, var(--color-text-secondary) 98%, transparent);
+    line-height: 1.76;
   }
 
   .tone-page-copy {
     max-width: 62ch;
-    font-size: clamp(1rem, 1.25vw, 1.08rem);
+    font-size: clamp(1.02rem, 1.18vw, 1.1rem);
   }
 
   .tone-section-copy {
     max-width: 60ch;
-    font-size: 1rem;
+    font-size: 1.02rem;
   }
 
   .tone-page-actions {
@@ -2374,7 +2370,7 @@ header.header-hidden {
   .tone-metric-card {
     position: relative;
     overflow: hidden;
-    background: rgba(255, 255, 255, 0.025);
+    background: rgba(255, 255, 255, 0.022);
   }
 
   .tone-metric-card::after {
@@ -2383,10 +2379,10 @@ header.header-hidden {
 
   .tone-metric-card__label {
     margin: 0;
-    font-family: var(--font-mono);
-    font-size: 0.66rem;
+    font-family: var(--font-sans);
+    font-size: 0.67rem;
     font-weight: 700;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
     color: color-mix(in srgb, var(--color-text-primary) 42%, transparent);
   }
@@ -2395,16 +2391,16 @@ header.header-hidden {
     margin: 0.7rem 0 0;
     color: var(--color-text-primary);
     font-size: clamp(1.5rem, 2.8vw, 2.1rem);
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: -0.05em;
     line-height: 1;
   }
 
   .tone-metric-card__detail {
     margin: 0.65rem 0 0;
-    color: color-mix(in srgb, var(--color-text-secondary) 90%, transparent);
-    font-size: 0.88rem;
-    line-height: 1.65;
+    color: color-mix(in srgb, var(--color-text-secondary) 94%, transparent);
+    font-size: 0.92rem;
+    line-height: 1.66;
   }
 
   .tone-cta-band {
@@ -2797,7 +2793,7 @@ header.header-hidden {
   }
 
   .premium-container {
-    width: min(100% - 2rem, 1240px);
+    width: min(100% - 2.5rem, 1280px);
     margin-inline: auto;
   }
 
@@ -2806,12 +2802,12 @@ header.header-hidden {
     display: inline-flex;
     align-items: center;
     gap: 0.55rem;
-    font-family: var(--font-mono);
+    font-family: var(--font-sans);
     font-size: 0.72rem;
     font-weight: 700;
-    letter-spacing: 0.22em;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: rgba(215, 247, 91, 0.72);
+    color: rgba(209, 177, 122, 0.78);
   }
 
   .premium-eyebrow::before {
@@ -2821,7 +2817,6 @@ header.header-hidden {
     flex-shrink: 0;
     border-radius: 999px;
     background: currentColor;
-    box-shadow: 0 0 18px rgba(215, 247, 91, 0.28);
   }
 
   .premium-title {
@@ -2831,7 +2826,6 @@ header.header-hidden {
     line-height: 1.02;
     letter-spacing: -0.035em;
     text-wrap: balance;
-    text-shadow: 0 18px 40px rgba(0, 0, 0, 0.34);
   }
 
   .premium-copy {
@@ -2845,27 +2839,27 @@ header.header-hidden {
     position: relative;
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 1.5rem;
+    border-radius: 1.35rem;
     background:
       linear-gradient(
         145deg,
-        rgba(255, 255, 255, 0.075),
-        rgba(255, 255, 255, 0.015)
+        rgba(255, 255, 255, 0.06),
+        rgba(255, 255, 255, 0.014)
       ),
       linear-gradient(
         180deg,
         color-mix(
           in srgb,
-          var(--route-accent, var(--color-primary)) 5%,
+          var(--route-accent, var(--color-primary)) 3%,
           transparent
         ),
         transparent 34%
       ),
       rgba(9, 12, 10, 0.66);
     box-shadow:
-      0 24px 60px -32px rgba(0, 0, 0, 0.82),
+      0 26px 56px -38px rgba(0, 0, 0, 0.72),
       inset 0 1px 0 rgba(255, 255, 255, 0.06);
-    backdrop-filter: blur(18px);
+    backdrop-filter: blur(14px);
   }
 
   .premium-card::before {
@@ -2888,10 +2882,10 @@ header.header-hidden {
   @media (hover: hover) {
     .premium-card--interactive:hover {
       transform: translateY(-3px);
-      border-color: rgba(215, 247, 91, 0.18);
+      border-color: rgba(255, 255, 255, 0.14);
       box-shadow:
-        0 26px 62px -30px rgba(0, 0, 0, 0.84),
-        0 0 32px -22px rgba(18, 181, 166, 0.34);
+        0 28px 58px -34px rgba(0, 0, 0, 0.76),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
     }
   }
 
@@ -2986,7 +2980,7 @@ header.header-hidden {
 
   @media (max-width: 640px) {
     .premium-container {
-      width: min(100% - 1rem, 1240px);
+      width: min(100% - 1.25rem, 1280px);
     }
 
     .premium-title {

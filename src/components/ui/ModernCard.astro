@@ -38,7 +38,7 @@ const {
 } = Astro.props;
 
 const baseClasses =
-  'modern-card-shell group relative overflow-hidden rounded-[1.5rem] transition-[border-color,background-color,box-shadow,transform] duration-150 ease-out touch-manipulation motion-reduce:transition-none';
+  'modern-card-shell group relative overflow-hidden rounded-[1.35rem] transition-[border-color,background-color,box-shadow,transform] duration-150 ease-out touch-manipulation motion-reduce:transition-none';
 
 const variants = {
   default: 'modern-card--default',
@@ -123,6 +123,7 @@ const Tag = href ? 'a' : 'div';
     border: 1px solid color-mix(in srgb, var(--color-border) 68%, transparent);
     isolation: isolate;
     backdrop-filter: none;
+    box-shadow: 0 24px 56px -44px rgba(0, 0, 0, 0.58);
   }
 
   .modern-card__surface {
@@ -136,7 +137,7 @@ const Tag = href ? 'a' : 'div';
       rgba(255, 255, 255, 0.015) 26%,
       transparent 60%
     );
-    opacity: 0.55;
+    opacity: 0.44;
     pointer-events: none;
     transition: opacity 0.25s ease;
   }
@@ -146,7 +147,7 @@ const Tag = href ? 'a' : 'div';
     inset: 1px;
     z-index: 1;
     border-radius: inherit;
-    border: 1px solid color-mix(in srgb, white 4%, transparent);
+    border: 1px solid color-mix(in srgb, white 3%, transparent);
     pointer-events: none;
   }
 
@@ -186,7 +187,7 @@ const Tag = href ? 'a' : 'div';
       var(--color-text-primary) 18%,
       transparent
     );
-    background: color-mix(in srgb, var(--color-surface) 78%, transparent);
+    background: color-mix(in srgb, var(--color-surface) 88%, transparent);
   }
 
   .modern-card--gradient {
@@ -195,7 +196,7 @@ const Tag = href ? 'a' : 'div';
       color-mix(in srgb, var(--color-text-primary) 4%, transparent),
       color-mix(in srgb, var(--color-primary-strong) 6%, transparent)
     );
-    box-shadow: none;
+    box-shadow: 0 22px 50px -42px rgba(0, 0, 0, 0.5);
   }
 
   .modern-card--glass {
@@ -212,7 +213,7 @@ const Tag = href ? 'a' : 'div';
         transparent 60%
       ),
       color-mix(in srgb, var(--color-surface) 86%, transparent);
-    box-shadow: none;
+    box-shadow: 0 22px 48px -42px rgba(0, 0, 0, 0.52);
     backdrop-filter: none;
   }
 
@@ -223,7 +224,7 @@ const Tag = href ? 'a' : 'div';
       transparent
     );
     background: color-mix(in srgb, var(--color-primary-strong) 6%, transparent);
-    box-shadow: none;
+    box-shadow: 0 24px 52px -42px rgba(0, 0, 0, 0.56);
   }
 
   .modern-card--minimal {

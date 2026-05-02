@@ -137,7 +137,10 @@ const startOptions = [
             <div class="home-homepage-art-panel__rule"></div>
 
             <div class="home-homepage-art-panel__skyline">
-              <ChicagoSkyline className="home-homepage-skyline" />
+              <ChicagoSkyline
+                className="home-homepage-skyline"
+                style="width:min(100%,30rem);height:4.2rem;"
+              />
             </div>
 
             <div class="home-homepage-art-panel__meta">
@@ -251,7 +254,7 @@ const startOptions = [
     }
 
     .home-homepage-hero {
-      padding-top: clamp(6.25rem, 9vw, 8rem);
+      padding-top: clamp(5.4rem, 8vw, 7rem);
       border-bottom: 1px solid
         color-mix(in srgb, var(--color-border) 72%, transparent);
     }
@@ -274,35 +277,35 @@ const startOptions = [
       position: relative;
       z-index: 1;
       display: grid;
-      gap: 2.5rem;
-      align-items: end;
+      gap: 3.2rem;
+      align-items: start;
     }
 
     .home-homepage-hero__copy {
       display: grid;
-      gap: 1.25rem;
-      max-width: 42rem;
+      gap: 1.35rem;
+      max-width: 43rem;
     }
 
     .home-homepage-eyebrow {
       margin: 0;
-      color: color-mix(in srgb, var(--color-text-muted) 92%, transparent);
-      font-family: var(--font-mono);
+      color: color-mix(in srgb, var(--color-text-muted) 94%, transparent);
+      font-family: var(--font-sans);
       font-size: 0.7rem;
       font-weight: 700;
-      letter-spacing: 0.24em;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
     }
 
     .home-homepage-title {
-      max-width: 10.5ch;
+      max-width: 9.6ch;
       margin: 0;
       color: var(--color-text-primary);
       font-family: var(--font-display);
-      font-size: clamp(3rem, 8vw, 6.8rem);
-      font-weight: 600;
-      line-height: 0.94;
-      letter-spacing: -0.07em;
+      font-size: clamp(2.85rem, 7.5vw, 6.1rem);
+      font-weight: 700;
+      line-height: 0.92;
+      letter-spacing: -0.065em;
       text-wrap: balance;
     }
 
@@ -324,8 +327,8 @@ const startOptions = [
     .home-homepage-start-item p {
       margin: 0;
       color: color-mix(in srgb, var(--color-text-secondary) 94%, transparent);
-      font-size: clamp(1rem, 1.4vw, 1.08rem);
-      line-height: 1.7;
+      font-size: clamp(1.02rem, 1.26vw, 1.1rem);
+      line-height: 1.76;
     }
 
     .home-homepage-actions {
@@ -339,7 +342,7 @@ const startOptions = [
       display: grid;
       gap: 0.85rem;
       margin: 0;
-      padding: 1.2rem 0 0;
+      padding: 1.35rem 0 0;
       list-style: none;
       border-top: 1px solid
         color-mix(in srgb, var(--color-border) 66%, transparent);
@@ -349,8 +352,8 @@ const startOptions = [
       position: relative;
       padding-left: 1.2rem;
       color: color-mix(in srgb, var(--color-text-primary) 82%, transparent);
-      font-size: 0.95rem;
-      line-height: 1.5;
+      font-size: 0.98rem;
+      line-height: 1.58;
     }
 
     .home-homepage-outcomes li::before {
@@ -368,7 +371,7 @@ const startOptions = [
       position: relative;
       overflow: hidden;
       min-height: 100%;
-      padding: clamp(1.4rem, 3vw, 2rem) 0 0;
+      padding: clamp(1.2rem, 3vw, 1.8rem) 0 0;
     }
 
     .home-homepage-art-panel::before,
@@ -395,22 +398,22 @@ const startOptions = [
       flex-wrap: wrap;
       gap: 0.7rem 1rem;
       color: color-mix(in srgb, var(--color-text-muted) 90%, transparent);
-      font-family: var(--font-mono);
+      font-family: var(--font-sans);
       font-size: 0.65rem;
-      letter-spacing: 0.2em;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
     }
 
     .home-homepage-art-panel__headline {
       display: grid;
       gap: 0.1rem;
-      margin: 1.25rem 0;
+      margin: 1.1rem 0 1rem;
       color: var(--color-text-primary);
       font-family: var(--font-display);
-      font-size: clamp(2.7rem, 7vw, 5.4rem);
-      font-weight: 600;
+      font-size: clamp(2.4rem, 6.4vw, 4.75rem);
+      font-weight: 700;
       line-height: 0.9;
-      letter-spacing: -0.08em;
+      letter-spacing: -0.07em;
       text-transform: uppercase;
     }
 
@@ -436,13 +439,17 @@ const startOptions = [
     }
 
     .home-homepage-art-panel__skyline {
-      padding: 0.2rem 0 1rem;
+      padding: 0 0 0.9rem;
       color: color-mix(in srgb, var(--color-primary) 76%, white 24%);
     }
 
     .home-homepage-skyline {
-      width: min(100%, 34rem);
-      opacity: 0.94;
+      display: block;
+      --skyline-width: min(100%, 30rem);
+      --skyline-height: 4.2rem;
+      width: min(100%, 30rem);
+      height: 4.2rem;
+      opacity: 0.9;
     }
 
     .home-homepage-section {
@@ -454,7 +461,7 @@ const startOptions = [
       display: grid;
       gap: 0.85rem;
       max-width: 44rem;
-      margin-bottom: 2rem;
+      margin-bottom: 2.35rem;
     }
 
     .home-homepage-section__title,
@@ -464,8 +471,8 @@ const startOptions = [
       margin: 0;
       color: var(--color-text-primary);
       font-size: clamp(1.45rem, 3vw, 3rem);
-      font-weight: 600;
-      line-height: 1.02;
+      font-weight: 700;
+      line-height: 0.98;
       letter-spacing: -0.05em;
       text-wrap: balance;
     }
@@ -478,7 +485,7 @@ const startOptions = [
     .home-homepage-lane {
       display: grid;
       gap: 1rem;
-      padding: 1.35rem 0;
+      padding: 1.55rem 0;
       border-bottom: 1px solid
         color-mix(in srgb, var(--color-border) 66%, transparent);
       transition:
@@ -488,7 +495,7 @@ const startOptions = [
     }
 
     .home-homepage-lane:hover {
-      transform: translateX(4px);
+      transform: translateX(3px);
       border-color: color-mix(
         in srgb,
         var(--color-text-primary) 20%,
@@ -539,7 +546,7 @@ const startOptions = [
       display: grid;
       gap: 1rem;
       align-items: end;
-      padding: 1.25rem 0;
+      padding: 1.45rem 0;
       border-bottom: 1px solid
         color-mix(in srgb, var(--color-border) 66%, transparent);
       transition:
@@ -551,11 +558,11 @@ const startOptions = [
     .home-homepage-start-item span {
       color: var(--color-text-primary);
       font-size: 0.92rem;
-      font-weight: 600;
+      font-weight: 700;
     }
 
     .home-homepage-start-item:hover {
-      transform: translateX(4px);
+      transform: translateX(3px);
       border-color: color-mix(
         in srgb,
         var(--color-text-primary) 20%,
@@ -571,7 +578,7 @@ const startOptions = [
 
     @media (min-width: 960px) {
       .home-homepage-hero__shell {
-        grid-template-columns: minmax(0, 1fr) minmax(20rem, 28rem);
+        grid-template-columns: minmax(0, 1fr) minmax(21rem, 27rem);
       }
 
       .home-homepage-lane {
@@ -596,7 +603,7 @@ const startOptions = [
 
       .home-homepage-title {
         max-width: 100%;
-        font-size: clamp(2.6rem, 12vw, 4.5rem);
+        font-size: clamp(2.45rem, 12vw, 4.25rem);
       }
 
       .home-homepage-actions,
@@ -605,7 +612,7 @@ const startOptions = [
       }
 
       .home-homepage-art-panel__headline {
-        font-size: clamp(2.3rem, 13vw, 3.8rem);
+        font-size: clamp(2.1rem, 13vw, 3.45rem);
       }
     }
   </style>

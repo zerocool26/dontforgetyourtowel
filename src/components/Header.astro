@@ -51,10 +51,10 @@ const compactContextLinks = routeContext.suggestions.slice(
 );
 
 const searchTriggerClasses =
-  'header-action tone-focus-accent inline-flex min-h-[44px] items-center gap-2 rounded-xl px-3 text-sm font-medium transition';
+  'header-action tone-focus-accent inline-flex min-h-[46px] items-center gap-2 rounded-[0.95rem] px-3.5 text-sm font-medium transition';
 
 const desktopNavLinkClasses =
-  'header-desktop-link tone-focus-accent relative flex h-full items-center border-l border-white/[0.06] px-4 font-mono text-xs uppercase tracking-wide transition-all duration-300';
+  'header-desktop-link tone-focus-accent relative flex h-full items-center border-l border-white/[0.06] px-4 text-[0.78rem] font-semibold uppercase tracking-[0.12em] transition-all duration-300';
 
 const mobileMenuLinkClasses =
   'header-mobile-link tone-focus-accent min-h-touch flex touch-manipulation items-center rounded-lg px-3 py-3 font-medium transition';
@@ -100,7 +100,7 @@ const isTradeActiveHref = (href: string) => {
   >
   </div>
   <nav
-    class="header-nav-shell mx-auto flex min-h-[4.5rem] max-w-[1400px] items-center justify-between gap-3 px-4 py-2 sm:px-6 lg:px-8"
+    class="header-nav-shell mx-auto flex min-h-[4.35rem] max-w-[1400px] items-center justify-between gap-3 px-4 py-2 sm:px-6 lg:px-8"
     aria-label="Main navigation"
   >
     <a
@@ -115,12 +115,12 @@ const isTradeActiveHref = (href: string) => {
       </span>
       <div class="flex min-w-0 flex-col leading-none">
         <span
-          class="tone-title block whitespace-nowrap font-display text-xs font-bold uppercase tracking-tight sm:hidden"
+          class="tone-title block whitespace-nowrap font-display text-[0.72rem] font-semibold uppercase tracking-[0.08em] sm:hidden"
         >
           {mobileSiteTitle}
         </span>
         <span
-          class="tone-title hidden truncate whitespace-nowrap font-display text-sm font-bold uppercase tracking-tight sm:block"
+          class="tone-title hidden truncate whitespace-nowrap font-display text-[0.9rem] font-semibold uppercase tracking-[0.06em] sm:block"
         >
           {SITE_TITLE}
         </span>
@@ -176,7 +176,7 @@ const isTradeActiveHref = (href: string) => {
       <button
         type="button"
         data-open-saved-routes
-        class="saved-routes-trigger header-action tone-focus-accent min-h-[44px] items-center gap-2 rounded-lg px-3 font-mono text-xs uppercase tracking-[0.2em] transition"
+        class="saved-routes-trigger header-action tone-focus-accent min-h-[44px] items-center gap-2 rounded-lg px-3 text-[0.72rem] font-semibold uppercase tracking-[0.12em] transition"
         hidden
       >
         <span>Saved</span>
@@ -211,7 +211,7 @@ const isTradeActiveHref = (href: string) => {
       <div class="tone-border h-6 w-px"></div>
       <ModernButton
         variant="primary"
-        className="font-mono text-xs uppercase tracking-wider"
+        className="text-[0.76rem] font-semibold uppercase tracking-[0.12em]"
         rounded="sm"
         href={startProjectHref}
       >
@@ -254,7 +254,10 @@ const isTradeActiveHref = (href: string) => {
             <span class="header-cityline__copy">
               Chicago-area managed IT, security, cloud, and digital systems
             </span>
-            <ChicagoSkyline className="header-cityline__art" />
+            <ChicagoSkyline
+              className="header-cityline__art"
+              style="width:min(100%,32rem);height:2.75rem;"
+            />
           </div>
         </div>
       </div>
@@ -314,7 +317,7 @@ const isTradeActiveHref = (href: string) => {
           <div class="header-context-compact flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div class="flex min-w-0 items-start gap-3">
               <span
-                class="mt-0.5 inline-flex flex-shrink-0 rounded-full border px-2.5 py-1 font-mono text-[0.6rem] uppercase tracking-[0.22em] text-white/80"
+                class="mt-0.5 inline-flex flex-shrink-0 rounded-full border px-2.5 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-white/80"
                 style="border-color: color-mix(in srgb, var(--header-route-accent) 30%, rgba(255,255,255,0.08)); background: color-mix(in srgb, var(--header-route-accent) 8%, rgba(255,255,255,0.03));"
               >
                 {routeContext.currentCategory}
@@ -324,23 +327,23 @@ const isTradeActiveHref = (href: string) => {
                   <p class="truncate text-sm font-semibold text-white sm:text-[0.95rem]">
                     {routeContext.currentTitle}
                   </p>
-                  <span class="text-white/34 font-mono text-[0.58rem] uppercase tracking-[0.22em]">
+                  <span class="text-white/34 text-[0.62rem] font-semibold uppercase tracking-[0.12em]">
                     {routeContext.kicker}
                   </span>
                 </div>
-                <p class="text-white/48 mt-1 hidden max-w-3xl truncate text-sm leading-relaxed xl:block">
+                <p class="text-white/48 mt-1 hidden max-w-3xl truncate text-[0.92rem] leading-relaxed xl:block">
                   {routeContext.currentDescription}
                 </p>
               </div>
             </div>
 
-            <div class="flex gap-2 overflow-x-auto pb-1 scrollbar-hide md:max-w-[34rem] md:justify-end">
+            <div class="flex gap-2 overflow-x-auto pb-1 scrollbar-hide md:max-w-[31rem] md:justify-end">
               {compactContextLinks.map(link => (
                 <a
                   href={link.href}
-                  class="header-context-compact__link min-w-[10rem] flex-1 rounded-full border border-white/10 bg-white/[0.03] px-3 py-2 transition hover:border-white/20 hover:bg-white/[0.05] md:min-w-0 md:flex-none"
+                  class="header-context-compact__link min-w-[9rem] flex-1 rounded-[0.95rem] border border-white/10 bg-white/[0.03] px-3 py-2 transition hover:border-white/20 hover:bg-white/[0.05] md:min-w-0 md:flex-none"
                 >
-                  <span class="block text-sm font-semibold text-white">
+                  <span class="block text-[0.78rem] font-semibold text-white">
                     {link.label}
                   </span>
                   <span class="text-white/46 mt-0.5 hidden text-[0.72rem] leading-relaxed lg:block">
@@ -431,14 +434,14 @@ const isTradeActiveHref = (href: string) => {
 <style>
   .header-nav-shell {
     position: relative;
-    border-radius: 1rem;
+    border-radius: 1.1rem;
   }
 
   .header-nav-shell::before {
     content: '';
     position: absolute;
     inset: 0;
-    border-radius: 1rem;
+    border-radius: 1.1rem;
     border: 1px solid color-mix(in srgb, white 4%, transparent);
     background: linear-gradient(
       180deg,
@@ -468,7 +471,7 @@ const isTradeActiveHref = (href: string) => {
       color-mix(in srgb, var(--color-surface) 86%, transparent);
     color: color-mix(in srgb, var(--color-text-primary) 90%, transparent);
     box-shadow:
-      0 14px 24px -20px rgba(0, 0, 0, 0.46),
+      0 14px 24px -20px rgba(0, 0, 0, 0.42),
       inset 0 1px 0 color-mix(in srgb, white 10%, transparent);
   }
 
@@ -484,29 +487,29 @@ const isTradeActiveHref = (href: string) => {
   .header-desktop-link {
     margin-block: 0.35rem;
     border-left-color: transparent;
-    border-radius: 999px;
-    color: color-mix(in srgb, var(--color-text-primary) 56%, transparent);
+    border-radius: 0.9rem;
+    color: color-mix(in srgb, var(--color-text-primary) 60%, transparent);
   }
 
   .header-desktop-link::after {
     content: '';
     position: absolute;
-    inset: 0.2rem;
+    inset: 0.26rem;
     height: auto;
-    border-radius: 999px;
+    border-radius: 0.8rem;
     background:
       linear-gradient(
         180deg,
         color-mix(
           in srgb,
-          var(--route-accent, var(--color-primary)) 7%,
+          var(--route-accent, var(--color-primary)) 5%,
           transparent
         ),
-        color-mix(in srgb, var(--color-surface) 80%, transparent)
+        color-mix(in srgb, var(--color-surface) 86%, transparent)
       ),
       color-mix(in srgb, var(--color-surface) 82%, transparent);
     box-shadow: inset 0 1px 0 color-mix(in srgb, white 4%, transparent);
-    transform: scale(0.92);
+    transform: scale(0.97);
     transform-origin: center;
     opacity: 0;
     transition:
@@ -530,7 +533,9 @@ const isTradeActiveHref = (href: string) => {
     border: 1px solid color-mix(in srgb, var(--color-border) 76%, transparent);
     background: color-mix(in srgb, var(--color-surface) 92%, transparent);
     color: color-mix(in srgb, var(--color-text-primary) 78%, transparent);
-    box-shadow: inset 0 1px 0 color-mix(in srgb, white 4%, transparent);
+    box-shadow:
+      inset 0 1px 0 color-mix(in srgb, white 4%, transparent),
+      0 18px 34px -34px rgba(0, 0, 0, 0.45);
   }
 
   .header-action:hover {
@@ -557,10 +562,10 @@ const isTradeActiveHref = (href: string) => {
       rgba(255, 255, 255, 0.03)
     );
     padding: 0 0.55rem;
-    font-family: var(--font-mono);
-    font-size: 0.55rem;
+    font-family: var(--font-sans);
+    font-size: 0.58rem;
     font-weight: 700;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
     color: rgba(255, 255, 255, 0.78);
   }
@@ -572,28 +577,32 @@ const isTradeActiveHref = (href: string) => {
   .header-cityline {
     display: grid;
     gap: 0.45rem;
-    padding: 0.7rem 0 0.85rem;
+    padding: 0.65rem 0 0.7rem;
     color: rgba(243, 238, 231, 0.62);
   }
 
   .header-cityline__copy {
-    font-family: var(--font-mono);
+    font-family: var(--font-sans);
     font-size: 0.58rem;
     font-weight: 700;
-    letter-spacing: 0.24em;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
   }
 
   .header-cityline__art {
-    width: min(100%, 38rem);
+    display: block;
+    --skyline-width: min(100%, 32rem);
+    --skyline-height: 2.75rem;
+    width: min(100%, 32rem);
+    height: 2.75rem;
     color: color-mix(in srgb, var(--color-primary) 78%, white 22%);
   }
 
   .header-context-compact {
     border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 1rem;
+    border-radius: 1.1rem;
     background: rgba(255, 255, 255, 0.015);
-    padding: 0.95rem 1rem;
+    padding: 0.72rem 0.9rem;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
   }
 

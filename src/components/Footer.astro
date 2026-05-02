@@ -121,8 +121,8 @@ const footerSignals = [
 <style>
   .footer-shell {
     display: grid;
-    gap: 2rem;
-    padding: clamp(1rem, 3vw, 1.5rem) 0 0;
+    gap: 2.15rem;
+    padding: clamp(0.8rem, 2vw, 1.2rem) 0 0;
   }
 
   .footer-shell__top,
@@ -144,13 +144,14 @@ const footerSignals = [
     height: 3rem;
     align-items: center;
     justify-content: center;
-    border-radius: 0.9rem;
+    border-radius: 0.8rem;
     border: 1px solid rgba(255, 255, 255, 0.08);
-    background: rgba(255, 255, 255, 0.02);
+    background: rgba(255, 255, 255, 0.018);
     color: var(--color-text-primary);
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    letter-spacing: 0.2em;
+    font-family: var(--font-sans);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
   }
 
@@ -158,16 +159,16 @@ const footerSignals = [
     margin: 0;
     color: var(--color-text-primary);
     font-family: var(--font-display);
-    font-size: 1.15rem;
-    font-weight: 600;
+    font-size: 1.12rem;
+    font-weight: 700;
     letter-spacing: -0.04em;
   }
 
   .footer-brand__copy {
     max-width: 42rem;
     margin: 0.7rem 0 0;
-    color: color-mix(in srgb, var(--color-text-secondary) 92%, transparent);
-    line-height: 1.7;
+    color: color-mix(in srgb, var(--color-text-secondary) 96%, transparent);
+    line-height: 1.74;
   }
 
   .footer-actions {
@@ -188,10 +189,10 @@ const footerSignals = [
   .footer-signal__label {
     margin: 0;
     color: color-mix(in srgb, var(--color-text-muted) 88%, transparent);
-    font-family: var(--font-mono);
-    font-size: 0.64rem;
+    font-family: var(--font-sans);
+    font-size: 0.66rem;
     font-weight: 700;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
   }
 
@@ -202,8 +203,8 @@ const footerSignals = [
   }
 
   .footer-link {
-    color: color-mix(in srgb, var(--color-text-secondary) 92%, transparent);
-    font-size: 0.95rem;
+    color: color-mix(in srgb, var(--color-text-secondary) 96%, transparent);
+    font-size: 0.96rem;
   }
 
   .footer-link:hover {
@@ -233,9 +234,9 @@ const footerSignals = [
 
   .footer-signal__detail {
     margin: 0.45rem 0 0;
-    color: color-mix(in srgb, var(--color-text-secondary) 90%, transparent);
-    font-size: 0.86rem;
-    line-height: 1.6;
+    color: color-mix(in srgb, var(--color-text-secondary) 94%, transparent);
+    font-size: 0.88rem;
+    line-height: 1.68;
   }
 
   .footer-shell__bottom {

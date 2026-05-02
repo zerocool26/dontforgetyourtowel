@@ -44,7 +44,7 @@ const {
 } = Astro.props;
 
 const baseClasses =
-  'modern-button group relative inline-flex select-none touch-manipulation items-center justify-center overflow-hidden font-semibold tracking-normal focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed motion-reduce:transition-none motion-reduce:transform-none';
+  'modern-button group relative inline-flex select-none touch-manipulation items-center justify-center overflow-hidden font-semibold tracking-[0.01em] focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed motion-reduce:transition-none motion-reduce:transform-none';
 
 const variants = {
   primary: 'modern-button--primary',
@@ -128,7 +128,7 @@ const ariaProps = { 'aria-busy': loading };
     box-shadow: var(--button-shadow, none);
     transition-property:
       transform, box-shadow, filter, background-color, border-color, color;
-    transition-duration: 0.2s;
+    transition-duration: 0.18s;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     backdrop-filter: none;
   }
@@ -143,7 +143,7 @@ const ariaProps = { 'aria-busy': loading };
     border-radius: inherit;
     background: linear-gradient(
       180deg,
-      rgba(255, 255, 255, 0.05),
+      rgba(255, 255, 255, 0.045),
       rgba(255, 255, 255, 0.01) 42%,
       transparent
     );
@@ -165,19 +165,19 @@ const ariaProps = { 'aria-busy': loading };
   .modern-button--primary {
     --button-shadow: none;
     border-color: color-mix(in srgb, var(--color-primary) 24%, transparent);
-    background: color-mix(in srgb, var(--color-primary) 96%, #f7f3eb 4%);
+    background: color-mix(in srgb, var(--color-primary) 94%, #f7f3eb 6%);
     color: #17130f;
   }
 
   .modern-button--primary:hover {
-    background: color-mix(in srgb, var(--color-primary) 90%, white 10%);
+    background: color-mix(in srgb, var(--color-primary) 88%, white 12%);
     box-shadow: none;
   }
 
   .modern-button--secondary {
     --button-shadow: none;
     border-color: color-mix(in srgb, var(--color-border) 74%, transparent);
-    background: color-mix(in srgb, var(--color-surface) 94%, transparent);
+    background: color-mix(in srgb, var(--color-surface) 96%, transparent);
     color: color-mix(in srgb, var(--color-text-primary) 92%, transparent);
   }
 
@@ -187,7 +187,7 @@ const ariaProps = { 'aria-busy': loading };
       var(--color-text-primary) 18%,
       transparent
     );
-    background: color-mix(in srgb, var(--color-surface) 98%, white 2%);
+    background: color-mix(in srgb, var(--color-surface) 99%, white 1%);
     box-shadow: none;
   }
 
@@ -203,7 +203,7 @@ const ariaProps = { 'aria-busy': loading };
       var(--color-text-primary) 22%,
       transparent
     );
-    background: color-mix(in srgb, var(--color-surface) 90%, transparent);
+    background: color-mix(in srgb, var(--color-surface) 94%, transparent);
     color: var(--color-text-primary);
   }
 
