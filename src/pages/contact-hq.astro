@@ -174,8 +174,6 @@ const contactSections = [
   { label: 'FAQ', href: '#faq' },
 ];
 
-const heroChecklist = firstMessageChecklist.slice(0, 3);
-
 const faqs = [
   {
     title: 'How quickly do you usually respond?',
@@ -310,33 +308,34 @@ const faqSchema = {
               <p
                 class="font-mono text-[0.68rem] uppercase tracking-[0.24em] text-white/50"
               >
-                Primary contact
+                Best contact path
               </p>
               <p class="mt-3 text-lg font-semibold text-white">
                 {CONTACT_EMAIL}
               </p>
               <p class="mt-3 text-sm leading-6 text-slate-300">
                 Email is still the fastest way to capture context, constraints,
-                and next-step questions in one place.
+                and the right next-step question in one place.
               </p>
             </div>
 
-            <div class="border-t border-white/10 pt-5">
-              <p
-                class="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-white/45"
-              >
-                Best first message includes
-              </p>
-              <ul class="mt-3 space-y-2 text-sm text-slate-300">
-                {
-                  heroChecklist.map(item => (
-                    <li class="flex items-start gap-2">
-                      <span class="tone-accent-dot mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full" />
-                      <span>{item}</span>
-                    </li>
-                  ))
-                }
-              </ul>
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div class="tone-panel-soft rounded-2xl p-4">
+                <p class="text-sm font-semibold text-white">What to send</p>
+                <p class="mt-2 text-sm leading-6 text-slate-300">
+                  The actual problem, current setup, and anything urgent or
+                  approval-sensitive.
+                </p>
+              </div>
+              <div class="tone-panel-soft rounded-2xl p-4">
+                <p class="text-sm font-semibold text-white">
+                  What happens next
+                </p>
+                <p class="mt-2 text-sm leading-6 text-slate-300">
+                  We help route the request into the right lane before jumping
+                  into solution overload.
+                </p>
+              </div>
             </div>
           </div>
         </ModernCard>

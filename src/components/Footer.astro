@@ -1,222 +1,111 @@
 ---
 import { withBasePath } from '../utils/helpers';
-import ModernCard from './ui/ModernCard.astro';
 import ModernButton from './ui/ModernButton.astro';
 
 const today = new Date();
 
-const navSections = [
-  {
-    title: 'Company',
-    items: [
-      { label: 'Company', href: withBasePath('company/') },
-      { label: 'Solutions', href: withBasePath('services/') },
-      { label: 'Pricing', href: withBasePath('pricing/') },
-      { label: 'Proof Lab', href: withBasePath('about/') },
-      { label: 'Studio', href: withBasePath('build-studio/') },
-      { label: 'Gallery', href: withBasePath('gallery/') },
-      { label: 'Contact', href: withBasePath('contact-hq/') },
-    ],
-  },
-  {
-    title: 'Policies',
-    items: [
-      { label: 'Privacy', href: withBasePath('privacy/') },
-      { label: 'Terms', href: withBasePath('terms/') },
-    ],
-  },
-  {
-    title: 'Get started',
-    items: [
-      { label: 'Start intake', href: withBasePath('contact-hq/') },
-      { label: 'Explore solutions', href: withBasePath('services/') },
-      { label: 'Review pricing', href: withBasePath('pricing/') },
-      { label: 'Open proof lab', href: withBasePath('about/') },
-    ],
-  },
+const primaryLinks = [
+  { label: 'Solutions', href: withBasePath('services/') },
+  { label: 'Pricing', href: withBasePath('pricing/') },
+  { label: 'Proof', href: withBasePath('about/') },
+  { label: 'Studio', href: withBasePath('build-studio/') },
+  { label: 'Contact', href: withBasePath('contact-hq/') },
+];
+
+const supportLinks = [
+  { label: 'Company', href: withBasePath('company/') },
+  { label: 'Privacy', href: withBasePath('privacy/') },
+  { label: 'Terms', href: withBasePath('terms/') },
 ];
 
 const footerSignals = [
   {
-    label: 'Response model',
-    value: 'Calm + fast',
-    detail:
-      'Operational support, roadmap guidance, and special projects stay coordinated.',
+    label: 'Coverage',
+    value: 'MSP+',
+    detail: 'Operations, security, cloud, AI, and premium web systems.',
   },
   {
-    label: 'Coverage lanes',
-    value: 'MSP+ stack',
+    label: 'Execution',
+    value: 'Mobile first',
     detail:
-      'Managed IT, security, cloud, AI, automation, and premium digital builds.',
+      'Sharper presentation and cleaner browsing on the smallest screen first.',
   },
   {
     label: 'Best first move',
     value: 'Short brief',
     detail:
-      'Lead with the pressure point and we shape the smartest next step from there.',
+      'Lead with the pressure point and route it into the right lane fast.',
   },
 ];
 ---
 
 <footer class="tone-shell-footer tone-border border-t" role="contentinfo">
-  <div class="mx-auto max-w-[1240px] px-4 py-12 sm:px-6 sm:py-16">
-    <div class="footer-shell tone-panel-soft rounded-[2rem] p-6 sm:p-8 lg:p-10">
-      <div
-        class="grid gap-8 sm:gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]"
-      >
-        <div class="space-y-6">
-          <div class="flex items-center gap-3">
-            <span
-              class="tone-border tone-surface inline-flex h-10 w-10 items-center justify-center rounded-lg border text-sm font-semibold uppercase tracking-[0.24em] text-white"
-            >
-              OGS
-            </span>
-            <div class="leading-tight">
-              <p
-                class="tone-title font-display text-sm font-bold uppercase tracking-[0.16em]"
-              >
-                Olive Global Systems
-              </p>
-              <p
-                class="tone-muted font-mono text-[11px] uppercase tracking-[0.2em]"
-              >
-                Chicago-inspired MSP+ systems studio
-              </p>
-            </div>
-          </div>
-
-          <p class="tone-body max-w-xl text-sm leading-7 sm:text-[0.95rem]">
-            Olive Global Systems helps teams stabilize operations, sharpen
-            security, modernize cloud and AI workflows, and launch digital
-            experiences that feel more premium than the usual MSP brochureware.
-          </p>
-
-          <div class="flex flex-wrap gap-2">
-            <span class="footer-chip">Managed IT</span>
-            <span class="footer-chip">Cybersecurity</span>
-            <span class="footer-chip">Cloud + AI</span>
-            <span class="footer-chip">Client-facing builds</span>
-          </div>
-
-          <div class="flex flex-wrap gap-4">
-            <ModernButton
-              href={withBasePath('contact-hq/')}
-              variant="primary"
-              className="min-h-[48px]"
-            >
-              Start a strategy call
-            </ModernButton>
-            <ModernButton
-              href={withBasePath('services/')}
-              variant="secondary"
-              className="min-h-[48px]"
-            >
-              Explore solutions
-            </ModernButton>
-          </div>
-
-          <div
-            class="tone-border tone-elevated tone-body grid gap-3 rounded-2xl border p-5 text-sm sm:max-w-xl sm:grid-cols-2"
-          >
-            <div>
-              <p
-                class="tone-muted font-mono text-[11px] uppercase tracking-[0.2em]"
-              >
-                Where we help most
-              </p>
-              <p class="mb-0 mt-2">
-                Support coverage, security posture, cloud modernization,
-                automation, and premium customer-facing systems.
-              </p>
-            </div>
-            <div>
-              <p
-                class="tone-muted font-mono text-[11px] uppercase tracking-[0.2em]"
-              >
-                Working model
-              </p>
-              <p class="mb-0 mt-2">
-                Remote-first delivery with executive-level clarity, mobile-first
-                proofs, and retainers that can extend into custom build work.
-              </p>
-            </div>
+  <div class="mx-auto max-w-[1240px] px-4 py-10 sm:px-6 sm:py-14">
+    <div class="footer-shell">
+      <div class="footer-shell__top">
+        <div class="footer-brand">
+          <span class="footer-brand__mark">OGS</span>
+          <div>
+            <p class="footer-brand__title">Olive Global Systems</p>
+            <p class="footer-brand__copy">
+              Managed IT, security, cloud, AI, and premium buyer-facing systems
+              for companies that need a sharper operating layer and a stronger
+              front door.
+            </p>
           </div>
         </div>
 
-        <div class="grid gap-5 sm:grid-cols-2 sm:gap-6">
-          {
-            navSections.map(section => (
-              <ModernCard variant="minimal" className="footer-nav-card p-6">
-                <p class="tone-muted tone-border mb-4 border-b pb-3 font-mono text-[11px] font-semibold uppercase tracking-[0.22em]">
-                  {section.title}
-                </p>
-                <ul class="tone-body space-y-3 text-sm">
-                  {section.items.map(item => (
-                    <li>
-                      <a
-                        class="footer-link inline-flex items-center gap-2 transition hover:text-white"
-                        href={item.href}
-                      >
-                        <span class="tone-accent-dot h-1.5 w-1.5 rounded-full" />
-                        {item.label}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </ModernCard>
-            ))
-          }
-
-          <ModernCard variant="glass" className="p-6 sm:col-span-2">
-            <div class="grid gap-6 md:grid-cols-[1fr_auto] md:items-end">
-              <div>
-                <p
-                  class="tone-muted text-xs font-semibold uppercase tracking-[0.32em]"
-                >
-                  HQ
-                </p>
-                <p class="mt-4 text-base font-semibold text-white">
-                  Start with the problem, then route into the right stack.
-                </p>
-                <p class="tone-body mt-3 text-sm leading-7">
-                  Best for discovery, support escalation, roadmap questions,
-                  security advisory, or premium build discussions.
-                </p>
-              </div>
-              <div class="flex flex-wrap gap-3 md:justify-end">
-                <ModernButton
-                  href={withBasePath('contact-hq/')}
-                  variant="primary"
-                >
-                  Contact HQ
-                </ModernButton>
-                <ModernButton
-                  href={withBasePath('pricing/')}
-                  variant="secondary"
-                >
-                  Pricing
-                </ModernButton>
-              </div>
-            </div>
-          </ModernCard>
+        <div class="footer-actions">
+          <ModernButton href={withBasePath('contact-hq/')} variant="primary">
+            Start intake
+          </ModernButton>
+          <ModernButton href={withBasePath('services/')} variant="secondary">
+            Explore solutions
+          </ModernButton>
         </div>
       </div>
 
-      <div class="mt-8 grid gap-3 md:grid-cols-3">
+      <div class="footer-shell__middle">
+        <nav class="footer-nav" aria-label="Primary footer navigation">
+          <p class="footer-nav__label">Routes</p>
+          <div class="footer-nav__links">
+            {
+              primaryLinks.map(link => (
+                <a class="footer-link" href={link.href}>
+                  {link.label}
+                </a>
+              ))
+            }
+          </div>
+        </nav>
+
+        <nav class="footer-nav" aria-label="Support footer navigation">
+          <p class="footer-nav__label">Support</p>
+          <div class="footer-nav__links">
+            {
+              supportLinks.map(link => (
+                <a class="footer-link" href={link.href}>
+                  {link.label}
+                </a>
+              ))
+            }
+          </div>
+        </nav>
+      </div>
+
+      <div class="footer-signal-grid">
         {
           footerSignals.map(item => (
-            <div class="footer-signal-card">
-              <p class="footer-signal-card__label">{item.label}</p>
-              <p class="footer-signal-card__value">{item.value}</p>
-              <p class="footer-signal-card__detail">{item.detail}</p>
+            <div class="footer-signal">
+              <p class="footer-signal__label">{item.label}</p>
+              <p class="footer-signal__value">{item.value}</p>
+              <p class="footer-signal__detail">{item.detail}</p>
             </div>
           ))
         }
       </div>
 
-      <div
-        class="tone-border tone-muted mt-8 flex flex-col gap-2 border-t pt-6 text-xs sm:flex-row sm:items-center sm:justify-between"
-      >
+      <div class="footer-shell__bottom">
         <p>
           &copy; {today.getFullYear()} Olive Global Systems. All rights reserved.
         </p>
@@ -228,138 +117,175 @@ const footerSignals = [
 
 <style>
   .footer-shell {
-    position: relative;
-    overflow: hidden;
-    border: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
-    box-shadow:
-      inset 0 1px 0 color-mix(in srgb, white 5%, transparent),
-      0 30px 72px -42px rgba(2, 6, 23, 0.86);
-  }
-
-  .footer-shell::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background: radial-gradient(
-      circle at top right,
-      color-mix(
-        in srgb,
-        var(--route-accent, var(--color-primary)) 10%,
-        transparent
-      ),
-      transparent 34%
-    );
-    opacity: 0.85;
-  }
-
-  .footer-shell::after {
-    content: '';
-    position: absolute;
-    inset: auto auto -6rem -4rem;
-    width: 18rem;
-    height: 18rem;
-    border-radius: 999px;
-    background: radial-gradient(
-      circle,
-      color-mix(in srgb, var(--color-primary-strong) 14%, transparent),
-      transparent 68%
-    );
-    filter: blur(34px);
-    pointer-events: none;
-    opacity: 0.8;
-  }
-
-  .footer-chip {
-    display: inline-flex;
-    min-height: 2rem;
-    align-items: center;
-    border-radius: 999px;
+    display: grid;
+    gap: 2rem;
+    padding: clamp(1.5rem, 3vw, 2.25rem);
     border: 1px solid color-mix(in srgb, var(--color-border) 74%, transparent);
-    background: color-mix(in srgb, var(--color-surface) 82%, transparent);
-    padding: 0 0.8rem;
-    font-family: var(--font-mono);
-    font-size: 0.68rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: color-mix(in srgb, var(--color-text-primary) 70%, transparent);
-    box-shadow:
-      inset 0 1px 0 color-mix(in srgb, white 4%, transparent),
-      0 12px 24px -24px rgba(2, 6, 23, 0.7);
+    border-radius: 1.75rem;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.03),
+      rgba(255, 255, 255, 0.01)
+    );
+    box-shadow: 0 24px 56px -42px rgba(0, 0, 0, 0.58);
   }
 
-  .footer-nav-card {
-    min-height: 100%;
+  .footer-shell__top,
+  .footer-shell__middle,
+  .footer-shell__bottom {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .footer-brand {
+    display: grid;
+    gap: 1rem;
+    align-items: start;
+  }
+
+  .footer-brand__mark {
+    display: inline-flex;
+    width: 3rem;
+    height: 3rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.95rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--color-text-primary);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .footer-brand__title {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 600;
+    letter-spacing: -0.04em;
+  }
+
+  .footer-brand__copy {
+    max-width: 42rem;
+    margin: 0.7rem 0 0;
+    color: color-mix(in srgb, var(--color-text-secondary) 92%, transparent);
+    line-height: 1.7;
+  }
+
+  .footer-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+  }
+
+  .footer-nav {
+    display: grid;
+    gap: 0.85rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid
+      color-mix(in srgb, var(--color-border) 66%, transparent);
+  }
+
+  .footer-nav__label,
+  .footer-signal__label {
+    margin: 0;
+    color: color-mix(in srgb, var(--color-text-muted) 88%, transparent);
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .footer-nav__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1rem;
   }
 
   .footer-link {
     color: color-mix(in srgb, var(--color-text-secondary) 92%, transparent);
+    font-size: 0.95rem;
   }
 
   .footer-link:hover {
-    transform: translateX(2px);
+    color: var(--color-text-primary);
   }
 
-  .footer-signal-card {
-    position: relative;
-    overflow: hidden;
-    border-radius: 1.35rem;
-    border: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
-    background:
-      linear-gradient(
-        180deg,
-        color-mix(in srgb, var(--color-surface) 90%, white 3%),
-        color-mix(in srgb, var(--color-surface) 80%, transparent)
-      ),
-      color-mix(in srgb, var(--color-surface) 82%, transparent);
+  .footer-signal-grid {
+    display: grid;
+    gap: 0.9rem;
+  }
+
+  .footer-signal {
     padding: 1rem 1.05rem;
-    box-shadow:
-      inset 0 1px 0 color-mix(in srgb, white 4%, transparent),
-      0 18px 34px -28px rgba(2, 6, 23, 0.76);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 1.2rem;
+    background: rgba(255, 255, 255, 0.025);
   }
 
-  .footer-signal-card::after {
-    content: '';
-    position: absolute;
-    inset: auto -2rem -4rem auto;
-    width: 8rem;
-    height: 8rem;
-    border-radius: 999px;
-    background: radial-gradient(
-      circle,
-      color-mix(
-        in srgb,
-        var(--route-accent, var(--color-primary)) 15%,
-        transparent
-      ),
-      transparent 70%
-    );
-    filter: blur(18px);
-    opacity: 0.75;
-    pointer-events: none;
-  }
-
-  .footer-signal-card__label {
-    margin: 0;
-    font-family: var(--font-mono);
-    font-size: 0.64rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: color-mix(in srgb, var(--color-text-muted) 88%, transparent);
-  }
-
-  .footer-signal-card__value {
-    margin: 0.5rem 0 0;
+  .footer-signal__value {
+    margin: 0.45rem 0 0;
     color: var(--color-text-primary);
     font-size: 1rem;
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: -0.03em;
   }
 
-  .footer-signal-card__detail {
+  .footer-signal__detail {
     margin: 0.45rem 0 0;
-    color: color-mix(in srgb, var(--color-text-secondary) 92%, transparent);
-    font-size: 0.84rem;
+    color: color-mix(in srgb, var(--color-text-secondary) 90%, transparent);
+    font-size: 0.86rem;
     line-height: 1.6;
+  }
+
+  .footer-shell__bottom {
+    padding-top: 1.25rem;
+    border-top: 1px solid
+      color-mix(in srgb, var(--color-border) 66%, transparent);
+    color: color-mix(in srgb, var(--color-text-muted) 90%, transparent);
+    font-size: 0.78rem;
+  }
+
+  .footer-shell__bottom p {
+    margin: 0;
+  }
+
+  @media (min-width: 860px) {
+    .footer-shell__top {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: end;
+    }
+
+    .footer-brand {
+      grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .footer-shell__middle {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 2rem;
+    }
+
+    .footer-signal-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .footer-shell__bottom {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: center;
+    }
+
+    .footer-shell__bottom p:last-child {
+      text-align: right;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .footer-actions {
+      flex-direction: column;
+    }
   }
 </style>

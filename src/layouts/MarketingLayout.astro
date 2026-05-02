@@ -164,11 +164,6 @@ const routeContext = getRouteContext(Astro.url.pathname);
     <div class="tone-site-shell">
       <div class="tone-site-shell__ambient" aria-hidden="true">
         <div class="tone-site-shell__grid"></div>
-        <div class="tone-site-shell__beam tone-site-shell__beam--north"></div>
-        <div class="tone-site-shell__beam tone-site-shell__beam--south"></div>
-        <div class="tone-site-shell__orb tone-site-shell__orb--primary"></div>
-        <div class="tone-site-shell__orb tone-site-shell__orb--secondary"></div>
-        <div class="tone-site-shell__orb tone-site-shell__orb--tertiary"></div>
         <div class="tone-site-shell__grain"></div>
       </div>
       <div class="relative z-[1]">
@@ -200,51 +195,6 @@ const routeContext = getRouteContext(Astro.url.pathname);
         {showLiveChat ? <LiveChat client:idle /> : null}
       </div>
     </div>
-
-    <script is:inline>
-      (() => {
-        try {
-          if (window.matchMedia('(prefers-reduced-motion: reduce)').matches)
-            return;
-
-          const revealTargets = Array.from(
-            document.querySelectorAll('[data-reveal]')
-          );
-          if (!revealTargets.length) return;
-
-          document.body.setAttribute('data-motion-ready', '1');
-
-          const observer = new IntersectionObserver(
-            entries => {
-              entries.forEach(entry => {
-                if (!entry.isIntersecting) return;
-                entry.target.classList.add('is-visible');
-                observer.unobserve(entry.target);
-              });
-            },
-            {
-              threshold: 0.15,
-              rootMargin: '0px 0px -8% 0px',
-            }
-          );
-
-          revealTargets.forEach((target, index) => {
-            if (!target.hasAttribute('data-reveal-delay')) {
-              const delay = Math.min(index * 40, 220);
-              target.style.setProperty('--reveal-delay', `${delay}ms`);
-            } else {
-              target.style.setProperty(
-                '--reveal-delay',
-                `${target.getAttribute('data-reveal-delay')}ms`
-              );
-            }
-            observer.observe(target);
-          });
-        } catch {
-          // no-op
-        }
-      })();
-    </script>
 
     <PWARegistration />
     <WebVitals />

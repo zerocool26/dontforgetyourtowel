@@ -42,9 +42,7 @@ const cta = getRouteStickyCTA(Astro.url.pathname);
   .sticky-cta-shell {
     position: relative;
     overflow: hidden;
-    box-shadow:
-      0 26px 54px -32px rgba(0, 0, 0, 0.95),
-      0 0 38px -24px color-mix(in srgb, var(--sticky-accent) 45%, transparent);
+    box-shadow: 0 22px 42px -34px rgba(0, 0, 0, 0.56);
   }
 
   .sticky-cta-shell__progress {
@@ -64,8 +62,6 @@ const cta = getRouteStickyCTA(Astro.url.pathname);
       color-mix(in srgb, var(--sticky-accent) 42%, transparent),
       color-mix(in srgb, var(--sticky-accent) 88%, white 12%)
     );
-    box-shadow: 0 0 18px
-      color-mix(in srgb, var(--sticky-accent) 42%, transparent);
     transition: width 180ms ease;
   }
 
@@ -77,15 +73,15 @@ const cta = getRouteStickyCTA(Astro.url.pathname);
     background:
       radial-gradient(
         circle at top left,
-        color-mix(in srgb, var(--sticky-accent) 18%, transparent),
+        color-mix(in srgb, var(--sticky-accent) 10%, transparent),
         transparent 38%
       ),
       linear-gradient(
         90deg,
-        color-mix(in srgb, var(--sticky-accent) 16%, transparent),
+        color-mix(in srgb, var(--sticky-accent) 8%, transparent),
         transparent 42%
       );
-    opacity: 0.9;
+    opacity: 0.65;
   }
 
   .sticky-cta-shell__eyebrow {

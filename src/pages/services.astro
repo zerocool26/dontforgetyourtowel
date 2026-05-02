@@ -199,43 +199,35 @@ const breadcrumbItems = [
           </div>
         </div>
 
-        <div class="grid gap-3 sm:grid-cols-2 lg:gap-4">
-          <ModernCard variant="glass" className="tone-metric-card p-5">
-            <p class="tone-metric-card__label">Solution lanes</p>
-            <p class="tone-metric-card__value">4</p>
+        <div class="grid gap-4">
+          <ModernCard variant="glass" className="tone-metric-card p-6">
+            <p class="tone-metric-card__label">How to use this page</p>
+            <p class="tone-metric-card__value">Start with the lane</p>
             <p class="tone-metric-card__detail">
-              Clear buyer-facing tracks instead of stuffing every capability
-              above the fold.
+              Pick the closest pressure point first. Open the deeper catalog,
+              planner, or quiz only if you actually need more detail.
             </p>
           </ModernCard>
-          <ModernCard variant="glass" className="tone-metric-card p-5">
-            <p class="tone-metric-card__label">Technology depth</p>
-            <p class="tone-metric-card__value">
-              {serviceCategories.length}
-            </p>
-            <p class="tone-metric-card__detail">
-              Capability groups that still expand into a deep catalog when you
-              need the specifics.
-            </p>
-          </ModernCard>
-          <ModernCard variant="glass" className="tone-metric-card p-5">
-            <p class="tone-metric-card__label">Planning tools</p>
-            <p class="tone-metric-card__value">Live</p>
-            <p class="tone-metric-card__detail">
-              Matrix, quiz, pricing guidance, and calculators stay available
-              without cluttering the hero.
-            </p>
-          </ModernCard>
-          <ModernCard variant="glass" className="tone-metric-card p-5">
-            <p class="tone-metric-card__label">Best use</p>
-            <p class="tone-metric-card__value text-[clamp(1.5rem,2vw,2rem)]">
-              One partner, multiple lanes
-            </p>
-            <p class="tone-metric-card__detail">
-              Ideal when support, security, modernization, and presentation all
-              need to stay aligned.
-            </p>
-          </ModernCard>
+          <div class="grid gap-4 sm:grid-cols-2">
+            <ModernCard variant="default" className="tone-metric-card p-5">
+              <p class="tone-metric-card__label">Solution lanes</p>
+              <p class="tone-metric-card__value">4</p>
+              <p class="tone-metric-card__detail">
+                Managed operations, security, modernization, and premium digital
+                delivery.
+              </p>
+            </ModernCard>
+            <ModernCard variant="default" className="tone-metric-card p-5">
+              <p class="tone-metric-card__label">Technology depth</p>
+              <p class="tone-metric-card__value">
+                {serviceCategories.length}
+              </p>
+              <p class="tone-metric-card__detail">
+                Deep enough for specifics, simple enough for a first pass on
+                mobile.
+              </p>
+            </ModernCard>
+          </div>
         </div>
       </div>
     </div>

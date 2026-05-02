@@ -232,21 +232,38 @@ const proofModes = [
           </div>
         </div>
 
-        <div class="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
-          {
-            companySignals.map(signal => (
-              <ModernCard
-                variant="glass"
-                className="tone-metric-card h-full p-5 tone-panel-soft"
-              >
-                <p class="tone-metric-card__label">{signal.label}</p>
-                <p class="tone-metric-card__value text-[clamp(1.5rem,2vw,2rem)]">
-                  {signal.value}
-                </p>
-                <p class="tone-metric-card__detail">{signal.detail}</p>
-              </ModernCard>
-            ))
-          }
+        <div class="grid gap-4">
+          <ModernCard
+            variant="glass"
+            className="tone-metric-card tone-panel-soft h-full p-6"
+          >
+            <p class="tone-metric-card__label">What kind of firm this is</p>
+            <p
+              class="tone-metric-card__value text-[clamp(1.45rem,2vw,1.95rem)]"
+            >
+              Operationally serious. Visually sharp.
+            </p>
+            <p class="tone-metric-card__detail">
+              Built for companies that need calmer systems and stronger buyer
+              confidence without adding more noise.
+            </p>
+          </ModernCard>
+          <div class="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
+            {
+              companySignals.map(signal => (
+                <ModernCard
+                  variant="default"
+                  className="tone-metric-card h-full p-5 tone-panel-soft"
+                >
+                  <p class="tone-metric-card__label">{signal.label}</p>
+                  <p class="tone-metric-card__value text-[clamp(1.3rem,2vw,1.8rem)]">
+                    {signal.value}
+                  </p>
+                  <p class="tone-metric-card__detail">{signal.detail}</p>
+                </ModernCard>
+              ))
+            }
+          </div>
         </div>
       </div>
     </div>

@@ -985,7 +985,7 @@ export default function CommandPalette() {
       {/* Modal */}
       <div
         ref={modalRef}
-        className="tone-border tone-surface animate-in fade-in zoom-in-95 relative w-full max-w-2xl overflow-hidden rounded-xl border shadow-2xl duration-200"
+        className="tone-border tone-surface animate-in fade-in zoom-in-95 relative w-full max-w-2xl overflow-hidden rounded-2xl border shadow-2xl duration-200"
         role="dialog"
         aria-modal="true"
         aria-label="Command palette"
@@ -1039,17 +1039,17 @@ export default function CommandPalette() {
         {routeMeta ? (
           <div className="border-b border-white/10 px-3 py-3">
             <div
-              className="rounded-2xl border p-3 shadow-[0_18px_54px_-36px_rgba(0,0,0,0.9)]"
+              className="rounded-2xl border p-3 shadow-[0_18px_40px_-34px_rgba(0,0,0,0.48)]"
               style={{
-                borderColor: `color-mix(in srgb, ${routeMeta.accent} 24%, rgba(255,255,255,0.08))`,
-                background: `linear-gradient(180deg, color-mix(in srgb, ${routeMeta.accent} 10%, transparent), rgba(255,255,255,0.02))`,
+                borderColor: `color-mix(in srgb, ${routeMeta.accent} 14%, rgba(255,255,255,0.08))`,
+                background: `linear-gradient(180deg, color-mix(in srgb, ${routeMeta.accent} 5%, transparent), rgba(255,255,255,0.02))`,
               }}
             >
               <div className="flex items-center justify-between gap-3">
                 <span
                   className="text-white/72 rounded-full border px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.18em]"
                   style={{
-                    borderColor: `color-mix(in srgb, ${routeMeta.accent} 28%, rgba(255,255,255,0.08))`,
+                    borderColor: `color-mix(in srgb, ${routeMeta.accent} 16%, rgba(255,255,255,0.08))`,
                   }}
                 >
                   {routeMeta.category}
@@ -1069,7 +1069,7 @@ export default function CommandPalette() {
                   <button
                     key={link.href}
                     type="button"
-                    className="text-white/78 rounded-full border border-white/10 bg-white/[0.03] px-3 py-2 text-left text-xs font-medium transition hover:border-white/20 hover:bg-white/[0.06] hover:text-white"
+                    className="text-white/78 hover:border-white/16 rounded-full border border-white/10 bg-white/[0.03] px-3 py-2 text-left text-xs font-medium transition hover:bg-white/[0.05] hover:text-white"
                     onClick={() => {
                       navigate(link.href);
                       setIsOpen(false);
@@ -1108,9 +1108,19 @@ export default function CommandPalette() {
                     aria-selected={isSelected}
                     className={`flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 transition-all ${
                       isSelected
-                        ? 'border-[#d7f75b]/30 bg-[#d7f75b]/10 text-white shadow-[0_0_28px_rgba(215,247,91,0.08)]'
+                        ? 'text-white shadow-[0_14px_32px_-26px_rgba(0,0,0,0.42)]'
                         : 'tone-body border-transparent hover:border-white/10 hover:bg-white/[0.04]'
                     }`}
+                    style={
+                      isSelected
+                        ? {
+                            borderColor:
+                              'color-mix(in srgb, var(--color-primary) 16%, rgba(255,255,255,0.08))',
+                            background:
+                              'color-mix(in srgb, var(--color-primary) 8%, rgba(255,255,255,0.03))',
+                          }
+                        : undefined
+                    }
                     onClick={() => {
                       command.action();
                       setIsOpen(false);
@@ -1118,7 +1128,7 @@ export default function CommandPalette() {
                     onMouseEnter={() => setSelectedIndex(index)}
                   >
                     <Icon
-                      className={`mt-1 h-5 w-5 ${isSelected ? 'text-[#d7f75b]' : 'tone-muted'}`}
+                      className={`mt-1 h-5 w-5 ${isSelected ? 'tone-accent' : 'tone-muted'}`}
                     />
                     <div className="flex flex-1 flex-col">
                       <div className="flex items-center justify-between gap-3">
@@ -1126,7 +1136,7 @@ export default function CommandPalette() {
                         <span
                           className={`rounded-full border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.18em] ${
                             isSelected
-                              ? 'border-[#d7f75b]/30 text-[#d7f75b]'
+                              ? 'tone-accent border-white/10'
                               : 'border-white/10 text-zinc-500'
                           }`}
                         >
@@ -1144,7 +1154,7 @@ export default function CommandPalette() {
                       ) : null}
                     </div>
                     {isSelected && (
-                      <Command className="mt-1 h-4 w-4 text-[#d7f75b]" />
+                      <Command className="tone-accent mt-1 h-4 w-4" />
                     )}
                   </li>
                 );

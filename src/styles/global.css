@@ -21,25 +21,25 @@
     --viewport-height: 100vh;
     --viewport-height-dynamic: 100vh;
 
-    --color-background: #070b10;
-    --color-surface: #111923;
-    --color-surface-subtle: rgba(17, 25, 35, 0.8);
-    --color-border: rgba(143, 163, 188, 0.18);
-    --color-primary: #c7b07b;
-    --color-primary-strong: #6aaec9;
+    --color-background: #0b0d10;
+    --color-surface: #14181d;
+    --color-surface-subtle: rgba(20, 24, 29, 0.82);
+    --color-border: rgba(231, 224, 214, 0.12);
+    --color-primary: #bea57a;
+    --color-primary-strong: #7f9381;
     --color-success: #10b981;
     --color-warning: #f59e0b;
     --color-danger: #ef4444;
-    --color-text-primary: #f5f7fb;
-    --color-text-secondary: #d8e0ea;
-    --color-text-muted: #8ea1b5;
-    --color-text-inverse: #070b10;
-    --shadow-soft: 0 24px 56px -32px rgba(2, 6, 23, 0.62);
-    --shadow-strong: 0 40px 110px -42px rgba(2, 6, 23, 0.76);
-    --radius-sm: 8px;
-    --radius-md: 20px;
-    --radius-lg: 30px;
-    --blur-soft: blur(16px);
+    --color-text-primary: #f3eee7;
+    --color-text-secondary: #c9c1b6;
+    --color-text-muted: #948b7f;
+    --color-text-inverse: #0b0d10;
+    --shadow-soft: 0 22px 50px -36px rgba(0, 0, 0, 0.55);
+    --shadow-strong: 0 36px 90px -48px rgba(0, 0, 0, 0.68);
+    --radius-sm: 10px;
+    --radius-md: 18px;
+    --radius-lg: 28px;
+    --blur-soft: blur(14px);
     --font-sans:
       'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
       sans-serif;
@@ -151,21 +151,16 @@
     background-color: var(--color-background);
     background-image:
       radial-gradient(
-        circle at 14% 0%,
-        rgba(199, 176, 123, 0.16),
-        transparent 32%
+        circle at 18% 0%,
+        rgba(190, 165, 122, 0.12),
+        transparent 28%
       ),
       radial-gradient(
-        circle at 88% 8%,
-        rgba(106, 174, 201, 0.18),
-        transparent 30%
+        circle at 82% 10%,
+        rgba(127, 147, 129, 0.09),
+        transparent 24%
       ),
-      radial-gradient(
-        circle at 50% -20%,
-        rgba(255, 255, 255, 0.05),
-        transparent 42%
-      ),
-      linear-gradient(180deg, #070b10 0%, #0c1219 44%, #06090e 100%);
+      linear-gradient(180deg, #0b0d10 0%, #101419 42%, #0b0d10 100%);
     background-size:
       100% 100%,
       100% 100%,
@@ -187,7 +182,7 @@
     inset: 0;
     pointer-events: none;
     z-index: -1;
-    opacity: 0.14;
+    opacity: 0.08;
     background-image: radial-gradient(
       circle at 50% 0%,
       color-mix(in srgb, var(--color-primary) 28%, transparent),
@@ -201,7 +196,7 @@
     inset: 0;
     pointer-events: none;
     z-index: -1;
-    opacity: 0.18;
+    opacity: 0.08;
     background-image:
       linear-gradient(
         180deg,
@@ -214,10 +209,10 @@
         90deg,
         transparent 0,
         transparent 2px,
-        rgba(255, 255, 255, 0.018) 3px,
+        rgba(255, 255, 255, 0.012) 3px,
         transparent 4px
       );
-    mix-blend-mode: soft-light;
+    mix-blend-mode: normal;
   }
 
   html[data-experience-mode='editorial'] body {
@@ -378,21 +373,13 @@
     animation: loading 1s ease-in-out infinite;
   }
 
-  body[data-motion-ready='1'] [data-reveal] {
-    opacity: 0;
-    transform: translate3d(0, 24px, 0) scale(0.98);
-    filter: blur(8px) saturate(0.5);
-    transition:
-      opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0ms),
-      transform 0.8s cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0ms),
-      filter 0.8s cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0ms);
-    will-change: opacity, transform, filter;
-  }
-
+  [data-reveal],
+  body[data-motion-ready='1'] [data-reveal],
   body[data-motion-ready='1'] [data-reveal].is-visible {
     opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
+    transform: none;
     filter: blur(0) saturate(1);
+    transition: none;
   }
 
   /* High-end Creative Noise Base
@@ -666,6 +653,76 @@
     font-size: 3rem;
     color: rgba(215, 247, 91, 0.22);
   }
+}
+
+/* 2026 redesign reset: favor structure and readability over glow-heavy surfaces. */
+.creative-page::before,
+.glow-ring::before,
+.home-section__wash,
+.home-hero__wordmark {
+  opacity: 0.04;
+}
+
+.glow-ring::before,
+.glow-subtle,
+.glow-strong {
+  box-shadow: none !important;
+}
+
+.glass-panel,
+.glass-card,
+.premium-card,
+.card {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-surface) 97%, white 2%),
+      color-mix(in srgb, var(--color-surface) 90%, transparent)
+    ),
+    color-mix(in srgb, var(--color-surface) 88%, transparent) !important;
+  border-color: color-mix(
+    in srgb,
+    var(--color-border) 84%,
+    transparent
+  ) !important;
+  box-shadow: 0 24px 54px -42px rgba(0, 0, 0, 0.62) !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+.glass-panel:hover,
+.premium-card--interactive:hover,
+.card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 26px 58px -42px rgba(0, 0, 0, 0.66) !important;
+}
+
+.premium-chip,
+.chip {
+  border-color: color-mix(
+    in srgb,
+    var(--color-border) 80%,
+    transparent
+  ) !important;
+  background: color-mix(
+    in srgb,
+    var(--color-surface) 90%,
+    transparent
+  ) !important;
+  color: color-mix(
+    in srgb,
+    var(--color-text-primary) 76%,
+    transparent
+  ) !important;
+}
+
+.chip:hover,
+.premium-chip:hover {
+  transform: none;
+}
+
+header.header-hidden {
+  transform: none !important;
+  pointer-events: auto !important;
 }
 
 @layer components {
@@ -1915,34 +1972,22 @@
     position: relative;
     background:
       radial-gradient(
-        circle at 46% -14%,
+        circle at 46% -12%,
         color-mix(
           in srgb,
-          var(--route-accent, var(--color-primary)) 18%,
+          var(--route-accent, var(--color-primary)) 10%,
           transparent
         ),
-        transparent 32%
+        transparent 30%
       ),
       radial-gradient(
         circle at 90% 4%,
-        color-mix(in srgb, var(--color-primary-strong) 16%, transparent),
-        transparent 26%
-      ),
-      radial-gradient(
-        circle at 50% -26%,
-        rgba(255, 255, 255, 0.045),
-        transparent 42%
-      ),
-      linear-gradient(
-        120deg,
-        rgba(255, 255, 255, 0.02),
-        transparent 28%,
-        rgba(255, 255, 255, 0.015) 68%,
-        transparent 100%
+        color-mix(in srgb, var(--color-primary-strong) 8%, transparent),
+        transparent 24%
       ),
       linear-gradient(
         180deg,
-        color-mix(in srgb, var(--color-background) 98%, black 2%),
+        color-mix(in srgb, var(--color-background) 99%, black 1%),
         color-mix(in srgb, var(--color-background) 100%, transparent)
       );
     color: var(--color-text-primary);
@@ -1960,29 +2005,30 @@
     z-index: 0;
     overflow: hidden;
     pointer-events: none;
+    opacity: 0.7;
   }
 
   .tone-site-shell__grid {
     position: absolute;
     inset: 0;
-    opacity: 0.14;
+    opacity: 0.08;
     background-image:
       linear-gradient(
         180deg,
-        color-mix(in srgb, var(--color-border) 24%, transparent) 1px,
+        color-mix(in srgb, var(--color-border) 20%, transparent) 1px,
         transparent 1px
       ),
       linear-gradient(
         90deg,
-        color-mix(in srgb, var(--color-border) 16%, transparent) 1px,
+        color-mix(in srgb, var(--color-border) 12%, transparent) 1px,
         transparent 1px
       );
-    background-size: clamp(52px, 6vw, 92px) clamp(52px, 6vw, 92px);
+    background-size: clamp(64px, 7vw, 112px) clamp(64px, 7vw, 112px);
     mask-image: linear-gradient(
       180deg,
-      rgba(0, 0, 0, 0.78),
-      rgba(0, 0, 0, 0.14) 38%,
-      transparent 88%
+      rgba(0, 0, 0, 0.64),
+      rgba(0, 0, 0, 0.12) 36%,
+      transparent 84%
     );
   }
 
@@ -2020,10 +2066,10 @@
   }
 
   .tone-site-shell__grain {
-    opacity: 0.14;
+    opacity: 0.05;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.42'/%3E%3C/svg%3E");
     background-size: 180px 180px;
-    mix-blend-mode: soft-light;
+    mix-blend-mode: normal;
   }
 
   .tone-site-shell__orb {
@@ -2077,23 +2123,23 @@
     background:
       linear-gradient(
         180deg,
-        color-mix(in srgb, var(--color-background) 82%, transparent),
-        color-mix(in srgb, var(--color-surface) 92%, transparent)
+        color-mix(in srgb, var(--color-background) 88%, transparent),
+        color-mix(in srgb, var(--color-surface) 96%, transparent)
       ),
       linear-gradient(
         90deg,
         color-mix(
           in srgb,
-          var(--route-accent, var(--color-primary)) 6%,
+          var(--route-accent, var(--color-primary)) 3%,
           transparent
         ),
         transparent 32%,
-        color-mix(in srgb, var(--color-primary-strong) 5%, transparent)
+        color-mix(in srgb, var(--color-primary-strong) 2%, transparent)
       ),
-      color-mix(in srgb, var(--color-surface) 78%, transparent);
+      color-mix(in srgb, var(--color-surface) 90%, transparent);
     border-color: color-mix(in srgb, var(--color-border) 80%, transparent);
     box-shadow:
-      0 24px 60px -38px rgba(2, 6, 23, 0.78),
+      0 18px 40px -34px rgba(0, 0, 0, 0.54),
       inset 0 -1px 0 color-mix(in srgb, white 4%, transparent);
   }
 
@@ -2152,15 +2198,10 @@
   }
 
   .tone-chip-active {
-    border-color: color-mix(in srgb, var(--color-primary) 38%, transparent);
-    background: linear-gradient(
-      135deg,
-      color-mix(in srgb, var(--color-primary) 12%, transparent),
-      color-mix(in srgb, var(--color-surface) 94%, transparent)
-    );
+    border-color: color-mix(in srgb, var(--color-primary) 20%, transparent);
+    background: color-mix(in srgb, var(--color-primary) 8%, transparent);
     color: var(--color-text-primary);
-    box-shadow: 0 0 20px -8px
-      color-mix(in srgb, var(--color-primary) 36%, transparent);
+    box-shadow: none;
   }
 
   .tone-panel-subtle {
@@ -2181,15 +2222,15 @@
     border: 1px solid color-mix(in srgb, var(--color-border) 74%, transparent);
     background:
       linear-gradient(
-        165deg,
-        color-mix(in srgb, var(--color-surface) 94%, white 4%),
-        color-mix(in srgb, var(--color-surface) 84%, transparent)
+        180deg,
+        color-mix(in srgb, var(--color-surface) 96%, white 2%),
+        color-mix(in srgb, var(--color-surface) 88%, transparent)
       ),
       linear-gradient(
         180deg,
         color-mix(
           in srgb,
-          var(--route-accent, var(--color-primary)) 6%,
+          var(--route-accent, var(--color-primary)) 3%,
           transparent
         ),
         transparent 36%
@@ -2197,8 +2238,8 @@
       color-mix(in srgb, var(--color-surface) 84%, transparent);
     box-shadow:
       inset 0 1px 0 color-mix(in srgb, white 5%, transparent),
-      0 24px 62px -36px rgba(2, 6, 23, 0.74);
-    backdrop-filter: blur(20px);
+      0 22px 48px -40px rgba(0, 0, 0, 0.58);
+    backdrop-filter: blur(12px);
   }
 
   .tone-divider-top {
@@ -2208,26 +2249,14 @@
 
   .tone-chip-soft {
     border: 1px solid color-mix(in srgb, var(--color-border) 74%, transparent);
-    background:
-      linear-gradient(
-        180deg,
-        color-mix(in srgb, var(--color-surface) 90%, white 3%),
-        color-mix(in srgb, var(--color-surface) 78%, transparent)
-      ),
-      color-mix(in srgb, var(--color-surface) 82%, transparent);
+    background: color-mix(in srgb, var(--color-surface) 92%, transparent);
     color: color-mix(in srgb, var(--color-text-primary) 74%, transparent);
-    box-shadow: inset 0 1px 0 color-mix(in srgb, white 3%, transparent);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, white 2%, transparent);
   }
 
   .tone-chip-soft:hover {
     border-color: color-mix(in srgb, var(--color-primary) 28%, transparent);
-    background:
-      linear-gradient(
-        180deg,
-        color-mix(in srgb, var(--color-primary) 12%, transparent),
-        color-mix(in srgb, var(--color-surface) 88%, transparent)
-      ),
-      color-mix(in srgb, var(--color-primary) 10%, transparent);
+    background: color-mix(in srgb, var(--color-surface) 96%, transparent);
     color: var(--color-text-primary);
   }
 
@@ -2243,21 +2272,16 @@
 
   .tone-table-shell {
     border: 1px solid color-mix(in srgb, var(--color-border) 74%, transparent);
-    background:
-      linear-gradient(
-        180deg,
-        color-mix(in srgb, var(--color-surface) 88%, white 4%),
-        color-mix(in srgb, var(--color-surface) 82%, transparent)
-      ),
-      color-mix(in srgb, var(--color-surface) 86%, transparent);
+    background: color-mix(in srgb, var(--color-surface) 94%, transparent);
     box-shadow:
       inset 0 1px 0 color-mix(in srgb, white 4%, transparent),
-      0 24px 58px -38px rgba(2, 6, 23, 0.78);
+      0 20px 42px -38px rgba(0, 0, 0, 0.46);
   }
 
   .tone-page-hero {
     position: relative;
     overflow: clip;
+    padding-top: clamp(1rem, 2vw, 1.5rem);
   }
 
   .tone-page-hero::before {
@@ -2270,17 +2294,17 @@
         circle at 15% 0%,
         color-mix(
           in srgb,
-          var(--route-accent, var(--color-primary)) 12%,
+          var(--route-accent, var(--color-primary)) 7%,
           transparent
         ),
-        transparent 30%
+        transparent 28%
       ),
       radial-gradient(
         circle at 82% 12%,
-        color-mix(in srgb, var(--color-primary-strong) 10%, transparent),
-        transparent 26%
+        color-mix(in srgb, var(--color-primary-strong) 5%, transparent),
+        transparent 24%
       );
-    opacity: 0.9;
+    opacity: 0.72;
   }
 
   .tone-page-hero__inner {
@@ -2295,22 +2319,22 @@
   }
 
   .tone-page-header {
-    max-width: 48rem;
+    max-width: 44rem;
   }
 
   .tone-section-heading {
-    max-width: 44rem;
+    max-width: 40rem;
   }
 
   .tone-page-eyebrow,
   .tone-section-kicker {
     margin: 0;
     font-family: var(--font-mono);
-    font-size: 0.72rem;
+    font-size: 0.68rem;
     font-weight: 700;
     letter-spacing: 0.24em;
     text-transform: uppercase;
-    color: color-mix(in srgb, var(--color-text-primary) 46%, transparent);
+    color: color-mix(in srgb, var(--color-text-muted) 92%, transparent);
   }
 
   .tone-page-title,
@@ -2323,11 +2347,12 @@
   }
 
   .tone-page-title {
-    font-size: clamp(3rem, 6vw, 5.3rem);
+    font-size: clamp(2.65rem, 5.8vw, 4.9rem);
+    max-width: 12ch;
   }
 
   .tone-section-title {
-    font-size: clamp(2rem, 4vw, 3.4rem);
+    font-size: clamp(1.85rem, 3.8vw, 3rem);
   }
 
   .tone-page-copy,
@@ -2339,7 +2364,7 @@
 
   .tone-page-copy {
     max-width: 62ch;
-    font-size: clamp(1rem, 1.35vw, 1.12rem);
+    font-size: clamp(1rem, 1.25vw, 1.08rem);
   }
 
   .tone-section-copy {
@@ -2362,27 +2387,11 @@
   .tone-metric-card {
     position: relative;
     overflow: hidden;
+    background: rgba(255, 255, 255, 0.025);
   }
 
   .tone-metric-card::after {
-    content: '';
-    position: absolute;
-    inset: auto -12% -48% auto;
-    width: 9rem;
-    height: 9rem;
-    border-radius: 999px;
-    background: radial-gradient(
-      circle,
-      color-mix(
-        in srgb,
-        var(--route-accent, var(--color-primary)) 14%,
-        transparent
-      ),
-      transparent 70%
-    );
-    filter: blur(22px);
-    pointer-events: none;
-    opacity: 0.74;
+    content: none;
   }
 
   .tone-metric-card__label {
@@ -2398,8 +2407,8 @@
   .tone-metric-card__value {
     margin: 0.7rem 0 0;
     color: var(--color-text-primary);
-    font-size: clamp(1.7rem, 3.2vw, 2.55rem);
-    font-weight: 700;
+    font-size: clamp(1.5rem, 2.8vw, 2.1rem);
+    font-weight: 600;
     letter-spacing: -0.05em;
     line-height: 1;
   }
@@ -2417,40 +2426,27 @@
     border: 1px solid color-mix(in srgb, var(--color-border) 74%, transparent);
     background:
       linear-gradient(
-        160deg,
-        color-mix(in srgb, var(--color-surface) 94%, white 4%),
-        color-mix(in srgb, var(--color-surface) 82%, transparent)
+        180deg,
+        color-mix(in srgb, var(--color-surface) 96%, white 2%),
+        color-mix(in srgb, var(--color-surface) 88%, transparent)
       ),
       linear-gradient(
         120deg,
         color-mix(
           in srgb,
-          var(--route-accent, var(--color-primary)) 10%,
+          var(--route-accent, var(--color-primary)) 5%,
           transparent
         ),
-        transparent 44%,
-        color-mix(in srgb, var(--color-primary-strong) 8%, transparent)
+        transparent 44%
       );
     box-shadow:
       inset 0 1px 0 color-mix(in srgb, white 5%, transparent),
-      0 28px 72px -40px rgba(2, 6, 23, 0.84);
-    backdrop-filter: blur(22px);
+      0 24px 50px -40px rgba(0, 0, 0, 0.54);
+    backdrop-filter: blur(14px);
   }
 
   .tone-cta-band::after {
-    content: '';
-    position: absolute;
-    inset: auto -4rem -5rem auto;
-    width: 16rem;
-    height: 16rem;
-    border-radius: 999px;
-    background: radial-gradient(
-      circle,
-      color-mix(in srgb, var(--color-primary) 18%, transparent),
-      transparent 68%
-    );
-    filter: blur(28px);
-    pointer-events: none;
+    content: none;
   }
 
   .tone-section-divider {
@@ -2468,13 +2464,13 @@
       transparent,
       color-mix(
         in srgb,
-        var(--route-accent, var(--color-primary)) 28%,
+        var(--route-accent, var(--color-primary)) 16%,
         transparent
       ),
       transparent
     );
     pointer-events: none;
-    opacity: 0.7;
+    opacity: 0.58;
   }
 
   @media (max-width: 767px) {
