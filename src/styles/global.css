@@ -21,12 +21,12 @@
     --viewport-height: 100vh;
     --viewport-height-dynamic: 100vh;
 
-    --color-background: #0b0d10;
-    --color-surface: #14181d;
-    --color-surface-subtle: rgba(20, 24, 29, 0.82);
-    --color-border: rgba(231, 224, 214, 0.12);
-    --color-primary: #bea57a;
-    --color-primary-strong: #7f9381;
+    --color-background: #0f1214;
+    --color-surface: #171b1e;
+    --color-surface-subtle: rgba(23, 27, 30, 0.82);
+    --color-border: rgba(231, 224, 214, 0.1);
+    --color-primary: #c8ab77;
+    --color-primary-strong: #8d988b;
     --color-success: #10b981;
     --color-warning: #f59e0b;
     --color-danger: #ef4444;
@@ -151,21 +151,15 @@
     background-color: var(--color-background);
     background-image:
       radial-gradient(
-        circle at 18% 0%,
-        rgba(190, 165, 122, 0.12),
-        transparent 28%
-      ),
-      radial-gradient(
-        circle at 82% 10%,
-        rgba(127, 147, 129, 0.09),
+        circle at 14% 0%,
+        rgba(200, 171, 119, 0.09),
         transparent 24%
       ),
-      linear-gradient(180deg, #0b0d10 0%, #101419 42%, #0b0d10 100%);
+      linear-gradient(180deg, #0f1214 0%, #121619 42%, #0f1214 100%);
     background-size:
       100% 100%,
-      100% 100%,
       100% 100%;
-    background-position: center, center, center;
+    background-position: center, center;
     color: var(--color-text-primary);
     font-family: var(--font-sans);
     line-height: 1.65;
@@ -182,7 +176,7 @@
     inset: 0;
     pointer-events: none;
     z-index: -1;
-    opacity: 0.08;
+    opacity: 0.04;
     background-image: radial-gradient(
       circle at 50% 0%,
       color-mix(in srgb, var(--color-primary) 28%, transparent),
@@ -196,7 +190,7 @@
     inset: 0;
     pointer-events: none;
     z-index: -1;
-    opacity: 0.08;
+    opacity: 0.03;
     background-image:
       linear-gradient(
         180deg,
@@ -208,9 +202,9 @@
       repeating-linear-gradient(
         90deg,
         transparent 0,
-        transparent 2px,
-        rgba(255, 255, 255, 0.012) 3px,
-        transparent 4px
+        transparent 4px,
+        rgba(255, 255, 255, 0.008) 5px,
+        transparent 6px
       );
     mix-blend-mode: normal;
   }
@@ -515,13 +509,13 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: rgba(215, 247, 91, 0.22);
+    background: rgba(200, 171, 119, 0.22);
     border-radius: 4px;
     transition: background 0.3s ease;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(215, 247, 91, 0.42);
+    background: rgba(200, 171, 119, 0.38);
   }
 
   h1,
@@ -660,7 +654,7 @@
 .glow-ring::before,
 .home-section__wash,
 .home-hero__wordmark {
-  opacity: 0.04;
+  opacity: 0.015;
 }
 
 .glow-ring::before,
@@ -741,8 +735,8 @@ header.header-hidden {
     isolation: isolate;
     background: linear-gradient(
       180deg,
-      rgba(6, 8, 9, 0.98) 0%,
-      rgba(10, 13, 16, 0.995) 100%
+      rgba(15, 18, 20, 0.99) 0%,
+      rgba(15, 18, 20, 1) 100%
     );
   }
 
@@ -752,11 +746,11 @@ header.header-hidden {
     inset: 0;
     pointer-events: none;
     z-index: -1;
-    opacity: 0.015;
+    opacity: 0.008;
     background-image:
       linear-gradient(rgba(255, 255, 255, 0.028) 1px, transparent 1px),
       linear-gradient(90deg, rgba(255, 255, 255, 0.028) 1px, transparent 1px);
-    background-size: 168px 168px;
+    background-size: 220px 220px;
     mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.45), transparent 50%);
   }
 
@@ -777,12 +771,12 @@ header.header-hidden {
   }
 
   html[data-experience-mode='editorial'] .creative-page::before {
-    opacity: 0.1;
-    background-size: 110px 110px;
+    opacity: 0.025;
+    background-size: 180px 180px;
   }
 
   html[data-experience-mode='editorial'] .creative-page::after {
-    opacity: 0.26;
+    opacity: 0.06;
     filter: saturate(0.82);
   }
 
@@ -1955,7 +1949,7 @@ header.header-hidden {
   }
 
   .tone-surface {
-    background: color-mix(in srgb, var(--color-surface) 88%, transparent);
+    background: color-mix(in srgb, var(--color-surface) 92%, transparent);
   }
 
   .tone-elevated {
@@ -1972,17 +1966,12 @@ header.header-hidden {
     position: relative;
     background:
       radial-gradient(
-        circle at 46% -12%,
+        circle at 20% -10%,
         color-mix(
           in srgb,
-          var(--route-accent, var(--color-primary)) 10%,
+          var(--route-accent, var(--color-primary)) 7%,
           transparent
         ),
-        transparent 30%
-      ),
-      radial-gradient(
-        circle at 90% 4%,
-        color-mix(in srgb, var(--color-primary-strong) 8%, transparent),
         transparent 24%
       ),
       linear-gradient(
@@ -2005,13 +1994,13 @@ header.header-hidden {
     z-index: 0;
     overflow: hidden;
     pointer-events: none;
-    opacity: 0.7;
+    opacity: 0.22;
   }
 
   .tone-site-shell__grid {
     position: absolute;
     inset: 0;
-    opacity: 0.08;
+    opacity: 0.03;
     background-image:
       linear-gradient(
         180deg,
@@ -2023,7 +2012,7 @@ header.header-hidden {
         color-mix(in srgb, var(--color-border) 12%, transparent) 1px,
         transparent 1px
       );
-    background-size: clamp(64px, 7vw, 112px) clamp(64px, 7vw, 112px);
+    background-size: clamp(84px, 9vw, 132px) clamp(84px, 9vw, 132px);
     mask-image: linear-gradient(
       180deg,
       rgba(0, 0, 0, 0.64),
@@ -2066,7 +2055,7 @@ header.header-hidden {
   }
 
   .tone-site-shell__grain {
-    opacity: 0.05;
+    opacity: 0.012;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.42'/%3E%3C/svg%3E");
     background-size: 180px 180px;
     mix-blend-mode: normal;
@@ -2123,24 +2112,22 @@ header.header-hidden {
     background:
       linear-gradient(
         180deg,
-        color-mix(in srgb, var(--color-background) 88%, transparent),
-        color-mix(in srgb, var(--color-surface) 96%, transparent)
+        color-mix(in srgb, var(--color-background) 94%, transparent),
+        color-mix(in srgb, var(--color-surface) 98%, transparent)
       ),
       linear-gradient(
         90deg,
         color-mix(
           in srgb,
-          var(--route-accent, var(--color-primary)) 3%,
+          var(--route-accent, var(--color-primary)) 2%,
           transparent
         ),
         transparent 32%,
-        color-mix(in srgb, var(--color-primary-strong) 2%, transparent)
+        color-mix(in srgb, var(--color-primary-strong) 1%, transparent)
       ),
-      color-mix(in srgb, var(--color-surface) 90%, transparent);
+      color-mix(in srgb, var(--color-surface) 94%, transparent);
     border-color: color-mix(in srgb, var(--color-border) 80%, transparent);
-    box-shadow:
-      0 18px 40px -34px rgba(0, 0, 0, 0.54),
-      inset 0 -1px 0 color-mix(in srgb, white 4%, transparent);
+    box-shadow: inset 0 -1px 0 color-mix(in srgb, white 4%, transparent);
   }
 
   .tone-shell-footer {
@@ -2149,14 +2136,14 @@ header.header-hidden {
         circle at top center,
         color-mix(
           in srgb,
-          var(--route-accent, var(--color-primary)) 10%,
+          var(--route-accent, var(--color-primary)) 5%,
           transparent
         ),
-        transparent 34%
+        transparent 28%
       ),
       linear-gradient(
         180deg,
-        color-mix(in srgb, var(--color-surface) 82%, black 18%),
+        color-mix(in srgb, var(--color-surface) 88%, black 12%),
         color-mix(in srgb, var(--color-background) 98%, transparent)
       ),
       color-mix(in srgb, var(--color-background) 94%, transparent);

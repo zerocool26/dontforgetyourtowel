@@ -1,7 +1,6 @@
 ---
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
-import ModernCard from '../components/ui/ModernCard.astro';
 import { CONTACT_EMAIL } from '../consts';
 import { withBasePath } from '../utils/helpers';
 
@@ -13,62 +12,58 @@ const serviceLanes = [
   {
     index: '01',
     label: 'Operate',
-    title: 'Managed IT with ownership',
-    copy: 'Support, device health, onboarding, vendors, and day-to-day operational follow-through under one accountable team.',
+    title: 'Managed IT with real ownership',
+    copy: 'Support, vendors, device health, onboarding, and day-to-day follow-through under one accountable team.',
     href: withBasePath('services/'),
-    cta: 'Explore operations',
   },
   {
     index: '02',
     label: 'Secure',
-    title: 'Security that reads clearly to leadership',
-    copy: 'Identity, endpoint posture, compliance progress, and practical hardening without fear-marketing or audit theater.',
+    title: 'Security that leadership can understand',
+    copy: 'Identity, compliance progress, endpoint hardening, and practical risk reduction without theater.',
     href: withBasePath('services/#technology-catalog'),
-    cta: 'Review security',
   },
   {
     index: '03',
     label: 'Modernize',
     title: 'Cloud, AI, and automation tied to leverage',
-    copy: 'Modernization work shaped around speed, visibility, and lower operational drag instead of trend chasing.',
+    copy: 'Modernization work shaped around speed, visibility, and lower drag instead of trend chasing.',
     href: withBasePath('build-studio/'),
-    cta: 'Open the studio',
   },
   {
     index: '04',
     label: 'Present',
-    title: 'Buyer-facing systems that look premium',
-    copy: 'Web experiences, demos, and launch surfaces designed to improve trust, first impression, and close rate on mobile first.',
+    title: 'Premium websites and buyer-facing systems',
+    copy: 'Sharper mobile experiences, launch pages, demos, and digital front doors that feel credible on first contact.',
     href: withBasePath('about/'),
-    cta: 'See proof',
   },
 ];
 
-const routeCards = [
+const outcomePoints = [
+  'A homepage that explains the business in seconds',
+  'Navigation that feels obvious on a phone',
+  'An operating partner instead of a list of vendors',
+];
+
+const startOptions = [
   {
-    title: 'Need exact service coverage?',
-    copy: 'Go straight to the solutions hub for the full MSP+, security, cloud, and automation structure.',
+    title: 'Need service coverage?',
+    copy: 'Go straight to solutions for the full operating, security, and modernization scope.',
     href: withBasePath('services/'),
-    cta: 'Open solutions',
+    cta: 'View solutions',
   },
   {
-    title: 'Need scope and budget clarity?',
-    copy: 'Use pricing when the real question is support depth, rollout shape, or what changes cost.',
+    title: 'Need budget clarity?',
+    copy: 'Use pricing when the main question is scope, support depth, or rollout shape.',
     href: withBasePath('pricing/'),
-    cta: 'Review pricing',
+    cta: 'See pricing',
   },
   {
-    title: 'Need to shape a project fast?',
-    copy: 'Use the studio to turn a rough need into a cleaner brief before the first call.',
+    title: 'Need a faster brief?',
+    copy: 'Use the studio to shape the project before the first call.',
     href: withBasePath('build-studio/'),
-    cta: 'Start the brief',
+    cta: 'Open studio',
   },
-];
-
-const proofSignals = [
-  'Mobile-first execution',
-  'Executive-level clarity',
-  'One accountable operating partner',
 ];
 ---
 
@@ -82,26 +77,23 @@ const proofSignals = [
   showLiveChat={false}
   showSavedRoutesDock={false}
 >
-  <section
-    class="landing-hero tone-section-divider"
-    id="landing-hero"
-    data-page-section
-  >
+  <section class="home-homepage-hero" id="landing-hero" data-page-section>
     <div class="premium-container">
-      <div class="landing-hero__shell">
-        <div class="landing-hero__copy">
-          <p class="landing-eyebrow">Chicago systems studio</p>
-          <h1 class="landing-title">
-            Managed IT, security, and premium web systems for companies that
-            need to look sharper and run cleaner.
+      <div class="home-homepage-hero__shell">
+        <div class="home-homepage-hero__copy">
+          <p class="home-homepage-eyebrow">Chicago systems partner</p>
+          <h1 class="home-homepage-title">
+            Own operations.
+            <span>Tighten security.</span>
+            <span>Look premium on mobile.</span>
           </h1>
-          <p class="landing-copy">
-            Olive is built for teams that are done with reactive support, vague
-            modernization plans, and buyer-facing experiences that look cheaper
-            than the work behind them.
+          <p class="home-homepage-copy">
+            Managed IT, security, cloud, AI, and premium buyer-facing systems
+            for companies that need a cleaner operation and a stronger front
+            door.
           </p>
 
-          <div class="landing-actions">
+          <div class="home-homepage-actions">
             <ModernButton
               href={contactHref}
               variant="primary"
@@ -111,54 +103,39 @@ const proofSignals = [
             </ModernButton>
             <ModernButton
               href={withBasePath('services/')}
-              variant="secondary"
+              variant="outline"
               className="min-h-[54px]"
             >
-              Explore solutions
+              Explore services
             </ModernButton>
           </div>
 
-          <div class="landing-proof-strip" aria-label="Core positioning">
-            {
-              proofSignals.map(signal => (
-                <span class="landing-proof-strip__item">{signal}</span>
-              ))
-            }
-          </div>
+          <ul class="home-homepage-outcomes" aria-label="Primary outcomes">
+            {outcomePoints.map(item => <li>{item}</li>)}
+          </ul>
         </div>
 
-        <div class="landing-stage" aria-hidden="true">
-          <div class="landing-stage__frame">
-            <div class="landing-stage__rail">
+        <div class="home-homepage-hero__art" aria-hidden="true">
+          <div class="home-homepage-art-panel">
+            <div class="home-homepage-art-panel__topline">
               <span>Operate</span>
               <span>Secure</span>
-              <span>Modernize</span>
               <span>Present</span>
             </div>
 
-            <div class="landing-stage__headline">
-              <span>Systems</span>
-              <span>that</span>
-              <span>close.</span>
+            <div class="home-homepage-art-panel__headline">
+              <span>Trust</span>
+              <span>starts</span>
+              <span>before</span>
+              <span>the call.</span>
             </div>
 
-            <div class="landing-stage__grid">
-              <div class="landing-stage__panel">
-                <p class="landing-stage__panel-label">What changes</p>
-                <p class="landing-stage__panel-value">
-                  Less noise. More ownership. Better buyer confidence.
-                </p>
-              </div>
-              <div class="landing-stage__panel landing-stage__panel--compact">
-                <p class="landing-stage__panel-label">Built for</p>
-                <p class="landing-stage__panel-value">mobile first</p>
-              </div>
-              <div class="landing-stage__panel landing-stage__panel--accent">
-                <p class="landing-stage__panel-label">Positioning</p>
-                <p class="landing-stage__panel-value">
-                  Premium execution without empty visual tricks.
-                </p>
-              </div>
+            <div class="home-homepage-art-panel__rule"></div>
+
+            <div class="home-homepage-art-panel__meta">
+              <p>Mobile-first browsing</p>
+              <p>Clear service lanes</p>
+              <p>No hidden content</p>
             </div>
           </div>
         </div>
@@ -166,33 +143,32 @@ const proofSignals = [
     </div>
   </section>
 
-  <section class="landing-section" id="services" data-page-section>
+  <section class="home-homepage-section" id="services" data-page-section>
     <div class="premium-container">
-      <div class="landing-section__intro">
-        <p class="landing-section__eyebrow">What we handle</p>
-        <h2 class="landing-section__title">
-          Four clear lanes. No cluttered homepage maze.
+      <div class="home-homepage-section__intro">
+        <p class="home-homepage-eyebrow">What we do</p>
+        <h2 class="home-homepage-section__title">
+          Four lanes. Clear scope. No homepage maze.
         </h2>
-        <p class="landing-section__copy">
-          The homepage should tell buyers exactly what you do in one screen. If
-          they need detail, the deeper routes are already there.
+        <p class="home-homepage-section__copy">
+          The homepage should explain the company fast. Detail belongs deeper in
+          the site, not in a pile of boxes on the first screen.
         </p>
       </div>
 
-      <div class="landing-lane-grid">
+      <div class="home-homepage-lanes">
         {
           serviceLanes.map(lane => (
-            <ModernCard variant="glass" className="landing-lane p-6">
-              <div class="landing-lane__meta">
-                <span class="landing-lane__index">{lane.index}</span>
-                <span class="landing-lane__label">{lane.label}</span>
+            <a class="home-homepage-lane" href={lane.href}>
+              <div class="home-homepage-lane__meta">
+                <span class="home-homepage-lane__index">{lane.index}</span>
+                <span class="home-homepage-lane__label">{lane.label}</span>
               </div>
-              <h3 class="landing-lane__title">{lane.title}</h3>
-              <p class="landing-lane__copy">{lane.copy}</p>
-              <a class="landing-lane__link" href={lane.href}>
-                {lane.cta}
-              </a>
-            </ModernCard>
+              <div class="home-homepage-lane__body">
+                <h3>{lane.title}</h3>
+                <p>{lane.copy}</p>
+              </div>
+            </a>
           ))
         }
       </div>
@@ -200,405 +176,414 @@ const proofSignals = [
   </section>
 
   <section
-    class="landing-section landing-section--routes"
-    id="next-step"
+    class="home-homepage-section home-homepage-section--closing"
     data-page-section
   >
     <div class="premium-container">
-      <div class="landing-section__intro landing-section__intro--split">
-        <div>
-          <p class="landing-section__eyebrow">Choose the right next move</p>
-          <h2 class="landing-section__title">
-            The homepage should create direction, not force a scavenger hunt.
+      <div class="home-homepage-closing">
+        <div class="home-homepage-closing__intro">
+          <p class="home-homepage-eyebrow">Choose the next move</p>
+          <h2 class="home-homepage-section__title">
+            Start where the pressure is: scope, budget, or project shaping.
           </h2>
         </div>
-        <p class="landing-section__copy">
-          Pick the route that matches the real question: coverage, pricing, or
-          project shaping.
-        </p>
-      </div>
 
-      <div class="landing-route-grid">
-        {
-          routeCards.map(route => (
-            <ModernCard variant="default" className="landing-route p-6">
-              <h3 class="landing-route__title">{route.title}</h3>
-              <p class="landing-route__copy">{route.copy}</p>
-              <a class="landing-route__link" href={route.href}>
-                {route.cta}
+        <div class="home-homepage-start-list">
+          {
+            startOptions.map(option => (
+              <a class="home-homepage-start-item" href={option.href}>
+                <div>
+                  <h3>{option.title}</h3>
+                  <p>{option.copy}</p>
+                </div>
+                <span>{option.cta}</span>
               </a>
-            </ModernCard>
-          ))
-        }
-      </div>
-
-      <div class="landing-closeout">
-        <div>
-          <p class="landing-closeout__eyebrow">Ready to move</p>
-          <h3 class="landing-closeout__title">
-            If the current setup is slowing response, trust, or conversion, fix
-            the front door and the operating layer together.
-          </h3>
+            ))
+          }
         </div>
 
-        <div class="landing-actions landing-actions--closeout">
-          <ModernButton
-            href={contactHref}
-            variant="primary"
-            className="min-h-[52px]"
-          >
-            Book intake
-          </ModernButton>
-          <ModernButton
-            href={withBasePath('pricing/')}
-            variant="outline"
-            className="min-h-[52px]"
-          >
-            See pricing
-          </ModernButton>
+        <div class="home-homepage-closeout">
+          <div>
+            <p class="home-homepage-eyebrow">Ready to move</p>
+            <h3 class="home-homepage-closeout__title">
+              Fix the operating layer and the digital front door together.
+            </h3>
+          </div>
+
+          <div class="home-homepage-actions home-homepage-actions--closeout">
+            <ModernButton
+              href={contactHref}
+              variant="primary"
+              className="min-h-[52px]"
+            >
+              Book intake
+            </ModernButton>
+            <ModernButton
+              href={withBasePath('pricing/')}
+              variant="outline"
+              className="min-h-[52px]"
+            >
+              Review pricing
+            </ModernButton>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
   <style>
-    .landing-hero {
+    .home-homepage-hero,
+    .home-homepage-section {
       position: relative;
-      overflow: clip;
-      padding: clamp(6.5rem, 8vw, 8rem) 0 clamp(3.5rem, 6vw, 5rem);
+      padding: clamp(4rem, 8vw, 7rem) 0;
     }
 
-    .landing-hero::before {
+    .home-homepage-hero {
+      padding-top: clamp(6.25rem, 9vw, 8rem);
+      border-bottom: 1px solid
+        color-mix(in srgb, var(--color-border) 72%, transparent);
+    }
+
+    .home-homepage-hero::before {
       content: '';
       position: absolute;
       inset: 0;
       background:
         radial-gradient(
-          circle at 18% 12%,
-          rgba(190, 165, 122, 0.12),
-          transparent 28%
+          circle at 14% 10%,
+          color-mix(in srgb, var(--color-primary) 14%, transparent),
+          transparent 30%
         ),
-        linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 18%);
+        linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 22%);
       pointer-events: none;
     }
 
-    .landing-hero__shell {
+    .home-homepage-hero__shell {
       position: relative;
       z-index: 1;
       display: grid;
-      gap: 2rem;
-      align-items: center;
+      gap: 2.5rem;
+      align-items: end;
     }
 
-    .landing-hero__copy {
+    .home-homepage-hero__copy {
       display: grid;
       gap: 1.25rem;
       max-width: 42rem;
     }
 
-    .landing-eyebrow,
-    .landing-section__eyebrow,
-    .landing-closeout__eyebrow,
-    .landing-stage__panel-label {
+    .home-homepage-eyebrow {
       margin: 0;
+      color: color-mix(in srgb, var(--color-text-muted) 92%, transparent);
       font-family: var(--font-mono);
-      font-size: 0.68rem;
+      font-size: 0.7rem;
       font-weight: 700;
-      letter-spacing: 0.22em;
+      letter-spacing: 0.24em;
       text-transform: uppercase;
-      color: color-mix(in srgb, var(--color-text-muted) 86%, transparent);
     }
 
-    .landing-title {
-      max-width: 11ch;
+    .home-homepage-title {
+      max-width: 10.5ch;
       margin: 0;
       color: var(--color-text-primary);
       font-family: var(--font-display);
-      font-size: clamp(3rem, 7vw, 6.4rem);
+      font-size: clamp(3rem, 8vw, 6.8rem);
       font-weight: 600;
       line-height: 0.94;
-      letter-spacing: -0.06em;
+      letter-spacing: -0.07em;
       text-wrap: balance;
     }
 
-    .landing-copy,
-    .landing-section__copy,
-    .landing-lane__copy,
-    .landing-route__copy {
-      margin: 0;
-      color: color-mix(in srgb, var(--color-text-secondary) 94%, transparent);
-      font-size: clamp(1rem, 1.45vw, 1.1rem);
-      line-height: 1.72;
+    .home-homepage-title span {
+      display: block;
     }
 
-    .landing-actions {
+    .home-homepage-title span:first-of-type {
+      color: color-mix(in srgb, var(--color-text-primary) 70%, transparent);
+    }
+
+    .home-homepage-title span:last-of-type {
+      color: color-mix(in srgb, var(--color-primary) 78%, white 22%);
+    }
+
+    .home-homepage-copy,
+    .home-homepage-section__copy,
+    .home-homepage-lane p,
+    .home-homepage-start-item p {
+      margin: 0;
+      color: color-mix(in srgb, var(--color-text-secondary) 94%, transparent);
+      font-size: clamp(1rem, 1.4vw, 1.08rem);
+      line-height: 1.7;
+    }
+
+    .home-homepage-actions {
       display: flex;
       flex-wrap: wrap;
       gap: 0.85rem;
-    }
-
-    .landing-proof-strip {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
       padding-top: 0.25rem;
     }
 
-    .landing-proof-strip__item {
-      display: inline-flex;
-      min-height: 2.2rem;
-      align-items: center;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      background: rgba(255, 255, 255, 0.03);
-      padding: 0.45rem 0.85rem;
-      color: rgba(243, 238, 231, 0.84);
-      font-size: 0.82rem;
-      line-height: 1;
+    .home-homepage-outcomes {
+      display: grid;
+      gap: 0.85rem;
+      margin: 0;
+      padding: 1.2rem 0 0;
+      list-style: none;
+      border-top: 1px solid
+        color-mix(in srgb, var(--color-border) 66%, transparent);
     }
 
-    .landing-stage {
+    .home-homepage-outcomes li {
       position: relative;
+      padding-left: 1.2rem;
+      color: color-mix(in srgb, var(--color-text-primary) 82%, transparent);
+      font-size: 0.95rem;
+      line-height: 1.5;
     }
 
-    .landing-stage__frame {
-      position: relative;
-      overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 2rem;
-      background:
-        linear-gradient(
-          180deg,
-          rgba(255, 255, 255, 0.04),
-          rgba(255, 255, 255, 0.01)
-        ),
-        linear-gradient(135deg, rgba(190, 165, 122, 0.08), transparent 36%),
-        rgba(12, 15, 19, 0.88);
-      padding: clamp(1.2rem, 2vw, 1.6rem);
-      box-shadow: 0 28px 64px -46px rgba(0, 0, 0, 0.72);
-    }
-
-    .landing-stage__frame::before {
+    .home-homepage-outcomes li::before {
       content: '';
       position: absolute;
-      inset: 1rem;
-      border-radius: 1.4rem;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      pointer-events: none;
+      top: 0.55rem;
+      left: 0;
+      width: 0.45rem;
+      height: 0.45rem;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--color-primary) 84%, white 16%);
     }
 
-    .landing-stage__rail {
+    .home-homepage-art-panel {
+      position: relative;
+      overflow: hidden;
+      min-height: 100%;
+      padding: clamp(1.4rem, 3vw, 2rem) 0 0;
+    }
+
+    .home-homepage-art-panel::before,
+    .home-homepage-art-panel::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: color-mix(in srgb, var(--color-border) 70%, transparent);
+    }
+
+    .home-homepage-art-panel::before {
+      top: 0;
+    }
+
+    .home-homepage-art-panel::after {
+      bottom: 0;
+    }
+
+    .home-homepage-art-panel__topline,
+    .home-homepage-art-panel__meta {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-bottom: 2rem;
-    }
-
-    .landing-stage__rail span {
-      display: inline-flex;
-      min-height: 2rem;
-      align-items: center;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      padding: 0.35rem 0.75rem;
-      color: rgba(243, 238, 231, 0.68);
+      gap: 0.7rem 1rem;
+      color: color-mix(in srgb, var(--color-text-muted) 90%, transparent);
       font-family: var(--font-mono);
-      font-size: 0.62rem;
-      letter-spacing: 0.18em;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
       text-transform: uppercase;
     }
 
-    .landing-stage__headline {
+    .home-homepage-art-panel__headline {
       display: grid;
-      margin: 0;
+      gap: 0.1rem;
+      margin: 1.25rem 0;
       color: var(--color-text-primary);
       font-family: var(--font-display);
-      font-size: clamp(2.6rem, 8vw, 6rem);
+      font-size: clamp(2.7rem, 7vw, 5.4rem);
       font-weight: 600;
       line-height: 0.9;
       letter-spacing: -0.08em;
       text-transform: uppercase;
     }
 
-    .landing-stage__headline span:nth-child(2) {
-      padding-left: clamp(1rem, 5vw, 3rem);
-      color: rgba(243, 238, 231, 0.46);
+    .home-homepage-art-panel__headline span:nth-child(2),
+    .home-homepage-art-panel__headline span:nth-child(3) {
+      padding-left: clamp(1rem, 4vw, 2.5rem);
+      color: color-mix(in srgb, var(--color-text-primary) 42%, transparent);
     }
 
-    .landing-stage__headline span:nth-child(3) {
-      color: color-mix(in srgb, var(--color-primary) 74%, white 26%);
+    .home-homepage-art-panel__headline span:last-child {
+      color: color-mix(in srgb, var(--color-primary) 80%, white 20%);
     }
 
-    .landing-stage__grid {
-      display: grid;
-      gap: 0.85rem;
-      margin-top: 2rem;
-    }
-
-    .landing-stage__panel {
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 1.2rem;
-      background: rgba(255, 255, 255, 0.03);
-      padding: 1rem;
-    }
-
-    .landing-stage__panel--compact {
-      max-width: 16rem;
-    }
-
-    .landing-stage__panel--accent {
+    .home-homepage-art-panel__rule {
+      height: 1px;
+      margin: 0 0 1rem;
       background: linear-gradient(
-        135deg,
-        rgba(190, 165, 122, 0.08),
-        rgba(255, 255, 255, 0.02)
+        90deg,
+        color-mix(in srgb, var(--color-border) 70%, transparent),
+        color-mix(in srgb, var(--color-primary) 55%, transparent),
+        transparent
       );
     }
 
-    .landing-stage__panel-value {
-      margin: 0.5rem 0 0;
-      color: rgba(243, 238, 231, 0.9);
-      font-size: 1rem;
-      line-height: 1.55;
-    }
-
-    .landing-section {
-      padding: clamp(3.75rem, 7vw, 5.5rem) 0;
+    .home-homepage-section {
       border-bottom: 1px solid
         color-mix(in srgb, var(--color-border) 72%, transparent);
     }
 
-    .landing-section__intro {
+    .home-homepage-section__intro {
       display: grid;
-      gap: 0.9rem;
+      gap: 0.85rem;
       max-width: 44rem;
       margin-bottom: 2rem;
     }
 
-    .landing-section__intro--split {
-      max-width: 100%;
-    }
-
-    .landing-section__title,
-    .landing-closeout__title,
-    .landing-lane__title,
-    .landing-route__title {
+    .home-homepage-section__title,
+    .home-homepage-lane h3,
+    .home-homepage-start-item h3,
+    .home-homepage-closeout__title {
       margin: 0;
       color: var(--color-text-primary);
-      font-size: clamp(1.5rem, 3vw, 3rem);
+      font-size: clamp(1.45rem, 3vw, 3rem);
       font-weight: 600;
-      line-height: 1;
+      line-height: 1.02;
       letter-spacing: -0.05em;
       text-wrap: balance;
     }
 
-    .landing-lane-grid,
-    .landing-route-grid {
+    .home-homepage-lanes {
+      border-top: 1px solid
+        color-mix(in srgb, var(--color-border) 70%, transparent);
+    }
+
+    .home-homepage-lane {
       display: grid;
       gap: 1rem;
+      padding: 1.35rem 0;
+      border-bottom: 1px solid
+        color-mix(in srgb, var(--color-border) 66%, transparent);
+      transition:
+        color 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
     }
 
-    .landing-lane,
-    .landing-route {
-      min-height: 100%;
+    .home-homepage-lane:hover {
+      transform: translateX(4px);
+      border-color: color-mix(
+        in srgb,
+        var(--color-text-primary) 20%,
+        transparent
+      );
     }
 
-    .landing-lane__meta {
+    .home-homepage-lane__meta {
       display: flex;
-      align-items: center;
+      align-items: baseline;
       justify-content: space-between;
       gap: 1rem;
-      margin-bottom: 1rem;
     }
 
-    .landing-lane__index {
-      color: rgba(243, 238, 231, 0.34);
+    .home-homepage-lane__index {
+      color: color-mix(in srgb, var(--color-text-primary) 34%, transparent);
       font-family: var(--font-display);
-      font-size: 1.25rem;
+      font-size: 1.1rem;
       letter-spacing: -0.04em;
     }
 
-    .landing-lane__label {
-      color: rgba(243, 238, 231, 0.52);
+    .home-homepage-lane__label {
+      color: color-mix(in srgb, var(--color-text-muted) 92%, transparent);
       font-family: var(--font-mono);
-      font-size: 0.64rem;
+      font-size: 0.62rem;
+      font-weight: 700;
       letter-spacing: 0.22em;
       text-transform: uppercase;
     }
 
-    .landing-lane__title,
-    .landing-route__title {
-      font-size: clamp(1.3rem, 2vw, 1.9rem);
-      margin-bottom: 0.75rem;
+    .home-homepage-lane h3,
+    .home-homepage-start-item h3 {
+      font-size: clamp(1.3rem, 2vw, 1.8rem);
+      margin-bottom: 0.55rem;
     }
 
-    .landing-lane__link,
-    .landing-route__link {
-      display: inline-flex;
-      margin-top: 1.2rem;
+    .home-homepage-closing {
+      display: grid;
+      gap: 2rem;
+    }
+
+    .home-homepage-start-list {
+      border-top: 1px solid
+        color-mix(in srgb, var(--color-border) 70%, transparent);
+    }
+
+    .home-homepage-start-item {
+      display: grid;
+      gap: 1rem;
+      align-items: end;
+      padding: 1.25rem 0;
+      border-bottom: 1px solid
+        color-mix(in srgb, var(--color-border) 66%, transparent);
+      transition:
+        color 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
+    }
+
+    .home-homepage-start-item span {
       color: var(--color-text-primary);
-      font-size: 0.9rem;
+      font-size: 0.92rem;
       font-weight: 600;
     }
 
-    .landing-closeout {
-      display: grid;
-      gap: 1.25rem;
-      margin-top: 1.5rem;
-      padding: 1.35rem;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 1.5rem;
-      background: linear-gradient(
-        180deg,
-        rgba(255, 255, 255, 0.03),
-        rgba(255, 255, 255, 0.01)
+    .home-homepage-start-item:hover {
+      transform: translateX(4px);
+      border-color: color-mix(
+        in srgb,
+        var(--color-text-primary) 20%,
+        transparent
       );
     }
 
+    .home-homepage-closeout {
+      display: grid;
+      gap: 1.2rem;
+      padding-top: 0.5rem;
+    }
+
     @media (min-width: 960px) {
-      .landing-hero__shell {
-        grid-template-columns: minmax(0, 1fr) minmax(22rem, 32rem);
+      .home-homepage-hero__shell {
+        grid-template-columns: minmax(0, 1fr) minmax(20rem, 28rem);
       }
 
-      .landing-section__intro--split {
-        grid-template-columns: minmax(0, 1fr) minmax(18rem, 28rem);
-        align-items: end;
+      .home-homepage-lane {
+        grid-template-columns: 8rem minmax(0, 1fr);
+        align-items: start;
       }
 
-      .landing-lane-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+      .home-homepage-start-item {
+        grid-template-columns: minmax(0, 1fr) auto;
       }
 
-      .landing-route-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
-
-      .landing-closeout {
+      .home-homepage-closeout {
         grid-template-columns: minmax(0, 1fr) auto;
         align-items: center;
       }
     }
 
     @media (max-width: 767px) {
-      .landing-hero {
-        padding-top: calc(6rem + env(safe-area-inset-top));
+      .home-homepage-hero {
+        padding-top: calc(5.8rem + env(safe-area-inset-top));
       }
 
-      .landing-title {
+      .home-homepage-title {
         max-width: 100%;
-        font-size: clamp(2.4rem, 12vw, 4rem);
+        font-size: clamp(2.6rem, 12vw, 4.5rem);
       }
 
-      .landing-actions,
-      .landing-actions--closeout {
+      .home-homepage-actions,
+      .home-homepage-actions--closeout {
         flex-direction: column;
       }
 
-      .landing-stage__headline {
-        font-size: clamp(2.4rem, 15vw, 4rem);
-      }
-
-      .landing-stage__panel--compact {
-        max-width: none;
+      .home-homepage-art-panel__headline {
+        font-size: clamp(2.3rem, 13vw, 3.8rem);
       }
     }
   </style>

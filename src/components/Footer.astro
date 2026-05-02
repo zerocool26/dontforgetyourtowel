@@ -119,15 +119,7 @@ const footerSignals = [
   .footer-shell {
     display: grid;
     gap: 2rem;
-    padding: clamp(1.5rem, 3vw, 2.25rem);
-    border: 1px solid color-mix(in srgb, var(--color-border) 74%, transparent);
-    border-radius: 1.75rem;
-    background: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.03),
-      rgba(255, 255, 255, 0.01)
-    );
-    box-shadow: 0 24px 56px -42px rgba(0, 0, 0, 0.58);
+    padding: clamp(1rem, 3vw, 1.5rem) 0 0;
   }
 
   .footer-shell__top,
@@ -149,9 +141,9 @@ const footerSignals = [
     height: 3rem;
     align-items: center;
     justify-content: center;
-    border-radius: 0.95rem;
+    border-radius: 0.9rem;
     border: 1px solid rgba(255, 255, 255, 0.08);
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(255, 255, 255, 0.02);
     color: var(--color-text-primary);
     font-family: var(--font-mono);
     font-size: 0.8rem;
@@ -221,10 +213,11 @@ const footerSignals = [
   }
 
   .footer-signal {
-    padding: 1rem 1.05rem;
+    padding: 1rem 0;
     border: 1px solid rgba(255, 255, 255, 0.07);
-    border-radius: 1.2rem;
-    background: rgba(255, 255, 255, 0.025);
+    border-width: 1px 0 0;
+    border-radius: 0;
+    background: transparent;
   }
 
   .footer-signal__value {

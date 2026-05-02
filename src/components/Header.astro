@@ -41,12 +41,7 @@ const routeContext = getRouteContext(Astro.url.pathname);
 const isHomePage = currentPath === '/';
 const isTradePage =
   currentPath === '/trades' || currentPath.startsWith('/trades/');
-const homePriorityLinkLabels = new Set([
-  'Solutions',
-  'Pricing',
-  'Proof',
-  'Contact',
-]);
+const homePriorityLinkLabels = new Set(['Solutions', 'Pricing', 'Contact']);
 const headerLinks = isHomePage
   ? links.filter(link => homePriorityLinkLabels.has(link.label))
   : links;
@@ -129,20 +124,13 @@ const isTradeActiveHref = (href: string) => {
         >
           {SITE_TITLE}
         </span>
-        <div class="mt-0.5 hidden items-center gap-2 sm:flex">
-          <span
-            class="max-w-[19rem] truncate whitespace-nowrap font-mono text-[0.6rem] uppercase tracking-[0.22em] text-white/55"
-          >
-            MSP+ • security • cloud • AI • custom systems
-          </span>
-          {
-            !isHomePage ? (
-              <span class="header-route-pill">
-                {routeContext.currentCategory}
-              </span>
-            ) : null
-          }
-        </div>
+        {
+          !isHomePage ? (
+            <span class="header-route-pill mt-1 hidden sm:inline-flex">
+              {routeContext.currentCategory}
+            </span>
+          ) : null
+        }
       </div>
     </a>
 
@@ -232,40 +220,6 @@ const isTradeActiveHref = (href: string) => {
     </div>
 
     <div class="flex flex-shrink-0 items-center gap-2 lg:hidden">
-      <button
-        type="button"
-        data-open-saved-routes
-        class={`${searchTriggerClasses} h-12 min-w-[3.5rem] justify-center gap-1 px-3`}
-        hidden
-        aria-label="Open saved routes"
-      >
-        <span>Save</span>
-        <span
-          class="rounded-full border border-white/[0.08] bg-white/[0.04] px-1.5 py-0.5 text-[10px]"
-          data-saved-routes-count
-        >
-          0
-        </span>
-      </button>
-      <button
-        type="button"
-        data-command-palette-trigger
-        class={`${searchTriggerClasses} h-12 w-12 justify-center px-0`}
-        aria-label="Open site search"
-      >
-        <svg
-          class="h-5 w-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 100-15 7.5 7.5 0 000 15z"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="1.5"></path>
-        </svg>
-      </button>
       <ModernButton
         variant="outline"
         className="tone-border tone-surface tone-muted min-h-touch min-w-touch flex h-12 w-12 touch-manipulation items-center justify-center p-0 hover:border-white/20 hover:text-white"
@@ -273,7 +227,7 @@ const isTradeActiveHref = (href: string) => {
         type="button"
         aria-controls="mobile-menu"
         aria-expanded="false"
-        rounded="none"
+        rounded="sm"
       >
         <span class="sr-only">Toggle navigation</span>
         <svg
@@ -462,14 +416,14 @@ const isTradeActiveHref = (href: string) => {
 <style>
   .header-nav-shell {
     position: relative;
-    border-radius: 1.1rem;
+    border-radius: 1rem;
   }
 
   .header-nav-shell::before {
     content: '';
     position: absolute;
     inset: 0;
-    border-radius: 1.1rem;
+    border-radius: 1rem;
     border: 1px solid color-mix(in srgb, white 4%, transparent);
     background: linear-gradient(
       180deg,
@@ -516,7 +470,7 @@ const isTradeActiveHref = (href: string) => {
     margin-block: 0.35rem;
     border-left-color: transparent;
     border-radius: 999px;
-    color: color-mix(in srgb, var(--color-text-primary) 58%, transparent);
+    color: color-mix(in srgb, var(--color-text-primary) 56%, transparent);
   }
 
   .header-desktop-link::after {
@@ -536,9 +490,7 @@ const isTradeActiveHref = (href: string) => {
         color-mix(in srgb, var(--color-surface) 80%, transparent)
       ),
       color-mix(in srgb, var(--color-surface) 82%, transparent);
-    box-shadow:
-      inset 0 1px 0 color-mix(in srgb, white 5%, transparent),
-      0 14px 24px -24px rgba(0, 0, 0, 0.34);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, white 4%, transparent);
     transform: scale(0.92);
     transform-origin: center;
     opacity: 0;
@@ -563,9 +515,7 @@ const isTradeActiveHref = (href: string) => {
     border: 1px solid color-mix(in srgb, var(--color-border) 76%, transparent);
     background: color-mix(in srgb, var(--color-surface) 92%, transparent);
     color: color-mix(in srgb, var(--color-text-primary) 78%, transparent);
-    box-shadow:
-      inset 0 1px 0 color-mix(in srgb, white 4%, transparent),
-      0 14px 24px -24px rgba(0, 0, 0, 0.34);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, white 4%, transparent);
   }
 
   .header-action:hover {
@@ -576,9 +526,7 @@ const isTradeActiveHref = (href: string) => {
     );
     background: color-mix(in srgb, var(--color-surface) 98%, transparent);
     color: var(--color-text-primary);
-    box-shadow:
-      inset 0 1px 0 color-mix(in srgb, white 5%, transparent),
-      0 16px 28px -26px rgba(0, 0, 0, 0.38);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, white 4%, transparent);
   }
 
   .header-route-pill {
@@ -605,11 +553,9 @@ const isTradeActiveHref = (href: string) => {
   .header-context-compact {
     border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 1rem;
-    background: rgba(255, 255, 255, 0.02);
+    background: rgba(255, 255, 255, 0.015);
     padding: 0.95rem 1rem;
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.04),
-      0 16px 32px -30px rgba(0, 0, 0, 0.34);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
   }
 
   .header-context-compact__link {
@@ -647,7 +593,7 @@ const isTradeActiveHref = (href: string) => {
         color-mix(in srgb, var(--header-route-accent) 4%, transparent),
         transparent 46%
       );
-    box-shadow: 0 20px 36px -30px rgba(0, 0, 0, 0.44);
+    box-shadow: none;
   }
 </style>
 
