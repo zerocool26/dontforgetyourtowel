@@ -1,6 +1,5 @@
 ---
 import MarketingLayout from '../layouts/MarketingLayout.astro';
-import ModernCard from '../components/ui/ModernCard.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
 import EcommerceShowcase from '../components/demo-lab/EcommerceShowcase';
 import { demoProducts } from '../data/demo-ecommerce';
@@ -16,34 +15,32 @@ const proofSignals = [
   {
     label: 'Proof states',
     value: String(demoProducts.length),
-    detail:
-      'Products, pricing, variants, reviews, and cart states come from real data instead of made-up mockups.',
+    detail: 'Real product, cart, review, and checkout states.',
   },
   {
-    label: 'Fast mobile actions',
+    label: 'Mobile review paths',
     value: '4',
-    detail: 'Open the core shopping flows in one thumb-friendly tap.',
+    detail: 'Cart, compare, quick view, and checkout.',
   },
   {
-    label: 'Safety modes',
+    label: 'Safety controls',
     value: '3',
-    detail:
-      'Pause, reduced motion, and perf mode keep the experience reviewable.',
+    detail: 'Pause, reduced motion, and perf mode.',
   },
 ];
 
 const proofPoints = [
   {
-    title: 'Premium client-facing polish',
-    copy: 'Use the route to show how cards, filters, quick views, and conversion moments hold together under real catalog pressure.',
+    title: 'Presentation that can actually sell',
+    copy: 'The route shows what a premium buyer-facing experience feels like when it still has structure, hierarchy, and restraint.',
   },
   {
-    title: 'Conversion-ready interaction design',
-    copy: 'Cart persistence, promo logic, and checkout simulation make the handoff from discovery to action feel intentional instead of decorative.',
+    title: 'Conversion logic, not just nicer visuals',
+    copy: 'Cart states, comparison paths, quick views, and checkout framing help buyers review real decision points.',
   },
   {
-    title: 'Engineering discipline underneath',
-    copy: 'Performance and reduced-motion controls prove the experience can stay polished while still respecting real device and accessibility constraints.',
+    title: 'Production discipline underneath',
+    copy: 'The demo still respects device constraints, accessibility controls, and implementation depth.',
   },
 ];
 
@@ -102,16 +99,16 @@ const quickActions = [
 
 const guidedReviewSteps = [
   {
-    title: 'Pick the buyer path',
-    copy: 'Launch the cart, compare, quick-view, or checkout scenario first so the review starts with a real business question.',
+    title: 'Start from the buyer question',
+    copy: 'Pick cart, compare, quick view, or checkout first so the review begins with a real business moment.',
   },
   {
-    title: 'Stress the mobile moments',
-    copy: 'Check how product density, speed, controls, and conversion cues behave on a handheld screen instead of a roomy desktop monitor.',
+    title: 'Judge it on a phone',
+    copy: 'The point is to test density, clarity, and confidence on mobile instead of approving a desktop-only concept.',
   },
   {
-    title: 'Map it to delivery',
-    copy: 'Use the implementation lanes below to turn what stakeholders liked into a real build plan instead of a vague “looks good.”',
+    title: 'Turn taste into a build plan',
+    copy: 'Use the linked implementation tracks to move from “this feels right” into real delivery scope.',
   },
 ];
 
@@ -140,460 +137,49 @@ const featuredProducts = demoProducts
   showSavedRoutesDock={false}
   mainClass="relative isolate overflow-x-clip"
 >
-  <div class="shop-demo-page">
-    <section
-      class="tone-page-hero border-b border-white/10"
-      data-reveal
-      id="proof-hero"
-      data-page-section
-    >
-      <div
-        class="tone-page-hero__inner mx-auto max-w-[1240px] px-4 pb-14 pt-20 sm:px-6 sm:pb-20 sm:pt-28"
-      >
-        <div class="grid gap-10 lg:grid-cols-[1.08fr_0.92fr] lg:items-end">
-          <div class="space-y-6">
-            <div class="tone-page-header">
-              <p class="tone-page-eyebrow">Proof lab</p>
-              <h1 class="tone-page-title max-w-5xl">
-                Interactive proof for premium product, portal, and client-facing
-                experiences that need more than surface polish.
-              </h1>
-              <p class="tone-page-copy max-w-3xl">
-                This route helps future clients understand what is actually
-                being sold: stronger mobile UX, higher-end digital presentation,
-                cleaner decision support, and engineering that can move from
-                concept to production.
-              </p>
-            </div>
-            <div class="tone-page-actions">
+  <div class="proof-page">
+    <section class="proof-hero" id="proof-hero" data-page-section>
+      <div class="premium-container">
+        <div class="proof-hero__shell">
+          <div class="proof-hero__copy">
+            <p class="proof-eyebrow">Proof lab</p>
+            <h1 class="proof-title">
+              Show the buyer-facing experience
+              <span>and the implementation depth</span>
+              <span>in the same route.</span>
+            </h1>
+            <p class="proof-copy">
+              This page is built to prove stronger mobile UX, cleaner decision
+              support, and premium digital presentation without drifting into
+              empty demo theater.
+            </p>
+
+            <div class="proof-actions">
               <ModernButton
                 href={withBasePath('contact-hq/')}
                 variant="primary"
-                className="min-h-[50px]"
+                className="min-h-[52px]"
               >
                 Request a proof-led build
               </ModernButton>
               <ModernButton
                 href={supportHref}
-                variant="secondary"
-                className="min-h-[50px]"
+                variant="outline"
+                className="min-h-[52px]"
               >
                 Ask for the walkthrough
               </ModernButton>
             </div>
-
-            <div class="grid gap-3 sm:grid-cols-3">
-              {
-                proofSignals.map(signal => (
-                  <ModernCard
-                    variant="glass"
-                    className="tone-metric-card p-4 sm:p-5"
-                  >
-                    <p class="tone-metric-card__label">{signal.label}</p>
-                    <p class="tone-metric-card__value text-[clamp(1.5rem,2vw,2rem)]">
-                      {signal.value}
-                    </p>
-                    <p class="tone-metric-card__detail">{signal.detail}</p>
-                  </ModernCard>
-                ))
-              }
-            </div>
           </div>
 
-          <ModernCard variant="glass" className="p-5 sm:p-8">
-            <p
-              class="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-white/45"
-            >
-              Quick mobile review
-            </p>
-            <p class="mt-4 text-sm leading-7 text-slate-300">
-              Start with the four flows buyers care about most on mobile: cart,
-              compare, quick view, and checkout. This keeps the proof in review
-              mode instead of turning it into a scavenger hunt.
-            </p>
-
-            <div class="mt-6 border-t border-white/10 pt-5">
-              <p
-                class="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-white/45"
-              >
-                Quick launch scenarios
-              </p>
-              <div class="mt-4 grid gap-3 sm:grid-cols-2">
-                {
-                  quickActions.map(action => (
-                    <button
-                      type="button"
-                      class="demo-launch flex min-h-[48px] flex-col items-start justify-center rounded-xl px-4 py-3 text-left transition"
-                      data-demo-command={action.command}
-                      data-demo-param={action.demoParam}
-                      data-demo-product={action.productId}
-                      data-demo-label={action.label}
-                      aria-pressed="false"
-                    >
-                      <span class="text-xs font-semibold uppercase tracking-[0.12em] text-white">
-                        {action.label}
-                      </span>
-                      <span class="mt-1 text-xs leading-5 text-slate-300">
-                        {action.note}
-                      </span>
-                    </button>
-                  ))
-                }
-              </div>
-
-              <div
-                class="mt-4 rounded-2xl border border-white/10 bg-black/20 p-4"
-              >
-                <p
-                  class="font-mono text-[0.64rem] uppercase tracking-[0.18em] text-white/45"
-                >
-                  Active review path
-                </p>
-                <p
-                  class="mt-2 text-sm font-semibold text-white"
-                  data-demo-active-state
-                >
-                  Default showcase loaded.
-                </p>
-                <p
-                  class="mt-2 text-xs leading-5 text-slate-300"
-                  data-demo-active-copy
-                >
-                  Choose a launch scenario to turn this proof route into a
-                  shareable customer review path.
-                </p>
-                <div class="mt-4 flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    class="demo-link-action inline-flex min-h-[44px] items-center justify-center rounded-full px-4 text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-white transition"
-                    data-demo-copy-link
-                  >
-                    Copy launch link
-                  </button>
-                  <button
-                    type="button"
-                    class="demo-link-action inline-flex min-h-[44px] items-center justify-center rounded-full px-4 text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-white transition"
-                    data-demo-reset-link
-                  >
-                    Reset launch state
-                  </button>
-                </div>
-
-                <div class="mt-4 grid gap-3 sm:grid-cols-3">
-                  <div class="demo-token-card rounded-2xl p-3">
-                    <p
-                      class="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-white/45"
-                    >
-                      Focus
-                    </p>
-                    <p
-                      class="mt-2 text-sm font-semibold text-white"
-                      data-demo-metric-focus
-                    >
-                      Mobile walkthrough
-                    </p>
-                  </div>
-                  <div class="demo-token-card rounded-2xl p-3">
-                    <p
-                      class="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-white/45"
-                    >
-                      Best for
-                    </p>
-                    <p
-                      class="mt-2 text-sm font-semibold text-white"
-                      data-demo-metric-audience
-                    >
-                      First-call reviews
-                    </p>
-                  </div>
-                  <div class="demo-token-card rounded-2xl p-3">
-                    <p
-                      class="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-white/45"
-                    >
-                      Proof
-                    </p>
-                    <p
-                      class="mt-2 text-sm font-semibold text-white"
-                      data-demo-metric-proof
-                    >
-                      Share a scenario to reveal the strongest proof point.
-                    </p>
-                  </div>
-                </div>
-
-                <div
-                  class="demo-token-card demo-share-readout mt-4 rounded-2xl border border-dashed px-3 py-2"
-                >
-                  <p
-                    class="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-white/45"
-                  >
-                    Shareable URL
-                  </p>
-                  <p
-                    class="mt-2 break-all text-xs leading-5 text-slate-300"
-                    data-demo-share-url
-                  >
-                    {withBasePath('about/')}#shop-experience
-                  </p>
-                </div>
-
-                <div
-                  class="demo-token-card demo-share-panel mt-4 rounded-2xl p-4"
-                  data-demo-share-actions
-                >
-                  <div class="space-y-2">
-                    <p
-                      class="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-white/45"
-                    >
-                      Share review path
-                    </p>
-                    <p
-                      class="text-sm leading-6 text-slate-300"
-                      data-demo-share-title
-                    >
-                      Default showcase loaded.
-                    </p>
-                  </div>
-
-                  <div
-                    class="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center"
-                  >
-                    <button
-                      type="button"
-                      class="demo-link-action inline-flex min-h-[44px] items-center justify-center rounded-full px-4 text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-white transition"
-                      data-demo-native-share
-                    >
-                      Share or copy link
-                    </button>
-                    <div
-                      class="demo-share-platforms flex flex-wrap gap-2"
-                      data-demo-share-platforms
-                    >
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="mt-6 border-t border-white/10 pt-5">
-              <p
-                class="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-white/45"
-              >
-                Best fit
-              </p>
-              <p class="mt-3 text-sm leading-7 text-slate-300">
-                Best for teams selling premium products, richer product stories,
-                faster mobile conversion, or a more polished commerce pitch in
-                front of stakeholders.
-              </p>
-            </div>
-          </ModernCard>
-        </div>
-      </div>
-    </section>
-
-    <section
-      class="border-b border-white/10"
-      data-reveal
-      id="proof-overview"
-      data-page-section
-    >
-      <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
-        <div class="max-w-3xl space-y-4">
-          <p
-            class="font-mono text-[0.72rem] uppercase tracking-[0.22em] text-white/45"
-          >
-            What this route proves
-          </p>
-          <h2
-            class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
-          >
-            This proof lab sells the implementation behind the visuals.
-          </h2>
-          <p class="text-base leading-7 text-slate-300">
-            The goal is not just to look advanced. The goal is to show future
-            customers how discovery, storytelling, conversion logic, mobile
-            ergonomics, and production-safe delivery all connect.
-          </p>
-        </div>
-
-        <div class="mt-8 grid gap-4 lg:grid-cols-3">
-          {
-            proofPoints.map(point => (
-              <ModernCard variant="default" className="h-full p-6">
-                <p class="text-lg font-semibold text-white">{point.title}</p>
-                <p class="mt-3 text-sm leading-7 text-slate-300">
-                  {point.copy}
-                </p>
-              </ModernCard>
-            ))
-          }
-        </div>
-
-        <div class="mt-10 grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
-          <ModernCard variant="glass" className="p-6 sm:p-7">
-            <p
-              class="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-white/45"
-            >
-              Guided review
-            </p>
-            <h3 class="mt-3 text-2xl font-semibold text-white">
-              A cleaner walkthrough for busy buyers and stakeholders.
-            </h3>
-            <div class="mt-6 grid gap-3">
-              {
-                guidedReviewSteps.map((step, index) => (
-                  <div class="demo-token-card rounded-2xl p-4">
-                    <div class="flex items-start gap-3">
-                      <span class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-white/10 bg-black/20 text-sm font-semibold text-white">
-                        {index + 1}
-                      </span>
-                      <div>
-                        <p class="text-sm font-semibold text-white">
-                          {step.title}
-                        </p>
-                        <p class="mt-2 text-sm leading-6 text-slate-300">
-                          {step.copy}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              }
-            </div>
-          </ModernCard>
-
-          <ModernCard variant="glass" className="p-6 sm:p-7">
-            <p
-              class="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-white/45"
-            >
-              Delivery proof
-            </p>
-            <h3 class="mt-3 text-2xl font-semibold text-white">
-              The route already connects demo review to real build depth.
-            </h3>
-            <div class="mt-6 grid gap-3 sm:grid-cols-2">
-              <div class="demo-token-card rounded-2xl p-4">
-                <p
-                  class="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-white/45"
-                >
-                  Featured proof states
-                </p>
-                <p class="mt-2 text-2xl font-semibold text-white">
-                  {featuredProducts.length}
-                </p>
-                <p class="mt-2 text-sm leading-6 text-slate-300">
-                  Real featured products already wired into quick-view and
-                  checkout paths.
-                </p>
-              </div>
-              <div class="demo-token-card rounded-2xl p-4">
-                <p
-                  class="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-white/45"
-                >
-                  Delivery lanes
-                </p>
-                <p class="mt-2 text-2xl font-semibold text-white">
-                  {implementationTracks.length}
-                </p>
-                <p class="mt-2 text-sm leading-6 text-slate-300">
-                  Service tracks that turn stakeholder feedback into an actual
-                  execution plan.
-                </p>
-              </div>
-              <div class="demo-token-card rounded-2xl p-4 sm:col-span-2">
-                <p
-                  class="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-white/45"
-                >
-                  Scenario coverage
-                </p>
-                <p class="mt-2 text-2xl font-semibold text-white">
-                  {quickActions.length}
-                </p>
-                <p class="mt-2 text-sm leading-6 text-slate-300">
-                  Shareable review paths for merchandising, product detail,
-                  decision support, and checkout confidence.
-                </p>
-              </div>
-            </div>
-          </ModernCard>
-        </div>
-
-        <div class="mt-10 grid gap-4 lg:grid-cols-2">
-          {
-            quickActions.map(action => (
-              <a
-                href={`${withBasePath('about/')}?demo=${action.demoParam}${action.productId ? `&product=${action.productId}` : ''}#shop-experience`}
-                class="demo-token-card demo-scenario-link rounded-2xl p-5 transition"
-              >
-                <p class="font-mono text-[0.64rem] uppercase tracking-[0.18em] text-white/45">
-                  Review path
-                </p>
-                <p class="mt-3 text-lg font-semibold text-white">
-                  {action.label}
-                </p>
-                <p class="mt-2 text-sm leading-6 text-slate-300">
-                  {action.reviewPath}
-                </p>
-              </a>
-            ))
-          }
-        </div>
-
-        <div class="mt-10 grid gap-5 xl:grid-cols-[1.05fr_0.95fr]">
-          <ModernCard variant="glass" className="p-6 sm:p-7">
-            <p
-              class="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-white/45"
-            >
-              Implementation lanes
-            </p>
-            <h3 class="mt-3 text-2xl font-semibold text-white">
-              The work behind this demo lines up with real services.
-            </h3>
-            <div class="mt-6 grid gap-3">
-              {
-                implementationTracks.map(track => (
-                  <div class="demo-token-card rounded-2xl p-4">
-                    <p class="text-sm font-semibold text-white">{track.name}</p>
-                    <p class="mt-2 text-sm leading-6 text-slate-300">
-                      {track.description}
-                    </p>
-                  </div>
-                ))
-              }
-            </div>
-          </ModernCard>
-
-          <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
+          <div class="proof-signal-list">
             {
-              featuredProducts.map(product => (
-                <ModernCard variant="glass" className="p-6">
-                  <div class="flex items-start justify-between gap-3">
-                    <div>
-                      <p class="font-mono text-[0.66rem] uppercase tracking-[0.18em] text-white/45">
-                        Featured product state
-                      </p>
-                      <p class="mt-2 text-xl font-semibold text-white">
-                        {product.name}
-                      </p>
-                      <p class="mt-1 text-sm text-slate-300">{product.brand}</p>
-                    </div>
-                    <span class="rounded-full border border-white/10 px-3 py-1 text-xs text-white/70">
-                      ${Math.round(product.priceCents / 100)}
-                    </span>
-                  </div>
-                  <p class="mt-4 text-sm leading-6 text-slate-300">
-                    {product.description}
-                  </p>
-                  <ul class="mt-4 space-y-2 text-sm text-slate-300">
-                    {product.bullets.slice(0, 2).map(bullet => (
-                      <li class="flex items-start gap-2">
-                        <span class="tone-accent-dot mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full" />
-                        <span>{bullet}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </ModernCard>
+              proofSignals.map(signal => (
+                <div class="proof-signal">
+                  <p class="proof-signal__label">{signal.label}</p>
+                  <p class="proof-signal__value">{signal.value}</p>
+                  <p class="proof-signal__detail">{signal.detail}</p>
+                </div>
               ))
             }
           </div>
@@ -601,96 +187,294 @@ const featuredProducts = demoProducts
       </div>
     </section>
 
-    <section
-      class="border-b border-white/10"
-      data-reveal
-      id="safety-console"
-      data-page-section
-    >
-      <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
-        <ModernCard className="p-7" variant="glass">
-          <div class="grid gap-6 md:grid-cols-[1.2fr_1fr] md:items-start">
-            <div class="space-y-3">
-              <p
-                class="font-mono text-[0.72rem] uppercase tracking-[0.22em] text-white/45"
-              >
-                Controls
-              </p>
-              <h2 class="text-2xl font-semibold text-white">Safety Console</h2>
-              <p class="text-sm leading-7 text-slate-300">
-                Toggle pause, reduced motion, and perf mode. These controls keep
-                reviews credible on real devices and apply through
-                <code
-                  class="rounded border border-white/10 bg-white/[0.03] px-1.5 py-0.5 text-slate-200"
-                  >data-demo-*</code
-                >
-                attributes respected by the interactive showcase.
-              </p>
-            </div>
+    <section class="proof-section" id="proof-review" data-page-section>
+      <div class="premium-container">
+        <div class="proof-section__intro">
+          <p class="proof-eyebrow">Launch review paths</p>
+          <h2 class="proof-section__title">
+            Open the exact scenario you want a stakeholder to judge.
+          </h2>
+          <p class="proof-section__copy">
+            The route is simpler when the review starts with a clear question:
+            basket clarity, product comparison, product storytelling, or the
+            conversion handoff.
+          </p>
+        </div>
 
-            <div class="grid gap-2 sm:grid-cols-3 md:w-auto">
+        <div class="proof-launch-grid">
+          {
+            quickActions.map(action => (
               <button
                 type="button"
-                class="demo-toggle demo-console-toggle inline-flex h-11 items-center justify-center rounded-lg px-4 text-sm font-semibold text-white transition"
-                data-demo-toggle="paused"
+                class="demo-launch proof-launch"
+                data-demo-command={action.command}
+                data-demo-param={action.demoParam}
+                data-demo-product={action.productId}
+                data-demo-label={action.label}
                 aria-pressed="false"
               >
-                Pause
+                <span class="proof-launch__title">{action.label}</span>
+                <span class="proof-launch__copy">{action.note}</span>
               </button>
-              <button
-                type="button"
-                class="demo-toggle demo-console-toggle inline-flex h-11 items-center justify-center rounded-lg px-4 text-sm font-semibold text-white transition"
-                data-demo-toggle="reduced"
-                aria-pressed="false"
-              >
-                Reduced motion
-              </button>
-              <button
-                type="button"
-                class="demo-toggle demo-console-toggle inline-flex h-11 items-center justify-center rounded-lg px-4 text-sm font-semibold text-white transition"
-                data-demo-toggle="perf"
-                aria-pressed="false"
-              >
-                Perf mode
-              </button>
-            </div>
+            ))
+          }
+        </div>
 
-            <p
-              class="mt-2 font-mono text-xs text-white/55"
-              data-demo-status
-              data-testid="demo-safety-status"
-            >
-              Demo safety status: pause off, reduced motion off, perf mode off.
+        <div class="proof-review-shell">
+          <div class="proof-review-state">
+            <p class="proof-review-state__label">Active review path</p>
+            <p class="proof-review-state__title" data-demo-active-state>
+              Default showcase loaded.
+            </p>
+            <p class="proof-review-state__copy" data-demo-active-copy>
+              Choose a launch scenario to turn this proof route into a shareable
+              customer review path.
             </p>
           </div>
-        </ModernCard>
+
+          <div class="proof-review-metrics">
+            <div class="demo-token-card proof-token-card">
+              <p class="proof-token-card__label">Focus</p>
+              <p class="proof-token-card__value" data-demo-metric-focus>
+                Mobile walkthrough
+              </p>
+            </div>
+            <div class="demo-token-card proof-token-card">
+              <p class="proof-token-card__label">Best for</p>
+              <p class="proof-token-card__value" data-demo-metric-audience>
+                First-call reviews
+              </p>
+            </div>
+            <div class="demo-token-card proof-token-card">
+              <p class="proof-token-card__label">Proof</p>
+              <p class="proof-token-card__value" data-demo-metric-proof>
+                Share a scenario to reveal the strongest proof point.
+              </p>
+            </div>
+          </div>
+
+          <div class="proof-review-share">
+            <div
+              class="demo-token-card proof-token-card proof-token-card--wide"
+            >
+              <p class="proof-token-card__label">Shareable URL</p>
+              <p class="proof-token-card__copy" data-demo-share-url>
+                {withBasePath('about/')}#shop-experience
+              </p>
+            </div>
+
+            <div class="proof-share-actions">
+              <button
+                type="button"
+                class="demo-link-action proof-inline-action"
+                data-demo-copy-link
+              >
+                Copy launch link
+              </button>
+              <button
+                type="button"
+                class="demo-link-action proof-inline-action"
+                data-demo-reset-link
+              >
+                Reset launch state
+              </button>
+              <button
+                type="button"
+                class="demo-link-action proof-inline-action"
+                data-demo-native-share
+              >
+                Share or copy link
+              </button>
+            </div>
+
+            <div
+              class="demo-token-card proof-token-card proof-token-card--wide"
+            >
+              <p class="proof-token-card__label">Share review path</p>
+              <p class="proof-token-card__copy" data-demo-share-title>
+                Default showcase loaded.
+              </p>
+              <div
+                class="demo-share-platforms proof-share-platforms"
+                data-demo-share-platforms
+              >
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
-    <section
-      class="pb-20 pt-10"
-      data-reveal
-      id="shop-experience"
-      data-page-section
-    >
-      <div class="mx-auto max-w-[1240px] scroll-mt-24 px-4 sm:px-6">
-        <div class="mb-8 max-w-3xl space-y-3">
-          <p
-            class="font-mono text-[0.72rem] uppercase tracking-[0.22em] text-white/45"
-          >
-            Live proof environment
-          </p>
-          <h2
-            class="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
-          >
-            Review the live experience once the framing is clear.
+    <section class="proof-section" id="proof-structure" data-page-section>
+      <div class="premium-container">
+        <div class="proof-grid">
+          <div class="proof-column">
+            <p class="proof-eyebrow">What this route proves</p>
+            <div class="proof-list">
+              {
+                proofPoints.map(point => (
+                  <div class="proof-list__item">
+                    <h3>{point.title}</h3>
+                    <p>{point.copy}</p>
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+
+          <div class="proof-column">
+            <p class="proof-eyebrow">Review doctrine</p>
+            <div class="proof-steps">
+              {
+                guidedReviewSteps.map((step, index) => (
+                  <div class="proof-step">
+                    <span>0{index + 1}</span>
+                    <div>
+                      <h3>{step.title}</h3>
+                      <p>{step.copy}</p>
+                    </div>
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="proof-section" id="proof-delivery" data-page-section>
+      <div class="premium-container">
+        <div class="proof-section__intro">
+          <p class="proof-eyebrow">Implementation depth</p>
+          <h2 class="proof-section__title">
+            The visual proof maps back to real delivery lanes.
           </h2>
-          <p class="text-sm leading-7 text-slate-300 sm:text-base">
-            After the signals, proof points, and quick actions above, this live
-            module becomes easier to assess like a serious product surface—not
-            just a flashy demo shell.
+          <p class="proof-section__copy">
+            The point is to connect stakeholder taste to actual product, design,
+            QA, and rollout work.
           </p>
         </div>
+
+        <div class="proof-delivery-grid">
+          <div class="proof-track-list">
+            {
+              implementationTracks.map(track => (
+                <div class="proof-track">
+                  <h3>{track.name}</h3>
+                  <p>{track.description}</p>
+                </div>
+              ))
+            }
+          </div>
+
+          <div class="proof-product-list">
+            {
+              featuredProducts.map(product => (
+                <div class="proof-product">
+                  <div class="proof-product__top">
+                    <div>
+                      <p class="proof-product__label">Featured product state</p>
+                      <h3>{product.name}</h3>
+                      <p class="proof-product__brand">{product.brand}</p>
+                    </div>
+                    <span class="proof-product__price">
+                      ${Math.round(product.priceCents / 100)}
+                    </span>
+                  </div>
+                  <p class="proof-product__copy">{product.description}</p>
+                  <ul class="proof-product__bullets">
+                    {product.bullets.slice(0, 2).map(bullet => (
+                      <li>{bullet}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))
+            }
+          </div>
+        </div>
+
+        <div class="proof-scenario-links">
+          {
+            quickActions.map(action => (
+              <a
+                href={`${withBasePath('about/')}?demo=${action.demoParam}${action.productId ? `&product=${action.productId}` : ''}#shop-experience`}
+                class="demo-scenario-link proof-scenario-link"
+              >
+                <p class="proof-scenario-link__label">Review path</p>
+                <h3>{action.label}</h3>
+                <p>{action.reviewPath}</p>
+              </a>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <section class="proof-section" id="safety-console" data-page-section>
+      <div class="premium-container">
+        <div class="proof-console">
+          <div>
+            <p class="proof-eyebrow">Controls</p>
+            <h2 class="proof-section__title proof-section__title--sm">
+              Safety console
+            </h2>
+            <p class="proof-section__copy">
+              Pause, reduced motion, and perf mode keep the demo reviewable on
+              real devices without killing the underlying functionality.
+            </p>
+          </div>
+
+          <div class="proof-console__actions">
+            <button
+              type="button"
+              class="demo-toggle demo-console-toggle proof-inline-action"
+              data-demo-toggle="paused"
+              aria-pressed="false"
+            >
+              Pause
+            </button>
+            <button
+              type="button"
+              class="demo-toggle demo-console-toggle proof-inline-action"
+              data-demo-toggle="reduced"
+              aria-pressed="false"
+            >
+              Reduced motion
+            </button>
+            <button
+              type="button"
+              class="demo-toggle demo-console-toggle proof-inline-action"
+              data-demo-toggle="perf"
+              aria-pressed="false"
+            >
+              Perf mode
+            </button>
+          </div>
+
+          <p
+            class="proof-console__status"
+            data-demo-status
+            data-testid="demo-safety-status"
+          >
+            Demo safety status: pause off, reduced motion off, perf mode off.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="proof-demo" id="shop-experience" data-page-section>
+      <div class="premium-container">
+        <div class="proof-section__intro">
+          <p class="proof-eyebrow">Live proof environment</p>
+          <h2 class="proof-section__title">
+            Review the live experience after the framing is clear.
+          </h2>
+          <p class="proof-section__copy">
+            Once the route is explained properly, the demo reads like a real
+            product surface instead of a noisy experiment.
+          </p>
+        </div>
+
         <div class="demo-module" data-demo-module="ecommerce-showcase">
           <EcommerceShowcase client:visible />
         </div>
@@ -700,95 +484,325 @@ const featuredProducts = demoProducts
 </MarketingLayout>
 
 <style>
-  .demo-module {
-    content-visibility: auto;
-    contain: layout paint style;
-    contain-intrinsic-size: 900px;
+  .proof-page,
+  .proof-hero,
+  .proof-section,
+  .proof-demo {
+    position: relative;
   }
 
-  .demo-token-card,
-  .demo-launch,
-  .demo-link-action,
-  .demo-scenario-link,
-  .demo-console-toggle {
+  .proof-hero,
+  .proof-section,
+  .proof-demo {
+    padding: clamp(4rem, 8vw, 6.5rem) 0;
+    border-bottom: 1px solid
+      color-mix(in srgb, var(--color-border) 70%, transparent);
+  }
+
+  .proof-hero {
+    padding-top: clamp(6rem, 9vw, 7.75rem);
+  }
+
+  .proof-hero__shell,
+  .proof-grid,
+  .proof-delivery-grid {
+    display: grid;
+    gap: 2rem;
+  }
+
+  .proof-hero__copy,
+  .proof-section__intro {
+    display: grid;
+    gap: 0.9rem;
+    max-width: 44rem;
+  }
+
+  .proof-eyebrow,
+  .proof-signal__label,
+  .proof-review-state__label,
+  .proof-token-card__label,
+  .proof-product__label,
+  .proof-scenario-link__label {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--color-text-muted) 90%, transparent);
+  }
+
+  .proof-title {
+    max-width: 11ch;
+    margin: 0;
+    color: var(--color-text-primary);
+    font-family: var(--font-display);
+    font-size: clamp(2.8rem, 7.5vw, 6.2rem);
+    font-weight: 600;
+    line-height: 0.95;
+    letter-spacing: -0.07em;
+    text-wrap: balance;
+  }
+
+  .proof-title span {
+    display: block;
+  }
+
+  .proof-title span:nth-child(1) {
+    color: color-mix(in srgb, var(--color-text-primary) 72%, transparent);
+  }
+
+  .proof-title span:last-child {
+    color: color-mix(in srgb, var(--color-primary) 80%, white 20%);
+  }
+
+  .proof-copy,
+  .proof-section__copy,
+  .proof-list__item p,
+  .proof-step p,
+  .proof-track p,
+  .proof-product__copy,
+  .proof-scenario-link p,
+  .proof-launch__copy,
+  .proof-review-state__copy {
+    margin: 0;
+    color: color-mix(in srgb, var(--color-text-secondary) 94%, transparent);
+    font-size: clamp(1rem, 1.35vw, 1.06rem);
+    line-height: 1.7;
+  }
+
+  .proof-actions,
+  .proof-console__actions,
+  .proof-share-actions,
+  .proof-share-platforms {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .proof-signal-list {
+    display: grid;
+    gap: 1rem;
+    border-top: 1px solid
+      color-mix(in srgb, var(--color-border) 68%, transparent);
+  }
+
+  .proof-signal,
+  .proof-list__item,
+  .proof-track,
+  .proof-product,
+  .proof-console,
+  .proof-review-shell {
+    padding: 1.25rem 0;
+    border-bottom: 1px solid
+      color-mix(in srgb, var(--color-border) 66%, transparent);
+  }
+
+  .proof-signal__value,
+  .proof-review-state__title,
+  .proof-token-card__value,
+  .proof-list__item h3,
+  .proof-step h3,
+  .proof-track h3,
+  .proof-product h3,
+  .proof-scenario-link h3,
+  .proof-section__title {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-size: clamp(1.35rem, 3vw, 2.8rem);
+    font-weight: 600;
+    line-height: 1.02;
+    letter-spacing: -0.05em;
+    text-wrap: balance;
+  }
+
+  .proof-section__title--sm {
+    font-size: clamp(1.3rem, 2vw, 2rem);
+  }
+
+  .proof-signal__value {
+    margin-top: 0.35rem;
+    font-size: clamp(1.35rem, 2.4vw, 1.8rem);
+  }
+
+  .proof-launch-grid,
+  .proof-review-metrics,
+  .proof-scenario-links {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .proof-launch {
+    display: grid;
+    gap: 0.45rem;
+    align-content: start;
+    padding: 1rem;
+    border-radius: 1rem;
+    text-align: left;
+  }
+
+  .proof-launch__title {
+    color: var(--color-text-primary);
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .proof-review-shell {
+    display: grid;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .proof-review-state,
+  .proof-token-card,
+  .proof-scenario-link {
+    display: grid;
+    gap: 0.45rem;
+  }
+
+  .proof-token-card,
+  .proof-scenario-link,
+  .proof-inline-action,
+  .proof-launch {
     border: 1px solid color-mix(in srgb, var(--color-border) 78%, transparent);
-    background: color-mix(in srgb, var(--color-surface) 82%, transparent);
+    background: color-mix(in srgb, var(--color-surface) 84%, transparent);
     box-shadow: inset 0 1px 0 color-mix(in srgb, white 4%, transparent);
   }
 
-  .demo-launch,
-  .demo-link-action,
-  .demo-scenario-link,
-  .demo-console-toggle {
-    position: relative;
-    overflow: hidden;
+  .proof-token-card {
+    padding: 1rem;
+    border-radius: 1rem;
   }
 
-  .demo-launch:hover,
-  .demo-link-action:hover,
-  .demo-scenario-link:hover,
-  .demo-console-toggle:hover {
-    border-color: color-mix(
-      in srgb,
-      var(--color-text-primary) 18%,
-      transparent
-    );
-    background: color-mix(in srgb, var(--color-surface) 92%, white 8%);
+  .proof-token-card--wide {
+    gap: 0.65rem;
   }
 
-  .demo-launch:focus-visible,
-  .demo-link-action:focus-visible,
-  .demo-scenario-link:focus-visible,
-  .demo-console-toggle:focus-visible {
-    outline: 2px solid color-mix(in srgb, var(--color-primary) 62%, transparent);
-    outline-offset: 3px;
+  .proof-token-card__copy,
+  .proof-console__status {
+    margin: 0;
+    color: color-mix(in srgb, var(--color-text-secondary) 92%, transparent);
+    font-size: 0.92rem;
+    line-height: 1.6;
+    word-break: break-word;
   }
 
-  .demo-launch[data-active='true'],
-  .demo-console-toggle[aria-pressed='true'] {
-    border-color: color-mix(in srgb, var(--color-primary) 38%, transparent);
-    background: linear-gradient(
-      135deg,
-      color-mix(in srgb, var(--color-primary) 12%, transparent),
-      color-mix(in srgb, var(--color-surface) 94%, transparent)
-    );
-    box-shadow: 0 0 20px -10px
-      color-mix(in srgb, var(--color-primary) 44%, transparent);
+  .proof-step {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.9rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid
+      color-mix(in srgb, var(--color-border) 66%, transparent);
   }
 
-  .demo-share-readout {
-    background: color-mix(in srgb, black 16%, var(--color-surface) 84%);
+  .proof-step span {
+    color: color-mix(in srgb, var(--color-text-primary) 36%, transparent);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
   }
 
-  .demo-share-panel {
-    background: linear-gradient(
-      160deg,
-      color-mix(in srgb, var(--color-surface) 88%, white 6%),
-      color-mix(in srgb, var(--color-surface) 76%, transparent)
-    );
+  .proof-product__top {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 1rem;
   }
 
-  .demo-share-platforms :global(.share-button) {
-    min-height: 44px;
+  .proof-product__brand {
+    margin: 0.35rem 0 0;
+    color: color-mix(in srgb, var(--color-text-secondary) 82%, transparent);
+    font-size: 0.95rem;
+  }
+
+  .proof-product__price {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2rem;
+    padding: 0 0.75rem;
     border-radius: 999px;
     border: 1px solid color-mix(in srgb, var(--color-border) 78%, transparent);
-    background: color-mix(in srgb, var(--color-surface) 86%, transparent);
-    padding: 0.7rem 1rem;
-    font-size: 0.68rem;
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
     color: var(--color-text-primary);
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+
+  .proof-product__bullets {
+    display: grid;
+    gap: 0.55rem;
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .proof-product__bullets li {
+    position: relative;
+    padding-left: 1rem;
+    color: color-mix(in srgb, var(--color-text-secondary) 90%, transparent);
+    font-size: 0.92rem;
+    line-height: 1.55;
+  }
+
+  .proof-product__bullets li::before {
+    content: '';
+    position: absolute;
+    top: 0.5rem;
+    left: 0;
+    width: 0.38rem;
+    height: 0.38rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-primary) 82%, white 18%);
+  }
+
+  .proof-scenario-link {
+    padding: 1rem;
+    border-radius: 1rem;
     transition:
       border-color 0.2s ease,
       background-color 0.2s ease,
       transform 0.2s ease;
   }
 
-  .demo-share-platforms :global(.share-button:hover) {
-    border-color: color-mix(in srgb, var(--color-primary) 28%, transparent);
-    background: color-mix(in srgb, var(--color-primary) 10%, transparent);
-    transform: translateY(-1px);
+  .proof-scenario-link:hover,
+  .proof-launch:hover,
+  .proof-inline-action:hover {
+    transform: translateX(3px);
+    border-color: color-mix(
+      in srgb,
+      var(--color-text-primary) 18%,
+      transparent
+    );
+  }
+
+  .proof-inline-action {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    padding: 0 1rem;
+    border-radius: 999px;
+    color: var(--color-text-primary);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    transition:
+      border-color 0.2s ease,
+      background-color 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .proof-console {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .demo-module {
+    content-visibility: auto;
+    contain: layout paint style;
+    contain-intrinsic-size: 900px;
   }
 
   .demo-module[data-demo-paused='true'] * {
@@ -799,6 +813,63 @@ const featuredProducts = demoProducts
   .demo-module[data-demo-reduced-motion='true'] * {
     animation: none !important;
     transition: none !important;
+  }
+
+  .proof-share-platforms :global(.share-button) {
+    min-height: 44px;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--color-border) 78%, transparent);
+    background: color-mix(in srgb, var(--color-surface) 84%, transparent);
+    padding: 0.7rem 1rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-text-primary);
+  }
+
+  @media (min-width: 960px) {
+    .proof-hero__shell,
+    .proof-grid,
+    .proof-delivery-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: start;
+    }
+
+    .proof-signal-list {
+      padding-top: 0.5rem;
+    }
+
+    .proof-launch-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .proof-review-metrics,
+    .proof-scenario-links {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .proof-review-shell {
+      grid-template-columns: 1.05fr 0.95fr;
+      align-items: start;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .proof-hero {
+      padding-top: calc(5.8rem + env(safe-area-inset-top));
+    }
+
+    .proof-title {
+      max-width: 100%;
+      font-size: clamp(2.5rem, 12vw, 4.4rem);
+    }
+
+    .proof-actions,
+    .proof-console__actions,
+    .proof-share-actions {
+      flex-direction: column;
+    }
   }
 </style>
 
@@ -943,33 +1014,13 @@ const featuredProducts = demoProducts
         REVIEW_CARDS[rawMode as keyof typeof REVIEW_CARDS] ||
         REVIEW_CARDS.default;
 
-      if (activeState) {
-        activeState.textContent = state.title;
-      }
-
-      if (activeCopy) {
-        activeCopy.textContent = state.copy;
-      }
-
-      if (activeFocus) {
-        activeFocus.textContent = reviewState.focus;
-      }
-
-      if (activeAudience) {
-        activeAudience.textContent = reviewState.audience;
-      }
-
-      if (activeProof) {
-        activeProof.textContent = reviewState.proof;
-      }
-
-      if (shareUrl) {
-        shareUrl.textContent = window.location.href;
-      }
-
-      if (shareTitle) {
-        shareTitle.textContent = `${state.title} ${state.copy}`;
-      }
+      if (activeState) activeState.textContent = state.title;
+      if (activeCopy) activeCopy.textContent = state.copy;
+      if (activeFocus) activeFocus.textContent = reviewState.focus;
+      if (activeAudience) activeAudience.textContent = reviewState.audience;
+      if (activeProof) activeProof.textContent = reviewState.proof;
+      if (shareUrl) shareUrl.textContent = window.location.href;
+      if (shareTitle) shareTitle.textContent = `${state.title} ${state.copy}`;
 
       commandButtons.forEach(button => {
         const isActive =
