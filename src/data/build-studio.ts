@@ -7,12 +7,17 @@ export const studioMetricKeys = [
 
 export type StudioMetricKey = (typeof studioMetricKeys)[number];
 export type StudioModuleCategory =
+  | 'Operations Layer'
+  | 'Security Layer'
   | 'Experience Layer'
-  | 'Intelligence Layer'
-  | 'Trust Layer'
   | 'Platform Layer';
 export type StudioUrgency = 'balanced' | 'accelerated' | 'flagship';
-export type StudioContactService = 'msp' | 'security' | 'cloud' | 'ai';
+export type StudioContactService =
+  | 'msp'
+  | 'security'
+  | 'cloud'
+  | 'ai'
+  | 'digital';
 
 export interface StudioSurface {
   id: string;
@@ -94,39 +99,39 @@ export interface StudioPlan {
 }
 
 export const studioModuleCategoryOrder: StudioModuleCategory[] = [
+  'Operations Layer',
+  'Security Layer',
   'Experience Layer',
-  'Intelligence Layer',
-  'Trust Layer',
   'Platform Layer',
 ];
 
 export const studioMetricLabels: Record<StudioMetricKey, string> = {
-  experience: 'Experience depth',
-  intelligence: 'Automation / AI',
-  resilience: 'Reliability posture',
-  conversion: 'Business movement',
+  experience: 'Buyer experience',
+  intelligence: 'Workflow leverage',
+  resilience: 'Operational resilience',
+  conversion: 'Sales readiness',
 };
 
 export const studioUrgencyProfiles: StudioUrgencyProfile[] = [
   {
     id: 'balanced',
-    label: 'Balanced runway',
+    label: 'Balanced rollout',
     summary:
-      'Best for a measured rollout, clearer decision-making, and production confidence.',
+      'Best for a measured rollout, cleaner discovery, and stronger handoff confidence.',
     investmentMultiplier: 1,
     timelineMultiplier: 1,
   },
   {
     id: 'accelerated',
-    label: 'Accelerated launch',
+    label: 'Fast stabilization',
     summary:
-      'Compress the timeline, add delivery leadership, and bias for faster proof.',
+      'Compress the timeline, add delivery leadership, and bias for the fastest practical first phase.',
     investmentMultiplier: 1.16,
     timelineMultiplier: 0.86,
   },
   {
     id: 'flagship',
-    label: 'Flagship reveal',
+    label: 'Executive showcase',
     summary:
       'Increase polish, instrumentation, and executive-facing presentation when the route needs to carry more weight.',
     investmentMultiplier: 1.32,
@@ -137,19 +142,19 @@ export const studioUrgencyProfiles: StudioUrgencyProfile[] = [
 export const studioSurfaces: StudioSurface[] = [
   {
     id: 'surface-home',
-    title: 'Landing systems',
+    title: 'Chicago homepage',
     description:
-      'Static-first storytelling, route guidance, and CTA structure anchored to the main landing page.',
+      'The public front door that frames managed IT, security, cloud, and selective digital work.',
     href: '/',
-    tags: ['landing', 'motion', 'marketing', 'narrative'],
+    tags: ['homepage', 'messaging', 'trust', 'cta'],
   },
   {
-    id: 'surface-portfolio',
-    title: 'Portfolio commerce engine',
+    id: 'surface-experience',
+    title: 'Experience lab',
     description:
-      'Interactive storefront with search, compare, quick view, cart persistence, and checkout simulation.',
+      'Interactive proof route showing how client-facing systems can feel premium without losing structure.',
     href: 'about/',
-    tags: ['portfolio', 'commerce', 'checkout', 'interactive'],
+    tags: ['experience', 'portal', 'buyer', 'interactive'],
   },
   {
     id: 'surface-services',
@@ -161,9 +166,9 @@ export const studioSurfaces: StudioSurface[] = [
   },
   {
     id: 'surface-pricing',
-    title: 'Pricing intelligence',
+    title: 'Pricing guide',
     description:
-      'Plan cards, estimator tools, and ROI logic designed for practical buying conversations.',
+      'Directional pricing, SLA comparisons, and calculators for practical buying conversations.',
     href: 'pricing/#estimate',
     tags: ['pricing', 'roi', 'calculator', 'sales'],
   },
@@ -171,9 +176,9 @@ export const studioSurfaces: StudioSurface[] = [
     id: 'surface-debug',
     title: 'Diagnostics console',
     description:
-      'Debug route showing low-level diagnostics, capability detection, and production troubleshooting care.',
+      'Technical route showing diagnostics, capability detection, and production troubleshooting care.',
     href: 'debug-webgl/',
-    tags: ['diagnostics', 'webgl', 'debugging', 'performance'],
+    tags: ['diagnostics', 'debugging', 'quality', 'performance'],
   },
   {
     id: 'surface-contact',
@@ -192,14 +197,14 @@ export const engineeringSignals: StudioSignal[] = [
       'Astro carries the main shell while Preact activates only the surfaces that justify real interactivity.',
   },
   {
-    title: 'Worker-backed search + command routing',
-    detail:
-      'Command palette search is indexed, keyboard-friendly, and offloads fuzzy matching so the shell stays fast.',
-  },
-  {
     title: 'Data-driven planning surfaces',
     detail:
-      'Pricing, services, proofs, and showcases are modeled in `src/data/**` to keep launches consistent and maintainable.',
+      'Services, pricing, presets, and planning logic are modeled in data so updates stay consistent across the site.',
+  },
+  {
+    title: 'Buyer-safe interactive logic',
+    detail:
+      'The planner turns vague requests into a structured first-phase brief without requiring a heavy custom form flow.',
   },
   {
     title: 'Base-path safe deployment model',
@@ -220,353 +225,397 @@ export const engineeringSignals: StudioSignal[] = [
 
 export const studioPresets: StudioPreset[] = [
   {
-    id: 'launch-control',
-    name: 'Launch Control Room',
-    kicker: 'Executive launch planning',
+    id: 'support-stabilization',
+    name: 'Support Stabilization Plan',
+    kicker: 'Managed IT planning',
     summary:
-      'A launch-planning direction for teams that need executive clarity, visible readiness, and a structured rollout story.',
+      'A first-phase plan for teams that need steadier support, cleaner ownership, and a better operational baseline.',
     audience:
-      'Founders, innovation teams, and launch owners who want one planning surface for story, risk, and rollout.',
+      'Owners, operations leaders, and small internal IT teams who need support to feel organized again.',
+    contactService: 'msp',
+    baseInvestment: 22000,
+    baseWeeks: 6,
+    recommendedScale: 14,
+    defaultModules: [
+      'ops-workflow-cleanup',
+      'endpoint-device-standardization',
+      'backup-recovery-readiness',
+      'network-site-reliability-plan',
+    ],
+    baselineScores: {
+      experience: 48,
+      intelligence: 42,
+      resilience: 58,
+      conversion: 46,
+    },
+    coreCrew: ['Service delivery lead', 'Technical account owner'],
+    surfaceIds: ['surface-services', 'surface-contact'],
+    outcomes: [
+      'A steadier help desk and endpoint support baseline',
+      'Cleaner documentation, ownership, and escalation paths',
+      'A 90-day plan for reducing repeat issues and hidden friction',
+    ],
+  },
+  {
+    id: 'security-lift',
+    name: 'Security and Compliance Lift',
+    kicker: 'Security planning',
+    summary:
+      'A first-phase plan for firms that need sharper identity controls, stronger endpoint posture, and more confidence in their recovery and compliance habits.',
+    audience:
+      'Leadership teams, regulated firms, and internal IT owners who need a more serious security operating model.',
+    contactService: 'security',
+    baseInvestment: 28000,
+    baseWeeks: 7,
+    recommendedScale: 16,
+    defaultModules: [
+      'identity-access-hardening',
+      'backup-recovery-readiness',
+      'executive-security-reporting',
+      'network-site-reliability-plan',
+    ],
+    baselineScores: {
+      experience: 42,
+      intelligence: 46,
+      resilience: 66,
+      conversion: 44,
+    },
+    coreCrew: ['Security and compliance lead', 'Technical account owner'],
+    surfaceIds: ['surface-services', 'surface-pricing'],
+    outcomes: [
+      'Identity, endpoint, and backup priorities sequenced clearly',
+      'A sharper compliance and evidence habit baseline',
+      'Leadership-ready security talking points and next steps',
+    ],
+  },
+  {
+    id: 'm365-cloud-upgrade',
+    name: 'Microsoft 365 and Cloud Upgrade',
+    kicker: 'Cloud planning',
+    summary:
+      'A modernization plan for firms that need cleaner Microsoft 365 governance, better collaboration structure, and a safer cloud transition path.',
+    audience:
+      'Hybrid teams, operations leaders, and growing firms that have outgrown ad hoc Microsoft 365 and cloud decisions.',
     contactService: 'cloud',
-    baseInvestment: 64000,
+    baseInvestment: 26000,
+    baseWeeks: 7,
+    recommendedScale: 18,
+    defaultModules: [
+      'm365-collaboration-rollout',
+      'network-site-reliability-plan',
+      'ops-workflow-cleanup',
+      'executive-security-reporting',
+    ],
+    baselineScores: {
+      experience: 46,
+      intelligence: 52,
+      resilience: 58,
+      conversion: 48,
+    },
+    coreCrew: ['Cloud and infrastructure engineer', 'Technical account owner'],
+    surfaceIds: ['surface-services', 'surface-pricing'],
+    outcomes: [
+      'A clearer Microsoft 365, cloud, and collaboration roadmap',
+      'Better governance for users, files, and licenses',
+      'A phased migration plan that reduces disruption and rework',
+    ],
+  },
+  {
+    id: 'automation-reporting-sprint',
+    name: 'Automation and Reporting Sprint',
+    kicker: 'Workflow planning',
+    summary:
+      'A practical automation plan for firms that know manual work, reporting gaps, or repetitive admin tasks are slowing the team down.',
+    audience:
+      'Operations and service leaders who want workflow improvements with governance and measurable business value.',
+    contactService: 'ai',
+    baseInvestment: 24000,
+    baseWeeks: 6,
+    recommendedScale: 14,
+    defaultModules: [
+      'workflow-automation-reporting',
+      'ops-workflow-cleanup',
+      'executive-security-reporting',
+      'm365-collaboration-rollout',
+    ],
+    baselineScores: {
+      experience: 44,
+      intelligence: 66,
+      resilience: 48,
+      conversion: 52,
+    },
+    coreCrew: ['Workflow automation lead', 'Operations analyst'],
+    surfaceIds: ['surface-services', 'surface-contact'],
+    outcomes: [
+      'A shortlist of realistic automation wins instead of vague AI promises',
+      'Cleaner reporting and internal workflow handoffs',
+      'Guardrails for rolling out automation without creating new risk',
+    ],
+  },
+  {
+    id: 'client-experience-refresh',
+    name: 'Client Experience Refresh',
+    kicker: 'Digital experience planning',
+    summary:
+      'A targeted plan for firms that need their website, client portal, or launch surface to better match the quality of their operations.',
+    audience:
+      'Firms with a credible back office but a weak first impression, dated site, or underpowered client-facing system.',
+    contactService: 'digital',
+    baseInvestment: 30000,
     baseWeeks: 8,
     recommendedScale: 16,
     defaultModules: [
-      'story-motion-system',
-      'executive-briefing-layer',
-      'observability-wall',
-      'multi-surface-launch-kit',
+      'website-portal-refresh',
+      'discovery-messaging-roadmap',
+      'launch-quality-hardening',
+      'executive-security-reporting',
     ],
     baselineScores: {
-      experience: 62,
-      intelligence: 48,
-      resilience: 57,
-      conversion: 58,
+      experience: 64,
+      intelligence: 44,
+      resilience: 46,
+      conversion: 62,
     },
-    coreCrew: ['Creative technologist', 'Product strategist'],
-    surfaceIds: ['surface-home', 'surface-contact'],
+    coreCrew: ['UX and content lead', 'Delivery lead'],
+    surfaceIds: ['surface-home', 'surface-experience', 'surface-contact'],
     outcomes: [
-      'Executive-ready launch surface with narrative sequencing',
-      'Live readiness signals spanning UX, delivery, and risk posture',
-      'A clearer handoff surface for stakeholders and buyers',
-    ],
-  },
-  {
-    id: 'commerce-cinematic',
-    name: 'Commerce Cinematic Engine',
-    kicker: 'Commerce planning direction',
-    summary:
-      'A conversion-first planning direction that merges merchandising, pricing logic, buyer confidence, and richer interaction design.',
-    audience:
-      'Brands and product teams that need to demonstrate both polish and serious interaction design.',
-    contactService: 'cloud',
-    baseInvestment: 72000,
-    baseWeeks: 10,
-    recommendedScale: 18,
-    defaultModules: [
-      'story-motion-system',
-      'immersive-commerce-engine',
-      'pricing-decision-engine',
-      'performance-guardrails',
-    ],
-    baselineScores: {
-      experience: 68,
-      intelligence: 50,
-      resilience: 52,
-      conversion: 66,
-    },
-    coreCrew: ['Experience director', 'Conversion strategist'],
-    surfaceIds: ['surface-portfolio', 'surface-pricing'],
-    outcomes: [
-      'A stronger commerce surface that proves real interaction depth, not just static art direction',
-      'Pricing and conversion surfaces wired into the narrative from day one',
-      'Launch assets that move from demo to production buying flow cleanly',
-    ],
-  },
-  {
-    id: 'ai-operations-room',
-    name: 'AI Operations Room',
-    kicker: 'Automation planning direction',
-    summary:
-      'An operator-facing planning direction showing how AI, workflow automation, diagnostics, and routing logic combine into a real product.',
-    audience:
-      'Ops, platform, and transformation leaders who want proof that AI can be instrumented, not just narrated.',
-    contactService: 'ai',
-    baseInvestment: 69000,
-    baseWeeks: 9,
-    recommendedScale: 20,
-    defaultModules: [
-      'ai-workflow-orchestrator',
-      'operator-command-palette',
-      'observability-wall',
-      'performance-guardrails',
-    ],
-    baselineScores: {
-      experience: 50,
-      intelligence: 70,
-      resilience: 60,
-      conversion: 54,
-    },
-    coreCrew: ['AI systems designer', 'Workflow engineer'],
-    surfaceIds: ['surface-services', 'surface-debug'],
-    outcomes: [
-      'An AI-native command surface with visible orchestration logic',
-      'Operational observability and diagnostics translated into product UX',
-      'A route that proves applied automation, not generic chatbot theater',
-    ],
-  },
-  {
-    id: 'trust-command-center',
-    name: 'Trust Command Center',
-    kicker: 'Trust and resilience planning',
-    summary:
-      'A resilience-first direction designed to communicate compliance posture, response readiness, and executive confidence.',
-    audience:
-      'Security-minded teams that need a strong interface for proving readiness without losing design quality.',
-    contactService: 'security',
-    baseInvestment: 67000,
-    baseWeeks: 8,
-    recommendedScale: 14,
-    defaultModules: [
-      'trust-proof-system',
-      'executive-briefing-layer',
-      'observability-wall',
-      'performance-guardrails',
-    ],
-    baselineScores: {
-      experience: 54,
-      intelligence: 46,
-      resilience: 74,
-      conversion: 49,
-    },
-    coreCrew: ['Security architect', 'Narrative systems lead'],
-    surfaceIds: ['surface-services', 'surface-contact'],
-    outcomes: [
-      'A trust surface that turns security posture into something leaders can actually read',
-      'Confidence signals for compliance, uptime, and incident rehearsal',
-      'A more serious route than a generic security page typically delivers',
+      'A clearer service story and stronger first impression',
+      'A buyer-facing system that feels premium on mobile',
+      'A phased plan for launch, content, and post-launch hardening',
     ],
   },
 ];
 
 export const studioModules: StudioModule[] = [
   {
-    id: 'story-motion-system',
-    title: 'Story Motion System',
-    category: 'Experience Layer',
+    id: 'ops-workflow-cleanup',
+    title: 'Support Workflow Cleanup',
+    category: 'Operations Layer',
     description:
-      'Shape hero transitions, section pacing, and motion cues so the experience feels intentional instead of assembled.',
-    investment: 12000,
+      'Clarify support ownership, onboarding flows, vendor handoffs, and recurring issue management so the team stops improvising.',
+    investment: 6000,
     weeks: 2,
     deliverable:
-      'Motion language and narrative sequencing tuned to the build concept',
-    surfaceIds: ['surface-home', 'surface-portfolio'],
+      'Documented support workflow improvements and first-priority operational fixes',
+    surfaceIds: ['surface-services', 'surface-contact'],
     impact: {
-      experience: 11,
-      intelligence: 1,
-      resilience: 2,
-      conversion: 6,
+      experience: 2,
+      intelligence: 5,
+      resilience: 8,
+      conversion: 3,
     },
   },
   {
-    id: 'immersive-commerce-engine',
-    title: 'Immersive Commerce Engine',
+    id: 'endpoint-device-standardization',
+    title: 'Endpoint and Device Standardization',
+    category: 'Operations Layer',
+    description:
+      'Set device standards, patch expectations, onboarding baselines, and a healthier endpoint management rhythm.',
+    investment: 7000,
+    weeks: 2,
+    deliverable:
+      'A cleaner device baseline and clearer endpoint management model',
+    surfaceIds: ['surface-services', 'surface-contact'],
+    impact: {
+      experience: 1,
+      intelligence: 3,
+      resilience: 10,
+      conversion: 2,
+    },
+  },
+  {
+    id: 'identity-access-hardening',
+    title: 'Identity and Access Hardening',
+    category: 'Security Layer',
+    description:
+      'Tighten MFA, admin roles, access reviews, and account governance across Microsoft 365 and critical systems.',
+    investment: 9000,
+    weeks: 3,
+    deliverable:
+      'A first-phase identity and access roadmap with immediate hardening actions',
+    surfaceIds: ['surface-services', 'surface-pricing'],
+    impact: {
+      experience: 1,
+      intelligence: 4,
+      resilience: 12,
+      conversion: 2,
+    },
+  },
+  {
+    id: 'backup-recovery-readiness',
+    title: 'Backup and Recovery Readiness',
+    category: 'Security Layer',
+    description:
+      'Review backup coverage, restore confidence, recovery documentation, and the highest-risk continuity gaps first.',
+    investment: 8000,
+    weeks: 2,
+    deliverable:
+      'A clearer continuity baseline with recovery priorities and runbook actions',
+    surfaceIds: ['surface-services', 'surface-pricing'],
+    impact: {
+      experience: 1,
+      intelligence: 3,
+      resilience: 13,
+      conversion: 2,
+    },
+  },
+  {
+    id: 'website-portal-refresh',
+    title: 'Website and Portal Refresh',
     category: 'Experience Layer',
     description:
-      'Layer merchandising, comparison, and checkout storytelling into a stronger commerce route that still feels operationally credible.',
-    investment: 18000,
+      'Upgrade service messaging, hierarchy, mobile UX, and buyer confidence cues across the public front door or client portal.',
+    investment: 10000,
     weeks: 3,
     deliverable:
-      'Showroom-grade commerce flow with richer interaction states and buyer confidence cues',
-    surfaceIds: ['surface-portfolio', 'surface-pricing'],
+      'A stronger buyer-facing surface with clearer trust signals and structure',
+    surfaceIds: ['surface-home', 'surface-experience', 'surface-contact'],
     impact: {
-      experience: 10,
-      intelligence: 3,
-      resilience: 1,
-      conversion: 12,
+      experience: 12,
+      intelligence: 2,
+      resilience: 2,
+      conversion: 11,
     },
   },
   {
-    id: 'ai-workflow-orchestrator',
-    title: 'AI Workflow Orchestrator',
-    category: 'Intelligence Layer',
+    id: 'workflow-automation-reporting',
+    title: 'Workflow Automation and Reporting',
+    category: 'Experience Layer',
     description:
-      'Expose automation logic, triage routes, and decision stages so visitors can understand the thinking behind the AI surface.',
-    investment: 21000,
-    weeks: 3,
+      'Identify the best near-term automation wins, reporting gaps, and repetitive admin tasks that should be tightened first.',
+    investment: 9000,
+    weeks: 2,
     deliverable:
-      'Visible orchestration model with automation stages, scenario logic, and AI-native delivery framing',
-    surfaceIds: ['surface-services', 'surface-debug'],
+      'A practical automation and reporting backlog tied to owner time and business impact',
+    surfaceIds: ['surface-services', 'surface-contact'],
     impact: {
       experience: 4,
-      intelligence: 14,
-      resilience: 4,
-      conversion: 5,
-    },
-  },
-  {
-    id: 'operator-command-palette',
-    title: 'Operator Command Palette',
-    category: 'Intelligence Layer',
-    description:
-      'Promote search, shortcuts, and deep-link actions into a real control layer rather than a hidden convenience feature.',
-    investment: 9000,
-    weeks: 1,
-    deliverable:
-      'Keyboard-first routing and scenario control system with stronger discovery affordances',
-    surfaceIds: ['surface-home', 'surface-services'],
-    impact: {
-      experience: 3,
-      intelligence: 8,
+      intelligence: 13,
       resilience: 2,
       conversion: 4,
     },
   },
   {
-    id: 'pricing-decision-engine',
-    title: 'Pricing Decision Engine',
-    category: 'Intelligence Layer',
+    id: 'discovery-messaging-roadmap',
+    title: 'Discovery and Messaging Roadmap',
+    category: 'Experience Layer',
     description:
-      'Turn estimates, ROI assumptions, and plan comparisons into a clearer buying interface instead of a dead-end calculator.',
-    investment: 11000,
+      'Translate scattered ideas, notes, and service language into a clearer public story and better launch sequence.',
+    investment: 7000,
     weeks: 2,
     deliverable:
-      'A buying layer that ties investment, ROI, and delivery sequencing together in one story',
-    surfaceIds: ['surface-pricing', 'surface-contact'],
+      'A clearer site structure, content direction, and first-phase messaging plan',
+    surfaceIds: ['surface-home', 'surface-contact'],
     impact: {
-      experience: 3,
-      intelligence: 7,
+      experience: 8,
+      intelligence: 3,
       resilience: 1,
       conversion: 10,
     },
   },
   {
-    id: 'trust-proof-system',
-    title: 'Trust Proof System',
-    category: 'Trust Layer',
-    description:
-      'Surface operational proof, client confidence, and compliance language in a way that feels readable and credible.',
-    investment: 10000,
-    weeks: 2,
-    deliverable:
-      'Confidence architecture spanning proof strips, trust badges, and executive-facing reassurance layers',
-    surfaceIds: ['surface-services', 'surface-contact'],
-    impact: {
-      experience: 4,
-      intelligence: 2,
-      resilience: 10,
-      conversion: 6,
-    },
-  },
-  {
-    id: 'executive-briefing-layer',
-    title: 'Executive Briefing Layer',
-    category: 'Trust Layer',
-    description:
-      'Translate the system into boardroom-ready signals, milestones, and strategic context without flattening the design.',
-    investment: 13000,
-    weeks: 2,
-    deliverable:
-      'Leadership narrative layer with milestone framing and proof-led storytelling',
-    surfaceIds: ['surface-home', 'surface-contact'],
-    impact: {
-      experience: 5,
-      intelligence: 3,
-      resilience: 7,
-      conversion: 7,
-    },
-  },
-  {
-    id: 'observability-wall',
-    title: 'Observability Wall',
+    id: 'm365-collaboration-rollout',
+    title: 'Microsoft 365 and Collaboration Rollout',
     category: 'Platform Layer',
     description:
-      'Make runtime confidence visible through readiness metrics, monitoring concepts, and diagnostics that feel usable.',
-    investment: 15000,
+      'Plan the first Microsoft 365, SharePoint, Teams, or intranet improvements that will reduce friction and improve control.',
+    investment: 8500,
     weeks: 2,
     deliverable:
-      'Monitoring and diagnostics surfaces that reinforce launch confidence',
-    surfaceIds: ['surface-debug', 'surface-services'],
+      'A practical M365 and collaboration rollout plan with governance considerations',
+    surfaceIds: ['surface-services', 'surface-pricing', 'surface-contact'],
     impact: {
-      experience: 2,
-      intelligence: 5,
-      resilience: 12,
-      conversion: 3,
-    },
-  },
-  {
-    id: 'performance-guardrails',
-    title: 'Performance Guardrails',
-    category: 'Platform Layer',
-    description:
-      'Bias the experience toward fast, resilient delivery with motion discipline, bundle awareness, and mobile-safe constraints.',
-    investment: 8000,
-    weeks: 1,
-    deliverable:
-      'A hardening pass that protects the premium feel on real devices and low-end conditions',
-    surfaceIds: ['surface-home', 'surface-debug'],
-    impact: {
-      experience: 2,
-      intelligence: 1,
-      resilience: 9,
+      experience: 3,
+      intelligence: 7,
+      resilience: 8,
       conversion: 4,
     },
   },
   {
-    id: 'multi-surface-launch-kit',
-    title: 'Multi-Surface Launch Kit',
+    id: 'network-site-reliability-plan',
+    title: 'Network and Site Reliability Plan',
     category: 'Platform Layer',
     description:
-      'Connect landing, services, pricing, and intake into a cohesive sequence so every page reinforces the same system story.',
-    investment: 14000,
+      'Set the first priorities for networks, Wi-Fi, firewalls, remote access, or multi-site consistency without overengineering the scope.',
+    investment: 8000,
     weeks: 2,
     deliverable:
-      'Unified launch choreography spanning key pages, routes, and buyer actions',
-    surfaceIds: [
-      'surface-home',
-      'surface-services',
-      'surface-pricing',
-      'surface-contact',
-    ],
+      'A site and infrastructure reliability roadmap with practical milestones',
+    surfaceIds: ['surface-services', 'surface-contact'],
     impact: {
-      experience: 6,
-      intelligence: 4,
-      resilience: 4,
+      experience: 1,
+      intelligence: 3,
+      resilience: 11,
+      conversion: 2,
+    },
+  },
+  {
+    id: 'executive-security-reporting',
+    title: 'Executive Reporting and Decision Pack',
+    category: 'Platform Layer',
+    description:
+      'Package the current-state findings, first-phase priorities, and budget logic into something leadership can actually review and approve.',
+    investment: 6500,
+    weeks: 1,
+    deliverable:
+      'A leadership-ready summary with milestones, priorities, and budget framing',
+    surfaceIds: ['surface-pricing', 'surface-contact'],
+    impact: {
+      experience: 3,
+      intelligence: 5,
+      resilience: 5,
       conversion: 9,
+    },
+  },
+  {
+    id: 'launch-quality-hardening',
+    title: 'Launch QA and Hardening',
+    category: 'Platform Layer',
+    description:
+      'Pressure-test the launch scope with QA, release checks, and the practical hardening work that keeps the result credible after go-live.',
+    investment: 7000,
+    weeks: 1,
+    deliverable: 'A cleaner release plan with fewer avoidable launch surprises',
+    surfaceIds: ['surface-experience', 'surface-contact', 'surface-debug'],
+    impact: {
+      experience: 4,
+      intelligence: 1,
+      resilience: 9,
+      conversion: 6,
     },
   },
 ];
 
 const categoryCrewMap: Record<StudioModuleCategory, string> = {
-  'Experience Layer': 'Motion systems designer',
-  'Intelligence Layer': 'Automation / AI engineer',
-  'Trust Layer': 'Narrative + proof strategist',
-  'Platform Layer': 'Platform reliability engineer',
+  'Operations Layer': 'Service delivery lead',
+  'Security Layer': 'Security and compliance lead',
+  'Experience Layer': 'UX and content lead',
+  'Platform Layer': 'Cloud and infrastructure engineer',
 };
 
 const phaseTemplates = [
   {
-    label: 'Frame the thesis',
+    label: 'Audit and align',
     summary:
-      'Align the narrative, operating pressure, and highest-value system surface.',
+      'Confirm the pressure point, current-state reality, and the strongest first-phase scope.',
     weight: 0.24,
   },
   {
-    label: 'Prototype the experience',
+    label: 'Stabilize the core',
     summary:
-      'Build the interaction model, proof surfaces, and responsive choreography.',
+      'Address ownership gaps, the biggest risks, and the operating issues causing the most drag.',
     weight: 0.28,
   },
   {
-    label: 'Instrument the system',
+    label: 'Modernize or launch',
     summary:
-      'Wire diagnostics, automation cues, and production-minded guardrails into the build.',
+      'Move into the cloud, security, automation, or buyer-facing work that earns the next investment.',
     weight: 0.28,
   },
   {
-    label: 'Rehearse the launch',
+    label: 'Document and hand off',
     summary:
-      'Package the story, harden the experience, and prepare the handoff for real stakeholders.',
+      'Package documentation, reporting, and next-step recommendations so momentum survives after the first phase.',
     weight: 0.2,
   },
 ] as const;
@@ -706,7 +755,7 @@ export function calculateStudioPlan({
       normalizedScale >= 22 ? 'QA + accessibility lead' : '',
       normalizedScale >= 30 ? 'Launch producer' : '',
       urgency === 'accelerated' ? 'Delivery lead' : '',
-      urgency === 'flagship' ? 'Cinematic art direction' : '',
+      urgency === 'flagship' ? 'Executive communications lead' : '',
     ].filter(Boolean)
   ).slice(0, 6);
 

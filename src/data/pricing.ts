@@ -30,68 +30,71 @@ export interface TrustSignal {
 
 export const pricingTiers: PricingTier[] = [
   {
-    id: 'essentials',
-    name: 'Essentials',
-    price: '$99 / user / mo',
+    id: 'core-coverage',
+    name: 'Core Coverage',
+    price: '$95-$125 / user / mo',
     description:
-      'Reliable support, patching, backup oversight, and monitoring for teams that need a calm baseline fast.',
-    bestFor: 'Small teams standardising support and device hygiene',
-    responseSla: 'Standard business-hours response with monitored escalation',
-    ctaLabel: 'Start with Essentials',
+      'Directional range for firms that need dependable support, patching, endpoint oversight, and a calmer operating baseline.',
+    bestFor: 'Smaller teams or first-time MSP buyers standardizing support',
+    responseSla: 'Business-hours support with documented escalation',
+    ctaLabel: 'Start with Core Coverage',
     perks: [
-      'Monitoring and alerting across endpoints',
-      'Patch management with monthly reporting',
-      'Backup oversight and restore coordination',
-      'Helpdesk workflows with documented ownership',
+      'Help desk, monitoring, and patch management',
+      'User onboarding and offboarding workflows',
+      'Backup oversight with restore coordination',
+      'Basic documentation and vendor coordination',
     ],
   },
   {
-    id: 'growth',
-    name: 'Growth',
-    price: '$149 / user / mo',
+    id: 'secure-operations',
+    name: 'Secure Operations',
+    price: '$135-$175 / user / mo',
     description:
-      'Adds stronger identity, security baselines, and roadmap leadership for companies scaling their stack.',
-    bestFor: 'Hybrid teams that need proactive IT plus stronger governance',
-    responseSla: 'Priority response and quarterly roadmap reviews',
+      'Directional range for companies that need stronger identity, security baselines, Microsoft 365 governance, and strategic review rhythm.',
+    bestFor:
+      'Hybrid teams that need proactive IT plus stronger security posture',
+    responseSla: 'Priority response with regular review cadence',
     highlight: true,
-    ctaLabel: 'Choose Growth',
+    ctaLabel: 'Choose Secure Operations',
     perks: [
-      'Everything in Essentials',
-      'Identity hardening with MFA and SSO support',
-      'Security baseline and policy templates',
-      'Quarterly roadmap review with action items',
+      'Everything in Core Coverage',
+      'Identity, MFA, and access policy support',
+      'Security baseline reviews and awareness support',
+      'Quarterly roadmap and lifecycle planning',
     ],
   },
   {
-    id: 'secure-plus',
-    name: 'Secure+',
-    price: '$199 / user / mo',
+    id: 'co-managed',
+    name: 'Co-Managed and Regulated',
+    price: '$165-$215 / user / mo',
     description:
-      'Advanced security depth and incident readiness for regulated or high-visibility environments.',
-    bestFor: 'Healthcare, finance, SaaS, and audit-heavy teams',
-    responseSla: 'Accelerated security response plus readiness playbooks',
-    ctaLabel: 'Move to Secure+',
+      'Directional range for internal IT partnerships, regulated environments, and teams that need deeper coverage, documentation, and recovery discipline.',
+    bestFor: 'Healthcare, finance, manufacturing, and co-managed IT teams',
+    responseSla:
+      'Faster response, tighter escalation, and security-aware triage',
+    ctaLabel: 'Move to Co-Managed',
     perks: [
-      'Everything in Growth',
-      'Managed EDR and response workflows',
-      'Security awareness program support',
+      'Everything in Secure Operations',
+      'Co-managed support for internal IT or operations staff',
       'Compliance readiness and evidence habits',
+      'Recovery runbooks and stronger change discipline',
     ],
   },
   {
     id: 'custom',
     name: 'Custom',
-    price: 'Quoted',
+    price: 'Quoted after assessment',
     description:
-      'Built for multi-site operations, cloud-heavy estates, dedicated security programs, or product/platform engineering.',
-    bestFor: 'Complex environments with layered delivery or vCISO needs',
+      'Built for multi-site operations, cloud-heavy estates, dedicated security programs, office projects, or client-facing digital work.',
+    bestFor:
+      'Complex environments with layered delivery, vCISO, or project work',
     responseSla: 'Custom escalation matrix, SLAs, and operating cadence',
     ctaLabel: 'Design a custom plan',
     perks: [
-      'Custom device, server, and site-based pricing',
-      'Dedicated security and architecture leadership',
-      'Cloud migration or application workstreams',
-      'Delivery model tuned to business-critical operations',
+      'Custom pricing by users, devices, sites, servers, and coverage model',
+      'Dedicated security, cloud, or project leadership',
+      'Cloud migrations, office refreshes, and digital workstreams',
+      'A delivery model tuned to business-critical operations',
     ],
   },
 ];
@@ -101,6 +104,11 @@ export const pricingFaqs: FAQEntry[] = [
     title: 'Do you support co-managed IT and internal teams?',
     content:
       'Yes. We frequently partner with internal IT, engineering, or security teams and take ownership of monitoring, escalations, project execution, or reporting where it helps most.',
+  },
+  {
+    title: 'Are these exact prices or directional ranges?',
+    content:
+      'They are directional ranges based on common Chicago-area MSP structures. Final pricing depends on users, devices, locations, after-hours coverage, servers, compliance scope, and project load.',
   },
   {
     title: 'What changes the monthly price the most?',
@@ -152,20 +160,21 @@ export const servicesFaqs: FAQEntry[] = [
 
 export const pricingSignals: TrustSignal[] = [
   {
-    label: '10–14 day onboarding',
-    sublabel: 'Typical move from intake to active instrumentation',
+    label: 'Directional Chicago ranges',
+    sublabel: 'Ranges are meant to orient the first budget conversation',
   },
   {
-    label: '24/7 monitoring option',
-    sublabel: 'After-hours coverage for production-critical systems',
+    label: 'After-hours available',
+    sublabel: '24/7 monitoring and response can be layered in where needed',
   },
   {
-    label: 'Security + audit readiness',
-    sublabel: 'SOC 2, HIPAA, and control-evidence habits built in',
+    label: 'Co-managed support',
+    sublabel: 'Internal IT teams can keep ownership where it makes sense',
   },
   {
-    label: 'Roadmaps with SLAs',
-    sublabel: 'Monthly operating reviews and clear escalation ownership',
+    label: 'Projects scoped separately',
+    sublabel:
+      'Migrations, office work, and digital builds stay visible on their own',
   },
 ];
 
@@ -174,7 +183,7 @@ export const slaComparisonRows: SlaComparisonRow[] = [
     capability: 'Helpdesk and support coverage',
     essentials: 'Business-hours + monitored escalation',
     growth: 'Priority queue + proactive review',
-    securePlus: 'Priority queue + security-aware triage',
+    securePlus: 'Priority queue + co-managed / security-aware triage',
     custom: 'Custom routing and escalation matrix',
   },
   {
@@ -195,21 +204,21 @@ export const slaComparisonRows: SlaComparisonRow[] = [
     capability: 'Incident readiness',
     essentials: 'Escalation playbook light',
     growth: 'Documented response ownership',
-    securePlus: 'Managed response workflows',
+    securePlus: 'Managed response and recovery workflows',
     custom: 'Dedicated security program alignment',
   },
   {
     capability: 'Quarterly strategic reviews',
     essentials: 'Optional add-on',
     growth: 'Included',
-    securePlus: 'Included with security emphasis',
+    securePlus: 'Included with operational and security emphasis',
     custom: 'Included with executive cadence',
   },
   {
-    capability: 'Cloud / platform modernization',
+    capability: 'Cloud / project modernization',
     essentials: 'Light advisory',
     growth: 'Planned workstreams',
-    securePlus: 'Security-led modernization',
+    securePlus: 'Security-led or co-managed modernization',
     custom: 'Dedicated engineering tracks',
   },
 ];

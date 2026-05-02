@@ -21,7 +21,7 @@ const analyticsEnabled = analyticsFlag === 'true' || analyticsFlag === '1';
 
 export const SITE_TITLE = 'Olive Global Systems';
 export const SITE_DESCRIPTION =
-  'Integrated trade platform across mechanical, electrical, plumbing, general contracting, commercial HVAC, auto repair, and MSP services.';
+  'Chicago-area managed IT, cybersecurity, cloud, Microsoft 365, backup, networking, and digital systems for growth-minded teams.';
 export const SITE_URL = deployment.siteUrl;
 export const BASE_PATH = deployment.basePath;
 export const CONTACT_EMAIL =

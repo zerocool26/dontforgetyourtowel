@@ -35,55 +35,64 @@ const FOCUS_PROFILES: Record<
   }
 > = {
   stabilize: {
-    label: 'Stabilize operations',
-    lead: 'Reduce ticket drag, downtime, and operational guesswork.',
-    recommendedPlan: 'Essentials → Growth',
-    categories: ['MSP Services', 'Network Engineering'],
+    label: 'Stabilize support and operations',
+    lead: 'Reduce downtime, ticket drag, and ownership gaps first.',
+    recommendedPlan: 'Core Coverage → Secure Operations',
+    categories: [
+      'Managed IT & Support',
+      'Network & Infrastructure',
+      'Backup, Continuity & Recovery',
+    ],
     outcomes: [
-      'Clear ownership for support and endpoint hygiene',
-      'Hybrid-work reliability and documented runbooks',
-      'A calmer starting point for future modernization',
+      'Clear ownership for support, endpoints, and vendor follow-through',
+      'Fewer recurring issues and better day-to-day reliability',
+      'A documented base for future security and modernization work',
     ],
   },
   secure: {
-    label: 'Raise security maturity',
-    lead: 'Close exposure quickly without slowing delivery to a crawl.',
-    recommendedPlan: 'Growth → Secure+',
-    categories: ['IT Security', 'MSP Services', 'Cloud Development'],
+    label: 'Raise security and compliance maturity',
+    lead: 'Tighten identity, endpoints, and response readiness without security theater.',
+    recommendedPlan: 'Secure Operations → Co-Managed',
+    categories: [
+      'Cybersecurity & Compliance',
+      'Managed IT & Support',
+      'Cloud & Microsoft 365',
+      'Backup, Continuity & Recovery',
+    ],
     outcomes: [
-      'Identity, endpoint, and policy controls that stick',
-      'Incident readiness and evidence habits for audits',
-      'Leadership visibility into risk posture and response',
+      'Identity, endpoint, and email controls that stick',
+      'Practical audit and evidence habits for leadership and vendors',
+      'Stronger incident readiness and recovery confidence',
     ],
   },
   scale: {
-    label: 'Scale platform delivery',
-    lead: 'Modernize infrastructure and applications for growth.',
-    recommendedPlan: 'Growth → Custom',
+    label: 'Modernize cloud and Microsoft 365',
+    lead: 'Move from aging infrastructure to a cleaner cloud and collaboration model.',
+    recommendedPlan: 'Secure Operations → Custom',
     categories: [
-      'Cloud Development',
-      'Application Development',
-      'Network Engineering',
+      'Cloud & Microsoft 365',
+      'Network & Infrastructure',
+      'Strategy, Automation & Digital Systems',
     ],
     outcomes: [
-      'Cloud guardrails and repeatable release workflows',
-      'Platform engineering without hidden operational debt',
-      'Delivery capacity that keeps up with roadmap ambition',
+      'Cleaner Microsoft 365, cloud, and hybrid environment decisions',
+      'Projects that reduce friction instead of adding more sprawl',
+      'A modernization path leadership can budget and sequence',
     ],
   },
   automate: {
-    label: 'Automate workflows',
-    lead: 'Use AI and orchestration where the payoff is immediate.',
-    recommendedPlan: 'Secure+ → Custom',
+    label: 'Improve workflows and client experience',
+    lead: 'Use automation, reporting, and selective digital work where the payoff is visible.',
+    recommendedPlan: 'Co-Managed → Custom',
     categories: [
-      'AI Consulting',
-      'Application Development',
-      'Cloud Development',
+      'Strategy, Automation & Digital Systems',
+      'Cloud & Microsoft 365',
+      'Managed IT & Support',
     ],
     outcomes: [
-      'High-ROI automation candidates surfaced early',
-      'AI governance and implementation guardrails built in',
-      'Delivery plans that connect product, ops, and security',
+      'Manual work gets reduced with cleaner internal workflows',
+      'Client-facing surfaces better match the quality of the back office',
+      'Automation stays tied to governance, adoption, and measurable use',
     ],
   },
 };
@@ -100,40 +109,52 @@ const INDUSTRY_PROFILES: Record<
   healthcare: {
     label: 'Healthcare',
     note: 'Bias toward continuity, access control, compliance, and recovery.',
-    boostCategories: ['IT Security', 'MSP Services'],
+    boostCategories: [
+      'Cybersecurity & Compliance',
+      'Managed IT & Support',
+      'Backup, Continuity & Recovery',
+    ],
     keywords: ['health', 'compliance', 'identity', 'backup', 'continuity'],
   },
   finance: {
     label: 'Financial services',
-    note: 'Bias toward governance, resilience, latency, and executive oversight.',
+    note: 'Bias toward governance, resilience, access control, and executive oversight.',
     boostCategories: [
-      'IT Security',
-      'Cloud Development',
-      'Network Engineering',
+      'Cybersecurity & Compliance',
+      'Cloud & Microsoft 365',
+      'Network & Infrastructure',
     ],
-    keywords: ['risk', 'governance', 'identity', 'latency', 'compliance'],
+    keywords: ['risk', 'governance', 'identity', 'compliance', 'policy'],
   },
   manufacturing: {
     label: 'Manufacturing',
-    note: 'Bias toward industrial resilience, connectivity, and downtime reduction.',
-    boostCategories: ['Network Engineering', 'IT Security', 'AI Consulting'],
-    keywords: ['industrial', 'iot', 'latency', 'continuity', 'edge'],
+    note: 'Bias toward uptime, site reliability, continuity, and pragmatic modernization.',
+    boostCategories: [
+      'Network & Infrastructure',
+      'Cybersecurity & Compliance',
+      'Backup, Continuity & Recovery',
+    ],
+    keywords: ['industrial', 'manufacturing', 'continuity', 'site', 'network'],
   },
   services: {
     label: 'Professional services',
-    note: 'Bias toward collaboration, identity, service quality, and ticket flow.',
-    boostCategories: ['MSP Services', 'Cloud Development', 'AI Consulting'],
-    keywords: ['workflow', 'collaboration', 'identity', 'support', 'remote'],
+    note: 'Bias toward collaboration, identity, responsiveness, and a cleaner client experience.',
+    boostCategories: [
+      'Managed IT & Support',
+      'Cloud & Microsoft 365',
+      'Strategy, Automation & Digital Systems',
+    ],
+    keywords: ['workflow', 'collaboration', 'identity', 'support', 'client'],
   },
   saas: {
     label: 'SaaS and tech',
-    note: 'Bias toward platform velocity, observability, APIs, and automation.',
+    note: 'Bias toward cloud maturity, access governance, and workflow efficiency.',
     boostCategories: [
-      'Application Development',
-      'Cloud Development',
-      'AI Consulting',
+      'Cloud & Microsoft 365',
+      'Cybersecurity & Compliance',
+      'Strategy, Automation & Digital Systems',
     ],
-    keywords: ['cloud', 'platform', 'api', 'automation', 'observability'],
+    keywords: ['cloud', 'platform', 'automation', 'identity', 'saas'],
   },
 };
 
@@ -155,10 +176,26 @@ function scoreService(
     if (haystack.includes(keyword.toLowerCase())) score += 1;
   }
 
-  if (focusKey === 'automate' && haystack.includes('ai')) score += 2;
-  if (focusKey === 'secure' && haystack.includes('security')) score += 2;
-  if (focusKey === 'scale' && haystack.includes('cloud')) score += 2;
-  if (focusKey === 'stabilize' && haystack.includes('managed')) score += 2;
+  if (
+    focusKey === 'automate' &&
+    /(automation|workflow|portal|website|reporting|digital)/.test(haystack)
+  )
+    score += 2;
+  if (
+    focusKey === 'secure' &&
+    /(security|compliance|identity|response|backup)/.test(haystack)
+  )
+    score += 2;
+  if (
+    focusKey === 'scale' &&
+    /(cloud|microsoft|migration|sharepoint|teams|network)/.test(haystack)
+  )
+    score += 2;
+  if (
+    focusKey === 'stabilize' &&
+    /(managed|support|help desk|monitoring|patch|restore)/.test(haystack)
+  )
+    score += 2;
 
   return score;
 }
@@ -204,7 +241,7 @@ export default function ServiceComparisonMatrix({ services }: Props) {
             <p class="tone-body text-sm leading-relaxed sm:text-base">
               Choose the business outcome you need most, then bias the shortlist
               by industry context. The matrix surfaces the capabilities most
-              likely to compound value fastest.
+              likely to improve the first 90 days fastest.
             </p>
           </div>
 
@@ -290,7 +327,7 @@ export default function ServiceComparisonMatrix({ services }: Props) {
                   `contact-hq/?focus=${encodeURIComponent(focus)}&industry=${encodeURIComponent(industry)}`
                 )}
               >
-                Request roadmap
+                Request a first-phase plan
               </a>
             </div>
           </div>
@@ -346,8 +383,8 @@ export default function ServiceComparisonMatrix({ services }: Props) {
             </p>
             <p class="tone-body mt-2 text-sm leading-relaxed">
               We can turn this shortlist into a phased rollout covering quick
-              wins, security dependencies, and the operating rhythm needed to
-              keep momentum after launch.
+              wins, security dependencies, ownership, and the operating rhythm
+              needed to keep momentum after launch.
             </p>
             <div class="mt-4 flex flex-wrap gap-3">
               <a

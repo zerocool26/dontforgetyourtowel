@@ -8,7 +8,7 @@ import {
 
 describe('build studio data', () => {
   it('exposes stable preset and module identifiers', () => {
-    expect(studioPresets).toHaveLength(4);
+    expect(studioPresets).toHaveLength(5);
     expect(new Set(studioPresets.map(preset => preset.id)).size).toBe(
       studioPresets.length
     );
@@ -23,19 +23,19 @@ describe('build studio data', () => {
 
   it('calculates coherent plans with deduped modules and bounded readiness', () => {
     const plan = calculateStudioPlan({
-      presetId: 'ai-operations-room',
+      presetId: 'automation-reporting-sprint',
       moduleIds: [
-        'ai-workflow-orchestrator',
-        'ai-workflow-orchestrator',
-        'observability-wall',
+        'workflow-automation-reporting',
+        'workflow-automation-reporting',
+        'executive-security-reporting',
       ],
       scale: 26,
       urgency: 'flagship',
     });
 
     expect(plan.modules.map(module => module.id)).toEqual([
-      'ai-workflow-orchestrator',
-      'observability-wall',
+      'workflow-automation-reporting',
+      'executive-security-reporting',
     ]);
     expect(plan.investmentHigh).toBeGreaterThan(plan.investmentLow);
     expect(plan.totalWeeks).toBeGreaterThanOrEqual(4);
@@ -52,12 +52,12 @@ describe('build studio data', () => {
 
   it('increases investment and overall readiness for larger flagship configurations', () => {
     const baseline = calculateStudioPlan({
-      presetId: 'launch-control',
+      presetId: 'support-stabilization',
       scale: 12,
       urgency: 'balanced',
     });
     const flagship = calculateStudioPlan({
-      presetId: 'launch-control',
+      presetId: 'support-stabilization',
       scale: 28,
       urgency: 'flagship',
     });

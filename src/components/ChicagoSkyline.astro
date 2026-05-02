@@ -1,0 +1,77 @@
+---
+interface Props {
+  className?: string;
+  title?: string;
+  decorative?: boolean;
+}
+
+const {
+  className = '',
+  title = 'Chicago skyline illustration',
+  decorative = true,
+} = Astro.props as Props;
+---
+
+<svg
+  viewBox="0 0 1200 220"
+  class:list={['chicago-skyline', className]}
+  aria-hidden={decorative ? 'true' : undefined}
+  role={decorative ? undefined : 'img'}
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  {!decorative ? <title>{title}</title> : null}
+  <defs>
+    <linearGradient id="skylineGlow" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="currentColor" stop-opacity="0.12"></stop>
+      <stop offset="50%" stop-color="currentColor" stop-opacity="0.34"></stop>
+      <stop offset="100%" stop-color="currentColor" stop-opacity="0.12"></stop>
+    </linearGradient>
+  </defs>
+
+  <path
+    d="M0 202h66v-24h22V92h16v110h34v-58h22v58h28V70h18v132h42v-42h20v42h24V114h18v88h34V52h14v150h18v-20h14v20h46V18h10v184h18V76h16v126h12V96h16v106h28V30h14v172h34v-28h22v28h18V84h14v118h34v-52h18v52h32V12h12v190h44V96h14v106h20v-44h18v44h34V136h18v66h40v-80h16v80h28V64h14v138h36v-60h16v60h34V92h16v110h34v-34h20v34h30V118h16v84h48v-56h20v56h42V96h16v106h54"
+    class="chicago-skyline__mass"></path>
+  <path d="M0 202h1200" class="chicago-skyline__horizon"></path>
+  <path
+    d="M332 32h24m-12 0v170M590 20h32m-16 0v182M824 20h32m-16 0v182"
+    class="chicago-skyline__spires"></path>
+  <circle cx="1038" cy="54" r="22" class="chicago-skyline__sun"></circle>
+</svg>
+
+<style>
+  .chicago-skyline {
+    display: block;
+    width: 100%;
+    height: auto;
+    color: currentColor;
+  }
+
+  .chicago-skyline__mass {
+    fill: url(#skylineGlow);
+    stroke: currentColor;
+    stroke-width: 1.25;
+    stroke-linejoin: round;
+  }
+
+  .chicago-skyline__horizon {
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    opacity: 0.72;
+  }
+
+  .chicago-skyline__spires {
+    stroke: currentColor;
+    stroke-width: 1.25;
+    stroke-linecap: round;
+    opacity: 0.9;
+  }
+
+  .chicago-skyline__sun {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.25;
+    opacity: 0.56;
+  }
+</style>

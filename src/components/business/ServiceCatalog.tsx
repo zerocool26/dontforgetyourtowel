@@ -109,7 +109,7 @@ export default function ServiceCatalog({ services }: Props) {
           <input
             id="service-search"
             type="text"
-            placeholder="e.g. 'Cloud Security', 'Kubernetes'..."
+            placeholder="e.g. 'M365', 'backup', 'vCIO'..."
             value={search}
             onInput={e => setSearch(e.currentTarget.value)}
             className="tone-border tone-title tone-surface w-full rounded-xl border px-4 py-3 text-sm placeholder-zinc-500 transition-all focus:border-accent-500/50 focus:outline-none focus:ring-1 focus:ring-accent-500/50 motion-reduce:transition-none"
@@ -218,7 +218,7 @@ export default function ServiceCatalog({ services }: Props) {
             <div
               className={`tone-muted flex items-center gap-2 text-xs font-medium [@media(hover:hover)]:group-hover:text-accent-200 ${viewMode === 'grid' ? 'mt-6' : 'md:justify-end'}`}
             >
-              <span>Get plan details</span>
+              <span>Request fit details</span>
               <svg
                 className="h-4 w-4 transition-transform motion-reduce:transition-none [@media(hover:hover)]:group-hover:translate-x-1"
                 fill="none"

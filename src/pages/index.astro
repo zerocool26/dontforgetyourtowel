@@ -1,6 +1,7 @@
 ---
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
+import ChicagoSkyline from '../components/ChicagoSkyline.astro';
 import { CONTACT_EMAIL } from '../consts';
 import { withBasePath } from '../utils/helpers';
 
@@ -12,64 +13,64 @@ const serviceLanes = [
   {
     index: '01',
     label: 'Operate',
-    title: 'Managed IT with real ownership',
-    copy: 'Support, vendors, device health, onboarding, and day-to-day follow-through under one accountable team.',
+    title: 'Managed IT that actually owns the day-to-day',
+    copy: 'Help desk, endpoint management, onboarding, vendor coordination, and recurring maintenance under one accountable operating model.',
     href: withBasePath('services/'),
   },
   {
     index: '02',
-    label: 'Secure',
-    title: 'Security that leadership can understand',
-    copy: 'Identity, compliance progress, endpoint hardening, and practical risk reduction without theater.',
+    label: 'Protect',
+    title: 'Security and compliance without enterprise theater',
+    copy: 'Identity, email protection, endpoint security, compliance readiness, and response planning that leadership can actually follow.',
     href: withBasePath('services/#technology-catalog'),
   },
   {
     index: '03',
     label: 'Modernize',
-    title: 'Cloud, AI, and automation tied to leverage',
-    copy: 'Modernization work shaped around speed, visibility, and lower drag instead of trend chasing.',
+    title: 'Cloud and Microsoft 365 with practical leverage',
+    copy: 'Migration, cleanup, collaboration governance, backup strategy, and workflow automation tied to lower drag and better visibility.',
     href: withBasePath('build-studio/'),
   },
   {
     index: '04',
     label: 'Present',
-    title: 'Premium websites and buyer-facing systems',
-    copy: 'Sharper mobile experiences, launch pages, demos, and digital front doors that feel credible on first contact.',
+    title: 'A digital front door that feels as strong as the backend',
+    copy: 'Selective website, portal, and client-facing work for firms whose presentation needs to match the quality of their operations.',
     href: withBasePath('about/'),
   },
 ];
 
 const outcomePoints = [
-  'A homepage that explains the business in seconds',
-  'Navigation that feels obvious on a phone',
-  'An operating partner instead of a list of vendors',
+  'One partner for support, security, Microsoft 365, and infrastructure decisions',
+  'A Chicago-specific service story that reads clearly on mobile',
+  'A sharper first impression before the first sales or intake call',
 ];
 
 const startOptions = [
   {
     title: 'Need service coverage?',
-    copy: 'Go straight to solutions for the full operating, security, and modernization scope.',
+    copy: 'Start with the solution hub if you need help desk ownership, security lift, M365 guidance, or infrastructure support.',
     href: withBasePath('services/'),
     cta: 'View solutions',
   },
   {
     title: 'Need budget clarity?',
-    copy: 'Use pricing when the main question is scope, support depth, or rollout shape.',
+    copy: 'Use pricing when the main question is directional budget, coverage depth, or whether co-managed support makes sense.',
     href: withBasePath('pricing/'),
     cta: 'See pricing',
   },
   {
-    title: 'Need a faster brief?',
-    copy: 'Use the studio to shape the project before the first call.',
+    title: 'Need a first-phase roadmap?',
+    copy: 'Use the roadmap studio to shape the first 30, 60, or 90 days before the first detailed scope call.',
     href: withBasePath('build-studio/'),
-    cta: 'Open studio',
+    cta: 'Open roadmap',
   },
 ];
 ---
 
 <MarketingLayout
-  title="Olive Global Systems | Managed IT, Security, and Premium Web Systems"
-  description="Managed IT, security, cloud, AI, automation, and premium buyer-facing systems for companies that need to run cleaner and sell sharper."
+  title="Olive Global Systems | Chicago Managed IT, Security, and Digital Systems"
+  description="Chicago-area managed IT, cybersecurity, Microsoft 365, backup, networking, and selective digital systems for firms that need steadier operations and a stronger first impression."
   mainClass="relative overflow-x-clip"
   bodyClass="creative-page"
   showFooter={true}
@@ -81,16 +82,18 @@ const startOptions = [
     <div class="premium-container">
       <div class="home-homepage-hero__shell">
         <div class="home-homepage-hero__copy">
-          <p class="home-homepage-eyebrow">Chicago systems partner</p>
+          <p class="home-homepage-eyebrow">
+            Chicago managed IT and cybersecurity
+          </p>
           <h1 class="home-homepage-title">
-            Own operations.
-            <span>Tighten security.</span>
-            <span>Look premium on mobile.</span>
+            Support that answers.
+            <span>Security that holds.</span>
+            <span>A sharper Chicago front door.</span>
           </h1>
           <p class="home-homepage-copy">
-            Managed IT, security, cloud, AI, and premium buyer-facing systems
-            for companies that need a cleaner operation and a stronger front
-            door.
+            Managed IT, cybersecurity, Microsoft 365, cloud, backup, networking,
+            and selective digital systems for Chicago-area teams that need
+            technology to feel organized again.
           </p>
 
           <div class="home-homepage-actions">
@@ -119,23 +122,29 @@ const startOptions = [
           <div class="home-homepage-art-panel">
             <div class="home-homepage-art-panel__topline">
               <span>Operate</span>
-              <span>Secure</span>
+              <span>Protect</span>
+              <span>Modernize</span>
               <span>Present</span>
             </div>
 
             <div class="home-homepage-art-panel__headline">
-              <span>Trust</span>
-              <span>starts</span>
-              <span>before</span>
-              <span>the call.</span>
+              <span>Built</span>
+              <span>for</span>
+              <span>Chicago</span>
+              <span>uptime.</span>
             </div>
 
             <div class="home-homepage-art-panel__rule"></div>
 
+            <div class="home-homepage-art-panel__skyline">
+              <ChicagoSkyline className="home-homepage-skyline" />
+            </div>
+
             <div class="home-homepage-art-panel__meta">
-              <p>Mobile-first browsing</p>
-              <p>Clear service lanes</p>
-              <p>No hidden content</p>
+              <p>Managed IT and support</p>
+              <p>Security and compliance</p>
+              <p>Cloud and M365</p>
+              <p>Premium digital systems</p>
             </div>
           </div>
         </div>
@@ -148,11 +157,13 @@ const startOptions = [
       <div class="home-homepage-section__intro">
         <p class="home-homepage-eyebrow">What we do</p>
         <h2 class="home-homepage-section__title">
-          Four lanes. Clear scope. No homepage maze.
+          Four lanes. Real scope. No giant Chicago MSP checklist wall.
         </h2>
         <p class="home-homepage-section__copy">
-          The homepage should explain the company fast. Detail belongs deeper in
-          the site, not in a pile of boxes on the first screen.
+          Strong providers in this market all cover support, security, cloud,
+          continuity, and strategy. The difference is whether the site makes
+          that understandable fast. Detail belongs deeper in the site, not in a
+          cluttered hero.
         </p>
       </div>
 
@@ -184,7 +195,7 @@ const startOptions = [
         <div class="home-homepage-closing__intro">
           <p class="home-homepage-eyebrow">Choose the next move</p>
           <h2 class="home-homepage-section__title">
-            Start where the pressure is: scope, budget, or project shaping.
+            Start where the pressure is: support, budget, or roadmap shaping.
           </h2>
         </div>
 
@@ -206,7 +217,8 @@ const startOptions = [
           <div>
             <p class="home-homepage-eyebrow">Ready to move</p>
             <h3 class="home-homepage-closeout__title">
-              Fix the operating layer and the digital front door together.
+              Fix the operating layer first. Improve the front door with the
+              same discipline.
             </h3>
           </div>
 
@@ -421,6 +433,16 @@ const startOptions = [
         color-mix(in srgb, var(--color-primary) 55%, transparent),
         transparent
       );
+    }
+
+    .home-homepage-art-panel__skyline {
+      padding: 0.2rem 0 1rem;
+      color: color-mix(in srgb, var(--color-primary) 76%, white 24%);
+    }
+
+    .home-homepage-skyline {
+      width: min(100%, 34rem);
+      opacity: 0.94;
     }
 
     .home-homepage-section {

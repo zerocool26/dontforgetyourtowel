@@ -15,7 +15,7 @@ import { withBasePath } from '../utils/helpers';
 
 const startProjectHref = `mailto:${encodeURIComponent(
   CONTACT_EMAIL
-)}?subject=${encodeURIComponent('Solution planning inquiry')}`;
+)}?subject=${encodeURIComponent('Chicago managed services planning inquiry')}`;
 
 const serviceCategories = Array.from(
   new Set(servicesExtended.map(service => service.category))
@@ -23,20 +23,20 @@ const serviceCategories = Array.from(
 
 const entryLanes = [
   {
-    title: 'Managed operations',
-    copy: 'Start here when support ownership, onboarding, endpoint health, vendor coordination, and day-to-day calm are the priority.',
+    title: 'Managed IT and support',
+    copy: 'Start here when help desk ownership, onboarding, patching, vendor coordination, and day-to-day follow-through are the priority.',
     href: '#service-tracks',
-    cta: 'View managed operations track',
+    cta: 'View support track',
   },
   {
     title: 'Security and compliance',
-    copy: 'Use this lane for identity, device hardening, response planning, compliance momentum, and executive-level security guidance.',
+    copy: 'Use this lane for identity, endpoint protection, awareness, response planning, and practical compliance readiness.',
     href: '#technology-catalog',
     cta: 'Open capability catalog',
   },
   {
-    title: 'Cloud, AI, and custom delivery',
-    copy: 'If you need modernization, automation, AI, client-facing builds, or blended roadmap work, start here and shape the right mix.',
+    title: 'Cloud, Microsoft 365, and roadmap work',
+    copy: 'If you need M365 cleanup, cloud migration, workflow automation, office projects, or digital-system work, start here and shape the right mix.',
     href: '#service-planner',
     cta: 'Compare solution options',
   },
@@ -53,52 +53,48 @@ const serviceSections = [
 const serviceTracks = [
   {
     title: 'Managed IT and support operations',
-    copy: 'Stabilize the day-to-day layer first: support ownership, device hygiene, onboarding, vendor wrangling, reporting, and executive visibility.',
+    copy: 'Stabilize the day-to-day layer first: support ownership, device hygiene, onboarding, vendor wrangling, reporting, and escalation discipline.',
     detail:
-      'Best for teams that are tired of reactive support and messy accountability.',
+      'Best for teams that are tired of reactive support, recurring issues, and messy accountability.',
   },
   {
     title: 'Cybersecurity and compliance motion',
     copy: 'Build a practical security posture around identity, endpoints, awareness, response readiness, and evidence habits that leadership can actually understand.',
     detail:
-      'Best for regulated, high-visibility, or security-anxious teams that still need momentum.',
+      'Best for regulated, high-visibility, or security-conscious teams that still need momentum.',
   },
   {
-    title: 'Cloud, AI, and automation programs',
-    copy: 'Move beyond maintenance with modernization tracks that reduce drag, improve visibility, and create leverage across the business.',
+    title: 'Cloud and Microsoft 365 modernization',
+    copy: 'Move beyond maintenance with cloud, collaboration, backup, and governance work that reduces drag and improves visibility across the business.',
     detail:
-      'Best for teams that need modernization without getting buried in vague transformation language.',
+      'Best for teams that need modernization without getting buried in vague transformation language or tool sprawl.',
   },
   {
-    title: 'Premium digital experience work',
-    copy: 'Prototype, design, and deliver higher-end client-facing surfaces when the front door matters just as much as the back office.',
+    title: 'Client-facing digital systems',
+    copy: 'Prototype, design, and deliver higher-trust websites, portals, and launch surfaces when the front door matters just as much as the back office.',
     detail:
-      'Best for launches, portals, premium demos, and buyer-facing digital upgrades.',
+      'Best for launches, portals, buyer-facing upgrades, and firms whose presentation should better match their operations.',
   },
 ];
 
 const deliveryPrograms = [
   {
-    title: 'Stabilize and secure',
+    title: 'Stabilize and document',
     description:
-      'Start with support clarity and security posture so the environment stops leaking time and trust.',
-    outputs: ['Support ownership', 'Security baseline', 'Reporting rhythm'],
+      'Start with help desk ownership, endpoint standards, and documentation so the environment stops leaking time and trust.',
+    outputs: ['Support ownership', 'Device standards', 'Reporting rhythm'],
   },
   {
-    title: 'Modernize and automate',
+    title: 'Secure and standardize',
     description:
-      'Add cloud structure, workflow automation, and AI where they create real leverage instead of novelty.',
-    outputs: ['Cloud roadmap', 'Automation wins', 'Modernization milestones'],
+      'Layer in identity, endpoint protection, awareness, and continuity planning so security becomes part of normal operations.',
+    outputs: ['Identity controls', 'Security baseline', 'Continuity habits'],
   },
   {
-    title: 'Elevate the front door',
+    title: 'Modernize and present',
     description:
-      'Use proof routes and design-led delivery to make the client-facing side of the business feel as strong as the operations behind it.',
-    outputs: [
-      'Mobile-first proof',
-      'Launch-ready demos',
-      'Premium buyer experience',
-    ],
+      'Use cloud, Microsoft 365, workflow automation, and selective digital delivery to make the client-facing side of the business feel as strong as the operations behind it.',
+    outputs: ['Cloud roadmap', 'Workflow wins', 'Premium buyer experience'],
   },
 ];
 
@@ -120,7 +116,7 @@ const breadcrumbItems = [
 
 <MarketingLayout
   title="Services Hub | Olive Global Systems"
-  description="Buyer-focused solution hub for MSP+, security, cloud, AI, automation, and premium digital delivery."
+  description="Chicago-focused managed IT, cybersecurity, Microsoft 365, cloud, backup, networking, and selective digital systems."
   mainClass="relative isolate overflow-x-clip"
   bodyClass="creative-page"
   showFooter={true}
@@ -150,14 +146,15 @@ const breadcrumbItems = [
       <div class="grid gap-10 lg:grid-cols-[1.12fr_0.88fr] lg:items-end">
         <div class="space-y-6">
           <div class="tone-page-header">
-            <p class="tone-page-eyebrow">Services hub</p>
+            <p class="tone-page-eyebrow">Chicago services hub</p>
             <h1 class="tone-page-title">
-              Choose the right lane across support, security, cloud, AI, and
-              premium digital delivery.
+              Choose the right lane across support, security, Microsoft 365,
+              cloud, continuity, and client-facing systems.
             </h1>
             <p class="tone-page-copy max-w-3xl">
               Start with the current pressure point, not a bloated checklist.
-              The deeper catalog is still here when you want it.
+              The deeper catalog is still here when you want it, but the first
+              decision should feel obvious on a phone.
             </p>
           </div>
 
@@ -213,8 +210,8 @@ const breadcrumbItems = [
               <p class="tone-metric-card__label">Solution lanes</p>
               <p class="tone-metric-card__value">4</p>
               <p class="tone-metric-card__detail">
-                Managed operations, security, modernization, and premium digital
-                delivery.
+                Support, security, modernization, and client-facing digital
+                systems.
               </p>
             </ModernCard>
             <ModernCard variant="default" className="tone-metric-card p-5">
@@ -243,7 +240,7 @@ const breadcrumbItems = [
       <div class="tone-section-heading">
         <p class="tone-section-kicker">Where to start</p>
         <h2 class="tone-section-title">
-          Three smart ways buyers usually enter the conversation.
+          Three smart ways Chicago-area buyers usually enter the conversation.
         </h2>
         <p class="tone-section-copy">
           Pick the closest fit, then only open the deeper layers that actually
@@ -289,8 +286,8 @@ const breadcrumbItems = [
             Four tracks that make the business legible fast.
           </h2>
           <p class="tone-section-copy">
-            The idea is simple: buyers should know the right starting lane on
-            mobile without decoding a giant sitemap.
+            Buyers should know the right starting lane on mobile without
+            decoding a giant sitemap or a wall of vendor logos.
           </p>
         </div>
       </div>
@@ -330,7 +327,8 @@ const breadcrumbItems = [
         </h2>
         <p class="tone-section-copy">
           The point is not to list everything. The point is to stack the right
-          work in the right order.
+          work in the right order so the environment gets calmer before it gets
+          more ambitious.
         </p>
       </div>
 
@@ -370,12 +368,12 @@ const breadcrumbItems = [
         <ModernCard variant="glass" className="p-7">
           <p class="tone-section-kicker">Technology and business systems</p>
           <h2 class="mt-4 text-3xl font-semibold tracking-tight text-white">
-            The deep catalog is still here—just framed more clearly.
+            The deep catalog is still here, just framed more clearly.
           </h2>
           <p class="mt-4 text-sm leading-7 text-slate-300">
-            If you want the full capability map, it opens below. If you just
-            need a smart starting lane, the sections above should already do the
-            job.
+            This catalog reflects the kinds of services leading Chicago MSPs
+            actually emphasize: support, security, Microsoft 365, cloud,
+            continuity, networking, strategy, and selective project work.
           </p>
           <div class="mt-6 flex flex-wrap gap-2">
             {
@@ -433,7 +431,7 @@ const breadcrumbItems = [
         </h2>
         <p class="tone-section-copy">
           Use the matrix to narrow the likely engagement shape before you start
-          a scoped conversation.
+          a scoped conversation or ask for a first-phase plan.
         </p>
       </div>
 

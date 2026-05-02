@@ -7,8 +7,8 @@ const today = new Date();
 const primaryLinks = [
   { label: 'Solutions', href: withBasePath('services/') },
   { label: 'Pricing', href: withBasePath('pricing/') },
-  { label: 'Proof', href: withBasePath('about/') },
-  { label: 'Studio', href: withBasePath('build-studio/') },
+  { label: 'Experience', href: withBasePath('about/') },
+  { label: 'Roadmap', href: withBasePath('build-studio/') },
   { label: 'Contact', href: withBasePath('contact-hq/') },
 ];
 
@@ -21,20 +21,21 @@ const supportLinks = [
 const footerSignals = [
   {
     label: 'Coverage',
-    value: 'MSP+',
-    detail: 'Operations, security, cloud, AI, and premium web systems.',
+    value: 'Managed IT + security',
+    detail:
+      'Support, Microsoft 365, cloud, backup, networking, and compliance support.',
   },
   {
-    label: 'Execution',
-    value: 'Mobile first',
+    label: 'Built for',
+    value: 'Chicago-area teams',
     detail:
-      'Sharper presentation and cleaner browsing on the smallest screen first.',
+      'Growth-minded firms that need calmer operations and a more credible digital front door.',
   },
   {
     label: 'Best first move',
-    value: 'Short brief',
+    value: '30-minute fit review',
     detail:
-      'Lead with the pressure point and route it into the right lane fast.',
+      'Lead with the pressure point, current stack, and timing so the right lane becomes obvious fast.',
   },
 ];
 ---
@@ -48,9 +49,9 @@ const footerSignals = [
           <div>
             <p class="footer-brand__title">Olive Global Systems</p>
             <p class="footer-brand__copy">
-              Managed IT, security, cloud, AI, and premium buyer-facing systems
-              for companies that need a sharper operating layer and a stronger
-              front door.
+              Chicago-area managed IT, cybersecurity, Microsoft 365, cloud,
+              backup, networking, and selective digital systems for companies
+              that need steadier operations and a stronger first impression.
             </p>
           </div>
         </div>
@@ -109,7 +110,9 @@ const footerSignals = [
         <p>
           &copy; {today.getFullYear()} Olive Global Systems. All rights reserved.
         </p>
-        <p>Built with Astro for speed, clarity, and accessibility.</p>
+        <p>
+          Built for speed, clarity, and a more credible MSP buying experience.
+        </p>
       </div>
     </div>
   </div>

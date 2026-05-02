@@ -13,12 +13,12 @@ const supportHref = `mailto:${encodeURIComponent(
 
 const proofSignals = [
   {
-    label: 'Proof states',
+    label: 'Prototype states',
     value: String(demoProducts.length),
     detail: 'Real product, cart, review, and checkout states.',
   },
   {
-    label: 'Mobile review paths',
+    label: 'Review paths',
     value: '4',
     detail: 'Cart, compare, quick view, and checkout.',
   },
@@ -35,7 +35,7 @@ const proofPoints = [
     copy: 'The route shows what a premium buyer-facing experience feels like when it still has structure, hierarchy, and restraint.',
   },
   {
-    title: 'Conversion logic, not just nicer visuals',
+    title: 'Real decision points, not just nicer visuals',
     copy: 'Cart states, comparison paths, quick views, and checkout framing help buyers review real decision points.',
   },
   {
@@ -114,11 +114,11 @@ const guidedReviewSteps = [
 
 const implementationTracks = servicesExtended.filter(service =>
   [
-    'ecommerce-personalization',
-    'pwa-design',
-    'ux-ui-design-systems',
-    'qa-automation',
-    'discovery-prototyping',
+    'client-portal-web-refresh',
+    'client-portal-intranet',
+    'workflow-automation-ai-enablement',
+    'qa-release-hardening',
+    'discovery-roadmapping',
   ].includes(service.id)
 );
 
@@ -128,8 +128,8 @@ const featuredProducts = demoProducts
 ---
 
 <MarketingLayout
-  title="Proof Lab | Interactive Commerce Demo"
-  description="Interactive proof lab for portfolio reviews, premium digital walkthroughs, and buyer-facing product experience exploration."
+  title="Experience Lab | Interactive Buyer-Facing Demo"
+  description="Interactive experience lab for premium digital walkthroughs, client-facing system reviews, and buyer-facing product experience exploration."
   bodyClass="creative-page"
   showFooter={true}
   showStickyCTA={false}
@@ -142,10 +142,10 @@ const featuredProducts = demoProducts
       <div class="premium-container">
         <div class="proof-hero__shell">
           <div class="proof-hero__copy">
-            <p class="proof-eyebrow">Proof lab</p>
+            <p class="proof-eyebrow">Experience lab</p>
             <h1 class="proof-title">
               Show the buyer-facing experience
-              <span>and the implementation depth</span>
+              <span>and the implementation discipline</span>
               <span>in the same route.</span>
             </h1>
             <p class="proof-copy">
@@ -160,7 +160,7 @@ const featuredProducts = demoProducts
                 variant="primary"
                 className="min-h-[52px]"
               >
-                Request a proof-led build
+                Request an experience-led build
               </ModernButton>
               <ModernButton
                 href={supportHref}

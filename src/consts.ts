@@ -39,7 +39,7 @@ const analyticsEnabled =
 // MSP/IT services branding (safe defaults; customise as needed)
 export const SITE_TITLE = 'Olive Global Systems';
 export const SITE_DESCRIPTION =
-  'Design-forward MSP+ firm for managed IT, cybersecurity, cloud, AI, automation, and custom digital systems.';
+  'Chicago-area managed IT, cybersecurity, cloud, Microsoft 365, backup, and selective digital systems for teams that need calmer operations and a sharper front door.';
 export const SITE_URL = DEPLOYMENT.siteUrl;
 export const BASE_PATH = import.meta.env.BASE_URL ?? DEPLOYMENT.basePath;
 export const DEPLOYMENT_CONFIG = DEPLOYMENT;

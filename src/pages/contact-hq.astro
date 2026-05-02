@@ -9,6 +9,7 @@ import ScopeReadinessPanel from '../components/business/ScopeReadinessPanel.astr
 import { withBasePath } from '../utils/helpers';
 import { CONTACT_EMAIL } from '../consts';
 import { studioPresets } from '../data/build-studio';
+import { servicesExtended } from '../data/services-extended';
 import { tradeProfiles } from '../data/trades';
 
 const serviceIntent = Astro.url.searchParams.get('service')?.trim() ?? '';
@@ -47,11 +48,16 @@ const workspaceRoutesIntent = (() => {
 })();
 
 const recommendedServiceLabel: Record<string, string> = {
-  msp: 'Managed IT Services',
+  msp: 'Managed IT and Support',
   security: 'Cybersecurity & Compliance',
-  cloud: 'Cloud & Infrastructure',
-  ai: 'AI Consulting & Integration',
+  cloud: 'Cloud and Microsoft 365',
+  ai: 'Automation and Digital Workflow',
+  digital: 'Client-Facing Digital Systems',
 };
+
+const serviceCatalogLabel = Object.fromEntries(
+  servicesExtended.map(service => [service.id, service.name])
+) as Record<string, string>;
 
 const recommendedSolutionLabel = Object.fromEntries(
   studioPresets.map(preset => [preset.id, preset.name])
@@ -61,7 +67,9 @@ const recommendedTradeLabel = Object.fromEntries(
 ) as Record<string, string>;
 
 const serviceIntentLabel =
-  recommendedServiceLabel[serviceIntent.toLowerCase()] ?? serviceIntent;
+  recommendedServiceLabel[serviceIntent.toLowerCase()] ??
+  serviceCatalogLabel[serviceIntent] ??
+  serviceIntent;
 const solutionIntentLabel =
   recommendedSolutionLabel[solutionIntent] ?? solutionIntent;
 const tradeIntentLabel =
@@ -112,7 +120,7 @@ const hasIntakeContext = Boolean(
 const channels = [
   {
     title: 'Strategy and discovery',
-    note: 'Scope review, planning assumptions, buying questions, and next-step recommendations.',
+    note: 'Scope review, planning assumptions, buying questions, and next-step recommendations for Chicago-area support, security, or modernization work.',
     subject: 'Strategy and discovery inquiry',
   },
   {
@@ -126,8 +134,8 @@ const channels = [
     subject: 'Security advisory request',
   },
   {
-    title: 'Build and collaboration',
-    note: 'Premium digital builds, studio planning, co-delivery opportunities, and design-forward product conversations.',
+    title: 'Projects and digital systems',
+    note: 'Cloud projects, office moves, workflow automation, website refreshes, portals, and co-delivery conversations.',
     subject: 'Build and collaboration inquiry',
   },
 ];
@@ -232,7 +240,7 @@ const faqSchema = {
 
 <MarketingLayout
   title="Contact | Olive Global Systems"
-  description="Contact and intake page for strategy, support, security advisory, roadmap conversations, and premium digital build inquiries."
+  description="Contact and intake page for Chicago-area strategy, support, security advisory, roadmap conversations, cloud projects, and selective digital-system work."
   bodyClass="creative-page"
   showFooter={true}
   showStickyCTA={false}
@@ -266,7 +274,8 @@ const faqSchema = {
             </h1>
             <p class="tone-page-copy max-w-3xl">
               Start a strategy conversation, support escalation, security
-              review, or build inquiry without unnecessary back-and-forth.
+              review, cloud project, or digital-system inquiry without
+              unnecessary back-and-forth.
             </p>
           </div>
 
@@ -323,8 +332,8 @@ const faqSchema = {
               <div class="tone-panel-soft rounded-2xl p-4">
                 <p class="text-sm font-semibold text-white">What to send</p>
                 <p class="mt-2 text-sm leading-6 text-slate-300">
-                  The actual problem, current setup, and anything urgent or
-                  approval-sensitive.
+                  The actual problem, current setup, rough user count or site
+                  count, and anything urgent or approval-sensitive.
                 </p>
               </div>
               <div class="tone-panel-soft rounded-2xl p-4">
@@ -685,6 +694,7 @@ const faqSchema = {
     define:vars={{
       contactEmail: CONTACT_EMAIL,
       serviceLabels: recommendedServiceLabel,
+      serviceCatalogLabels: serviceCatalogLabel,
       solutionLabels: recommendedSolutionLabel,
       tradeLabels: recommendedTradeLabel,
     }}
@@ -719,7 +729,9 @@ const faqSchema = {
       }
 
       const serviceLabel =
-        serviceLabels[serviceKey.toLowerCase()] || serviceKey;
+        serviceLabels[serviceKey.toLowerCase()] ||
+        serviceCatalogLabels[serviceKey] ||
+        serviceKey;
       const solutionLabel = solutionLabels[solutionKey] || solutionKey;
       const tradeLabel = tradeLabels[tradeKey.toLowerCase()] || tradeKey;
       const hasContext = Boolean(

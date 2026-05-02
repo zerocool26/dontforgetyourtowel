@@ -178,7 +178,7 @@ export default function BuildStudio() {
                 Studio presets
               </p>
               <h2 class="mt-2 text-2xl font-semibold text-white sm:text-3xl">
-                Configure the initial brief
+                Configure the first-phase roadmap
               </h2>
             </div>
             <p class="max-w-[26rem] text-sm leading-relaxed text-zinc-300">
@@ -274,8 +274,8 @@ export default function BuildStudio() {
               }
             />
             <div class="mt-2 flex items-center justify-between text-xs text-zinc-500">
-              <span>Lean proof</span>
-              <span>Flagship estate</span>
+              <span>Focused first phase</span>
+              <span>Broader roadmap</span>
             </div>
           </div>
 
@@ -309,7 +309,7 @@ export default function BuildStudio() {
                 Capability modules
               </p>
               <h3 class="mt-2 text-2xl font-semibold text-white">
-                Select the capabilities that shape the brief
+                Select the capabilities that shape the roadmap
               </h3>
             </div>
             <p class="max-w-[28rem] text-sm leading-relaxed text-zinc-300">
@@ -420,8 +420,8 @@ export default function BuildStudio() {
                   {formatCurrency(plan.investmentHigh)}
                 </p>
                 <p class="mt-2 text-xs text-zinc-500">
-                  Includes planning depth, interaction scope, delivery support,
-                  and implementation hardening.
+                  Includes planning depth, delivery support, implementation
+                  hardening, and the selected modules.
                 </p>
               </div>
               <div class="rounded-2xl border border-white/10 bg-black/30 p-4">
@@ -472,7 +472,7 @@ export default function BuildStudio() {
                 href={intakeHref}
                 class="inline-flex min-h-[48px] items-center justify-center rounded-lg bg-[#d7f75b] px-4 text-sm font-semibold text-slate-950 transition hover:bg-[#e7ff8a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
               >
-                Send build brief to intake
+                Send roadmap brief to intake
               </a>
             </div>
 

@@ -5,6 +5,7 @@ import { tradeProfiles } from '../data/trades';
 import { getTradeVisual } from '../data/trade-visuals';
 import { getRouteContext } from '../utils/route-context';
 import ModernButton from './ui/ModernButton.astro';
+import ChicagoSkyline from './ChicagoSkyline.astro';
 
 const homeHref = withBasePath('/');
 const mobileSiteTitle = SITE_TITLE.replace(/\s+Systems$/i, '');
@@ -13,9 +14,8 @@ const links = [
   { label: 'Solutions', href: withBasePath('services/') },
   { label: 'Pricing', href: withBasePath('pricing/') },
   { label: 'Company', href: withBasePath('company/') },
-  { label: 'Proof', href: withBasePath('about/') },
-  { label: 'Studio', href: withBasePath('build-studio/') },
-  { label: 'Gallery', href: withBasePath('gallery/') },
+  { label: 'Experience', href: withBasePath('about/') },
+  { label: 'Roadmap', href: withBasePath('build-studio/') },
   { label: 'Contact', href: withBasePath('contact-hq/') },
 ];
 
@@ -245,6 +245,21 @@ const isTradeActiveHref = (href: string) => {
       </ModernButton>
     </div>
   </nav>
+
+  {
+    isHomePage ? (
+      <div class="header-cityline-shell" aria-hidden="true">
+        <div class="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
+          <div class="header-cityline">
+            <span class="header-cityline__copy">
+              Chicago-area managed IT, security, cloud, and digital systems
+            </span>
+            <ChicagoSkyline className="header-cityline__art" />
+          </div>
+        </div>
+      </div>
+    ) : null
+  }
 
   {
     isTradePage ? (
@@ -548,6 +563,30 @@ const isTradeActiveHref = (href: string) => {
     letter-spacing: 0.18em;
     text-transform: uppercase;
     color: rgba(255, 255, 255, 0.78);
+  }
+
+  .header-cityline-shell {
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .header-cityline {
+    display: grid;
+    gap: 0.45rem;
+    padding: 0.7rem 0 0.85rem;
+    color: rgba(243, 238, 231, 0.62);
+  }
+
+  .header-cityline__copy {
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+  }
+
+  .header-cityline__art {
+    width: min(100%, 38rem);
+    color: color-mix(in srgb, var(--color-primary) 78%, white 22%);
   }
 
   .header-context-compact {

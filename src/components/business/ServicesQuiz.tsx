@@ -21,8 +21,8 @@ const QUESTIONS: Question[] = [
     options: [
       { label: 'Reduce IT firefighting / downtime', value: 'msp' },
       { label: 'Improve security & compliance', value: 'security' },
-      { label: 'Modernize cloud infrastructure', value: 'cloud' },
-      { label: 'Use AI to automate workflows', value: 'ai' },
+      { label: 'Modernize cloud & Microsoft 365', value: 'cloud' },
+      { label: 'Improve workflows or client experience', value: 'ai' },
     ],
   },
   {
@@ -31,8 +31,8 @@ const QUESTIONS: Question[] = [
     options: [
       { label: 'Unpatched devices & inconsistent support', value: 'msp' },
       { label: 'Ransomware / phishing exposure', value: 'security' },
-      { label: 'Uncontrolled cloud spend / reliability', value: 'cloud' },
-      { label: 'Manual processes slowing the team', value: 'ai' },
+      { label: 'Unclear M365 / cloud ownership', value: 'cloud' },
+      { label: 'Manual processes or weak buyer UX', value: 'ai' },
     ],
   },
   {
@@ -50,26 +50,26 @@ const QUESTIONS: Question[] = [
 function recommendationLabel(answer: Answer): string {
   switch (answer) {
     case 'msp':
-      return 'Managed IT Services (Bronze) — Essentials → Growth';
+      return 'Managed IT and Support — Core Coverage → Secure Operations';
     case 'security':
-      return 'Cybersecurity & Compliance (Silver) — Growth → Secure+';
+      return 'Cybersecurity and Compliance — Secure Operations → Co-Managed';
     case 'cloud':
-      return 'Cloud & Infrastructure (Gold) — Growth → Custom';
+      return 'Cloud and Microsoft 365 — Secure Operations → Custom';
     case 'ai':
-      return 'AI Consulting & Integration (Platinum) — Secure+ → Custom';
+      return 'Automation and Digital Systems — Co-Managed → Custom';
   }
 }
 
 function recommendationDescription(answer: Answer): string {
   switch (answer) {
     case 'msp':
-      return 'Best when your team needs operational calm, consistent support coverage, and stronger endpoint hygiene before piling on new initiatives.';
+      return 'Best when the first job is making support more reliable, clarifying ownership, and getting devices, users, and vendors under control.';
     case 'security':
-      return 'Best when risk, compliance, access control, or incident readiness is the current bottleneck to growth.';
+      return 'Best when ransomware risk, audit pressure, access control, or leadership confidence is the main constraint right now.';
     case 'cloud':
-      return 'Best when modernization, reliability, or spend visibility matters more than adding one more standalone tool.';
+      return 'Best when the environment needs Microsoft 365 governance, cloud cleanup, hybrid modernization, or better license visibility.';
     case 'ai':
-      return 'Best when you already know where manual work is slowing the team and want an AI roadmap with guardrails.';
+      return 'Best when manual work, reporting friction, or a weak client-facing experience is costing time and credibility.';
   }
 }
 

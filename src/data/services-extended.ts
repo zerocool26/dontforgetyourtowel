@@ -8,715 +8,247 @@ export interface Service {
 }
 
 export const servicesExtended: Service[] = [
-  // 1. IT Security
   {
-    id: 'mdr',
-    name: 'Managed Detection and Response (MDR)',
-    category: 'IT Security',
+    id: 'managed-help-desk',
+    name: 'Managed Help Desk and Escalation',
+    category: 'Managed IT & Support',
     description:
-      '24/7 proactive threat hunting and rapid incident containment across endpoints and networks.',
+      'Business-hours or extended-hours support for day-to-day issues, escalation handling, and end-user follow-through.',
   },
   {
-    id: 'ai-red-teaming',
-    name: 'AI-Native Red Teaming',
-    category: 'IT Security',
+    id: 'co-managed-it',
+    name: 'Co-Managed IT Support',
+    category: 'Managed IT & Support',
     description:
-      'Advanced adversary simulations targeting AI model vulnerabilities, prompt injection, and data leakage.',
+      'Flexible support for internal IT teams that need help with coverage, projects, documentation, or specialized expertise.',
   },
   {
-    id: 'zero-trust-design',
-    name: 'Zero Trust Architecture Design',
-    category: 'IT Security',
+    id: 'endpoint-management',
+    name: 'Endpoint Management and Patching',
+    category: 'Managed IT & Support',
     description:
-      "Implementation of 'never trust, always verify' frameworks to secure distributed enterprise environments.",
+      'Policy-based workstation management, patching, asset visibility, and device hygiene across laptops, desktops, and mobile endpoints.',
   },
   {
-    id: 'cspm',
-    name: 'Cloud Security Posture Management (CSPM)',
-    category: 'IT Security',
+    id: 'user-onboarding',
+    name: 'User Onboarding and Offboarding',
+    category: 'Managed IT & Support',
     description:
-      'Continuous monitoring and automated remediation of misconfigurations in multi-cloud environments.',
-  },
-  {
-    id: 'quantum-resistant-encryption',
-    name: 'Quantum-Resistant Encryption Deployment',
-    category: 'IT Security',
-    description:
-      'Future-proofing sensitive data assets against emerging quantum computing decryption threats.',
-  },
-  {
-    id: 'iam-modernization',
-    name: 'Identity and Access Management (IAM) Modernization',
-    category: 'IT Security',
-    description:
-      'Implementation of passwordless authentication and adaptive risk-based access controls.',
-  },
-  {
-    id: 'sbom-security',
-    name: 'Software Supply Chain Security (SBOM)',
-    category: 'IT Security',
-    description:
-      'End-to-end visibility and risk assessment of third-party code and open-source dependencies.',
-  },
-  {
-    id: 'dfir',
-    name: 'Digital Forensics and Incident Response (DFIR)',
-    category: 'IT Security',
-    description:
-      'Expert-led recovery and investigation services to minimize downtime after a cyber breach.',
-  },
-  {
-    id: 'devsecops-pipeline',
-    name: 'DevSecOps Pipeline Integration',
-    category: 'IT Security',
-    description:
-      'Embedding automated security scanning and compliance checks directly into the CI/CD lifecycle.',
-  },
-  {
-    id: 'managed-dlp',
-    name: 'Managed Data Loss Prevention (DLP)',
-    category: 'IT Security',
-    description:
-      'Comprehensive strategies to identify, track, and protect sensitive IP from unauthorized egress.',
-  },
-  {
-    id: 'attack-surface-management',
-    name: 'Attack Surface Management (ASM)',
-    category: 'IT Security',
-    description:
-      'Continuous discovery and mapping of external-facing assets to eliminate blind spots.',
-  },
-  {
-    id: 'blockchain-audit',
-    name: 'Blockchain and Smart Contract Audits',
-    category: 'IT Security',
-    description:
-      'Deep-dive security analysis of decentralized protocols and distributed ledger implementations.',
-  },
-  {
-    id: 'ot-ics-security',
-    name: 'OT/ICS Industrial Security',
-    category: 'IT Security',
-    description:
-      'Specialized protection for critical infrastructure, manufacturing systems, and IoT environments.',
-  },
-  {
-    id: 'compliance-orchestration',
-    name: 'Compliance Orchestration (SOC2/GDPR)',
-    category: 'IT Security',
-    description:
-      'Automated evidence collection and continuous compliance monitoring for global regulatory standards.',
-  },
-  {
-    id: 'vciso-advisory',
-    name: 'vCISO Strategic Advisory',
-    category: 'IT Security',
-    description:
-      'Executive-level security leadership and risk management tailored for mid-to-large enterprises.',
-  },
-  {
-    id: 'insider-threat-mitigation',
-    name: 'Insider Threat Mitigation',
-    category: 'IT Security',
-    description:
-      'Behavioral analytics and monitoring to detect and prevent data theft by internal actors.',
-  },
-  {
-    id: 'dark-web-intelligence',
-    name: 'Dark Web Threat Intelligence',
-    category: 'IT Security',
-    description:
-      'Proactive monitoring of underground forums to identify leaked credentials and planned attacks.',
-  },
-
-  // 2. MSP Services
-  {
-    id: 'global-service-desk',
-    name: '24/7 Global IT Service Desk',
-    category: 'MSP Services',
-    description:
-      'Round-the-clock technical support and ticket resolution for a worldwide workforce.',
-  },
-  {
-    id: 'automated-endpoint',
-    name: 'Automated Endpoint Management',
-    category: 'MSP Services',
-    description:
-      'Centralized orchestration of software deployments, updates, and health monitoring for all devices.',
-  },
-  {
-    id: 'vcio-consulting',
-    name: 'vCIO Strategic Consulting',
-    category: 'MSP Services',
-    description:
-      'High-level technology roadmapping and budget alignment to drive business growth and efficiency.',
-  },
-  {
-    id: 'bcdr-managed',
-    name: 'Business Continuity and Disaster Recovery (BCDR)',
-    category: 'MSP Services',
-    description:
-      'Managed backup and rapid failover solutions for critical enterprise data and systems.',
-  },
-  {
-    id: 'saas-ops',
-    name: 'Managed SaaS Operations (SaaS-Ops)',
-    category: 'MSP Services',
-    description:
-      'Centralized management and optimization of the enterprise software-as-a-service portfolio.',
-  },
-  {
-    id: 'hybrid-workforce',
-    name: 'Hybrid Workforce Enablement',
-    category: 'MSP Services',
-    description:
-      'Designing and supporting secure, high-performance remote and office-based work environments.',
+      'Account setup, access changes, device preparation, and documented joiner-mover-leaver workflows.',
   },
   {
     id: 'asset-lifecycle',
-    name: 'IT Asset Lifecycle Management',
-    category: 'MSP Services',
+    name: 'Procurement and Asset Lifecycle',
+    category: 'Managed IT & Support',
     description:
-      'End-to-end tracking of hardware from procurement and configuration to secure retirement.',
-  },
-  {
-    id: 'patch-management',
-    name: 'Proactive Patch Management',
-    category: 'MSP Services',
-    description:
-      'Automated vulnerability remediation across diverse operating systems and third-party applications.',
-  },
-  {
-    id: 'managed-print',
-    name: 'Managed Print and Imaging Services',
-    category: 'MSP Services',
-    description:
-      'Optimization of document workflows and hardware maintenance to reduce operational overhead.',
+      'Planning, sourcing, staging, refresh cycles, and retirement workflows for business devices and core equipment.',
   },
   {
     id: 'vendor-management',
-    name: 'Vendor Relationship Management (VRM)',
-    category: 'MSP Services',
+    name: 'Vendor and ISP Coordination',
+    category: 'Managed IT & Support',
     description:
-      'Strategic coordination of third-party technology providers to ensure service level alignment.',
-  },
-  {
-    id: 'infrastructure-monitoring',
-    name: 'Infrastructure Health Monitoring',
-    category: 'MSP Services',
-    description:
-      'Real-time observability and AI-driven alerting for servers, storage, and local networks.',
-  },
-  {
-    id: 'procurement-logistics',
-    name: 'IT Procurement and Logistics',
-    category: 'MSP Services',
-    description:
-      'Streamlined hardware acquisition and global shipping for rapid employee onboarding.',
-  },
-  {
-    id: 'waas',
-    name: 'Workspace-as-a-Service (WaaS)',
-    category: 'MSP Services',
-    description:
-      'Delivering standardized, virtualized desktop environments accessible from any device anywhere.',
-  },
-  {
-    id: 'white-glove-support',
-    name: 'Executive White-Glove Support',
-    category: 'MSP Services',
-    description:
-      'Priority technical assistance and customized solutions for C-suite and high-value personnel.',
-  },
-  {
-    id: 'unified-communications',
-    name: 'Unified Communications Management',
-    category: 'MSP Services',
-    description:
-      'Administration of enterprise voice, video, and collaboration platforms (Teams, Zoom, Slack).',
-  },
-  {
-    id: 'data-residency',
-    name: 'Data Residency and Sovereignty Services',
-    category: 'MSP Services',
-    description:
-      'Ensuring IT infrastructure and data storage comply with local jurisdictional requirements.',
-  },
-  {
-    id: 'change-management',
-    name: 'Change Management and ITIL Alignment',
-    category: 'MSP Services',
-    description:
-      'Standardizing IT processes to minimize service disruptions during system updates and migrations.',
+      'Single-owner coordination for internet providers, software vendors, telecom, and line-of-business technology partners.',
   },
 
-  // 3. AI Consulting
   {
-    id: 'gen-ai-strategy',
-    name: 'Generative AI Strategy and Roadmap',
-    category: 'AI Consulting',
+    id: 'managed-edr-mdr',
+    name: 'Managed Endpoint Protection and MDR',
+    category: 'Cybersecurity & Compliance',
     description:
-      'C-level advisory on identifying high-ROI use cases for Large Language Models.',
+      'Endpoint detection, response workflows, and managed monitoring to reduce dwell time and improve containment.',
   },
   {
-    id: 'llm-fine-tuning',
-    name: 'Custom LLM Fine-Tuning',
-    category: 'AI Consulting',
+    id: 'identity-access-management',
+    name: 'Identity, MFA, and Access Policy',
+    category: 'Cybersecurity & Compliance',
     description:
-      'Optimizing pre-trained models on proprietary enterprise data for specialized domain expertise.',
+      'Microsoft Entra ID, SSO, MFA, conditional access, and role-based access controls built around practical user security.',
   },
   {
-    id: 'ai-agent-orchestration',
-    name: 'AI Agent Orchestration',
-    category: 'AI Consulting',
+    id: 'email-security-awareness',
+    name: 'Email Security and Awareness Training',
+    category: 'Cybersecurity & Compliance',
     description:
-      'Designing autonomous multi-agent systems to automate complex, multi-step business processes.',
+      'Phishing protection, secure email controls, awareness campaigns, and policy reinforcement for everyday risk reduction.',
   },
   {
-    id: 'responsible-ai',
-    name: 'Responsible AI Frameworks',
-    category: 'AI Consulting',
+    id: 'vulnerability-management',
+    name: 'Vulnerability and Security Baseline Reviews',
+    category: 'Cybersecurity & Compliance',
     description:
-      'Establishing ethical guidelines, bias detection, and transparency standards for AI deployments.',
+      'Recurring reviews of exposure, hardening opportunities, patch gaps, and security controls that need executive attention.',
   },
   {
-    id: 'mlops-engineering',
-    name: 'MLOps Pipeline Engineering',
-    category: 'AI Consulting',
+    id: 'incident-response-planning',
+    name: 'Incident Response Planning',
+    category: 'Cybersecurity & Compliance',
     description:
-      'Building robust production environments for the continuous training and monitoring of ML models.',
+      'Response playbooks, escalation paths, tabletop guidance, and roles for ransomware, phishing, and account compromise events.',
   },
   {
-    id: 'data-fabric',
-    name: 'Enterprise Data Fabric Design',
-    category: 'AI Consulting',
+    id: 'vciso-compliance',
+    name: 'vCISO and Compliance Readiness',
+    category: 'Cybersecurity & Compliance',
     description:
-      'Creating a unified data architecture to feed high-quality information into AI systems.',
-  },
-  {
-    id: 'conversational-ai',
-    name: 'Conversational AI Development',
-    category: 'AI Consulting',
-    description:
-      'Building intelligent virtual assistants for customer support and internal knowledge retrieval.',
-  },
-  {
-    id: 'predictive-analytics',
-    name: 'AI-Driven Predictive Analytics',
-    category: 'AI Consulting',
-    description:
-      'Leveraging machine learning to forecast market trends, demand, and operational failures.',
-  },
-  {
-    id: 'edge-ai',
-    name: 'Edge AI Implementation',
-    category: 'AI Consulting',
-    description:
-      'Deploying lightweight AI models directly onto hardware devices for real-time local processing.',
-  },
-  {
-    id: 'ai-governance-audit',
-    name: 'AI Governance and Risk Audit',
-    category: 'AI Consulting',
-    description:
-      'Evaluating AI systems for compliance, security risks, and technical debt.',
-  },
-  {
-    id: 'knowledge-graph',
-    name: 'Knowledge Graph Engineering',
-    category: 'AI Consulting',
-    description:
-      'Modeling complex organizational data relationships to enhance AI reasoning and search.',
-  },
-  {
-    id: 'synthetic-data',
-    name: 'Synthetic Data Generation',
-    category: 'AI Consulting',
-    description:
-      'Creating privacy-compliant, high-fidelity datasets for model training and testing.',
-  },
-  {
-    id: 'ai-productivity-training',
-    name: 'AI Productivity Training',
-    category: 'AI Consulting',
-    description:
-      'Empowering employees with tools and techniques to leverage AI in their daily workflows.',
-  },
-  {
-    id: 'nas-automation',
-    name: 'Neural Architecture Search (NAS)',
-    category: 'AI Consulting',
-    description:
-      'Using AI to automate the design of optimal neural network structures for specific tasks.',
-  },
-  {
-    id: 'vision-automation',
-    name: 'Computer Vision for Industrial Automation',
-    category: 'AI Consulting',
-    description:
-      'Implementing automated visual inspection and monitoring for manufacturing and logistics.',
-  },
-  {
-    id: 'process-discovery',
-    name: 'Automated Process Discovery',
-    category: 'AI Consulting',
-    description:
-      'Using task mining and AI to identify bottlenecks and candidates for robotic process automation.',
+      'Security leadership, policy guidance, audit prep support, and control-evidence habits for HIPAA, SOC 2, and similar programs.',
   },
 
-  // 4. Application Development
   {
-    id: 'saas-engineering',
-    name: 'Enterprise SaaS Platform Engineering',
-    category: 'Application Development',
+    id: 'm365-administration',
+    name: 'Microsoft 365 Administration',
+    category: 'Cloud & Microsoft 365',
     description:
-      'Architectural design and development of scalable, multi-tenant cloud software.',
+      'Administration of Microsoft 365 tenants, licensing, collaboration tools, and everyday productivity services.',
   },
   {
-    id: 'native-mobile',
-    name: 'Native iOS and Android Development',
-    category: 'Application Development',
+    id: 'm365-security-governance',
+    name: 'Microsoft 365 Security and Governance',
+    category: 'Cloud & Microsoft 365',
     description:
-      'Building high-performance, platform-optimized mobile experiences for global users.',
+      'Governance for Exchange, Teams, SharePoint, OneDrive, and retention settings so the platform stays usable and controlled.',
   },
   {
-    id: 'unity-unreal-sculpt',
-    name: 'Unity and Unreal Engine Solutions',
-    category: 'Application Development',
+    id: 'cloud-migration-modernization',
+    name: 'Cloud Migration and Hybrid Modernization',
+    category: 'Cloud & Microsoft 365',
     description:
-      'Creating immersive 3D simulations, games, and industrial digital twins.',
+      'Server migrations, hybrid environment cleanup, and cloud transitions designed to reduce risk and downtime.',
   },
   {
-    id: 'web3-dapp',
-    name: 'Web3 and dApp Development',
-    category: 'Application Development',
+    id: 'sharepoint-teams-rollouts',
+    name: 'SharePoint, Teams, and Intranet Rollouts',
+    category: 'Cloud & Microsoft 365',
     description:
-      'Engineering decentralized applications and smart contracts on Ethereum, Solana, and Layer 2s.',
+      'Collaboration architecture, file structure, intranet planning, and adoption support for distributed teams.',
   },
   {
-    id: 'legacy-modernization',
-    name: 'Legacy System Modernization',
-    category: 'Application Development',
+    id: 'cloud-license-cost-optimization',
+    name: 'Cloud, License, and SaaS Cost Optimization',
+    category: 'Cloud & Microsoft 365',
     description:
-      'Refactoring and migrating aging monoliths into modern, cloud-native microservices architectures.',
+      'Rightsizing licenses, reducing cloud waste, and improving visibility into recurring technology spend.',
   },
   {
-    id: 'pwa-design',
-    name: 'Progressive Web App (PWA) Design',
-    category: 'Application Development',
+    id: 'saas-admin-governance',
+    name: 'SaaS Administration and Governance',
+    category: 'Cloud & Microsoft 365',
     description:
-      'Developing web-based applications that offer app-like feel and offline functionality.',
-  },
-  {
-    id: 'api-first-strategy',
-    name: 'API-First Platform Strategy',
-    category: 'Application Development',
-    description:
-      'Designing robust, well-documented APIs to power ecosystem growth and internal integrations.',
-  },
-  {
-    id: 'low-code-enablement',
-    name: 'Low-Code/No-Code Enablement',
-    category: 'Application Development',
-    description:
-      'Building custom internal tools and empowering business units with governed platform access.',
-  },
-  {
-    id: 'desktop-software',
-    name: 'High-Performance Desktop Software',
-    category: 'Application Development',
-    description:
-      'Developing specialized, resource-intensive applications for Windows, macOS, and Linux.',
-  },
-  {
-    id: 'ux-ui-design-systems',
-    name: 'Modern UX/UI Design Systems',
-    category: 'Application Development',
-    description:
-      'Establishing consistent, accessible, and high-impact visual languages across all digital products.',
-  },
-  {
-    id: 'micro-frontend',
-    name: 'Micro-frontend Architecture',
-    category: 'Application Development',
-    description:
-      'Breaking down complex web frontends into manageable, independently deployable modules.',
-  },
-  {
-    id: 'embedded-firmware',
-    name: 'Embedded Systems and Firmware',
-    category: 'Application Development',
-    description:
-      'Writing low-level software for specialized hardware, IoT devices, and wearables.',
-  },
-  {
-    id: 'ar-vr-xr',
-    name: 'AR/VR/XR Immersive Experiences',
-    category: 'Application Development',
-    description:
-      'Developing specialized applications for training, visualization, and digital showrooming.',
-  },
-  {
-    id: 'qa-automation',
-    name: 'QA Automation and Testing Frameworks',
-    category: 'Application Development',
-    description:
-      'Building comprehensive, automated test suites to ensure software reliability and speed.',
-  },
-  {
-    id: 'real-time-collab',
-    name: 'Real-Time Collaborative Software',
-    category: 'Application Development',
-    description:
-      'Engineering applications with sub-second synchronization for distributed team productivity.',
-  },
-  {
-    id: 'discovery-prototyping',
-    name: 'Product Discovery and Prototyping',
-    category: 'Application Development',
-    description:
-      'Rapidly validating business ideas through user research and high-fidelity interactive models.',
-  },
-  {
-    id: 'ecommerce-personalization',
-    name: 'E-commerce Engine Personalization',
-    category: 'Application Development',
-    description:
-      'Implementing advanced search, recommendation, and checkout optimizations for online retail.',
+      'Access reviews, configuration management, vendor coordination, and documentation for critical cloud applications.',
   },
 
-  // 5. Network Engineering
   {
-    id: 'sd-wan-deployment',
-    name: 'SD-WAN Strategy and Deployment',
-    category: 'Network Engineering',
+    id: 'network-monitoring-support',
+    name: 'Network Monitoring and Support',
+    category: 'Network & Infrastructure',
     description:
-      'Optimizing wide-area networks for cloud performance and cost-effective connectivity.',
+      'Monitoring, maintenance, and troubleshooting for business networks, switches, routers, and core infrastructure services.',
   },
   {
-    id: 'private-5g',
-    name: 'Private 5G/6G Infrastructure',
-    category: 'Network Engineering',
+    id: 'firewall-secure-remote-access',
+    name: 'Firewall and Secure Remote Access',
+    category: 'Network & Infrastructure',
     description:
-      'Building dedicated, ultra-low latency wireless networks for smart factories and campuses.',
+      'Firewall management, secure remote access, VPN alternatives, and network policy upkeep for hybrid teams.',
   },
   {
-    id: 'sase-convergence',
-    name: 'Secure Access Service Edge (SASE)',
-    category: 'Network Engineering',
+    id: 'wifi-office-network-projects',
+    name: 'Wi-Fi and Office Network Projects',
+    category: 'Network & Infrastructure',
     description:
-      'Converging networking and security into a single, cloud-delivered service model.',
+      'Wireless design, office moves, cabling coordination, and network refresh work for new or growing locations.',
   },
   {
-    id: 'sdn-automation',
-    name: 'Software-Defined Networking (SDN)',
-    category: 'Network Engineering',
+    id: 'server-virtualization-management',
+    name: 'Server and Virtualization Management',
+    category: 'Network & Infrastructure',
     description:
-      'Implementing programmable network architectures for maximum agility and automation.',
+      'Management of on-prem servers, virtual infrastructure, line-of-business hosts, and supporting compute layers.',
   },
   {
-    id: 'nfv-virtualization',
-    name: 'Network Function Virtualization (NFV)',
-    category: 'Network Engineering',
+    id: 'multi-site-connectivity',
+    name: 'Multi-Site Connectivity and Standards',
+    category: 'Network & Infrastructure',
     description:
-      'Replacing traditional hardware appliances with scalable, software-based network services.',
-  },
-  {
-    id: 'edge-connectivity',
-    name: 'Edge Computing Connectivity',
-    category: 'Network Engineering',
-    description:
-      'Designing the network fabric and low-latency links required for distributed edge nodes.',
-  },
-  {
-    id: 'high-density-wireless',
-    name: 'High-Density Wireless Systems',
-    category: 'Network Engineering',
-    description:
-      'Engineering robust Wi-Fi 7 networks for stadiums, hospitals, and high-traffic office spaces.',
-  },
-  {
-    id: 'cdn-optimization',
-    name: 'Global CDN Optimization',
-    category: 'Network Engineering',
-    description:
-      'Designing custom content delivery strategies to minimize latency for global user bases.',
-  },
-  {
-    id: 'aiops-network',
-    name: 'AIOps for Network Management',
-    category: 'Network Engineering',
-    description:
-      'Using AI and machine learning to predict network outages and automate remediation.',
-  },
-  {
-    id: 'hybrid-interconnect',
-    name: 'Hybrid Cloud Interconnect',
-    category: 'Network Engineering',
-    description:
-      'Building high-speed, secure pathways between on-premises data centers and public clouds.',
-  },
-  {
-    id: 'satellite-resilience',
-    name: 'Satellite Connectivity Integration',
-    category: 'Network Engineering',
-    description:
-      'Leveraging LEO constellations like Starlink for resilient remote site communication.',
-  },
-  {
-    id: 'ipam-dns-security',
-    name: 'IPAM and DNS Security Modernization',
-    category: 'Network Engineering',
-    description:
-      'Implementing advanced IP address management and DNS-layer threat protection.',
-  },
-  {
-    id: 'optical-backbone',
-    name: 'Optical Network Engineering',
-    category: 'Network Engineering',
-    description:
-      'Designing high-capacity fiber backbones and data center interconnects (DCI).',
-  },
-  {
-    id: 'performance-diagnostics',
-    name: 'Network Performance Diagnostics (NPMD)',
-    category: 'Network Engineering',
-    description:
-      'Providing deep visibility into packet-level data to resolve complex latency issues.',
-  },
-  {
-    id: 'ztna-modernization',
-    name: 'Zero-Trust Network Access (ZTNA)',
-    category: 'Network Engineering',
-    description:
-      'Replacing traditional VPNs with secure, identity-based perimeter-less access.',
-  },
-  {
-    id: 'low-latency-trading',
-    name: 'Low-Latency Trading Infrastructure',
-    category: 'Network Engineering',
-    description:
-      'Specialized networking for financial services where every microsecond matters.',
+      'Network consistency, documentation, and connectivity planning across headquarters, satellite sites, and remote users.',
   },
 
-  // 6. Cloud Development
   {
-    id: 'cloud-native-design',
-    name: 'Cloud-Native Architecture Design',
-    category: 'Cloud Development',
+    id: 'backup-monitoring-restore-testing',
+    name: 'Backup Monitoring and Restore Testing',
+    category: 'Backup, Continuity & Recovery',
     description:
-      "Building resilient, auto-scaling applications optimized for the cloud's unique capabilities.",
+      'Daily backup oversight, alerting, documented restore checks, and practical verification that recovery actually works.',
   },
   {
-    id: 'multi-cloud-strategy',
-    name: 'Multi-cloud and Inter-cloud Strategy',
-    category: 'Cloud Development',
+    id: 'business-continuity-planning',
+    name: 'Business Continuity Planning',
+    category: 'Backup, Continuity & Recovery',
     description:
-      'Orchestrating workloads across Azure, AWS, and GCP to avoid vendor lock-in.',
+      'Continuity planning that ties backup, communications, key systems, and operational priorities into a realistic recovery model.',
   },
   {
-    id: 'iac-terraform',
-    name: 'Infrastructure as Code (IaC) Engineering',
-    category: 'Cloud Development',
+    id: 'disaster-recovery-runbooks',
+    name: 'Disaster Recovery Runbooks',
+    category: 'Backup, Continuity & Recovery',
     description:
-      'Automating resource provisioning using Terraform, Bicep, and Pulumi.',
+      'Step-by-step recovery documentation for critical systems, ownership, dependencies, and high-pressure decision moments.',
   },
   {
-    id: 'k8s-orchestration',
-    name: 'Kubernetes and Container Orchestration',
-    category: 'Cloud Development',
+    id: 'immutable-backup-ransomware-recovery',
+    name: 'Ransomware Recovery and Immutable Backup Guidance',
+    category: 'Backup, Continuity & Recovery',
     description:
-      'Managing large-scale container deployments for consistent application delivery.',
+      'Recovery design and backup strategy built to shorten recovery time and improve resilience after security incidents.',
+  },
+
+  {
+    id: 'roadmapping-vcio',
+    name: 'vCIO Roadmapping and Budget Planning',
+    category: 'Strategy, Automation & Digital Systems',
+    description:
+      'Quarterly technology planning, budgeting guidance, lifecycle recommendations, and executive translation of IT priorities.',
   },
   {
-    id: 'serverless-fars',
-    name: 'Serverless Computing Implementation',
-    category: 'Cloud Development',
+    id: 'office-moves-refreshes',
+    name: 'Office Moves, Refreshes, and Site Changes',
+    category: 'Strategy, Automation & Digital Systems',
     description:
-      'Reducing operational overhead by building applications on FaaS (Lambda/Functions) platforms.',
+      'Planning and delivery support for office openings, relocations, expansions, and workspace technology changes.',
   },
   {
-    id: 'finops-optimization',
-    name: 'FinOps and Cloud Cost Optimization',
-    category: 'Cloud Development',
+    id: 'workflow-automation-ai-enablement',
+    name: 'Workflow Automation and AI Enablement',
+    category: 'Strategy, Automation & Digital Systems',
     description:
-      'Identifying and eliminating cloud waste through rigorous tagging and right-sizing.',
+      'Small-scale automation, reporting workflows, AI-assisted internal processes, and governance for practical use cases.',
   },
   {
-    id: 'hpc-cloud',
-    name: 'HPC in the Cloud',
-    category: 'Cloud Development',
+    id: 'client-portal-web-refresh',
+    name: 'Website and Client-Facing Experience Refreshes',
+    category: 'Strategy, Automation & Digital Systems',
     description:
-      'Running massive High-Performance Computing workloads for scientific and financial simulations.',
+      'Higher-trust websites, launch pages, and service presentation systems for firms whose front door needs to match their operations.',
   },
   {
-    id: 'cloud-migration',
-    name: 'Cloud Migration and Workload Mobility',
-    category: 'Cloud Development',
+    id: 'client-portal-intranet',
+    name: 'Client Portals and Internal Hubs',
+    category: 'Strategy, Automation & Digital Systems',
     description:
-      "Executing seamless 'lift-and-shift' or 'refactor' migrations to public clouds.",
+      'Portals, intranets, and structured self-service experiences for onboarding, documentation, and account visibility.',
   },
   {
-    id: 'cicd-automation',
-    name: 'CI/CD Pipeline Automation',
-    category: 'Cloud Development',
+    id: 'discovery-roadmapping',
+    name: 'Discovery, Documentation, and First-Phase Roadmaps',
+    category: 'Strategy, Automation & Digital Systems',
     description:
-      'Streamlining the software delivery lifecycle from code commit to production deployment.',
+      'Current-state reviews, documentation cleanup, and phased plans that make the next 30, 60, or 90 days more manageable.',
   },
   {
-    id: 'data-warehouse-scaling',
-    name: 'Cloud Data Warehouse Management',
-    category: 'Cloud Development',
+    id: 'qa-release-hardening',
+    name: 'Launch QA and Release Hardening',
+    category: 'Strategy, Automation & Digital Systems',
     description:
-      'Scaling and optimizing platforms like Snowflake and BigQuery for enterprise analytics.',
-  },
-  {
-    id: 'hybrid-cloud-outposts',
-    name: 'Hybrid Cloud Integration (Azure Stack/Outposts)',
-    category: 'Cloud Development',
-    description:
-      'Extending public cloud services into on-premises data centers for data sovereignty.',
-  },
-  {
-    id: 'governance-policy-code',
-    name: 'Cloud Governance and Policy-as-Code',
-    category: 'Cloud Development',
-    description:
-      'Implementing automated guardrails to ensure resource security and budget compliance.',
-  },
-  {
-    id: 'service-mesh-mesh',
-    name: 'Service Mesh Implementation',
-    category: 'Cloud Development',
-    description:
-      'Managing microservices communication, security, and observability using Istio or Linkerd.',
-  },
-  {
-    id: 'draas-failover',
-    name: 'Disaster Recovery as a Service (DRaaS)',
-    category: 'Cloud Development',
-    description:
-      'Providing automated, cloud-based failover for critical business applications.',
-  },
-  {
-    id: 'observability-tracing',
-    name: 'Observability and Distributed Tracing',
-    category: 'Cloud Development',
-    description:
-      'Implementing deep monitoring across complex, distributed cloud architectures.',
-  },
-  {
-    id: 'cloud-security-auto',
-    name: 'Cloud Security Automation',
-    category: 'Cloud Development',
-    description:
-      'Building automated responders for security events and identity anomalies within the cloud environment.',
-  },
-  {
-    id: 'green-cloud-sustainability',
-    name: 'Sustainability and Green Cloud Strategy',
-    category: 'Cloud Development',
-    description:
-      'Measuring and optimizing the carbon footprint of cloud-based digital operations.',
+      'Testing, launch checklists, and handoff discipline for digital projects that need to feel polished and dependable.',
   },
 ];

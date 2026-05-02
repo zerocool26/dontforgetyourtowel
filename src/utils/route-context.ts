@@ -53,17 +53,18 @@ export function getRouteContext(pathname: string): RouteContext {
     accent: '#d1b37a',
     kicker: 'Site Atlas',
     title:
-      'A calmer route system for MSP+, security, cloud, AI, and premium client experiences.',
+      'A calmer route system for Chicago managed IT, security, cloud, and premium client experiences.',
     description:
-      'Use this atlas to move between solutions, pricing, proof, and strategy routes without falling into bloated brochure navigation.',
+      'Use this atlas to move between solutions, pricing, experience, and roadmap routes without falling into bloated brochure navigation.',
     currentTitle: 'Landing page',
     currentDescription:
-      'Design-forward MSP+ shell with route-aware navigation, proof surfaces, and mobile-first buyer flows.',
+      'Chicago-focused managed IT shell with route-aware navigation, proof surfaces, and mobile-first buyer flows.',
     currentCategory: 'Home',
     suggestions: [
       {
         label: 'Explore solutions',
-        detail: 'Open the MSP+, security, cloud, AI, and automation hub.',
+        detail:
+          'Open the managed IT, security, Microsoft 365, and cloud solutions hub.',
         href: withBasePath('services/'),
       },
       {
@@ -72,7 +73,7 @@ export function getRouteContext(pathname: string): RouteContext {
         href: withBasePath('pricing/'),
       },
       {
-        label: 'Open proof lab',
+        label: 'Open experience lab',
         detail: 'See the premium interactive work that backs the pitch.',
         href: withBasePath('about/'),
       },
@@ -85,7 +86,7 @@ export function getRouteContext(pathname: string): RouteContext {
       kicker: 'Gallery Atlas',
       title: 'Gallery concepts stay wired into the real client experience map.',
       description:
-        'This gallery is not isolated art direction. It routes back into the live MSP+, proof, and studio surfaces that actually sell the work.',
+        'This gallery is not isolated art direction. It routes back into the live managed IT, experience, and roadmap surfaces that actually sell the work.',
       currentTitle: 'Design Gallery',
       currentDescription:
         'Interactive gallery mode for cinematic visual studies, curatorial filters, and route-linked concepts.',
@@ -97,13 +98,13 @@ export function getRouteContext(pathname: string): RouteContext {
           href: withBasePath('services/'),
         },
         {
-          label: 'Open Build Studio',
+          label: 'Open Roadmap Studio',
           detail:
-            'Shift from gallery thinking into a flagship interactive planning route.',
+            'Shift from gallery thinking into a more practical interactive planning route.',
           href: withBasePath('build-studio/#studio'),
         },
         {
-          label: 'Open proof lab',
+          label: 'Open experience lab',
           detail:
             'See the interactive proof route that complements the gallery.',
           href: withBasePath('about/'),
@@ -115,12 +116,12 @@ export function getRouteContext(pathname: string): RouteContext {
       accent: '#d1b37a',
       kicker: 'Services Atlas',
       title:
-        'One solution hub for operations, security, cloud, AI, and build work.',
+        'One solution hub for operations, security, Microsoft 365, cloud, and selective digital work.',
       description:
         'The services hub leads with buyer pressure and keeps the deeper catalog available only when it is genuinely useful.',
       currentTitle: 'Services Hub',
       currentDescription:
-        'Solution hub for MSP+, cloud, AI, security, pricing, and planning tools.',
+        'Solution hub for managed IT, security, Microsoft 365, cloud, pricing, and planning tools.',
       currentCategory: 'Services',
       suggestions: [
         {
@@ -134,9 +135,9 @@ export function getRouteContext(pathname: string): RouteContext {
           href: withBasePath('pricing/'),
         },
         {
-          label: 'Open proof lab',
+          label: 'Open experience lab',
           detail:
-            'See the interactive proof route behind the design direction.',
+            'See the interactive proof route behind the digital direction.',
           href: withBasePath('about/'),
         },
         {
@@ -156,7 +157,7 @@ export function getRouteContext(pathname: string): RouteContext {
         'This route holds the higher-level operating logic so the landing page can stay expressive while the service routes stay practical.',
       currentTitle: 'Company',
       currentDescription:
-        'Operating model, buyer fit, delivery logic, and positioning for the MSP+ firm.',
+        'Operating model, buyer fit, delivery logic, and positioning for the managed IT firm.',
       currentCategory: 'Company',
       suggestions: [
         {
@@ -170,7 +171,7 @@ export function getRouteContext(pathname: string): RouteContext {
           href: withBasePath('services/'),
         },
         {
-          label: 'Open Build Studio',
+          label: 'Open Roadmap Studio',
           detail: 'Translate the company story into a scoped roadmap.',
           href: withBasePath('build-studio/#studio'),
         },
@@ -303,31 +304,31 @@ export function getRouteStickyCTA(pathname: string): RouteStickyCTA {
           detail:
             'The gallery stays connected to real proof and solution routes instead of floating as isolated art direction.',
           secondaryHref: withBasePath('about/'),
-          secondaryLabel: 'Open proof lab',
+          secondaryLabel: 'Open experience lab',
           primaryHref: `${withBasePath('contact-hq/')}?tradePage=${encodeURIComponent('Design Gallery')}&brief=${encodeURIComponent('I want to discuss a gallery-inspired site direction.')}`,
           primaryLabel: 'Discuss concept',
         }
       : {
           accent: '#d1b37a',
           eyebrow: 'Strategy intake',
-          copy: 'Need calmer operations, better security, or a premium digital surface that actually converts?',
+          copy: 'Need calmer operations, better security, or a stronger digital front door that actually converts?',
           detail:
-            'Solutions, pricing, proof, and studio stay tied together instead of branching into disconnected funnels.',
+            'Solutions, pricing, experience, and roadmap stay tied together instead of branching into disconnected funnels.',
           secondaryHref: withBasePath('services/'),
           secondaryLabel: 'Explore solutions',
-          primaryHref: `${withBasePath('contact-hq/')}?brief=${encodeURIComponent('I want to scope MSP+, security, cloud, AI, or a premium client-facing system.')}`,
+          primaryHref: `${withBasePath('contact-hq/')}?brief=${encodeURIComponent('I want to scope managed IT, security, cloud, Microsoft 365, or a premium client-facing system.')}`,
           primaryLabel: 'Start brief',
         };
   } else if (currentPath.startsWith('/services')) {
     cta = {
       accent: '#d1b37a',
       eyebrow: 'Services intake',
-      copy: 'Need the right mix of support, security, cloud, AI, and custom delivery?',
+      copy: 'Need the right mix of support, security, Microsoft 365, cloud, and project delivery?',
       detail:
         'The solution hub, planner, and pricing routes all feed the same intake path.',
       secondaryHref: withBasePath('pricing/'),
       secondaryLabel: 'Review pricing',
-      primaryHref: `${withBasePath('contact-hq/')}?service=${encodeURIComponent('msp')}&brief=${encodeURIComponent('I want to discuss support, security, cloud, AI, or a custom delivery plan.')}`,
+      primaryHref: `${withBasePath('contact-hq/')}?service=${encodeURIComponent('msp')}&brief=${encodeURIComponent('I want to discuss support, security, Microsoft 365, cloud, or a custom delivery plan.')}`,
       primaryLabel: 'Start service intake',
     };
   } else if (currentPath.startsWith('/company')) {

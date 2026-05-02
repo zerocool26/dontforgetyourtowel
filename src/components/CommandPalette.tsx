@@ -173,32 +173,32 @@ const BASE_COMMANDS: CommandItem[] = [
   },
   {
     id: 'nav-about',
-    label: 'Open Proof Lab',
+    label: 'Open Experience Lab',
     icon: User,
     action: () => navigate(withBasePath('about/')),
     category: 'Navigation',
-    keywords: ['proof', 'lab', 'portfolio', 'demo', 'experience'],
+    keywords: ['experience', 'lab', 'portfolio', 'demo', 'proof'],
   },
   {
     id: 'nav-build-studio',
-    label: 'Open Build Studio',
+    label: 'Open Roadmap Studio',
     icon: Layout,
     action: () => navigate(withBasePath('build-studio/#studio')),
     category: 'Navigation',
-    keywords: ['build', 'studio', 'flagship', 'showcase', 'planner', 'brief'],
+    keywords: ['roadmap', 'studio', 'planner', 'brief', 'scope', 'build'],
   },
   {
     id: 'nav-build-studio-ai',
-    label: 'Build Studio: AI Operations Room',
+    label: 'Roadmap Studio: Automation Sprint',
     icon: Layout,
     action: () =>
       navigate(
         withBasePath(
-          'build-studio/?preset=ai-operations-room&urgency=flagship#studio'
+          'build-studio/?preset=automation-reporting-sprint&urgency=flagship#studio'
         )
       ),
     category: 'Navigation',
-    keywords: ['build studio', 'ai', 'automation', 'ops', 'flagship'],
+    keywords: ['roadmap studio', 'automation', 'workflow', 'ops', 'flagship'],
   },
   {
     id: 'nav-portfolio-demo',
