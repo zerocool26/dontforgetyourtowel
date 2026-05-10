@@ -13,9 +13,7 @@ const mobileSiteTitle = SITE_TITLE.replace(/\s+Systems$/i, '');
 const links = [
   { label: 'Solutions', href: withBasePath('services/') },
   { label: 'Pricing', href: withBasePath('pricing/') },
-  { label: 'Company', href: withBasePath('company/') },
   { label: 'Experience', href: withBasePath('about/') },
-  { label: 'Roadmap', href: withBasePath('build-studio/') },
   { label: 'Contact', href: withBasePath('contact-hq/') },
 ];
 
@@ -134,6 +132,20 @@ const isTradeActiveHref = (href: string) => {
       </div>
     </a>
 
+    {
+      isHomePage ? (
+        <div class="header-nav-cityline" aria-hidden="true">
+          <span class="header-nav-cityline__copy">
+            Chicago-area managed IT, security, cloud, and digital systems
+          </span>
+          <ChicagoSkyline
+            className="header-nav-cityline__art"
+            style="width:min(100%,28rem);height:2.4rem;"
+          />
+        </div>
+      ) : null
+    }
+
     <div class="hidden h-full items-center lg:flex">
       {
         !isHomePage &&
@@ -245,24 +257,6 @@ const isTradeActiveHref = (href: string) => {
       </ModernButton>
     </div>
   </nav>
-
-  {
-    isHomePage ? (
-      <div class="header-cityline-shell" aria-hidden="true">
-        <div class="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
-          <div class="header-cityline">
-            <span class="header-cityline__copy">
-              Chicago-area managed IT, security, cloud, and digital systems
-            </span>
-            <ChicagoSkyline
-              className="header-cityline__art"
-              style="width:min(100%,32rem);height:2.75rem;"
-            />
-          </div>
-        </div>
-      </div>
-    ) : null
-  }
 
   {
     isTradePage ? (
@@ -456,6 +450,54 @@ const isTradeActiveHref = (href: string) => {
     content: none;
   }
 
+  .header-nav-shell > :not(.header-nav-cityline) {
+    position: relative;
+    z-index: 2;
+  }
+
+  .header-nav-cityline {
+    position: absolute;
+    z-index: 1;
+    inset: auto 5rem 0.24rem 11.5rem;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 0.9rem;
+    overflow: hidden;
+    min-width: 0;
+    pointer-events: none;
+    color: color-mix(in srgb, var(--color-primary) 70%, white 30%);
+    opacity: 0.72;
+    mask-image: linear-gradient(
+      90deg,
+      transparent,
+      black 16%,
+      black 82%,
+      transparent
+    );
+  }
+
+  .header-nav-cityline__copy {
+    flex: 0 0 auto;
+    margin-bottom: 0.42rem;
+    color: color-mix(in srgb, var(--color-text-muted) 76%, transparent);
+    font-family: var(--font-sans);
+    font-size: 0.55rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .header-nav-cityline__art {
+    display: block;
+    flex: 1 1 18rem;
+    max-width: 28rem;
+    --skyline-width: min(100%, 28rem);
+    --skyline-height: 2.4rem;
+    width: min(100%, 28rem);
+    height: 2.4rem;
+  }
+
   .header-brand-mark {
     border: 1px solid color-mix(in srgb, var(--color-border) 68%, transparent);
     background:
@@ -570,34 +612,6 @@ const isTradeActiveHref = (href: string) => {
     color: rgba(255, 255, 255, 0.78);
   }
 
-  .header-cityline-shell {
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
-  }
-
-  .header-cityline {
-    display: grid;
-    gap: 0.45rem;
-    padding: 0.65rem 0 0.7rem;
-    color: rgba(243, 238, 231, 0.62);
-  }
-
-  .header-cityline__copy {
-    font-family: var(--font-sans);
-    font-size: 0.58rem;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-  }
-
-  .header-cityline__art {
-    display: block;
-    --skyline-width: min(100%, 32rem);
-    --skyline-height: 2.75rem;
-    width: min(100%, 32rem);
-    height: 2.75rem;
-    color: color-mix(in srgb, var(--color-primary) 78%, white 22%);
-  }
-
   .header-context-compact {
     border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 1.1rem;
@@ -642,6 +656,28 @@ const isTradeActiveHref = (href: string) => {
         transparent 46%
       );
     box-shadow: none;
+  }
+
+  @media (max-width: 1023px) {
+    .header-nav-cityline {
+      inset: auto 4.25rem 0.18rem 7rem;
+      justify-content: flex-end;
+      opacity: 0.5;
+      mask-image: linear-gradient(90deg, transparent, black 24%);
+    }
+
+    .header-nav-cityline__copy {
+      display: none;
+    }
+
+    .header-nav-cityline__art {
+      flex-basis: 13rem;
+      max-width: 13rem;
+      --skyline-width: min(100%, 13rem);
+      --skyline-height: 2.15rem;
+      width: min(100%, 13rem);
+      height: 2.15rem;
+    }
   }
 </style>
 

@@ -1,121 +1,88 @@
-import { expect, test, type Locator } from '@playwright/test';
-
-async function getCanvasVisiblePixelRatio(locator: Locator) {
-  return locator.evaluate(node => {
-    if (!(node instanceof HTMLCanvasElement)) {
-      return 0;
-    }
-
-    const sample = document.createElement('canvas');
-    sample.width = 64;
-    sample.height = 64;
-    const context = sample.getContext('2d');
-
-    if (!context) {
-      return 0;
-    }
-
-    context.drawImage(node, 0, 0, sample.width, sample.height);
-    const { data } = context.getImageData(0, 0, sample.width, sample.height);
-
-    let visiblePixels = 0;
-    for (let index = 0; index < data.length; index += 4) {
-      const luminance = data[index] + data[index + 1] + data[index + 2];
-      if (luminance > 24) {
-        visiblePixels += 1;
-      }
-    }
-
-    return visiblePixels / (sample.width * sample.height);
-  });
-}
+import { expect, test } from '@playwright/test';
 
 test.describe('Landing page integrity', () => {
-  test('should keep the immersive scene active behind the landing page', async ({
-    page,
-  }) => {
+  test('keeps the managed IT hero composition intact', async ({ page }) => {
     await page.goto('./');
 
-    const hero = page.locator('[data-olive-universe="ready"]');
+    const hero = page.locator('#landing-hero');
     await expect(hero).toBeVisible();
 
-    const heroBox = await hero.boundingBox();
-    expect(heroBox?.height ?? 0).toBeGreaterThanOrEqual(660);
-
     await expect(
-      page.getByRole('navigation', { name: /main navigation/i })
+      page.getByRole('heading', {
+        level: 1,
+        name: /Support that answers/i,
+      })
     ).toBeVisible();
+    await expect(page.getByText(/Olive OS/i)).toBeVisible();
+    await expect(page.getByText(/Chicago \/ managed layer/i)).toBeVisible();
+
+    const heroBox = await hero.boundingBox();
+    expect(heroBox?.height ?? 0).toBeGreaterThanOrEqual(620);
   });
 
-  test('should expose accessible destination links alongside visible navigation', async ({
+  test('exposes accessible destination links alongside visible navigation', async ({
     page,
+    isMobile,
   }) => {
     await page.goto('./');
 
-    const linksShell = page.locator('[data-olive-links]');
-    await expect(linksShell.locator('a[href$="/trades/"]')).toHaveCount(1);
-    await expect(linksShell.locator('a[href$="/services/"]')).toHaveCount(1);
-    await expect(linksShell.locator('a[href$="/about/"]')).toHaveCount(1);
-    await expect(linksShell.locator('a[href$="/build-studio/"]')).toHaveCount(
-      1
-    );
-    await expect(linksShell.locator('a[href$="/contact-hq/"]')).toHaveCount(1);
+    if (isMobile) {
+      await page.getByRole('button', { name: /toggle navigation/i }).click();
+    }
+
+    const navSurface = isMobile
+      ? page.locator('#mobile-menu')
+      : page.getByRole('navigation', {
+          name: /main navigation/i,
+        });
+    await expect(
+      navSurface.getByRole('link', { name: /^solutions$/i })
+    ).toHaveAttribute('href', /\/services\/?$/);
+    await expect(
+      navSurface.getByRole('link', { name: /^pricing$/i })
+    ).toHaveAttribute('href', /\/pricing\/?$/);
+    await expect(
+      navSurface.getByRole('link', { name: /^contact$/i })
+    ).toHaveAttribute('href', /\/contact-hq\/?$/);
   });
 
-  test('desktop rendering should produce visible canvas output', async ({
-    browser,
-    baseURL,
+  test('desktop rendering should show the operating map without horizontal overflow', async ({
+    page,
     isMobile,
   }) => {
     if (isMobile) {
       test.skip();
     }
 
-    const context = await browser.newContext({
-      reducedMotion: 'no-preference',
-      viewport: { width: 1440, height: 900 },
-    });
-    const page = await context.newPage();
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('./');
 
-    await page.goto(baseURL ?? 'http://localhost:4321/', {
-      waitUntil: 'networkidle',
-    });
-
-    const canvas = page.locator('canvas[data-hero-canvas="true"]');
-    await expect(canvas).toBeVisible();
-    await expect
-      .poll(async () => getCanvasVisiblePixelRatio(canvas), {
-        timeout: 6000,
-      })
-      .toBeGreaterThan(0.015);
-
-    await context.close();
+    await expect(page.locator('.home-homepage-art-panel')).toBeVisible();
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - window.innerWidth
+    );
+    expect(overflow).toBeLessThanOrEqual(1);
   });
 
-  test('mobile viewports should keep the scene fullscreen and optimized', async ({
-    browser,
-    baseURL,
+  test('mobile viewports keep the hero readable and action-oriented', async ({
+    page,
   }) => {
-    const context = await browser.newContext({
-      hasTouch: true,
-      isMobile: true,
-      viewport: { width: 430, height: 932 },
-      reducedMotion: 'no-preference',
-    });
-    const page = await context.newPage();
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('./');
 
-    await page.goto(baseURL ?? 'http://localhost:4321/', {
-      waitUntil: 'networkidle',
-    });
+    await expect(
+      page.getByRole('heading', {
+        level: 1,
+        name: /Support that answers/i,
+      })
+    ).toBeVisible();
+    await expect(
+      page.getByRole('link', { name: /Start strategy intake/i })
+    ).toBeVisible();
 
-    const hero = page.locator('[data-olive-universe="ready"]');
-    await expect(hero).toBeVisible();
-    await expect(hero).toHaveAttribute('data-olive-mobile-3d', 'optimized');
-    await expect(hero).toHaveAttribute('data-olive-mode', 'lite');
-
-    const heroBox = await hero.boundingBox();
-    expect(heroBox?.height ?? 0).toBeGreaterThanOrEqual(900);
-
-    await context.close();
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - window.innerWidth
+    );
+    expect(overflow).toBeLessThanOrEqual(1);
   });
 });

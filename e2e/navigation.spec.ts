@@ -19,15 +19,24 @@ test.describe('Navigation', () => {
       name: /main navigation/i,
     });
 
-    // Proof page
+    // Pricing page from the streamlined homepage navigation
     if (isMobile) {
       const mobileMenu = await openMobileMenuIfNeeded();
-      await mobileMenu!.getByRole('link', { name: /^proof$/i }).click();
+      await mobileMenu!.getByRole('link', { name: /^pricing$/i }).click();
     } else {
-      await headerNav.getByRole('link', { name: /^proof$/i }).click();
+      await headerNav.getByRole('link', { name: /^pricing$/i }).click();
+    }
+    await expect(page).toHaveURL(/.*\/pricing\/?$/);
+    await expect(page.locator('main')).toBeVisible();
+
+    // Experience page from the full inner-page navigation
+    if (isMobile) {
+      const mobileMenu = await openMobileMenuIfNeeded();
+      await mobileMenu!.getByRole('link', { name: /^experience$/i }).click();
+    } else {
+      await headerNav.getByRole('link', { name: /^experience$/i }).click();
     }
     await expect(page).toHaveURL(/.*\/about\/?$/);
-    await expect(page.locator('main')).toBeVisible();
 
     // Services page
     await page.goto('./');
@@ -94,15 +103,7 @@ test.describe('Navigation', () => {
     await expect(page.locator('#estimate')).toBeVisible();
   });
 
-  test('should expose calmer jump rails on company and contact HQ', async ({
-    page,
-  }) => {
-    await page.goto('./company/');
-
-    await page.getByRole('link', { name: /^delivery flow$/i }).click();
-    await expect(page).toHaveURL(/\/company\/#delivery-model$/);
-    await expect(page.locator('#delivery-model')).toBeVisible();
-
+  test('should expose calmer jump rails on contact HQ', async ({ page }) => {
     await page.goto('./contact-hq/');
 
     await page.getByRole('link', { name: /^faq$/i }).click();

@@ -8,12 +8,10 @@ const primaryLinks = [
   { label: 'Solutions', href: withBasePath('services/') },
   { label: 'Pricing', href: withBasePath('pricing/') },
   { label: 'Experience', href: withBasePath('about/') },
-  { label: 'Roadmap', href: withBasePath('build-studio/') },
   { label: 'Contact', href: withBasePath('contact-hq/') },
 ];
 
 const supportLinks = [
-  { label: 'Company', href: withBasePath('company/') },
   { label: 'Privacy', href: withBasePath('privacy/') },
   { label: 'Terms', href: withBasePath('terms/') },
 ];
@@ -161,7 +159,7 @@ const footerSignals = [
     font-family: var(--font-display);
     font-size: 1.12rem;
     font-weight: 700;
-    letter-spacing: -0.04em;
+    letter-spacing: 0;
   }
 
   .footer-brand__copy {
@@ -229,7 +227,7 @@ const footerSignals = [
     color: var(--color-text-primary);
     font-size: 1rem;
     font-weight: 600;
-    letter-spacing: -0.03em;
+    letter-spacing: 0;
   }
 
   .footer-signal__detail {

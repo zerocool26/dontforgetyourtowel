@@ -14,7 +14,8 @@ test.describe('Homepage buyer landing', () => {
     await expect(
       page.getByText(/Chicago managed IT and cybersecurity/i)
     ).toBeVisible();
-    await expect(page.getByText(/Built for Chicago uptime/i)).toBeVisible();
+    await expect(page.getByText(/Olive OS/i)).toBeVisible();
+    await expect(page.getByText(/Chicago \/ managed layer/i)).toBeVisible();
   });
 
   test('exposes primary buyer next steps', async ({ page }) => {
@@ -34,8 +35,8 @@ test.describe('Homepage buyer landing', () => {
       page.getByRole('link', { name: /See pricing/i })
     ).toHaveAttribute('href', /pricing\/$/);
     await expect(
-      page.getByRole('link', { name: /Open roadmap/i })
-    ).toHaveAttribute('href', /build-studio\/$/);
+      page.getByRole('link', { name: /Start fit check/i })
+    ).toHaveAttribute('href', /contact-hq\/$/);
   });
 
   test('presents service lanes and operating standard', async ({ page }) => {

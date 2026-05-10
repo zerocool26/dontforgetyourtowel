@@ -29,7 +29,7 @@ const serviceLanes = [
     label: 'Modernize',
     title: 'Cloud and Microsoft 365 with practical leverage',
     copy: 'Migration, cleanup, collaboration governance, backup strategy, and workflow automation tied to lower drag and better visibility.',
-    href: withBasePath('build-studio/'),
+    href: withBasePath('services/#technology-catalog'),
   },
   {
     index: '04',
@@ -44,6 +44,21 @@ const outcomePoints = [
   'One partner for support, security, Microsoft 365, and infrastructure decisions',
   'A Chicago-specific service story that reads clearly on mobile',
   'A sharper first impression before the first sales or intake call',
+];
+
+const proofMetrics = [
+  {
+    value: '30',
+    label: 'day operating baseline',
+  },
+  {
+    value: '4',
+    label: 'service lanes, one accountable model',
+  },
+  {
+    value: '0',
+    label: 'generic handoff theater',
+  },
 ];
 
 const operatingSignals = [
@@ -81,10 +96,10 @@ const startOptions = [
     cta: 'See pricing',
   },
   {
-    title: 'Need a first-phase roadmap?',
-    copy: 'Use the roadmap studio to shape the first 30, 60, or 90 days before the first detailed scope call.',
-    href: withBasePath('build-studio/'),
-    cta: 'Open roadmap',
+    title: 'Need fit clarity?',
+    copy: 'Use contact HQ when the main question is scope, sequence, timing, or which service lane should lead first.',
+    href: withBasePath('contact-hq/'),
+    cta: 'Start fit check',
   },
 ];
 ---
@@ -107,7 +122,7 @@ const startOptions = [
             Chicago managed IT and cybersecurity
           </p>
           <h1 class="home-homepage-title">
-            Support that answers.
+            <span>Support that answers.</span>
             <span>Security that holds.</span>
             <span>A sharper Chicago front door.</span>
           </h1>
@@ -137,25 +152,57 @@ const startOptions = [
           <ul class="home-homepage-outcomes" aria-label="Primary outcomes">
             {outcomePoints.map(item => <li>{item}</li>)}
           </ul>
+
+          <div class="home-homepage-proof" aria-label="Operating proof points">
+            {
+              proofMetrics.map(metric => (
+                <div class="home-homepage-proof__item">
+                  <span>{metric.value}</span>
+                  <p>{metric.label}</p>
+                </div>
+              ))
+            }
+          </div>
         </div>
 
         <div class="home-homepage-hero__art" aria-hidden="true">
           <div class="home-homepage-art-panel">
-            <div class="home-homepage-art-panel__topline">
-              <span>Operate</span>
-              <span>Protect</span>
-              <span>Modernize</span>
-              <span>Present</span>
+            <div class="home-homepage-art-panel__plate">
+              <span>Olive OS</span>
+              <span>Chicago / managed layer</span>
             </div>
 
-            <div class="home-homepage-art-panel__headline">
-              <span>Built</span>
-              <span>for</span>
-              <span>Chicago</span>
-              <span>uptime.</span>
+            <div class="home-homepage-art-map">
+              <div class="home-homepage-art-map__track"></div>
+              <div
+                class="home-homepage-art-node home-homepage-art-node--operate"
+              >
+                <span>01</span>
+                <strong>Operate</strong>
+                <small>Tickets, endpoints, vendors</small>
+              </div>
+              <div
+                class="home-homepage-art-node home-homepage-art-node--protect"
+              >
+                <span>02</span>
+                <strong>Protect</strong>
+                <small>Identity, email, backup</small>
+              </div>
+              <div
+                class="home-homepage-art-node home-homepage-art-node--modernize"
+              >
+                <span>03</span>
+                <strong>Modernize</strong>
+                <small>M365, cloud, workflow</small>
+              </div>
+              <div
+                class="home-homepage-art-node home-homepage-art-node--present"
+              >
+                <span>04</span>
+                <strong>Present</strong>
+                <small>Portal, web, proof</small>
+              </div>
             </div>
-
-            <div class="home-homepage-art-panel__rule"></div>
 
             <div class="home-homepage-art-panel__skyline">
               <ChicagoSkyline
@@ -165,10 +212,9 @@ const startOptions = [
             </div>
 
             <div class="home-homepage-art-panel__meta">
-              <p>Managed IT and support</p>
-              <p>Security and compliance</p>
-              <p>Cloud and M365</p>
-              <p>Premium digital systems</p>
+              <p>Support signal</p>
+              <p>Risk baseline</p>
+              <p>Roadmap clarity</p>
             </div>
           </div>
         </div>
@@ -265,7 +311,7 @@ const startOptions = [
         <div class="home-homepage-closing__intro">
           <p class="home-homepage-eyebrow">Choose the next move</p>
           <h2 class="home-homepage-section__title">
-            Start where the pressure is: support, budget, or roadmap shaping.
+            Start where the pressure is: support, budget, or fit clarity.
           </h2>
         </div>
 
@@ -321,9 +367,23 @@ const startOptions = [
     }
 
     .home-homepage-hero {
-      padding-top: clamp(5.4rem, 8vw, 7rem);
+      min-height: min(800px, calc(100svh - 1rem));
+      display: grid;
+      align-items: center;
+      padding-top: clamp(6rem, 8vw, 7.25rem);
       border-bottom: 1px solid
         color-mix(in srgb, var(--color-border) 72%, transparent);
+      background:
+        linear-gradient(
+          120deg,
+          color-mix(in srgb, #20322f 20%, transparent) 0 1px,
+          transparent 1px 42px
+        ),
+        radial-gradient(
+          ellipse at 78% 22%,
+          color-mix(in srgb, #1d5f5c 20%, transparent),
+          transparent 34%
+        );
     }
 
     .home-homepage-hero::before {
@@ -331,27 +391,63 @@ const startOptions = [
       position: absolute;
       inset: 0;
       background:
+        linear-gradient(
+          90deg,
+          color-mix(in srgb, var(--color-border) 24%, transparent) 1px,
+          transparent 1px
+        ),
+        linear-gradient(
+          180deg,
+          color-mix(in srgb, var(--color-border) 18%, transparent) 1px,
+          transparent 1px
+        ),
         radial-gradient(
           circle at 14% 10%,
           color-mix(in srgb, var(--color-primary) 14%, transparent),
           transparent 30%
         ),
         linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 22%);
+      background-size:
+        72px 72px,
+        72px 72px,
+        auto,
+        auto;
       pointer-events: none;
+    }
+
+    .home-homepage-hero::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.16;
+      background:
+        repeating-linear-gradient(
+          0deg,
+          transparent 0 8px,
+          rgba(255, 255, 255, 0.018) 8px 9px
+        ),
+        linear-gradient(
+          135deg,
+          transparent 0 48%,
+          color-mix(in srgb, var(--color-primary) 10%, transparent) 48% 49%,
+          transparent 49%
+        );
+      mix-blend-mode: screen;
     }
 
     .home-homepage-hero__shell {
       position: relative;
       z-index: 1;
       display: grid;
-      gap: 3.2rem;
-      align-items: start;
+      gap: clamp(2rem, 5vw, 3.8rem);
+      align-items: center;
     }
 
     .home-homepage-hero__copy {
       display: grid;
-      gap: 1.35rem;
-      max-width: 43rem;
+      gap: 1.15rem;
+      max-width: 45rem;
     }
 
     .home-homepage-eyebrow {
@@ -365,14 +461,14 @@ const startOptions = [
     }
 
     .home-homepage-title {
-      max-width: 9.6ch;
+      max-width: 12.1ch;
       margin: 0;
       color: var(--color-text-primary);
       font-family: var(--font-display);
-      font-size: clamp(2.85rem, 7.5vw, 6.1rem);
+      font-size: clamp(2.8rem, 6.2vw, 5.75rem);
       font-weight: 700;
       line-height: 0.92;
-      letter-spacing: -0.065em;
+      letter-spacing: 0;
       text-wrap: balance;
     }
 
@@ -380,12 +476,13 @@ const startOptions = [
       display: block;
     }
 
-    .home-homepage-title span:first-of-type {
+    .home-homepage-title span:nth-child(2) {
       color: color-mix(in srgb, var(--color-text-primary) 70%, transparent);
     }
 
-    .home-homepage-title span:last-of-type {
-      color: color-mix(in srgb, var(--color-primary) 78%, white 22%);
+    .home-homepage-title span:nth-child(3) {
+      color: color-mix(in srgb, var(--color-primary) 70%, #62d2c5 30%);
+      text-shadow: 0 16px 48px color-mix(in srgb, #62d2c5 18%, transparent);
     }
 
     .home-homepage-copy,
@@ -394,8 +491,8 @@ const startOptions = [
     .home-homepage-start-item p {
       margin: 0;
       color: color-mix(in srgb, var(--color-text-secondary) 94%, transparent);
-      font-size: clamp(1.02rem, 1.26vw, 1.1rem);
-      line-height: 1.76;
+      font-size: clamp(1rem, 1.12vw, 1.08rem);
+      line-height: 1.68;
     }
 
     .home-homepage-actions {
@@ -434,35 +531,102 @@ const startOptions = [
       background: color-mix(in srgb, var(--color-primary) 84%, white 16%);
     }
 
+    .home-homepage-proof {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1px;
+      overflow: hidden;
+      max-width: 40rem;
+      border: 1px solid color-mix(in srgb, var(--color-border) 78%, transparent);
+      background: color-mix(in srgb, var(--color-border) 52%, transparent);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.04),
+        0 24px 70px -54px rgba(0, 0, 0, 0.82);
+    }
+
+    .home-homepage-proof__item {
+      min-height: 6.7rem;
+      padding: 1rem;
+      background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--color-surface) 92%, white 3%),
+        color-mix(in srgb, var(--color-background) 82%, transparent)
+      );
+    }
+
+    .home-homepage-proof__item span {
+      display: block;
+      color: color-mix(in srgb, var(--color-primary) 72%, #62d2c5 28%);
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 4vw, 3.45rem);
+      font-weight: 800;
+      line-height: 0.9;
+      letter-spacing: 0;
+    }
+
+    .home-homepage-proof__item p {
+      max-width: 10rem;
+      margin: 0.65rem 0 0;
+      color: color-mix(in srgb, var(--color-text-secondary) 80%, transparent);
+      font-size: 0.78rem;
+      font-weight: 700;
+      line-height: 1.25;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
     .home-homepage-art-panel {
       position: relative;
       overflow: hidden;
-      min-height: 100%;
-      padding: clamp(1.2rem, 3vw, 1.8rem) 0 0;
+      min-height: 31.5rem;
+      padding: clamp(1rem, 2.4vw, 1.35rem);
+      border: 1px solid color-mix(in srgb, var(--color-border) 88%, transparent);
+      border-radius: var(--radius-sm);
+      background:
+        linear-gradient(
+          180deg,
+          color-mix(in srgb, var(--color-surface) 92%, white 4%),
+          color-mix(in srgb, #0b0f10 96%, transparent)
+        ),
+        color-mix(in srgb, var(--color-surface) 92%, transparent);
+      box-shadow:
+        0 32px 88px -56px rgba(0, 0, 0, 0.92),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      transform: translateY(-0.65rem) rotate(1.1deg);
     }
 
     .home-homepage-art-panel::before,
     .home-homepage-art-panel::after {
       content: '';
       position: absolute;
-      left: 0;
-      right: 0;
-      height: 1px;
-      background: color-mix(in srgb, var(--color-border) 70%, transparent);
+      pointer-events: none;
     }
 
     .home-homepage-art-panel::before {
-      top: 0;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(255, 255, 255, 0.055) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+      background-size: 30px 30px;
+      mask-image: linear-gradient(180deg, black, transparent 82%);
+      opacity: 0.5;
     }
 
     .home-homepage-art-panel::after {
-      bottom: 0;
+      inset: auto 1rem 1rem 1rem;
+      height: 34%;
+      background: linear-gradient(
+        180deg,
+        transparent,
+        color-mix(in srgb, #06100f 86%, transparent)
+      );
     }
 
-    .home-homepage-art-panel__topline,
+    .home-homepage-art-panel__plate,
     .home-homepage-art-panel__meta {
       display: flex;
       flex-wrap: wrap;
+      justify-content: space-between;
       gap: 0.7rem 1rem;
       color: color-mix(in srgb, var(--color-text-muted) 90%, transparent);
       font-family: var(--font-sans);
@@ -471,41 +635,12 @@ const startOptions = [
       text-transform: uppercase;
     }
 
-    .home-homepage-art-panel__headline {
-      display: grid;
-      gap: 0.1rem;
-      margin: 1.1rem 0 1rem;
-      color: var(--color-text-primary);
-      font-family: var(--font-display);
-      font-size: clamp(2.4rem, 6.4vw, 4.75rem);
-      font-weight: 700;
-      line-height: 0.9;
-      letter-spacing: -0.07em;
-      text-transform: uppercase;
-    }
-
-    .home-homepage-art-panel__headline span:nth-child(2),
-    .home-homepage-art-panel__headline span:nth-child(3) {
-      padding-left: clamp(1rem, 4vw, 2.5rem);
-      color: color-mix(in srgb, var(--color-text-primary) 42%, transparent);
-    }
-
-    .home-homepage-art-panel__headline span:last-child {
-      color: color-mix(in srgb, var(--color-primary) 80%, white 20%);
-    }
-
-    .home-homepage-art-panel__rule {
-      height: 1px;
-      margin: 0 0 1rem;
-      background: linear-gradient(
-        90deg,
-        color-mix(in srgb, var(--color-border) 70%, transparent),
-        color-mix(in srgb, var(--color-primary) 55%, transparent),
-        transparent
-      );
-    }
-
     .home-homepage-art-panel__skyline {
+      position: absolute;
+      z-index: 1;
+      right: 1.25rem;
+      bottom: 3.75rem;
+      left: 1.25rem;
       padding: 0 0 0.9rem;
       color: color-mix(in srgb, var(--color-primary) 76%, white 24%);
     }
@@ -517,6 +652,94 @@ const startOptions = [
       width: min(100%, 30rem);
       height: 4.2rem;
       opacity: 0.9;
+    }
+
+    .home-homepage-art-map {
+      position: relative;
+      z-index: 1;
+      min-height: 22rem;
+      margin-top: 1.2rem;
+    }
+
+    .home-homepage-art-map__track {
+      position: absolute;
+      inset: 2rem 19% 2rem auto;
+      width: 1px;
+      background: linear-gradient(
+        180deg,
+        transparent,
+        color-mix(in srgb, var(--color-primary) 55%, transparent),
+        color-mix(in srgb, #62d2c5 54%, transparent),
+        transparent
+      );
+      box-shadow: 0 0 34px color-mix(in srgb, #62d2c5 20%, transparent);
+    }
+
+    .home-homepage-art-node {
+      position: absolute;
+      display: grid;
+      gap: 0.18rem;
+      width: min(16rem, 74%);
+      padding: 0.95rem 1rem;
+      border: 1px solid color-mix(in srgb, var(--color-border) 78%, transparent);
+      background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--color-surface) 82%, white 5%),
+        color-mix(in srgb, #0f1716 94%, transparent)
+      );
+      box-shadow:
+        0 18px 48px -38px rgba(0, 0, 0, 0.9),
+        inset 0 1px 0 rgba(255, 255, 255, 0.07);
+    }
+
+    .home-homepage-art-node span {
+      color: color-mix(in srgb, var(--color-primary) 74%, white 10%);
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+    }
+
+    .home-homepage-art-node strong {
+      color: var(--color-text-primary);
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+
+    .home-homepage-art-node small {
+      color: color-mix(in srgb, var(--color-text-secondary) 72%, transparent);
+      font-size: 0.72rem;
+      line-height: 1.35;
+    }
+
+    .home-homepage-art-node--operate {
+      top: 0.4rem;
+      left: 0;
+    }
+
+    .home-homepage-art-node--protect {
+      top: 5.6rem;
+      right: 0;
+      border-color: color-mix(in srgb, #62d2c5 28%, var(--color-border));
+    }
+
+    .home-homepage-art-node--modernize {
+      top: 11rem;
+      left: 2.4rem;
+    }
+
+    .home-homepage-art-node--present {
+      top: 15.6rem;
+      right: 1rem;
+      border-color: color-mix(in srgb, #d9966b 24%, var(--color-border));
+    }
+
+    .home-homepage-art-panel__meta {
+      position: absolute;
+      z-index: 2;
+      right: 1.25rem;
+      bottom: 1.2rem;
+      left: 1.25rem;
     }
 
     .home-homepage-section {
@@ -540,34 +763,71 @@ const startOptions = [
       font-size: clamp(1.45rem, 3vw, 3rem);
       font-weight: 700;
       line-height: 0.98;
-      letter-spacing: -0.05em;
+      letter-spacing: 0;
       text-wrap: balance;
     }
 
     .home-homepage-lanes {
+      display: grid;
+      gap: 1px;
+      overflow: hidden;
       border-top: 1px solid
         color-mix(in srgb, var(--color-border) 70%, transparent);
+      background: color-mix(in srgb, var(--color-border) 54%, transparent);
     }
 
     .home-homepage-lane {
+      position: relative;
       display: grid;
       gap: 1rem;
-      padding: 1.55rem 0;
-      border-bottom: 1px solid
-        color-mix(in srgb, var(--color-border) 66%, transparent);
+      min-height: 15rem;
+      padding: clamp(1.2rem, 2.2vw, 1.7rem);
+      background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--color-surface) 84%, transparent),
+        color-mix(in srgb, var(--color-background) 92%, transparent)
+      );
+      border-bottom: 0;
       transition:
         color 0.2s ease,
         border-color 0.2s ease,
+        transform 0.2s ease,
+        background 0.2s ease;
+    }
+
+    .home-homepage-lane::after {
+      content: '';
+      position: absolute;
+      inset: auto 1rem 1rem auto;
+      width: 4.5rem;
+      height: 4.5rem;
+      border-right: 1px solid
+        color-mix(in srgb, var(--color-primary) 32%, transparent);
+      border-bottom: 1px solid
+        color-mix(in srgb, var(--color-primary) 32%, transparent);
+      opacity: 0.45;
+      transition:
+        opacity 0.2s ease,
         transform 0.2s ease;
     }
 
     .home-homepage-lane:hover {
-      transform: translateX(3px);
+      transform: translateY(-3px);
       border-color: color-mix(
         in srgb,
         var(--color-text-primary) 20%,
         transparent
       );
+      background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--color-surface) 94%, white 3%),
+        color-mix(in srgb, var(--color-background) 90%, transparent)
+      );
+    }
+
+    .home-homepage-lane:hover::after {
+      opacity: 0.9;
+      transform: translate(-0.25rem, -0.25rem);
     }
 
     .home-homepage-lane__meta {
@@ -581,7 +841,7 @@ const startOptions = [
       color: color-mix(in srgb, var(--color-text-primary) 34%, transparent);
       font-family: var(--font-display);
       font-size: 1.1rem;
-      letter-spacing: -0.04em;
+      letter-spacing: 0;
     }
 
     .home-homepage-lane__label {
@@ -635,7 +895,7 @@ const startOptions = [
       font-size: clamp(1.25rem, 2vw, 1.75rem);
       font-weight: 700;
       line-height: 1.03;
-      letter-spacing: -0.04em;
+      letter-spacing: 0;
       text-wrap: balance;
     }
 
@@ -741,12 +1001,15 @@ const startOptions = [
 
     @media (min-width: 960px) {
       .home-homepage-hero__shell {
-        grid-template-columns: minmax(0, 1fr) minmax(21rem, 27rem);
+        grid-template-columns: minmax(0, 1.1fr) minmax(22rem, 31rem);
+      }
+
+      .home-homepage-lanes {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
       }
 
       .home-homepage-lane {
-        grid-template-columns: 8rem minmax(0, 1fr);
-        align-items: start;
+        grid-template-rows: auto 1fr;
       }
 
       .home-homepage-start-item {
@@ -770,7 +1033,11 @@ const startOptions = [
 
       .home-homepage-title {
         max-width: 100%;
-        font-size: clamp(2.45rem, 12vw, 4.25rem);
+        font-size: clamp(2.35rem, 10.8vw, 3.85rem);
+      }
+
+      .home-homepage-proof {
+        grid-template-columns: 1fr;
       }
 
       .home-homepage-actions,
@@ -778,8 +1045,9 @@ const startOptions = [
         flex-direction: column;
       }
 
-      .home-homepage-art-panel__headline {
-        font-size: clamp(2.1rem, 13vw, 3.45rem);
+      .home-homepage-art-panel {
+        min-height: 30rem;
+        transform: none;
       }
     }
   </style>

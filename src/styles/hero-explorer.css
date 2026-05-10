@@ -137,7 +137,7 @@
 .hero-explorer__post-title {
   margin: 0;
   font-size: clamp(1.5rem, 2.6vw, 2.25rem);
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
 }
 
 .hero-explorer__post-sub {

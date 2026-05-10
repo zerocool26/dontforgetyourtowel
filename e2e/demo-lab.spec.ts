@@ -8,7 +8,7 @@ test.describe('Demo Lab', () => {
     await expect(
       page.getByRole('heading', {
         level: 1,
-        name: /interactive proof for premium product, portal, and client-facing experiences/i,
+        name: /Show the buyer-facing experience/i,
       })
     ).toBeVisible();
     await expect(

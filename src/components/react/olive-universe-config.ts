@@ -133,7 +133,6 @@ export const IMMERSIVE_LINKS = [
   { label: 'Open design gallery', href: withBasePath('gallery/') },
   { label: 'Review pricing', href: withBasePath('pricing/') },
   { label: 'Open experience lab', href: withBasePath('about/') },
-  { label: 'Open roadmap studio', href: withBasePath('build-studio/') },
   { label: 'Contact headquarters', href: withBasePath('contact-hq/') },
 ] as const;
 

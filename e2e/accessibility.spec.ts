@@ -7,13 +7,13 @@ test.describe('Accessibility', () => {
   }) => {
     await page.goto('./');
     await page.waitForLoadState('domcontentloaded');
-    await expect(page.locator('[data-olive-universe="ready"]')).toBeVisible();
     await expect(
       page.getByRole('heading', {
         level: 1,
-        name: /creative technology/i,
+        name: /support that answers/i,
       })
     ).toBeVisible();
+    await expect(page.getByText(/Olive OS/i)).toBeVisible();
 
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
@@ -55,7 +55,9 @@ test.describe('Accessibility', () => {
     await page.goto('./');
     await page.waitForLoadState('domcontentloaded');
     await expect(
-      page.getByRole('heading', { name: /AI Orchestration & Advanced Dev/i })
+      page.getByRole('heading', {
+        name: /Four lanes that make the operating model easier/i,
+      })
     ).toBeVisible();
 
     const accessibilityScanResults = await new AxeBuilder({ page })

@@ -37,13 +37,11 @@ export async function GET() {
     routes: {
       home: '/',
       about: 'about/',
-      company: 'company/',
       proof: 'about/',
       gallery: 'gallery/',
       galleryStateQueryParams: ['discipline', 'galleryView'],
       services: 'services/',
       pricing: 'pricing/',
-      studio: 'build-studio/',
       contact: 'contact-hq/',
       trades: 'trades/',
     },

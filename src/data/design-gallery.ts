@@ -91,8 +91,8 @@ export const galleryInstallations: GalleryInstallation[] = [
       { label: 'Mode', value: 'Stack based' },
       { label: 'Finish', value: 'Resilient handoff' },
     ],
-    sourceLabel: 'Open Roadmap Studio',
-    sourceHref: withBasePath('build-studio/#studio'),
+    sourceLabel: 'Open Services Catalog',
+    sourceHref: withBasePath('services/#technology-catalog'),
     size: 'tall',
   },
   {
@@ -112,8 +112,8 @@ export const galleryInstallations: GalleryInstallation[] = [
       { label: 'Priority', value: 'Phasing clarity' },
       { label: 'Outcome', value: 'Owner ready handoff' },
     ],
-    sourceLabel: 'Open Company Story',
-    sourceHref: withBasePath('company/'),
+    sourceLabel: 'Open Service Planner',
+    sourceHref: withBasePath('services/#service-planner'),
     size: 'wide',
   },
   {

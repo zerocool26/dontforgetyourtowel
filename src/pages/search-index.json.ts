@@ -46,15 +46,6 @@ export async function GET() {
       tags: ['home', 'landing', 'managed it', 'security', 'cloud', 'm365'],
     },
     {
-      id: 'page-company',
-      title: 'Company',
-      description:
-        'Company story, buyer fit, delivery model, and how the managed IT stack stays connected',
-      category: 'Page',
-      url: 'company/',
-      tags: ['company', 'about', 'positioning', 'delivery model', 'managed it'],
-    },
-    {
       id: 'page-gallery',
       title: 'Design Gallery',
       description:
@@ -154,39 +145,6 @@ export async function GET() {
       category: 'Page',
       url: 'pricing/#estimate',
       tags: ['pricing', 'estimate', 'roi', 'calculator', 'budget'],
-    },
-    {
-      id: 'page-build-studio',
-      title: 'Roadmap Studio',
-      description:
-        'Interactive roadmap planner for configuring managed IT, security, Microsoft 365, workflow, and digital-system first phases',
-      category: 'Page',
-      url: 'build-studio/#studio',
-      tags: ['roadmap-studio', 'planner', 'brief', 'scope', 'roadmap'],
-    },
-    {
-      id: 'page-build-studio-ai',
-      title: 'Roadmap Studio — Automation Sprint',
-      description:
-        'Open the roadmap studio with the automation preset and executive urgency already applied',
-      category: 'Page',
-      url: 'build-studio/?preset=automation-reporting-sprint&urgency=flagship#studio',
-      tags: [
-        'roadmap-studio',
-        'automation',
-        'workflow',
-        'operations',
-        'executive',
-      ],
-    },
-    {
-      id: 'page-build-studio-commerce',
-      title: 'Roadmap Studio — Client Experience Refresh',
-      description:
-        'Open the client experience preset with launch planning and buyer-facing positioning',
-      category: 'Page',
-      url: 'build-studio/?preset=client-experience-refresh#studio',
-      tags: ['roadmap-studio', 'website', 'portal', 'pricing', 'conversion'],
     },
     {
       id: 'page-contact-hq',

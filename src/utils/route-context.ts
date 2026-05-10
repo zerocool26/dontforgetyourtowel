@@ -55,7 +55,7 @@ export function getRouteContext(pathname: string): RouteContext {
     title:
       'A calmer route system for Chicago managed IT, security, cloud, and premium client experiences.',
     description:
-      'Use this atlas to move between solutions, pricing, experience, and roadmap routes without falling into bloated brochure navigation.',
+      'Use this atlas to move between solutions, pricing, experience, and intake routes without falling into bloated brochure navigation.',
     currentTitle: 'Landing page',
     currentDescription:
       'Chicago-focused managed IT shell with route-aware navigation, proof surfaces, and mobile-first buyer flows.',
@@ -86,7 +86,7 @@ export function getRouteContext(pathname: string): RouteContext {
       kicker: 'Gallery Atlas',
       title: 'Gallery concepts stay wired into the real client experience map.',
       description:
-        'This gallery is not isolated art direction. It routes back into the live managed IT, experience, and roadmap surfaces that actually sell the work.',
+        'This gallery is not isolated art direction. It routes back into the live managed IT, experience, and intake surfaces that actually sell the work.',
       currentTitle: 'Design Gallery',
       currentDescription:
         'Interactive gallery mode for cinematic visual studies, curatorial filters, and route-linked concepts.',
@@ -98,10 +98,10 @@ export function getRouteContext(pathname: string): RouteContext {
           href: withBasePath('services/'),
         },
         {
-          label: 'Open Roadmap Studio',
+          label: 'Open service planner',
           detail:
-            'Shift from gallery thinking into a more practical interactive planning route.',
-          href: withBasePath('build-studio/#studio'),
+            'Shift from gallery thinking into the practical solution planning matrix.',
+          href: withBasePath('services/#service-planner'),
         },
         {
           label: 'Open experience lab',
@@ -144,36 +144,6 @@ export function getRouteContext(pathname: string): RouteContext {
           label: 'Start intake',
           detail: 'Route a project brief with the right context attached.',
           href: withBasePath('contact-hq/'),
-        },
-      ],
-    };
-  } else if (currentPath.startsWith('/company')) {
-    context = {
-      accent: '#f59e0b',
-      kicker: 'Company Atlas',
-      title:
-        'The company page explains how the firm thinks, scopes, and ships.',
-      description:
-        'This route holds the higher-level operating logic so the landing page can stay expressive while the service routes stay practical.',
-      currentTitle: 'Company',
-      currentDescription:
-        'Operating model, buyer fit, delivery logic, and positioning for the managed IT firm.',
-      currentCategory: 'Company',
-      suggestions: [
-        {
-          label: 'Return to landing page',
-          detail: 'Go back to the creative front door and platform overview.',
-          href: withBasePath('/'),
-        },
-        {
-          label: 'Review solutions',
-          detail: 'Open the solution stack and planning tools.',
-          href: withBasePath('services/'),
-        },
-        {
-          label: 'Open Roadmap Studio',
-          detail: 'Translate the company story into a scoped roadmap.',
-          href: withBasePath('build-studio/#studio'),
         },
       ],
     };
@@ -288,9 +258,9 @@ export function getRouteStickyCTA(pathname: string): RouteStickyCTA {
     accent: '#d7f75b',
     eyebrow: 'Project intake',
     copy: 'Want a flagship build brief in two minutes?',
-    detail: 'Launch the build studio or route directly into intake.',
-    secondaryHref: withBasePath('build-studio/#studio'),
-    secondaryLabel: 'Launch studio',
+    detail: 'Review the service hub or route directly into intake.',
+    secondaryHref: withBasePath('services/'),
+    secondaryLabel: 'Explore solutions',
     primaryHref: buildMailto('Premium project inquiry'),
     primaryLabel: 'Start brief',
   };
@@ -313,7 +283,7 @@ export function getRouteStickyCTA(pathname: string): RouteStickyCTA {
           eyebrow: 'Strategy intake',
           copy: 'Need calmer operations, better security, or a stronger digital front door that actually converts?',
           detail:
-            'Solutions, pricing, experience, and roadmap stay tied together instead of branching into disconnected funnels.',
+            'Solutions, pricing, experience, and intake stay tied together instead of branching into disconnected funnels.',
           secondaryHref: withBasePath('services/'),
           secondaryLabel: 'Explore solutions',
           primaryHref: `${withBasePath('contact-hq/')}?brief=${encodeURIComponent('I want to scope managed IT, security, cloud, Microsoft 365, or a premium client-facing system.')}`,
@@ -330,18 +300,6 @@ export function getRouteStickyCTA(pathname: string): RouteStickyCTA {
       secondaryLabel: 'Review pricing',
       primaryHref: `${withBasePath('contact-hq/')}?service=${encodeURIComponent('msp')}&brief=${encodeURIComponent('I want to discuss support, security, Microsoft 365, cloud, or a custom delivery plan.')}`,
       primaryLabel: 'Start service intake',
-    };
-  } else if (currentPath.startsWith('/company')) {
-    cta = {
-      accent: '#f59e0b',
-      eyebrow: 'Company discussion',
-      copy: 'Need a partner that can stabilize today and build what is next?',
-      detail:
-        'The company route explains the thinking. Intake turns it into a concrete scope and next-step plan.',
-      secondaryHref: withBasePath('services/'),
-      secondaryLabel: 'Review solutions',
-      primaryHref: `${withBasePath('contact-hq/')}?brief=${encodeURIComponent('I want to discuss a roadmap that blends support, security, modernization, and premium digital execution.')}`,
-      primaryLabel: 'Discuss roadmap',
     };
   } else if (activeTrade) {
     const tradePageLabel = activeSubpage
