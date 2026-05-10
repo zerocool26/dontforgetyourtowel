@@ -7,16 +7,16 @@ type SceneRoot = HTMLElement & {
 const modeNames = ['operate', 'protect', 'present'];
 
 const skylinePalette = {
-  background: '#0a0d10',
-  fog: '#12171b',
-  graphite: '#18222b',
-  glass: '#8fb6ce',
-  glassDeep: '#2f5666',
-  limestone: '#c8b995',
-  brass: '#c3a36b',
-  copper: '#a97661',
-  river: '#385f6b',
-  window: '#f3ead2',
+  background: '#10151a',
+  fog: '#1f2830',
+  graphite: '#1f2c35',
+  glass: '#a9cadb',
+  glassDeep: '#466b78',
+  limestone: '#d6c9aa',
+  brass: '#ceb178',
+  copper: '#b9826f',
+  river: '#4f7480',
+  window: '#fff0cc',
   whiteStone: '#e8edf0',
 };
 
@@ -370,9 +370,9 @@ const drawFallbackField = (root: HTMLElement, canvas: HTMLCanvasElement) => {
   ctx.clearRect(0, 0, width, height);
 
   const background = ctx.createLinearGradient(0, 0, width, height);
-  background.addColorStop(0, skylinePalette.background);
-  background.addColorStop(0.5, '#12171b');
-  background.addColorStop(1, '#090b0d');
+  background.addColorStop(0, '#111922');
+  background.addColorStop(0.5, '#17212a');
+  background.addColorStop(1, '#0d1116');
   ctx.fillStyle = background;
   ctx.fillRect(0, 0, width, height);
 
@@ -384,13 +384,13 @@ const drawFallbackField = (root: HTMLElement, canvas: HTMLCanvasElement) => {
     height * 0.42,
     width * 0.34
   );
-  field.addColorStop(0, 'rgba(143, 182, 206, 0.26)');
-  field.addColorStop(0.44, 'rgba(195, 163, 107, 0.12)');
+  field.addColorStop(0, 'rgba(169, 202, 219, 0.34)');
+  field.addColorStop(0.44, 'rgba(206, 177, 120, 0.18)');
   field.addColorStop(1, 'rgba(10, 13, 16, 0)');
   ctx.fillStyle = field;
   ctx.fillRect(0, 0, width, height);
 
-  ctx.strokeStyle = 'rgba(246, 241, 232, 0.075)';
+  ctx.strokeStyle = 'rgba(246, 241, 232, 0.095)';
   ctx.lineWidth = 1;
   for (let x = 0; x < width; x += 58) {
     ctx.beginPath();
@@ -493,7 +493,7 @@ const bindThreeScene = (root: SceneRoot, canvas: HTMLCanvasElement) => {
     '(prefers-reduced-motion: reduce)'
   ).matches;
   const scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(skylinePalette.fog, 0.055);
+  scene.fog = new THREE.FogExp2(skylinePalette.fog, 0.044);
 
   const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 80);
   camera.position.set(0, 0.9, 8.6);
@@ -515,21 +515,53 @@ const bindThreeScene = (root: SceneRoot, canvas: HTMLCanvasElement) => {
   renderer.setClearColor(skylinePalette.background, 1);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.32;
+  renderer.toneMappingExposure = 1.48;
 
   const stage = new THREE.Group();
   const skyline = new THREE.Group();
   const signal = new THREE.Group();
   scene.add(stage, skyline, signal);
 
-  scene.add(new THREE.AmbientLight('#f3f5f6', 0.82));
-  const key = new THREE.DirectionalLight('#fff3dc', 2.45);
+  const skylineWashCanvas = document.createElement('canvas');
+  skylineWashCanvas.width = 512;
+  skylineWashCanvas.height = 256;
+  const skylineWashContext = skylineWashCanvas.getContext('2d');
+  if (skylineWashContext) {
+    const washGradient = skylineWashContext.createRadialGradient(
+      256,
+      178,
+      12,
+      256,
+      178,
+      270
+    );
+    washGradient.addColorStop(0, 'rgba(217, 231, 237, 0.24)');
+    washGradient.addColorStop(0.52, 'rgba(169, 202, 219, 0.09)');
+    washGradient.addColorStop(1, 'rgba(217, 231, 237, 0)');
+    skylineWashContext.fillStyle = washGradient;
+    skylineWashContext.fillRect(0, 0, 512, 256);
+  }
+  const skylineWashTexture = new THREE.CanvasTexture(skylineWashCanvas);
+  const skylineWashGeometry = new THREE.PlaneGeometry(15.5, 4.4, 1, 1);
+  const skylineWashMaterial = new THREE.MeshBasicMaterial({
+    map: skylineWashTexture,
+    transparent: true,
+    opacity: 1,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+  });
+  const skylineWash = new THREE.Mesh(skylineWashGeometry, skylineWashMaterial);
+  skylineWash.position.set(0, -0.48, -2.18);
+  scene.add(skylineWash);
+
+  scene.add(new THREE.AmbientLight('#f5f7f8', 0.96));
+  const key = new THREE.DirectionalLight('#fff1d8', 2.8);
   key.position.set(-4, 6, 5);
   scene.add(key);
-  const rim = new THREE.PointLight(skylinePalette.glass, 5.8, 18);
+  const rim = new THREE.PointLight(skylinePalette.glass, 7.2, 20);
   rim.position.set(3.5, 1.2, 3.8);
   scene.add(rim);
-  const glow = new THREE.PointLight(skylinePalette.brass, 3.2, 16);
+  const glow = new THREE.PointLight(skylinePalette.brass, 4.4, 18);
   glow.position.set(-3.5, -1.5, 2.6);
   scene.add(glow);
 
@@ -1133,8 +1165,8 @@ const bindThreeScene = (root: SceneRoot, canvas: HTMLCanvasElement) => {
     signal.rotation.y = slowTime * (-0.08 - modeEnergy * 0.05);
     particles.rotation.y = slowTime * 0.035;
 
-    rim.intensity = 5.4 + modeEnergy * 2.8 + burst * 1.6;
-    glow.intensity = 2.8 + modeEnergy * 1.2 + burst * 0.8;
+    rim.intensity = 6.6 + modeEnergy * 3.4 + burst * 1.8;
+    glow.intensity = 3.7 + modeEnergy * 1.5 + burst;
     core.rotation.x = slowTime * 0.22;
     core.rotation.y = slowTime * 0.32;
     core.scale.setScalar(1 + modeEnergy * 0.035 + burst * 0.02);
@@ -1182,6 +1214,9 @@ const bindThreeScene = (root: SceneRoot, canvas: HTMLCanvasElement) => {
     window.removeEventListener('home-orbit-scene:mode', onSceneMode);
     observer.disconnect();
     renderer.dispose();
+    skylineWashGeometry.dispose();
+    skylineWashMaterial.dispose();
+    skylineWashTexture.dispose();
     towerGeometry.dispose();
     towerMaterial.dispose();
     landmarkMaterials.forEach(material => material.dispose());

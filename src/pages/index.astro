@@ -1,12 +1,19 @@
 ---
 import MarketingLayout from '../layouts/MarketingLayout.astro';
+import OperationalIntelligenceWorkbench from '../components/business/OperationalIntelligenceWorkbench.tsx';
 import ModernButton from '../components/ui/ModernButton.astro';
 import { CONTACT_EMAIL } from '../consts';
+import { operatingIntelligenceItems } from '../data/operating-intelligence';
 import { withBasePath } from '../utils/helpers';
 
 const contactHref = `mailto:${encodeURIComponent(
   CONTACT_EMAIL
 )}?subject=${encodeURIComponent('Strategy intake - Olive Chicago')}`;
+
+const workbenchItems = operatingIntelligenceItems.map(item => ({
+  ...item,
+  ctaHref: withBasePath(item.path),
+}));
 
 const heroSignals = [
   {
@@ -320,6 +327,23 @@ const startOptions = [
           ))
         }
       </div>
+    </div>
+  </section>
+
+  <section
+    class="home-homepage-section home-homepage-section--workbench"
+    id="operations-workbench"
+    data-page-section
+  >
+    <div class="premium-container">
+      <OperationalIntelligenceWorkbench
+        client:only="preact"
+        items={workbenchItems}
+        defaultItemId="support-ownership"
+        eyebrow="Expert operating layer"
+        title="A working diagnostic for support, security, recovery, Microsoft 365, and digital trust."
+        description="This is the layer that should make the site feel useful: choose a pressure point, inspect the signals, collect the evidence, and move into the right next route with a real handoff brief."
+      />
     </div>
   </section>
 
@@ -766,10 +790,10 @@ const startOptions = [
       background-size: clamp(2.7rem, 6vw, 5rem) clamp(2.7rem, 6vw, 5rem);
       mask-image: radial-gradient(
         circle at 50% 48%,
-        rgba(0, 0, 0, 0.86),
-        transparent 76%
+        rgba(0, 0, 0, 0.62),
+        transparent 70%
       );
-      opacity: 0.42;
+      opacity: 0.24;
     }
 
     .home-homepage-stage--full::after {
@@ -780,10 +804,10 @@ const startOptions = [
       pointer-events: none;
       background: linear-gradient(
         180deg,
-        rgba(8, 9, 11, 0.08),
+        rgba(10, 14, 18, 0.02),
         transparent 24%,
         transparent 72%,
-        rgba(8, 9, 11, 0.36)
+        rgba(8, 10, 12, 0.22)
       );
     }
 

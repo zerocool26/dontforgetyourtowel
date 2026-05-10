@@ -2,8 +2,15 @@
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 import StructuredData from '../components/StructuredData.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
+import OperationalIntelligenceWorkbench from '../components/business/OperationalIntelligenceWorkbench.tsx';
 import EcommerceShowcase from '../components/demo-lab/EcommerceShowcase';
+import { operatingIntelligenceItems } from '../data/operating-intelligence';
 import { withBasePath } from '../utils/helpers';
+
+const workbenchItems = operatingIntelligenceItems.map(item => ({
+  ...item,
+  ctaHref: withBasePath(item.path),
+}));
 
 const proofSignals = [
   {
@@ -199,6 +206,24 @@ const featuredProducts = [
           </div>
         </div>
       </div>
+    </div>
+  </section>
+
+  <section
+    class="demo-page-section"
+    id="digital-trust-system"
+    data-page-section
+  >
+    <div class="premium-container">
+      <OperationalIntelligenceWorkbench
+        client:only="preact"
+        compact
+        items={workbenchItems}
+        defaultItemId="digital-trust"
+        eyebrow="Digital trust system"
+        title="Use the demo to connect design choices to buyer movement."
+        description="Digital work should not be decoration. This workbench shows the evidence, automation, launch criteria, and ownership that turn a storefront, portal, or intake path into a business system."
+      />
     </div>
   </section>
 

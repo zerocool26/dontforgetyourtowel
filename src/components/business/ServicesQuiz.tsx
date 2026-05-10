@@ -103,11 +103,17 @@ export default function ServicesQuiz({
 
   return (
     <section
-      class="tone-border tone-surface relative overflow-hidden rounded-2xl border p-6"
+      class="tone-border tone-surface relative overflow-hidden rounded-lg border p-6"
       data-testid="services-quiz"
       data-step={step}
     >
-      <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(215,247,91,0.12),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(18,181,166,0.12),transparent_30%)] opacity-80" />
+      <div
+        class="pointer-events-none absolute inset-0 opacity-70"
+        style={{
+          background:
+            'linear-gradient(135deg, color-mix(in srgb, var(--color-primary) 10%, transparent), transparent 42%, color-mix(in srgb, var(--color-primary-strong) 8%, transparent))',
+        }}
+      />
 
       <div class="flex items-center justify-between gap-4">
         <div class="relative z-10">
@@ -132,7 +138,7 @@ export default function ServicesQuiz({
 
           return (
             <span
-              class={`creative-pill ${isDone ? 'bg-[#d7f75b]/12 border-[#d7f75b]/35 text-[#f3ffb4]' : ''} ${isActive ? 'border-teal-300/35 bg-teal-300/10 text-teal-100' : ''}`}
+              class={`creative-pill ${isDone ? 'tone-chip-active' : ''} ${isActive ? 'tone-chip-soft text-white' : ''}`}
             >
               {question.id}
             </span>
@@ -149,8 +155,12 @@ export default function ServicesQuiz({
         aria-valuenow={Math.min(progress, 100)}
       >
         <div
-          class="h-2 rounded-full bg-[linear-gradient(90deg,#d7f75b_0%,#76e7cc_100%)] shadow-[0_0_18px_rgba(18,181,166,0.35)] transition-all motion-reduce:transition-none"
-          style={{ width: `${Math.min(progress, 100)}%` }}
+          class="h-2 rounded-full transition-all motion-reduce:transition-none"
+          style={{
+            width: `${Math.min(progress, 100)}%`,
+            background:
+              'linear-gradient(90deg, var(--color-primary), var(--color-primary-strong))',
+          }}
         />
       </div>
 
@@ -168,7 +178,7 @@ export default function ServicesQuiz({
               <button
                 type="button"
                 data-testid="services-quiz-option"
-                class="tone-border tone-body tone-surface [@media(hover:hover)]:hover:bg-white/8 min-h-[54px] rounded-2xl border px-4 py-3 text-left text-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400/60 motion-reduce:transition-none [@media(hover:hover)]:hover:-translate-y-0.5 [@media(hover:hover)]:hover:border-[#d7f75b]/35 [@media(hover:hover)]:hover:text-white"
+                class="tone-border tone-body tone-surface min-h-[54px] rounded-lg border px-4 py-3 text-left text-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400/60 motion-reduce:transition-none [@media(hover:hover)]:hover:-translate-y-0.5 [@media(hover:hover)]:hover:border-white/20 [@media(hover:hover)]:hover:bg-white/5 [@media(hover:hover)]:hover:text-white"
                 onClick={() => {
                   setAnswers(prev => [...prev, opt.value]);
                   setStep(prev => prev + 1);
@@ -187,7 +197,7 @@ export default function ServicesQuiz({
           >
             Recommended starting point
           </p>
-          <div class="creative-panel mt-4 rounded-[1.25rem] p-5">
+          <div class="creative-panel mt-4 rounded-lg p-5">
             <p class="tone-title text-lg font-semibold" aria-live="polite">
               {result ? recommendationLabel(result) : '—'}
             </p>
@@ -197,13 +207,18 @@ export default function ServicesQuiz({
           </div>
           <div class="mt-5 grid gap-3 sm:grid-cols-2">
             <a
-              class="inline-flex min-h-[52px] flex-1 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#d7f75b_0%,#76e7cc_100%)] px-4 text-sm font-semibold text-black shadow-[0_18px_40px_rgba(18,181,166,0.18)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-300 motion-reduce:transition-none [@media(hover:hover)]:hover:brightness-105"
+              class="inline-flex min-h-[52px] flex-1 items-center justify-center rounded-lg px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-300 motion-reduce:transition-none [@media(hover:hover)]:hover:brightness-105"
+              style={{
+                background:
+                  'linear-gradient(135deg, color-mix(in srgb, var(--color-primary) 82%, white 18%), color-mix(in srgb, var(--color-primary-strong) 52%, white 48%))',
+                color: 'var(--color-text-inverse)',
+              }}
               href={contactHref}
             >
               {ctaLabel}
             </a>
             <a
-              class="tone-border tone-title tone-surface inline-flex min-h-[52px] flex-1 items-center justify-center rounded-2xl border px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400/60 motion-reduce:transition-none [@media(hover:hover)]:hover:border-accent-400/40 [@media(hover:hover)]:hover:text-accent-200"
+              class="tone-border tone-title tone-surface inline-flex min-h-[52px] flex-1 items-center justify-center rounded-lg border px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400/60 motion-reduce:transition-none [@media(hover:hover)]:hover:border-white/20 [@media(hover:hover)]:hover:text-white"
               href={withBasePath('pricing/#plans')}
             >
               Compare plans
