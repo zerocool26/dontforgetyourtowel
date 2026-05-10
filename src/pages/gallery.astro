@@ -9,37 +9,39 @@ import {
 import { withBasePath } from '../utils/helpers';
 
 const featuredInstallation = galleryInstallations[0];
+const curatorPicks = galleryInstallations.slice(0, 3);
 
 const gallerySignals = [
   {
     label: 'Installations',
     value: String(galleryInstallations.length),
-    detail: 'Filterable route-linked studies.',
+    detail: 'Filterable studies with route context and source links.',
   },
   {
     label: 'View modes',
     value: '3',
-    detail: 'Poster, salon, and index.',
+    detail:
+      'Poster, salon, and index views tuned for scanning different moods.',
   },
   {
     label: 'Purpose',
-    value: 'Real route reference',
-    detail: 'Not detached mood boards.',
+    value: 'Live reference library',
+    detail: 'Visual direction tied back to real routes and business decisions.',
   },
 ];
 
 const galleryPrinciples = [
   {
     title: 'Built from real operating moments',
-    copy: 'Each study starts from a support queue, security review, network room, buyer path, or service handoff instead of generic interface mood.',
+    copy: 'Every study starts from support, security, infrastructure, delivery, or buyer-facing workflow—not generic interface wallpaper.',
   },
   {
-    title: 'Visual energy has to earn its place',
-    copy: 'The work can be expressive, but it still has to help a buyer understand trust, ownership, risk, or next action on a phone.',
+    title: 'Expressive without losing business value',
+    copy: 'The work can be vivid and cinematic while still helping a mobile visitor understand trust, action, and ownership.',
   },
   {
-    title: 'Connected back to a decision',
-    copy: 'Every installation points to a route, service lane, or proof surface so the gallery works as a reference library instead of decoration.',
+    title: 'Connected back to a route',
+    copy: 'Every installation links to a live page so the gallery behaves like a design system companion instead of a detached mood board.',
   },
 ];
 
@@ -47,19 +49,25 @@ const galleryRoutes = [
   {
     title: 'Solutions Hub',
     description:
-      'Open the main managed IT, security, Microsoft 365, cloud, and workflow entry point.',
+      'See where these visual studies translate into managed IT, security, cloud, and workflow messaging.',
     href: withBasePath('services/'),
   },
   {
     title: 'E Commerce Demo',
     description:
-      'See the interactive route that turns visual taste into working buyer proof.',
+      'Open the proof route where visual taste meets live product behavior and mobile conversion logic.',
     href: withBasePath('about/'),
+  },
+  {
+    title: 'Photo Gallery',
+    description:
+      'Switch from conceptual installations to production-ready image references and metadata-rich curation.',
+    href: withBasePath('photos/'),
   },
   {
     title: 'Contact HQ',
     description:
-      'Route a concrete brief when the gallery direction needs to become scoped work.',
+      'Turn direction into scoped work when the reference library has clarified the path forward.',
     href: withBasePath('contact-hq/'),
   },
 ];
@@ -104,44 +112,49 @@ const galleryRoutes = [
 
   <section class="gallery-page-hero" id="gallery-hero" data-page-section>
     <div class="premium-container">
-      <div class="gallery-page-hero__shell">
-        <div class="gallery-page-hero__copy">
-          <p class="gallery-page-eyebrow">Design gallery</p>
-          <h1 class="gallery-page-title">
-            Visual references built from
-            <span>real routes, systems, and</span>
-            <span>client-facing work.</span>
+      <div class="gallery-page-hero__grid">
+        <div class="gallery-page-copy tone-page-header">
+          <p class="tone-page-eyebrow">Design gallery</p>
+          <h1 class="tone-page-title">
+            A curated wall of visual studies tied to real routes and real work.
           </h1>
-          <p class="gallery-page-copy">
-            This page is for reviewing visual direction against real work:
-            support ownership, security inspection, infrastructure, commerce,
-            service delivery, and the client-facing surfaces that carry trust.
+          <p class="tone-page-copy">
+            The gallery now reads like an editorial companion to the live site:
+            filterable studies, multiple scan modes, curator notes, and clear
+            route handoffs instead of detached visual experiments.
           </p>
 
-          <div class="gallery-page-actions">
+          <div class="tone-page-actions">
             <ModernButton
               href="#gallery-wall"
-              variant="primary"
+              variant="gradient"
               className="min-h-[52px]"
             >
               Browse the wall
             </ModernButton>
             <ModernButton
-              href={withBasePath('services/')}
+              href={withBasePath('photos/')}
               variant="outline"
               className="min-h-[52px]"
             >
-              Open solutions
+              Open photo library
             </ModernButton>
           </div>
         </div>
 
-        <div class="gallery-page-feature">
+        <div class="gallery-page-feature tone-panel-soft">
           <div
             class="gallery-page-feature__art"
             style={`--gallery-accent:${featuredInstallation.palette[0]};--gallery-secondary:${featuredInstallation.palette[1]};--gallery-shadow:${featuredInstallation.palette[2]};`}
           >
             <span>{featuredInstallation.room}</span>
+            <div class="gallery-page-feature__palette">
+              {
+                featuredInstallation.palette.map(color => (
+                  <i style={`background:${color};`} />
+                ))
+              }
+            </div>
           </div>
           <div class="gallery-page-feature__body">
             <p class="gallery-page-feature__label">Featured study</p>
@@ -154,33 +167,63 @@ const galleryRoutes = [
             </div>
           </div>
         </div>
+      </div>
 
-        <div class="gallery-page-signal-list">
-          {
-            gallerySignals.map(signal => (
-              <div class="gallery-page-signal">
-                <p class="gallery-page-signal__label">{signal.label}</p>
-                <p class="gallery-page-signal__value">{signal.value}</p>
-                <p class="gallery-page-signal__detail">{signal.detail}</p>
+      <div
+        class="gallery-page-signal-grid"
+        aria-label="Gallery quality signals"
+      >
+        {
+          gallerySignals.map(signal => (
+            <article class="gallery-page-signal tone-panel-soft">
+              <p class="gallery-page-signal__label">{signal.label}</p>
+              <h2>{signal.value}</h2>
+              <p>{signal.detail}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="gallery-page-section" data-page-section>
+    <div class="premium-container">
+      <div class="tone-section-heading">
+        <p class="tone-section-kicker">Curator picks</p>
+        <h2 class="tone-section-title">Quick studies worth opening first.</h2>
+      </div>
+
+      <div class="gallery-page-pick-grid">
+        {
+          curatorPicks.map(item => (
+            <article
+              class="gallery-page-pick tone-panel-soft"
+              style={`--gallery-accent:${item.palette[0]};--gallery-secondary:${item.palette[1]};--gallery-shadow:${item.palette[2]};`}
+            >
+              <div class="gallery-page-pick__art" />
+              <div class="gallery-page-pick__body">
+                <p class="gallery-page-pick__label">{item.category}</p>
+                <h3>{item.title}</h3>
+                <p>{item.curatorNote}</p>
               </div>
-            ))
-          }
-        </div>
+            </article>
+          ))
+        }
       </div>
     </div>
   </section>
 
   <section class="gallery-page-section" id="gallery-wall" data-page-section>
     <div class="premium-container">
-      <div class="gallery-page-section__intro">
-        <p class="gallery-page-eyebrow">Browse the wall</p>
-        <h2 class="gallery-page-section__title">
-          Filter by discipline or change the scan mode.
+      <div class="tone-section-heading">
+        <p class="tone-section-kicker">Browse the wall</p>
+        <h2 class="tone-section-title">
+          Change the discipline or the scan mode, then move into the linked
+          route.
         </h2>
-        <p class="gallery-page-section__copy">
-          The controls stay light so the wall feels like a working reference
-          library: scan the direction, then jump into the route that gives it
-          business context.
+        <p class="tone-section-copy">
+          Poster view is best for narrative browsing, salon for comparing vibes,
+          and index for a cleaner production-style scan.
         </p>
       </div>
 
@@ -244,7 +287,7 @@ const galleryRoutes = [
         </div>
       </div>
 
-      <div class="gallery-state-bar">
+      <div class="gallery-state-bar tone-panel-soft">
         <div>
           <p class="gallery-state-bar__label">Current wall state</p>
           <p class="gallery-state-bar__value" data-gallery-active-state>
@@ -288,6 +331,11 @@ const galleryRoutes = [
               <div class="gallery-card__art">
                 <div class="gallery-card__art-grid" />
                 <div class="gallery-card__art-mark">{installation.room}</div>
+                <div class="gallery-card__palette">
+                  {installation.palette.map(color => (
+                    <i style={`background:${color};`} />
+                  ))}
+                </div>
               </div>
 
               <div class="gallery-card__body">
@@ -343,8 +391,8 @@ const galleryRoutes = [
   <section class="gallery-page-section" id="gallery-doctrine" data-page-section>
     <div class="premium-container">
       <div class="gallery-doctrine-grid">
-        <div class="gallery-doctrine-block">
-          <p class="gallery-page-eyebrow">Why this page exists</p>
+        <div class="gallery-doctrine-block tone-panel-soft">
+          <p class="tone-section-kicker">Why this page exists</p>
           <div class="gallery-doctrine-list">
             {
               galleryPrinciples.map((principle, index) => (
@@ -360,8 +408,8 @@ const galleryRoutes = [
           </div>
         </div>
 
-        <div class="gallery-doctrine-block">
-          <p class="gallery-page-eyebrow">Where to go next</p>
+        <div class="gallery-doctrine-block tone-panel-soft">
+          <p class="tone-section-kicker">Where to go next</p>
           <div class="gallery-route-list">
             {
               galleryRoutes.map(route => (
@@ -594,97 +642,171 @@ const galleryRoutes = [
 <style is:inline>
   .gallery-page-hero,
   .gallery-page-section {
-    position: relative;
-    padding: clamp(4rem, 8vw, 6.5rem) 0;
+    padding: clamp(4.25rem, 8vw, 6.75rem) 0;
     border-bottom: 1px solid
       color-mix(in srgb, var(--color-border) 70%, transparent);
   }
 
   .gallery-page-hero {
-    padding-top: clamp(6rem, 9vw, 7.75rem);
+    padding-top: clamp(5.8rem, 9vw, 7.6rem);
   }
 
-  .gallery-page-hero__shell,
-  .gallery-doctrine-grid {
+  .gallery-page-hero__grid,
+  .gallery-page-signal-grid,
+  .gallery-page-pick-grid,
+  .gallery-doctrine-grid,
+  .gallery-grid {
     display: grid;
-    gap: 2rem;
+    gap: 1rem;
   }
 
-  .gallery-page-hero__copy,
-  .gallery-page-section__intro {
+  .gallery-page-feature,
+  .gallery-page-signal,
+  .gallery-page-pick,
+  .gallery-state-bar,
+  .gallery-doctrine-block {
+    padding: 1.2rem;
+    border-radius: 1.5rem;
+  }
+
+  .gallery-page-feature,
+  .gallery-page-pick {
     display: grid;
-    gap: 0.9rem;
-    max-width: 44rem;
+    gap: 1rem;
   }
 
-  .gallery-page-eyebrow,
+  .gallery-page-feature__art,
+  .gallery-page-pick__art,
+  .gallery-card__art {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1.2rem;
+    border: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
+    background:
+      radial-gradient(
+        circle at 18% 20%,
+        color-mix(in srgb, var(--gallery-accent) 42%, transparent),
+        transparent 28%
+      ),
+      radial-gradient(
+        circle at 82% 26%,
+        color-mix(in srgb, var(--gallery-secondary) 38%, transparent),
+        transparent 28%
+      ),
+      linear-gradient(
+        145deg,
+        color-mix(in srgb, var(--gallery-shadow) 84%, black 16%),
+        rgba(10, 13, 17, 0.96)
+      );
+  }
+
+  .gallery-page-feature__art {
+    min-height: 20rem;
+  }
+
+  .gallery-page-pick__art {
+    min-height: 10rem;
+  }
+
+  .gallery-page-feature__art::before,
+  .gallery-page-pick__art::before,
+  .gallery-card__art-grid {
+    content: '';
+    position: absolute;
+    inset: 1rem;
+    border-radius: 0.95rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+
+  .gallery-page-feature__art span,
+  .gallery-card__art-mark {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    z-index: 2;
+    display: inline-flex;
+    min-height: 2rem;
+    align-items: center;
+    padding: 0 0.8rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(10, 13, 17, 0.42);
+    color: rgba(255, 255, 255, 0.76);
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .gallery-page-feature__palette,
+  .gallery-card__palette {
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 2;
+    display: flex;
+    gap: 0.45rem;
+  }
+
+  .gallery-page-feature__palette i,
+  .gallery-card__palette i {
+    display: block;
+    width: 1.35rem;
+    height: 1.35rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 10px 20px -14px rgba(0, 0, 0, 0.85);
+  }
+
+  .gallery-page-feature__label,
   .gallery-page-signal__label,
   .gallery-state-bar__label,
-  .gallery-page-feature__label,
+  .gallery-page-pick__label,
   .gallery-card__metric p,
-  .gallery-scenario-label,
   .gallery-card__footer p {
     margin: 0;
     font-family: var(--font-mono);
-    font-size: 0.68rem;
+    font-size: 0.66rem;
     font-weight: 700;
-    letter-spacing: 0.22em;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: color-mix(in srgb, var(--color-text-muted) 90%, transparent);
+    color: color-mix(in srgb, var(--color-text-muted) 92%, transparent);
   }
 
-  .gallery-page-title,
-  .gallery-page-section__title,
   .gallery-page-feature h2,
+  .gallery-page-signal h2,
+  .gallery-page-pick h3,
+  .gallery-state-bar__value,
   .gallery-card h3,
   .gallery-doctrine-item h3,
-  .gallery-route-card h3,
-  .gallery-state-bar__value {
+  .gallery-route-card h3 {
     margin: 0;
     color: var(--color-text-primary);
     font-family: var(--font-display);
-    font-size: clamp(1.4rem, 3vw, 3rem);
-    font-weight: 600;
-    line-height: 1.02;
+    font-weight: 650;
+    line-height: 1.03;
     letter-spacing: 0;
     text-wrap: balance;
   }
 
-  .gallery-page-title {
-    max-width: 17ch;
-    font-size: clamp(2.1rem, 4.8vw, 4.05rem);
-    line-height: 1.01;
-    letter-spacing: 0;
-  }
-
-  .gallery-page-title span {
-    display: block;
-  }
-
-  .gallery-page-title span:nth-child(1) {
-    color: color-mix(in srgb, var(--color-text-primary) 72%, transparent);
-  }
-
-  .gallery-page-title span:last-child {
-    color: color-mix(in srgb, var(--color-primary) 80%, white 20%);
-  }
-
-  .gallery-page-copy,
-  .gallery-page-section__copy,
   .gallery-page-feature p,
-  .gallery-page-signal__detail,
+  .gallery-page-signal p,
+  .gallery-page-pick p,
   .gallery-state-bar__copy,
   .gallery-card__copy p,
   .gallery-card__notes p,
   .gallery-doctrine-item p,
   .gallery-route-card p {
     margin: 0;
-    color: color-mix(in srgb, var(--color-text-secondary) 94%, transparent);
-    font-size: clamp(1rem, 1.35vw, 1.06rem);
-    line-height: 1.7;
+    color: color-mix(in srgb, var(--color-text-secondary) 96%, transparent);
+    line-height: 1.68;
   }
 
-  .gallery-page-actions,
+  .gallery-page-feature__meta,
   .gallery-controls,
   .gallery-controls__group,
   .gallery-state-bar__actions,
@@ -695,79 +817,13 @@ const galleryRoutes = [
     gap: 0.75rem;
   }
 
-  .gallery-page-feature,
-  .gallery-page-signal-list,
-  .gallery-controls,
-  .gallery-state-bar,
-  .gallery-doctrine-block {
-    border-top: 1px solid
-      color-mix(in srgb, var(--color-border) 68%, transparent);
-    padding-top: 1.25rem;
-  }
-
-  .gallery-page-feature {
-    display: grid;
-    gap: 1rem;
-  }
-
-  .gallery-page-feature__art {
-    position: relative;
-    min-height: 220px;
-    overflow: hidden;
-    border-radius: 1rem;
-    border: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
-    background:
-      radial-gradient(
-        circle at 18% 20%,
-        color-mix(in srgb, var(--gallery-accent) 40%, transparent),
-        transparent 28%
-      ),
-      radial-gradient(
-        circle at 82% 26%,
-        color-mix(in srgb, var(--gallery-secondary) 36%, transparent),
-        transparent 28%
-      ),
-      linear-gradient(
-        145deg,
-        color-mix(in srgb, var(--gallery-shadow) 84%, black 16%),
-        rgba(12, 15, 19, 0.96)
-      );
-  }
-
-  .gallery-page-feature__art::before {
-    content: '';
-    position: absolute;
-    inset: 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 0.85rem;
-    background-image:
-      linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-    background-size: 26px 26px;
-  }
-
-  .gallery-page-feature__art span {
-    position: absolute;
-    left: 1rem;
-    top: 1rem;
-    z-index: 1;
-    display: inline-flex;
-    min-height: 2rem;
-    align-items: center;
-    padding: 0 0.8rem;
-    border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    background: rgba(12, 15, 19, 0.42);
-    color: rgba(255, 255, 255, 0.74);
-    font-family: var(--font-mono);
-    font-size: 0.62rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-  }
-
-  .gallery-page-feature__body {
-    display: grid;
-    gap: 0.6rem;
+  .gallery-page-feature__meta span,
+  .gallery-card__meta span,
+  .gallery-card__tags span,
+  .gallery-route-card,
+  .gallery-state-button,
+  .gallery-toggle {
+    border: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
   }
 
   .gallery-page-feature__meta span,
@@ -776,30 +832,18 @@ const galleryRoutes = [
     display: inline-flex;
     min-height: 2rem;
     align-items: center;
-    padding: 0 0.7rem;
     border-radius: 999px;
-    border: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
-    color: color-mix(in srgb, var(--color-text-primary) 76%, transparent);
+    padding: 0 0.75rem;
+    color: color-mix(in srgb, var(--color-text-primary) 78%, transparent);
     font-size: 0.78rem;
   }
 
-  .gallery-page-signal-list {
-    display: grid;
-    gap: 1rem;
-  }
-
-  .gallery-page-signal {
-    padding-bottom: 1rem;
-    border-bottom: 1px solid
-      color-mix(in srgb, var(--color-border) 64%, transparent);
-  }
-
-  .gallery-page-signal__value {
-    margin: 0.35rem 0 0;
-    color: var(--color-text-primary);
-    font-size: 1.3rem;
-    font-weight: 600;
-    letter-spacing: 0;
+  .gallery-controls,
+  .gallery-state-bar,
+  .gallery-grid,
+  .gallery-doctrine-grid,
+  .gallery-page-pick-grid {
+    margin-top: 1.5rem;
   }
 
   .gallery-toggle,
@@ -809,23 +853,22 @@ const galleryRoutes = [
     align-items: center;
     justify-content: center;
     border-radius: 999px;
-    border: 1px solid color-mix(in srgb, var(--color-border) 74%, transparent);
-    background: color-mix(in srgb, var(--color-surface) 84%, transparent);
-    padding: 0.72rem 1rem;
-    color: color-mix(in srgb, var(--color-text-primary) 78%, transparent);
+    background: color-mix(in srgb, var(--color-surface) 90%, transparent);
+    padding: 0.75rem 1rem;
+    color: color-mix(in srgb, var(--color-text-primary) 82%, transparent);
     font-family: var(--font-mono);
     font-size: 0.68rem;
     font-weight: 700;
     letter-spacing: 0.14em;
     text-transform: uppercase;
     transition:
+      transform 0.2s ease,
       border-color 0.2s ease,
-      background-color 0.2s ease,
-      transform 0.2s ease;
+      background 0.2s ease;
   }
 
   .gallery-toggle.is-active {
-    border-color: color-mix(in srgb, var(--color-primary) 26%, transparent);
+    border-color: color-mix(in srgb, var(--color-primary) 28%, transparent);
     background: color-mix(in srgb, var(--color-primary) 10%, transparent);
     color: var(--color-text-primary);
   }
@@ -833,12 +876,8 @@ const galleryRoutes = [
   .gallery-toggle:hover,
   .gallery-state-button:hover,
   .gallery-route-card:hover {
-    transform: translateX(3px);
-    border-color: color-mix(
-      in srgb,
-      var(--color-text-primary) 18%,
-      transparent
-    );
+    transform: translateY(-1px);
+    border-color: color-mix(in srgb, var(--color-primary) 30%, transparent);
   }
 
   .gallery-state-bar {
@@ -848,14 +887,8 @@ const galleryRoutes = [
 
   .gallery-state-bar__count {
     margin: 0;
-    color: color-mix(in srgb, var(--color-text-secondary) 88%, transparent);
+    color: color-mix(in srgb, var(--color-text-secondary) 90%, transparent);
     font-size: 0.92rem;
-  }
-
-  .gallery-grid {
-    display: grid;
-    gap: 1rem;
-    margin-top: 1.5rem;
   }
 
   .gallery-grid.is-poster,
@@ -868,58 +901,12 @@ const galleryRoutes = [
     display: grid;
     overflow: hidden;
     border: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
-    border-radius: 1rem;
-    background: color-mix(in srgb, var(--color-surface) 84%, transparent);
+    border-radius: 1.35rem;
+    background: color-mix(in srgb, var(--color-surface) 90%, transparent);
   }
 
   .gallery-card__art {
-    position: relative;
-    min-height: 180px;
-    background:
-      radial-gradient(
-        circle at 16% 20%,
-        color-mix(in srgb, var(--gallery-accent) 38%, transparent),
-        transparent 28%
-      ),
-      radial-gradient(
-        circle at 82% 26%,
-        color-mix(in srgb, var(--gallery-secondary) 34%, transparent),
-        transparent 28%
-      ),
-      linear-gradient(
-        145deg,
-        color-mix(in srgb, var(--gallery-shadow) 86%, black 14%),
-        rgba(10, 13, 17, 0.96)
-      );
-  }
-
-  .gallery-card__art-grid {
-    position: absolute;
-    inset: 1rem;
-    border-radius: 0.8rem;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    background-image:
-      linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-    background-size: 18px 18px;
-  }
-
-  .gallery-card__art-mark {
-    position: absolute;
-    left: 1rem;
-    top: 1rem;
-    display: inline-flex;
-    min-height: 2rem;
-    align-items: center;
-    padding: 0 0.8rem;
-    border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    background: rgba(10, 13, 17, 0.42);
-    color: rgba(255, 255, 255, 0.72);
-    font-family: var(--font-mono);
-    font-size: 0.62rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
+    min-height: 15rem;
   }
 
   .gallery-card__body {
@@ -928,34 +915,26 @@ const galleryRoutes = [
     padding: 1rem;
   }
 
-  .gallery-card__copy {
-    display: grid;
-    gap: 0.45rem;
-  }
-
+  .gallery-card__copy,
   .gallery-card__metrics {
     display: grid;
     gap: 0.75rem;
   }
 
-  .gallery-card__metric {
-    padding-top: 0.75rem;
+  .gallery-card__metric,
+  .gallery-card__notes,
+  .gallery-card__footer {
+    padding-top: 0.85rem;
     border-top: 1px solid
-      color-mix(in srgb, var(--color-border) 62%, transparent);
+      color-mix(in srgb, var(--color-border) 64%, transparent);
   }
 
   .gallery-card__metric strong {
     display: block;
     margin-top: 0.35rem;
     color: var(--color-text-primary);
-    font-size: 0.95rem;
+    font-size: 0.96rem;
     font-weight: 600;
-  }
-
-  .gallery-card__notes {
-    padding-top: 0.85rem;
-    border-top: 1px solid
-      color-mix(in srgb, var(--color-border) 62%, transparent);
   }
 
   .gallery-card__notes summary {
@@ -976,65 +955,57 @@ const galleryRoutes = [
   .gallery-card__footer {
     display: grid;
     gap: 0.8rem;
-    padding-top: 0.85rem;
-    border-top: 1px solid
-      color-mix(in srgb, var(--color-border) 62%, transparent);
   }
 
-  .gallery-doctrine-grid {
-    gap: 2.5rem;
-  }
-
+  .gallery-doctrine-grid,
   .gallery-doctrine-list,
   .gallery-route-list {
     display: grid;
     gap: 1rem;
-    margin-top: 1rem;
   }
 
   .gallery-doctrine-item {
     display: grid;
     grid-template-columns: auto 1fr;
     gap: 0.9rem;
-    padding: 1rem 0;
+    padding: 0.95rem 0;
     border-bottom: 1px solid
       color-mix(in srgb, var(--color-border) 64%, transparent);
   }
 
   .gallery-doctrine-item span {
-    color: color-mix(in srgb, var(--color-text-primary) 36%, transparent);
+    color: color-mix(in srgb, var(--color-text-primary) 40%, transparent);
     font-family: var(--font-mono);
     font-size: 0.8rem;
     font-weight: 700;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.16em;
   }
 
   .gallery-route-card {
     display: grid;
-    gap: 0.45rem;
-    padding: 1rem 0;
-    border-bottom: 1px solid
-      color-mix(in srgb, var(--color-border) 64%, transparent);
+    gap: 0.5rem;
+    padding: 1rem;
+    border-radius: 1.1rem;
+    background: color-mix(in srgb, var(--color-surface) 84%, transparent);
     transition:
-      border-color 0.2s ease,
-      transform 0.2s ease;
+      transform 0.2s ease,
+      border-color 0.2s ease;
   }
 
   @media (min-width: 960px) {
-    .gallery-page-hero__shell,
+    .gallery-page-hero__grid {
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      align-items: end;
+    }
+
+    .gallery-page-signal-grid,
+    .gallery-page-pick-grid,
+    .gallery-doctrine-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
     .gallery-doctrine-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      align-items: start;
-    }
-
-    .gallery-page-signal-list {
-      grid-column: 1 / -1;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 1.25rem;
-    }
-
-    .gallery-page-signal {
-      padding-right: 1rem;
     }
 
     .gallery-state-bar {
@@ -1067,22 +1038,15 @@ const galleryRoutes = [
 
   @media (min-width: 1100px) {
     .gallery-grid.is-poster .gallery-card {
-      grid-template-columns: minmax(240px, 0.9fr) minmax(0, 1.1fr);
+      grid-template-columns: minmax(240px, 0.92fr) minmax(0, 1.08fr);
     }
   }
 
   @media (max-width: 767px) {
-    .gallery-page-hero {
-      padding-top: calc(5.8rem + env(safe-area-inset-top));
-    }
-
-    .gallery-page-title {
-      max-width: 100%;
-      font-size: clamp(2.5rem, 12vw, 4.4rem);
-    }
-
-    .gallery-page-actions {
+    .gallery-state-bar__actions,
+    .gallery-controls {
       flex-direction: column;
+      align-items: stretch;
     }
   }
 </style>

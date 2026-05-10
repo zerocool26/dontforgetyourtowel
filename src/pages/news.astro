@@ -1,26 +1,43 @@
 ---
 import MarketingLayout from '../layouts/MarketingLayout.astro';
+import StructuredData from '../components/StructuredData.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
 import { withBasePath } from '../utils/helpers';
 
 const episodes = [
   {
+    id: 'episode-01',
     label: 'Episode 01',
     title: 'The first 30 days after switching IT providers',
     copy: 'What should get mapped, what should be stabilized, and how leadership can tell whether the handoff is working.',
     runtime: '18 min',
+    progress: '38%',
+    beat: 'Operations',
+    chapters: ['Operating map', 'Stabilize first', 'Monthly reporting'],
   },
   {
+    id: 'episode-02',
     label: 'Episode 02',
     title: 'Microsoft 365 cleanup without turning it into a committee',
     copy: 'Teams, SharePoint, guest access, retention, and backup decisions that make the tenant easier to govern.',
     runtime: '22 min',
+    progress: '54%',
+    beat: 'Microsoft 365',
+    chapters: [
+      'Ownership rules',
+      'Retention vs backup',
+      'Repeatable clean state',
+    ],
   },
   {
+    id: 'episode-03',
     label: 'Episode 03',
     title: 'Security baseline before the shiny security stack',
     copy: 'Identity, endpoint, email, backup, and response habits that should be visible before larger projects begin.',
     runtime: '16 min',
+    progress: '31%',
+    beat: 'Security',
+    chapters: ['Identity first', 'Email + endpoint', 'Backup + response'],
   },
 ];
 
@@ -60,11 +77,29 @@ const newsDesk = [
     note: 'Search, filters, product detail, cart clarity, checkout friction, real photography, reviews, and mobile conversion paths.',
   },
 ];
+
+const editorialActions = [
+  {
+    title: 'Read the blog',
+    copy: 'Turn short-form signals into fuller written guidance and practical checklists.',
+    href: withBasePath('blog/'),
+  },
+  {
+    title: 'See the live demo',
+    copy: 'Pair the editorial commentary with an interactive storefront review route.',
+    href: withBasePath('about/'),
+  },
+  {
+    title: 'Scope the work',
+    copy: 'When the editorial direction is clear, move into an actual intake conversation.',
+    href: withBasePath('contact-hq/'),
+  },
+];
 ---
 
 <MarketingLayout
   title="News + Podcast | Olive Chicago"
-  description="A concise news and podcast experience for managed IT, security, Microsoft 365, cloud operations, ecommerce demos, and Chicago business systems."
+  description="Editorial desk and podcast-style briefings on managed IT, security, Microsoft 365, operations, and digital buying systems."
   bodyClass="creative-page"
   mainClass="relative isolate overflow-x-clip"
   showFooter={true}
@@ -72,57 +107,117 @@ const newsDesk = [
   showLiveChat={false}
   showSavedRoutesDock={false}
 >
+  <StructuredData
+    type="collection"
+    data={{
+      name: 'Olive Chicago News and Podcast',
+      description:
+        'Short editorial signals and podcast-style briefings about managed IT, security, Microsoft 365, and digital systems.',
+    }}
+  />
+
   <section class="news-hero" data-page-section>
     <div class="premium-container">
       <div class="news-hero__grid">
-        <div class="news-copy">
-          <p class="news-eyebrow">News + podcast</p>
-          <h1>Short signals for operators who do not need more noise.</h1>
-          <p>
-            Brief episodes and advisory notes on managed IT buying, security
-            posture, Microsoft 365 cleanup, continuity, and better digital
-            buying experiences.
+        <div class="tone-page-header">
+          <p class="tone-page-eyebrow">News + podcast</p>
+          <h1 class="tone-page-title">
+            A compact newsroom for operators who want sharper signals, not
+            louder content.
+          </h1>
+          <p class="tone-page-copy">
+            This route now works like a real editorial desk: a featured episode
+            player, quick-load listening queue, advisory notes, and beat-based
+            topic tracking tied back to the rest of the site.
           </p>
-          <div class="news-actions">
-            <ModernButton href="#episodes" variant="primary">
+
+          <div class="tone-page-actions">
+            <ModernButton
+              href="#episodes"
+              variant="gradient"
+              className="min-h-[52px]"
+            >
               Browse episodes
             </ModernButton>
-            <ModernButton href={withBasePath('blog/')} variant="outline">
+            <ModernButton
+              href={withBasePath('blog/')}
+              variant="outline"
+              className="min-h-[52px]"
+            >
               Read the blog
             </ModernButton>
           </div>
         </div>
 
-        <div class="news-player" aria-label="Featured podcast episode">
-          <p class="news-eyebrow">Featured episode</p>
-          <h2>Why the first MSP month should feel boringly clear.</h2>
+        <article
+          class="news-player tone-panel-soft"
+          aria-label="Featured podcast episode"
+        >
+          <div class="news-player__headline">
+            <p class="news-meta-kicker" data-news-player-label>
+              {episodes[0].label}
+            </p>
+            <h2 data-news-player-title>{episodes[0].title}</h2>
+            <p data-news-player-copy>{episodes[0].copy}</p>
+          </div>
           <div class="news-player__bar">
-            <span></span>
+            <span
+              data-news-player-progress
+              style={`width:${episodes[0].progress};`}></span>
           </div>
           <div class="news-player__meta">
-            <span>00:00</span>
-            <span>18:00</span>
+            <span data-news-player-runtime>{episodes[0].runtime}</span>
+            <span data-news-player-beat>{episodes[0].beat}</span>
           </div>
-        </div>
+          <div class="news-player__chapters" data-news-player-chapters>
+            {episodes[0].chapters.map(chapter => <span>{chapter}</span>)}
+          </div>
+        </article>
       </div>
     </div>
   </section>
 
   <section class="news-section" id="episodes" data-page-section>
     <div class="premium-container">
-      <div class="news-section__heading">
-        <p class="news-eyebrow">Episodes</p>
-        <h2>Built like a listening queue, written like an operator brief.</h2>
+      <div class="tone-section-heading">
+        <p class="tone-section-kicker">Listening queue</p>
+        <h2 class="tone-section-title">
+          Built like a quick editorial rundown, with enough structure to feel
+          intentional.
+        </h2>
       </div>
 
       <div class="news-episode-list">
         {
-          episodes.map(episode => (
-            <article class="news-episode">
-              <p class="news-eyebrow">{episode.label}</p>
+          episodes.map((episode, index) => (
+            <article
+              class:list={['news-episode', index === 0 && 'is-active']}
+              data-news-episode
+              data-news-id={episode.id}
+            >
+              <div class="news-episode__meta">
+                <span>{episode.label}</span>
+                <span>{episode.runtime}</span>
+              </div>
               <h3>{episode.title}</h3>
               <p>{episode.copy}</p>
-              <span>{episode.runtime}</span>
+              <div class="news-episode__footer">
+                <span>{episode.beat}</span>
+                <button
+                  type="button"
+                  class="news-episode__button"
+                  data-news-load={episode.id}
+                  data-news-label={episode.label}
+                  data-news-title={episode.title}
+                  data-news-copy={episode.copy}
+                  data-news-runtime={episode.runtime}
+                  data-news-beat={episode.beat}
+                  data-news-progress={episode.progress}
+                  data-news-chapters={episode.chapters.join('|')}
+                >
+                  Load in player
+                </button>
+              </div>
             </article>
           ))
         }
@@ -132,167 +227,339 @@ const newsDesk = [
 
   <section class="news-section" data-page-section>
     <div class="premium-container">
-      <div class="news-section__heading">
-        <p class="news-eyebrow">Advisory notes</p>
-        <h2>What would be worth publishing this week.</h2>
-      </div>
+      <div class="news-advisory-shell tone-panel-soft">
+        <div class="tone-section-heading">
+          <p class="tone-section-kicker">Advisory notes</p>
+          <h2 class="tone-section-title">
+            What would actually be worth publishing this week.
+          </h2>
+        </div>
 
-      <div class="news-advisory-grid">
-        {
-          advisories.map(item => (
-            <article class="news-advisory">
-              <p class="news-eyebrow">{item.topic}</p>
-              <h3>{item.title}</h3>
-              <p>{item.copy}</p>
-            </article>
-          ))
-        }
+        <div class="news-advisory-grid">
+          {
+            advisories.map(item => (
+              <article class="news-advisory-card">
+                <p class="news-meta-kicker">{item.topic}</p>
+                <h3>{item.title}</h3>
+                <p>{item.copy}</p>
+              </article>
+            ))
+          }
+        </div>
       </div>
     </div>
   </section>
 
   <section class="news-section" data-page-section>
     <div class="premium-container">
-      <div class="news-section__heading">
-        <p class="news-eyebrow">Editorial desk</p>
-        <h2>The topics worth tracking are the ones that change decisions.</h2>
-      </div>
+      <div class="news-desk-shell">
+        <div class="tone-section-heading">
+          <p class="tone-section-kicker">Editorial desk</p>
+          <h2 class="tone-section-title">
+            The beats worth following are the ones that change budget,
+            ownership, or buyer confidence.
+          </h2>
+        </div>
 
-      <div class="news-desk-grid">
-        {
-          newsDesk.map(item => (
-            <article class="news-desk">
-              <p class="news-eyebrow">{item.beat}</p>
-              <p>{item.note}</p>
-            </article>
-          ))
-        }
+        <div class="news-desk-grid">
+          {
+            newsDesk.map(item => (
+              <article class="news-desk-card tone-panel-soft">
+                <p class="news-meta-kicker">{item.beat}</p>
+                <p>{item.note}</p>
+              </article>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="news-section" data-page-section>
+    <div class="premium-container">
+      <div class="news-editorial-cta tone-panel-soft">
+        <div>
+          <p class="news-meta-kicker">Next editorial move</p>
+          <h2>
+            Connect the short-form signals to written guidance, live proof, or
+            an actual scoped conversation.
+          </h2>
+          <p>
+            Good editorial systems create momentum. They do not strand visitors
+            in a dead-end content page once interest is finally alive.
+          </p>
+        </div>
+
+        <div class="news-editorial-cta__grid">
+          {
+            editorialActions.map(action => (
+              <a href={action.href} class="news-editorial-link">
+                <h3>{action.title}</h3>
+                <p>{action.copy}</p>
+              </a>
+            ))
+          }
+        </div>
       </div>
     </div>
   </section>
 </MarketingLayout>
 
-<style>
+<script is:inline>
+  (() => {
+    const initNewsPlayer = () => {
+      const playerTitle = document.querySelector('[data-news-player-title]');
+      const playerLabel = document.querySelector('[data-news-player-label]');
+      const playerCopy = document.querySelector('[data-news-player-copy]');
+      const playerRuntime = document.querySelector(
+        '[data-news-player-runtime]'
+      );
+      const playerBeat = document.querySelector('[data-news-player-beat]');
+      const playerProgress = document.querySelector(
+        '[data-news-player-progress]'
+      );
+      const playerChapters = document.querySelector(
+        '[data-news-player-chapters]'
+      );
+      const loadButtons = Array.from(
+        document.querySelectorAll('[data-news-load]')
+      );
+      const cards = Array.from(
+        document.querySelectorAll('[data-news-episode]')
+      );
+
+      if (
+        !(playerTitle instanceof HTMLElement) ||
+        !(playerChapters instanceof HTMLElement)
+      ) {
+        return;
+      }
+
+      if (playerTitle.dataset.newsBound === 'true') {
+        return;
+      }
+
+      playerTitle.dataset.newsBound = 'true';
+
+      const syncActiveCard = id => {
+        cards.forEach(card => {
+          if (!(card instanceof HTMLElement)) return;
+          card.classList.toggle('is-active', card.dataset.newsId === id);
+        });
+      };
+
+      loadButtons.forEach(button => {
+        if (!(button instanceof HTMLButtonElement)) return;
+        button.addEventListener('click', () => {
+          const id = button.dataset.newsLoad || '';
+          const chapters = (button.dataset.newsChapters || '')
+            .split('|')
+            .filter(Boolean);
+
+          if (playerLabel instanceof HTMLElement) {
+            playerLabel.textContent = button.dataset.newsLabel || '';
+          }
+          playerTitle.textContent = button.dataset.newsTitle || '';
+          if (playerCopy instanceof HTMLElement) {
+            playerCopy.textContent = button.dataset.newsCopy || '';
+          }
+          if (playerRuntime instanceof HTMLElement) {
+            playerRuntime.textContent = button.dataset.newsRuntime || '';
+          }
+          if (playerBeat instanceof HTMLElement) {
+            playerBeat.textContent = button.dataset.newsBeat || '';
+          }
+          if (playerProgress instanceof HTMLElement) {
+            playerProgress.style.width = button.dataset.newsProgress || '0%';
+          }
+
+          playerChapters.innerHTML = '';
+          chapters.forEach(chapter => {
+            const chip = document.createElement('span');
+            chip.textContent = chapter;
+            playerChapters.appendChild(chip);
+          });
+
+          syncActiveCard(id);
+        });
+      });
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initNewsPlayer, {
+        once: true,
+      });
+    } else {
+      initNewsPlayer();
+    }
+
+    document.addEventListener('astro:page-load', initNewsPlayer);
+  })();
+</script>
+
+<style is:inline>
   .news-hero,
   .news-section {
-    padding: clamp(4.5rem, 8vw, 7rem) 0;
+    padding: clamp(4.25rem, 8vw, 6.75rem) 0;
     border-bottom: 1px solid
       color-mix(in srgb, var(--color-border) 70%, transparent);
   }
 
   .news-hero {
-    padding-top: clamp(6rem, 9vw, 8rem);
+    padding-top: clamp(5.8rem, 9vw, 7.5rem);
   }
 
   .news-hero__grid,
   .news-episode-list,
   .news-advisory-grid,
-  .news-desk-grid {
+  .news-desk-grid,
+  .news-editorial-cta__grid {
     display: grid;
     gap: 1rem;
   }
 
-  .news-copy,
-  .news-section__heading,
   .news-player,
-  .news-episode,
-  .news-advisory,
-  .news-desk {
-    display: grid;
-    gap: 0.85rem;
+  .news-advisory-shell,
+  .news-desk-card,
+  .news-editorial-cta {
+    padding: 1.2rem;
+    border-radius: 1.5rem;
   }
 
-  .news-copy,
-  .news-section__heading {
-    max-width: 48rem;
-  }
-
-  .news-eyebrow {
+  .news-meta-kicker,
+  .news-episode__meta,
+  .news-episode__footer span {
     margin: 0;
-    color: color-mix(in srgb, var(--color-text-muted) 90%, transparent);
+    color: color-mix(in srgb, var(--color-text-muted) 92%, transparent);
     font-family: var(--font-mono);
     font-size: 0.68rem;
     font-weight: 700;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
   }
 
-  .news-copy h1,
   .news-player h2,
-  .news-section__heading h2,
   .news-episode h3,
-  .news-advisory h3 {
+  .news-advisory-card h3,
+  .news-editorial-link h3,
+  .news-editorial-cta h2 {
     margin: 0;
     color: var(--color-text-primary);
     font-family: var(--font-display);
-    font-size: clamp(1.45rem, 3.4vw, 3.7rem);
     font-weight: 650;
-    line-height: 1.03;
-    letter-spacing: 0;
+    line-height: 1.04;
     text-wrap: balance;
   }
 
-  .news-copy h1 {
-    max-width: 17ch;
-  }
-
-  .news-copy p,
+  .news-player p,
   .news-episode p,
-  .news-advisory p,
-  .news-desk p {
+  .news-advisory-card p,
+  .news-desk-card p,
+  .news-editorial-link p,
+  .news-editorial-cta p {
     margin: 0;
-    color: color-mix(in srgb, var(--color-text-secondary) 94%, transparent);
-    font-size: 1rem;
-    line-height: 1.7;
-  }
-
-  .news-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
+    color: color-mix(in srgb, var(--color-text-secondary) 95%, transparent);
+    line-height: 1.68;
   }
 
   .news-player,
+  .news-advisory-shell,
+  .news-editorial-cta {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .news-player__headline,
+  .news-player__meta,
+  .news-player__chapters,
   .news-episode,
-  .news-advisory,
-  .news-desk {
-    border: 1px solid color-mix(in srgb, var(--color-border) 74%, transparent);
-    border-radius: var(--radius-sm);
-    background: linear-gradient(
-      135deg,
-      color-mix(in srgb, var(--color-surface) 92%, white 2%),
-      color-mix(in srgb, var(--color-background) 94%, transparent)
-    );
-    padding: 1.25rem;
+  .news-advisory-card,
+  .news-editorial-link {
+    display: grid;
+    gap: 0.8rem;
   }
 
   .news-player__bar {
-    height: 0.5rem;
+    height: 0.55rem;
     overflow: hidden;
     border-radius: 999px;
-    background: color-mix(in srgb, var(--color-border) 70%, transparent);
+    background: color-mix(in srgb, var(--color-border) 72%, transparent);
   }
 
   .news-player__bar span {
     display: block;
-    width: 38%;
     height: 100%;
     border-radius: inherit;
-    background: linear-gradient(90deg, #7be3d5, #d1b17a);
+    background: linear-gradient(
+      90deg,
+      var(--color-primary-strong),
+      var(--color-primary)
+    );
+    transition: width 0.25s ease;
   }
 
-  .news-player__meta {
+  .news-player__meta,
+  .news-episode__meta,
+  .news-episode__footer {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
-    color: color-mix(in srgb, var(--color-text-muted) 92%, transparent);
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
+    gap: 0.75rem;
   }
 
-  .news-episode span {
-    color: color-mix(in srgb, var(--color-primary) 82%, white 18%);
+  .news-player__chapters {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+
+  .news-player__chapters span,
+  .news-episode,
+  .news-advisory-card,
+  .news-editorial-link,
+  .news-episode__button {
+    border: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
+  }
+
+  .news-player__chapters span {
+    display: inline-flex;
+    min-height: 2rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    padding: 0 0.8rem;
+    color: color-mix(in srgb, var(--color-text-primary) 82%, transparent);
+    font-size: 0.78rem;
+  }
+
+  .news-episode,
+  .news-advisory-card,
+  .news-editorial-link {
+    padding: 1rem;
+    border-radius: 1.2rem;
+    background: color-mix(in srgb, var(--color-surface) 90%, transparent);
+    transition:
+      transform 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .news-episode.is-active,
+  .news-episode:hover,
+  .news-advisory-card:hover,
+  .news-editorial-link:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--color-primary) 30%, transparent);
+  }
+
+  .news-episode__button {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    padding: 0.8rem 1rem;
+    background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+    color: var(--color-text-primary);
     font-family: var(--font-mono);
-    font-size: 0.72rem;
+    font-size: 0.68rem;
     font-weight: 700;
     letter-spacing: 0.14em;
     text-transform: uppercase;
@@ -300,12 +567,14 @@ const newsDesk = [
 
   @media (min-width: 960px) {
     .news-hero__grid {
-      grid-template-columns: minmax(0, 1fr) minmax(22rem, 34rem);
+      grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
       align-items: end;
     }
 
     .news-episode-list,
-    .news-advisory-grid {
+    .news-advisory-grid,
+    .news-desk-grid,
+    .news-editorial-cta__grid {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 

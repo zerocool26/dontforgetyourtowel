@@ -18,6 +18,9 @@ export default defineConfig({
   site: siteUrl,
   output: 'static',
   vite: {
+    optimizeDeps: {
+      include: ['three'],
+    },
     build: {
       chunkSizeWarningLimit: 800,
     },

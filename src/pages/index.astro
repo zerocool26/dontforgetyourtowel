@@ -1,7 +1,6 @@
 ---
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
-import HomeOrbitScene from '../components/home/HomeOrbitScene';
 import { CONTACT_EMAIL } from '../consts';
 import { withBasePath } from '../utils/helpers';
 
@@ -9,124 +8,196 @@ const contactHref = `mailto:${encodeURIComponent(
   CONTACT_EMAIL
 )}?subject=${encodeURIComponent('Strategy intake - Olive Chicago')}`;
 
-const serviceLanes = [
+const heroSignals = [
   {
-    index: '01',
     label: 'Operate',
-    title: 'Managed IT that actually owns the day-to-day',
-    copy: 'Responsive help desk, endpoint care, onboarding, patching, vendor coordination, and reporting under one accountable support rhythm.',
-    href: withBasePath('services/'),
+    value: 'Tickets, devices, vendors, and standards in one field.',
+    detail:
+      'The service layer should feel owned, visible, and less dependent on heroic memory.',
   },
   {
-    index: '02',
     label: 'Protect',
-    title: 'Security and compliance without enterprise theater',
-    copy: 'Identity controls, email defense, endpoint security, awareness, compliance evidence, and response habits that make risk easier to govern.',
-    href: withBasePath('services/#technology-catalog'),
+    value: 'Identity, endpoint, email, and backup with evidence.',
+    detail:
+      'Security work gets translated into posture, proof, and calmer decisions.',
   },
   {
-    index: '03',
-    label: 'Modernize',
-    title: 'Cloud and Microsoft 365 with practical leverage',
-    copy: 'Tenant cleanup, migrations, Teams/SharePoint governance, Azure planning, backup, and automation tied to measurable operating drag.',
-    href: withBasePath('services/#technology-catalog'),
-  },
-  {
-    index: '04',
     label: 'Present',
-    title: 'A digital front door that feels as strong as the backend',
-    copy: 'Selective websites, portals, product demos, and intake surfaces for firms whose public experience needs to feel as strong as the work behind it.',
-    href: withBasePath('about/'),
+    value: 'The public experience finally matches the backend care.',
+    detail:
+      'Web, intake, commerce, and portal surfaces can now feel alive without feeling loud.',
   },
 ];
 
-const operatingSignals = [
+const sceneModes = [
   {
-    label: 'Response ownership',
-    copy: 'Clear ticket lanes, escalation rules, and a weekly view of what is open, aging, blocked, or recurring.',
+    label: 'Operate',
+    detail: 'Support rhythm',
   },
   {
-    label: 'Security baseline',
-    copy: 'Identity, endpoint, email, backup, and admin-access checks before new tools or larger projects are layered in.',
+    label: 'Protect',
+    detail: 'Security posture',
   },
   {
-    label: 'Executive visibility',
-    copy: 'Plain-language priorities, risk notes, and roadmap sequencing that leadership can use without translating IT noise.',
-  },
-];
-
-const firstThirtyDays = [
-  'Map users, devices, Microsoft 365, network, backup, vendors, and support pain',
-  'Stabilize urgent support and security gaps before expanding scope',
-  'Create a practical roadmap with owners, budget ranges, and the next decision point',
-];
-
-const startOptions = [
-  {
-    title: 'Need service coverage?',
-    copy: 'Start with the solution hub if you need help desk ownership, security lift, M365 guidance, or infrastructure support.',
-    href: withBasePath('services/'),
-    cta: 'View solutions',
-  },
-  {
-    title: 'Need budget clarity?',
-    copy: 'Use pricing when the main question is directional budget, coverage depth, or whether co-managed support makes sense.',
-    href: withBasePath('pricing/'),
-    cta: 'See pricing',
-  },
-  {
-    title: 'Need fit clarity?',
-    copy: 'Use contact HQ when the main question is scope, sequence, timing, or which service lane should lead first.',
-    href: withBasePath('contact-hq/'),
-    cta: 'Start fit check',
+    label: 'Present',
+    detail: 'Digital proof',
   },
 ];
 
 const siteGuide = [
   {
     label: 'Solutions',
-    copy: 'Support, security, Microsoft 365, cloud, backup, and digital systems.',
+    copy: 'See the owned lanes: support, security, Microsoft 365, cloud, backup, networking, and selective digital systems.',
     href: withBasePath('services/'),
   },
   {
     label: 'Pricing',
-    copy: 'Coverage shapes, budget signals, and calculator paths.',
+    copy: 'Use realistic ranges and scope logic before a sales call turns vague.',
     href: withBasePath('pricing/'),
   },
   {
     label: 'E Commerce Demo',
-    copy: 'A working shop surface with cart, compare, checkout, and product states.',
+    copy: 'A live proof route for polished mobile commerce, stateful flows, and interface craft.',
     href: withBasePath('about/'),
   },
   {
     label: 'Blog',
-    copy: 'Short field notes on managed IT buying, security, and operations.',
+    copy: 'Field notes for buyers who want governance, onboarding, security, and delivery clarity.',
     href: withBasePath('blog/'),
   },
   {
     label: 'News + Podcast',
-    copy: 'Brief episodes, advisory notes, and local operating signals.',
+    copy: 'Short briefings and editorial signals without the fake thought-leadership fog.',
     href: withBasePath('news/'),
   },
   {
     label: 'Photo Gallery',
-    copy: 'Visual proof, workspace texture, and systems-minded references.',
+    copy: 'Visual reference, materials, installation mood, and curated proof of taste.',
     href: withBasePath('photos/'),
   },
 ];
 
-const buyerRealities = [
+const serviceLanes = [
   {
-    title: 'The help desk is not the whole relationship.',
-    copy: 'A serious MSP should also own onboarding, vendors, endpoint hygiene, reporting, backup verification, and the issues that keep coming back.',
+    index: '01',
+    label: 'Operate',
+    title: 'Managed IT that owns the working day, not just the queue.',
+    copy: 'Help desk, onboarding, patching, vendor coordination, endpoint standards, recurring-issue reduction, and weekly visibility under one accountable rhythm.',
+    href: withBasePath('services/'),
   },
   {
-    title: 'Cyber insurance has made weak security language expensive.',
-    copy: 'MFA, endpoint protection, email security, backups, access reviews, and incident response need to be real controls, not checkbox copy.',
+    index: '02',
+    label: 'Protect',
+    title: 'Security posture that can be explained, tested, and trusted.',
+    copy: 'Identity hardening, endpoint protection, email defense, backup proof, cyber-insurance readiness, and response habits that hold up under scrutiny.',
+    href: withBasePath('services/#technology-catalog'),
   },
   {
-    title: 'Microsoft 365 is usually where hidden mess lives.',
-    copy: 'Teams, SharePoint, external sharing, retention, licensing, and backup decisions quietly shape how fast the business can work.',
+    index: '03',
+    label: 'Modernize',
+    title: 'Microsoft 365 and cloud cleanup with a real operating outcome.',
+    copy: 'Tenant governance, SharePoint and Teams cleanup, lifecycle rules, migrations, backup decisions, and automation that makes the business easier to run.',
+    href: withBasePath('services/#technology-catalog'),
+  },
+  {
+    index: '04',
+    label: 'Present',
+    title: 'Digital experiences that look sharp because the system is sharp.',
+    copy: 'Selective websites, client portals, commerce demos, and contact/intake flows designed to build trust instead of performing generic polish.',
+    href: withBasePath('about/'),
+  },
+];
+
+const experienceHubs = [
+  {
+    code: 'DX',
+    label: 'Demo store',
+    title: 'Interactive e commerce walkthrough',
+    copy: 'Open cart, compare, quick view, or checkout review paths with shareable URLs and mobile-safe demo controls.',
+    meta: ['Cart + compare', 'Shareable states', 'Launch-safe controls'],
+    href: withBasePath('about/'),
+  },
+  {
+    code: 'JG',
+    label: 'Journal',
+    title: 'Blog with filters, topics, and digest-style scanning',
+    copy: 'Move from a flat article list to a sharper reading experience that helps buyers find the practical advice they actually need.',
+    meta: ['Topic filters', 'Featured brief', 'Case-study adjacent'],
+    href: withBasePath('blog/'),
+  },
+  {
+    code: 'NP',
+    label: 'Newsroom',
+    title: 'News + podcast desk with episode switching',
+    copy: 'Editorial beats, show notes, quick clips, and release cadence make the page feel alive instead of like a generic content bucket.',
+    meta: ['Episode queue', 'Show notes', 'Beat tracker'],
+    href: withBasePath('news/'),
+  },
+  {
+    code: 'PG',
+    label: 'Gallery',
+    title: 'Photo and design routes with real curation logic',
+    copy: 'Filterable collections, art direction, shot metadata, and route-linked studies make the visual routes feel intentionally built.',
+    meta: ['Filter states', 'Lightbox flow', 'Curator notes'],
+    href: withBasePath('photos/'),
+  },
+];
+
+const operatingSignals = [
+  {
+    label: 'Response ownership',
+    copy: 'Clear ticket lanes, escalation rules, vendor follow-through, and a weekly view of what is open, blocked, aging, or recurring.',
+  },
+  {
+    label: 'Security baseline',
+    copy: 'Identity, endpoint, email, backup, and administrative-access controls are stabilized before shinier projects or tooling sprawl.',
+  },
+  {
+    label: 'Executive visibility',
+    copy: 'Leaders get a real operating view: priorities, risk notes, roadmap sequencing, budget signals, and where the drag actually lives.',
+  },
+];
+
+const firstThirtyDays = [
+  'Map users, devices, Microsoft 365, network, backup, vendors, licenses, and recurring support pain.',
+  'Stabilize urgent service and security gaps before expanding the roadmap or adding new tooling.',
+  'Turn findings into a practical next-step plan with owners, budget ranges, and a clear decision point.',
+];
+
+const buyerQuestions = [
+  {
+    title: 'Who really owns the environment after the contract is signed?',
+    copy: 'Good buyers want vendor coordination, recurring-issue reduction, reporting, security evidence, and onboarding discipline—not just a promise to answer tickets.',
+  },
+  {
+    title:
+      'Will the public-facing experience match the quality of the backend work?',
+    copy: 'Your digital front door should look deliberate, persuasive, and trustworthy on mobile—not like it was dropped in last after the “real work” was done.',
+  },
+  {
+    title: 'Does the site help me understand fit quickly?',
+    copy: 'The best pages clarify buyer fit, likely pressure points, what gets handled first, and what the next move should be without a maze of generic sections.',
+  },
+];
+
+const startOptions = [
+  {
+    title: 'Need service coverage?',
+    copy: 'Start with the solution hub if you need help desk ownership, security lift, Microsoft 365 governance, or infrastructure support.',
+    href: withBasePath('services/'),
+    cta: 'Open solutions hub',
+  },
+  {
+    title: 'Need budget clarity?',
+    copy: 'Use pricing when the main question is package depth, scope boundaries, or whether co-managed support is the right shape.',
+    href: withBasePath('pricing/'),
+    cta: 'Open pricing guide',
+  },
+  {
+    title: 'Need fit clarity?',
+    copy: 'Use Contact HQ when the real question is sequence, timing, scope, or which lane should lead first.',
+    href: withBasePath('contact-hq/'),
+    cta: 'Open fit intake',
   },
 ];
 ---
@@ -142,8 +213,123 @@ const buyerRealities = [
   showSavedRoutesDock={false}
 >
   <section class="home-homepage-hero" id="landing-hero" data-page-section>
-    <h1 class="sr-only">Olive Chicago managed IT and cybersecurity</h1>
-    <HomeOrbitScene client:only="preact" />
+    <div class="premium-container home-homepage-hero__shell">
+      <div class="home-homepage-hero__copy">
+        <p class="home-homepage-eyebrow">
+          Chicago managed IT + expressive digital systems
+        </p>
+        <h1 class="home-homepage-title">
+          Olive Chicago managed IT, shown like the work actually moves.
+        </h1>
+        <p class="home-homepage-copy">
+          Support, cybersecurity, Microsoft 365, cloud, backup, networking, and
+          selective web systems for teams that want the operating layer and the
+          public front door to feel designed by the same serious people.
+        </p>
+        <p class="home-homepage-claim">
+          The web can finally explain complex service work with live spatial
+          interfaces instead of another stack of stock cards. This one maps the
+          service model as a moving field: operate, protect, present.
+        </p>
+
+        <div class="home-homepage-actions">
+          <ModernButton
+            href={withBasePath('services/')}
+            variant="gradient"
+            className="min-h-[52px]"
+            rounded="sm"
+          >
+            View solutions
+          </ModernButton>
+          <ModernButton
+            href={withBasePath('pricing/')}
+            variant="outline"
+            className="min-h-[52px]"
+            rounded="sm"
+          >
+            See pricing
+          </ModernButton>
+          <ModernButton
+            href={withBasePath('contact-hq/')}
+            variant="secondary"
+            className="min-h-[52px]"
+            rounded="sm"
+          >
+            Start fit check
+          </ModernButton>
+        </div>
+
+        <div class="home-homepage-jump-links" aria-label="Popular routes">
+          {
+            siteGuide.slice(0, 4).map(item => (
+              <a class="home-homepage-jump" href={item.href}>
+                {item.label}
+              </a>
+            ))
+          }
+        </div>
+      </div>
+
+      <div class="home-homepage-hero__visual">
+        <div class="home-homepage-stage">
+          <div
+            class="home-homepage-stage__scene"
+            data-testid="home-orbit-scene"
+            data-home-orbit-root
+            role="img"
+            aria-label="Interactive 3D operations field showing managed IT, security, and digital proof"
+          >
+            <canvas
+              class="home-orbit-scene__canvas"
+              data-home-orbit-canvas
+              aria-hidden="true"></canvas>
+            <div class="home-orbit-scene__hud" aria-hidden="true">
+              <span>Pointer orbit</span>
+              <span>Tap modes</span>
+              <span>Live ops field</span>
+            </div>
+          </div>
+          <div class="home-homepage-stage__hud">
+            <p>3D service field</p>
+            <span>Pointer orbit</span>
+            <span>Tap or choose a mode</span>
+          </div>
+          <div
+            class="home-homepage-scene-controls"
+            aria-label="Change 3D service focus"
+          >
+            {
+              sceneModes.map((mode, index) => (
+                <button
+                  type="button"
+                  class={`home-homepage-scene-control ${index === 0 ? 'is-active' : ''}`}
+                  data-home-scene-mode={index}
+                  aria-pressed={index === 0 ? 'true' : 'false'}
+                >
+                  <span>{mode.label}</span>
+                  <small>{mode.detail}</small>
+                </button>
+              ))
+            }
+          </div>
+        </div>
+
+        <div
+          class="home-homepage-signal-grid"
+          aria-label="Landing proof signals"
+        >
+          {
+            heroSignals.map(signal => (
+              <article class="home-homepage-signal-card">
+                <p class="home-homepage-signal-card__label">{signal.label}</p>
+                <h2>{signal.value}</h2>
+                <p>{signal.detail}</p>
+              </article>
+            ))
+          }
+        </div>
+      </div>
+    </div>
   </section>
 
   <section
@@ -152,24 +338,27 @@ const buyerRealities = [
     data-page-section
   >
     <div class="premium-container">
-      <div class="home-homepage-guide">
-        <div class="home-homepage-section__intro">
-          <p class="home-homepage-eyebrow">Start here</p>
-          <h2 class="home-homepage-section__title">
-            A fast map of the site, without turning the header into a maze.
-          </h2>
-        </div>
+      <div class="home-homepage-section__intro">
+        <p class="home-homepage-eyebrow">Start here</p>
+        <h2 class="home-homepage-section__title">
+          A route map that respects how buyers actually scan.
+        </h2>
+        <p class="home-homepage-section__copy">
+          The homepage should not feel like six unrelated pamphlets. It should
+          make the next click obvious: understand the service, price the shape,
+          inspect proof, or start a fit conversation.
+        </p>
+      </div>
 
-        <div class="home-homepage-guide__grid" aria-label="Site guide">
-          {
-            siteGuide.map(item => (
-              <a class="home-homepage-guide__item" href={item.href}>
-                <span>{item.label}</span>
-                <p>{item.copy}</p>
-              </a>
-            ))
-          }
-        </div>
+      <div class="home-homepage-guide__grid" aria-label="Site guide">
+        {
+          siteGuide.map(item => (
+            <a class="home-homepage-guide__item" href={item.href}>
+              <span>{item.label}</span>
+              <p>{item.copy}</p>
+            </a>
+          ))
+        }
       </div>
     </div>
   </section>
@@ -182,10 +371,9 @@ const buyerRealities = [
           Four lanes that make the operating model easier to understand.
         </h2>
         <p class="home-homepage-section__copy">
-          The service story is intentionally organized around the decisions
-          Chicago-area teams actually have to make: who owns support, how risk
-          gets reduced, what cloud work should change first, and how the public
-          experience supports trust.
+          The structure is deliberate: support ownership, security posture,
+          Microsoft 365/cloud cleanup, and the digital experience layer. Buyers
+          should understand where the pressure lives within seconds.
         </p>
       </div>
 
@@ -209,7 +397,51 @@ const buyerRealities = [
   </section>
 
   <section
-    class="home-homepage-section home-homepage-section--realities"
+    class="home-homepage-section home-homepage-section--experience"
+    id="experience-hubs"
+    data-page-section
+  >
+    <div class="premium-container">
+      <div class="home-homepage-section__intro">
+        <p class="home-homepage-eyebrow">Featured experiences</p>
+        <h2 class="home-homepage-section__title">
+          Supporting routes should feel like working surfaces, not filler pages.
+        </h2>
+        <p class="home-homepage-section__copy">
+          Gallery, photo, blog, demo store, and newsroom routes earn their keep
+          when they show state, movement, curation, and mobile behavior that a
+          buyer can actually judge.
+        </p>
+      </div>
+
+      <div class="home-homepage-experience-grid">
+        {
+          experienceHubs.map(item => (
+            <a class="home-homepage-experience-card" href={item.href}>
+              <div class="home-homepage-experience-card__topline">
+                <span class="home-homepage-experience-card__code">
+                  {item.code}
+                </span>
+                <span class="home-homepage-experience-card__label">
+                  {item.label}
+                </span>
+              </div>
+              <h3>{item.title}</h3>
+              <p>{item.copy}</p>
+              <div class="home-homepage-experience-card__meta">
+                {item.meta.map(meta => (
+                  <span>{meta}</span>
+                ))}
+              </div>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section
+    class="home-homepage-section home-homepage-section--questions"
     id="buyer-realities"
     data-page-section
   >
@@ -217,19 +449,18 @@ const buyerRealities = [
       <div class="home-homepage-section__intro">
         <p class="home-homepage-eyebrow">Buyer realities</p>
         <h2 class="home-homepage-section__title">
-          The site should say the quiet part clearly: IT buyers are tired of
-          vague promises.
+          The quiet questions deserve direct answers.
         </h2>
         <p class="home-homepage-section__copy">
-          The strongest competitors sell confidence by naming operational
-          ownership. Olive Chicago should do the same, with less gloss and more
-          useful detail.
+          Better design earns attention, but clarity wins trust. The site should
+          tell buyers who owns what, how the relationship works, and why the
+          digital layer feels deliberately built.
         </p>
       </div>
 
       <div class="home-homepage-realities">
         {
-          buyerRealities.map(item => (
+          buyerQuestions.map(item => (
             <article class="home-homepage-reality">
               <h3>{item.title}</h3>
               <p>{item.copy}</p>
@@ -250,13 +481,12 @@ const buyerRealities = [
         <div class="home-homepage-section__intro">
           <p class="home-homepage-eyebrow">Operating standard</p>
           <h2 class="home-homepage-section__title">
-            The first phase should make the environment easier to run, not just
-            easier to sell.
+            The first phase should make the operating model easier, not louder.
           </h2>
           <p class="home-homepage-section__copy">
-            Intake starts by separating urgent support needs from structural
-            risk. That keeps early work concrete and gives leadership a clean
-            view of what should happen now, next, and later.
+            Intake starts by separating urgent support and security work from
+            structural cleanup. Leadership gets a clear view of what happens
+            now, next, and later.
           </p>
         </div>
 
@@ -275,7 +505,7 @@ const buyerRealities = [
           <div class="home-homepage-first30" aria-labelledby="first30-title">
             <p class="home-homepage-eyebrow">First 30 days</p>
             <h3 id="first30-title">
-              A practical start, before the bigger roadmap.
+              A practical start before the longer roadmap.
             </h3>
             <ol>
               {firstThirtyDays.map(item => <li>{item}</li>)}
@@ -295,8 +525,12 @@ const buyerRealities = [
         <div class="home-homepage-closing__intro">
           <p class="home-homepage-eyebrow">Choose the next move</p>
           <h2 class="home-homepage-section__title">
-            Start where the pressure is: support, budget, or fit clarity.
+            Start where the pressure is: operations, budget, or fit.
           </h2>
+          <p class="home-homepage-section__copy">
+            The best next step is the one that removes uncertainty fastest. Pick
+            the lane that answers your first decision cleanly.
+          </p>
         </div>
 
         <div class="home-homepage-start-list">
@@ -313,19 +547,23 @@ const buyerRealities = [
           }
         </div>
 
-        <div class="home-homepage-closeout">
+        <div class="home-homepage-closeout tone-cta-band">
           <div>
             <p class="home-homepage-eyebrow">Ready to move</p>
             <h3 class="home-homepage-closeout__title">
-              Fix the operating layer first. Improve the front door with the
-              same discipline.
+              Fix the operating layer. Give the front door the same discipline.
             </h3>
+            <p class="home-homepage-closeout__copy">
+              If you want the service model and the public experience to feel
+              like they came from the same serious team, that is the right
+              conversation to have next.
+            </p>
           </div>
 
           <div class="home-homepage-actions home-homepage-actions--closeout">
             <ModernButton
               href={contactHref}
-              variant="primary"
+              variant="gradient"
               className="min-h-[52px]"
             >
               Book intake
@@ -343,741 +581,600 @@ const buyerRealities = [
     </div>
   </section>
 
+  <script is:inline>
+    (() => {
+      const bindSceneControls = () => {
+        const controls = Array.from(
+          document.querySelectorAll('[data-home-scene-mode]')
+        ).filter(node => node instanceof HTMLButtonElement);
+
+        controls.forEach(control => {
+          if (control.dataset.sceneBound === '1') return;
+          control.dataset.sceneBound = '1';
+          control.addEventListener('click', () => {
+            const mode = Number(control.dataset.homeSceneMode || 0);
+
+            controls.forEach(item => {
+              const isActive = item === control;
+              item.classList.toggle('is-active', isActive);
+              item.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+            });
+
+            window.dispatchEvent(
+              new CustomEvent('home-orbit-scene:mode', {
+                detail: { mode },
+              })
+            );
+          });
+        });
+      };
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bindSceneControls, {
+          once: true,
+        });
+      } else {
+        bindSceneControls();
+      }
+
+      document.addEventListener('astro:page-load', bindSceneControls);
+    })();
+  </script>
+
+  <script>
+    import '../scripts/home-orbit-scene';
+  </script>
+
   <style>
     .home-homepage-hero,
     .home-homepage-section {
       position: relative;
       padding: clamp(4rem, 8vw, 7rem) 0;
+      border-bottom: 1px solid
+        color-mix(in srgb, var(--color-border) 70%, transparent);
     }
 
     .home-homepage-hero {
       min-height: calc(100svh - 4.35rem);
-      overflow: hidden;
-      padding: 0;
-      border-bottom: 1px solid
-        color-mix(in srgb, var(--color-border) 72%, transparent);
+      padding-top: clamp(1rem, 2vw, 1.5rem);
       background:
-        linear-gradient(
-          120deg,
-          color-mix(in srgb, #20322f 20%, transparent) 0 1px,
-          transparent 1px 42px
+        radial-gradient(
+          circle at 8% 6%,
+          color-mix(in srgb, var(--color-primary) 16%, transparent),
+          transparent 28%
         ),
         radial-gradient(
-          ellipse at 78% 22%,
-          color-mix(in srgb, #1d5f5c 20%, transparent),
-          transparent 34%
-        );
-    }
-
-    .home-homepage-hero::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background:
-        linear-gradient(
-          90deg,
-          color-mix(in srgb, var(--color-border) 24%, transparent) 1px,
-          transparent 1px
+          circle at 92% 18%,
+          color-mix(in srgb, var(--color-primary-strong) 16%, transparent),
+          transparent 30%
         ),
         linear-gradient(
           180deg,
-          color-mix(in srgb, var(--color-border) 18%, transparent) 1px,
-          transparent 1px
-        ),
-        radial-gradient(
-          circle at 14% 10%,
-          color-mix(in srgb, var(--color-primary) 14%, transparent),
-          transparent 30%
-        ),
-        linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 22%);
-      background-size:
-        72px 72px,
-        72px 72px,
-        auto,
-        auto;
-      pointer-events: none;
-    }
-
-    .home-homepage-hero::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      opacity: 0.16;
-      background:
-        repeating-linear-gradient(
-          0deg,
-          transparent 0 8px,
-          rgba(255, 255, 255, 0.018) 8px 9px
-        ),
-        linear-gradient(
-          135deg,
-          transparent 0 48%,
-          color-mix(in srgb, var(--color-primary) 10%, transparent) 48% 49%,
-          transparent 49%
-        );
-      mix-blend-mode: screen;
-    }
-
-    :global(.home-orbit-scene) {
-      position: relative;
-      z-index: 1;
-      display: block;
-      width: 100%;
-      min-height: calc(100svh - 4.35rem);
-      background:
-        radial-gradient(
-          ellipse at 50% 45%,
-          color-mix(in srgb, #7be3d5 13%, transparent),
-          transparent 34%
-        ),
-        radial-gradient(
-          ellipse at 50% 100%,
-          color-mix(in srgb, #d1b17a 12%, transparent),
-          transparent 42%
+          color-mix(in srgb, var(--color-surface) 42%, transparent),
+          transparent 66%
         );
     }
 
-    :global(.home-orbit-scene canvas) {
-      display: block;
-      width: 100%;
-      height: 100%;
-      min-height: calc(100svh - 4.35rem);
-      outline: none;
-    }
-
-    :global(.home-orbit-scene__fallback) {
-      position: absolute;
-      inset: 0;
-      opacity: 0.34;
-      background:
-        linear-gradient(
-          90deg,
-          transparent,
-          color-mix(in srgb, var(--color-primary) 18%, transparent),
-          transparent
-        ),
-        repeating-linear-gradient(
-          90deg,
-          transparent 0 36px,
-          color-mix(in srgb, var(--color-border) 32%, transparent) 36px 37px
-        );
-      pointer-events: none;
-    }
-
-    :global(.home-orbit-scene__hud) {
-      position: absolute;
-      right: clamp(1rem, 4vw, 3rem);
-      bottom: clamp(1rem, 4vw, 2.4rem);
-      z-index: 2;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-      gap: 0.45rem;
-      max-width: min(28rem, calc(100% - 2rem));
-      pointer-events: none;
-    }
-
-    :global(.home-orbit-scene__hud span) {
-      display: inline-flex;
-      min-height: 2rem;
-      align-items: center;
-      border: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
-      border-radius: 999px;
-      background: color-mix(in srgb, var(--color-background) 62%, transparent);
-      padding: 0 0.72rem;
-      color: color-mix(in srgb, var(--color-text-primary) 74%, transparent);
-      font-family: var(--font-mono);
-      font-size: 0.62rem;
-      font-weight: 700;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      backdrop-filter: blur(14px);
+    .home-homepage-hero__shell,
+    .home-homepage-operating__grid,
+    .home-homepage-closing,
+    .home-homepage-guide__grid,
+    .home-homepage-lanes,
+    .home-homepage-experience-grid,
+    .home-homepage-realities,
+    .home-homepage-signal-grid {
+      display: grid;
+      gap: 1rem;
     }
 
     .home-homepage-hero__shell {
-      position: relative;
-      z-index: 1;
+      align-items: end;
+    }
+
+    .home-homepage-hero__copy,
+    .home-homepage-section__intro,
+    .home-homepage-closing__intro {
       display: grid;
-      gap: clamp(2rem, 5vw, 3.8rem);
-      align-items: center;
+      gap: 0.95rem;
     }
 
     .home-homepage-hero__copy {
-      display: grid;
-      gap: 1.15rem;
-      max-width: 45rem;
+      max-width: 42rem;
+      padding-top: clamp(1rem, 3vw, 2rem);
     }
 
     .home-homepage-eyebrow {
       margin: 0;
-      color: color-mix(in srgb, var(--color-text-muted) 94%, transparent);
-      font-family: var(--font-sans);
+      font-family: var(--font-mono);
       font-size: 0.7rem;
       font-weight: 700;
-      letter-spacing: 0.18em;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
+      color: color-mix(in srgb, var(--color-primary) 70%, white 30%);
+    }
+
+    .home-homepage-title,
+    .home-homepage-section__title,
+    .home-homepage-lane h3,
+    .home-homepage-experience-card h3,
+    .home-homepage-reality h3,
+    .home-homepage-signal h3,
+    .home-homepage-first30 h3,
+    .home-homepage-start-item h3,
+    .home-homepage-closeout__title,
+    .home-homepage-signal-card h2 {
+      margin: 0;
+      color: var(--color-text-primary);
+      font-family: var(--font-display);
+      font-weight: 600;
+      letter-spacing: 0;
+      line-height: 1.02;
+      text-wrap: balance;
     }
 
     .home-homepage-title {
-      max-width: 12.1ch;
-      margin: 0;
-      color: var(--color-text-primary);
-      font-family: var(--font-display);
-      font-size: clamp(2.8rem, 6.2vw, 5.75rem);
-      font-weight: 700;
-      line-height: 0.92;
-      letter-spacing: 0;
-      text-wrap: balance;
-    }
-
-    .home-homepage-title span {
-      display: block;
-    }
-
-    .home-homepage-title span:nth-child(2) {
-      color: color-mix(in srgb, var(--color-text-primary) 70%, transparent);
-    }
-
-    .home-homepage-title span:nth-child(3) {
-      color: color-mix(in srgb, var(--color-primary) 70%, #62d2c5 30%);
-      text-shadow: 0 16px 48px color-mix(in srgb, #62d2c5 18%, transparent);
-    }
-
-    .home-homepage-copy,
-    .home-homepage-section__copy,
-    .home-homepage-lane p,
-    .home-homepage-start-item p {
-      margin: 0;
-      color: color-mix(in srgb, var(--color-text-secondary) 94%, transparent);
-      font-size: clamp(1rem, 1.12vw, 1.08rem);
-      line-height: 1.68;
-    }
-
-    .home-homepage-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.85rem;
-      padding-top: 0.25rem;
-    }
-
-    .home-homepage-outcomes {
-      display: grid;
-      gap: 0.85rem;
-      margin: 0;
-      padding: 1.35rem 0 0;
-      list-style: none;
-      border-top: 1px solid
-        color-mix(in srgb, var(--color-border) 66%, transparent);
-    }
-
-    .home-homepage-outcomes li {
-      position: relative;
-      padding-left: 1.2rem;
-      color: color-mix(in srgb, var(--color-text-primary) 82%, transparent);
-      font-size: 0.98rem;
-      line-height: 1.58;
-    }
-
-    .home-homepage-outcomes li::before {
-      content: '';
-      position: absolute;
-      top: 0.55rem;
-      left: 0;
-      width: 0.45rem;
-      height: 0.45rem;
-      border-radius: 999px;
-      background: color-mix(in srgb, var(--color-primary) 84%, white 16%);
-    }
-
-    .home-homepage-proof {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 1px;
-      overflow: hidden;
-      max-width: 40rem;
-      border: 1px solid color-mix(in srgb, var(--color-border) 78%, transparent);
-      background: color-mix(in srgb, var(--color-border) 52%, transparent);
-      box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.04),
-        0 24px 70px -54px rgba(0, 0, 0, 0.82);
-    }
-
-    .home-homepage-proof__item {
-      min-height: 6.7rem;
-      padding: 1rem;
-      background: linear-gradient(
-        180deg,
-        color-mix(in srgb, var(--color-surface) 92%, white 3%),
-        color-mix(in srgb, var(--color-background) 82%, transparent)
-      );
-    }
-
-    .home-homepage-proof__item span {
-      display: block;
-      color: color-mix(in srgb, var(--color-primary) 72%, #62d2c5 28%);
-      font-family: var(--font-display);
-      font-size: clamp(2rem, 4vw, 3.45rem);
-      font-weight: 800;
-      line-height: 0.9;
-      letter-spacing: 0;
-    }
-
-    .home-homepage-proof__item p {
-      max-width: 10rem;
-      margin: 0.65rem 0 0;
-      color: color-mix(in srgb, var(--color-text-secondary) 80%, transparent);
-      font-size: 0.78rem;
-      font-weight: 700;
-      line-height: 1.25;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-
-    .home-homepage-art-panel {
-      position: relative;
-      overflow: hidden;
-      min-height: 31.5rem;
-      padding: clamp(1rem, 2.4vw, 1.35rem);
-      border: 1px solid color-mix(in srgb, var(--color-border) 88%, transparent);
-      border-radius: var(--radius-sm);
-      background:
-        linear-gradient(
-          180deg,
-          color-mix(in srgb, var(--color-surface) 92%, white 4%),
-          color-mix(in srgb, #0b0f10 96%, transparent)
-        ),
-        color-mix(in srgb, var(--color-surface) 92%, transparent);
-      box-shadow:
-        0 32px 88px -56px rgba(0, 0, 0, 0.92),
-        inset 0 1px 0 rgba(255, 255, 255, 0.08);
-      transform: translateY(-0.65rem) rotate(1.1deg);
-    }
-
-    .home-homepage-art-panel::before,
-    .home-homepage-art-panel::after {
-      content: '';
-      position: absolute;
-      pointer-events: none;
-    }
-
-    .home-homepage-art-panel::before {
-      inset: 0;
-      background:
-        linear-gradient(90deg, rgba(255, 255, 255, 0.055) 1px, transparent 1px),
-        linear-gradient(180deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-      background-size: 30px 30px;
-      mask-image: linear-gradient(180deg, black, transparent 82%);
-      opacity: 0.5;
-    }
-
-    .home-homepage-art-panel::after {
-      inset: auto 1rem 1rem 1rem;
-      height: 34%;
-      background: linear-gradient(
-        180deg,
-        transparent,
-        color-mix(in srgb, #06100f 86%, transparent)
-      );
-    }
-
-    .home-homepage-art-panel__plate,
-    .home-homepage-art-panel__meta {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      gap: 0.7rem 1rem;
-      color: color-mix(in srgb, var(--color-text-muted) 90%, transparent);
-      font-family: var(--font-sans);
-      font-size: 0.65rem;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-    }
-
-    .home-homepage-art-panel__skyline {
-      position: absolute;
-      z-index: 1;
-      right: 1.25rem;
-      bottom: 3.75rem;
-      left: 1.25rem;
-      padding: 0 0 0.9rem;
-      color: color-mix(in srgb, var(--color-primary) 76%, white 24%);
-    }
-
-    .home-homepage-skyline {
-      display: block;
-      --skyline-width: min(100%, 30rem);
-      --skyline-height: 4.2rem;
-      width: min(100%, 30rem);
-      height: 4.2rem;
-      opacity: 0.9;
-    }
-
-    .home-homepage-art-map {
-      position: relative;
-      z-index: 1;
-      min-height: 22rem;
-      margin-top: 1.2rem;
-    }
-
-    .home-homepage-art-map__track {
-      position: absolute;
-      inset: 2rem 19% 2rem auto;
-      width: 1px;
-      background: linear-gradient(
-        180deg,
-        transparent,
-        color-mix(in srgb, var(--color-primary) 55%, transparent),
-        color-mix(in srgb, #62d2c5 54%, transparent),
-        transparent
-      );
-      box-shadow: 0 0 34px color-mix(in srgb, #62d2c5 20%, transparent);
-    }
-
-    .home-homepage-art-node {
-      position: absolute;
-      display: grid;
-      gap: 0.18rem;
-      width: min(16rem, 74%);
-      padding: 0.95rem 1rem;
-      border: 1px solid color-mix(in srgb, var(--color-border) 78%, transparent);
-      background: linear-gradient(
-        135deg,
-        color-mix(in srgb, var(--color-surface) 82%, white 5%),
-        color-mix(in srgb, #0f1716 94%, transparent)
-      );
-      box-shadow:
-        0 18px 48px -38px rgba(0, 0, 0, 0.9),
-        inset 0 1px 0 rgba(255, 255, 255, 0.07);
-    }
-
-    .home-homepage-art-node span {
-      color: color-mix(in srgb, var(--color-primary) 74%, white 10%);
-      font-family: var(--font-mono);
-      font-size: 0.62rem;
-      font-weight: 800;
-      letter-spacing: 0.14em;
-    }
-
-    .home-homepage-art-node strong {
-      color: var(--color-text-primary);
-      font-size: 1.1rem;
-      line-height: 1;
-    }
-
-    .home-homepage-art-node small {
-      color: color-mix(in srgb, var(--color-text-secondary) 72%, transparent);
-      font-size: 0.72rem;
-      line-height: 1.35;
-    }
-
-    .home-homepage-art-node--operate {
-      top: 0.4rem;
-      left: 0;
-    }
-
-    .home-homepage-art-node--protect {
-      top: 5.6rem;
-      right: 0;
-      border-color: color-mix(in srgb, #62d2c5 28%, var(--color-border));
-    }
-
-    .home-homepage-art-node--modernize {
-      top: 11rem;
-      left: 2.4rem;
-    }
-
-    .home-homepage-art-node--present {
-      top: 15.6rem;
-      right: 1rem;
-      border-color: color-mix(in srgb, #d9966b 24%, var(--color-border));
-    }
-
-    .home-homepage-art-panel__meta {
-      position: absolute;
-      z-index: 2;
-      right: 1.25rem;
-      bottom: 1.2rem;
-      left: 1.25rem;
-    }
-
-    .home-homepage-section {
-      border-bottom: 1px solid
-        color-mix(in srgb, var(--color-border) 72%, transparent);
-    }
-
-    .home-homepage-section--guide {
-      padding: clamp(2.75rem, 5vw, 4.25rem) 0;
-      background:
-        linear-gradient(
-          180deg,
-          color-mix(in srgb, var(--color-surface) 54%, transparent),
-          transparent
-        ),
-        color-mix(in srgb, var(--color-background) 96%, transparent);
-    }
-
-    .home-homepage-guide {
-      display: grid;
-      gap: 1.25rem;
-    }
-
-    .home-homepage-guide__grid {
-      display: grid;
-      gap: 1px;
-      overflow: hidden;
-      border: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
-      background: color-mix(in srgb, var(--color-border) 55%, transparent);
-    }
-
-    .home-homepage-guide__item {
-      display: grid;
-      gap: 0.45rem;
-      min-height: 8.75rem;
-      padding: 1rem;
-      background: linear-gradient(
-        135deg,
-        color-mix(in srgb, var(--color-surface) 90%, white 2%),
-        color-mix(in srgb, var(--color-background) 94%, transparent)
-      );
-      transition:
-        background 0.2s ease,
-        transform 0.2s ease;
-    }
-
-    .home-homepage-guide__item span {
-      color: var(--color-text-primary);
-      font-size: 0.94rem;
-      font-weight: 700;
-    }
-
-    .home-homepage-guide__item p {
-      margin: 0;
-      color: color-mix(in srgb, var(--color-text-secondary) 90%, transparent);
-      font-size: 0.9rem;
-      line-height: 1.55;
-    }
-
-    .home-homepage-guide__item:hover {
-      transform: translateY(-2px);
-      background: linear-gradient(
-        135deg,
-        color-mix(in srgb, var(--color-primary) 8%, var(--color-surface)),
-        color-mix(in srgb, var(--color-surface) 94%, transparent)
-      );
-    }
-
-    .home-homepage-section__intro {
-      display: grid;
-      gap: 0.85rem;
-      max-width: 44rem;
-      margin-bottom: 2.35rem;
+      max-width: 12ch;
+      font-size: clamp(2.85rem, 6vw, 5.8rem);
     }
 
     .home-homepage-section__title,
-    .home-homepage-lane h3,
-    .home-homepage-start-item h3,
     .home-homepage-closeout__title {
+      max-width: 18ch;
+      font-size: clamp(1.7rem, 3vw, 3rem);
+    }
+
+    .home-homepage-copy,
+    .home-homepage-claim,
+    .home-homepage-section__copy,
+    .home-homepage-lane p,
+    .home-homepage-guide__item p,
+    .home-homepage-experience-card p,
+    .home-homepage-reality p,
+    .home-homepage-signal p,
+    .home-homepage-first30 li,
+    .home-homepage-start-item p,
+    .home-homepage-closeout__copy,
+    .home-homepage-signal-card p {
       margin: 0;
-      color: var(--color-text-primary);
-      font-size: clamp(1.45rem, 3vw, 3rem);
+      color: color-mix(in srgb, var(--color-text-secondary) 96%, transparent);
+      font-size: clamp(1rem, 1.15vw, 1.08rem);
+      line-height: 1.72;
+    }
+
+    .home-homepage-claim {
+      max-width: 48rem;
+      border-left: 1px solid
+        color-mix(in srgb, var(--color-primary) 42%, transparent);
+      padding-left: 1rem;
+      color: color-mix(in srgb, var(--color-text-primary) 82%, transparent);
+      font-size: clamp(0.98rem, 1.1vw, 1.05rem);
+    }
+
+    .home-homepage-actions,
+    .home-homepage-jump-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .home-homepage-jump {
+      display: inline-flex;
+      min-height: 42px;
+      align-items: center;
+      border-radius: 0.65rem;
+      border: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
+      background: color-mix(in srgb, var(--color-surface) 80%, transparent);
+      padding: 0 0.95rem;
+      color: color-mix(in srgb, var(--color-text-primary) 78%, transparent);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
       font-weight: 700;
-      line-height: 0.98;
-      letter-spacing: 0;
-      text-wrap: balance;
-    }
-
-    .home-homepage-lanes {
-      display: grid;
-      gap: 1px;
-      overflow: hidden;
-      border-top: 1px solid
-        color-mix(in srgb, var(--color-border) 70%, transparent);
-      background: color-mix(in srgb, var(--color-border) 54%, transparent);
-    }
-
-    .home-homepage-realities {
-      display: grid;
-      gap: 1px;
-      overflow: hidden;
-      border: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
-      background: color-mix(in srgb, var(--color-border) 54%, transparent);
-    }
-
-    .home-homepage-reality {
-      display: grid;
-      gap: 0.65rem;
-      min-height: 13rem;
-      padding: clamp(1.1rem, 2vw, 1.5rem);
-      background: linear-gradient(
-        180deg,
-        color-mix(in srgb, var(--color-surface) 90%, white 2%),
-        color-mix(in srgb, var(--color-background) 92%, transparent)
-      );
-    }
-
-    .home-homepage-reality h3 {
-      margin: 0;
-      color: var(--color-text-primary);
-      font-size: clamp(1.25rem, 2vw, 1.75rem);
-      font-weight: 700;
-      line-height: 1.05;
-      letter-spacing: 0;
-      text-wrap: balance;
-    }
-
-    .home-homepage-reality p {
-      margin: 0;
-      color: color-mix(in srgb, var(--color-text-secondary) 92%, transparent);
-      font-size: 0.98rem;
-      line-height: 1.68;
-    }
-
-    .home-homepage-lane {
-      position: relative;
-      display: grid;
-      gap: 1rem;
-      min-height: 15rem;
-      padding: clamp(1.2rem, 2.2vw, 1.7rem);
-      background: linear-gradient(
-        180deg,
-        color-mix(in srgb, var(--color-surface) 84%, transparent),
-        color-mix(in srgb, var(--color-background) 92%, transparent)
-      );
-      border-bottom: 0;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
       transition:
-        color 0.2s ease,
         border-color 0.2s ease,
         transform 0.2s ease,
         background 0.2s ease;
     }
 
-    .home-homepage-lane::after {
-      content: '';
-      position: absolute;
-      inset: auto 1rem 1rem auto;
-      width: 4.5rem;
-      height: 4.5rem;
-      border-right: 1px solid
-        color-mix(in srgb, var(--color-primary) 32%, transparent);
-      border-bottom: 1px solid
-        color-mix(in srgb, var(--color-primary) 32%, transparent);
-      opacity: 0.45;
-      transition:
-        opacity 0.2s ease,
-        transform 0.2s ease;
-    }
-
-    .home-homepage-lane:hover {
-      transform: translateY(-3px);
-      border-color: color-mix(
+    .home-homepage-jump:hover {
+      transform: translateY(-1px);
+      border-color: color-mix(in srgb, var(--color-primary) 30%, transparent);
+      background: color-mix(
         in srgb,
-        var(--color-text-primary) 20%,
+        var(--route-accent, var(--color-primary)) 10%,
         transparent
       );
-      background: linear-gradient(
-        180deg,
-        color-mix(in srgb, var(--color-surface) 94%, white 3%),
-        color-mix(in srgb, var(--color-background) 90%, transparent)
-      );
     }
 
-    .home-homepage-lane:hover::after {
-      opacity: 0.9;
-      transform: translate(-0.25rem, -0.25rem);
+    .home-homepage-stage {
+      position: relative;
+      overflow: hidden;
+      min-height: clamp(26rem, 58vw, 42rem);
+      border: 1px solid color-mix(in srgb, var(--color-border) 78%, transparent);
+      border-radius: 1rem;
+      background:
+        linear-gradient(
+          180deg,
+          color-mix(in srgb, var(--color-surface) 96%, white 2%),
+          color-mix(in srgb, var(--color-background) 92%, transparent)
+        ),
+        radial-gradient(
+          circle at 16% 16%,
+          color-mix(in srgb, var(--color-primary) 10%, transparent),
+          transparent 28%
+        ),
+        radial-gradient(
+          circle at 84% 20%,
+          color-mix(in srgb, var(--color-primary-strong) 12%, transparent),
+          transparent 26%
+        );
+      box-shadow:
+        inset 0 1px 0 color-mix(in srgb, white 6%, transparent),
+        0 34px 84px -58px rgba(0, 0, 0, 0.86);
     }
 
-    .home-homepage-lane__meta {
+    .home-homepage-stage::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(
+          90deg,
+          color-mix(in srgb, var(--color-border) 18%, transparent) 1px,
+          transparent 1px
+        ),
+        linear-gradient(
+          180deg,
+          color-mix(in srgb, var(--color-border) 14%, transparent) 1px,
+          transparent 1px
+        );
+      background-size: 64px 64px;
+      mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.7), transparent 88%);
+      opacity: 0.38;
+    }
+
+    .home-homepage-stage__scene {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+
+    .home-homepage-stage__scene {
+      z-index: 1;
+    }
+
+    .home-orbit-scene,
+    .home-orbit-scene canvas,
+    .home-orbit-scene__fallback {
+      position: absolute;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .home-orbit-scene {
+      cursor: grab;
+      touch-action: manipulation;
+    }
+
+    .home-orbit-scene:active {
+      cursor: grabbing;
+    }
+
+    .home-orbit-scene__fallback {
+      background:
+        radial-gradient(
+          circle at 52% 42%,
+          color-mix(in srgb, var(--color-primary-strong) 22%, transparent),
+          transparent 28%
+        ),
+        linear-gradient(
+          145deg,
+          color-mix(in srgb, var(--color-surface) 72%, transparent),
+          color-mix(in srgb, var(--color-background) 96%, transparent)
+        );
+    }
+
+    .home-orbit-scene__hud {
+      position: absolute;
+      left: 1rem;
+      bottom: 1rem;
+      z-index: 3;
       display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 1rem;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      max-width: min(24rem, calc(100% - 2rem));
+      pointer-events: none;
     }
 
-    .home-homepage-lane__index {
-      color: color-mix(in srgb, var(--color-text-primary) 34%, transparent);
+    .home-orbit-scene__hud span {
+      border: 1px solid color-mix(in srgb, var(--color-border) 76%, transparent);
+      border-radius: 0.5rem;
+      background: color-mix(in srgb, var(--color-background) 62%, transparent);
+      padding: 0.36rem 0.52rem;
+      color: color-mix(in srgb, var(--color-text-primary) 76%, transparent);
+      font-family: var(--font-mono);
+      font-size: 0.58rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      backdrop-filter: blur(10px);
+    }
+
+    .home-homepage-stage__hud {
+      position: absolute;
+      right: 1rem;
+      top: 1rem;
+      z-index: 4;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      max-width: min(26rem, calc(100% - 2rem));
+    }
+
+    .home-homepage-stage__hud p {
+      flex-basis: 100%;
+      margin: 0;
+      color: color-mix(in srgb, var(--color-text-primary) 88%, transparent);
       font-family: var(--font-display);
-      font-size: 1.1rem;
-      letter-spacing: 0;
+      font-size: 0.95rem;
+      font-weight: 600;
+      line-height: 1.1;
     }
 
-    .home-homepage-lane__label {
-      color: color-mix(in srgb, var(--color-text-muted) 92%, transparent);
+    .home-homepage-stage__hud span {
+      display: inline-flex;
+      min-height: 2.1rem;
+      align-items: center;
+      border-radius: 0.55rem;
+      border: 1px solid color-mix(in srgb, var(--color-border) 78%, transparent);
+      background: color-mix(in srgb, var(--color-background) 68%, transparent);
+      padding: 0 0.78rem;
+      color: color-mix(in srgb, var(--color-text-primary) 76%, transparent);
       font-family: var(--font-mono);
       font-size: 0.62rem;
       font-weight: 700;
-      letter-spacing: 0.22em;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      backdrop-filter: blur(12px);
+    }
+
+    .home-homepage-scene-controls {
+      position: absolute;
+      right: 1rem;
+      bottom: 1rem;
+      z-index: 5;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.45rem;
+      width: min(27rem, calc(100% - 2rem));
+    }
+
+    .home-homepage-scene-control {
+      min-height: 4.2rem;
+      border: 1px solid color-mix(in srgb, var(--color-border) 80%, transparent);
+      border-radius: 0.75rem;
+      background: color-mix(in srgb, var(--color-background) 58%, transparent);
+      color: color-mix(in srgb, var(--color-text-primary) 72%, transparent);
+      text-align: left;
+      padding: 0.7rem;
+      backdrop-filter: blur(14px);
+      cursor: pointer;
+      transition:
+        transform 0.18s ease,
+        border-color 0.18s ease,
+        background 0.18s ease,
+        color 0.18s ease;
+    }
+
+    .home-homepage-scene-control span,
+    .home-homepage-scene-control small {
+      display: block;
+    }
+
+    .home-homepage-scene-control span {
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 600;
+      line-height: 1.1;
+    }
+
+    .home-homepage-scene-control small {
+      margin-top: 0.35rem;
+      color: color-mix(in srgb, var(--color-text-muted) 88%, transparent);
+      font-family: var(--font-mono);
+      font-size: 0.58rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
     }
 
-    .home-homepage-lane h3,
-    .home-homepage-start-item h3 {
-      font-size: clamp(1.3rem, 2vw, 1.8rem);
-      margin-bottom: 0.55rem;
-    }
-
-    .home-homepage-closing {
-      display: grid;
-      gap: 2rem;
-    }
-
-    .home-homepage-operating {
-      display: grid;
-      gap: 2.25rem;
-    }
-
-    .home-homepage-operating__grid {
-      display: grid;
-      gap: 2rem;
-      align-items: start;
-    }
-
-    .home-homepage-operating__signals {
-      border-top: 1px solid
-        color-mix(in srgb, var(--color-border) 70%, transparent);
-    }
-
-    .home-homepage-signal {
-      display: grid;
-      gap: 0.45rem;
-      padding: 1.35rem 0;
-      border-bottom: 1px solid
-        color-mix(in srgb, var(--color-border) 66%, transparent);
-    }
-
-    .home-homepage-signal h3,
-    .home-homepage-first30 h3 {
-      margin: 0;
+    .home-homepage-scene-control:hover,
+    .home-homepage-scene-control.is-active {
+      transform: translateY(-1px);
+      border-color: color-mix(in srgb, var(--color-primary) 34%, transparent);
+      background:
+        linear-gradient(
+          135deg,
+          color-mix(in srgb, var(--color-primary) 12%, transparent),
+          color-mix(in srgb, var(--color-primary-strong) 7%, transparent)
+        ),
+        color-mix(in srgb, var(--color-background) 72%, transparent);
       color: var(--color-text-primary);
-      font-size: clamp(1.25rem, 2vw, 1.75rem);
-      font-weight: 700;
-      line-height: 1.03;
-      letter-spacing: 0;
-      text-wrap: balance;
     }
 
-    .home-homepage-signal p,
-    .home-homepage-first30 li {
-      margin: 0;
-      color: color-mix(in srgb, var(--color-text-secondary) 92%, transparent);
-      font-size: 0.98rem;
-      line-height: 1.68;
-    }
-
+    .home-homepage-signal-card,
+    .home-homepage-guide__item,
+    .home-homepage-lane,
+    .home-homepage-experience-card,
+    .home-homepage-reality,
     .home-homepage-first30 {
       position: relative;
       overflow: hidden;
       border: 1px solid color-mix(in srgb, var(--color-border) 76%, transparent);
-      border-radius: var(--radius-sm);
+      border-radius: 0.9rem;
       background:
         linear-gradient(
           180deg,
-          color-mix(in srgb, var(--color-surface) 94%, white 2%),
-          color-mix(in srgb, var(--color-surface) 88%, transparent)
+          color-mix(in srgb, white 4%, transparent),
+          transparent 36%
         ),
-        color-mix(in srgb, var(--color-surface) 88%, transparent);
-      padding: clamp(1.2rem, 3vw, 1.7rem);
-      box-shadow: 0 24px 54px -44px rgba(0, 0, 0, 0.62);
+        color-mix(in srgb, var(--color-surface) 90%, transparent);
+      box-shadow:
+        inset 0 1px 0 color-mix(in srgb, white 4%, transparent),
+        0 22px 48px -38px rgba(0, 0, 0, 0.5);
+    }
+
+    .home-homepage-signal-card,
+    .home-homepage-guide__item,
+    .home-homepage-lane,
+    .home-homepage-experience-card,
+    .home-homepage-reality {
+      display: grid;
+      gap: 0.75rem;
+      min-height: 100%;
+      padding: 1.15rem;
+    }
+
+    .home-homepage-signal-card__label,
+    .home-homepage-experience-card__label {
+      margin: 0;
+      color: color-mix(in srgb, var(--color-text-muted) 92%, transparent);
+      font-family: var(--font-mono);
+      font-size: 0.64rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .home-homepage-signal-card h2 {
+      font-size: clamp(1.2rem, 2vw, 1.6rem);
+    }
+
+    .home-homepage-guide__item span,
+    .home-homepage-experience-card__code,
+    .home-homepage-lane__index,
+    .home-homepage-lane__label,
+    .home-homepage-start-item span {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .home-homepage-guide__item span {
+      color: var(--color-text-primary);
+      font-size: 0.78rem;
+    }
+
+    .home-homepage-guide__item,
+    .home-homepage-lane,
+    .home-homepage-experience-card,
+    .home-homepage-start-item {
+      transition:
+        transform 0.2s ease,
+        border-color 0.2s ease,
+        background 0.2s ease;
+    }
+
+    .home-homepage-guide__item:hover,
+    .home-homepage-lane:hover,
+    .home-homepage-experience-card:hover,
+    .home-homepage-start-item:hover {
+      transform: translateY(-2px);
+      border-color: color-mix(in srgb, var(--color-primary) 28%, transparent);
+      background:
+        linear-gradient(
+          180deg,
+          color-mix(
+            in srgb,
+            var(--route-accent, var(--color-primary)) 6%,
+            transparent
+          ),
+          transparent 42%
+        ),
+        color-mix(in srgb, var(--color-surface) 94%, transparent);
+    }
+
+    .home-homepage-guide__grid,
+    .home-homepage-lanes,
+    .home-homepage-experience-grid,
+    .home-homepage-realities,
+    .home-homepage-signal-grid {
+      margin-top: 1.5rem;
+    }
+
+    .home-homepage-lane__meta,
+    .home-homepage-experience-card__topline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.8rem;
+    }
+
+    .home-homepage-lane__index,
+    .home-homepage-experience-card__code {
+      display: inline-flex;
+      min-width: 2.35rem;
+      height: 2.35rem;
+      align-items: center;
+      justify-content: center;
+      border-radius: 0.65rem;
+      border: 1px solid
+        color-mix(in srgb, var(--color-primary) 28%, transparent);
+      background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+      color: color-mix(in srgb, var(--color-text-primary) 86%, transparent);
+      font-size: 0.68rem;
+    }
+
+    .home-homepage-lane__label {
+      color: color-mix(in srgb, var(--color-text-muted) 92%, transparent);
+      font-size: 0.64rem;
+    }
+
+    .home-homepage-experience-card__meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      margin-top: auto;
+    }
+
+    .home-homepage-experience-card__meta span {
+      display: inline-flex;
+      min-height: 2rem;
+      align-items: center;
+      border-radius: 0.5rem;
+      border: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
+      padding: 0 0.72rem;
+      color: color-mix(in srgb, var(--color-text-primary) 74%, transparent);
+      font-size: 0.74rem;
+    }
+
+    .home-homepage-operating {
+      display: grid;
+      gap: 2rem;
+    }
+
+    .home-homepage-operating__signals {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .home-homepage-signal {
+      padding: 1.1rem 0;
+      border-bottom: 1px solid
+        color-mix(in srgb, var(--color-border) 68%, transparent);
+    }
+
+    .home-homepage-signal:last-child {
+      border-bottom: 0;
+    }
+
+    .home-homepage-first30 {
+      padding: 1.25rem;
     }
 
     .home-homepage-first30 ol {
@@ -1102,87 +1199,89 @@ const buyerRealities = [
       top: 0.1rem;
       left: 0;
       display: inline-flex;
-      width: 2.1rem;
-      height: 2.1rem;
+      width: 2.2rem;
+      height: 2.2rem;
       align-items: center;
       justify-content: center;
+      border-radius: 0.9rem;
       border: 1px solid
-        color-mix(in srgb, var(--color-primary) 30%, transparent);
-      border-radius: var(--radius-sm);
-      background: color-mix(in srgb, var(--color-primary) 11%, transparent);
-      color: color-mix(in srgb, var(--color-text-primary) 84%, transparent);
+        color-mix(in srgb, var(--color-primary) 28%, transparent);
+      background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+      color: color-mix(in srgb, var(--color-text-primary) 86%, transparent);
       font-family: var(--font-mono);
-      font-size: 0.66rem;
+      font-size: 0.68rem;
       font-weight: 700;
       letter-spacing: 0.08em;
     }
 
     .home-homepage-start-list {
-      border-top: 1px solid
-        color-mix(in srgb, var(--color-border) 70%, transparent);
+      display: grid;
+      gap: 0.9rem;
     }
 
     .home-homepage-start-item {
       display: grid;
       gap: 1rem;
       align-items: end;
-      padding: 1.45rem 0;
-      border-bottom: 1px solid
-        color-mix(in srgb, var(--color-border) 66%, transparent);
-      transition:
-        color 0.2s ease,
-        border-color 0.2s ease,
-        transform 0.2s ease;
+      padding: 1.2rem 1.15rem;
+      border: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
+      border-radius: 0.9rem;
+      background: color-mix(in srgb, var(--color-surface) 90%, transparent);
     }
 
     .home-homepage-start-item span {
-      color: var(--color-text-primary);
-      font-size: 0.92rem;
-      font-weight: 700;
-    }
-
-    .home-homepage-start-item:hover {
-      transform: translateX(3px);
-      border-color: color-mix(
-        in srgb,
-        var(--color-text-primary) 20%,
-        transparent
-      );
+      color: color-mix(in srgb, var(--color-primary) 78%, white 22%);
+      font-size: 0.7rem;
     }
 
     .home-homepage-closeout {
       display: grid;
       gap: 1.2rem;
-      padding-top: 0.5rem;
+      padding: clamp(1.25rem, 3vw, 1.6rem);
+      border-radius: 1rem;
+      margin-top: 0.5rem;
     }
 
-    @media (min-width: 960px) {
+    .home-homepage-closeout__copy {
+      max-width: 58ch;
+    }
+
+    @media (min-width: 900px) {
       .home-homepage-hero__shell {
-        grid-template-columns: minmax(0, 1.1fr) minmax(22rem, 31rem);
+        grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+        gap: 2rem;
+      }
+
+      .home-homepage-guide__grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
       }
 
       .home-homepage-lanes {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .home-homepage-experience-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
       .home-homepage-realities {
         grid-template-columns: repeat(3, minmax(0, 1fr));
       }
 
-      .home-homepage-guide__grid {
-        grid-template-columns: repeat(6, minmax(0, 1fr));
+      .home-homepage-signal-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
       }
 
-      .home-homepage-lane {
-        grid-template-rows: auto 1fr;
+      .home-homepage-operating__grid {
+        grid-template-columns: minmax(0, 1fr) minmax(21rem, 28rem);
       }
 
       .home-homepage-start-item {
         grid-template-columns: minmax(0, 1fr) auto;
       }
 
-      .home-homepage-operating__grid {
-        grid-template-columns: minmax(0, 1fr) minmax(21rem, 28rem);
+      .home-homepage-closing {
+        gap: 1.5rem;
       }
 
       .home-homepage-closeout {
@@ -1194,15 +1293,12 @@ const buyerRealities = [
     @media (max-width: 767px) {
       .home-homepage-hero {
         min-height: calc(100svh - 4.35rem);
+        padding-top: 0.75rem;
       }
 
       .home-homepage-title {
         max-width: 100%;
-        font-size: clamp(2.35rem, 10.8vw, 3.85rem);
-      }
-
-      .home-homepage-proof {
-        grid-template-columns: 1fr;
+        font-size: clamp(2.35rem, 11vw, 4rem);
       }
 
       .home-homepage-actions,
@@ -1210,9 +1306,49 @@ const buyerRealities = [
         flex-direction: column;
       }
 
-      .home-homepage-art-panel {
-        min-height: 30rem;
-        transform: none;
+      .home-homepage-jump-links {
+        gap: 0.6rem;
+      }
+
+      .home-homepage-jump {
+        min-height: 40px;
+        padding: 0 0.82rem;
+      }
+
+      .home-homepage-stage {
+        min-height: 23rem;
+      }
+
+      .home-homepage-stage__hud {
+        left: 0.75rem;
+        right: 0.75rem;
+        top: 0.75rem;
+        justify-content: flex-start;
+      }
+
+      .home-orbit-scene__hud {
+        display: none;
+      }
+
+      .home-homepage-scene-controls {
+        left: 0.75rem;
+        right: 0.75rem;
+        bottom: 0.75rem;
+        width: auto;
+        grid-template-columns: 1fr;
+      }
+
+      .home-homepage-scene-control {
+        display: flex;
+        min-height: 3.3rem;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+      }
+
+      .home-homepage-scene-control small {
+        margin-top: 0;
+        text-align: right;
       }
     }
   </style>

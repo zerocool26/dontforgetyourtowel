@@ -21,29 +21,29 @@
     --viewport-height: 100vh;
     --viewport-height-dynamic: 100vh;
 
-    --color-background: #111416;
-    --color-surface: #191e21;
-    --color-surface-subtle: rgba(25, 30, 33, 0.84);
-    --color-border: rgba(231, 224, 214, 0.11);
-    --color-primary: #d1b17a;
-    --color-primary-strong: #92a08f;
-    --color-success: #10b981;
-    --color-warning: #f59e0b;
-    --color-danger: #ef4444;
-    --color-text-primary: #f3eee7;
-    --color-text-secondary: #d2c9be;
-    --color-text-muted: #8f877b;
-    --color-text-inverse: #0b0d10;
-    --shadow-soft: 0 24px 52px -38px rgba(0, 0, 0, 0.58);
-    --shadow-strong: 0 40px 92px -56px rgba(0, 0, 0, 0.72);
-    --radius-sm: 8px;
-    --radius-md: 16px;
-    --radius-lg: 24px;
+    --color-background: #070806;
+    --color-surface: #111410;
+    --color-surface-subtle: rgba(17, 20, 16, 0.86);
+    --color-border: rgba(236, 231, 217, 0.14);
+    --color-primary: #d9ff5f;
+    --color-primary-strong: #67e8df;
+    --color-success: #34d399;
+    --color-warning: #f6c453;
+    --color-danger: #fb7185;
+    --color-text-primary: #f6f1e8;
+    --color-text-secondary: #cfc7b7;
+    --color-text-muted: #8e897f;
+    --color-text-inverse: #070806;
+    --shadow-soft: 0 28px 68px -42px rgba(0, 0, 0, 0.6);
+    --shadow-strong: 0 46px 110px -58px rgba(0, 0, 0, 0.76);
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
     --blur-soft: blur(14px);
     --font-sans:
       'Manrope', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
       sans-serif;
-    --font-display: 'Manrope', 'Space Grotesk', system-ui, sans-serif;
+    --font-display: 'Space Grotesk', 'Manrope', system-ui, sans-serif;
     --font-mono: 'JetBrains Mono', 'SFMono-Regular', Menlo, monospace;
     --shell-max-width: 1240px;
     --shell-gutter: clamp(1rem, 2vw, 1.5rem);
@@ -151,10 +151,26 @@
     background-image:
       radial-gradient(
         circle at 14% 0%,
-        rgba(200, 171, 119, 0.09),
+        color-mix(in srgb, var(--color-primary) 14%, transparent),
         transparent 24%
       ),
-      linear-gradient(180deg, #0f1214 0%, #121619 42%, #0f1214 100%);
+      radial-gradient(
+        circle at 86% 12%,
+        color-mix(in srgb, var(--color-primary-strong) 13%, transparent),
+        transparent 26%
+      ),
+      radial-gradient(
+        circle at 50% 100%,
+        rgba(255, 132, 92, 0.08),
+        transparent 34%
+      ),
+      linear-gradient(
+        180deg,
+        #050604 0%,
+        #0b0d09 38%,
+        #10130f 68%,
+        #060705 100%
+      );
     background-size:
       100% 100%,
       100% 100%;
@@ -176,11 +192,17 @@
     pointer-events: none;
     z-index: -1;
     opacity: 0.04;
-    background-image: radial-gradient(
-      circle at 50% 0%,
-      color-mix(in srgb, var(--color-primary) 28%, transparent),
-      transparent 60%
-    );
+    background-image:
+      radial-gradient(
+        circle at 18% 0%,
+        color-mix(in srgb, var(--color-primary) 22%, transparent),
+        transparent 52%
+      ),
+      radial-gradient(
+        circle at 82% 6%,
+        color-mix(in srgb, var(--color-primary-strong) 18%, transparent),
+        transparent 48%
+      );
   }
 
   body::after {
@@ -189,13 +211,13 @@
     inset: 0;
     pointer-events: none;
     z-index: -1;
-    opacity: 0.018;
+    opacity: 0.028;
     background-image: linear-gradient(
       180deg,
-      rgba(255, 255, 255, 0.035),
+      rgba(255, 255, 255, 0.03),
       transparent 14%,
       transparent 82%,
-      rgba(255, 255, 255, 0.02)
+      rgba(255, 255, 255, 0.018)
     );
     mix-blend-mode: normal;
   }
@@ -439,7 +461,11 @@
   }
 
   ::selection {
-    background: color-mix(in srgb, var(--color-primary) 92%, white 8%);
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--color-primary) 88%, white 12%),
+      color-mix(in srgb, var(--color-primary-strong) 28%, white 72%)
+    );
     color: var(--color-text-inverse);
   }
 
@@ -496,17 +522,21 @@
   }
 
   ::-webkit-scrollbar-track {
-    background: rgba(2, 4, 10, 0.8);
+    background: rgba(4, 9, 15, 0.88);
   }
 
   ::-webkit-scrollbar-thumb {
-    background: rgba(200, 171, 119, 0.22);
+    background: color-mix(in srgb, var(--color-primary) 38%, transparent);
     border-radius: 4px;
     transition: background 0.3s ease;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(200, 171, 119, 0.38);
+    background: color-mix(
+      in srgb,
+      var(--color-primary-strong) 48%,
+      var(--color-primary) 52%
+    );
   }
 
   h1,
@@ -724,11 +754,22 @@ header.header-hidden {
   .creative-page {
     position: relative;
     isolation: isolate;
-    background: linear-gradient(
-      180deg,
-      rgba(15, 18, 20, 0.99) 0%,
-      rgba(15, 18, 20, 1) 100%
-    );
+    background:
+      radial-gradient(
+        circle at 14% 8%,
+        color-mix(in srgb, var(--color-primary) 8%, transparent),
+        transparent 28%
+      ),
+      radial-gradient(
+        circle at 88% 18%,
+        color-mix(in srgb, var(--color-primary-strong) 8%, transparent),
+        transparent 30%
+      ),
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--color-background) 97%, white 3%) 0%,
+        var(--color-background) 100%
+      );
   }
 
   .creative-page::before {
@@ -753,12 +794,12 @@ header.header-hidden {
   }
 
   .creative-page :where(.rounded-xl, .rounded-2xl, .rounded-3xl) {
-    border-radius: 1.35rem;
+    border-radius: var(--radius-lg);
   }
 
   .creative-page :where(.before\:rounded-2xl)::before,
   .creative-page :where(.after\:rounded-2xl)::after {
-    border-radius: 1.35rem;
+    border-radius: var(--radius-lg);
   }
 
   html[data-experience-mode='editorial'] .creative-page::before {

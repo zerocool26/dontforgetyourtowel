@@ -193,7 +193,6 @@ const isTradeActiveHref = (href: string) => {
         type="button"
         aria-controls="mobile-menu"
         aria-expanded="false"
-        rounded="sm"
       >
         <span class="sr-only">Toggle navigation</span>
         <svg
@@ -512,11 +511,15 @@ const isTradeActiveHref = (href: string) => {
       const countTargets = Array.from(
         document.querySelectorAll('[data-saved-routes-count]')
       ).filter(node => node instanceof HTMLElement);
+      const pinnedRoutesStorageKey = 'olive-pinned-routes';
 
       const updateCounts = async () => {
         try {
-          const mod = await import('../utils/route-memory');
-          const count = mod.readPinnedRoutes().length;
+          const storedValue = window.localStorage.getItem(
+            pinnedRoutesStorageKey
+          );
+          const parsedValue = storedValue ? JSON.parse(storedValue) : [];
+          const count = Array.isArray(parsedValue) ? parsedValue.length : 0;
 
           buttons.forEach(button => {
             button.hidden = count === 0;

@@ -2,41 +2,162 @@ import { useEffect, useRef } from 'preact/hooks';
 import * as THREE from 'three';
 
 const palette = {
-  amber: new THREE.Color('#d1b17a'),
-  mint: new THREE.Color('#7be3d5'),
-  blue: new THREE.Color('#68a7ff'),
-  coral: new THREE.Color('#e59871'),
-  graphite: new THREE.Color('#11181b'),
+  amber: new THREE.Color('#ffb36b'),
+  mint: new THREE.Color('#73efe0'),
+  blue: new THREE.Color('#74c8ff'),
+  coral: new THREE.Color('#ff8d74'),
+  graphite: new THREE.Color('#07111a'),
 };
 
 export default function HomeOrbitScene() {
   const rootRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     const root = rootRef.current;
-    if (!root) return;
+    const canvas = canvasRef.current;
+    if (!root || !canvas) return;
+
+    const drawFallbackField = () => {
+      const width = Math.max(320, Math.round(root.clientWidth || 640));
+      const height = Math.max(260, Math.round(root.clientHeight || 460));
+      const ratio = Math.min(window.devicePixelRatio || 1, 2);
+
+      canvas.width = Math.round(width * ratio);
+      canvas.height = Math.round(height * ratio);
+      canvas.style.width = '100%';
+      canvas.style.height = '100%';
+
+      const ctx = canvas.getContext('2d', { willReadFrequently: false });
+      if (!ctx) return;
+
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+      ctx.clearRect(0, 0, width, height);
+
+      const background = ctx.createLinearGradient(0, 0, width, height);
+      background.addColorStop(0, '#070806');
+      background.addColorStop(0.5, '#10140f');
+      background.addColorStop(1, '#050706');
+      ctx.fillStyle = background;
+      ctx.fillRect(0, 0, width, height);
+
+      const field = ctx.createRadialGradient(
+        width * 0.54,
+        height * 0.42,
+        12,
+        width * 0.54,
+        height * 0.42,
+        width * 0.34
+      );
+      field.addColorStop(0, 'rgba(103, 232, 223, 0.32)');
+      field.addColorStop(0.44, 'rgba(217, 255, 95, 0.14)');
+      field.addColorStop(1, 'rgba(7, 8, 6, 0)');
+      ctx.fillStyle = field;
+      ctx.fillRect(0, 0, width, height);
+
+      ctx.strokeStyle = 'rgba(246, 241, 232, 0.075)';
+      ctx.lineWidth = 1;
+      for (let x = 0; x < width; x += 58) {
+        ctx.beginPath();
+        ctx.moveTo(x, height * 0.12);
+        ctx.lineTo(x + width * 0.08, height * 0.86);
+        ctx.stroke();
+      }
+      for (let y = Math.round(height * 0.16); y < height; y += 46) {
+        ctx.beginPath();
+        ctx.moveTo(width * 0.08, y);
+        ctx.lineTo(width * 0.92, y + Math.sin(y * 0.02) * 16);
+        ctx.stroke();
+      }
+
+      ctx.save();
+      ctx.translate(width * 0.5, height * 0.45);
+      ctx.rotate(Math.PI * 0.1);
+      ctx.strokeStyle = 'rgba(103, 232, 223, 0.78)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, width * 0.18, height * 0.11, 0, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.strokeStyle = 'rgba(217, 255, 95, 0.62)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, width * 0.25, height * 0.16, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+
+      const skylineY = height * 0.76;
+      for (let index = 0; index < 22; index += 1) {
+        const t = index / 21;
+        const barWidth = 5 + (index % 4) * 2;
+        const barHeight =
+          height *
+          (0.08 +
+            Math.pow(Math.sin(t * Math.PI), 1.45) * 0.26 +
+            (index % 7 === 0 ? 0.08 : 0));
+        const x = width * 0.12 + t * width * 0.76;
+        const bar = ctx.createLinearGradient(
+          x,
+          skylineY - barHeight,
+          x,
+          skylineY
+        );
+        bar.addColorStop(
+          0,
+          index % 2 === 0
+            ? 'rgba(217, 255, 95, 0.82)'
+            : 'rgba(103, 232, 223, 0.78)'
+        );
+        bar.addColorStop(1, 'rgba(17, 20, 16, 0.12)');
+        ctx.fillStyle = bar;
+        ctx.fillRect(x, skylineY - barHeight, barWidth, barHeight);
+      }
+
+      for (let index = 0; index < 34; index += 1) {
+        const angle = (index / 34) * Math.PI * 2;
+        const radius = width * (0.12 + (index % 5) * 0.018);
+        const x = width * 0.52 + Math.cos(angle) * radius;
+        const y = height * 0.42 + Math.sin(angle) * radius * 0.5;
+        ctx.fillStyle =
+          index % 3 === 0
+            ? 'rgba(255, 141, 116, 0.78)'
+            : 'rgba(246, 241, 232, 0.72)';
+        ctx.beginPath();
+        ctx.arc(x, y, 2.2 + (index % 3), 0, Math.PI * 2);
+        ctx.fill();
+      }
+    };
 
     const prefersReducedMotion = window.matchMedia(
       '(prefers-reduced-motion: reduce)'
     ).matches;
 
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2('#070b0d', 0.08);
+    scene.fog = new THREE.FogExp2('#051019', 0.072);
 
     const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 80);
     camera.position.set(0, 0.85, 8.4);
 
-    const renderer = new THREE.WebGLRenderer({
-      alpha: true,
-      antialias: true,
-      preserveDrawingBuffer: true,
-      powerPreference: 'high-performance',
-    });
-    renderer.setClearColor(0x000000, 0);
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({
+        canvas,
+        alpha: true,
+        antialias: true,
+        preserveDrawingBuffer: true,
+        powerPreference: 'high-performance',
+      });
+    } catch {
+      drawFallbackField();
+      window.addEventListener('resize', drawFallbackField);
+      return () => {
+        window.removeEventListener('resize', drawFallbackField);
+      };
+    }
+    renderer.setClearColor('#070806', 1);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.08;
-    root.appendChild(renderer.domElement);
     renderer.domElement.setAttribute('aria-hidden', 'true');
 
     const stage = new THREE.Group();
@@ -44,26 +165,26 @@ export default function HomeOrbitScene() {
     const signal = new THREE.Group();
     scene.add(stage, skyline, signal);
 
-    scene.add(new THREE.AmbientLight('#aeb9ad', 0.55));
+    scene.add(new THREE.AmbientLight('#c6d3e4', 0.58));
 
-    const key = new THREE.DirectionalLight('#fff0cf', 1.9);
+    const key = new THREE.DirectionalLight('#ffe3bf', 2.1);
     key.position.set(-4, 6, 5);
     scene.add(key);
 
-    const rim = new THREE.PointLight('#65f5df', 6.5, 18);
+    const rim = new THREE.PointLight('#6fe6ff', 7, 18);
     rim.position.set(3.5, 1.2, 3.8);
     scene.add(rim);
 
-    const glow = new THREE.PointLight('#f0b36e', 3.5, 16);
+    const glow = new THREE.PointLight('#ffb36b', 4.2, 16);
     glow.position.set(-3.5, -1.5, 2.6);
     scene.add(glow);
 
     const towerGeometry = new THREE.BoxGeometry(1, 1, 1);
     const towerMaterial = new THREE.MeshStandardMaterial({
-      color: '#c9b98a',
+      color: '#ffd3a1',
       roughness: 0.5,
       metalness: 0.48,
-      emissive: '#2b2014',
+      emissive: '#33200f',
       emissiveIntensity: 0.22,
     });
     const towers = new THREE.InstancedMesh(towerGeometry, towerMaterial, 96);
@@ -101,7 +222,9 @@ export default function HomeOrbitScene() {
       );
       towers.setMatrixAt(index, matrix);
 
-      color.copy(palette.amber).lerp(index % 5 === 0 ? palette.mint : palette.coral, 0.22);
+      color
+        .copy(palette.amber)
+        .lerp(index % 5 === 0 ? palette.mint : palette.coral, 0.22);
       towers.setColorAt(index, color);
     }
     towers.instanceMatrix.needsUpdate = true;
@@ -110,7 +233,7 @@ export default function HomeOrbitScene() {
 
     const deckGeometry = new THREE.PlaneGeometry(14, 5.2, 30, 8);
     const deckMaterial = new THREE.MeshBasicMaterial({
-      color: '#243032',
+      color: '#203344',
       transparent: true,
       opacity: 0.28,
       wireframe: true,
@@ -122,12 +245,12 @@ export default function HomeOrbitScene() {
     skyline.add(deck);
 
     const coreMaterial = new THREE.MeshPhysicalMaterial({
-      color: '#20292b',
+      color: '#172532',
       roughness: 0.28,
       metalness: 0.54,
       transmission: 0.16,
       thickness: 0.85,
-      emissive: '#1b4c48',
+      emissive: '#143d55',
       emissiveIntensity: 0.36,
       clearcoat: 0.8,
       clearcoatRoughness: 0.28,
@@ -142,8 +265,8 @@ export default function HomeOrbitScene() {
     const halo = new THREE.Mesh(
       new THREE.TorusKnotGeometry(1.72, 0.018, 260, 16, 3, 8),
       new THREE.MeshStandardMaterial({
-        color: '#77ead7',
-        emissive: '#5ee8da',
+        color: '#78f0ff',
+        emissive: '#63def5',
         emissiveIntensity: 1.45,
         roughness: 0.22,
         metalness: 0.2,
@@ -173,14 +296,14 @@ export default function HomeOrbitScene() {
         roughness: 0.18,
       }),
       new THREE.MeshStandardMaterial({
-        color: '#d1b17a',
-        emissive: '#d1b17a',
+        color: '#ffb36b',
+        emissive: '#ffb36b',
         emissiveIntensity: 1.25,
         roughness: 0.24,
       }),
       new THREE.MeshStandardMaterial({
-        color: '#68a7ff',
-        emissive: '#68a7ff',
+        color: '#74c8ff',
+        emissive: '#74c8ff',
         emissiveIntensity: 1.2,
         roughness: 0.2,
       }),
@@ -203,7 +326,7 @@ export default function HomeOrbitScene() {
     });
 
     const scanMaterial = new THREE.MeshBasicMaterial({
-      color: '#7be3d5',
+      color: '#78f0ff',
       transparent: true,
       opacity: 0.18,
       depthWrite: false,
@@ -298,15 +421,6 @@ export default function HomeOrbitScene() {
     };
     root.addEventListener('pointermove', onPointerMove);
 
-    let sceneMode = 0;
-    let burstUntil = 0;
-    const onPointerDown = () => {
-      sceneMode = (sceneMode + 1) % 3;
-      burstUntil = clock.getElapsedTime() + 1.25;
-      root.dataset.sceneMode = ['orbit', 'signal', 'pulse'][sceneMode];
-    };
-    root.addEventListener('pointerdown', onPointerDown);
-
     const resize = () => {
       const width = Math.max(1, root.clientWidth);
       const height = Math.max(1, root.clientHeight);
@@ -324,6 +438,28 @@ export default function HomeOrbitScene() {
     let frame = 0;
     let raf = 0;
     const clock = new THREE.Clock();
+    let sceneMode = 0;
+    let burstUntil = 0;
+    const modeNames = ['operate', 'protect', 'present'];
+
+    const setSceneMode = (mode: number) => {
+      sceneMode =
+        ((mode % modeNames.length) + modeNames.length) % modeNames.length;
+      burstUntil = clock.getElapsedTime() + 1.25;
+      root.dataset.sceneMode = modeNames[sceneMode];
+    };
+
+    const onPointerDown = () => setSceneMode(sceneMode + 1);
+    const onSceneMode = (event: Event) => {
+      const requestedMode = Number((event as CustomEvent).detail?.mode);
+      if (Number.isFinite(requestedMode)) {
+        setSceneMode(requestedMode);
+      }
+    };
+
+    root.addEventListener('pointerdown', onPointerDown);
+    window.addEventListener('home-orbit-scene:mode', onSceneMode);
+    setSceneMode(0);
 
     const render = () => {
       const elapsed = clock.getElapsedTime();
@@ -331,7 +467,8 @@ export default function HomeOrbitScene() {
       const burst = Math.max(0, burstUntil - elapsed);
       const modeEnergy = sceneMode === 1 ? 0.45 : sceneMode === 2 ? 0.78 : 0.18;
 
-      stage.rotation.y = slowTime * (0.16 + modeEnergy * 0.05) + pointer.x * 0.08;
+      stage.rotation.y =
+        slowTime * (0.16 + modeEnergy * 0.05) + pointer.x * 0.08;
       stage.rotation.x = -0.08 + pointer.y * 0.05;
       skyline.rotation.y = pointer.x * 0.035;
       signal.rotation.y = slowTime * (-0.08 - modeEnergy * 0.05);
@@ -357,8 +494,10 @@ export default function HomeOrbitScene() {
         const angle =
           beacon.userData.angle +
           slowTime * (0.22 + index * 0.006 + modeEnergy * 0.12);
-        const radius = beacon.userData.radius + Math.sin(slowTime + index) * 0.05;
-        const pulse = 1 + Math.sin(slowTime * 2.1 + index) * 0.18 + burst * 0.18;
+        const radius =
+          beacon.userData.radius + Math.sin(slowTime + index) * 0.05;
+        const pulse =
+          1 + Math.sin(slowTime * 2.1 + index) * 0.18 + burst * 0.18;
         beacon.position.set(
           Math.cos(angle) * radius,
           Math.sin(angle * 2.1 + sceneMode) * (0.28 + modeEnergy * 0.14),
@@ -368,7 +507,8 @@ export default function HomeOrbitScene() {
       });
 
       scanBars.forEach((scan, index) => {
-        const sweep = ((slowTime * (0.28 + modeEnergy * 0.18) + index * 0.23) % 1) * 12 - 6;
+        const sweep =
+          ((slowTime * (0.28 + modeEnergy * 0.18) + index * 0.23) % 1) * 12 - 6;
         scan.position.x = sweep;
         scan.material.opacity = 0.12 + modeEnergy * 0.18 + burst * 0.08;
       });
@@ -399,6 +539,7 @@ export default function HomeOrbitScene() {
       window.cancelAnimationFrame(raf);
       root.removeEventListener('pointermove', onPointerMove);
       root.removeEventListener('pointerdown', onPointerDown);
+      window.removeEventListener('home-orbit-scene:mode', onSceneMode);
       observer.disconnect();
       renderer.dispose();
       towerGeometry.dispose();
@@ -411,23 +552,20 @@ export default function HomeOrbitScene() {
       scanBars.forEach(scan => scan.geometry.dispose());
       scanMaterial.dispose();
       particleGeometry.dispose();
-      root.replaceChildren();
     };
   }, []);
 
   return (
-    <div
-      ref={rootRef}
-      className="home-orbit-scene"
-      data-testid="home-orbit-scene"
-      role="img"
-      aria-label="Animated 3D Chicago operations skyline and signal field"
-    >
-      <div className="home-orbit-scene__fallback" aria-hidden="true" />
+    <div ref={rootRef} className="home-orbit-scene" aria-hidden="true">
+      <canvas
+        ref={canvasRef}
+        className="home-orbit-scene__canvas"
+        aria-hidden="true"
+      />
       <div className="home-orbit-scene__hud" aria-hidden="true">
-        <span>Drag orbit</span>
-        <span>Tap signal</span>
-        <span>Chicago ops field</span>
+        <span>Pointer orbit</span>
+        <span>Tap modes</span>
+        <span>Live ops field</span>
       </div>
     </div>
   );

@@ -130,7 +130,7 @@ const ariaProps = { 'aria-busy': loading };
       transform, box-shadow, filter, background-color, border-color, color;
     transition-duration: 0.18s;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    backdrop-filter: none;
+    backdrop-filter: blur(12px);
   }
 
   .modern-button::before {
@@ -147,7 +147,7 @@ const ariaProps = { 'aria-busy': loading };
       rgba(255, 255, 255, 0.01) 42%,
       transparent
     );
-    opacity: 0.5;
+    opacity: 0.62;
     pointer-events: none;
   }
 
@@ -163,21 +163,37 @@ const ariaProps = { 'aria-busy': loading };
   }
 
   .modern-button--primary {
-    --button-shadow: none;
-    border-color: color-mix(in srgb, var(--color-primary) 24%, transparent);
-    background: color-mix(in srgb, var(--color-primary) 94%, #f7f3eb 6%);
-    color: #17130f;
+    --button-shadow: 0 22px 48px -30px
+      color-mix(in srgb, var(--color-primary) 52%, transparent);
+    border-color: color-mix(in srgb, var(--color-primary) 32%, transparent);
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--color-primary) 90%, white 10%),
+      color-mix(in srgb, var(--color-primary-strong) 32%, white 68%)
+    );
+    color: #061019;
   }
 
   .modern-button--primary:hover {
-    background: color-mix(in srgb, var(--color-primary) 88%, white 12%);
-    box-shadow: none;
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--color-primary) 84%, white 16%),
+      color-mix(in srgb, var(--color-primary-strong) 38%, white 62%)
+    );
+    box-shadow: 0 24px 52px -30px
+      color-mix(in srgb, var(--color-primary) 58%, transparent);
   }
 
   .modern-button--secondary {
-    --button-shadow: none;
+    --button-shadow: 0 18px 40px -34px rgba(0, 0, 0, 0.42);
     border-color: color-mix(in srgb, var(--color-border) 74%, transparent);
-    background: color-mix(in srgb, var(--color-surface) 96%, transparent);
+    background:
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, white 4%, transparent),
+        transparent 52%
+      ),
+      color-mix(in srgb, var(--color-surface) 94%, transparent);
     color: color-mix(in srgb, var(--color-text-primary) 92%, transparent);
   }
 
@@ -188,12 +204,12 @@ const ariaProps = { 'aria-busy': loading };
       transparent
     );
     background: color-mix(in srgb, var(--color-surface) 99%, white 1%);
-    box-shadow: none;
+    box-shadow: 0 20px 42px -34px rgba(0, 0, 0, 0.46);
   }
 
   .modern-button--outline {
     border-color: color-mix(in srgb, var(--color-border) 84%, transparent);
-    background: transparent;
+    background: color-mix(in srgb, var(--color-surface) 48%, transparent);
     color: color-mix(in srgb, var(--color-text-primary) 82%, transparent);
   }
 
@@ -203,7 +219,15 @@ const ariaProps = { 'aria-busy': loading };
       var(--color-text-primary) 22%,
       transparent
     );
-    background: color-mix(in srgb, var(--color-surface) 94%, transparent);
+    background: linear-gradient(
+      135deg,
+      color-mix(
+        in srgb,
+        var(--route-accent, var(--color-primary)) 8%,
+        transparent
+      ),
+      color-mix(in srgb, var(--color-surface) 92%, transparent)
+    );
     color: var(--color-text-primary);
   }
 
@@ -251,27 +275,27 @@ const ariaProps = { 'aria-busy': loading };
   }
 
   .modern-button--gradient {
-    --button-shadow: none;
+    --button-shadow: 0 24px 58px -32px rgba(0, 0, 0, 0.5);
     border-color: color-mix(in srgb, var(--color-primary) 26%, transparent);
     background: linear-gradient(
       135deg,
-      color-mix(in srgb, var(--color-primary) 92%, white 8%),
-      color-mix(in srgb, var(--color-primary-strong) 36%, white 64%)
+      color-mix(in srgb, var(--color-primary) 88%, white 12%),
+      color-mix(in srgb, var(--color-primary-strong) 68%, white 32%)
     );
-    color: #17130f;
+    color: #05111a;
   }
 
   .modern-button--gradient:hover {
     background: linear-gradient(
       135deg,
-      color-mix(in srgb, var(--color-primary) 86%, white 14%),
-      color-mix(in srgb, var(--color-primary-strong) 42%, white 58%)
+      color-mix(in srgb, var(--color-primary) 82%, white 18%),
+      color-mix(in srgb, var(--color-primary-strong) 72%, white 28%)
     );
-    box-shadow: none;
+    box-shadow: 0 26px 62px -32px rgba(0, 0, 0, 0.54);
   }
 
   .modern-button--neon {
-    --button-shadow: none;
+    --button-shadow: 0 18px 42px -34px rgba(0, 0, 0, 0.42);
     border-color: color-mix(
       in srgb,
       var(--color-primary-strong) 32%,
@@ -289,7 +313,7 @@ const ariaProps = { 'aria-busy': loading };
     border-color: color-mix(in srgb, var(--color-primary) 38%, transparent);
     background: color-mix(
       in srgb,
-      var(--color-primary-strong) 14%,
+      var(--color-primary-strong) 18%,
       transparent
     );
   }
@@ -307,8 +331,8 @@ const ariaProps = { 'aria-busy': loading };
 
   @media (hover: hover) {
     .modern-button:not(:disabled):not([aria-disabled='true']):hover {
-      transform: none;
-      filter: none;
+      transform: translateY(-1px);
+      filter: saturate(1.04);
     }
 
     .modern-button:not(:disabled):not([aria-disabled='true']):active {

@@ -1,51 +1,70 @@
 ---
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
+import {
+  photoGalleryCollections,
+  photoGalleryItems,
+  photoGalleryTags,
+} from '../data/photo-gallery';
 import { withBasePath } from '../utils/helpers';
 
-const photos = [
+const featuredPhoto =
+  photoGalleryItems.find(item => item.id === 'commerce-review-room') ||
+  photoGalleryItems[0];
+
+const collectionCopy: Record<string, string> = {
+  'Control room':
+    'Support ownership, live-service rhythm, and command-center energy.',
+  'Field texture':
+    'Infrastructure, equipment, and technical depth with real physical weight.',
+  'Inspection deck':
+    'Security posture, controls review, and incident-readiness references.',
+  'Commerce review':
+    'Buyer-facing work, demos, product sessions, and premium creative cues.',
+  'Workflow scenes':
+    'Planning, M365 cleanup, governance, delivery, and calm operating motion.',
+};
+
+const collectionHighlights = photoGalleryCollections.map(collection => ({
+  name: collection,
+  count: photoGalleryItems.filter(item => item.collection === collection)
+    .length,
+  copy:
+    collectionCopy[collection] ||
+    'Visual references tied to a live route and a real decision.',
+}));
+
+const photoStats = [
   {
-    title: 'Workspace where support becomes visible',
-    tag: 'Operations',
-    src: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=82',
+    label: 'Curated frames',
+    value: String(photoGalleryItems.length),
+    detail:
+      'Every image carries a tag, collection, note, and route-safe presentation.',
   },
   {
-    title: 'Service desk rhythm and queue ownership',
-    tag: 'Support',
-    src: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=82',
+    label: 'Collections',
+    value: String(photoGalleryCollections.length),
+    detail:
+      'Grouped around operations, infrastructure, security, workflow, and buyer-facing design.',
   },
   {
-    title: 'Network room texture',
-    tag: 'Infrastructure',
-    src: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=82',
-  },
-  {
-    title: 'Security review surface',
-    tag: 'Cybersecurity',
-    src: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1200&q=82',
-  },
-  {
-    title: 'Client-facing commerce review',
-    tag: 'Digital',
-    src: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1200&q=82',
-  },
-  {
-    title: 'Modern office handoff',
-    tag: 'Microsoft 365',
-    src: 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1200&q=82',
+    label: 'Best use',
+    value: 'Art direction with context',
+    detail:
+      'Not filler—visuals that support copy, proof, and route personality.',
   },
 ];
 
 const galleryUses = [
-  'Show the kind of workspace and infrastructure language the brand is built around',
-  'Give service pages visual references without leaning on fake dashboards or abstract stock art',
-  'Support ecommerce and portal demos with real product, operations, and review-room texture',
+  'Support services, gallery routes, and digital proof pages with imagery that feels deliberate rather than generic.',
+  'Give content and case-study sections visual context for operations, infrastructure, and buyer-facing work.',
+  'Help future page expansions keep a coherent visual system with filterable, reusable references.',
 ];
 ---
 
 <MarketingLayout
   title="Photo Gallery | Olive Chicago"
-  description="A curated photo gallery experience for systems, workspace, infrastructure, security, and digital-commerce visual references."
+  description="Curated photo gallery with filterable visual references for systems, workspace, infrastructure, security, and buyer-facing digital experiences."
   bodyClass="creative-page"
   mainClass="relative isolate overflow-x-clip"
   showFooter={true}
@@ -53,218 +72,796 @@ const galleryUses = [
   showLiveChat={false}
   showSavedRoutesDock={false}
 >
-  <section class="photo-hero" data-page-section>
+  <section class="photo-page-hero" data-page-section>
     <div class="premium-container">
-      <div class="photo-hero__grid">
-        <div class="photo-copy">
-          <p class="photo-eyebrow">Photo gallery</p>
-          <h1>Visual references for systems-minded, buyer-facing work.</h1>
-          <p>
-            A compact gallery for the textures the site is built around: support
-            ownership, infrastructure, security review, modern work, and
-            commerce paths that feel credible instead of decorative.
+      <div class="photo-page-hero__grid">
+        <div class="photo-page-copy tone-page-header">
+          <p class="tone-page-eyebrow">Photo gallery</p>
+          <h1 class="tone-page-title">
+            Visual references with real curation, not decorative filler.
+          </h1>
+          <p class="tone-page-copy">
+            This route now works like a proper image library: filter by
+            discipline, inspect individual shots, and use collection groupings
+            to understand where each visual belongs across the site.
           </p>
-          <div class="photo-actions">
-            <ModernButton href="#gallery" variant="primary">
-              View gallery
+
+          <div class="tone-page-actions">
+            <ModernButton
+              href="#photo-library"
+              variant="gradient"
+              className="min-h-[52px]"
+            >
+              Browse the library
             </ModernButton>
-            <ModernButton href={withBasePath('gallery/')} variant="outline">
-              Design gallery
+            <ModernButton
+              href={withBasePath('gallery/')}
+              variant="outline"
+              className="min-h-[52px]"
+            >
+              Open design gallery
             </ModernButton>
           </div>
         </div>
 
-        <figure class="photo-feature">
-          <img src={photos[2].src} alt="Network infrastructure reference" />
-          <figcaption>{photos[2].title}</figcaption>
+        <figure class="photo-page-feature premium-media">
+          <img
+            src={featuredPhoto.src}
+            alt={featuredPhoto.alt}
+            loading="eager"
+          />
+          <figcaption>
+            <span>{featuredPhoto.tag}</span>
+            <strong>{featuredPhoto.title}</strong>
+            <p>{featuredPhoto.note}</p>
+          </figcaption>
         </figure>
       </div>
-    </div>
-  </section>
 
-  <section class="photo-section" id="gallery" data-page-section>
-    <div class="premium-container">
-      <div class="photo-grid">
+      <div class="photo-page-stat-grid" aria-label="Photo gallery signals">
         {
-          photos.map(item => (
-            <figure class="photo-card">
-              <img src={item.src} alt={item.title} loading="lazy" />
-              <figcaption>
-                <span>{item.tag}</span>
-                <strong>{item.title}</strong>
-              </figcaption>
-            </figure>
+          photoStats.map(stat => (
+            <article class="photo-page-stat tone-panel-soft">
+              <p class="photo-page-stat__label">{stat.label}</p>
+              <h2>{stat.value}</h2>
+              <p>{stat.detail}</p>
+            </article>
           ))
         }
       </div>
     </div>
   </section>
 
-  <section class="photo-section" data-page-section>
+  <section class="photo-page-section" id="photo-library" data-page-section>
     <div class="premium-container">
-      <div class="photo-uses">
+      <div class="tone-section-heading">
+        <p class="tone-section-kicker">Library controls</p>
+        <h2 class="tone-section-title">
+          Filter by discipline and open each shot with the supporting detail.
+        </h2>
+        <p class="tone-section-copy">
+          The goal is fast mobile scanning with enough detail for art direction,
+          route planning, and future content work.
+        </p>
+      </div>
+
+      <div class="photo-page-controls" data-photo-filter-group>
+        <button
+          class="photo-page-toggle is-active"
+          type="button"
+          data-photo-filter="All"
+          aria-pressed="true"
+        >
+          All tags
+        </button>
+        {
+          photoGalleryTags.map(tag => (
+            <button
+              class="photo-page-toggle"
+              type="button"
+              data-photo-filter={tag}
+              aria-pressed="false"
+            >
+              {tag}
+            </button>
+          ))
+        }
+      </div>
+
+      <div class="photo-page-state tone-panel-soft">
         <div>
-          <p class="photo-eyebrow">Why these images belong</p>
-          <h2>Visuals should point to real work, not fill space.</h2>
+          <p class="photo-page-state__label">Current view</p>
+          <p class="photo-page-state__value" data-photo-active-state>
+            All tags • {photoGalleryItems.length} images
+          </p>
+          <p class="photo-page-state__copy" data-photo-state-copy>
+            Showing the full reference library.
+          </p>
+        </div>
+        <div class="photo-page-state__actions">
+          <button
+            type="button"
+            class="photo-page-state__button"
+            data-photo-copy-state
+          >
+            Copy filter link
+          </button>
+          <button
+            type="button"
+            class="photo-page-state__button"
+            data-photo-reset-state
+          >
+            Reset gallery
+          </button>
+        </div>
+      </div>
+
+      <div class="photo-page-grid">
+        {
+          photoGalleryItems.map(item => (
+            <button
+              type="button"
+              class="photo-page-card"
+              data-photo-card
+              data-photo-id={item.id}
+              data-photo-tag={item.tag}
+              data-photo-title={item.title}
+              data-photo-collection={item.collection}
+              data-photo-location={item.location}
+              data-photo-format={item.format}
+              data-photo-note={item.note}
+              data-photo-src={item.src}
+              data-photo-alt={item.alt}
+            >
+              <img src={item.src} alt={item.alt} loading="lazy" />
+              <span class="photo-page-card__overlay" />
+              <span class="photo-page-card__body">
+                <span class="photo-page-card__topline">
+                  <span>{item.tag}</span>
+                  <span>{item.collection}</span>
+                </span>
+                <strong>{item.title}</strong>
+                <small>
+                  {item.location} • {item.format}
+                </small>
+              </span>
+            </button>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="photo-page-section" data-page-section>
+    <div class="premium-container">
+      <div class="tone-section-heading">
+        <p class="tone-section-kicker">Collections</p>
+        <h2 class="tone-section-title">
+          Each collection supports a different kind of page work.
+        </h2>
+      </div>
+
+      <div class="photo-page-collection-grid">
+        {
+          collectionHighlights.map(collection => (
+            <article class="photo-page-collection tone-panel-soft">
+              <p class="photo-page-collection__label">{collection.name}</p>
+              <h3>{collection.count} referenced shots</h3>
+              <p>{collection.copy}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="photo-page-section" data-page-section>
+    <div class="premium-container">
+      <div class="photo-page-uses tone-cta-band">
+        <div>
+          <p class="tone-section-kicker">Why this route matters</p>
+          <h2 class="tone-section-title">
+            Visuals should support trust, hierarchy, and story—not just fill
+            space.
+          </h2>
         </div>
         <ul>
           {galleryUses.map(item => <li>{item}</li>)}
         </ul>
+        <div class="photo-page-uses__actions">
+          <ModernButton
+            href={withBasePath('gallery/')}
+            variant="outline"
+            className="min-h-[48px]"
+          >
+            Explore design studies
+          </ModernButton>
+          <ModernButton
+            href={withBasePath('contact-hq/')}
+            variant="gradient"
+            className="min-h-[48px]"
+          >
+            Plan a visual refresh
+          </ModernButton>
+        </div>
       </div>
     </div>
   </section>
+
+  <div class="photo-page-lightbox" data-photo-lightbox hidden>
+    <div class="photo-page-lightbox__scrim" data-photo-close></div>
+    <div
+      class="photo-page-lightbox__dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="photo-lightbox-title"
+    >
+      <button
+        type="button"
+        class="photo-page-lightbox__close"
+        data-photo-close
+        aria-label="Close image detail"
+      >
+        Close
+      </button>
+      <div class="photo-page-lightbox__media premium-media">
+        <img
+          data-photo-lightbox-image
+          src={featuredPhoto.src}
+          alt={featuredPhoto.alt}
+        />
+      </div>
+      <div class="photo-page-lightbox__body">
+        <p class="photo-page-lightbox__eyebrow" data-photo-lightbox-tag>
+          {featuredPhoto.tag}
+        </p>
+        <h2 id="photo-lightbox-title" data-photo-lightbox-title>
+          {featuredPhoto.title}
+        </h2>
+        <p data-photo-lightbox-note>{featuredPhoto.note}</p>
+        <div class="photo-page-lightbox__meta">
+          <span data-photo-lightbox-collection>{featuredPhoto.collection}</span>
+          <span data-photo-lightbox-location>{featuredPhoto.location}</span>
+          <span data-photo-lightbox-format>{featuredPhoto.format}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script is:inline>
+    (() => {
+      const STORAGE_KEY = 'olive-photo-gallery-state';
+      const PARAM = 'photoTag';
+
+      const initPhotoGallery = () => {
+        const cards = Array.from(
+          document.querySelectorAll('[data-photo-card]')
+        );
+        const buttons = Array.from(
+          document.querySelectorAll('[data-photo-filter]')
+        );
+        const activeState = document.querySelector('[data-photo-active-state]');
+        const stateCopy = document.querySelector('[data-photo-state-copy]');
+        const copyButton = document.querySelector('[data-photo-copy-state]');
+        const resetButton = document.querySelector('[data-photo-reset-state]');
+        const lightbox = document.querySelector('[data-photo-lightbox]');
+        const closeTriggers = Array.from(
+          document.querySelectorAll('[data-photo-close]')
+        );
+        const lightboxImage = document.querySelector(
+          '[data-photo-lightbox-image]'
+        );
+        const lightboxTag = document.querySelector('[data-photo-lightbox-tag]');
+        const lightboxTitle = document.querySelector(
+          '[data-photo-lightbox-title]'
+        );
+        const lightboxNote = document.querySelector(
+          '[data-photo-lightbox-note]'
+        );
+        const lightboxCollection = document.querySelector(
+          '[data-photo-lightbox-collection]'
+        );
+        const lightboxLocation = document.querySelector(
+          '[data-photo-lightbox-location]'
+        );
+        const lightboxFormat = document.querySelector(
+          '[data-photo-lightbox-format]'
+        );
+
+        if (
+          !(activeState instanceof HTMLElement) ||
+          !(stateCopy instanceof HTMLElement)
+        ) {
+          return;
+        }
+
+        const readStoredState = () => {
+          try {
+            const raw = window.localStorage.getItem(STORAGE_KEY);
+            return raw ? JSON.parse(raw) : null;
+          } catch {
+            return null;
+          }
+        };
+
+        const getInitialFilter = () => {
+          const params = new URLSearchParams(window.location.search);
+          return params.get(PARAM) || readStoredState()?.tag || 'All';
+        };
+
+        let activeFilter = getInitialFilter();
+
+        const syncButtons = () => {
+          buttons.forEach(button => {
+            if (!(button instanceof HTMLButtonElement)) return;
+            const isActive =
+              (button.dataset.photoFilter || 'All') === activeFilter;
+            button.classList.toggle('is-active', isActive);
+            button.setAttribute('aria-pressed', String(isActive));
+          });
+        };
+
+        const syncUrl = () => {
+          const url = new URL(window.location.href);
+          if (activeFilter === 'All') {
+            url.searchParams.delete(PARAM);
+          } else {
+            url.searchParams.set(PARAM, activeFilter);
+          }
+
+          window.history.replaceState({}, '', url.toString());
+
+          try {
+            window.localStorage.setItem(
+              STORAGE_KEY,
+              JSON.stringify({ tag: activeFilter })
+            );
+          } catch {
+            // ignore
+          }
+        };
+
+        const render = () => {
+          let visibleCount = 0;
+
+          cards.forEach(card => {
+            if (!(card instanceof HTMLElement)) return;
+            const isVisible =
+              activeFilter === 'All' || card.dataset.photoTag === activeFilter;
+
+            card.hidden = !isVisible;
+            if (isVisible) visibleCount += 1;
+          });
+
+          const filterLabel =
+            activeFilter === 'All' ? 'All tags' : activeFilter;
+          activeState.textContent = `${filterLabel} • ${visibleCount} image${visibleCount === 1 ? '' : 's'}`;
+          stateCopy.textContent =
+            activeFilter === 'All'
+              ? 'Showing the full reference library.'
+              : `Showing only ${activeFilter.toLowerCase()} references.`;
+
+          syncButtons();
+          syncUrl();
+        };
+
+        function openLightbox(card) {
+          if (
+            !(lightbox instanceof HTMLElement) ||
+            !(lightboxImage instanceof HTMLImageElement) ||
+            !(lightboxTag instanceof HTMLElement) ||
+            !(lightboxTitle instanceof HTMLElement) ||
+            !(lightboxNote instanceof HTMLElement) ||
+            !(lightboxCollection instanceof HTMLElement) ||
+            !(lightboxLocation instanceof HTMLElement) ||
+            !(lightboxFormat instanceof HTMLElement)
+          ) {
+            return;
+          }
+
+          lightbox.hidden = false;
+          document.body.style.overflow = 'hidden';
+          lightboxImage.src = card.dataset.photoSrc || '';
+          lightboxImage.alt = card.dataset.photoAlt || '';
+          lightboxTag.textContent = card.dataset.photoTag || '';
+          lightboxTitle.textContent = card.dataset.photoTitle || '';
+          lightboxNote.textContent = card.dataset.photoNote || '';
+          lightboxCollection.textContent = card.dataset.photoCollection || '';
+          lightboxLocation.textContent = card.dataset.photoLocation || '';
+          lightboxFormat.textContent = card.dataset.photoFormat || '';
+        }
+
+        const closeLightbox = () => {
+          if (!(lightbox instanceof HTMLElement)) return;
+          lightbox.hidden = true;
+          document.body.style.overflow = '';
+        };
+
+        buttons.forEach(button => {
+          if (!(button instanceof HTMLButtonElement)) return;
+          button.addEventListener('click', () => {
+            activeFilter = button.dataset.photoFilter || 'All';
+            render();
+          });
+        });
+
+        cards.forEach(card => {
+          if (!(card instanceof HTMLButtonElement)) return;
+          card.addEventListener('click', () => openLightbox(card));
+        });
+
+        closeTriggers.forEach(trigger => {
+          if (!(trigger instanceof HTMLElement)) return;
+          trigger.addEventListener('click', closeLightbox);
+        });
+
+        if (copyButton instanceof HTMLButtonElement) {
+          copyButton.addEventListener('click', async () => {
+            try {
+              await navigator.clipboard.writeText(window.location.href);
+              copyButton.textContent = 'Copied';
+            } catch {
+              copyButton.textContent = 'Unavailable';
+            }
+
+            window.setTimeout(() => {
+              copyButton.textContent = 'Copy filter link';
+            }, 1200);
+          });
+        }
+
+        if (resetButton instanceof HTMLButtonElement) {
+          resetButton.addEventListener('click', () => {
+            activeFilter = 'All';
+            render();
+          });
+        }
+
+        window.addEventListener('keydown', event => {
+          if (event.key === 'Escape') {
+            closeLightbox();
+          }
+        });
+
+        render();
+      };
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initPhotoGallery, {
+          once: true,
+        });
+      } else {
+        initPhotoGallery();
+      }
+
+      document.addEventListener('astro:page-load', initPhotoGallery);
+    })();
+  </script>
+
+  <style>
+    .photo-page-hero,
+    .photo-page-section {
+      padding: clamp(4.5rem, 8vw, 7rem) 0;
+      border-bottom: 1px solid
+        color-mix(in srgb, var(--color-border) 70%, transparent);
+    }
+
+    .photo-page-hero {
+      padding-top: clamp(5.6rem, 8vw, 7.4rem);
+    }
+
+    .photo-page-hero__grid,
+    .photo-page-stat-grid,
+    .photo-page-grid,
+    .photo-page-collection-grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .photo-page-feature {
+      margin: 0;
+      min-height: 24rem;
+    }
+
+    .photo-page-feature figcaption {
+      position: absolute;
+      inset: auto 0 0;
+      z-index: 2;
+      display: grid;
+      gap: 0.45rem;
+      padding: 1.25rem;
+      background: linear-gradient(180deg, transparent, rgba(4, 9, 15, 0.88));
+      color: var(--color-text-primary);
+    }
+
+    .photo-page-feature figcaption span,
+    .photo-page-lightbox__eyebrow,
+    .photo-page-stat__label,
+    .photo-page-state__label,
+    .photo-page-collection__label {
+      margin: 0;
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: color-mix(in srgb, var(--color-text-muted) 92%, transparent);
+    }
+
+    .photo-page-feature figcaption strong,
+    .photo-page-stat h2,
+    .photo-page-state__value,
+    .photo-page-collection h3,
+    .photo-page-lightbox__body h2 {
+      margin: 0;
+      color: var(--color-text-primary);
+      font-family: var(--font-display);
+      font-weight: 650;
+      line-height: 1.04;
+      letter-spacing: 0;
+      text-wrap: balance;
+    }
+
+    .photo-page-stat,
+    .photo-page-state,
+    .photo-page-collection,
+    .photo-page-uses {
+      padding: 1.2rem;
+      border-radius: 1.4rem;
+    }
+
+    .photo-page-stat,
+    .photo-page-collection {
+      display: grid;
+      gap: 0.65rem;
+    }
+
+    .photo-page-stat p,
+    .photo-page-state__copy,
+    .photo-page-collection p,
+    .photo-page-uses li,
+    .photo-page-lightbox__body p {
+      margin: 0;
+      color: color-mix(in srgb, var(--color-text-secondary) 96%, transparent);
+      line-height: 1.68;
+    }
+
+    .photo-page-controls,
+    .photo-page-state,
+    .photo-page-state__actions,
+    .photo-page-uses__actions,
+    .photo-page-lightbox__meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .photo-page-controls,
+    .photo-page-state,
+    .photo-page-grid,
+    .photo-page-collection-grid,
+    .photo-page-uses {
+      margin-top: 1.5rem;
+    }
+
+    .photo-page-toggle,
+    .photo-page-state__button,
+    .photo-page-lightbox__close {
+      display: inline-flex;
+      min-height: 44px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      border: 1px solid color-mix(in srgb, var(--color-border) 74%, transparent);
+      background: color-mix(in srgb, var(--color-surface) 90%, transparent);
+      padding: 0.75rem 1rem;
+      color: color-mix(in srgb, var(--color-text-primary) 82%, transparent);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      transition:
+        transform 0.2s ease,
+        border-color 0.2s ease,
+        background 0.2s ease;
+    }
+
+    .photo-page-toggle.is-active {
+      border-color: color-mix(in srgb, var(--color-primary) 28%, transparent);
+      background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+      color: var(--color-text-primary);
+    }
+
+    .photo-page-toggle:hover,
+    .photo-page-state__button:hover,
+    .photo-page-lightbox__close:hover {
+      transform: translateY(-1px);
+      border-color: color-mix(in srgb, var(--color-primary) 32%, transparent);
+    }
+
+    .photo-page-state {
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .photo-page-grid {
+      grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+
+    .photo-page-card {
+      position: relative;
+      overflow: hidden;
+      min-height: 18rem;
+      border: 1px solid color-mix(in srgb, var(--color-border) 74%, transparent);
+      border-radius: 1.45rem;
+      background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+      padding: 0;
+      text-align: left;
+      box-shadow: 0 24px 52px -38px rgba(0, 0, 0, 0.56);
+      transition:
+        transform 0.2s ease,
+        border-color 0.2s ease;
+    }
+
+    .photo-page-card img,
+    .photo-page-lightbox__media img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .photo-page-card__overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        180deg,
+        transparent 24%,
+        rgba(4, 9, 15, 0.88)
+      );
+      pointer-events: none;
+    }
+
+    .photo-page-card__body {
+      position: absolute;
+      inset: auto 0 0;
+      z-index: 2;
+      display: grid;
+      gap: 0.45rem;
+      padding: 1rem;
+    }
+
+    .photo-page-card__topline {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      color: color-mix(in srgb, var(--color-text-primary) 76%, transparent);
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .photo-page-card strong,
+    .photo-page-card small {
+      display: block;
+    }
+
+    .photo-page-card strong {
+      color: var(--color-text-primary);
+      font-size: 1.02rem;
+      line-height: 1.24;
+      text-wrap: balance;
+    }
+
+    .photo-page-card small {
+      color: color-mix(in srgb, var(--color-text-secondary) 88%, transparent);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+
+    .photo-page-card:hover {
+      transform: translateY(-2px);
+      border-color: color-mix(in srgb, var(--color-primary) 28%, transparent);
+    }
+
+    .photo-page-uses {
+      display: grid;
+      gap: 1.1rem;
+    }
+
+    .photo-page-uses ul {
+      display: grid;
+      gap: 0.85rem;
+      margin: 0;
+      padding-left: 1.1rem;
+    }
+
+    .photo-page-lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: grid;
+      place-items: center;
+      padding: 1rem;
+    }
+
+    .photo-page-lightbox__scrim {
+      position: absolute;
+      inset: 0;
+      background: rgba(4, 9, 15, 0.84);
+      backdrop-filter: blur(18px);
+    }
+
+    .photo-page-lightbox__dialog {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      gap: 1rem;
+      width: min(100%, 72rem);
+      max-height: min(92vh, 60rem);
+      overflow: auto;
+      border: 1px solid color-mix(in srgb, var(--color-border) 76%, transparent);
+      border-radius: 1.6rem;
+      background: color-mix(in srgb, var(--color-surface) 96%, transparent);
+      padding: 1rem;
+      box-shadow: 0 32px 80px -40px rgba(0, 0, 0, 0.82);
+    }
+
+    .photo-page-lightbox__media {
+      min-height: 18rem;
+    }
+
+    .photo-page-lightbox__body {
+      display: grid;
+      gap: 0.85rem;
+    }
+
+    .photo-page-lightbox__meta span {
+      display: inline-flex;
+      min-height: 2rem;
+      align-items: center;
+      border-radius: 999px;
+      border: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
+      padding: 0 0.8rem;
+      color: color-mix(in srgb, var(--color-text-primary) 78%, transparent);
+      font-size: 0.8rem;
+    }
+
+    @media (min-width: 900px) {
+      .photo-page-hero__grid {
+        grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+        align-items: end;
+      }
+
+      .photo-page-stat-grid,
+      .photo-page-collection-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .photo-page-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .photo-page-card:nth-child(1),
+      .photo-page-card:nth-child(5) {
+        grid-column: span 2;
+      }
+
+      .photo-page-lightbox__dialog {
+        grid-template-columns: minmax(0, 1.05fr) minmax(20rem, 0.95fr);
+        align-items: start;
+      }
+    }
+
+    @media (max-width: 767px) {
+      .photo-page-state,
+      .photo-page-uses__actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+  </style>
 </MarketingLayout>
-
-<style>
-  .photo-hero,
-  .photo-section {
-    padding: clamp(4.5rem, 8vw, 7rem) 0;
-    border-bottom: 1px solid
-      color-mix(in srgb, var(--color-border) 70%, transparent);
-  }
-
-  .photo-hero {
-    padding-top: clamp(6rem, 9vw, 8rem);
-  }
-
-  .photo-hero__grid,
-  .photo-grid {
-    display: grid;
-    gap: 1rem;
-  }
-
-  .photo-copy {
-    display: grid;
-    gap: 0.9rem;
-    max-width: 46rem;
-  }
-
-  .photo-eyebrow,
-  .photo-card span {
-    margin: 0;
-    color: color-mix(in srgb, var(--color-text-muted) 90%, transparent);
-    font-family: var(--font-mono);
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-  }
-
-  .photo-copy h1 {
-    max-width: 17ch;
-    margin: 0;
-    color: var(--color-text-primary);
-    font-family: var(--font-display);
-    font-size: clamp(2.2rem, 5vw, 4.5rem);
-    font-weight: 650;
-    line-height: 1;
-    letter-spacing: 0;
-    text-wrap: balance;
-  }
-
-  .photo-uses {
-    display: grid;
-    gap: 1.25rem;
-    border-top: 1px solid
-      color-mix(in srgb, var(--color-border) 70%, transparent);
-    padding-top: 1.25rem;
-  }
-
-  .photo-uses h2 {
-    max-width: 16ch;
-    margin: 0.5rem 0 0;
-    color: var(--color-text-primary);
-    font-family: var(--font-display);
-    font-size: clamp(1.5rem, 3vw, 3rem);
-    font-weight: 650;
-    line-height: 1.03;
-    letter-spacing: 0;
-    text-wrap: balance;
-  }
-
-  .photo-uses ul {
-    display: grid;
-    gap: 0.9rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .photo-uses li {
-    padding-bottom: 0.9rem;
-    border-bottom: 1px solid
-      color-mix(in srgb, var(--color-border) 66%, transparent);
-    color: color-mix(in srgb, var(--color-text-secondary) 94%, transparent);
-    line-height: 1.65;
-  }
-
-  .photo-copy p {
-    margin: 0;
-    color: color-mix(in srgb, var(--color-text-secondary) 94%, transparent);
-    font-size: 1rem;
-    line-height: 1.7;
-  }
-
-  .photo-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-  }
-
-  .photo-feature,
-  .photo-card {
-    position: relative;
-    overflow: hidden;
-    margin: 0;
-    border: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
-    border-radius: var(--radius-sm);
-    background: color-mix(in srgb, var(--color-surface) 82%, transparent);
-  }
-
-  .photo-feature img,
-  .photo-card img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    min-height: 18rem;
-    object-fit: cover;
-  }
-
-  .photo-feature figcaption,
-  .photo-card figcaption {
-    position: absolute;
-    inset: auto 0 0;
-    display: grid;
-    gap: 0.3rem;
-    padding: 1rem;
-    background: linear-gradient(180deg, transparent, rgba(5, 8, 9, 0.82));
-    color: var(--color-text-primary);
-  }
-
-  .photo-card strong,
-  .photo-feature figcaption {
-    font-size: 1rem;
-    font-weight: 700;
-  }
-
-  @media (min-width: 960px) {
-    .photo-hero__grid {
-      grid-template-columns: minmax(0, 1fr) minmax(22rem, 35rem);
-      align-items: end;
-    }
-
-    .photo-grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
-    .photo-uses {
-      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
-      align-items: start;
-    }
-
-    .photo-card:nth-child(1),
-    .photo-card:nth-child(4) {
-      grid-column: span 2;
-    }
-  }
-</style>

@@ -1137,11 +1137,7 @@ export default function EcommerceShowcase() {
     announceShowcase(
       `Buyer proof updated. ${completedReviewMilestones} of ${reviewMilestones.length} checks complete. ${completedTitles}.`
     );
-  }, [
-    completedReviewMilestones,
-    hasHydrated,
-    reviewMilestones,
-  ]);
+  }, [completedReviewMilestones, hasHydrated, reviewMilestones]);
 
   const bundleProducts = useMemo(() => {
     const cartProducts = cartLines
@@ -1943,7 +1939,7 @@ export default function EcommerceShowcase() {
             aria-hidden="true"
           />
           <div
-            class="safe-area-inset-bottom absolute inset-x-0 bottom-0 max-h-[92vh] rounded-t-lg border border-white/10 bg-zinc-950/95 md:inset-0 md:m-auto md:max-h-[84vh] md:w-[min(980px,92vw)] md:rounded-lg"
+            class="fixed inset-4 max-h-[calc(100vh-2rem)] rounded-lg border border-white/10 bg-zinc-950/95"
             role="dialog"
             aria-modal="true"
             aria-label="Compare products"
@@ -2155,7 +2151,7 @@ export default function EcommerceShowcase() {
             aria-hidden="true"
           />
           <div
-            class="safe-area-inset-bottom absolute inset-x-0 bottom-0 max-h-[92vh] rounded-t-lg border border-white/10 bg-zinc-950/95 md:inset-0 md:m-auto md:max-h-[84vh] md:w-[min(980px,92vw)] md:rounded-lg"
+            class="fixed inset-4 max-h-[calc(100vh-2rem)] rounded-lg border border-white/10 bg-zinc-950/95"
             role="dialog"
             aria-modal="true"
             aria-label={`${quickViewProduct.name} quick view`}
@@ -2414,7 +2410,7 @@ export default function EcommerceShowcase() {
             aria-hidden="true"
           />
           <div
-            class="safe-area-inset-bottom absolute inset-x-0 bottom-0 max-h-[92vh] rounded-t-3xl border border-white/10 bg-zinc-950/95 md:inset-y-0 md:left-auto md:right-0 md:w-[min(520px,92vw)] md:rounded-l-3xl md:rounded-tr-none"
+            class="safe-area-inset-bottom fixed inset-x-0 bottom-0 max-h-[92vh] rounded-t-3xl border border-white/10 bg-zinc-950/95 md:inset-y-0 md:left-auto md:right-0 md:w-[min(520px,92vw)] md:rounded-l-3xl md:rounded-tr-none"
             role="dialog"
             aria-modal="true"
             aria-label="Shopping cart"
