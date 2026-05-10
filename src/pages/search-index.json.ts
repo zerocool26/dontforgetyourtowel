@@ -56,7 +56,7 @@ export async function GET() {
     },
     {
       id: 'page-about',
-      title: 'Experience Lab',
+      title: 'E Commerce Demo',
       description:
         'Interactive experience lab with search, compare, cart persistence, and checkout simulation',
       category: 'Page',
@@ -72,7 +72,7 @@ export async function GET() {
     },
     {
       id: 'page-about-demo-cart',
-      title: 'Experience Lab — Cart Launch',
+      title: 'E Commerce Demo - Cart Launch',
       description: 'Open the ecommerce demo directly into cart mode',
       category: 'Page',
       url: 'about/?demo=cart#shop-experience',
@@ -80,7 +80,7 @@ export async function GET() {
     },
     {
       id: 'page-about-demo-compare',
-      title: 'Experience Lab — Compare Launch',
+      title: 'E Commerce Demo - Compare Launch',
       description: 'Open the ecommerce demo with compare mode active',
       category: 'Page',
       url: 'about/?demo=compare#shop-experience',
@@ -88,7 +88,7 @@ export async function GET() {
     },
     {
       id: 'page-about-demo-checkout',
-      title: 'Experience Lab — Checkout Launch',
+      title: 'E Commerce Demo - Checkout Launch',
       description: 'Open the ecommerce demo in checkout simulation mode',
       category: 'Page',
       url: 'about/?demo=checkout&product=aurora-hoodie#shop-experience',

@@ -169,7 +169,7 @@ const BASE_COMMANDS: CommandItem[] = [
   },
   {
     id: 'nav-about',
-    label: 'Open Experience Lab',
+    label: 'Open E Commerce Demo',
     icon: User,
     action: () => navigate(withBasePath('about/')),
     category: 'Navigation',

@@ -1,11 +1,9 @@
 ---
-import { BASE_PATH, CONTACT_EMAIL, SITE_TITLE } from '../consts';
+import { BASE_PATH, SITE_TITLE } from '../consts';
 import { withBasePath } from '../utils/helpers';
 import { tradeProfiles } from '../data/trades';
 import { getTradeVisual } from '../data/trade-visuals';
 import { getRouteContext } from '../utils/route-context';
-import ModernButton from './ui/ModernButton.astro';
-import ChicagoSkyline from './ChicagoSkyline.astro';
 
 const homeHref = withBasePath('/');
 const mobileSiteTitle = SITE_TITLE.replace(/\s+Systems$/i, '');
@@ -13,7 +11,7 @@ const mobileSiteTitle = SITE_TITLE.replace(/\s+Systems$/i, '');
 const links = [
   { label: 'Solutions', href: withBasePath('services/') },
   { label: 'Pricing', href: withBasePath('pricing/') },
-  { label: 'Experience', href: withBasePath('about/') },
+  { label: 'E Commerce Demo', href: withBasePath('about/') },
   { label: 'Contact', href: withBasePath('contact-hq/') },
 ];
 
@@ -22,10 +20,6 @@ const tradeLinks = tradeProfiles.map(trade => ({
   href: withBasePath(`trades/${trade.slug}/`),
   accent: trade.accent,
 }));
-
-const startProjectHref = `mailto:${encodeURIComponent(
-  CONTACT_EMAIL
-)}?subject=${encodeURIComponent('Strategy intake — Olive Global Systems')}`;
 
 const normalizePath = (value: string) => {
   const strippedBase =
@@ -36,17 +30,9 @@ const normalizePath = (value: string) => {
 
 const currentPath = normalizePath(Astro.url.pathname);
 const routeContext = getRouteContext(Astro.url.pathname);
-const isHomePage = currentPath === '/';
 const isTradePage =
   currentPath === '/trades' || currentPath.startsWith('/trades/');
-const homePriorityLinkLabels = new Set(['Solutions', 'Pricing', 'Contact']);
-const headerLinks = isHomePage
-  ? links.filter(link => homePriorityLinkLabels.has(link.label))
-  : links;
-const compactContextLinks = routeContext.suggestions.slice(
-  0,
-  isTradePage ? 2 : 2
-);
+const headerLinks = links;
 
 const searchTriggerClasses =
   'header-action tone-focus-accent inline-flex min-h-[46px] items-center gap-2 rounded-[0.95rem] px-3.5 text-sm font-medium transition';
@@ -122,46 +108,24 @@ const isTradeActiveHref = (href: string) => {
         >
           {SITE_TITLE}
         </span>
-        {
-          !isHomePage ? (
-            <span class="header-route-pill mt-1 hidden sm:inline-flex">
-              {routeContext.currentCategory}
-            </span>
-          ) : null
-        }
       </div>
     </a>
 
-    {
-      isHomePage ? (
-        <div class="header-nav-cityline" aria-hidden="true">
-          <span class="header-nav-cityline__copy">
-            Chicago-area managed IT, security, cloud, and digital systems
-          </span>
-          <ChicagoSkyline
-            className="header-nav-cityline__art"
-            style="width:min(100%,28rem);height:2.4rem;"
-          />
-        </div>
-      ) : null
-    }
-
     <div class="hidden h-full items-center lg:flex">
       {
-        !isHomePage &&
-          (() => {
-            const active = isActiveHref(homeHref);
-            return (
-              <a
-                class={`${desktopNavLinkClasses} ${active ? 'is-active' : ''}`}
-                href={homeHref}
-                data-astro-prefetch
-                aria-current={active ? 'page' : undefined}
-              >
-                Home
-              </a>
-            );
-          })()
+        (() => {
+          const active = isActiveHref(homeHref);
+          return (
+            <a
+              class={`${desktopNavLinkClasses} ${active ? 'is-active' : ''}`}
+              href={homeHref}
+              data-astro-prefetch
+              aria-current={active ? 'page' : undefined}
+            >
+              Home
+            </a>
+          );
+        })()
       }
       {
         headerLinks.map(link => {
@@ -220,21 +184,11 @@ const isTradeActiveHref = (href: string) => {
         <span>Search</span>
         <kbd class="tone-kbd rounded px-1.5 py-0.5 text-[10px]"> Ctrl/⌘ K </kbd>
       </button>
-      <div class="tone-border h-6 w-px"></div>
-      <ModernButton
-        variant="primary"
-        className="text-[0.76rem] font-semibold uppercase tracking-[0.12em]"
-        rounded="sm"
-        href={startProjectHref}
-      >
-        Start Intake
-      </ModernButton>
     </div>
 
     <div class="flex flex-shrink-0 items-center gap-2 lg:hidden">
-      <ModernButton
-        variant="outline"
-        className="tone-border tone-surface tone-muted min-h-touch min-w-touch flex h-12 w-12 touch-manipulation items-center justify-center p-0 hover:border-white/20 hover:text-white"
+      <button
+        class="tone-border tone-surface tone-muted tone-focus-accent min-h-touch min-w-touch flex h-12 w-12 touch-manipulation items-center justify-center rounded-lg p-0 transition hover:border-white/20 hover:text-white"
         id="mobile-menu-button"
         type="button"
         aria-controls="mobile-menu"
@@ -254,7 +208,7 @@ const isTradeActiveHref = (href: string) => {
             stroke-linejoin="miter"
             stroke-width="1.5"></path>
         </svg>
-      </ModernButton>
+      </button>
     </div>
   </nav>
 
@@ -300,54 +254,6 @@ const isTradeActiveHref = (href: string) => {
             })}
           </div>
         </nav>
-      </div>
-    ) : null
-  }
-
-  {
-    !isHomePage ? (
-      <div class="hidden border-t border-white/[0.05] lg:block">
-        <div class="mx-auto max-w-[1400px] px-4 py-2.5 sm:px-6 lg:px-8">
-          <div class="header-context-compact flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <div class="flex min-w-0 items-start gap-3">
-              <span
-                class="mt-0.5 inline-flex flex-shrink-0 rounded-full border px-2.5 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-white/80"
-                style="border-color: color-mix(in srgb, var(--header-route-accent) 30%, rgba(255,255,255,0.08)); background: color-mix(in srgb, var(--header-route-accent) 8%, rgba(255,255,255,0.03));"
-              >
-                {routeContext.currentCategory}
-              </span>
-              <div class="min-w-0">
-                <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
-                  <p class="truncate text-sm font-semibold text-white sm:text-[0.95rem]">
-                    {routeContext.currentTitle}
-                  </p>
-                  <span class="text-white/34 text-[0.62rem] font-semibold uppercase tracking-[0.12em]">
-                    {routeContext.kicker}
-                  </span>
-                </div>
-                <p class="text-white/48 mt-1 hidden max-w-3xl truncate text-[0.92rem] leading-relaxed xl:block">
-                  {routeContext.currentDescription}
-                </p>
-              </div>
-            </div>
-
-            <div class="flex gap-2 overflow-x-auto pb-1 scrollbar-hide md:max-w-[31rem] md:justify-end">
-              {compactContextLinks.map(link => (
-                <a
-                  href={link.href}
-                  class="header-context-compact__link min-w-[9rem] flex-1 rounded-[0.95rem] border border-white/10 bg-white/[0.03] px-3 py-2 transition hover:border-white/20 hover:bg-white/[0.05] md:min-w-0 md:flex-none"
-                >
-                  <span class="block text-[0.78rem] font-semibold text-white">
-                    {link.label}
-                  </span>
-                  <span class="text-white/46 mt-0.5 hidden text-[0.72rem] leading-relaxed lg:block">
-                    {link.detail}
-                  </span>
-                </a>
-              ))}
-            </div>
-          </div>
-        </div>
       </div>
     ) : null
   }
@@ -415,12 +321,6 @@ const isTradeActiveHref = (href: string) => {
           </div>
         ) : null
       }
-      <a
-        class="tone-focus-accent min-h-touch flex touch-manipulation items-center rounded-lg bg-white px-3 py-3 font-semibold text-slate-900 transition hover:bg-slate-100"
-        href={startProjectHref}
-      >
-        Book strategy intake
-      </a>
     </div>
   </div>
 </header>
@@ -450,52 +350,9 @@ const isTradeActiveHref = (href: string) => {
     content: none;
   }
 
-  .header-nav-shell > :not(.header-nav-cityline) {
+  .header-nav-shell > * {
     position: relative;
     z-index: 2;
-  }
-
-  .header-nav-cityline {
-    position: absolute;
-    z-index: 1;
-    inset: auto 5rem 0.24rem 11.5rem;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    gap: 0.9rem;
-    overflow: hidden;
-    min-width: 0;
-    pointer-events: none;
-    color: color-mix(in srgb, var(--color-primary) 70%, white 30%);
-    opacity: 0.72;
-    mask-image: linear-gradient(
-      90deg,
-      transparent,
-      black 16%,
-      black 82%,
-      transparent
-    );
-  }
-
-  .header-nav-cityline__copy {
-    flex: 0 0 auto;
-    margin-bottom: 0.42rem;
-    color: color-mix(in srgb, var(--color-text-muted) 76%, transparent);
-    font-family: var(--font-sans);
-    font-size: 0.55rem;
-    font-weight: 700;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-  }
-
-  .header-nav-cityline__art {
-    display: block;
-    flex: 1 1 18rem;
-    max-width: 28rem;
-    --skyline-width: min(100%, 28rem);
-    --skyline-height: 2.4rem;
-    width: min(100%, 28rem);
-    height: 2.4rem;
   }
 
   .header-brand-mark {
@@ -591,47 +448,6 @@ const isTradeActiveHref = (href: string) => {
     box-shadow: inset 0 1px 0 color-mix(in srgb, white 4%, transparent);
   }
 
-  .header-route-pill {
-    display: inline-flex;
-    min-height: 1.45rem;
-    align-items: center;
-    border-radius: 999px;
-    border: 1px solid
-      color-mix(in srgb, var(--header-route-accent) 28%, transparent);
-    background: color-mix(
-      in srgb,
-      var(--header-route-accent) 12%,
-      rgba(255, 255, 255, 0.03)
-    );
-    padding: 0 0.55rem;
-    font-family: var(--font-sans);
-    font-size: 0.58rem;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.78);
-  }
-
-  .header-context-compact {
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 1.1rem;
-    background: rgba(255, 255, 255, 0.015);
-    padding: 0.72rem 0.9rem;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
-  }
-
-  .header-context-compact__link {
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
-    transition:
-      transform 0.2s ease,
-      border-color 0.2s ease,
-      background-color 0.2s ease;
-  }
-
-  .header-context-compact__link:hover {
-    transform: translateY(-1px);
-  }
-
   .header-mobile-link {
     color: color-mix(in srgb, var(--color-text-primary) 76%, transparent);
   }
@@ -656,28 +472,6 @@ const isTradeActiveHref = (href: string) => {
         transparent 46%
       );
     box-shadow: none;
-  }
-
-  @media (max-width: 1023px) {
-    .header-nav-cityline {
-      inset: auto 4.25rem 0.18rem 7rem;
-      justify-content: flex-end;
-      opacity: 0.5;
-      mask-image: linear-gradient(90deg, transparent, black 24%);
-    }
-
-    .header-nav-cityline__copy {
-      display: none;
-    }
-
-    .header-nav-cityline__art {
-      flex-basis: 13rem;
-      max-width: 13rem;
-      --skyline-width: min(100%, 13rem);
-      --skyline-height: 2.15rem;
-      width: min(100%, 13rem);
-      height: 2.15rem;
-    }
   }
 </style>
 

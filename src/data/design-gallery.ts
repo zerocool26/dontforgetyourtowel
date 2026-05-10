@@ -133,7 +133,7 @@ export const galleryInstallations: GalleryInstallation[] = [
       { label: 'Read', value: 'Comfort continuity' },
       { label: 'Signal', value: 'TAB aware' },
     ],
-    sourceLabel: 'Open Experience Lab',
+    sourceLabel: 'Open E Commerce Demo',
     sourceHref: withBasePath('about/'),
     size: 'standard',
   },

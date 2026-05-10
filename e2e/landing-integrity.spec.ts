@@ -10,11 +10,12 @@ test.describe('Landing page integrity', () => {
     await expect(
       page.getByRole('heading', {
         level: 1,
-        name: /Support that answers/i,
+        name: /Olive Global Systems Chicago managed IT/i,
       })
+    ).toBeAttached();
+    await expect(
+      page.locator('[data-testid="home-orbit-scene"]')
     ).toBeVisible();
-    await expect(page.getByText(/Olive OS/i)).toBeVisible();
-    await expect(page.getByText(/Chicago \/ managed layer/i)).toBeVisible();
 
     const heroBox = await hero.boundingBox();
     expect(heroBox?.height ?? 0).toBeGreaterThanOrEqual(620);
@@ -57,7 +58,9 @@ test.describe('Landing page integrity', () => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('./');
 
-    await expect(page.locator('.home-homepage-art-panel')).toBeVisible();
+    await expect(
+      page.locator('[data-testid="home-orbit-scene"] canvas')
+    ).toBeVisible();
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - window.innerWidth
     );
@@ -73,11 +76,11 @@ test.describe('Landing page integrity', () => {
     await expect(
       page.getByRole('heading', {
         level: 1,
-        name: /Support that answers/i,
+        name: /Olive Global Systems Chicago managed IT/i,
       })
-    ).toBeVisible();
+    ).toBeAttached();
     await expect(
-      page.getByRole('link', { name: /Start strategy intake/i })
+      page.locator('[data-testid="home-orbit-scene"] canvas')
     ).toBeVisible();
 
     const overflow = await page.evaluate(

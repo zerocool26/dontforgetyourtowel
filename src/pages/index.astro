@@ -1,7 +1,7 @@
 ---
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
-import ChicagoSkyline from '../components/ChicagoSkyline.astro';
+import HomeOrbitScene from '../components/home/HomeOrbitScene';
 import { CONTACT_EMAIL } from '../consts';
 import { withBasePath } from '../utils/helpers';
 
@@ -37,27 +37,6 @@ const serviceLanes = [
     title: 'A digital front door that feels as strong as the backend',
     copy: 'Selective website, portal, and client-facing work for firms whose presentation needs to match the quality of their operations.',
     href: withBasePath('about/'),
-  },
-];
-
-const outcomePoints = [
-  'One partner for support, security, Microsoft 365, and infrastructure decisions',
-  'A Chicago-specific service story that reads clearly on mobile',
-  'A sharper first impression before the first sales or intake call',
-];
-
-const proofMetrics = [
-  {
-    value: '30',
-    label: 'day operating baseline',
-  },
-  {
-    value: '4',
-    label: 'service lanes, one accountable model',
-  },
-  {
-    value: '0',
-    label: 'generic handoff theater',
   },
 ];
 
@@ -115,111 +94,10 @@ const startOptions = [
   showSavedRoutesDock={false}
 >
   <section class="home-homepage-hero" id="landing-hero" data-page-section>
-    <div class="premium-container">
-      <div class="home-homepage-hero__shell">
-        <div class="home-homepage-hero__copy">
-          <p class="home-homepage-eyebrow">
-            Chicago managed IT and cybersecurity
-          </p>
-          <h1 class="home-homepage-title">
-            <span>Support that answers.</span>
-            <span>Security that holds.</span>
-            <span>A sharper Chicago front door.</span>
-          </h1>
-          <p class="home-homepage-copy">
-            Managed IT, cybersecurity, Microsoft 365, cloud, backup, networking,
-            and selective digital systems for Chicago-area teams that need
-            technology to feel organized again.
-          </p>
-
-          <div class="home-homepage-actions">
-            <ModernButton
-              href={contactHref}
-              variant="primary"
-              className="min-h-[54px]"
-            >
-              Start strategy intake
-            </ModernButton>
-            <ModernButton
-              href={withBasePath('services/')}
-              variant="outline"
-              className="min-h-[54px]"
-            >
-              Explore services
-            </ModernButton>
-          </div>
-
-          <ul class="home-homepage-outcomes" aria-label="Primary outcomes">
-            {outcomePoints.map(item => <li>{item}</li>)}
-          </ul>
-
-          <div class="home-homepage-proof" aria-label="Operating proof points">
-            {
-              proofMetrics.map(metric => (
-                <div class="home-homepage-proof__item">
-                  <span>{metric.value}</span>
-                  <p>{metric.label}</p>
-                </div>
-              ))
-            }
-          </div>
-        </div>
-
-        <div class="home-homepage-hero__art" aria-hidden="true">
-          <div class="home-homepage-art-panel">
-            <div class="home-homepage-art-panel__plate">
-              <span>Olive OS</span>
-              <span>Chicago / managed layer</span>
-            </div>
-
-            <div class="home-homepage-art-map">
-              <div class="home-homepage-art-map__track"></div>
-              <div
-                class="home-homepage-art-node home-homepage-art-node--operate"
-              >
-                <span>01</span>
-                <strong>Operate</strong>
-                <small>Tickets, endpoints, vendors</small>
-              </div>
-              <div
-                class="home-homepage-art-node home-homepage-art-node--protect"
-              >
-                <span>02</span>
-                <strong>Protect</strong>
-                <small>Identity, email, backup</small>
-              </div>
-              <div
-                class="home-homepage-art-node home-homepage-art-node--modernize"
-              >
-                <span>03</span>
-                <strong>Modernize</strong>
-                <small>M365, cloud, workflow</small>
-              </div>
-              <div
-                class="home-homepage-art-node home-homepage-art-node--present"
-              >
-                <span>04</span>
-                <strong>Present</strong>
-                <small>Portal, web, proof</small>
-              </div>
-            </div>
-
-            <div class="home-homepage-art-panel__skyline">
-              <ChicagoSkyline
-                className="home-homepage-skyline"
-                style="width:min(100%,30rem);height:4.2rem;"
-              />
-            </div>
-
-            <div class="home-homepage-art-panel__meta">
-              <p>Support signal</p>
-              <p>Risk baseline</p>
-              <p>Roadmap clarity</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <h1 class="sr-only">
+      Olive Global Systems Chicago managed IT and cybersecurity
+    </h1>
+    <HomeOrbitScene client:only="preact" />
   </section>
 
   <section class="home-homepage-section" id="services" data-page-section>
@@ -367,10 +245,9 @@ const startOptions = [
     }
 
     .home-homepage-hero {
-      min-height: min(800px, calc(100svh - 1rem));
-      display: grid;
-      align-items: center;
-      padding-top: clamp(6rem, 8vw, 7.25rem);
+      min-height: calc(100svh - 4.35rem);
+      overflow: hidden;
+      padding: 0;
       border-bottom: 1px solid
         color-mix(in srgb, var(--color-border) 72%, transparent);
       background:
@@ -434,6 +311,52 @@ const startOptions = [
           transparent 49%
         );
       mix-blend-mode: screen;
+    }
+
+    :global(.home-orbit-scene) {
+      position: relative;
+      z-index: 1;
+      display: block;
+      width: 100%;
+      min-height: calc(100svh - 4.35rem);
+      background:
+        radial-gradient(
+          ellipse at 50% 45%,
+          color-mix(in srgb, #7be3d5 13%, transparent),
+          transparent 34%
+        ),
+        radial-gradient(
+          ellipse at 50% 100%,
+          color-mix(in srgb, #d1b17a 12%, transparent),
+          transparent 42%
+        );
+    }
+
+    :global(.home-orbit-scene canvas) {
+      display: block;
+      width: 100%;
+      height: 100%;
+      min-height: calc(100svh - 4.35rem);
+      outline: none;
+    }
+
+    :global(.home-orbit-scene__fallback) {
+      position: absolute;
+      inset: 0;
+      opacity: 0.34;
+      background:
+        linear-gradient(
+          90deg,
+          transparent,
+          color-mix(in srgb, var(--color-primary) 18%, transparent),
+          transparent
+        ),
+        repeating-linear-gradient(
+          90deg,
+          transparent 0 36px,
+          color-mix(in srgb, var(--color-border) 32%, transparent) 36px 37px
+        );
+      pointer-events: none;
     }
 
     .home-homepage-hero__shell {
@@ -1028,7 +951,7 @@ const startOptions = [
 
     @media (max-width: 767px) {
       .home-homepage-hero {
-        padding-top: calc(5.8rem + env(safe-area-inset-top));
+        min-height: calc(100svh - 4.35rem);
       }
 
       .home-homepage-title {

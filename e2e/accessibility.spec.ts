@@ -10,10 +10,12 @@ test.describe('Accessibility', () => {
     await expect(
       page.getByRole('heading', {
         level: 1,
-        name: /support that answers/i,
+        name: /Olive Global Systems Chicago managed IT/i,
       })
+    ).toBeAttached();
+    await expect(
+      page.locator('[data-testid="home-orbit-scene"]')
     ).toBeVisible();
-    await expect(page.getByText(/Olive OS/i)).toBeVisible();
 
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])

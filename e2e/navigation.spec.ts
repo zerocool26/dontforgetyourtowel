@@ -29,12 +29,14 @@ test.describe('Navigation', () => {
     await expect(page).toHaveURL(/.*\/pricing\/?$/);
     await expect(page.locator('main')).toBeVisible();
 
-    // Experience page from the full inner-page navigation
+    // E Commerce Demo page from the full navigation
     if (isMobile) {
       const mobileMenu = await openMobileMenuIfNeeded();
-      await mobileMenu!.getByRole('link', { name: /^experience$/i }).click();
+      await mobileMenu!
+        .getByRole('link', { name: /^e commerce demo$/i })
+        .click();
     } else {
-      await headerNav.getByRole('link', { name: /^experience$/i }).click();
+      await headerNav.getByRole('link', { name: /^e commerce demo$/i }).click();
     }
     await expect(page).toHaveURL(/.*\/about\/?$/);
 

@@ -2262,7 +2262,22 @@ header.header-hidden {
   .tone-page-hero {
     position: relative;
     overflow: clip;
-    padding-top: clamp(1rem, 2vw, 1.5rem);
+    padding-top: clamp(0.5rem, 1.2vw, 1rem);
+    background:
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--color-surface) 34%, transparent),
+        transparent 64%
+      ),
+      radial-gradient(
+        ellipse at 80% 0%,
+        color-mix(
+          in srgb,
+          var(--route-accent, var(--color-primary)) 10%,
+          transparent
+        ),
+        transparent 34%
+      );
   }
 
   .tone-page-hero::before {
@@ -2285,7 +2300,7 @@ header.header-hidden {
         color-mix(in srgb, var(--color-primary-strong) 5%, transparent),
         transparent 24%
       );
-    opacity: 0.72;
+    opacity: 0.54;
   }
 
   .tone-page-hero__inner {
@@ -2300,7 +2315,7 @@ header.header-hidden {
   }
 
   .tone-page-header {
-    max-width: 44rem;
+    max-width: 56rem;
   }
 
   .tone-section-heading {
@@ -2323,19 +2338,20 @@ header.header-hidden {
     margin: 0;
     color: var(--color-text-primary);
     font-family: var(--font-display);
-    font-weight: 700;
+    font-weight: 650;
     letter-spacing: 0;
-    line-height: 0.96;
+    line-height: 1.02;
     text-wrap: balance;
   }
 
   .tone-page-title {
-    font-size: clamp(2.7rem, 5.8vw, 5rem);
-    max-width: 11ch;
+    max-width: 18ch;
+    font-size: clamp(2rem, 4.2vw, 3.65rem);
   }
 
   .tone-section-title {
-    font-size: clamp(1.9rem, 3.7vw, 3.1rem);
+    max-width: 19ch;
+    font-size: clamp(1.65rem, 3vw, 2.45rem);
   }
 
   .tone-page-copy,
