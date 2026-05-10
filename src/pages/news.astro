@@ -78,6 +78,54 @@ const newsDesk = [
   },
 ];
 
+const briefingBuilder = [
+  {
+    beat: 'Operations',
+    signal:
+      'Recurring tickets are becoming a management issue, not a help desk issue.',
+    question: 'Which recurring support pattern should become roadmap work?',
+    angle:
+      'Turn noisy ticket history into an executive brief about ownership, standards, and the first operating fix.',
+    actions: [
+      'Review ticket themes',
+      'Name the owner',
+      'Publish the first fix',
+    ],
+  },
+  {
+    beat: 'Security',
+    signal: 'Insurance and leadership are asking for proof, not tool names.',
+    question: 'Which control can be evidenced this month?',
+    angle:
+      'Frame identity, endpoint, email, and backup controls as evidence habits rather than abstract security spend.',
+    actions: [
+      'Check MFA posture',
+      'Verify backup proof',
+      'Document response path',
+    ],
+  },
+  {
+    beat: 'Microsoft 365',
+    signal: 'Collaboration sprawl is making normal work harder to govern.',
+    question: 'Which Teams or SharePoint rule would remove the most confusion?',
+    angle:
+      'Show how tenant cleanup improves speed, access confidence, search, retention, and everyday operating clarity.',
+    actions: ['Map guest access', 'Review stale sites', 'Set lifecycle rules'],
+  },
+  {
+    beat: 'Digital systems',
+    signal: 'The buyer-facing path is not keeping up with the service quality.',
+    question: 'Which screen most affects trust or conversion?',
+    angle:
+      'Connect visual craft to the actual buying path: mobile clarity, proof, intake, product detail, and follow-through.',
+    actions: [
+      'Audit mobile path',
+      'Find proof gaps',
+      'Prototype the key screen',
+    ],
+  },
+];
+
 const editorialActions = [
   {
     title: 'Read the blog',
@@ -221,6 +269,56 @@ const editorialActions = [
             </article>
           ))
         }
+      </div>
+    </div>
+  </section>
+
+  <section class="news-section" id="brief-builder" data-page-section>
+    <div class="premium-container">
+      <div class="news-brief-shell tone-panel-soft">
+        <div class="tone-section-heading">
+          <p class="tone-section-kicker">Brief builder</p>
+          <h2 class="tone-section-title">
+            Turn a beat into a useful operator briefing.
+          </h2>
+          <p class="tone-section-copy">
+            Current content systems work harder when the page lets visitors
+            switch context, compare editorial angles, and understand what would
+            actually be worth publishing next.
+          </p>
+        </div>
+
+        <div class="news-brief-controls" aria-label="Choose a briefing beat">
+          {
+            briefingBuilder.map((brief, index) => (
+              <button
+                type="button"
+                class:list={['news-brief-button', index === 0 && 'is-active']}
+                data-news-brief-button
+                data-news-brief-beat={brief.beat}
+                data-news-brief-signal={brief.signal}
+                data-news-brief-question={brief.question}
+                data-news-brief-angle={brief.angle}
+                data-news-brief-actions={brief.actions.join('|')}
+                aria-pressed={index === 0 ? 'true' : 'false'}
+              >
+                {brief.beat}
+              </button>
+            ))
+          }
+        </div>
+
+        <article class="news-brief-panel" aria-live="polite">
+          <p class="news-meta-kicker" data-news-brief-active-beat>
+            {briefingBuilder[0].beat}
+          </p>
+          <h3 data-news-brief-question>{briefingBuilder[0].question}</h3>
+          <p data-news-brief-signal>{briefingBuilder[0].signal}</p>
+          <p data-news-brief-angle>{briefingBuilder[0].angle}</p>
+          <div class="news-brief-actions" data-news-brief-actions>
+            {briefingBuilder[0].actions.map(action => <span>{action}</span>)}
+          </div>
+        </article>
       </div>
     </div>
   </section>
@@ -385,15 +483,76 @@ const editorialActions = [
       });
     };
 
+    const initNewsBriefBuilder = () => {
+      const buttons = Array.from(
+        document.querySelectorAll('[data-news-brief-button]')
+      );
+      const activeBeat = document.querySelector(
+        '[data-news-brief-active-beat]'
+      );
+      const question = document.querySelector('[data-news-brief-question]');
+      const signal = document.querySelector('[data-news-brief-signal]');
+      const angle = document.querySelector('[data-news-brief-angle]');
+      const actions = document.querySelector('[data-news-brief-actions]');
+
+      if (
+        !(activeBeat instanceof HTMLElement) ||
+        !(question instanceof HTMLElement) ||
+        !(signal instanceof HTMLElement) ||
+        !(angle instanceof HTMLElement) ||
+        !(actions instanceof HTMLElement)
+      ) {
+        return;
+      }
+
+      if (activeBeat.dataset.newsBriefBound === 'true') {
+        return;
+      }
+
+      activeBeat.dataset.newsBriefBound = 'true';
+
+      buttons.forEach(button => {
+        if (!(button instanceof HTMLButtonElement)) return;
+        button.addEventListener('click', () => {
+          buttons.forEach(item => {
+            if (!(item instanceof HTMLButtonElement)) return;
+            const isActive = item === button;
+            item.classList.toggle('is-active', isActive);
+            item.setAttribute('aria-pressed', String(isActive));
+          });
+
+          activeBeat.textContent = button.dataset.newsBriefBeat || '';
+          question.textContent = button.dataset.newsBriefQuestion || '';
+          signal.textContent = button.dataset.newsBriefSignal || '';
+          angle.textContent = button.dataset.newsBriefAngle || '';
+          actions.innerHTML = '';
+
+          (button.dataset.newsBriefActions || '')
+            .split('|')
+            .filter(Boolean)
+            .forEach(action => {
+              const chip = document.createElement('span');
+              chip.textContent = action;
+              actions.appendChild(chip);
+            });
+        });
+      });
+    };
+
+    const initNewsPage = () => {
+      initNewsPlayer();
+      initNewsBriefBuilder();
+    };
+
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initNewsPlayer, {
+      document.addEventListener('DOMContentLoaded', initNewsPage, {
         once: true,
       });
     } else {
-      initNewsPlayer();
+      initNewsPage();
     }
 
-    document.addEventListener('astro:page-load', initNewsPlayer);
+    document.addEventListener('astro:page-load', initNewsPage);
   })();
 </script>
 
@@ -411,6 +570,8 @@ const editorialActions = [
 
   .news-hero__grid,
   .news-episode-list,
+  .news-brief-controls,
+  .news-brief-actions,
   .news-advisory-grid,
   .news-desk-grid,
   .news-editorial-cta__grid {
@@ -419,6 +580,7 @@ const editorialActions = [
   }
 
   .news-player,
+  .news-brief-shell,
   .news-advisory-shell,
   .news-desk-card,
   .news-editorial-cta {
@@ -439,6 +601,7 @@ const editorialActions = [
   }
 
   .news-player h2,
+  .news-brief-panel h3,
   .news-episode h3,
   .news-advisory-card h3,
   .news-editorial-link h3,
@@ -452,6 +615,7 @@ const editorialActions = [
   }
 
   .news-player p,
+  .news-brief-panel p,
   .news-episode p,
   .news-advisory-card p,
   .news-desk-card p,
@@ -463,6 +627,8 @@ const editorialActions = [
   }
 
   .news-player,
+  .news-brief-shell,
+  .news-brief-panel,
   .news-advisory-shell,
   .news-editorial-cta {
     display: grid;
@@ -512,6 +678,9 @@ const editorialActions = [
   }
 
   .news-player__chapters span,
+  .news-brief-button,
+  .news-brief-panel,
+  .news-brief-actions span,
   .news-episode,
   .news-advisory-card,
   .news-editorial-link,
@@ -528,6 +697,63 @@ const editorialActions = [
     padding: 0 0.8rem;
     color: color-mix(in srgb, var(--color-text-primary) 82%, transparent);
     font-size: 0.78rem;
+  }
+
+  .news-brief-shell {
+    padding: clamp(1.2rem, 3vw, 1.8rem);
+  }
+
+  .news-brief-controls {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+
+  .news-brief-button {
+    display: inline-flex;
+    min-height: 48px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-surface) 88%, transparent);
+    color: color-mix(in srgb, var(--color-text-primary) 80%, transparent);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    transition:
+      transform 0.2s ease,
+      border-color 0.2s ease,
+      background 0.2s ease;
+  }
+
+  .news-brief-button:hover,
+  .news-brief-button.is-active {
+    transform: translateY(-1px);
+    border-color: color-mix(in srgb, var(--color-primary) 30%, transparent);
+    background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+    color: var(--color-text-primary);
+  }
+
+  .news-brief-panel {
+    border-radius: 1.25rem;
+    background: color-mix(in srgb, var(--color-surface) 88%, transparent);
+    padding: 1rem;
+  }
+
+  .news-brief-actions {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
+
+  .news-brief-actions span {
+    display: inline-flex;
+    min-height: 2.25rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    padding: 0 0.8rem;
+    color: color-mix(in srgb, var(--color-text-primary) 82%, transparent);
+    font-size: 0.78rem;
+    text-align: center;
   }
 
   .news-episode,

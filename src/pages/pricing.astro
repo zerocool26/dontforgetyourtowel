@@ -139,8 +139,33 @@ const scopeBoundaries = [
   },
 ];
 
+const approvalPack = [
+  {
+    role: 'Finance',
+    concern: 'Why does this recurring cost belong in the budget?',
+    answer:
+      'Tie the plan to fewer escalations, cleaner onboarding, lower interruption cost, security evidence, and a visible support rhythm.',
+    artifacts: ['Plan range', 'Cost drivers', 'ROI model'],
+  },
+  {
+    role: 'Operations',
+    concern: 'What gets better in the first 30 to 90 days?',
+    answer:
+      'Show the stabilization work: access cleanup, endpoint standards, support routing, backup verification, and recurring-ticket reduction.',
+    artifacts: ['First-phase scope', 'SLA matrix', 'Quote prep'],
+  },
+  {
+    role: 'Security',
+    concern: 'What evidence proves risk is being handled?',
+    answer:
+      'Map identity, endpoint, email, backup, response habits, and compliance pressure to specific ownership and reporting outputs.',
+    artifacts: ['Baseline controls', 'Insurance notes', 'Restore proof'],
+  },
+];
+
 const pricingSections = [
   { label: 'Plans', href: '#plans' },
+  { label: 'Approval', href: '#approval-pack' },
   { label: 'SLA matrix', href: '#sla' },
   { label: 'Scope examples', href: '#scope-examples' },
   { label: 'Boundaries', href: '#scope-boundaries' },
@@ -294,6 +319,65 @@ const pricingSections = [
             </ModernCard>
           ))
         }
+      </div>
+    </div>
+  </section>
+
+  <section class="tone-section-divider border-b" id="approval-pack" data-reveal>
+    <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
+      <div class="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
+        <div class="tone-section-heading">
+          <p class="tone-section-kicker">Approval pack</p>
+          <h2 class="tone-section-title">
+            Pricing pages should help buyers defend the number internally.
+          </h2>
+          <p class="tone-section-copy">
+            A polished plan card is not enough. The page now translates pricing
+            into the questions finance, operations, and security usually ask
+            before a real approval happens.
+          </p>
+          <ModernButton
+            href="#estimate"
+            variant="secondary"
+            className="min-h-[48px]"
+          >
+            Model the impact
+          </ModernButton>
+        </div>
+
+        <div class="grid gap-4">
+          {
+            approvalPack.map(item => (
+              <ModernCard variant="glass" className="p-6">
+                <div class="grid gap-5 md:grid-cols-[0.28fr_0.72fr] md:items-start">
+                  <div>
+                    <p class="font-mono text-[0.64rem] uppercase tracking-[0.2em] text-white/45">
+                      Stakeholder
+                    </p>
+                    <p class="mt-3 text-xl font-semibold text-white">
+                      {item.role}
+                    </p>
+                  </div>
+                  <div>
+                    <h3 class="text-lg font-semibold leading-tight text-white">
+                      {item.concern}
+                    </h3>
+                    <p class="mt-3 text-sm leading-7 text-slate-300">
+                      {item.answer}
+                    </p>
+                    <div class="mt-5 flex flex-wrap gap-2">
+                      {item.artifacts.map(artifact => (
+                        <span class="tone-chip-soft rounded-full px-3 py-1.5 text-xs font-medium text-slate-200">
+                          {artifact}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </ModernCard>
+            ))
+          }
+        </div>
       </div>
     </div>
   </section>

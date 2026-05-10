@@ -29,21 +29,6 @@ const heroSignals = [
   },
 ];
 
-const sceneModes = [
-  {
-    label: 'Operate',
-    detail: 'Support rhythm',
-  },
-  {
-    label: 'Protect',
-    detail: 'Security posture',
-  },
-  {
-    label: 'Present',
-    detail: 'Digital proof',
-  },
-];
-
 const siteGuide = [
   {
     label: 'Solutions',
@@ -213,23 +198,45 @@ const startOptions = [
   showSavedRoutesDock={false}
 >
   <section class="home-homepage-hero" id="landing-hero" data-page-section>
-    <div class="premium-container home-homepage-hero__shell">
-      <div class="home-homepage-hero__copy">
+    <div class="home-homepage-stage home-homepage-stage--full">
+      <div
+        class="home-homepage-stage__scene"
+        data-testid="home-orbit-scene"
+        data-home-orbit-root
+        role="img"
+        aria-label="Interactive 3D operations field showing managed IT, security, and digital proof"
+      >
+        <canvas
+          class="home-orbit-scene__canvas"
+          data-home-orbit-canvas
+          aria-hidden="true"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <section
+    class="home-homepage-section home-homepage-section--intro"
+    id="home-intro"
+    data-page-section
+  >
+    <div class="premium-container home-homepage-intro__grid">
+      <div class="home-homepage-section__intro">
         <p class="home-homepage-eyebrow">
           Chicago managed IT + expressive digital systems
         </p>
         <h1 class="home-homepage-title">
-          Olive Chicago managed IT, shown like the work actually moves.
+          Olive Chicago managed IT for the operating layer and the public front
+          door.
         </h1>
         <p class="home-homepage-copy">
           Support, cybersecurity, Microsoft 365, cloud, backup, networking, and
-          selective web systems for teams that want the operating layer and the
-          public front door to feel designed by the same serious people.
+          selective web systems for teams that want less drag inside the
+          business and a sharper first impression outside it.
         </p>
         <p class="home-homepage-claim">
-          The web can finally explain complex service work with live spatial
-          interfaces instead of another stack of stock cards. This one maps the
-          service model as a moving field: operate, protect, present.
+          The first screen is a live spatial model because code can now explain
+          complex service work without another wall of generic cards. The rest
+          of the page turns that motion into fit, scope, proof, and a next step.
         </p>
 
         <div class="home-homepage-actions">
@@ -270,64 +277,16 @@ const startOptions = [
         </div>
       </div>
 
-      <div class="home-homepage-hero__visual">
-        <div class="home-homepage-stage">
-          <div
-            class="home-homepage-stage__scene"
-            data-testid="home-orbit-scene"
-            data-home-orbit-root
-            role="img"
-            aria-label="Interactive 3D operations field showing managed IT, security, and digital proof"
-          >
-            <canvas
-              class="home-orbit-scene__canvas"
-              data-home-orbit-canvas
-              aria-hidden="true"></canvas>
-            <div class="home-orbit-scene__hud" aria-hidden="true">
-              <span>Pointer orbit</span>
-              <span>Tap modes</span>
-              <span>Live ops field</span>
-            </div>
-          </div>
-          <div class="home-homepage-stage__hud">
-            <p>3D service field</p>
-            <span>Pointer orbit</span>
-            <span>Tap or choose a mode</span>
-          </div>
-          <div
-            class="home-homepage-scene-controls"
-            aria-label="Change 3D service focus"
-          >
-            {
-              sceneModes.map((mode, index) => (
-                <button
-                  type="button"
-                  class={`home-homepage-scene-control ${index === 0 ? 'is-active' : ''}`}
-                  data-home-scene-mode={index}
-                  aria-pressed={index === 0 ? 'true' : 'false'}
-                >
-                  <span>{mode.label}</span>
-                  <small>{mode.detail}</small>
-                </button>
-              ))
-            }
-          </div>
-        </div>
-
-        <div
-          class="home-homepage-signal-grid"
-          aria-label="Landing proof signals"
-        >
-          {
-            heroSignals.map(signal => (
-              <article class="home-homepage-signal-card">
-                <p class="home-homepage-signal-card__label">{signal.label}</p>
-                <h2>{signal.value}</h2>
-                <p>{signal.detail}</p>
-              </article>
-            ))
-          }
-        </div>
+      <div class="home-homepage-signal-grid" aria-label="Landing proof signals">
+        {
+          heroSignals.map(signal => (
+            <article class="home-homepage-signal-card">
+              <p class="home-homepage-signal-card__label">{signal.label}</p>
+              <h2>{signal.value}</h2>
+              <p>{signal.detail}</p>
+            </article>
+          ))
+        }
       </div>
     </div>
   </section>
@@ -581,46 +540,6 @@ const startOptions = [
     </div>
   </section>
 
-  <script is:inline>
-    (() => {
-      const bindSceneControls = () => {
-        const controls = Array.from(
-          document.querySelectorAll('[data-home-scene-mode]')
-        ).filter(node => node instanceof HTMLButtonElement);
-
-        controls.forEach(control => {
-          if (control.dataset.sceneBound === '1') return;
-          control.dataset.sceneBound = '1';
-          control.addEventListener('click', () => {
-            const mode = Number(control.dataset.homeSceneMode || 0);
-
-            controls.forEach(item => {
-              const isActive = item === control;
-              item.classList.toggle('is-active', isActive);
-              item.setAttribute('aria-pressed', isActive ? 'true' : 'false');
-            });
-
-            window.dispatchEvent(
-              new CustomEvent('home-orbit-scene:mode', {
-                detail: { mode },
-              })
-            );
-          });
-        });
-      };
-
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', bindSceneControls, {
-          once: true,
-        });
-      } else {
-        bindSceneControls();
-      }
-
-      document.addEventListener('astro:page-load', bindSceneControls);
-    })();
-  </script>
-
   <script>
     import '../scripts/home-orbit-scene';
   </script>
@@ -635,27 +554,29 @@ const startOptions = [
     }
 
     .home-homepage-hero {
+      isolation: isolate;
+      overflow: hidden;
       min-height: calc(100svh - 4.35rem);
-      padding-top: clamp(1rem, 2vw, 1.5rem);
+      padding: 0;
       background:
         radial-gradient(
-          circle at 8% 6%,
-          color-mix(in srgb, var(--color-primary) 16%, transparent),
-          transparent 28%
+          circle at 50% 46%,
+          color-mix(in srgb, var(--color-primary-strong) 13%, transparent),
+          transparent 34%
         ),
         radial-gradient(
-          circle at 92% 18%,
-          color-mix(in srgb, var(--color-primary-strong) 16%, transparent),
-          transparent 30%
+          circle at 22% 18%,
+          color-mix(in srgb, var(--color-primary) 12%, transparent),
+          transparent 32%
         ),
         linear-gradient(
           180deg,
-          color-mix(in srgb, var(--color-surface) 42%, transparent),
-          transparent 66%
+          color-mix(in srgb, var(--color-background) 92%, black 8%),
+          color-mix(in srgb, var(--color-surface) 66%, black 34%)
         );
     }
 
-    .home-homepage-hero__shell,
+    .home-homepage-intro__grid,
     .home-homepage-operating__grid,
     .home-homepage-closing,
     .home-homepage-guide__grid,
@@ -667,20 +588,25 @@ const startOptions = [
       gap: 1rem;
     }
 
-    .home-homepage-hero__shell {
-      align-items: end;
-    }
-
-    .home-homepage-hero__copy,
     .home-homepage-section__intro,
     .home-homepage-closing__intro {
       display: grid;
       gap: 0.95rem;
     }
 
-    .home-homepage-hero__copy {
-      max-width: 42rem;
-      padding-top: clamp(1rem, 3vw, 2rem);
+    .home-homepage-section--intro {
+      background:
+        linear-gradient(
+          180deg,
+          color-mix(in srgb, var(--color-background) 94%, transparent),
+          transparent 72%
+        ),
+        color-mix(in srgb, var(--color-surface) 24%, transparent);
+    }
+
+    .home-homepage-intro__grid {
+      align-items: start;
+      gap: clamp(1.25rem, 3vw, 2rem);
     }
 
     .home-homepage-eyebrow {
@@ -713,8 +639,8 @@ const startOptions = [
     }
 
     .home-homepage-title {
-      max-width: 12ch;
-      font-size: clamp(2.85rem, 6vw, 5.8rem);
+      max-width: 15ch;
+      font-size: clamp(2.35rem, 5.2vw, 5.2rem);
     }
 
     .home-homepage-section__title,
@@ -814,6 +740,27 @@ const startOptions = [
         0 34px 84px -58px rgba(0, 0, 0, 0.86);
     }
 
+    .home-homepage-stage--full {
+      position: absolute;
+      inset: 0;
+      min-height: 100%;
+      border: 0;
+      border-radius: 0;
+      background:
+        radial-gradient(
+          circle at 50% 42%,
+          color-mix(in srgb, var(--color-primary-strong) 18%, transparent),
+          transparent 29%
+        ),
+        radial-gradient(
+          circle at 50% 52%,
+          color-mix(in srgb, var(--color-primary) 10%, transparent),
+          transparent 45%
+        ),
+        color-mix(in srgb, var(--color-background) 96%, black 4%);
+      box-shadow: none;
+    }
+
     .home-homepage-stage::before {
       content: '';
       position: absolute;
@@ -835,18 +782,57 @@ const startOptions = [
       opacity: 0.38;
     }
 
+    .home-homepage-stage--full::before {
+      background-size: clamp(2.7rem, 6vw, 5rem) clamp(2.7rem, 6vw, 5rem);
+      mask-image: radial-gradient(
+        circle at 50% 48%,
+        rgba(0, 0, 0, 0.86),
+        transparent 76%
+      );
+      opacity: 0.42;
+    }
+
+    .home-homepage-stage--full::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      background:
+        radial-gradient(
+          circle at 50% 44%,
+          transparent 0 34%,
+          rgba(7, 8, 6, 0.08) 56%,
+          rgba(7, 8, 6, 0.72) 100%
+        ),
+        linear-gradient(
+          180deg,
+          rgba(7, 8, 6, 0.18),
+          transparent 24%,
+          transparent 72%,
+          rgba(7, 8, 6, 0.42)
+        );
+    }
+
     .home-homepage-stage__scene {
       position: absolute;
       inset: 0;
       overflow: hidden;
+      cursor: grab;
+      touch-action: manipulation;
     }
 
     .home-homepage-stage__scene {
       z-index: 1;
     }
 
+    .home-homepage-stage__scene:active {
+      cursor: grabbing;
+    }
+
     .home-orbit-scene,
     .home-orbit-scene canvas,
+    .home-orbit-scene__canvas,
     .home-orbit-scene__fallback {
       position: absolute;
       inset: 0;
