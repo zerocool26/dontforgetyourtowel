@@ -3,7 +3,6 @@ title: 'What a Managed IT Provider Should Own in the First 30 Days'
 description: 'A practical onboarding checklist for teams switching providers or formalizing outsourced IT support.'
 pubDate: 'May 08 2026'
 tags: ['managed IT', 'onboarding', 'support']
-heroImage: '../../assets/blog-placeholder-3.jpg'
 ---
 
 The first month should make the environment easier to understand. It should not feel like a sales handoff where everyone is still guessing who owns what.

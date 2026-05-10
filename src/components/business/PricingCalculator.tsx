@@ -13,23 +13,24 @@ interface Props {
 }
 
 const PRICES_PER_USER: Record<Tier, number> = {
-  bronze: 100,
-  silver: 150,
-  gold: 200,
-  platinum: 250,
+  bronze: 110,
+  silver: 155,
+  gold: 195,
+  platinum: 240,
 };
 
 const TIER_LABELS: Record<Tier, string> = {
-  bronze: 'Essentials',
-  silver: 'Growth',
-  gold: 'Secure+',
-  platinum: 'Custom',
+  bronze: 'Core Coverage',
+  silver: 'Secure Ops',
+  gold: 'Co-Managed',
+  platinum: 'Custom+',
 };
 
 const ADD_ONS = [
-  { id: 'soc', label: 'Managed SOC / SIEM', monthly: 1500 },
-  { id: 'backup', label: 'Cloud backup + DR testing', monthly: 600 },
-  { id: 'training', label: 'Security awareness training', monthly: 300 },
+  { id: 'm365backup', label: 'Microsoft 365 backup + restore testing', monthly: 550 },
+  { id: 'mdr', label: 'Managed EDR / MDR response lane', monthly: 1450 },
+  { id: 'afterhours', label: 'After-hours escalation coverage', monthly: 900 },
+  { id: 'vciso', label: 'vCISO review and evidence cadence', monthly: 1200 },
 ] as const;
 
 type AddOnId = (typeof ADD_ONS)[number]['id'];
@@ -38,7 +39,7 @@ export default function PricingCalculator({
   ctaHref = `${withBasePath('services/')}#contact`,
   ctaLabel = 'Request a quote',
   title = 'Pricing calculator',
-  description = 'Estimate monthly spend for managed services. Final quotes vary by device counts, compliance scope, and SLA.',
+  description = 'Estimate monthly MSP spend. Final quotes vary by users, devices, sites, servers, Microsoft 365 scope, compliance pressure, and response model.',
   defaultUsers = 25,
   defaultTier = 'silver',
 }: Props) {
@@ -188,8 +189,8 @@ export default function PricingCalculator({
           </a>
 
           <p class="mt-3 text-xs text-zinc-500">
-            Tip: For device-based pricing (servers/workstations), we’ll scope
-            your inventory during discovery.
+            Tip: Share users, devices, locations, servers, Microsoft 365
+            concerns, and known projects to tighten the first quote.
           </p>
         </div>
       </div>

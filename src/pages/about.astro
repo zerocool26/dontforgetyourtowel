@@ -112,6 +112,36 @@ const guidedReviewSteps = [
   },
 ];
 
+const storeStandards = [
+  {
+    title: 'Marketplace discovery',
+    copy: 'Search, filters, sorting, tags, saved items, and compare states need to work together so buyers can narrow a broad catalog quickly.',
+  },
+  {
+    title: 'Product confidence',
+    copy: 'Real photography, variants, stock, ratings, specs, delivery cues, returns language, and bundle logic belong close to the decision.',
+  },
+  {
+    title: 'Cart and checkout discipline',
+    copy: 'The cart should show savings, quantity changes, promo handling, shipping estimates, and the next checkout step without making the buyer hunt.',
+  },
+  {
+    title: 'Operational realism',
+    copy: 'A serious demo should reveal inventory, fulfillment windows, review proof, mobile density, and launch safety controls before production scope is approved.',
+  },
+];
+
+const demoDepartments = [
+  'Apparel',
+  'Footwear',
+  'Electronics',
+  'Home',
+  'Furniture',
+  'Pantry',
+  'Accessories',
+  'Creator gear',
+];
+
 const implementationTracks = servicesExtended.filter(service =>
   [
     'client-portal-web-refresh',
@@ -149,9 +179,9 @@ const featuredProducts = demoProducts
               <span>in the same route.</span>
             </h1>
             <p class="proof-copy">
-              This page is built to prove stronger mobile UX, cleaner decision
-              support, and premium digital presentation without drifting into
-              empty demo theater.
+              This is a working store-pattern demo: broad catalog, real product
+              photography, search, filters, cart, comparison, quick view,
+              delivery signals, promo logic, and checkout framing in one route.
             </p>
 
             <div class="proof-actions">
@@ -338,6 +368,38 @@ const featuredProducts = demoProducts
               }
             </div>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="proof-section" id="store-standards" data-page-section>
+      <div class="premium-container">
+        <div class="proof-section__intro">
+          <p class="proof-eyebrow">Store standards</p>
+          <h2 class="proof-section__title">
+            A demo should behave enough like a real shop to expose real
+            decisions.
+          </h2>
+          <p class="proof-section__copy">
+            Inspired by marketplace and warehouse-store patterns, this route is
+            meant to test catalog density, product trust, basket clarity, and
+            conversion friction before the production build gets scoped.
+          </p>
+        </div>
+
+        <div class="proof-standards-grid">
+          {
+            storeStandards.map(item => (
+              <article class="proof-standard">
+                <h3>{item.title}</h3>
+                <p>{item.copy}</p>
+              </article>
+            ))
+          }
+        </div>
+
+        <div class="proof-department-strip" aria-label="Demo departments">
+          {demoDepartments.map(department => <span>{department}</span>)}
         </div>
       </div>
     </section>
@@ -627,9 +689,50 @@ const featuredProducts = demoProducts
 
   .proof-launch-grid,
   .proof-review-metrics,
-  .proof-scenario-links {
+  .proof-scenario-links,
+  .proof-standards-grid,
+  .proof-department-strip {
     display: grid;
     gap: 1rem;
+  }
+
+  .proof-standard {
+    display: grid;
+    gap: 0.55rem;
+    padding: 1.1rem;
+    border: 1px solid color-mix(in srgb, var(--color-border) 74%, transparent);
+    border-radius: 1rem;
+    background: color-mix(in srgb, var(--color-surface) 84%, transparent);
+  }
+
+  .proof-standard h3 {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-size: 1.08rem;
+    font-weight: 650;
+    letter-spacing: 0;
+  }
+
+  .proof-standard p {
+    margin: 0;
+    color: color-mix(in srgb, var(--color-text-secondary) 94%, transparent);
+    font-size: 0.94rem;
+    line-height: 1.65;
+  }
+
+  .proof-department-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: 1rem;
+  }
+
+  .proof-department-strip span {
+    min-height: 2.6rem;
+    border: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
+    border-radius: 999px;
+    padding: 0.65rem 0.85rem;
+    color: color-mix(in srgb, var(--color-text-primary) 80%, transparent);
+    font-size: 0.82rem;
+    text-align: center;
   }
 
   .proof-launch {
@@ -844,9 +947,17 @@ const featuredProducts = demoProducts
       grid-template-columns: repeat(4, minmax(0, 1fr));
     }
 
+    .proof-standards-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
     .proof-review-metrics,
     .proof-scenario-links {
       grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .proof-department-strip {
+      grid-template-columns: repeat(8, minmax(0, 1fr));
     }
 
     .proof-review-shell {

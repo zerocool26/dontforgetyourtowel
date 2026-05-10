@@ -3,7 +3,6 @@ title: 'What Competent MSP Websites Tend to Say Clearly'
 description: 'The recurring topics buyers expect: help desk ownership, cybersecurity, Microsoft 365, cloud, backup, strategy, pricing, and proof.'
 pubDate: 'Apr 10 2026'
 tags: ['positioning', 'MSP', 'website']
-heroImage: '../../assets/blog-placeholder-1.jpg'
 ---
 
 Managed IT websites can get generic fast. The better ones make the buyer feel oriented before they ask for a call.

@@ -30,16 +30,16 @@ export const heroSignals: string[] = [
 ];
 
 export const clientBadges: string[] = [
-  'Northwind Heavy',
-  'Globex Systems',
-  'Initech Logistics',
-  'Starkline Group',
+  'Healthcare groups',
+  'Professional services',
+  'Light manufacturing',
+  'Multi-site offices',
 ];
 
 export const keyMetrics: Metric[] = [
-  { value: '15 min', label: 'Typical first response (demo)' },
-  { value: '24/7', label: 'Monitoring + alerting coverage' },
-  { value: '99.9%', label: 'Target availability mindset' },
+  { value: '<1 day', label: 'Target first response for non-urgent intake' },
+  { value: '24/7', label: 'Monitoring and alerting can be layered in' },
+  { value: '30 days', label: 'Typical stabilization window for first outputs' },
 ];
 
 export const landingPillars: Pillar[] = [
@@ -138,15 +138,15 @@ export const playbookSteps: PlaybookStep[] = [
 export const testimonials: Testimonial[] = [
   {
     quote:
-      'The proactive monitoring caught a patch issue before it became an outage. That’s the partnership we needed.',
-    name: 'Danielle Ortiz',
-    role: 'Operations Lead, Northwind',
+      'The value was not another tool. It was finally knowing who owned support, security follow-up, and the next decision.',
+    name: 'Operations leader',
+    role: 'Professional services group',
   },
   {
     quote:
-      'We stopped firefighting and started modernizing. Clear comms, fast fixes, and better security posture.',
-    name: 'Marcus Chen',
-    role: 'Founder, Globex',
+      'The onboarding exposed stale access, backup assumptions, and recurring ticket patterns we had stopped seeing clearly.',
+    name: 'Managing partner',
+    role: 'Multi-site healthcare office',
   },
 ];
 

@@ -7,6 +7,14 @@ export interface Service {
   icon?: string;
 }
 
+export interface ServiceCategoryBrief {
+  category: string;
+  buyerQuestion: string;
+  whatWeCheck: string[];
+  firstOutputs: string[];
+  warningSigns: string[];
+}
+
 export const servicesExtended: Service[] = [
   {
     id: 'managed-help-desk',
@@ -250,5 +258,143 @@ export const servicesExtended: Service[] = [
     category: 'Strategy, Automation & Digital Systems',
     description:
       'Testing, launch checklists, and handoff discipline for digital projects that need to feel polished and dependable.',
+  },
+];
+
+export const serviceCategoryBriefs: ServiceCategoryBrief[] = [
+  {
+    category: 'Managed IT & Support',
+    buyerQuestion:
+      'Who actually owns tickets, vendors, onboarding, device standards, and repeat issues after the sale?',
+    whatWeCheck: [
+      'Ticket history, recurring problems, aging issues, and escalation gaps',
+      'Endpoint inventory, patch posture, warranty status, and stale devices',
+      'Onboarding/offboarding steps, approval paths, and vendor dependencies',
+    ],
+    firstOutputs: [
+      'Support lanes with clear response expectations',
+      'Device and user inventory that leadership can trust',
+      'A 30-day stabilization list for recurring pain',
+    ],
+    warningSigns: [
+      'Every issue becomes a one-off emergency',
+      'Departed users still have access',
+      'No one can quickly explain who owns each vendor',
+    ],
+  },
+  {
+    category: 'Cybersecurity & Compliance',
+    buyerQuestion:
+      'Can we prove the basics are working before we buy another security tool?',
+    whatWeCheck: [
+      'MFA, admin roles, conditional access, password policy, and guest access',
+      'Endpoint protection, disk encryption, email security, and alert routing',
+      'Backup coverage, response contacts, and control evidence habits',
+    ],
+    firstOutputs: [
+      'Security baseline with must-fix and next-phase items',
+      'Plain-language risk notes for leadership',
+      'Response ownership for phishing, account compromise, and ransomware',
+    ],
+    warningSigns: [
+      'MFA exceptions are not reviewed',
+      'Security alerts go to an inbox nobody owns',
+      'Audit evidence is rebuilt from scratch every time',
+    ],
+  },
+  {
+    category: 'Cloud & Microsoft 365',
+    buyerQuestion:
+      'Is Microsoft 365 helping the business work, or has it become a permissions and file-sprawl problem?',
+    whatWeCheck: [
+      'Exchange, Teams, SharePoint, OneDrive, licenses, retention, and backup',
+      'External sharing, guest access, stale groups, and abandoned sites',
+      'Cloud spend, tenant configuration, and migration dependencies',
+    ],
+    firstOutputs: [
+      'Tenant cleanup priorities and governance decisions',
+      'License and SaaS waste findings',
+      'A safer collaboration model for Teams and SharePoint',
+    ],
+    warningSigns: [
+      'Nobody owns site lifecycle or external sharing',
+      'Retention is confused with backup',
+      'Licenses are renewed without usage review',
+    ],
+  },
+  {
+    category: 'Network & Infrastructure',
+    buyerQuestion:
+      'Can people work reliably from the office, remotely, and across sites without mystery outages?',
+    whatWeCheck: [
+      'Firewall policy, switches, Wi-Fi, ISP handoffs, VPN, and remote access',
+      'Network diagrams, naming standards, warranty dates, and admin access',
+      'Office moves, cabling, wireless coverage, and site-specific constraints',
+    ],
+    firstOutputs: [
+      'Network ownership map and critical device list',
+      'Connectivity risks ranked by business impact',
+      'Refresh or remediation plan for aging infrastructure',
+    ],
+    warningSigns: [
+      'No current network diagram exists',
+      'Firewall rules are changed without review',
+      'Wi-Fi problems are treated as user complaints instead of measured coverage',
+    ],
+  },
+  {
+    category: 'Backup, Continuity & Recovery',
+    buyerQuestion:
+      'If something breaks today, do we know what can be restored, how fast, and who makes the call?',
+    whatWeCheck: [
+      'Server, workstation, Microsoft 365, SaaS, and critical-file backup scope',
+      'Restore history, alert handling, retention, immutability, and recovery owners',
+      'Communication plans for outage, ransomware, vendor failure, and staff turnover',
+    ],
+    firstOutputs: [
+      'Restore-tested backup coverage summary',
+      'Recovery priorities by system and business function',
+      'Runbook for the first hour of a serious incident',
+    ],
+    warningSigns: [
+      'Backups are monitored but restores are never tested',
+      'Microsoft 365 data protection is assumed but not verified',
+      'Recovery order is decided during the outage',
+    ],
+  },
+  {
+    category: 'Strategy, Automation & Digital Systems',
+    buyerQuestion:
+      'Which projects will reduce drag, improve trust, or create measurable leverage instead of just adding tools?',
+    whatWeCheck: [
+      'Manual handoffs, reporting gaps, buyer-facing friction, and approval bottlenecks',
+      'Website, portal, ecommerce, intake, documentation, and internal hub needs',
+      'Budget timing, owner capacity, launch risk, and governance requirements',
+    ],
+    firstOutputs: [
+      'First-phase roadmap with owners and decision points',
+      'Automation or portal candidates ranked by impact',
+      'Launch checklist for client-facing digital work',
+    ],
+    warningSigns: [
+      'Automation ideas do not have a process owner',
+      'A website refresh is treated separately from buyer workflow',
+      'Projects launch without support, QA, or handoff ownership',
+    ],
+  },
+];
+
+export const serviceOperatingFacts = [
+  {
+    label: 'Good MSP buying starts with ownership.',
+    copy: 'Tool names matter less than who owns tickets, alerts, onboarding, vendors, backups, and executive communication.',
+  },
+  {
+    label: 'Security has to be visible.',
+    copy: 'Identity, endpoint, email, backup, and response controls should be explained in normal business language, not hidden inside a stack list.',
+  },
+  {
+    label: 'Microsoft 365 is an operating system for the business.',
+    copy: 'Teams, SharePoint, OneDrive, Exchange, licensing, retention, and backup need governance or the tenant slowly becomes expensive clutter.',
   },
 ];

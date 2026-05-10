@@ -3,7 +3,6 @@ title: 'The Security Baseline Chicago SMBs Usually Need Before Bigger Projects'
 description: 'Identity, email, endpoint, backup, and response basics that should come before tool sprawl.'
 pubDate: 'May 02 2026'
 tags: ['cybersecurity', 'Microsoft 365', 'backup']
-heroImage: '../../assets/blog-placeholder-4.jpg'
 ---
 
 Security work gets expensive when it starts with tools instead of the operating baseline. Most small and mid-sized teams need a simpler order of operations.

@@ -41,6 +41,25 @@ const advisories = [
     copy: 'For ecommerce and portals, review search, filters, cart state, product detail, trust, and checkout before approving a build plan.',
   },
 ];
+
+const newsDesk = [
+  {
+    beat: 'Security',
+    note: 'Identity hardening, token theft, phishing controls, cyber insurance questionnaires, backup proof, and incident-response rehearsal.',
+  },
+  {
+    beat: 'Microsoft 365',
+    note: 'Tenant cleanup, SharePoint lifecycle, Teams sprawl, guest access, retention, licensing, and Microsoft 365 backup expectations.',
+  },
+  {
+    beat: 'Operations',
+    note: 'Help desk response patterns, recurring-ticket reduction, onboarding/offboarding, vendor ownership, endpoint refresh, and executive reporting.',
+  },
+  {
+    beat: 'Digital commerce',
+    note: 'Search, filters, product detail, cart clarity, checkout friction, real photography, reviews, and mobile conversion paths.',
+  },
+];
 ---
 
 <MarketingLayout
@@ -131,6 +150,26 @@ const advisories = [
       </div>
     </div>
   </section>
+
+  <section class="news-section" data-page-section>
+    <div class="premium-container">
+      <div class="news-section__heading">
+        <p class="news-eyebrow">Editorial desk</p>
+        <h2>The topics worth tracking are the ones that change decisions.</h2>
+      </div>
+
+      <div class="news-desk-grid">
+        {
+          newsDesk.map(item => (
+            <article class="news-desk">
+              <p class="news-eyebrow">{item.beat}</p>
+              <p>{item.note}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
 </MarketingLayout>
 
 <style>
@@ -147,7 +186,8 @@ const advisories = [
 
   .news-hero__grid,
   .news-episode-list,
-  .news-advisory-grid {
+  .news-advisory-grid,
+  .news-desk-grid {
     display: grid;
     gap: 1rem;
   }
@@ -156,7 +196,8 @@ const advisories = [
   .news-section__heading,
   .news-player,
   .news-episode,
-  .news-advisory {
+  .news-advisory,
+  .news-desk {
     display: grid;
     gap: 0.85rem;
   }
@@ -197,7 +238,8 @@ const advisories = [
 
   .news-copy p,
   .news-episode p,
-  .news-advisory p {
+  .news-advisory p,
+  .news-desk p {
     margin: 0;
     color: color-mix(in srgb, var(--color-text-secondary) 94%, transparent);
     font-size: 1rem;
@@ -212,7 +254,8 @@ const advisories = [
 
   .news-player,
   .news-episode,
-  .news-advisory {
+  .news-advisory,
+  .news-desk {
     border: 1px solid color-mix(in srgb, var(--color-border) 74%, transparent);
     border-radius: var(--radius-sm);
     background: linear-gradient(
@@ -264,6 +307,10 @@ const advisories = [
     .news-episode-list,
     .news-advisory-grid {
       grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .news-desk-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
     }
   }
 </style>

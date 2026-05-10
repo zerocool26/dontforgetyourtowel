@@ -9,7 +9,11 @@ import ServicesQuiz from '../components/business/ServicesQuiz.tsx';
 import ScopeReadinessPanel from '../components/business/ScopeReadinessPanel.astro';
 import FAQAccordion from '../components/ui/FAQAccordion.astro';
 import { CONTACT_EMAIL } from '../consts';
-import { servicesExtended } from '../data/services-extended';
+import {
+  serviceCategoryBriefs,
+  serviceOperatingFacts,
+  servicesExtended,
+} from '../data/services-extended';
 import { servicesFaqs, pricingTiers } from '../data/pricing';
 import { withBasePath } from '../utils/helpers';
 
@@ -44,6 +48,7 @@ const entryLanes = [
 
 const serviceSections = [
   { label: 'Tracks', href: '#service-tracks' },
+  { label: 'Buyer guide', href: '#buyer-guide' },
   { label: 'Catalog', href: '#technology-catalog' },
   { label: 'Comparison', href: '#service-planner' },
   { label: 'Quiz', href: '#service-quiz' },
@@ -152,9 +157,9 @@ const breadcrumbItems = [
               cloud, continuity, and client-facing systems.
             </h1>
             <p class="tone-page-copy max-w-3xl">
-              Start with the current pressure point, not a bloated checklist.
-              The deeper catalog is still here when you want it, but the first
-              decision should feel obvious on a phone.
+              Start with ownership: tickets, users, devices, vendors, identity,
+              backups, and leadership reporting. The catalog is here, but the
+              first decision should be which problem needs a named owner now.
             </p>
           </div>
 
@@ -201,8 +206,8 @@ const breadcrumbItems = [
             <p class="tone-metric-card__label">How to use this page</p>
             <p class="tone-metric-card__value">Start with the lane</p>
             <p class="tone-metric-card__detail">
-              Pick the closest pressure point first. Open the deeper catalog,
-              planner, or quiz only if you actually need more detail.
+              Pick the pressure point that hurts operations today. Then use the
+              buyer guide to see what should be checked before scope expands.
             </p>
           </ModernCard>
           <div class="grid gap-4 sm:grid-cols-2">
@@ -350,6 +355,87 @@ const breadcrumbItems = [
                   </li>
                 ))}
               </ul>
+            </ModernCard>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section
+    class="tone-section-divider border-b"
+    id="buyer-guide"
+    data-reveal
+    data-page-section
+  >
+    <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
+      <div class="tone-section-heading">
+        <p class="tone-section-kicker">Buyer guide</p>
+        <h2 class="tone-section-title">
+          What an experienced provider should inspect before recommending the
+          stack.
+        </h2>
+        <p class="tone-section-copy">
+          This is the part that keeps the page from becoming a menu of services.
+          The right scope starts with the buyer question, the evidence we check,
+          and the first outputs leadership should see.
+        </p>
+      </div>
+
+      <div class="mt-10 grid gap-5 lg:grid-cols-3">
+        {
+          serviceOperatingFacts.map(item => (
+            <ModernCard variant="glass" className="h-full p-6">
+              <p class="text-lg font-semibold text-white">{item.label}</p>
+              <p class="mt-3 text-sm leading-7 text-slate-300">{item.copy}</p>
+            </ModernCard>
+          ))
+        }
+      </div>
+
+      <div class="mt-10 grid gap-5 xl:grid-cols-2">
+        {
+          serviceCategoryBriefs.map(brief => (
+            <ModernCard variant="default" className="h-full p-6">
+              <p class="font-mono text-[0.64rem] uppercase tracking-[0.2em] text-white/45">
+                {brief.category}
+              </p>
+              <h3 class="mt-3 text-xl font-semibold leading-tight text-white">
+                {brief.buyerQuestion}
+              </h3>
+
+              <div class="mt-6 grid gap-5 md:grid-cols-3">
+                <div>
+                  <p class="font-mono text-[0.62rem] uppercase tracking-[0.18em] text-white/40">
+                    We check
+                  </p>
+                  <ul class="mt-3 space-y-2 text-sm leading-6 text-slate-300">
+                    {brief.whatWeCheck.map(item => (
+                      <li>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <p class="font-mono text-[0.62rem] uppercase tracking-[0.18em] text-white/40">
+                    First outputs
+                  </p>
+                  <ul class="mt-3 space-y-2 text-sm leading-6 text-slate-300">
+                    {brief.firstOutputs.map(item => (
+                      <li>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <p class="font-mono text-[0.62rem] uppercase tracking-[0.18em] text-white/40">
+                    Warning signs
+                  </p>
+                  <ul class="mt-3 space-y-2 text-sm leading-6 text-slate-300">
+                    {brief.warningSigns.map(item => (
+                      <li>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
             </ModernCard>
           ))
         }

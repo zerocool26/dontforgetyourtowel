@@ -40,9 +40,9 @@ export const galleryInstallations: GalleryInstallation[] = [
     medium: 'Architectural environment study',
     room: 'North Gallery',
     summary:
-      'An operations-led composition that turns support, reporting, and systems visibility into a calm premium control room with layered circulation and command-center energy.',
+      'An operations-led composition based on support queues, open issues, aging tickets, vendor escalations, and monthly reporting.',
     curatorNote:
-      'The visual language borrows from infrastructure discipline instead of showroom cliches, so the piece feels engineered before it feels decorative.',
+      'The visual language borrows from dispatch boards and infrastructure rooms, so the piece feels tied to real service ownership before it feels decorative.',
     palette: ['#d8f279', '#5bbeb4', '#101819'],
     tags: ['operations', 'command room', 'clarity', 'uptime'],
     metrics: [
@@ -61,9 +61,9 @@ export const galleryInstallations: GalleryInstallation[] = [
     medium: 'Editorial control surface',
     room: 'East Wall',
     summary:
-      'A security interface study using conductor tones, relay-like typography, and alert sequencing to feel more like a precision instrument than a brochure.',
+      'A security interface study built around MFA exceptions, alert routing, endpoint posture, and incident-sequence decisions.',
     curatorNote:
-      'This piece leans into inspection readiness, escalation logic, and risk posture, making the page feel precise instead of vaguely “techy.”',
+      'This piece leans into inspection readiness, escalation logic, and risk posture, making the page feel precise instead of vaguely technical.',
     palette: ['#ffd56a', '#f1883b', '#121015'],
     tags: ['security', 'controls', 'response', 'inspection'],
     metrics: [
@@ -187,7 +187,7 @@ export const galleryInstallations: GalleryInstallation[] = [
     medium: 'Cross-site synthesis piece',
     room: 'Atrium',
     summary:
-      'A cross-platform visual system that ties managed operations, trust, premium proof, and interactive product work into one editorial source-of-truth canvas.',
+      'A cross-platform visual system that ties managed operations, trust, proof routes, and interactive product work into one editorial source-of-truth canvas.',
     curatorNote:
       'This installation exists to prove the homepage can be both a command center and a design object without losing clarity.',
     palette: ['#d8f279', '#82dcd1', '#111317'],

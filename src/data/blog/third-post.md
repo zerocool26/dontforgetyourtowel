@@ -3,7 +3,6 @@ title: 'Microsoft 365 Cleanup Is Usually a Business Project'
 description: 'Why Teams, SharePoint, permissions, retention, and backup work better when operations and leadership are involved.'
 pubDate: 'Apr 24 2026'
 tags: ['Microsoft 365', 'governance', 'cloud']
-heroImage: '../../assets/blog-placeholder-2.jpg'
 ---
 
 Microsoft 365 cleanup looks technical from a distance. Up close, it is a business operations project.

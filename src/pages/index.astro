@@ -114,6 +114,21 @@ const siteGuide = [
     href: withBasePath('photos/'),
   },
 ];
+
+const buyerRealities = [
+  {
+    title: 'The help desk is not the whole relationship.',
+    copy: 'A serious MSP should also own onboarding, vendors, endpoint hygiene, reporting, backup verification, and the issues that keep coming back.',
+  },
+  {
+    title: 'Cyber insurance has made weak security language expensive.',
+    copy: 'MFA, endpoint protection, email security, backups, access reviews, and incident response need to be real controls, not checkbox copy.',
+  },
+  {
+    title: 'Microsoft 365 is usually where hidden mess lives.',
+    copy: 'Teams, SharePoint, external sharing, retention, licensing, and backup decisions quietly shape how fast the business can work.',
+  },
+];
 ---
 
 <MarketingLayout
@@ -187,6 +202,38 @@ const siteGuide = [
                 <p>{lane.copy}</p>
               </div>
             </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section
+    class="home-homepage-section home-homepage-section--realities"
+    id="buyer-realities"
+    data-page-section
+  >
+    <div class="premium-container">
+      <div class="home-homepage-section__intro">
+        <p class="home-homepage-eyebrow">Buyer realities</p>
+        <h2 class="home-homepage-section__title">
+          The site should say the quiet part clearly: IT buyers are tired of
+          vague promises.
+        </h2>
+        <p class="home-homepage-section__copy">
+          The strongest competitors sell confidence by naming operational
+          ownership. Olive Chicago should do the same, with less gloss and more
+          useful detail.
+        </p>
+      </div>
+
+      <div class="home-homepage-realities">
+        {
+          buyerRealities.map(item => (
+            <article class="home-homepage-reality">
+              <h3>{item.title}</h3>
+              <p>{item.copy}</p>
+            </article>
           ))
         }
       </div>
@@ -849,6 +896,43 @@ const siteGuide = [
       background: color-mix(in srgb, var(--color-border) 54%, transparent);
     }
 
+    .home-homepage-realities {
+      display: grid;
+      gap: 1px;
+      overflow: hidden;
+      border: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
+      background: color-mix(in srgb, var(--color-border) 54%, transparent);
+    }
+
+    .home-homepage-reality {
+      display: grid;
+      gap: 0.65rem;
+      min-height: 13rem;
+      padding: clamp(1.1rem, 2vw, 1.5rem);
+      background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--color-surface) 90%, white 2%),
+        color-mix(in srgb, var(--color-background) 92%, transparent)
+      );
+    }
+
+    .home-homepage-reality h3 {
+      margin: 0;
+      color: var(--color-text-primary);
+      font-size: clamp(1.25rem, 2vw, 1.75rem);
+      font-weight: 700;
+      line-height: 1.05;
+      letter-spacing: 0;
+      text-wrap: balance;
+    }
+
+    .home-homepage-reality p {
+      margin: 0;
+      color: color-mix(in srgb, var(--color-text-secondary) 92%, transparent);
+      font-size: 0.98rem;
+      line-height: 1.68;
+    }
+
     .home-homepage-lane {
       position: relative;
       display: grid;
@@ -1079,6 +1163,10 @@ const siteGuide = [
 
       .home-homepage-lanes {
         grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .home-homepage-realities {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
       }
 
       .home-homepage-guide__grid {

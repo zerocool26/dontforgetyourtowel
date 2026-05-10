@@ -41,8 +41,8 @@ export const pricingTiers: PricingTier[] = [
     perks: [
       'Help desk, monitoring, and patch management',
       'User onboarding and offboarding workflows',
-      'Backup oversight with restore coordination',
-      'Basic documentation and vendor coordination',
+      'Endpoint inventory, device hygiene, and warranty notes',
+      'Basic documentation, backup oversight, and vendor coordination',
     ],
   },
   {
@@ -59,8 +59,8 @@ export const pricingTiers: PricingTier[] = [
     perks: [
       'Everything in Core Coverage',
       'Identity, MFA, and access policy support',
-      'Security baseline reviews and awareness support',
-      'Quarterly roadmap and lifecycle planning',
+      'Email security, awareness support, and risky-forwarding checks',
+      'Quarterly roadmap, lifecycle planning, and Microsoft 365 governance',
     ],
   },
   {
@@ -76,8 +76,8 @@ export const pricingTiers: PricingTier[] = [
     perks: [
       'Everything in Secure Operations',
       'Co-managed support for internal IT or operations staff',
-      'Compliance readiness and evidence habits',
-      'Recovery runbooks and stronger change discipline',
+      'Compliance readiness, evidence habits, and audit support coordination',
+      'Recovery runbooks, restore testing, and stronger change discipline',
     ],
   },
   {
@@ -93,8 +93,8 @@ export const pricingTiers: PricingTier[] = [
     perks: [
       'Custom pricing by users, devices, sites, servers, and coverage model',
       'Dedicated security, cloud, or project leadership',
-      'Cloud migrations, office refreshes, and digital workstreams',
-      'A delivery model tuned to business-critical operations',
+      'Cloud migrations, office refreshes, ecommerce demos, and portal work',
+      'A delivery model tuned to business-critical operations and approvals',
     ],
   },
 ];
@@ -113,17 +113,17 @@ export const pricingFaqs: FAQEntry[] = [
   {
     title: 'What changes the monthly price the most?',
     content:
-      'The biggest drivers are user/device counts, server footprint, compliance scope, after-hours response expectations, and whether the engagement includes security depth or cloud/platform workstreams.',
+      'The biggest drivers are user/device counts, server footprint, number of locations, Microsoft 365 and SaaS complexity, compliance scope, after-hours response expectations, and whether the engagement includes security depth or cloud/platform workstreams.',
   },
   {
     title: 'How quickly can onboarding start?',
     content:
-      'Many SMB and mid-market environments can move from intake to active instrumentation within 10–14 days. More complex estates may require a phased rollout.',
+      'Many SMB and mid-market environments can move from intake to active instrumentation within 10 to 14 days. More complex estates usually start with a phased rollout so access, monitoring, documentation, and response ownership come online cleanly.',
   },
   {
     title: 'Can you help with SOC 2, HIPAA, or audit preparation?',
     content:
-      'We help implement controls, evidence habits, and operational practices that support readiness. We do not act as your formal auditor, but we make auditor conversations much less painful.',
+      'We help implement controls, evidence habits, access reviews, backup proof, policy support, and operational practices that support readiness. We do not act as your formal auditor, but we make auditor conversations much less painful.',
   },
 ];
 

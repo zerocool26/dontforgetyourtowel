@@ -55,25 +55,61 @@ const faqSchema = {
 const pricingDrivers = [
   {
     title: 'User and device count',
-    copy: 'Seats, endpoints, servers, and site complexity are the clearest pricing inputs.',
+    copy: 'Seats are only the beginning. Laptops, shared workstations, servers, mobile devices, warranty age, and endpoint standards all change the work.',
   },
   {
     title: 'Coverage and response expectations',
-    copy: 'Business-hours support, after-hours response, and escalation depth change the operating model fast.',
+    copy: 'Business-hours coverage is different from after-hours response, executive escalation, onsite help, or a dedicated co-managed lane.',
   },
   {
     title: 'Security and compliance depth',
-    copy: 'Identity hardening, audit readiness, and managed response increase ongoing operational work.',
+    copy: 'MFA, conditional access, EDR/MDR, awareness, vulnerability review, audit evidence, and response planning add real recurring ownership.',
   },
   {
     title: 'Projects and modernization workstreams',
-    copy: 'Cloud migrations, office work, digital projects, and heavier engineering tracks sit on top of the monthly baseline when needed.',
+    copy: 'Cloud migrations, Microsoft 365 cleanup, office moves, portal work, ecommerce demos, and infrastructure refreshes should be scoped visibly.',
   },
+];
+
+const quoteExamples = [
+  {
+    size: '25 users / one office',
+    likelyFit: 'Core Coverage or Secure Operations',
+    notes:
+      'Usually driven by help desk ownership, endpoint cleanup, onboarding discipline, Microsoft 365 basics, and backup verification.',
+  },
+  {
+    size: '75 users / hybrid team',
+    likelyFit: 'Secure Operations',
+    notes:
+      'Often needs identity policy, device hardening, email security, Teams/SharePoint governance, lifecycle planning, and monthly reporting.',
+  },
+  {
+    size: '120 users / regulated or multi-site',
+    likelyFit: 'Co-Managed and Regulated',
+    notes:
+      'Scope typically includes tighter escalation, compliance evidence habits, restore testing, change control, and internal IT coordination.',
+  },
+  {
+    size: 'Complex estate / project-heavy',
+    likelyFit: 'Custom',
+    notes:
+      'Best when pricing depends on cloud migration, office refreshes, servers, dedicated security, ecommerce, portals, or executive cadence.',
+  },
+];
+
+const quotePrep = [
+  'User count, shared workstation count, and number of locations',
+  'Servers, key applications, Microsoft 365 tenant notes, and cloud footprint',
+  'Current provider pain: slow response, recurring issues, poor security visibility, unclear reporting, or weak project follow-through',
+  'Compliance pressure, cyber insurance requirements, and backup or recovery concerns',
+  'Known projects in the next six months: moves, migrations, refreshes, website, portal, or ecommerce work',
 ];
 
 const pricingSections = [
   { label: 'Plans', href: '#plans' },
   { label: 'SLA matrix', href: '#sla' },
+  { label: 'Scope examples', href: '#scope-examples' },
   { label: 'Estimate', href: '#estimate' },
   { label: 'FAQ', href: '#faq' },
 ];
@@ -388,6 +424,66 @@ const pricingSections = [
           </tbody>
         </table>
       </div>
+    </div>
+  </section>
+
+  <section
+    class="tone-section-divider border-b"
+    id="scope-examples"
+    data-reveal
+  >
+    <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
+      <div class="tone-section-heading">
+        <p class="tone-section-kicker">Scope examples</p>
+        <h2 class="tone-section-title">
+          Pricing should sound like your environment, not a mystery package.
+        </h2>
+        <p class="tone-section-copy">
+          These examples are not quotes. They show how experienced providers
+          usually think through fit before promising a number.
+        </p>
+      </div>
+
+      <div class="mt-10 grid gap-5 lg:grid-cols-4">
+        {
+          quoteExamples.map(example => (
+            <ModernCard variant="default" className="h-full p-6">
+              <p class="font-mono text-[0.64rem] uppercase tracking-[0.2em] text-white/45">
+                {example.size}
+              </p>
+              <h3 class="mt-3 text-lg font-semibold leading-tight text-white">
+                {example.likelyFit}
+              </h3>
+              <p class="mt-3 text-sm leading-7 text-slate-300">
+                {example.notes}
+              </p>
+            </ModernCard>
+          ))
+        }
+      </div>
+
+      <ModernCard variant="glass" className="mt-8 p-6">
+        <div class="grid gap-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
+          <div>
+            <p class="tone-section-kicker">Quote prep</p>
+            <h3 class="mt-3 text-2xl font-semibold leading-tight text-white">
+              Send this once and the pricing conversation gets sharper fast.
+            </h3>
+          </div>
+          <ul
+            class="grid gap-3 text-sm leading-6 text-slate-300 md:grid-cols-2"
+          >
+            {
+              quotePrep.map(item => (
+                <li class="flex items-start gap-2">
+                  <span class="tone-accent-dot mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full" />
+                  <span>{item}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </ModernCard>
     </div>
   </section>
 

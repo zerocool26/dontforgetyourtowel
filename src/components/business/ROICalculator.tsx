@@ -15,7 +15,7 @@ export default function ROICalculator({
   ctaHref = `${withBasePath('services/')}#contact`,
   ctaLabel = 'Request ROI review',
   title = 'ROI calculator',
-  description = 'A simple planning tool. We’ll validate assumptions during discovery.',
+  description = 'A planning model for the cost of recurring issues, slow response, rework, and downtime. We validate assumptions during discovery.',
   defaultMonthlyCost = 12000,
   defaultSavingsPct = 20,
   defaultTransitionCost = 10000,
@@ -61,7 +61,7 @@ export default function ROICalculator({
               id={`${currentMonthlyCostId}-label`}
               class="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-400"
             >
-              Current IT cost (monthly)
+              Current IT cost or drag (monthly)
             </span>
           </label>
           <input
@@ -84,7 +84,7 @@ export default function ROICalculator({
               id={`${estimatedSavingsPctId}-label`}
               class="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-400"
             >
-              Estimated savings (%)
+              Expected reduction (%)
             </span>
           </label>
           <input
@@ -108,7 +108,7 @@ export default function ROICalculator({
               id={`${oneTimeTransitionCostId}-label`}
               class="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-400"
             >
-              One-time transition cost
+              One-time cleanup / transition cost
             </span>
           </label>
           <input
@@ -134,7 +134,7 @@ export default function ROICalculator({
 
           <dl class="mt-5 grid gap-4 text-sm">
             <div>
-              <dt class="text-zinc-400">Estimated monthly savings</dt>
+              <dt class="text-zinc-400">Estimated monthly impact</dt>
               <dd class="mt-1 text-2xl font-semibold text-white">
                 ${savingsMonthly.toLocaleString()}
               </dd>

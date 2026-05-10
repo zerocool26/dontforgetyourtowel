@@ -5,14 +5,14 @@ import { withBasePath } from '../utils/helpers';
 
 const photos = [
   {
-    title: 'Chicago workday, mapped',
+    title: 'Workspace where support becomes visible',
     tag: 'Operations',
-    src: 'https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=82',
+    src: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=82',
   },
   {
-    title: 'Support desk rhythm',
+    title: 'Service desk rhythm and queue ownership',
     tag: 'Support',
-    src: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=82',
+    src: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=82',
   },
   {
     title: 'Network room texture',
@@ -25,15 +25,21 @@ const photos = [
     src: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1200&q=82',
   },
   {
-    title: 'Client-facing commerce',
+    title: 'Client-facing commerce review',
     tag: 'Digital',
-    src: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=82',
+    src: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1200&q=82',
   },
   {
     title: 'Modern office handoff',
     tag: 'Microsoft 365',
     src: 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1200&q=82',
   },
+];
+
+const galleryUses = [
+  'Show the kind of workspace and infrastructure language the brand is built around',
+  'Give service pages visual references without leaning on fake dashboards or abstract stock art',
+  'Support ecommerce and portal demos with real product, operations, and review-room texture',
 ];
 ---
 
@@ -54,9 +60,9 @@ const photos = [
           <p class="photo-eyebrow">Photo gallery</p>
           <h1>Visual references for systems-minded, buyer-facing work.</h1>
           <p>
-            A compact gallery for the textures the site is built around:
-            support, infrastructure, security, modern work, and commerce paths
-            that feel credible instead of decorative.
+            A compact gallery for the textures the site is built around: support
+            ownership, infrastructure, security review, modern work, and
+            commerce paths that feel credible instead of decorative.
           </p>
           <div class="photo-actions">
             <ModernButton href="#gallery" variant="primary">
@@ -90,6 +96,20 @@ const photos = [
             </figure>
           ))
         }
+      </div>
+    </div>
+  </section>
+
+  <section class="photo-section" data-page-section>
+    <div class="premium-container">
+      <div class="photo-uses">
+        <div>
+          <p class="photo-eyebrow">Why these images belong</p>
+          <h2>Visuals should point to real work, not fill space.</h2>
+        </div>
+        <ul>
+          {galleryUses.map(item => <li>{item}</li>)}
+        </ul>
       </div>
     </div>
   </section>
@@ -140,6 +160,42 @@ const photos = [
     line-height: 1;
     letter-spacing: 0;
     text-wrap: balance;
+  }
+
+  .photo-uses {
+    display: grid;
+    gap: 1.25rem;
+    border-top: 1px solid
+      color-mix(in srgb, var(--color-border) 70%, transparent);
+    padding-top: 1.25rem;
+  }
+
+  .photo-uses h2 {
+    max-width: 16ch;
+    margin: 0.5rem 0 0;
+    color: var(--color-text-primary);
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 3vw, 3rem);
+    font-weight: 650;
+    line-height: 1.03;
+    letter-spacing: 0;
+    text-wrap: balance;
+  }
+
+  .photo-uses ul {
+    display: grid;
+    gap: 0.9rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .photo-uses li {
+    padding-bottom: 0.9rem;
+    border-bottom: 1px solid
+      color-mix(in srgb, var(--color-border) 66%, transparent);
+    color: color-mix(in srgb, var(--color-text-secondary) 94%, transparent);
+    line-height: 1.65;
   }
 
   .photo-copy p {
@@ -199,6 +255,11 @@ const photos = [
 
     .photo-grid {
       grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .photo-uses {
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+      align-items: start;
     }
 
     .photo-card:nth-child(1),
