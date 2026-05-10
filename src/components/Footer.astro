@@ -7,15 +7,15 @@ const today = new Date();
 const primaryLinks = [
   { label: 'Solutions', href: withBasePath('services/') },
   { label: 'Pricing', href: withBasePath('pricing/') },
-  { label: 'E Commerce Demo', href: withBasePath('about/') },
+  { label: 'Commerce Lab', href: withBasePath('about/') },
   { label: 'Contact', href: withBasePath('contact-hq/') },
 ];
 
 const editorialLinks = [
   { label: 'Blog', href: withBasePath('blog/') },
-  { label: 'News + Podcast', href: withBasePath('news/') },
-  { label: 'Photo Gallery', href: withBasePath('photos/') },
-  { label: 'Design Gallery', href: withBasePath('gallery/') },
+  { label: 'Briefings', href: withBasePath('news/') },
+  { label: 'Photo Library', href: withBasePath('photos/') },
+  { label: 'Design Library', href: withBasePath('gallery/') },
 ];
 
 const supportLinks = [
@@ -73,7 +73,7 @@ const footerSignals = [
 
       <div class="footer-shell__middle">
         <nav class="footer-nav" aria-label="Primary footer navigation">
-          <p class="footer-nav__label">Routes</p>
+          <p class="footer-nav__label">Buyer path</p>
           <div class="footer-nav__links">
             {
               primaryLinks.map(link => (
@@ -99,7 +99,7 @@ const footerSignals = [
         </nav>
 
         <nav class="footer-nav" aria-label="Editorial footer navigation">
-          <p class="footer-nav__label">Explore</p>
+          <p class="footer-nav__label">Research + proof</p>
           <div class="footer-nav__links">
             {
               editorialLinks.map(link => (
@@ -129,7 +129,8 @@ const footerSignals = [
           &copy; {today.getFullYear()} Olive Chicago. All rights reserved.
         </p>
         <p>
-          Built for speed, clarity, and a more credible MSP buying experience.
+          Built for clarity, evidence, and a sharper technology buying
+          experience.
         </p>
       </div>
     </div>

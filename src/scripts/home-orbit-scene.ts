@@ -636,10 +636,25 @@ const bindThreeScene = (root: SceneRoot, canvas: HTMLCanvasElement) => {
     transparent: true,
     opacity: 0.5,
   });
+  const warmWindowMaterial = new THREE.MeshBasicMaterial({
+    color: '#fff1ba',
+    transparent: true,
+    opacity: 0.48,
+  });
   const braceMaterial = new THREE.LineBasicMaterial({
     color: '#d9ff5f',
     transparent: true,
     opacity: 0.62,
+  });
+  const riverTrailMaterial = new THREE.LineBasicMaterial({
+    color: '#5cd4ff',
+    transparent: true,
+    opacity: 0.5,
+  });
+  const limeTrailMaterial = new THREE.LineBasicMaterial({
+    color: '#d9ff5f',
+    transparent: true,
+    opacity: 0.42,
   });
   const lineGeometries: THREE.BufferGeometry[] = [];
   const hancockGeometry = new THREE.CylinderGeometry(0.38, 0.58, 1, 4, 1);
@@ -690,9 +705,46 @@ const bindThreeScene = (root: SceneRoot, canvas: HTMLCanvasElement) => {
     }
   };
 
+  const addWindowGrid = (
+    x: number,
+    width: number,
+    height: number,
+    z: number,
+    columns: number,
+    rows: number,
+    material = windowMaterial,
+    yBase = -2.68
+  ) => {
+    for (let row = 1; row < rows; row += 1) {
+      for (let column = 0; column < columns; column += 1) {
+        if ((row + column) % 4 === 0) continue;
+        const dot = new THREE.Mesh(towerGeometry, material);
+        const columnOffset =
+          columns <= 1
+            ? 0
+            : -width * 0.38 + (column / (columns - 1)) * width * 0.76;
+        dot.position.set(x + columnOffset, yBase + (height / rows) * row, z);
+        dot.scale.set(width * 0.055, 0.012, 0.012);
+        skyline.add(dot);
+        buildingMeshes.push(dot);
+      }
+    }
+  };
+
   const addLine = (points: THREE.Vector3[]) => {
     const geometry = new THREE.BufferGeometry().setFromPoints(points);
     const line = new THREE.Line(geometry, braceMaterial);
+    skyline.add(line);
+    lineGeometries.push(geometry);
+    buildingMeshes.push(line);
+  };
+
+  const addTrail = (
+    points: THREE.Vector3[],
+    material: THREE.LineBasicMaterial
+  ) => {
+    const geometry = new THREE.BufferGeometry().setFromPoints(points);
+    const line = new THREE.Line(geometry, material);
     skyline.add(line);
     lineGeometries.push(geometry);
     buildingMeshes.push(line);
@@ -736,10 +788,12 @@ const bindThreeScene = (root: SceneRoot, canvas: HTMLCanvasElement) => {
     new THREE.Vector3(-5.66, baseY + 2.6, -1.01),
     new THREE.Vector3(-5.05, baseY + 0.24, -1.01),
   ]);
+  addWindowGrid(-5.32, 0.5, 2.58, -0.98, 4, 13, warmWindowMaterial);
 
   // Aon Center-like clean white modernist slab.
   addBlock(-0.25, 3.18, 0.42, 0.28, -1.36, landmarkMaterials[1]);
   addWindowBands(-0.25, 0.42, 3.18, -1.2, 18, cyanWindowMaterial);
+  addWindowGrid(-0.25, 0.36, 3.08, -1.18, 5, 20, windowMaterial);
 
   // Two Prudential-style chevron crown and spire.
   addBlock(-1.35, 2.5, 0.34, 0.22, -1.24, landmarkMaterials[2]);
@@ -750,6 +804,7 @@ const bindThreeScene = (root: SceneRoot, canvas: HTMLCanvasElement) => {
   buildingMeshes.push(pruCrown);
   addAntenna(-1.35, baseY + 2.84, -1.24, 0.62);
   addWindowBands(-1.35, 0.3, 2.5, -1.1, 12, windowMaterial);
+  addWindowGrid(-1.35, 0.3, 2.36, -1.08, 4, 14, cyanWindowMaterial);
 
   // Trump Tower-inspired reflective stepped massing and spire.
   addBlock(0.95, 1.42, 0.54, 0.28, -1.06, landmarkMaterials[2]);
@@ -757,6 +812,7 @@ const bindThreeScene = (root: SceneRoot, canvas: HTMLCanvasElement) => {
   addBlock(1.1, 0.82, 0.3, 0.2, -1.1, landmarkMaterials[2], baseY + 2.22);
   addAntenna(1.1, baseY + 3.04, -1.1, 0.68);
   addWindowBands(1.02, 0.48, 3.02, -0.9, 16, windowMaterial);
+  addWindowGrid(1.02, 0.48, 2.88, -0.88, 5, 16, cyanWindowMaterial);
 
   // Willis/Sears bundled tubes with uneven roofline and twin antennas.
   const willisX = 2.54;
@@ -784,6 +840,15 @@ const bindThreeScene = (root: SceneRoot, canvas: HTMLCanvasElement) => {
       16,
       index % 2 === 0 ? cyanWindowMaterial : windowMaterial
     );
+    addWindowGrid(
+      willisX + offset,
+      0.2,
+      height,
+      -1.13 + (index % 3) * 0.04,
+      3,
+      18,
+      index % 2 === 0 ? windowMaterial : warmWindowMaterial
+    );
   });
   addAntenna(willisX - 0.12, baseY + 3.88, -1.34, 0.78);
   addAntenna(willisX + 0.12, baseY + 3.78, -1.34, 0.72);
@@ -804,12 +869,33 @@ const bindThreeScene = (root: SceneRoot, canvas: HTMLCanvasElement) => {
   addBlock(4.46, 2.58, 0.28, 0.24, -1.32, landmarkMaterials[2]);
   addBlock(4.7, 2.06, 0.24, 0.22, -1.36, landmarkMaterials[2]);
   addBlock(4.25, 1.74, 0.22, 0.2, -1.36, landmarkMaterials[2]);
+  addWindowGrid(4.46, 0.26, 2.44, -1.15, 4, 15, windowMaterial);
+  addWindowGrid(4.7, 0.22, 1.92, -1.18, 3, 12, cyanWindowMaterial);
 
   const river = new THREE.Mesh(riverGeometry, riverMaterial);
   river.rotation.x = -Math.PI * 0.54;
   river.position.set(0, -2.82, 0.88);
   skyline.add(river);
   buildingMeshes.push(river);
+  addTrail(
+    [
+      new THREE.Vector3(-6.2, -2.66, 0.8),
+      new THREE.Vector3(-3.8, -2.58, 0.58),
+      new THREE.Vector3(-1.2, -2.63, 0.72),
+      new THREE.Vector3(1.8, -2.56, 0.54),
+      new THREE.Vector3(5.8, -2.62, 0.74),
+    ],
+    riverTrailMaterial
+  );
+  addTrail(
+    [
+      new THREE.Vector3(-5.6, -2.2, -0.56),
+      new THREE.Vector3(-2.4, -2.08, -0.2),
+      new THREE.Vector3(0.8, -2.16, -0.38),
+      new THREE.Vector3(4.9, -2.05, -0.12),
+    ],
+    limeTrailMaterial
+  );
 
   const deck = new THREE.Mesh(
     new THREE.PlaneGeometry(14, 5.2, 30, 8),
@@ -1035,7 +1121,10 @@ const bindThreeScene = (root: SceneRoot, canvas: HTMLCanvasElement) => {
     landmarkMaterials.forEach(material => material.dispose());
     windowMaterial.dispose();
     cyanWindowMaterial.dispose();
+    warmWindowMaterial.dispose();
     braceMaterial.dispose();
+    riverTrailMaterial.dispose();
+    limeTrailMaterial.dispose();
     hancockGeometry.dispose();
     marinaGeometry.dispose();
     chevronGeometry.dispose();

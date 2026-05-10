@@ -26,7 +26,7 @@ const gallerySignals = [
   {
     label: 'Purpose',
     value: 'Live reference library',
-    detail: 'Visual direction tied back to real routes and business decisions.',
+    detail: 'Visual direction tied back to real buyer decisions.',
   },
 ];
 
@@ -53,13 +53,13 @@ const galleryRoutes = [
     href: withBasePath('services/'),
   },
   {
-    title: 'E Commerce Demo',
+    title: 'Commerce Lab',
     description:
-      'Open the proof route where visual taste meets live product behavior and mobile conversion logic.',
+      'Open the proof lab where visual taste meets live product behavior and mobile conversion logic.',
     href: withBasePath('about/'),
   },
   {
-    title: 'Photo Gallery',
+    title: 'Photo Library',
     description:
       'Switch from conceptual installations to production-ready image references and metadata-rich curation.',
     href: withBasePath('photos/'),
@@ -74,8 +74,8 @@ const galleryRoutes = [
 ---
 
 <MarketingLayout
-  title="Design Gallery | Olive Chicago"
-  description="Filterable design reference library of cinematic interface, layout, and material studies tied back to the live managed IT site."
+  title="Design Library | Olive Chicago"
+  description="Filterable design reference library of interface, layout, and material studies tied to managed IT, security, commerce, and mobile workflows."
   bodyClass="creative-page"
   mainClass="relative isolate overflow-x-clip"
   showFooter={true}
@@ -85,9 +85,9 @@ const galleryRoutes = [
   <StructuredData
     type="collection"
     data={{
-      name: 'Design Gallery',
+      name: 'Design Library',
       description:
-        'Interactive gallery of visual studies tied to the live managed IT site architecture.',
+        'Interactive library of visual studies tied to the live managed IT site architecture.',
     }}
   />
   <StructuredData
@@ -103,7 +103,7 @@ const galleryRoutes = [
         {
           '@type': 'ListItem',
           position: 2,
-          name: 'Design Gallery',
+          name: 'Design Library',
           item: new URL(withBasePath('gallery/'), Astro.site).toString(),
         },
       ],
@@ -114,14 +114,15 @@ const galleryRoutes = [
     <div class="premium-container">
       <div class="gallery-page-hero__grid">
         <div class="gallery-page-copy tone-page-header">
-          <p class="tone-page-eyebrow">Design gallery</p>
+          <p class="tone-page-eyebrow">Design library</p>
           <h1 class="tone-page-title">
-            A curated wall of visual studies tied to real routes and real work.
+            A visual reference system for work that has to feel credible fast.
           </h1>
           <p class="tone-page-copy">
-            The gallery now reads like an editorial companion to the live site:
-            filterable studies, multiple scan modes, curator notes, and clear
-            route handoffs instead of detached visual experiments.
+            Use the library to compare mood, density, motion, and material
+            choices across support, security, infrastructure, commerce, and
+            mobile workflows without turning the site into a detached mood
+            board.
           </p>
 
           <div class="tone-page-actions">
@@ -130,7 +131,7 @@ const galleryRoutes = [
               variant="gradient"
               className="min-h-[52px]"
             >
-              Browse the wall
+              Browse studies
             </ModernButton>
             <ModernButton
               href={withBasePath('photos/')}
@@ -216,14 +217,14 @@ const galleryRoutes = [
   <section class="gallery-page-section" id="gallery-wall" data-page-section>
     <div class="premium-container">
       <div class="tone-section-heading">
-        <p class="tone-section-kicker">Browse the wall</p>
+        <p class="tone-section-kicker">Browse studies</p>
         <h2 class="tone-section-title">
           Change the discipline or the scan mode, then move into the linked
           route.
         </h2>
         <p class="tone-section-copy">
-          Poster view is best for narrative browsing, salon for comparing vibes,
-          and index for a cleaner production-style scan.
+          Poster view is best for narrative browsing, salon for comparing visual
+          direction, and index for a cleaner production-style scan.
         </p>
       </div>
 

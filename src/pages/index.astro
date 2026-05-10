@@ -11,53 +11,53 @@ const contactHref = `mailto:${encodeURIComponent(
 const heroSignals = [
   {
     label: 'Operate',
-    value: 'Tickets, devices, vendors, and standards in one field.',
+    value: 'Support that stops recurring problems, not just tickets.',
     detail:
-      'The service layer should feel owned, visible, and less dependent on heroic memory.',
+      'Users, devices, vendors, onboarding, patching, and escalation all get named ownership.',
   },
   {
     label: 'Protect',
-    value: 'Identity, endpoint, email, and backup with evidence.',
+    value: 'Security controls leadership can actually verify.',
     detail:
-      'Security work gets translated into posture, proof, and calmer decisions.',
+      'Identity, endpoint, email, backup, and response work becomes visible evidence.',
   },
   {
     label: 'Present',
-    value: 'The public experience finally matches the backend care.',
+    value: 'Digital systems that make the business easier to buy from.',
     detail:
-      'Web, intake, commerce, and portal surfaces can now feel alive without feeling loud.',
+      'Websites, portals, intake, and commerce flows get built around trust and action.',
   },
 ];
 
 const siteGuide = [
   {
     label: 'Solutions',
-    copy: 'See the owned lanes: support, security, Microsoft 365, cloud, backup, networking, and selective digital systems.',
+    copy: 'Pick the first pressure point: support, security, Microsoft 365, cloud, backup, network, or digital systems.',
     href: withBasePath('services/'),
   },
   {
     label: 'Pricing',
-    copy: 'Use realistic ranges and scope logic before a sales call turns vague.',
+    copy: 'See practical ranges, scope boundaries, and what changes the monthly number.',
     href: withBasePath('pricing/'),
   },
   {
-    label: 'E Commerce Demo',
-    copy: 'A live proof route for polished mobile commerce, stateful flows, and interface craft.',
+    label: 'Digital proof',
+    copy: 'Inspect live commerce and interface examples instead of taking design claims on faith.',
     href: withBasePath('about/'),
   },
   {
     label: 'Blog',
-    copy: 'Field notes for buyers who want governance, onboarding, security, and delivery clarity.',
+    copy: 'Read practical notes on onboarding, governance, security, and modernization decisions.',
     href: withBasePath('blog/'),
   },
   {
-    label: 'News + Podcast',
-    copy: 'Short briefings and editorial signals without the fake thought-leadership fog.',
+    label: 'Briefings',
+    copy: 'Short operator briefings on what is changing in managed IT, security, and digital work.',
     href: withBasePath('news/'),
   },
   {
-    label: 'Photo Gallery',
-    copy: 'Visual reference, materials, installation mood, and curated proof of taste.',
+    label: 'Visual library',
+    copy: 'A reference library for sharper visual direction, photography, and launch materials.',
     href: withBasePath('photos/'),
   },
 ];
@@ -66,29 +66,29 @@ const serviceLanes = [
   {
     index: '01',
     label: 'Operate',
-    title: 'Managed IT that owns the working day, not just the queue.',
-    copy: 'Help desk, onboarding, patching, vendor coordination, endpoint standards, recurring-issue reduction, and weekly visibility under one accountable rhythm.',
+    title: 'Daily IT support with named ownership.',
+    copy: 'Help desk, onboarding, patching, vendor coordination, endpoint standards, and weekly visibility for teams tired of chasing the same problems.',
     href: withBasePath('services/'),
   },
   {
     index: '02',
     label: 'Protect',
-    title: 'Security posture that can be explained, tested, and trusted.',
-    copy: 'Identity hardening, endpoint protection, email defense, backup proof, cyber-insurance readiness, and response habits that hold up under scrutiny.',
+    title: 'Cybersecurity that shows its work.',
+    copy: 'MFA, conditional access, endpoint protection, email defense, backup proof, cyber-insurance readiness, and response habits that stand up in review.',
     href: withBasePath('services/#technology-catalog'),
   },
   {
     index: '03',
     label: 'Modernize',
-    title: 'Microsoft 365 and cloud cleanup with a real operating outcome.',
-    copy: 'Tenant governance, SharePoint and Teams cleanup, lifecycle rules, migrations, backup decisions, and automation that makes the business easier to run.',
+    title: 'Microsoft 365 and cloud cleanup that reduces drag.',
+    copy: 'Teams, SharePoint, licensing, access, backup, migration, and automation work organized around fewer handoffs and clearer decisions.',
     href: withBasePath('services/#technology-catalog'),
   },
   {
     index: '04',
     label: 'Present',
-    title: 'Digital experiences that look sharp because the system is sharp.',
-    copy: 'Selective websites, client portals, commerce demos, and contact/intake flows designed to build trust instead of performing generic polish.',
+    title: 'Selective digital systems for better sales and intake.',
+    copy: 'Websites, portals, demos, ecommerce, and contact flows built when the public experience needs to match the quality of the operation.',
     href: withBasePath('about/'),
   },
 ];
@@ -96,34 +96,34 @@ const serviceLanes = [
 const experienceHubs = [
   {
     code: 'DX',
-    label: 'Demo store',
-    title: 'Interactive e commerce walkthrough',
-    copy: 'Open cart, compare, quick view, or checkout review paths with shareable URLs and mobile-safe demo controls.',
-    meta: ['Cart + compare', 'Shareable states', 'Launch-safe controls'],
+    label: 'Proof',
+    title: 'Live ecommerce and interface demos',
+    copy: 'Stateful carts, comparison flows, quick views, checkout review, and mobile behavior show what the digital work can actually do.',
+    meta: ['Live state', 'Mobile flows', 'Launch controls'],
     href: withBasePath('about/'),
   },
   {
     code: 'JG',
-    label: 'Journal',
-    title: 'Blog with filters, topics, and digest-style scanning',
-    copy: 'Move from a flat article list to a sharper reading experience that helps buyers find the practical advice they actually need.',
-    meta: ['Topic filters', 'Featured brief', 'Case-study adjacent'],
+    label: 'Guidance',
+    title: 'Field notes for operators and owners',
+    copy: 'Short, practical explanations for support transitions, Microsoft 365 cleanup, security posture, backup, and scope decisions.',
+    meta: ['Buyer questions', 'Checklists', 'Decision notes'],
     href: withBasePath('blog/'),
   },
   {
     code: 'NP',
-    label: 'Newsroom',
-    title: 'News + podcast desk with episode switching',
-    copy: 'Editorial beats, show notes, quick clips, and release cadence make the page feel alive instead of like a generic content bucket.',
-    meta: ['Episode queue', 'Show notes', 'Beat tracker'],
+    label: 'Signals',
+    title: 'Briefings on the fast-changing tech layer',
+    copy: 'Security, AI, Microsoft 365, operations, and digital buying paths are changing quickly. The briefings translate what matters now.',
+    meta: ['Security shifts', 'AI workflow', 'M365 changes'],
     href: withBasePath('news/'),
   },
   {
     code: 'PG',
-    label: 'Gallery',
-    title: 'Photo and design routes with real curation logic',
-    copy: 'Filterable collections, art direction, shot metadata, and route-linked studies make the visual routes feel intentionally built.',
-    meta: ['Filter states', 'Lightbox flow', 'Curator notes'],
+    label: 'Visuals',
+    title: 'Photo and design reference library',
+    copy: 'Curated references help future pages, proposals, and launch materials stay sharp without drifting into stock-template sameness.',
+    meta: ['Photo sets', 'Design studies', 'Route context'],
     href: withBasePath('photos/'),
   },
 ];
@@ -139,7 +139,7 @@ const operatingSignals = [
   },
   {
     label: 'Executive visibility',
-    copy: 'Leaders get a real operating view: priorities, risk notes, roadmap sequencing, budget signals, and where the drag actually lives.',
+    copy: 'Leaders see priorities, risk notes, roadmap sequence, budget signals, and where the drag is actually coming from.',
   },
 ];
 
@@ -152,23 +152,24 @@ const firstThirtyDays = [
 const buyerQuestions = [
   {
     title: 'Who really owns the environment after the contract is signed?',
-    copy: 'Good buyers want vendor coordination, recurring-issue reduction, reporting, security evidence, and onboarding discipline—not just a promise to answer tickets.',
+    copy: 'The answer should include vendor coordination, recurring-issue reduction, reporting, security evidence, and onboarding discipline.',
   },
   {
     title:
-      'Will the public-facing experience match the quality of the backend work?',
-    copy: 'Your digital front door should look deliberate, persuasive, and trustworthy on mobile—not like it was dropped in last after the “real work” was done.',
+      'Can the provider keep up with security, AI, cloud, and workflow change?',
+    copy: 'The right partner should know what to standardize, what to automate, what to secure, and what to ignore for now.',
   },
   {
-    title: 'Does the site help me understand fit quickly?',
-    copy: 'The best pages clarify buyer fit, likely pressure points, what gets handled first, and what the next move should be without a maze of generic sections.',
+    title:
+      'Can the website, portal, or intake flow help sales instead of slowing it down?',
+    copy: 'When digital work is in scope, the goal is not decoration. It is clearer trust, fewer dead ends, and a better path to the next action.',
   },
 ];
 
 const startOptions = [
   {
     title: 'Need service coverage?',
-    copy: 'Start with the solution hub if you need help desk ownership, security lift, Microsoft 365 governance, or infrastructure support.',
+    copy: 'Use the solutions hub if the main issue is support ownership, security lift, Microsoft 365 governance, or infrastructure stability.',
     href: withBasePath('services/'),
     cta: 'Open solutions hub',
   },
@@ -180,7 +181,7 @@ const startOptions = [
   },
   {
     title: 'Need fit clarity?',
-    copy: 'Use Contact HQ when the real question is sequence, timing, scope, or which lane should lead first.',
+    copy: 'Use Contact HQ when you need help deciding what should happen first and what can wait.',
     href: withBasePath('contact-hq/'),
     cta: 'Open fit intake',
   },
@@ -225,18 +226,18 @@ const startOptions = [
           Chicago managed IT + expressive digital systems
         </p>
         <h1 class="home-homepage-title">
-          Olive Chicago managed IT for the operating layer and the public front
-          door.
+          Olive Chicago managed IT for teams that need fewer technology
+          surprises.
         </h1>
         <p class="home-homepage-copy">
           Support, cybersecurity, Microsoft 365, cloud, backup, networking, and
-          selective web systems for teams that want less drag inside the
-          business and a sharper first impression outside it.
+          selective digital systems for teams that want fast support, visible
+          ownership, and a sharper way to earn trust online.
         </p>
         <p class="home-homepage-claim">
-          The first screen is a live spatial model because code can now explain
-          complex service work without another wall of generic cards. The rest
-          of the page turns that motion into fit, scope, proof, and a next step.
+          Start with the operational pressure: recurring tickets, weak security
+          proof, messy Microsoft 365, unclear backup, or a digital front door
+          that no longer reflects the quality of the business.
         </p>
 
         <div class="home-homepage-actions">
@@ -300,12 +301,12 @@ const startOptions = [
       <div class="home-homepage-section__intro">
         <p class="home-homepage-eyebrow">Start here</p>
         <h2 class="home-homepage-section__title">
-          A route map that respects how buyers actually scan.
+          Find the right first move in under a minute.
         </h2>
         <p class="home-homepage-section__copy">
-          The homepage should not feel like six unrelated pamphlets. It should
-          make the next click obvious: understand the service, price the shape,
-          inspect proof, or start a fit conversation.
+          Most visitors arrive with one of four questions: who owns support, how
+          safe are we, what will this cost, or can the public experience be made
+          better. Pick that lane and skip the noise.
         </p>
       </div>
 
@@ -327,12 +328,12 @@ const startOptions = [
       <div class="home-homepage-section__intro">
         <p class="home-homepage-eyebrow">What we do</p>
         <h2 class="home-homepage-section__title">
-          Four lanes that make the operating model easier to understand.
+          Four lanes, one operating standard.
         </h2>
         <p class="home-homepage-section__copy">
-          The structure is deliberate: support ownership, security posture,
-          Microsoft 365/cloud cleanup, and the digital experience layer. Buyers
-          should understand where the pressure lives within seconds.
+          The offer is intentionally simple: run the daily IT layer, strengthen
+          the security baseline, clean up Microsoft 365 and cloud systems, and
+          build selective digital surfaces when they support sales or service.
         </p>
       </div>
 
@@ -364,12 +365,12 @@ const startOptions = [
       <div class="home-homepage-section__intro">
         <p class="home-homepage-eyebrow">Featured experiences</p>
         <h2 class="home-homepage-section__title">
-          Supporting routes should feel like working surfaces, not filler pages.
+          Proof should be interactive, not buried in claims.
         </h2>
         <p class="home-homepage-section__copy">
-          Gallery, photo, blog, demo store, and newsroom routes earn their keep
-          when they show state, movement, curation, and mobile behavior that a
-          buyer can actually judge.
+          The site includes working examples, briefings, and visual references
+          so a buyer can judge how the company thinks, builds, and explains
+          modern technology work.
         </p>
       </div>
 
@@ -408,12 +409,12 @@ const startOptions = [
       <div class="home-homepage-section__intro">
         <p class="home-homepage-eyebrow">Buyer realities</p>
         <h2 class="home-homepage-section__title">
-          The quiet questions deserve direct answers.
+          The real buying questions are practical.
         </h2>
         <p class="home-homepage-section__copy">
-          Better design earns attention, but clarity wins trust. The site should
-          tell buyers who owns what, how the relationship works, and why the
-          digital layer feels deliberately built.
+          A good MSP website should not bury visitors in capability lists. It
+          should answer ownership, proof, pace of change, and what happens after
+          the first conversation.
         </p>
       </div>
 
@@ -440,12 +441,12 @@ const startOptions = [
         <div class="home-homepage-section__intro">
           <p class="home-homepage-eyebrow">Operating standard</p>
           <h2 class="home-homepage-section__title">
-            The first phase should make the operating model easier, not louder.
+            The first phase is about control, evidence, and momentum.
           </h2>
           <p class="home-homepage-section__copy">
-            Intake starts by separating urgent support and security work from
-            structural cleanup. Leadership gets a clear view of what happens
-            now, next, and later.
+            Intake separates urgent support, security, and continuity work from
+            longer cleanup. Leadership gets a clear view of what happens now,
+            what waits, and what it should cost.
           </p>
         </div>
 
@@ -484,11 +485,11 @@ const startOptions = [
         <div class="home-homepage-closing__intro">
           <p class="home-homepage-eyebrow">Choose the next move</p>
           <h2 class="home-homepage-section__title">
-            Start where the pressure is: operations, budget, or fit.
+            Start where the uncertainty is highest.
           </h2>
           <p class="home-homepage-section__copy">
-            The best next step is the one that removes uncertainty fastest. Pick
-            the lane that answers your first decision cleanly.
+            Choose the path that answers the first decision cleanly: service
+            coverage, budget shape, or whether the work is a fit.
           </p>
         </div>
 
@@ -510,12 +511,13 @@ const startOptions = [
           <div>
             <p class="home-homepage-eyebrow">Ready to move</p>
             <h3 class="home-homepage-closeout__title">
-              Fix the operating layer. Give the front door the same discipline.
+              Make the operating layer steadier. Make the digital front door
+              sharper.
             </h3>
             <p class="home-homepage-closeout__copy">
-              If you want the service model and the public experience to feel
-              like they came from the same serious team, that is the right
-              conversation to have next.
+              The right first conversation should identify the pressure point,
+              the risk, the likely cost range, and the first outcome worth
+              proving.
             </p>
           </div>
 
