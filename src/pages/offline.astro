@@ -189,7 +189,7 @@ const description = 'This page is available offline thanks to service workers';
           }
 
           // After cleanup, bounce back to the homepage.
-          // Respect base paths like /dontforgetyourtowel/ used in local preview.
+          // Respect configured base paths used in local preview.
           const parts = location.pathname.split('/').filter(Boolean);
           const base =
             parts.length === 0 || parts[0] === 'offline'

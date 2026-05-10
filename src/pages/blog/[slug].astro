@@ -1,15 +1,158 @@
 ---
-import { getCollection } from 'astro:content';
-import LegacyRedirect from '../../components/LegacyRedirect.astro';
+import { getCollection, render } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+import MarketingLayout from '../../layouts/MarketingLayout.astro';
+import ModernButton from '../../components/ui/ModernButton.astro';
+import { withBasePath } from '../../utils/helpers';
 
 export const prerender = true;
 
+type BlogPost = CollectionEntry<'blog'>;
+
 export async function getStaticPaths() {
-  // Keep legacy blog links resolvable and redirect each slug.
-  const posts = (await getCollection('blog' as never)) as any[];
-  const published = posts.filter(entry => !entry.data.draft);
-  return published.map(entry => ({ params: { slug: entry.id } }));
+  const posts = (await getCollection('blog')).filter(
+    entry => !entry.data.draft
+  );
+  return posts.map(post => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
 }
+
+const { post } = Astro.props as { post: BlogPost };
+const { Content } = await render(post);
 ---
 
-<LegacyRedirect destination="services/#case-studies" />
+<MarketingLayout
+  title={`${post.data.title} | Olive Chicago Blog`}
+  description={post.data.description}
+  bodyClass="creative-page"
+  mainClass="relative isolate overflow-x-clip"
+  showFooter={true}
+  showStickyCTA={false}
+  showLiveChat={false}
+  showSavedRoutesDock={false}
+>
+  <article class="blog-post">
+    <header class="blog-post-hero">
+      <div class="premium-container">
+        <div class="blog-post-hero__copy">
+          <p class="blog-post-eyebrow">
+            {
+              post.data.pubDate.toLocaleDateString('en-US', {
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric',
+              })
+            }
+          </p>
+          <h1>{post.data.title}</h1>
+          <p>{post.data.description}</p>
+          <div class="blog-post-tags">
+            {post.data.tags.map(tag => <span>{tag}</span>)}
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="premium-container">
+      <div class="blog-post-body">
+        <Content />
+      </div>
+
+      <div class="blog-post-next">
+        <ModernButton href={withBasePath('blog/')} variant="outline">
+          Back to blog
+        </ModernButton>
+        <ModernButton href={withBasePath('contact-hq/')} variant="primary">
+          Start a fit review
+        </ModernButton>
+      </div>
+    </div>
+  </article>
+</MarketingLayout>
+
+<style>
+  .blog-post-hero {
+    padding: clamp(6rem, 9vw, 8rem) 0 clamp(3rem, 6vw, 5rem);
+    border-bottom: 1px solid
+      color-mix(in srgb, var(--color-border) 70%, transparent);
+  }
+
+  .blog-post-hero__copy {
+    display: grid;
+    gap: 1rem;
+    max-width: 48rem;
+  }
+
+  .blog-post-eyebrow {
+    margin: 0;
+    color: color-mix(in srgb, var(--color-text-muted) 90%, transparent);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .blog-post-hero h1 {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-family: var(--font-display);
+    font-size: clamp(2.2rem, 5vw, 4.5rem);
+    font-weight: 650;
+    line-height: 1;
+    letter-spacing: 0;
+    text-wrap: balance;
+  }
+
+  .blog-post-hero p,
+  .blog-post-body :global(p),
+  .blog-post-body :global(li) {
+    color: color-mix(in srgb, var(--color-text-secondary) 94%, transparent);
+    font-size: 1.02rem;
+    line-height: 1.78;
+  }
+
+  .blog-post-tags,
+  .blog-post-next {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .blog-post-tags span {
+    display: inline-flex;
+    min-height: 2rem;
+    align-items: center;
+    padding: 0 0.7rem;
+    border: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
+    border-radius: 999px;
+    color: color-mix(in srgb, var(--color-text-primary) 78%, transparent);
+    font-size: 0.78rem;
+  }
+
+  .blog-post-body {
+    max-width: 48rem;
+    padding: clamp(3rem, 6vw, 5rem) 0;
+  }
+
+  .blog-post-body :global(h2) {
+    margin: 2.6rem 0 0.75rem;
+    color: var(--color-text-primary);
+    font-family: var(--font-display);
+    font-size: clamp(1.45rem, 2.5vw, 2.1rem);
+    line-height: 1.1;
+  }
+
+  .blog-post-body :global(ul),
+  .blog-post-body :global(ol) {
+    display: grid;
+    gap: 0.7rem;
+    padding-left: 1.2rem;
+  }
+
+  .blog-post-next {
+    padding: 0 0 clamp(3rem, 6vw, 5rem);
+  }
+</style>

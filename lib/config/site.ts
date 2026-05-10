@@ -19,7 +19,7 @@ const analyticsFlag = readPublicEnv(
 );
 const analyticsEnabled = analyticsFlag === 'true' || analyticsFlag === '1';
 
-export const SITE_TITLE = 'Olive Global Systems';
+export const SITE_TITLE = 'Olive Chicago';
 export const SITE_DESCRIPTION =
   'Chicago-area managed IT, cybersecurity, cloud, Microsoft 365, backup, networking, and digital systems for growth-minded teams.';
 export const SITE_URL = deployment.siteUrl;
@@ -31,7 +31,7 @@ export const CONTACT_EMAIL =
 export const SITE_CONFIG = {
   title: SITE_TITLE,
   description: SITE_DESCRIPTION,
-  author: 'Olive Global Systems',
+  author: 'Olive Chicago',
   defaultLanguage: 'en-US',
   social: {
     github: deployment.repoUrl || 'https://github.com',
@@ -59,5 +59,5 @@ export const FEATURES = {
   enablePWA: true,
   enableDarkMode: true,
   enableSearch: true,
-  enableRSS: false,
+  enableRSS: true,
 } as const;

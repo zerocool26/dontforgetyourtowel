@@ -1,8 +1,8 @@
 ---
-name: 'Olive Global Systems Team'
+name: 'Olive Chicago Team'
 role: 'Core Maintainers'
 avatar: '/blog-placeholder-about.jpg'
-bio: 'The core team behind Olive Global Systems. Focused on trade delivery, digital systems, and performance-minded web architecture.'
+bio: 'The team behind Olive Chicago. Focused on managed IT, security, Microsoft 365, cloud operations, and practical digital systems for Chicago-area companies.'
 twitter: 'https://twitter.com/astrodotbuild'
 github: 'https://github.com/withastro'
 ---

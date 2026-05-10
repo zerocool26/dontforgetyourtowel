@@ -7,7 +7,7 @@ export const prerender = true;
 export const GET: APIRoute = () => {
   const manifest = {
     name: SITE_TITLE,
-    short_name: 'OGS',
+    short_name: 'OC',
     description: SITE_DESCRIPTION,
     start_url: withBasePath(''),
     scope: withBasePath(''),

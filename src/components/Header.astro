@@ -6,7 +6,7 @@ import { getTradeVisual } from '../data/trade-visuals';
 import { getRouteContext } from '../utils/route-context';
 
 const homeHref = withBasePath('/');
-const mobileSiteTitle = SITE_TITLE.replace(/\s+Systems$/i, '');
+const mobileSiteTitle = SITE_TITLE;
 
 const links = [
   { label: 'Solutions', href: withBasePath('services/') },
@@ -95,7 +95,7 @@ const isTradeActiveHref = (href: string) => {
       <span
         class="header-brand-mark relative inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-[10px] font-bold uppercase tracking-widest transition-colors duration-200"
       >
-        OGS
+        OC
       </span>
       <div class="flex min-w-0 flex-col leading-none">
         <span

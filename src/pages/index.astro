@@ -7,35 +7,35 @@ import { withBasePath } from '../utils/helpers';
 
 const contactHref = `mailto:${encodeURIComponent(
   CONTACT_EMAIL
-)}?subject=${encodeURIComponent('Strategy intake - Olive Global Systems')}`;
+)}?subject=${encodeURIComponent('Strategy intake - Olive Chicago')}`;
 
 const serviceLanes = [
   {
     index: '01',
     label: 'Operate',
     title: 'Managed IT that actually owns the day-to-day',
-    copy: 'Help desk, endpoint management, onboarding, vendor coordination, and recurring maintenance under one accountable operating model.',
+    copy: 'Responsive help desk, endpoint care, onboarding, patching, vendor coordination, and reporting under one accountable support rhythm.',
     href: withBasePath('services/'),
   },
   {
     index: '02',
     label: 'Protect',
     title: 'Security and compliance without enterprise theater',
-    copy: 'Identity, email protection, endpoint security, compliance readiness, and response planning that leadership can actually follow.',
+    copy: 'Identity controls, email defense, endpoint security, awareness, compliance evidence, and response habits that make risk easier to govern.',
     href: withBasePath('services/#technology-catalog'),
   },
   {
     index: '03',
     label: 'Modernize',
     title: 'Cloud and Microsoft 365 with practical leverage',
-    copy: 'Migration, cleanup, collaboration governance, backup strategy, and workflow automation tied to lower drag and better visibility.',
+    copy: 'Tenant cleanup, migrations, Teams/SharePoint governance, Azure planning, backup, and automation tied to measurable operating drag.',
     href: withBasePath('services/#technology-catalog'),
   },
   {
     index: '04',
     label: 'Present',
     title: 'A digital front door that feels as strong as the backend',
-    copy: 'Selective website, portal, and client-facing work for firms whose presentation needs to match the quality of their operations.',
+    copy: 'Selective websites, portals, product demos, and intake surfaces for firms whose public experience needs to feel as strong as the work behind it.',
     href: withBasePath('about/'),
   },
 ];
@@ -81,10 +81,43 @@ const startOptions = [
     cta: 'Start fit check',
   },
 ];
+
+const siteGuide = [
+  {
+    label: 'Solutions',
+    copy: 'Support, security, Microsoft 365, cloud, backup, and digital systems.',
+    href: withBasePath('services/'),
+  },
+  {
+    label: 'Pricing',
+    copy: 'Coverage shapes, budget signals, and calculator paths.',
+    href: withBasePath('pricing/'),
+  },
+  {
+    label: 'E Commerce Demo',
+    copy: 'A working shop surface with cart, compare, checkout, and product states.',
+    href: withBasePath('about/'),
+  },
+  {
+    label: 'Blog',
+    copy: 'Short field notes on managed IT buying, security, and operations.',
+    href: withBasePath('blog/'),
+  },
+  {
+    label: 'News + Podcast',
+    copy: 'Brief episodes, advisory notes, and local operating signals.',
+    href: withBasePath('news/'),
+  },
+  {
+    label: 'Photo Gallery',
+    copy: 'Visual proof, workspace texture, and systems-minded references.',
+    href: withBasePath('photos/'),
+  },
+];
 ---
 
 <MarketingLayout
-  title="Olive Global Systems | Chicago Managed IT, Security, and Digital Systems"
+  title="Olive Chicago | Managed IT, Security, Microsoft 365, and Digital Systems"
   description="Chicago-area managed IT, cybersecurity, Microsoft 365, backup, networking, and selective digital systems for firms that need steadier operations and a stronger first impression."
   mainClass="relative overflow-x-clip"
   bodyClass="creative-page"
@@ -94,10 +127,36 @@ const startOptions = [
   showSavedRoutesDock={false}
 >
   <section class="home-homepage-hero" id="landing-hero" data-page-section>
-    <h1 class="sr-only">
-      Olive Global Systems Chicago managed IT and cybersecurity
-    </h1>
+    <h1 class="sr-only">Olive Chicago managed IT and cybersecurity</h1>
     <HomeOrbitScene client:only="preact" />
+  </section>
+
+  <section
+    class="home-homepage-section home-homepage-section--guide"
+    id="guide"
+    data-page-section
+  >
+    <div class="premium-container">
+      <div class="home-homepage-guide">
+        <div class="home-homepage-section__intro">
+          <p class="home-homepage-eyebrow">Start here</p>
+          <h2 class="home-homepage-section__title">
+            A fast map of the site, without turning the header into a maze.
+          </h2>
+        </div>
+
+        <div class="home-homepage-guide__grid" aria-label="Site guide">
+          {
+            siteGuide.map(item => (
+              <a class="home-homepage-guide__item" href={item.href}>
+                <span>{item.label}</span>
+                <p>{item.copy}</p>
+              </a>
+            ))
+          }
+        </div>
+      </div>
+    </div>
   </section>
 
   <section class="home-homepage-section" id="services" data-page-section>
@@ -357,6 +416,36 @@ const startOptions = [
           color-mix(in srgb, var(--color-border) 32%, transparent) 36px 37px
         );
       pointer-events: none;
+    }
+
+    :global(.home-orbit-scene__hud) {
+      position: absolute;
+      right: clamp(1rem, 4vw, 3rem);
+      bottom: clamp(1rem, 4vw, 2.4rem);
+      z-index: 2;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 0.45rem;
+      max-width: min(28rem, calc(100% - 2rem));
+      pointer-events: none;
+    }
+
+    :global(.home-orbit-scene__hud span) {
+      display: inline-flex;
+      min-height: 2rem;
+      align-items: center;
+      border: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--color-background) 62%, transparent);
+      padding: 0 0.72rem;
+      color: color-mix(in srgb, var(--color-text-primary) 74%, transparent);
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      backdrop-filter: blur(14px);
     }
 
     .home-homepage-hero__shell {
@@ -670,6 +759,67 @@ const startOptions = [
         color-mix(in srgb, var(--color-border) 72%, transparent);
     }
 
+    .home-homepage-section--guide {
+      padding: clamp(2.75rem, 5vw, 4.25rem) 0;
+      background:
+        linear-gradient(
+          180deg,
+          color-mix(in srgb, var(--color-surface) 54%, transparent),
+          transparent
+        ),
+        color-mix(in srgb, var(--color-background) 96%, transparent);
+    }
+
+    .home-homepage-guide {
+      display: grid;
+      gap: 1.25rem;
+    }
+
+    .home-homepage-guide__grid {
+      display: grid;
+      gap: 1px;
+      overflow: hidden;
+      border: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
+      background: color-mix(in srgb, var(--color-border) 55%, transparent);
+    }
+
+    .home-homepage-guide__item {
+      display: grid;
+      gap: 0.45rem;
+      min-height: 8.75rem;
+      padding: 1rem;
+      background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--color-surface) 90%, white 2%),
+        color-mix(in srgb, var(--color-background) 94%, transparent)
+      );
+      transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+    }
+
+    .home-homepage-guide__item span {
+      color: var(--color-text-primary);
+      font-size: 0.94rem;
+      font-weight: 700;
+    }
+
+    .home-homepage-guide__item p {
+      margin: 0;
+      color: color-mix(in srgb, var(--color-text-secondary) 90%, transparent);
+      font-size: 0.9rem;
+      line-height: 1.55;
+    }
+
+    .home-homepage-guide__item:hover {
+      transform: translateY(-2px);
+      background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--color-primary) 8%, var(--color-surface)),
+        color-mix(in srgb, var(--color-surface) 94%, transparent)
+      );
+    }
+
     .home-homepage-section__intro {
       display: grid;
       gap: 0.85rem;
@@ -929,6 +1079,10 @@ const startOptions = [
 
       .home-homepage-lanes {
         grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .home-homepage-guide__grid {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
       }
 
       .home-homepage-lane {

@@ -10,7 +10,7 @@ export async function GET() {
     version: 1,
     generatedAt: new Date().toISOString(),
     platform: {
-      name: 'Olive Global Systems',
+      name: 'Olive Chicago',
       description:
         'Chicago managed IT platform for support, security, Microsoft 365, cloud, premium proof routes, and supporting gallery references.',
       experienceModes: [
@@ -39,6 +39,9 @@ export async function GET() {
       about: 'about/',
       proof: 'about/',
       gallery: 'gallery/',
+      blog: 'blog/',
+      news: 'news/',
+      photos: 'photos/',
       galleryStateQueryParams: ['discipline', 'galleryView'],
       services: 'services/',
       pricing: 'pricing/',

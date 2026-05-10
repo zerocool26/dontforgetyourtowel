@@ -1,12 +1,235 @@
 ---
-import LegacyRedirect from '../../components/LegacyRedirect.astro';
+import { getCollection } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+import MarketingLayout from '../../layouts/MarketingLayout.astro';
+import ModernButton from '../../components/ui/ModernButton.astro';
+import { withBasePath } from '../../utils/helpers';
 
 export const prerender = true;
 
+type BlogPost = CollectionEntry<'blog'>;
+
 export async function getStaticPaths() {
-  // Keep legacy blog pages resolvable and redirect all of them.
-  return [{ params: { page: undefined } }];
+  const posts = (await getCollection('blog')).filter(
+    entry => !entry.data.draft
+  );
+
+  return [
+    {
+      params: { page: undefined },
+      props: {
+        posts: posts.sort(
+          (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+        ),
+      },
+    },
+  ];
 }
+
+const { posts } = Astro.props as { posts: BlogPost[] };
+const featuredPost = posts[0];
+const remainingPosts = posts.slice(1);
 ---
 
-<LegacyRedirect destination="services/#case-studies" />
+<MarketingLayout
+  title="Blog | Olive Chicago"
+  description="Practical field notes on managed IT, security, Microsoft 365, cloud operations, ecommerce demos, and digital systems for Chicago-area teams."
+  bodyClass="creative-page"
+  mainClass="relative isolate overflow-x-clip"
+  showFooter={true}
+  showStickyCTA={false}
+  showLiveChat={false}
+  showSavedRoutesDock={false}
+>
+  <section class="blog-page-hero" data-page-section>
+    <div class="premium-container">
+      <div class="blog-page-hero__grid">
+        <div class="blog-page-copy">
+          <p class="blog-eyebrow">Blog</p>
+          <h1 class="blog-title">
+            Field notes for teams buying IT support, security, and digital work.
+          </h1>
+          <p class="blog-copy">
+            Short, practical articles written for owners and operators who want
+            fewer surprises: what to ask, what to measure, what to clean up, and
+            when a shiny project should wait.
+          </p>
+          <div class="blog-actions">
+            <ModernButton href={withBasePath('services/')} variant="primary">
+              Open solutions
+            </ModernButton>
+            <ModernButton href={withBasePath('news/')} variant="outline">
+              News + podcast
+            </ModernButton>
+          </div>
+        </div>
+
+        {
+          featuredPost ? (
+            <a
+              class="blog-feature"
+              href={withBasePath(`blog/${featuredPost.id}/`)}
+            >
+              <p class="blog-eyebrow">Latest note</p>
+              <h2>{featuredPost.data.title}</h2>
+              <p>{featuredPost.data.description}</p>
+              <div class="blog-tags">
+                {featuredPost.data.tags.slice(0, 4).map(tag => (
+                  <span>{tag}</span>
+                ))}
+              </div>
+            </a>
+          ) : null
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="blog-page-section" data-page-section>
+    <div class="premium-container">
+      <div class="blog-section-heading">
+        <p class="blog-eyebrow">All notes</p>
+        <h2>Readable guidance without vendor fog.</h2>
+      </div>
+
+      <div class="blog-grid">
+        {
+          remainingPosts.map(post => (
+            <a class="blog-card" href={withBasePath(`blog/${post.id}/`)}>
+              <p class="blog-card__date">
+                {post.data.pubDate.toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
+                })}
+              </p>
+              <h3>{post.data.title}</h3>
+              <p>{post.data.description}</p>
+              <div class="blog-tags">
+                {post.data.tags.slice(0, 3).map(tag => (
+                  <span>{tag}</span>
+                ))}
+              </div>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</MarketingLayout>
+
+<style>
+  .blog-page-hero,
+  .blog-page-section {
+    padding: clamp(4.5rem, 8vw, 7rem) 0;
+    border-bottom: 1px solid
+      color-mix(in srgb, var(--color-border) 70%, transparent);
+  }
+
+  .blog-page-hero {
+    padding-top: clamp(6rem, 9vw, 8rem);
+  }
+
+  .blog-page-hero__grid,
+  .blog-grid {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .blog-page-copy,
+  .blog-section-heading {
+    display: grid;
+    gap: 0.9rem;
+    max-width: 48rem;
+  }
+
+  .blog-eyebrow,
+  .blog-card__date {
+    margin: 0;
+    color: color-mix(in srgb, var(--color-text-muted) 90%, transparent);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .blog-title,
+  .blog-feature h2,
+  .blog-section-heading h2,
+  .blog-card h3 {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 3.4vw, 3.6rem);
+    font-weight: 650;
+    line-height: 1.03;
+    letter-spacing: 0;
+    text-wrap: balance;
+  }
+
+  .blog-title {
+    max-width: 18ch;
+  }
+
+  .blog-copy,
+  .blog-feature p,
+  .blog-card p {
+    margin: 0;
+    color: color-mix(in srgb, var(--color-text-secondary) 94%, transparent);
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+
+  .blog-actions,
+  .blog-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .blog-feature,
+  .blog-card {
+    display: grid;
+    gap: 0.85rem;
+    padding: 1.25rem;
+    border: 1px solid color-mix(in srgb, var(--color-border) 74%, transparent);
+    border-radius: var(--radius-sm);
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--color-surface) 92%, white 2%),
+      color-mix(in srgb, var(--color-background) 94%, transparent)
+    );
+    transition:
+      border-color 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .blog-feature:hover,
+  .blog-card:hover {
+    transform: translateY(-3px);
+    border-color: color-mix(in srgb, var(--color-primary) 28%, transparent);
+  }
+
+  .blog-tags span {
+    display: inline-flex;
+    min-height: 2rem;
+    align-items: center;
+    padding: 0 0.7rem;
+    border: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
+    border-radius: 999px;
+    color: color-mix(in srgb, var(--color-text-primary) 78%, transparent);
+    font-size: 0.78rem;
+  }
+
+  @media (min-width: 960px) {
+    .blog-page-hero__grid {
+      grid-template-columns: minmax(0, 1fr) minmax(22rem, 34rem);
+      align-items: end;
+    }
+
+    .blog-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

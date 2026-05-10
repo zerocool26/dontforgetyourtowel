@@ -19,9 +19,14 @@ type SearchItem = {
   tags: string[];
 };
 
+type BlogEntry = CollectionEntry<'blog'>;
+
 export async function GET() {
   const caseStudies: CollectionEntry<'caseStudies'>[] =
     await getCollection('caseStudies');
+  const blogPosts = (await getCollection('blog')).filter(
+    (entry: BlogEntry) => !entry.data.draft
+  );
 
   const caseStudyItems: SearchItem[] = caseStudies.map(entry => ({
     id: `case-${entry.id}`,
@@ -33,6 +38,16 @@ export async function GET() {
     url: 'services/#case-studies',
     date: (entry.data.published ?? new Date()).toISOString(),
     tags: ['case-study', entry.data.industry, ...(entry.data.tags ?? [])],
+  }));
+
+  const blogItems: SearchItem[] = blogPosts.map(entry => ({
+    id: `blog-${entry.id}`,
+    title: entry.data.title,
+    description: entry.data.description,
+    category: 'Blog',
+    url: `blog/${entry.id}/`,
+    date: entry.data.pubDate.toISOString(),
+    tags: ['blog', ...(entry.data.tags ?? [])],
   }));
 
   const staticPages = [
@@ -53,6 +68,33 @@ export async function GET() {
       category: 'Page',
       url: 'gallery/',
       tags: ['gallery', 'design', 'art', 'creative', 'interface', 'premium'],
+    },
+    {
+      id: 'page-blog',
+      title: 'Blog',
+      description:
+        'Practical field notes on managed IT, cybersecurity, Microsoft 365, cloud operations, and buyer-facing digital systems',
+      category: 'Page',
+      url: 'blog/',
+      tags: ['blog', 'managed it', 'security', 'm365', 'cloud', 'operations'],
+    },
+    {
+      id: 'page-news',
+      title: 'News + Podcast',
+      description:
+        'Short episodes and advisory notes for managed IT, security, Microsoft 365, continuity, and digital systems',
+      category: 'Page',
+      url: 'news/',
+      tags: ['news', 'podcast', 'advisory', 'security', 'm365'],
+    },
+    {
+      id: 'page-photos',
+      title: 'Photo Gallery',
+      description:
+        'Curated photo references for support, infrastructure, cybersecurity, modern work, and ecommerce experiences',
+      category: 'Page',
+      url: 'photos/',
+      tags: ['photos', 'gallery', 'infrastructure', 'security', 'digital'],
     },
     {
       id: 'page-about',
@@ -224,6 +266,7 @@ export async function GET() {
 
   const searchItems: SearchItem[] = [
     ...caseStudyItems,
+    ...blogItems,
     ...staticPages,
     ...tradeItems,
   ].filter(item => !isLegacyRouteUrl(item.url));

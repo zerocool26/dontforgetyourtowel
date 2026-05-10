@@ -1,0 +1,209 @@
+---
+import MarketingLayout from '../layouts/MarketingLayout.astro';
+import ModernButton from '../components/ui/ModernButton.astro';
+import { withBasePath } from '../utils/helpers';
+
+const photos = [
+  {
+    title: 'Chicago workday, mapped',
+    tag: 'Operations',
+    src: 'https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=82',
+  },
+  {
+    title: 'Support desk rhythm',
+    tag: 'Support',
+    src: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=82',
+  },
+  {
+    title: 'Network room texture',
+    tag: 'Infrastructure',
+    src: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=82',
+  },
+  {
+    title: 'Security review surface',
+    tag: 'Cybersecurity',
+    src: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1200&q=82',
+  },
+  {
+    title: 'Client-facing commerce',
+    tag: 'Digital',
+    src: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=82',
+  },
+  {
+    title: 'Modern office handoff',
+    tag: 'Microsoft 365',
+    src: 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1200&q=82',
+  },
+];
+---
+
+<MarketingLayout
+  title="Photo Gallery | Olive Chicago"
+  description="A curated photo gallery experience for systems, workspace, infrastructure, security, and digital-commerce visual references."
+  bodyClass="creative-page"
+  mainClass="relative isolate overflow-x-clip"
+  showFooter={true}
+  showStickyCTA={false}
+  showLiveChat={false}
+  showSavedRoutesDock={false}
+>
+  <section class="photo-hero" data-page-section>
+    <div class="premium-container">
+      <div class="photo-hero__grid">
+        <div class="photo-copy">
+          <p class="photo-eyebrow">Photo gallery</p>
+          <h1>Visual references for systems-minded, buyer-facing work.</h1>
+          <p>
+            A compact gallery for the textures the site is built around:
+            support, infrastructure, security, modern work, and commerce paths
+            that feel credible instead of decorative.
+          </p>
+          <div class="photo-actions">
+            <ModernButton href="#gallery" variant="primary">
+              View gallery
+            </ModernButton>
+            <ModernButton href={withBasePath('gallery/')} variant="outline">
+              Design gallery
+            </ModernButton>
+          </div>
+        </div>
+
+        <figure class="photo-feature">
+          <img src={photos[2].src} alt="Network infrastructure reference" />
+          <figcaption>{photos[2].title}</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="photo-section" id="gallery" data-page-section>
+    <div class="premium-container">
+      <div class="photo-grid">
+        {
+          photos.map(item => (
+            <figure class="photo-card">
+              <img src={item.src} alt={item.title} loading="lazy" />
+              <figcaption>
+                <span>{item.tag}</span>
+                <strong>{item.title}</strong>
+              </figcaption>
+            </figure>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</MarketingLayout>
+
+<style>
+  .photo-hero,
+  .photo-section {
+    padding: clamp(4.5rem, 8vw, 7rem) 0;
+    border-bottom: 1px solid
+      color-mix(in srgb, var(--color-border) 70%, transparent);
+  }
+
+  .photo-hero {
+    padding-top: clamp(6rem, 9vw, 8rem);
+  }
+
+  .photo-hero__grid,
+  .photo-grid {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .photo-copy {
+    display: grid;
+    gap: 0.9rem;
+    max-width: 46rem;
+  }
+
+  .photo-eyebrow,
+  .photo-card span {
+    margin: 0;
+    color: color-mix(in srgb, var(--color-text-muted) 90%, transparent);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .photo-copy h1 {
+    max-width: 17ch;
+    margin: 0;
+    color: var(--color-text-primary);
+    font-family: var(--font-display);
+    font-size: clamp(2.2rem, 5vw, 4.5rem);
+    font-weight: 650;
+    line-height: 1;
+    letter-spacing: 0;
+    text-wrap: balance;
+  }
+
+  .photo-copy p {
+    margin: 0;
+    color: color-mix(in srgb, var(--color-text-secondary) 94%, transparent);
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+
+  .photo-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .photo-feature,
+  .photo-card {
+    position: relative;
+    overflow: hidden;
+    margin: 0;
+    border: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
+    border-radius: var(--radius-sm);
+    background: color-mix(in srgb, var(--color-surface) 82%, transparent);
+  }
+
+  .photo-feature img,
+  .photo-card img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 18rem;
+    object-fit: cover;
+  }
+
+  .photo-feature figcaption,
+  .photo-card figcaption {
+    position: absolute;
+    inset: auto 0 0;
+    display: grid;
+    gap: 0.3rem;
+    padding: 1rem;
+    background: linear-gradient(180deg, transparent, rgba(5, 8, 9, 0.82));
+    color: var(--color-text-primary);
+  }
+
+  .photo-card strong,
+  .photo-feature figcaption {
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  @media (min-width: 960px) {
+    .photo-hero__grid {
+      grid-template-columns: minmax(0, 1fr) minmax(22rem, 35rem);
+      align-items: end;
+    }
+
+    .photo-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .photo-card:nth-child(1),
+    .photo-card:nth-child(4) {
+      grid-column: span 2;
+    }
+  }
+</style>

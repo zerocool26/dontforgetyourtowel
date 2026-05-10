@@ -180,8 +180,8 @@ export const galleryInstallations: GalleryInstallation[] = [
     size: 'tall',
   },
   {
-    slug: 'olive-atlas-one',
-    title: 'Olive Atlas One',
+    slug: 'chicago-atlas-one',
+    title: 'Chicago Atlas One',
     trade: 'Platform',
     category: 'Spatial',
     medium: 'Cross-site synthesis piece',

@@ -298,18 +298,18 @@ describe('Search Utilities', () => {
 
   describe('extractSnippet', () => {
     const longText =
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.';
+      'Managed IT support, cybersecurity readiness, Microsoft 365 governance, and backup testing help teams reduce recurring operational drag.';
 
     it('should extract snippet around match', () => {
-      const snippet = extractSnippet(longText, 'consectetur', {
+      const snippet = extractSnippet(longText, 'support', {
         maxLength: 50,
       });
-      expect(snippet).toContain('consectetur');
+      expect(snippet).toContain('support');
       expect(snippet.length).toBeLessThanOrEqual(80); // Including ellipsis and highlight tags
     });
 
     it('should add ellipsis when truncated', () => {
-      const snippet = extractSnippet(longText, 'consectetur', {
+      const snippet = extractSnippet(longText, 'Microsoft', {
         maxLength: 30,
       });
       expect(snippet).toContain('...');
@@ -317,7 +317,7 @@ describe('Search Utilities', () => {
 
     it('should return beginning if no match', () => {
       const snippet = extractSnippet(longText, 'xyz', { maxLength: 20 });
-      expect(snippet).toContain('Lorem');
+      expect(snippet).toContain('Managed');
       expect(snippet).toContain('...');
     });
 

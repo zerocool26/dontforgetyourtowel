@@ -37,7 +37,7 @@ const analyticsEnabled =
   analyticsFlag === 'on';
 
 // MSP/IT services branding (safe defaults; customise as needed)
-export const SITE_TITLE = 'Olive Global Systems';
+export const SITE_TITLE = 'Olive Chicago';
 export const SITE_DESCRIPTION =
   'Chicago-area managed IT, cybersecurity, cloud, Microsoft 365, backup, and selective digital systems for teams that need calmer operations and a sharper front door.';
 export const SITE_URL = DEPLOYMENT.siteUrl;
@@ -53,7 +53,7 @@ export const CONTACT_EMAIL =
 export const SITE_CONFIG = {
   title: SITE_TITLE,
   description: SITE_DESCRIPTION,
-  author: 'Olive Global Systems',
+  author: 'Olive Chicago',
   defaultLanguage: 'en-US',
   // Social links
   social: {
@@ -108,6 +108,5 @@ export const FEATURES = {
   enablePWA: true,
   enableDarkMode: true,
   enableSearch: true,
-  // MSP site: no blog/RSS by default (can be re-enabled later)
-  enableRSS: false,
+  enableRSS: true,
 } as const;

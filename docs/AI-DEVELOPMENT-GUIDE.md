@@ -8,7 +8,7 @@ This guide gives future human and AI contributors a compact operating model for 
 
 ## Product Intent
 
-Olive Global Systems should read as a credible Chicago-area managed IT and security partner. The site can feel premium and modern, but the offer must stay practical: support ownership, security controls, Microsoft 365, cloud, network, backup, continuity, roadmap work, and selective digital systems.
+Olive Chicago should read as a credible Chicago-area managed IT and security partner. The site can feel premium and modern, but the offer must stay practical: support ownership, security controls, Microsoft 365, cloud, network, backup, continuity, roadmap work, and selective digital systems.
 
 Avoid promoting services that cannot be explained in one business sentence or that do not map to the market audit in `docs/CHICAGO-MSP-MARKET-AUDIT.md`.
 

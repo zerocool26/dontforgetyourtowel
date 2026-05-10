@@ -164,6 +164,62 @@ export default function HomeOrbitScene() {
     outerHalo.rotation.y = Math.PI * 0.08;
     stage.add(outerHalo);
 
+    const beaconGeometry = new THREE.SphereGeometry(0.055, 16, 16);
+    const beaconMaterials = [
+      new THREE.MeshStandardMaterial({
+        color: '#7be3d5',
+        emissive: '#49e6d2',
+        emissiveIntensity: 1.8,
+        roughness: 0.18,
+      }),
+      new THREE.MeshStandardMaterial({
+        color: '#d1b17a',
+        emissive: '#d1b17a',
+        emissiveIntensity: 1.25,
+        roughness: 0.24,
+      }),
+      new THREE.MeshStandardMaterial({
+        color: '#68a7ff',
+        emissive: '#68a7ff',
+        emissiveIntensity: 1.2,
+        roughness: 0.2,
+      }),
+    ];
+    const beacons = Array.from({ length: 14 }, (_, index) => {
+      const beacon = new THREE.Mesh(
+        beaconGeometry,
+        beaconMaterials[index % beaconMaterials.length]
+      );
+      const angle = (index / 14) * Math.PI * 2;
+      beacon.userData.angle = angle;
+      beacon.userData.radius = 1.6 + (index % 4) * 0.34;
+      beacon.position.set(
+        Math.cos(angle) * beacon.userData.radius,
+        Math.sin(angle * 2.1) * 0.34,
+        Math.sin(angle) * 1.12
+      );
+      signal.add(beacon);
+      return beacon;
+    });
+
+    const scanMaterial = new THREE.MeshBasicMaterial({
+      color: '#7be3d5',
+      transparent: true,
+      opacity: 0.18,
+      depthWrite: false,
+      side: THREE.DoubleSide,
+    });
+    const scanBars = Array.from({ length: 4 }, (_, index) => {
+      const scan = new THREE.Mesh(
+        new THREE.PlaneGeometry(0.035, 4.8, 1, 1),
+        scanMaterial
+      );
+      scan.rotation.x = -Math.PI * 0.47;
+      scan.position.set(-4.8 + index * 3.2, -1.55, -1.05);
+      skyline.add(scan);
+      return scan;
+    });
+
     const makeRibbon = (offset: number, ribbonColor: THREE.Color) => {
       const points = Array.from({ length: 96 }, (_, index) => {
         const t = index / 95;
@@ -242,6 +298,15 @@ export default function HomeOrbitScene() {
     };
     root.addEventListener('pointermove', onPointerMove);
 
+    let sceneMode = 0;
+    let burstUntil = 0;
+    const onPointerDown = () => {
+      sceneMode = (sceneMode + 1) % 3;
+      burstUntil = clock.getElapsedTime() + 1.25;
+      root.dataset.sceneMode = ['orbit', 'signal', 'pulse'][sceneMode];
+    };
+    root.addEventListener('pointerdown', onPointerDown);
+
     const resize = () => {
       const width = Math.max(1, root.clientWidth);
       const height = Math.max(1, root.clientHeight);
@@ -263,23 +328,49 @@ export default function HomeOrbitScene() {
     const render = () => {
       const elapsed = clock.getElapsedTime();
       const slowTime = prefersReducedMotion ? 0.8 : elapsed;
+      const burst = Math.max(0, burstUntil - elapsed);
+      const modeEnergy = sceneMode === 1 ? 0.45 : sceneMode === 2 ? 0.78 : 0.18;
 
-      stage.rotation.y = slowTime * 0.16 + pointer.x * 0.08;
+      stage.rotation.y = slowTime * (0.16 + modeEnergy * 0.05) + pointer.x * 0.08;
       stage.rotation.x = -0.08 + pointer.y * 0.05;
       skyline.rotation.y = pointer.x * 0.035;
-      signal.rotation.y = slowTime * -0.08;
+      signal.rotation.y = slowTime * (-0.08 - modeEnergy * 0.05);
       signal.rotation.z = Math.sin(slowTime * 0.42) * 0.04;
       particles.rotation.y = slowTime * 0.035;
       particles.rotation.x = Math.sin(slowTime * 0.2) * 0.025;
 
+      rim.intensity = 6.5 + modeEnergy * 4 + burst * 2.2;
+      glow.intensity = 3.5 + modeEnergy * 1.6 + burst;
       core.rotation.x = slowTime * 0.22;
       core.rotation.y = slowTime * 0.32;
+      core.scale.setScalar(1 + modeEnergy * 0.045 + burst * 0.025);
       halo.rotation.y = slowTime * 0.5;
       outerHalo.rotation.z = slowTime * -0.16;
+      outerHalo.scale.setScalar(1 + modeEnergy * 0.08 + burst * 0.035);
 
       ribbons.forEach((ribbon, index) => {
         ribbon.rotation.y = slowTime * (0.12 + index * 0.035);
         ribbon.rotation.x += prefersReducedMotion ? 0 : 0.0006 * (index + 1);
+      });
+
+      beacons.forEach((beacon, index) => {
+        const angle =
+          beacon.userData.angle +
+          slowTime * (0.22 + index * 0.006 + modeEnergy * 0.12);
+        const radius = beacon.userData.radius + Math.sin(slowTime + index) * 0.05;
+        const pulse = 1 + Math.sin(slowTime * 2.1 + index) * 0.18 + burst * 0.18;
+        beacon.position.set(
+          Math.cos(angle) * radius,
+          Math.sin(angle * 2.1 + sceneMode) * (0.28 + modeEnergy * 0.14),
+          Math.sin(angle) * 1.12
+        );
+        beacon.scale.setScalar(pulse);
+      });
+
+      scanBars.forEach((scan, index) => {
+        const sweep = ((slowTime * (0.28 + modeEnergy * 0.18) + index * 0.23) % 1) * 12 - 6;
+        scan.position.x = sweep;
+        scan.material.opacity = 0.12 + modeEnergy * 0.18 + burst * 0.08;
       });
 
       if (!prefersReducedMotion && frame % 2 === 0) {
@@ -307,6 +398,7 @@ export default function HomeOrbitScene() {
     return () => {
       window.cancelAnimationFrame(raf);
       root.removeEventListener('pointermove', onPointerMove);
+      root.removeEventListener('pointerdown', onPointerDown);
       observer.disconnect();
       renderer.dispose();
       towerGeometry.dispose();
@@ -314,6 +406,10 @@ export default function HomeOrbitScene() {
       deckGeometry.dispose();
       deckMaterial.dispose();
       coreMaterial.dispose();
+      beaconGeometry.dispose();
+      beaconMaterials.forEach(material => material.dispose());
+      scanBars.forEach(scan => scan.geometry.dispose());
+      scanMaterial.dispose();
       particleGeometry.dispose();
       root.replaceChildren();
     };
@@ -328,6 +424,11 @@ export default function HomeOrbitScene() {
       aria-label="Animated 3D Chicago operations skyline and signal field"
     >
       <div className="home-orbit-scene__fallback" aria-hidden="true" />
+      <div className="home-orbit-scene__hud" aria-hidden="true">
+        <span>Drag orbit</span>
+        <span>Tap signal</span>
+        <span>Chicago ops field</span>
+      </div>
     </div>
   );
 }

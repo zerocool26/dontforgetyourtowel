@@ -1,0 +1,269 @@
+---
+import MarketingLayout from '../layouts/MarketingLayout.astro';
+import ModernButton from '../components/ui/ModernButton.astro';
+import { withBasePath } from '../utils/helpers';
+
+const episodes = [
+  {
+    label: 'Episode 01',
+    title: 'The first 30 days after switching IT providers',
+    copy: 'What should get mapped, what should be stabilized, and how leadership can tell whether the handoff is working.',
+    runtime: '18 min',
+  },
+  {
+    label: 'Episode 02',
+    title: 'Microsoft 365 cleanup without turning it into a committee',
+    copy: 'Teams, SharePoint, guest access, retention, and backup decisions that make the tenant easier to govern.',
+    runtime: '22 min',
+  },
+  {
+    label: 'Episode 03',
+    title: 'Security baseline before the shiny security stack',
+    copy: 'Identity, endpoint, email, backup, and response habits that should be visible before larger projects begin.',
+    runtime: '16 min',
+  },
+];
+
+const advisories = [
+  {
+    topic: 'Buyer note',
+    title: 'Ask for ownership, not just tool names.',
+    copy: 'The most useful provider conversations clarify who owns support, vendors, patching, reporting, escalation, backup testing, and security evidence.',
+  },
+  {
+    topic: 'Operations',
+    title: 'Recurring tickets are a roadmap signal.',
+    copy: 'If the same issues keep returning, the problem is usually process, policy, endpoint standards, or an application workflow that needs attention.',
+  },
+  {
+    topic: 'Digital systems',
+    title: 'A demo should test the real buying path.',
+    copy: 'For ecommerce and portals, review search, filters, cart state, product detail, trust, and checkout before approving a build plan.',
+  },
+];
+---
+
+<MarketingLayout
+  title="News + Podcast | Olive Chicago"
+  description="A concise news and podcast experience for managed IT, security, Microsoft 365, cloud operations, ecommerce demos, and Chicago business systems."
+  bodyClass="creative-page"
+  mainClass="relative isolate overflow-x-clip"
+  showFooter={true}
+  showStickyCTA={false}
+  showLiveChat={false}
+  showSavedRoutesDock={false}
+>
+  <section class="news-hero" data-page-section>
+    <div class="premium-container">
+      <div class="news-hero__grid">
+        <div class="news-copy">
+          <p class="news-eyebrow">News + podcast</p>
+          <h1>Short signals for operators who do not need more noise.</h1>
+          <p>
+            Brief episodes and advisory notes on managed IT buying, security
+            posture, Microsoft 365 cleanup, continuity, and better digital
+            buying experiences.
+          </p>
+          <div class="news-actions">
+            <ModernButton href="#episodes" variant="primary">
+              Browse episodes
+            </ModernButton>
+            <ModernButton href={withBasePath('blog/')} variant="outline">
+              Read the blog
+            </ModernButton>
+          </div>
+        </div>
+
+        <div class="news-player" aria-label="Featured podcast episode">
+          <p class="news-eyebrow">Featured episode</p>
+          <h2>Why the first MSP month should feel boringly clear.</h2>
+          <div class="news-player__bar">
+            <span></span>
+          </div>
+          <div class="news-player__meta">
+            <span>00:00</span>
+            <span>18:00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="news-section" id="episodes" data-page-section>
+    <div class="premium-container">
+      <div class="news-section__heading">
+        <p class="news-eyebrow">Episodes</p>
+        <h2>Built like a listening queue, written like an operator brief.</h2>
+      </div>
+
+      <div class="news-episode-list">
+        {
+          episodes.map(episode => (
+            <article class="news-episode">
+              <p class="news-eyebrow">{episode.label}</p>
+              <h3>{episode.title}</h3>
+              <p>{episode.copy}</p>
+              <span>{episode.runtime}</span>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="news-section" data-page-section>
+    <div class="premium-container">
+      <div class="news-section__heading">
+        <p class="news-eyebrow">Advisory notes</p>
+        <h2>What would be worth publishing this week.</h2>
+      </div>
+
+      <div class="news-advisory-grid">
+        {
+          advisories.map(item => (
+            <article class="news-advisory">
+              <p class="news-eyebrow">{item.topic}</p>
+              <h3>{item.title}</h3>
+              <p>{item.copy}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</MarketingLayout>
+
+<style>
+  .news-hero,
+  .news-section {
+    padding: clamp(4.5rem, 8vw, 7rem) 0;
+    border-bottom: 1px solid
+      color-mix(in srgb, var(--color-border) 70%, transparent);
+  }
+
+  .news-hero {
+    padding-top: clamp(6rem, 9vw, 8rem);
+  }
+
+  .news-hero__grid,
+  .news-episode-list,
+  .news-advisory-grid {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .news-copy,
+  .news-section__heading,
+  .news-player,
+  .news-episode,
+  .news-advisory {
+    display: grid;
+    gap: 0.85rem;
+  }
+
+  .news-copy,
+  .news-section__heading {
+    max-width: 48rem;
+  }
+
+  .news-eyebrow {
+    margin: 0;
+    color: color-mix(in srgb, var(--color-text-muted) 90%, transparent);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .news-copy h1,
+  .news-player h2,
+  .news-section__heading h2,
+  .news-episode h3,
+  .news-advisory h3 {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-family: var(--font-display);
+    font-size: clamp(1.45rem, 3.4vw, 3.7rem);
+    font-weight: 650;
+    line-height: 1.03;
+    letter-spacing: 0;
+    text-wrap: balance;
+  }
+
+  .news-copy h1 {
+    max-width: 17ch;
+  }
+
+  .news-copy p,
+  .news-episode p,
+  .news-advisory p {
+    margin: 0;
+    color: color-mix(in srgb, var(--color-text-secondary) 94%, transparent);
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+
+  .news-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .news-player,
+  .news-episode,
+  .news-advisory {
+    border: 1px solid color-mix(in srgb, var(--color-border) 74%, transparent);
+    border-radius: var(--radius-sm);
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--color-surface) 92%, white 2%),
+      color-mix(in srgb, var(--color-background) 94%, transparent)
+    );
+    padding: 1.25rem;
+  }
+
+  .news-player__bar {
+    height: 0.5rem;
+    overflow: hidden;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-border) 70%, transparent);
+  }
+
+  .news-player__bar span {
+    display: block;
+    width: 38%;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #7be3d5, #d1b17a);
+  }
+
+  .news-player__meta {
+    display: flex;
+    justify-content: space-between;
+    color: color-mix(in srgb, var(--color-text-muted) 92%, transparent);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+  }
+
+  .news-episode span {
+    color: color-mix(in srgb, var(--color-primary) 82%, white 18%);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  @media (min-width: 960px) {
+    .news-hero__grid {
+      grid-template-columns: minmax(0, 1fr) minmax(22rem, 34rem);
+      align-items: end;
+    }
+
+    .news-episode-list,
+    .news-advisory-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>
