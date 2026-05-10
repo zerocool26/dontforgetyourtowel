@@ -285,7 +285,8 @@ export class DeploymentAnalyzer implements AnalysisModule {
       typeChecking: 'Resolve TypeScript errors',
       linting: 'Fix linting issues',
       testing: 'Ensure all tests pass',
-      dependencies: 'Update vulnerable dependencies',
+      dependencies:
+        'Review available major dependency upgrades and plan migrations deliberately; security vulnerabilities are checked separately with npm audit.',
       security: 'Address security vulnerabilities',
       performance: 'Optimize performance issues',
       accessibility: 'Fix accessibility issues',

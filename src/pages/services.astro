@@ -412,7 +412,7 @@ const breadcrumbItems = [
       </div>
 
       <div class="mt-12">
-        <ServiceCatalog client:visible services={servicesExtended} />
+        <ServiceCatalog client:only="preact" services={servicesExtended} />
       </div>
     </div>
   </section>
@@ -436,7 +436,10 @@ const breadcrumbItems = [
       </div>
 
       <div class="mt-10">
-        <ServiceComparisonMatrix client:visible services={servicesExtended} />
+        <ServiceComparisonMatrix
+          client:only="preact"
+          services={servicesExtended}
+        />
       </div>
     </div>
   </section>

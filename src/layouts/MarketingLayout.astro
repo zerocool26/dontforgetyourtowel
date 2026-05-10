@@ -190,7 +190,7 @@ const routeContext = getRouteContext(Astro.url.pathname);
         {showSavedRoutesDock ? <SavedRoutesDock /> : null}
         {showStickyCTA ? <StickyCTA /> : null}
         {showMobileNav ? <MobileNav /> : null}
-        {showLiveChat ? <LiveChat client:idle /> : null}
+        {showLiveChat ? <LiveChat client:only="preact" /> : null}
       </div>
     </div>
 

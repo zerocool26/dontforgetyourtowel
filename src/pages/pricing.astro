@@ -406,14 +406,14 @@ const pricingSections = [
 
       <div class="mt-10 grid gap-8 xl:grid-cols-2 xl:items-start">
         <PricingCalculator
-          client:visible
+          client:only="preact"
           ctaHref={requestQuoteHref}
           ctaLabel="Email for a quote"
           title="Estimate monthly cost"
           description="Use the model to sanity-check budget before discovery. We validate the assumptions once we understand your users, devices, and response expectations."
         />
         <ROICalculator
-          client:visible
+          client:only="preact"
           ctaHref={requestQuoteHref}
           ctaLabel="Request ROI review"
           title="Model business impact"
