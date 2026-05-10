@@ -35,10 +35,10 @@ const isTradePage =
 const headerLinks = links;
 
 const searchTriggerClasses =
-  'header-action tone-focus-accent inline-flex min-h-[46px] items-center gap-2 rounded-[0.95rem] px-3.5 text-sm font-medium transition';
+  'header-action tone-focus-accent inline-flex min-h-[46px] items-center gap-2 rounded-lg px-3.5 text-sm font-medium transition';
 
 const desktopNavLinkClasses =
-  'header-desktop-link tone-focus-accent relative flex h-full items-center border-l border-white/[0.06] px-4 text-[0.78rem] font-semibold uppercase tracking-[0.12em] transition-all duration-300';
+  'header-desktop-link tone-focus-accent relative flex h-full items-center border-l border-white/[0.06] px-4 text-[0.78rem] font-semibold uppercase tracking-[0.08em] transition-all duration-300';
 
 const mobileMenuLinkClasses =
   'header-mobile-link tone-focus-accent min-h-touch flex touch-manipulation items-center rounded-lg px-3 py-3 font-medium transition';
@@ -327,14 +327,14 @@ const isTradeActiveHref = (href: string) => {
 <style>
   .header-nav-shell {
     position: relative;
-    border-radius: 1.1rem;
+    border-radius: 0.5rem;
   }
 
   .header-nav-shell::before {
     content: '';
     position: absolute;
     inset: 0;
-    border-radius: 1.1rem;
+    border-radius: 0.5rem;
     border: 1px solid color-mix(in srgb, white 4%, transparent);
     background: linear-gradient(
       180deg,
@@ -385,7 +385,7 @@ const isTradeActiveHref = (href: string) => {
   .header-desktop-link {
     margin-block: 0.35rem;
     border-left-color: transparent;
-    border-radius: 0.9rem;
+    border-radius: 0.45rem;
     color: color-mix(in srgb, var(--color-text-primary) 60%, transparent);
   }
 
@@ -394,7 +394,7 @@ const isTradeActiveHref = (href: string) => {
     position: absolute;
     inset: 0.26rem;
     height: auto;
-    border-radius: 0.8rem;
+    border-radius: 0.4rem;
     background:
       linear-gradient(
         180deg,
@@ -458,7 +458,7 @@ const isTradeActiveHref = (href: string) => {
 
   #mobile-menu > div {
     position: relative;
-    border-radius: 0 0 1.1rem 1.1rem;
+    border-radius: 0 0 0.5rem 0.5rem;
     background:
       linear-gradient(
         180deg,

@@ -6,6 +6,28 @@ type SceneRoot = HTMLElement & {
 
 const modeNames = ['operate', 'protect', 'present'];
 
+const skylinePalette = {
+  background: '#0a0d10',
+  fog: '#12171b',
+  graphite: '#18222b',
+  glass: '#8fb6ce',
+  glassDeep: '#2f5666',
+  limestone: '#c8b995',
+  brass: '#c3a36b',
+  copper: '#a97661',
+  river: '#385f6b',
+  window: '#f3ead2',
+  whiteStone: '#e8edf0',
+};
+
+const normalizeChunkColor = (value: string) => {
+  if (value === '#67e8df') return skylinePalette.glass;
+  if (value === '#d9ff5f') return skylinePalette.brass;
+  if (value === '#ff8d74') return skylinePalette.copper;
+  if (value === '#f3d69f') return skylinePalette.limestone;
+  return value;
+};
+
 type SkylineChunk = {
   x: number;
   height: number;
@@ -348,9 +370,9 @@ const drawFallbackField = (root: HTMLElement, canvas: HTMLCanvasElement) => {
   ctx.clearRect(0, 0, width, height);
 
   const background = ctx.createLinearGradient(0, 0, width, height);
-  background.addColorStop(0, '#070806');
-  background.addColorStop(0.5, '#10140f');
-  background.addColorStop(1, '#050706');
+  background.addColorStop(0, skylinePalette.background);
+  background.addColorStop(0.5, '#12171b');
+  background.addColorStop(1, '#090b0d');
   ctx.fillStyle = background;
   ctx.fillRect(0, 0, width, height);
 
@@ -362,9 +384,9 @@ const drawFallbackField = (root: HTMLElement, canvas: HTMLCanvasElement) => {
     height * 0.42,
     width * 0.34
   );
-  field.addColorStop(0, 'rgba(103, 232, 223, 0.32)');
-  field.addColorStop(0.44, 'rgba(217, 255, 95, 0.14)');
-  field.addColorStop(1, 'rgba(7, 8, 6, 0)');
+  field.addColorStop(0, 'rgba(143, 182, 206, 0.26)');
+  field.addColorStop(0.44, 'rgba(195, 163, 107, 0.12)');
+  field.addColorStop(1, 'rgba(10, 13, 16, 0)');
   ctx.fillStyle = field;
   ctx.fillRect(0, 0, width, height);
 
@@ -386,13 +408,13 @@ const drawFallbackField = (root: HTMLElement, canvas: HTMLCanvasElement) => {
   ctx.save();
   ctx.translate(width * 0.5, height * 0.45);
   ctx.rotate(Math.PI * 0.1);
-  ctx.strokeStyle = 'rgba(103, 232, 223, 0.78)';
+  ctx.strokeStyle = 'rgba(143, 182, 206, 0.62)';
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.ellipse(0, 0, width * 0.18, height * 0.11, 0, 0, Math.PI * 2);
   ctx.stroke();
 
-  ctx.strokeStyle = 'rgba(217, 255, 95, 0.62)';
+  ctx.strokeStyle = 'rgba(195, 163, 107, 0.52)';
   ctx.lineWidth = 1.5;
   ctx.beginPath();
   ctx.ellipse(0, 0, width * 0.25, height * 0.16, 0, 0, Math.PI * 2);
@@ -409,16 +431,17 @@ const drawFallbackField = (root: HTMLElement, canvas: HTMLCanvasElement) => {
       const barHeight = height * (0.08 + (chunk.height / 4) * 0.32);
       const x = width * 0.5 + chunk.x * skylineScale - barWidth / 2;
       const y = skylineY - barHeight;
+      const chunkColor = normalizeChunkColor(chunk.color);
       const bar = ctx.createLinearGradient(x, y, x, skylineY);
       bar.addColorStop(
         0,
-        chunk.color === '#67e8df'
-          ? 'rgba(103, 232, 223, 0.82)'
+        chunkColor === skylinePalette.glass
+          ? 'rgba(143, 182, 206, 0.82)'
           : chunk.color === '#ff8d74'
-            ? 'rgba(255, 141, 116, 0.76)'
-            : 'rgba(217, 255, 95, 0.78)'
+            ? 'rgba(169, 118, 97, 0.76)'
+            : 'rgba(200, 185, 149, 0.78)'
       );
-      bar.addColorStop(1, 'rgba(17, 20, 16, 0.1)');
+      bar.addColorStop(1, 'rgba(18, 20, 23, 0.16)');
       ctx.fillStyle = bar;
       ctx.fillRect(x, y, barWidth, barHeight);
 
@@ -432,7 +455,7 @@ const drawFallbackField = (root: HTMLElement, canvas: HTMLCanvasElement) => {
         const offsets =
           chunk.antenna === 'twin' ? [-barWidth * 0.22, barWidth * 0.22] : [0];
 
-        ctx.strokeStyle = 'rgba(246, 241, 232, 0.7)';
+        ctx.strokeStyle = 'rgba(243, 245, 246, 0.72)';
         ctx.lineWidth = Math.max(1, width * 0.0011);
         offsets.forEach(offset => {
           ctx.beginPath();
@@ -450,8 +473,8 @@ const drawFallbackField = (root: HTMLElement, canvas: HTMLCanvasElement) => {
     const y = height * 0.42 + Math.sin(angle) * radius * 0.5;
     ctx.fillStyle =
       index % 3 === 0
-        ? 'rgba(255, 141, 116, 0.78)'
-        : 'rgba(246, 241, 232, 0.72)';
+        ? 'rgba(195, 163, 107, 0.68)'
+        : 'rgba(243, 245, 246, 0.62)';
     ctx.beginPath();
     ctx.arc(x, y, 2.2 + (index % 3), 0, Math.PI * 2);
     ctx.fill();
@@ -470,7 +493,7 @@ const bindThreeScene = (root: SceneRoot, canvas: HTMLCanvasElement) => {
     '(prefers-reduced-motion: reduce)'
   ).matches;
   const scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2('#050806', 0.07);
+  scene.fog = new THREE.FogExp2(skylinePalette.fog, 0.055);
 
   const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 80);
   camera.position.set(0, 0.9, 8.6);
@@ -489,34 +512,34 @@ const bindThreeScene = (root: SceneRoot, canvas: HTMLCanvasElement) => {
     return;
   }
 
-  renderer.setClearColor('#070806', 1);
+  renderer.setClearColor(skylinePalette.background, 1);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.08;
+  renderer.toneMappingExposure = 1.32;
 
   const stage = new THREE.Group();
   const skyline = new THREE.Group();
   const signal = new THREE.Group();
   scene.add(stage, skyline, signal);
 
-  scene.add(new THREE.AmbientLight('#efe8d8', 0.58));
-  const key = new THREE.DirectionalLight('#fff0cf', 2.1);
+  scene.add(new THREE.AmbientLight('#f3f5f6', 0.82));
+  const key = new THREE.DirectionalLight('#fff3dc', 2.45);
   key.position.set(-4, 6, 5);
   scene.add(key);
-  const rim = new THREE.PointLight('#67e8df', 7, 18);
+  const rim = new THREE.PointLight(skylinePalette.glass, 5.8, 18);
   rim.position.set(3.5, 1.2, 3.8);
   scene.add(rim);
-  const glow = new THREE.PointLight('#ff8d74', 4.2, 16);
+  const glow = new THREE.PointLight(skylinePalette.brass, 3.2, 16);
   glow.position.set(-3.5, -1.5, 2.6);
   scene.add(glow);
 
   const towerGeometry = new THREE.BoxGeometry(1, 1, 1);
   const towerMaterial = new THREE.MeshStandardMaterial({
-    color: '#f3d69f',
-    roughness: 0.5,
-    metalness: 0.48,
-    emissive: '#2c240d',
-    emissiveIntensity: 0.22,
+    color: skylinePalette.limestone,
+    roughness: 0.58,
+    metalness: 0.28,
+    emissive: '#18130a',
+    emissiveIntensity: 0.12,
   });
   const towers = new THREE.InstancedMesh(
     towerGeometry,
@@ -536,9 +559,9 @@ const bindThreeScene = (root: SceneRoot, canvas: HTMLCanvasElement) => {
   }> = [];
   const antennaGeometry = new THREE.CylinderGeometry(0.018, 0.018, 1, 8);
   const antennaMaterial = new THREE.MeshStandardMaterial({
-    color: '#f6f1e8',
-    emissive: '#67e8df',
-    emissiveIntensity: 0.48,
+    color: skylinePalette.whiteStone,
+    emissive: skylinePalette.glass,
+    emissiveIntensity: 0.26,
     roughness: 0.3,
     metalness: 0.42,
   });
@@ -572,7 +595,7 @@ const bindThreeScene = (root: SceneRoot, canvas: HTMLCanvasElement) => {
       new THREE.Vector3(sx, sy, sz)
     );
     towers.setMatrixAt(index, matrix);
-    color.set(chunk.color);
+    color.set(normalizeChunkColor(chunk.color));
     towers.setColorAt(index, color);
 
     if (chunk.antenna) {
@@ -592,69 +615,69 @@ const bindThreeScene = (root: SceneRoot, canvas: HTMLCanvasElement) => {
 
   const landmarkMaterials = [
     new THREE.MeshPhysicalMaterial({
-      color: '#15304a',
-      roughness: 0.2,
+      color: skylinePalette.graphite,
+      roughness: 0.26,
       metalness: 0.36,
-      emissive: '#0b5f86',
-      emissiveIntensity: 0.28,
+      emissive: '#0d2029',
+      emissiveIntensity: 0.16,
       clearcoat: 0.7,
       clearcoatRoughness: 0.18,
     }),
     new THREE.MeshStandardMaterial({
-      color: '#eaf7ff',
-      roughness: 0.34,
-      metalness: 0.42,
-      emissive: '#4ad8ff',
-      emissiveIntensity: 0.18,
+      color: skylinePalette.whiteStone,
+      roughness: 0.38,
+      metalness: 0.28,
+      emissive: '#43515a',
+      emissiveIntensity: 0.08,
     }),
     new THREE.MeshPhysicalMaterial({
-      color: '#5cd4ff',
-      roughness: 0.16,
+      color: skylinePalette.glass,
+      roughness: 0.18,
       metalness: 0.22,
       transmission: 0.08,
       thickness: 0.32,
-      emissive: '#164c66',
-      emissiveIntensity: 0.32,
+      emissive: skylinePalette.glassDeep,
+      emissiveIntensity: 0.2,
       clearcoat: 1,
       clearcoatRoughness: 0.12,
     }),
     new THREE.MeshStandardMaterial({
-      color: '#d9ff5f',
-      roughness: 0.3,
-      metalness: 0.3,
-      emissive: '#496107',
-      emissiveIntensity: 0.2,
+      color: skylinePalette.brass,
+      roughness: 0.38,
+      metalness: 0.24,
+      emissive: '#2a220f',
+      emissiveIntensity: 0.12,
     }),
   ];
   const windowMaterial = new THREE.MeshBasicMaterial({
-    color: '#f8fff2',
-    transparent: true,
-    opacity: 0.56,
-  });
-  const cyanWindowMaterial = new THREE.MeshBasicMaterial({
-    color: '#67e8df',
-    transparent: true,
-    opacity: 0.5,
-  });
-  const warmWindowMaterial = new THREE.MeshBasicMaterial({
-    color: '#fff1ba',
+    color: skylinePalette.window,
     transparent: true,
     opacity: 0.48,
   });
-  const braceMaterial = new THREE.LineBasicMaterial({
-    color: '#d9ff5f',
-    transparent: true,
-    opacity: 0.62,
-  });
-  const riverTrailMaterial = new THREE.LineBasicMaterial({
-    color: '#5cd4ff',
-    transparent: true,
-    opacity: 0.5,
-  });
-  const limeTrailMaterial = new THREE.LineBasicMaterial({
-    color: '#d9ff5f',
+  const cyanWindowMaterial = new THREE.MeshBasicMaterial({
+    color: skylinePalette.glass,
     transparent: true,
     opacity: 0.42,
+  });
+  const warmWindowMaterial = new THREE.MeshBasicMaterial({
+    color: '#ffe8af',
+    transparent: true,
+    opacity: 0.46,
+  });
+  const braceMaterial = new THREE.LineBasicMaterial({
+    color: skylinePalette.brass,
+    transparent: true,
+    opacity: 0.48,
+  });
+  const riverTrailMaterial = new THREE.LineBasicMaterial({
+    color: skylinePalette.glass,
+    transparent: true,
+    opacity: 0.42,
+  });
+  const limeTrailMaterial = new THREE.LineBasicMaterial({
+    color: skylinePalette.brass,
+    transparent: true,
+    opacity: 0.32,
   });
   const lineGeometries: THREE.BufferGeometry[] = [];
   const hancockGeometry = new THREE.CylinderGeometry(0.38, 0.58, 1, 4, 1);
@@ -662,9 +685,9 @@ const bindThreeScene = (root: SceneRoot, canvas: HTMLCanvasElement) => {
   const chevronGeometry = new THREE.ConeGeometry(0.26, 0.36, 4);
   const riverGeometry = new THREE.PlaneGeometry(15.5, 1.2, 24, 2);
   const riverMaterial = new THREE.MeshBasicMaterial({
-    color: '#103d48',
+    color: skylinePalette.river,
     transparent: true,
-    opacity: 0.36,
+    opacity: 0.32,
     wireframe: true,
   });
   const buildingMeshes: THREE.Object3D[] = [];
@@ -751,6 +774,41 @@ const bindThreeScene = (root: SceneRoot, canvas: HTMLCanvasElement) => {
   };
 
   const baseY = -2.68;
+
+  chicagoSkylineChunks.forEach((chunk, index) => {
+    if (chunk.layer > 1 && index % 2 === 0) return;
+    const z = -1.18 - chunk.layer * 0.3;
+    const rows = Math.max(4, Math.round(chunk.height * 5.2));
+    const material =
+      chunk.layer === 0
+        ? index % 3 === 0
+          ? warmWindowMaterial
+          : windowMaterial
+        : cyanWindowMaterial;
+
+    addWindowBands(
+      chunk.x,
+      chunk.width * 0.78,
+      chunk.height,
+      z,
+      rows,
+      material,
+      baseY
+    );
+
+    if (chunk.height > 1.55) {
+      addWindowGrid(
+        chunk.x,
+        chunk.width * 0.74,
+        chunk.height * 0.9,
+        z + 0.012,
+        Math.max(2, Math.round(chunk.width * 12)),
+        Math.max(5, Math.round(chunk.height * 4.2)),
+        material,
+        baseY + chunk.height * 0.04
+      );
+    }
+  });
 
   // Marina City-style river towers.
   [-4.95, -4.58].forEach((x, towerIndex) => {
@@ -900,8 +958,8 @@ const bindThreeScene = (root: SceneRoot, canvas: HTMLCanvasElement) => {
   const deck = new THREE.Mesh(
     new THREE.PlaneGeometry(14, 5.2, 30, 8),
     new THREE.MeshBasicMaterial({
-      color: '#263024',
-      opacity: 0.28,
+      color: '#1f2a31',
+      opacity: 0.2,
       transparent: true,
       wireframe: true,
     })
@@ -912,42 +970,46 @@ const bindThreeScene = (root: SceneRoot, canvas: HTMLCanvasElement) => {
   skyline.add(deck);
 
   const coreMaterial = new THREE.MeshPhysicalMaterial({
-    color: '#18251d',
-    roughness: 0.28,
-    metalness: 0.54,
-    transmission: 0.16,
-    thickness: 0.85,
-    emissive: '#183c35',
-    emissiveIntensity: 0.36,
+    color: skylinePalette.glassDeep,
+    roughness: 0.24,
+    metalness: 0.36,
+    transmission: 0.24,
+    thickness: 0.48,
+    transparent: true,
+    opacity: 0.38,
+    emissive: '#203845',
+    emissiveIntensity: 0.3,
     clearcoat: 0.8,
     clearcoatRoughness: 0.28,
   });
   const core = new THREE.Mesh(
-    new THREE.IcosahedronGeometry(1.18, 3),
+    new THREE.IcosahedronGeometry(0.42, 3),
     coreMaterial
   );
-  core.position.set(0, 0.18, 0.2);
+  core.position.set(-0.42, 1.12, 0.24);
   stage.add(core);
 
   const halo = new THREE.Mesh(
-    new THREE.TorusKnotGeometry(1.72, 0.018, 260, 16, 3, 8),
+    new THREE.TorusKnotGeometry(1.18, 0.01, 260, 16, 3, 8),
     new THREE.MeshStandardMaterial({
-      color: '#67e8df',
-      emissive: '#67e8df',
-      emissiveIntensity: 1.45,
+      color: skylinePalette.glass,
+      emissive: skylinePalette.glass,
+      emissiveIntensity: 0.58,
       roughness: 0.22,
       metalness: 0.2,
+      transparent: true,
+      opacity: 0.42,
     })
   );
   halo.rotation.x = Math.PI * 0.4;
   stage.add(halo);
 
   const outerHalo = new THREE.Mesh(
-    new THREE.TorusGeometry(2.42, 0.008, 10, 220),
+    new THREE.TorusGeometry(1.7, 0.005, 10, 220),
     new THREE.MeshBasicMaterial({
-      color: '#d9ff5f',
+      color: skylinePalette.brass,
       transparent: true,
-      opacity: 0.48,
+      opacity: 0.18,
     })
   );
   outerHalo.rotation.x = Math.PI * 0.57;
@@ -955,7 +1017,11 @@ const bindThreeScene = (root: SceneRoot, canvas: HTMLCanvasElement) => {
   stage.add(outerHalo);
 
   const beaconGeometry = new THREE.SphereGeometry(0.055, 16, 16);
-  const beaconMaterials = ['#67e8df', '#d9ff5f', '#ff8d74'].map(
+  const beaconMaterials = [
+    skylinePalette.glass,
+    skylinePalette.brass,
+    skylinePalette.window,
+  ].map(
     value =>
       new THREE.MeshStandardMaterial({
         color: value,
@@ -985,8 +1051,8 @@ const bindThreeScene = (root: SceneRoot, canvas: HTMLCanvasElement) => {
     positions[index * 3] = Math.cos(theta) * radius;
     positions[index * 3 + 1] = (Math.random() - 0.5) * 5.2;
     positions[index * 3 + 2] = Math.sin(theta) * radius - 0.8;
-    color.set(index % 3 === 0 ? '#67e8df' : '#d9ff5f');
-    color.lerp(new THREE.Color('#ff8d74'), Math.random() * 0.32);
+    color.set(index % 3 === 0 ? skylinePalette.glass : skylinePalette.brass);
+    color.lerp(new THREE.Color(skylinePalette.window), Math.random() * 0.28);
     particleColors[index * 3] = color.r;
     particleColors[index * 3 + 1] = color.g;
     particleColors[index * 3 + 2] = color.b;
@@ -1041,7 +1107,7 @@ const bindThreeScene = (root: SceneRoot, canvas: HTMLCanvasElement) => {
     const width = Math.max(1, root.clientWidth);
     const height = Math.max(1, root.clientHeight);
     camera.aspect = width / height;
-    camera.position.z = width < 760 ? 10.6 : 8.4;
+    camera.position.z = width < 760 ? 10.8 : 9.25;
     camera.updateProjectionMatrix();
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.7));
     renderer.setSize(width, height, false);
@@ -1062,16 +1128,16 @@ const bindThreeScene = (root: SceneRoot, canvas: HTMLCanvasElement) => {
     const modeEnergy = sceneMode === 1 ? 0.45 : sceneMode === 2 ? 0.78 : 0.18;
 
     stage.rotation.y = slowTime * (0.16 + modeEnergy * 0.05) + pointer.x * 0.08;
-    stage.rotation.x = -0.08 + pointer.y * 0.05;
+    stage.rotation.x = -0.02 + pointer.y * 0.04;
     skyline.rotation.y = pointer.x * 0.035;
     signal.rotation.y = slowTime * (-0.08 - modeEnergy * 0.05);
     particles.rotation.y = slowTime * 0.035;
 
-    rim.intensity = 6.5 + modeEnergy * 4 + burst * 2.2;
-    glow.intensity = 3.5 + modeEnergy * 1.6 + burst;
+    rim.intensity = 5.4 + modeEnergy * 2.8 + burst * 1.6;
+    glow.intensity = 2.8 + modeEnergy * 1.2 + burst * 0.8;
     core.rotation.x = slowTime * 0.22;
     core.rotation.y = slowTime * 0.32;
-    core.scale.setScalar(1 + modeEnergy * 0.045 + burst * 0.025);
+    core.scale.setScalar(1 + modeEnergy * 0.035 + burst * 0.02);
     halo.rotation.y = slowTime * 0.5;
     outerHalo.rotation.z = slowTime * -0.16;
 

@@ -11,53 +11,53 @@ const contactHref = `mailto:${encodeURIComponent(
 const heroSignals = [
   {
     label: 'Operate',
-    value: 'Support with an owner, a queue, and a follow-up path.',
+    value: 'A support layer someone actually owns.',
     detail:
-      'User issues, devices, onboarding, vendors, patching, and escalation are tracked as actual operating work.',
+      'Tickets, devices, onboarding, vendors, and escalation stay visible.',
   },
   {
     label: 'Protect',
-    value: 'Security basics that can be shown, not just promised.',
+    value: 'Security evidence instead of vague reassurance.',
     detail:
-      'MFA, admin access, endpoint health, email controls, backups, and response contacts are documented in plain language.',
+      'Identity, endpoints, email, backup, and response contacts get documented.',
   },
   {
     label: 'Present',
-    value: 'Web and intake systems that help real buyers move.',
+    value: 'Digital systems that make the company easier to trust.',
     detail:
-      'Pages, forms, portals, and commerce flows are judged by whether they answer questions and reduce dead ends.',
+      'Pages, forms, portals, and commerce flows are judged by buyer movement.',
   },
 ];
 
 const siteGuide = [
   {
     label: 'Solutions',
-    copy: 'Pick the first pressure point: users, devices, Microsoft 365, backup, network, security, or buyer-facing systems.',
+    copy: 'Support, security, Microsoft 365, backup, network, and buyer-facing systems.',
     href: withBasePath('services/'),
   },
   {
     label: 'Pricing',
-    copy: 'See directional ranges and the inputs that actually change a quote: users, sites, devices, risk, and hours.',
+    copy: 'Ranges, scope drivers, approval logic, and what changes the monthly number.',
     href: withBasePath('pricing/'),
   },
   {
     label: 'Digital proof',
-    copy: 'Review live commerce and intake examples so the design work is tied to a buying path, not a mood board.',
+    copy: 'Working screens that show buyer paths, not decorative mockups.',
     href: withBasePath('about/'),
   },
   {
     label: 'Blog',
-    copy: 'Read practical notes on provider transitions, Microsoft 365 cleanup, backup assumptions, and scope decisions.',
+    copy: 'Practical notes on transitions, backup assumptions, Microsoft 365, and scope.',
     href: withBasePath('blog/'),
   },
   {
     label: 'Briefings',
-    copy: 'Short notes on the parts of technology change that affect budget, risk, insurance, and daily operations.',
+    copy: 'Short reads on budget, risk, insurance, AI pressure, and operations.',
     href: withBasePath('news/'),
   },
   {
     label: 'Visual library',
-    copy: 'Reference material for pages, proposals, launches, and client-facing screens that need a more specific look.',
+    copy: 'Reference material for pages, proposals, launches, and interface direction.',
     href: withBasePath('photos/'),
   },
 ];
@@ -67,28 +67,28 @@ const serviceLanes = [
     index: '01',
     label: 'Operate',
     title: 'Daily IT support with named ownership.',
-    copy: 'Help desk, onboarding, offboarding, patching, device standards, vendor follow-up, and queue visibility for teams tired of the same issues resurfacing.',
+    copy: 'Help desk, onboarding, patching, device standards, vendor follow-up, and queue clarity.',
     href: withBasePath('services/'),
   },
   {
     index: '02',
     label: 'Protect',
     title: 'Cybersecurity that shows its work.',
-    copy: 'MFA, conditional access, endpoint protection, email defense, backup evidence, cyber-insurance support, and incident contacts that survive review.',
+    copy: 'MFA, conditional access, endpoint protection, email defense, backup proof, and incident contacts.',
     href: withBasePath('services/#technology-catalog'),
   },
   {
     index: '03',
     label: 'Modernize',
     title: 'Microsoft 365 and cloud cleanup that reduces drag.',
-    copy: 'Teams, SharePoint, Exchange, licensing, access rules, backup assumptions, migrations, and automation candidates organized into decisions people can own.',
+    copy: 'Teams, SharePoint, Exchange, licensing, access rules, migrations, and automation candidates.',
     href: withBasePath('services/#technology-catalog'),
   },
   {
     index: '04',
     label: 'Present',
     title: 'Selective digital systems for better sales and intake.',
-    copy: 'Websites, portals, demos, ecommerce, and contact flows built when the front office needs to feel as reliable as the back office.',
+    copy: 'Websites, portals, demos, ecommerce, and contact flows built around trust and movement.',
     href: withBasePath('about/'),
   },
 ];
@@ -98,7 +98,7 @@ const experienceHubs = [
     code: 'DX',
     label: 'Proof',
     title: 'Live commerce and intake behavior',
-    copy: 'Carts, comparison, quick views, checkout review, shareable states, and mobile behavior make the digital capability inspectable.',
+    copy: 'Carts, comparison, quick views, checkout review, shareable states, and mobile behavior.',
     meta: ['Stateful screens', 'Mobile review', 'Checkout path'],
     href: withBasePath('about/'),
   },
@@ -106,7 +106,7 @@ const experienceHubs = [
     code: 'JG',
     label: 'Guidance',
     title: 'Field notes for operators and owners',
-    copy: 'Short explanations for MSP transitions, security posture, backup gaps, Microsoft 365 governance, and what belongs in scope.',
+    copy: 'Short explanations for provider transitions, security posture, backup gaps, and scope.',
     meta: ['Provider switch', 'Backup gaps', 'M365 cleanup'],
     href: withBasePath('blog/'),
   },
@@ -114,7 +114,7 @@ const experienceHubs = [
     code: 'NP',
     label: 'Signals',
     title: 'Briefings on change that affects operations',
-    copy: 'Security requirements, Microsoft 365 changes, AI workflow pressure, and buyer expectations translated into what a smaller business should actually do next.',
+    copy: 'Security requirements, Microsoft changes, AI workflow pressure, and buyer expectations.',
     meta: ['Insurance', 'AI policy', 'M365 changes'],
     href: withBasePath('news/'),
   },
@@ -122,7 +122,7 @@ const experienceHubs = [
     code: 'PG',
     label: 'Visuals',
     title: 'Photo and design reference library',
-    copy: 'Reusable art direction helps future pages, proposals, and launch materials feel specific without leaning on stock-template sameness.',
+    copy: 'Reusable art direction for pages, proposals, launches, and client-facing screens.',
     meta: ['Photo sets', 'Interface studies', 'Launch assets'],
     href: withBasePath('photos/'),
   },
@@ -131,57 +131,57 @@ const experienceHubs = [
 const operatingSignals = [
   {
     label: 'Response ownership',
-    copy: 'Clear ticket lanes, escalation rules, vendor follow-through, and a weekly view of what is open, blocked, aging, recurring, or waiting on approval.',
+    copy: 'Ticket lanes, escalation rules, vendor follow-through, and a weekly view of what is open or blocked.',
   },
   {
     label: 'Security baseline',
-    copy: 'Identity, endpoint, email, backup, admin access, and risky forwarding are checked before anyone recommends more tools.',
+    copy: 'Identity, endpoint, email, backup, admin access, and risky forwarding are checked before new tools.',
   },
   {
     label: 'Executive visibility',
-    copy: 'Owners and managers see priorities, risk notes, renewal pressure, budget signals, and which decisions need their attention.',
+    copy: 'Owners see priorities, risks, renewal pressure, budget signals, and decisions that need attention.',
   },
 ];
 
 const firstThirtyDays = [
-  'Map users, devices, Microsoft 365, network gear, backups, vendors, licenses, admin roles, and recurring tickets.',
-  'Stabilize urgent support and security gaps before expanding the roadmap or buying another tool.',
-  'Turn findings into a 30/60/90-day plan with owners, budget ranges, renewal notes, and a clear decision point.',
+  'Map users, devices, Microsoft 365, network gear, backups, vendors, admin roles, and recurring tickets.',
+  'Stabilize urgent support and security gaps before expanding the roadmap.',
+  'Turn findings into a 30/60/90-day plan with owners, budget ranges, and a decision point.',
 ];
 
 const buyerQuestions = [
   {
     title: 'Who really owns the environment after the contract is signed?',
-    copy: 'The answer should include ticket handling, vendor coordination, onboarding, offboarding, reporting, backups, and security evidence.',
+    copy: 'Ticket handling, vendor coordination, onboarding, reporting, backups, and security evidence should all have an owner.',
   },
   {
     title:
       'Can the provider keep up with security, AI, cloud, and workflow change?',
-    copy: 'The right partner should know what to standardize, what to secure, what to document, what to automate, and what to leave alone for now.',
+    copy: 'The right partner knows what to standardize, secure, document, automate, and leave alone.',
   },
   {
     title:
       'Can the website, portal, or intake flow help sales instead of slowing it down?',
-    copy: 'When digital work is in scope, the goal is not decoration. It is clearer trust, fewer dead ends, better mobile behavior, and a cleaner next step.',
+    copy: 'When digital work is in scope, the goal is trust, fewer dead ends, better mobile behavior, and a cleaner next step.',
   },
 ];
 
 const startOptions = [
   {
     title: 'Need service coverage?',
-    copy: 'Use the solutions hub if the main issue is support ownership, user/device hygiene, Microsoft 365 governance, backup, or network stability.',
+    copy: 'Start with support ownership, device hygiene, Microsoft 365, backup, or network stability.',
     href: withBasePath('services/'),
     cta: 'Open solutions hub',
   },
   {
     title: 'Need budget clarity?',
-    copy: 'Use pricing when the main question is package depth, scope boundaries, user/device assumptions, or whether co-managed support is the right shape.',
+    copy: 'Compare package depth, scope boundaries, user/device assumptions, and co-managed fit.',
     href: withBasePath('pricing/'),
     cta: 'Open pricing guide',
   },
   {
     title: 'Need fit clarity?',
-    copy: 'Use Contact HQ when you need help deciding whether the first move is support, security, recovery, Microsoft 365 cleanup, or a digital build.',
+    copy: 'Sort whether the first move is support, security, recovery, Microsoft 365 cleanup, or digital build.',
     href: withBasePath('contact-hq/'),
     cta: 'Open fit intake',
   },
@@ -226,18 +226,18 @@ const startOptions = [
           Chicago managed IT + practical digital systems
         </p>
         <h1 class="home-homepage-title">
-          Olive Chicago managed IT for teams that need fewer technology
-          surprises.
+          Olive Chicago managed IT for companies that need technology to stay
+          owned.
         </h1>
         <p class="home-homepage-copy">
           Support, cybersecurity, Microsoft 365, cloud, backup, networking, and
-          selective digital systems for Chicago-area teams that need the daily
-          technology layer to be easier to own, explain, and improve.
+          selective digital systems for Chicago-area teams with no room for
+          unclear ownership.
         </p>
         <p class="home-homepage-claim">
-          Start with the operational pressure: recurring tickets, stale access,
-          unclear backup, cyber-insurance questions, Microsoft 365 sprawl,
-          vendor confusion, or a website that makes good work look ordinary.
+          Start with the loose end: recurring tickets, stale access, backup
+          uncertainty, vendor confusion, or a site that no longer reflects the
+          business.
         </p>
 
         <div class="home-homepage-actions">
@@ -301,12 +301,12 @@ const startOptions = [
       <div class="home-homepage-section__intro">
         <p class="home-homepage-eyebrow">Start here</p>
         <h2 class="home-homepage-section__title">
-          Find the right first move in under a minute.
+          Find the first useful move.
         </h2>
         <p class="home-homepage-section__copy">
-          Most visitors arrive with one of four questions: who owns support, are
-          the basics secure, what will this cost, or is the buyer-facing path
-          hurting trust. Pick that lane and skip the noise.
+          Most buyers arrive with one of four questions: who owns support, are
+          the basics secure, what will this cost, or is the front door hurting
+          trust.
         </p>
       </div>
 
@@ -331,10 +331,9 @@ const startOptions = [
           Four lanes, one operating standard.
         </h2>
         <p class="home-homepage-section__copy">
-          The offer is intentionally practical: run the daily IT layer,
-          strengthen the security baseline, clean up Microsoft 365 and cloud
-          systems, and build selective digital surfaces when they support sales
-          or service.
+          Run the daily IT layer, harden the security baseline, clean up
+          Microsoft 365 and cloud systems, and build digital surfaces when they
+          support sales or service.
         </p>
       </div>
 
@@ -366,12 +365,11 @@ const startOptions = [
       <div class="home-homepage-section__intro">
         <p class="home-homepage-eyebrow">Featured experiences</p>
         <h2 class="home-homepage-section__title">
-          Proof should be interactive, not buried in claims.
+          Proof should be inspectable.
         </h2>
         <p class="home-homepage-section__copy">
-          The site includes working examples, briefings, and visual references
-          so a buyer can inspect how the company thinks, builds, and explains
-          technical work before starting a conversation.
+          Working examples, briefings, and visual references show how the
+          company thinks, builds, and explains technical work before a call.
         </p>
       </div>
 
@@ -413,9 +411,8 @@ const startOptions = [
           The real buying questions are practical.
         </h2>
         <p class="home-homepage-section__copy">
-          A good MSP website should not bury visitors in capability lists. It
-          should answer ownership, risk, budget, evidence, and what happens
-          after the first conversation.
+          A strong MSP site should answer ownership, risk, budget, evidence, and
+          what happens after the first conversation.
         </p>
       </div>
 
@@ -446,8 +443,8 @@ const startOptions = [
           </h2>
           <p class="home-homepage-section__copy">
             Intake separates urgent support, security, and continuity work from
-            longer cleanup. Leadership gets a clear view of what happens now,
-            what waits, what is blocked, and what it should cost.
+            longer cleanup. Leadership sees what happens now, what waits, and
+            what it should cost.
           </p>
         </div>
 
@@ -512,13 +509,12 @@ const startOptions = [
           <div>
             <p class="home-homepage-eyebrow">Ready to move</p>
             <h3 class="home-homepage-closeout__title">
-              Make the operating layer easier to own. Make the digital front
-              door easier to trust.
+              Make the operating layer easier to own and the digital front door
+              easier to trust.
             </h3>
             <p class="home-homepage-closeout__copy">
-              The right first conversation should identify the pressure point,
-              the risk, the likely cost range, the owner, and the first outcome
-              worth proving.
+              The first conversation should identify the pressure point, risk,
+              likely cost range, owner, and first outcome worth proving.
             </p>
           </div>
 
@@ -562,15 +558,11 @@ const startOptions = [
       min-height: calc(100svh - 4.35rem);
       padding: 0;
       background:
-        radial-gradient(
-          circle at 50% 46%,
-          color-mix(in srgb, var(--color-primary-strong) 13%, transparent),
-          transparent 34%
-        ),
-        radial-gradient(
-          circle at 22% 18%,
-          color-mix(in srgb, var(--color-primary) 12%, transparent),
-          transparent 32%
+        linear-gradient(
+          135deg,
+          color-mix(in srgb, var(--color-primary) 8%, transparent),
+          transparent 38%,
+          color-mix(in srgb, var(--color-primary-strong) 6%, transparent)
         ),
         linear-gradient(
           180deg,
@@ -617,9 +609,9 @@ const startOptions = [
       font-family: var(--font-mono);
       font-size: 0.7rem;
       font-weight: 700;
-      letter-spacing: 0.16em;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: color-mix(in srgb, var(--color-primary) 70%, white 30%);
+      color: color-mix(in srgb, var(--color-text-muted) 92%, transparent);
     }
 
     .home-homepage-title,
@@ -635,7 +627,7 @@ const startOptions = [
       margin: 0;
       color: var(--color-text-primary);
       font-family: var(--font-display);
-      font-weight: 600;
+      font-weight: 650;
       letter-spacing: 0;
       line-height: 1.02;
       text-wrap: balance;
@@ -690,7 +682,7 @@ const startOptions = [
       display: inline-flex;
       min-height: 42px;
       align-items: center;
-      border-radius: 0.65rem;
+      border-radius: 0.5rem;
       border: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
       background: color-mix(in srgb, var(--color-surface) 80%, transparent);
       padding: 0 0.95rem;
@@ -698,7 +690,7 @@ const startOptions = [
       font-family: var(--font-mono);
       font-size: 0.68rem;
       font-weight: 700;
-      letter-spacing: 0.14em;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
       transition:
         border-color 0.2s ease,
@@ -721,26 +713,15 @@ const startOptions = [
       overflow: hidden;
       min-height: clamp(26rem, 58vw, 42rem);
       border: 1px solid color-mix(in srgb, var(--color-border) 78%, transparent);
-      border-radius: 1rem;
+      border-radius: 0;
       background:
         linear-gradient(
           180deg,
           color-mix(in srgb, var(--color-surface) 96%, white 2%),
           color-mix(in srgb, var(--color-background) 92%, transparent)
         ),
-        radial-gradient(
-          circle at 16% 16%,
-          color-mix(in srgb, var(--color-primary) 10%, transparent),
-          transparent 28%
-        ),
-        radial-gradient(
-          circle at 84% 20%,
-          color-mix(in srgb, var(--color-primary-strong) 12%, transparent),
-          transparent 26%
-        );
-      box-shadow:
-        inset 0 1px 0 color-mix(in srgb, white 6%, transparent),
-        0 34px 84px -58px rgba(0, 0, 0, 0.86);
+        color-mix(in srgb, var(--color-background) 96%, black 4%);
+      box-shadow: none;
     }
 
     .home-homepage-stage--full {
@@ -750,15 +731,11 @@ const startOptions = [
       border: 0;
       border-radius: 0;
       background:
-        radial-gradient(
-          circle at 50% 42%,
-          color-mix(in srgb, var(--color-primary-strong) 18%, transparent),
-          transparent 29%
-        ),
-        radial-gradient(
-          circle at 50% 52%,
+        linear-gradient(
+          145deg,
           color-mix(in srgb, var(--color-primary) 10%, transparent),
-          transparent 45%
+          transparent 38%,
+          color-mix(in srgb, var(--color-primary-strong) 8%, transparent)
         ),
         color-mix(in srgb, var(--color-background) 96%, black 4%);
       box-shadow: none;
@@ -801,20 +778,13 @@ const startOptions = [
       inset: 0;
       z-index: 2;
       pointer-events: none;
-      background:
-        radial-gradient(
-          circle at 50% 44%,
-          transparent 0 34%,
-          rgba(7, 8, 6, 0.08) 56%,
-          rgba(7, 8, 6, 0.72) 100%
-        ),
-        linear-gradient(
-          180deg,
-          rgba(7, 8, 6, 0.18),
-          transparent 24%,
-          transparent 72%,
-          rgba(7, 8, 6, 0.42)
-        );
+      background: linear-gradient(
+        180deg,
+        rgba(8, 9, 11, 0.08),
+        transparent 24%,
+        transparent 72%,
+        rgba(8, 9, 11, 0.36)
+      );
     }
 
     .home-homepage-stage__scene {
@@ -855,10 +825,11 @@ const startOptions = [
 
     .home-orbit-scene__fallback {
       background:
-        radial-gradient(
-          circle at 52% 42%,
-          color-mix(in srgb, var(--color-primary-strong) 22%, transparent),
-          transparent 28%
+        linear-gradient(
+          135deg,
+          color-mix(in srgb, var(--color-primary) 12%, transparent),
+          transparent 44%,
+          color-mix(in srgb, var(--color-primary-strong) 10%, transparent)
         ),
         linear-gradient(
           145deg,
@@ -1004,17 +975,15 @@ const startOptions = [
       position: relative;
       overflow: hidden;
       border: 1px solid color-mix(in srgb, var(--color-border) 76%, transparent);
-      border-radius: 0.9rem;
+      border-radius: 0.5rem;
       background:
         linear-gradient(
           180deg,
-          color-mix(in srgb, white 4%, transparent),
-          transparent 36%
+          color-mix(in srgb, white 2.5%, transparent),
+          transparent 30%
         ),
-        color-mix(in srgb, var(--color-surface) 90%, transparent);
-      box-shadow:
-        inset 0 1px 0 color-mix(in srgb, white 4%, transparent),
-        0 22px 48px -38px rgba(0, 0, 0, 0.5);
+        color-mix(in srgb, var(--color-surface) 78%, transparent);
+      box-shadow: none;
     }
 
     .home-homepage-signal-card,
@@ -1074,7 +1043,11 @@ const startOptions = [
     .home-homepage-experience-card:hover,
     .home-homepage-start-item:hover {
       transform: translateY(-2px);
-      border-color: color-mix(in srgb, var(--color-primary) 28%, transparent);
+      border-color: color-mix(
+        in srgb,
+        var(--color-text-primary) 18%,
+        transparent
+      );
       background:
         linear-gradient(
           180deg,
@@ -1114,7 +1087,7 @@ const startOptions = [
       border-radius: 0.65rem;
       border: 1px solid
         color-mix(in srgb, var(--color-primary) 28%, transparent);
-      background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+      background: color-mix(in srgb, var(--color-primary) 7%, transparent);
       color: color-mix(in srgb, var(--color-text-primary) 86%, transparent);
       font-size: 0.68rem;
     }
@@ -1214,8 +1187,8 @@ const startOptions = [
       align-items: end;
       padding: 1.2rem 1.15rem;
       border: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
-      border-radius: 0.9rem;
-      background: color-mix(in srgb, var(--color-surface) 90%, transparent);
+      border-radius: 0.5rem;
+      background: color-mix(in srgb, var(--color-surface) 78%, transparent);
     }
 
     .home-homepage-start-item span {
@@ -1227,7 +1200,7 @@ const startOptions = [
       display: grid;
       gap: 1.2rem;
       padding: clamp(1.25rem, 3vw, 1.6rem);
-      border-radius: 1rem;
+      border-radius: 0.5rem;
       margin-top: 0.5rem;
     }
 
