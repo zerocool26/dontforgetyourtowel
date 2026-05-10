@@ -1,5 +1,3 @@
-import { createSafeWebGLRenderer } from './tower3d/three/renderer-factory';
-
 type NavigatorExtras = {
   webdriver?: boolean;
   platform?: string;
@@ -61,7 +59,7 @@ type ProbeReport = {
   assetChecks?: Array<{ url: string; status: number; ok: boolean }>;
   webgl: {
     contexts: WebGLContextResult[];
-    safeRenderer: { ok: boolean; error?: string };
+    safeRenderer: { ok: boolean; error?: string; detail?: string };
   };
 };
 
@@ -196,6 +194,83 @@ const probeWebGLContexts = (): WebGLContextResult[] => {
 
   return results;
 };
+
+const probeRendererCompatibleContext =
+  (): ProbeReport['webgl']['safeRenderer'] => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 2;
+    canvas.height = 2;
+
+    const attempts: Array<{
+      kind: WebGLContextResult['kind'];
+      attrs?: WebGLContextAttributes;
+    }> = [
+      { kind: 'webgl2' },
+      { kind: 'webgl' },
+      {
+        kind: 'webgl2',
+        attrs: {
+          alpha: true,
+          antialias: false,
+          depth: true,
+          stencil: false,
+          preserveDrawingBuffer: false,
+          powerPreference: 'high-performance',
+        },
+      },
+      {
+        kind: 'webgl',
+        attrs: {
+          alpha: true,
+          antialias: false,
+          depth: true,
+          stencil: false,
+          preserveDrawingBuffer: false,
+          powerPreference: 'high-performance',
+        },
+      },
+      {
+        kind: 'experimental-webgl',
+        attrs: {
+          alpha: false,
+          antialias: false,
+          depth: false,
+          stencil: false,
+        },
+      },
+    ];
+
+    const errors: string[] = [];
+
+    for (const attempt of attempts) {
+      const context = tryGetContext(canvas, attempt.kind, attempt.attrs);
+      if (isWebGLContext(context)) {
+        const extensionCount = (() => {
+          try {
+            return context.getSupportedExtensions()?.length ?? 0;
+          } catch {
+            return 0;
+          }
+        })();
+
+        return {
+          ok: true,
+          detail: `${attempt.kind} context created with ${extensionCount} extensions`,
+        };
+      }
+
+      if (context instanceof Error) {
+        errors.push(`${attempt.kind}: ${context.message}`);
+      }
+    }
+
+    return {
+      ok: false,
+      error:
+        errors[0] ??
+        'No renderer-compatible WebGL context could be created with fallback attributes.',
+    };
+  };
 
 const probeAssets = async (): Promise<ProbeReport['assetChecks']> => {
   const urls = new Set<string>();
@@ -394,25 +469,7 @@ const run = async () => {
 
   report.webgl.contexts = probeWebGLContexts();
 
-  // Safe renderer probe
-  try {
-    const canvas = document.createElement('canvas');
-    canvas.width = 2;
-    canvas.height = 2;
-    const renderer = createSafeWebGLRenderer({
-      canvas,
-      alpha: true,
-      antialias: false,
-      powerPreference: 'high-performance',
-    });
-    renderer.dispose();
-    report.webgl.safeRenderer = { ok: true };
-  } catch (e) {
-    report.webgl.safeRenderer = {
-      ok: false,
-      error: e instanceof Error ? e.message : String(e),
-    };
-  }
+  report.webgl.safeRenderer = probeRendererCompatibleContext();
 
   render(report);
 };

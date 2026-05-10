@@ -16,13 +16,17 @@ Playwright/Vitest quality gates.
 - Start local development with `npm run dev`
 - Use `npm run lint` and `npm run typecheck` for fast static validation
 - Use `npm test` for unit coverage and `npm run test:e2e` for browser flows
+- Use `npm run verify:fast` before handing off route/component changes
+- Use `npm run verify:full` before layout, dependency, routing, or deployment changes
 - Use `npm run deploy-ready` before release-quality changes
 
 ### Workspace instruction system
 
+- Cross-agent project guidance lives in `AGENTS.md`
 - Base project guidance lives in `.github/copilot-instructions.md`
 - Route-specific guidance lives in `.github/instructions/marketing-pages.instructions.md`
 - Shared-component guidance lives in `.github/instructions/design-system.instructions.md`
+- AI continuation guidance lives in `docs/AI-DEVELOPMENT-GUIDE.md`
 
 These workspace instruction files are intended to reduce drift between human edits, Copilot-assisted edits, and future agent passes.
 
@@ -51,4 +55,7 @@ hard-deleted from git history.
 - `npm test`
 - `npm run test:e2e`
 - `npm run build`
+- `npm run verify:fast`
+- `npm run verify:full`
+- `npm run deps:audit`
 - `npm run deploy-ready`

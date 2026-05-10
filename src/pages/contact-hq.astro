@@ -4,7 +4,7 @@ import MarketingLayout from '../layouts/MarketingLayout.astro';
 import StructuredData from '../components/StructuredData.astro';
 import ModernCard from '../components/ui/ModernCard.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
-import FAQAccordion from '../components/ui/FAQAccordion.tsx';
+import FAQAccordion from '../components/ui/FAQAccordion.astro';
 import ScopeReadinessPanel from '../components/business/ScopeReadinessPanel.astro';
 import { withBasePath } from '../utils/helpers';
 import { CONTACT_EMAIL } from '../consts';
@@ -640,7 +640,7 @@ const faqSchema = {
         </div>
 
         <div>
-          <FAQAccordion client:visible items={faqs} />
+          <FAQAccordion items={faqs} />
         </div>
       </div>
     </div>

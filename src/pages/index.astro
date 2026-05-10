@@ -46,6 +46,27 @@ const outcomePoints = [
   'A sharper first impression before the first sales or intake call',
 ];
 
+const operatingSignals = [
+  {
+    label: 'Response ownership',
+    copy: 'Clear ticket lanes, escalation rules, and a weekly view of what is open, aging, blocked, or recurring.',
+  },
+  {
+    label: 'Security baseline',
+    copy: 'Identity, endpoint, email, backup, and admin-access checks before new tools or larger projects are layered in.',
+  },
+  {
+    label: 'Executive visibility',
+    copy: 'Plain-language priorities, risk notes, and roadmap sequencing that leadership can use without translating IT noise.',
+  },
+];
+
+const firstThirtyDays = [
+  'Map users, devices, Microsoft 365, network, backup, vendors, and support pain',
+  'Stabilize urgent support and security gaps before expanding scope',
+  'Create a practical roadmap with owners, budget ranges, and the next decision point',
+];
+
 const startOptions = [
   {
     title: 'Need service coverage?',
@@ -160,13 +181,13 @@ const startOptions = [
       <div class="home-homepage-section__intro">
         <p class="home-homepage-eyebrow">What we do</p>
         <h2 class="home-homepage-section__title">
-          Four lanes. Real scope. No giant Chicago MSP checklist wall.
+          Four lanes that make the operating model easier to understand.
         </h2>
         <p class="home-homepage-section__copy">
-          Strong providers in this market all cover support, security, cloud,
-          continuity, and strategy. The difference is whether the site makes
-          that understandable fast. Detail belongs deeper in the site, not in a
-          cluttered hero.
+          The service story is intentionally organized around the decisions
+          Chicago-area teams actually have to make: who owns support, how risk
+          gets reduced, what cloud work should change first, and how the public
+          experience supports trust.
         </p>
       </div>
 
@@ -185,6 +206,52 @@ const startOptions = [
             </a>
           ))
         }
+      </div>
+    </div>
+  </section>
+
+  <section
+    class="home-homepage-section"
+    id="operating-standard"
+    data-page-section
+  >
+    <div class="premium-container">
+      <div class="home-homepage-operating">
+        <div class="home-homepage-section__intro">
+          <p class="home-homepage-eyebrow">Operating standard</p>
+          <h2 class="home-homepage-section__title">
+            The first phase should make the environment easier to run, not just
+            easier to sell.
+          </h2>
+          <p class="home-homepage-section__copy">
+            Intake starts by separating urgent support needs from structural
+            risk. That keeps early work concrete and gives leadership a clean
+            view of what should happen now, next, and later.
+          </p>
+        </div>
+
+        <div class="home-homepage-operating__grid">
+          <div class="home-homepage-operating__signals">
+            {
+              operatingSignals.map(signal => (
+                <article class="home-homepage-signal">
+                  <h3>{signal.label}</h3>
+                  <p>{signal.copy}</p>
+                </article>
+              ))
+            }
+          </div>
+
+          <div class="home-homepage-first30" aria-labelledby="first30-title">
+            <p class="home-homepage-eyebrow">First 30 days</p>
+            <h3 id="first30-title">
+              A practical start, before the bigger roadmap.
+            </h3>
+            <ol>
+              {firstThirtyDays.map(item => <li>{item}</li>)}
+            </ol>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -537,6 +604,102 @@ const startOptions = [
       gap: 2rem;
     }
 
+    .home-homepage-operating {
+      display: grid;
+      gap: 2.25rem;
+    }
+
+    .home-homepage-operating__grid {
+      display: grid;
+      gap: 2rem;
+      align-items: start;
+    }
+
+    .home-homepage-operating__signals {
+      border-top: 1px solid
+        color-mix(in srgb, var(--color-border) 70%, transparent);
+    }
+
+    .home-homepage-signal {
+      display: grid;
+      gap: 0.45rem;
+      padding: 1.35rem 0;
+      border-bottom: 1px solid
+        color-mix(in srgb, var(--color-border) 66%, transparent);
+    }
+
+    .home-homepage-signal h3,
+    .home-homepage-first30 h3 {
+      margin: 0;
+      color: var(--color-text-primary);
+      font-size: clamp(1.25rem, 2vw, 1.75rem);
+      font-weight: 700;
+      line-height: 1.03;
+      letter-spacing: -0.04em;
+      text-wrap: balance;
+    }
+
+    .home-homepage-signal p,
+    .home-homepage-first30 li {
+      margin: 0;
+      color: color-mix(in srgb, var(--color-text-secondary) 92%, transparent);
+      font-size: 0.98rem;
+      line-height: 1.68;
+    }
+
+    .home-homepage-first30 {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid color-mix(in srgb, var(--color-border) 76%, transparent);
+      border-radius: var(--radius-sm);
+      background:
+        linear-gradient(
+          180deg,
+          color-mix(in srgb, var(--color-surface) 94%, white 2%),
+          color-mix(in srgb, var(--color-surface) 88%, transparent)
+        ),
+        color-mix(in srgb, var(--color-surface) 88%, transparent);
+      padding: clamp(1.2rem, 3vw, 1.7rem);
+      box-shadow: 0 24px 54px -44px rgba(0, 0, 0, 0.62);
+    }
+
+    .home-homepage-first30 ol {
+      display: grid;
+      gap: 1rem;
+      margin: 1.2rem 0 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: first30;
+    }
+
+    .home-homepage-first30 li {
+      position: relative;
+      min-height: 2.4rem;
+      padding-left: 3rem;
+      counter-increment: first30;
+    }
+
+    .home-homepage-first30 li::before {
+      content: counter(first30, decimal-leading-zero);
+      position: absolute;
+      top: 0.1rem;
+      left: 0;
+      display: inline-flex;
+      width: 2.1rem;
+      height: 2.1rem;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid
+        color-mix(in srgb, var(--color-primary) 30%, transparent);
+      border-radius: var(--radius-sm);
+      background: color-mix(in srgb, var(--color-primary) 11%, transparent);
+      color: color-mix(in srgb, var(--color-text-primary) 84%, transparent);
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+
     .home-homepage-start-list {
       border-top: 1px solid
         color-mix(in srgb, var(--color-border) 70%, transparent);
@@ -588,6 +751,10 @@ const startOptions = [
 
       .home-homepage-start-item {
         grid-template-columns: minmax(0, 1fr) auto;
+      }
+
+      .home-homepage-operating__grid {
+        grid-template-columns: minmax(0, 1fr) minmax(21rem, 28rem);
       }
 
       .home-homepage-closeout {

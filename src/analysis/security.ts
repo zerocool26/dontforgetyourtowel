@@ -279,6 +279,8 @@ export class SecurityAnalyzer implements AnalysisModule {
     issues: CodeIssue[]
   ): Promise<void> {
     try {
+      const trackedEnvFiles = await this.getTrackedEnvFiles(config);
+
       const envFiles = await glob('**/.env*', {
         cwd: config.projectRoot,
         ignore: [
@@ -293,7 +295,13 @@ export class SecurityAnalyzer implements AnalysisModule {
       });
 
       envFiles
-        .filter(file => !file.endsWith('.example'))
+        .filter(file => {
+          if (file.endsWith('.example')) return false;
+          const relativePath = path
+            .relative(config.projectRoot, file)
+            .replaceAll(path.sep, '/');
+          return trackedEnvFiles.has(relativePath);
+        })
         .forEach(file => {
           const relativePath = path.relative(config.projectRoot, file);
           issues.push({
@@ -321,6 +329,31 @@ export class SecurityAnalyzer implements AnalysisModule {
         });
     } catch (error) {
       logger.debug('Environment file scan failed', { error });
+    }
+  }
+
+  private async getTrackedEnvFiles(
+    config: AnalyzerConfig
+  ): Promise<Set<string>> {
+    try {
+      const { stdout } = await executeCommand(
+        'git ls-files -- "**/.env*" ".env*"',
+        {
+          cwd: config.projectRoot,
+          ignoreExitCode: true,
+          timeout: 5000,
+        }
+      );
+
+      return new Set(
+        stdout
+          .split(/\r?\n/)
+          .map(file => file.trim().replaceAll('\\', '/'))
+          .filter(file => file && !file.endsWith('.example'))
+      );
+    } catch (error) {
+      logger.debug('Tracked environment file scan skipped', { error });
+      return new Set();
     }
   }
 

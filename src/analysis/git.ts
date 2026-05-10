@@ -29,10 +29,18 @@ export class GitAnalyzer implements AnalysisModule {
 
       const branch = branchInfo.stdout.trim();
       const commit = logInfo.stdout.trim().split(' ')[0];
-      const statusLines = statusInfo.stdout.trim().split('\n').filter(Boolean);
+      const statusLines = statusInfo.stdout
+        .split(/\r?\n/)
+        .filter(line => line.length > 0);
+      const getStatusCode = (line: string) => line.slice(0, 2);
+      const getStatusPath = (line: string) => line.substring(3);
+      const hasStatus = (line: string, status: string) => {
+        const code = getStatusCode(line);
+        return code[0] === status || code[1] === status;
+      };
       const untracked = statusLines
         .filter(line => line.startsWith('??'))
-        .map(line => line.substring(3));
+        .map(getStatusPath);
       const conflicts = statusLines.some(
         line =>
           line.startsWith('UU') ||
@@ -62,14 +70,14 @@ export class GitAnalyzer implements AnalysisModule {
         behindBy,
         fileChanges: {
           added: statusLines
-            .filter(line => line.startsWith('A '))
-            .map(line => line.substring(3)),
+            .filter(line => !line.startsWith('??') && hasStatus(line, 'A'))
+            .map(getStatusPath),
           modified: statusLines
-            .filter(line => line.startsWith('M '))
-            .map(line => line.substring(3)),
+            .filter(line => !line.startsWith('??') && hasStatus(line, 'M'))
+            .map(getStatusPath),
           deleted: statusLines
-            .filter(line => line.startsWith('D '))
-            .map(line => line.substring(3)),
+            .filter(line => !line.startsWith('??') && hasStatus(line, 'D'))
+            .map(getStatusPath),
         },
         untracked,
       };

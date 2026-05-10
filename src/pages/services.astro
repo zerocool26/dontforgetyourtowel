@@ -7,7 +7,7 @@ import ServiceCatalog from '../components/business/ServiceCatalog.tsx';
 import ServiceComparisonMatrix from '../components/business/ServiceComparisonMatrix.tsx';
 import ServicesQuiz from '../components/business/ServicesQuiz.tsx';
 import ScopeReadinessPanel from '../components/business/ScopeReadinessPanel.astro';
-import FAQAccordion from '../components/ui/FAQAccordion.tsx';
+import FAQAccordion from '../components/ui/FAQAccordion.astro';
 import { CONTACT_EMAIL } from '../consts';
 import { servicesExtended } from '../data/services-extended';
 import { servicesFaqs, pricingTiers } from '../data/pricing';
@@ -494,7 +494,7 @@ const breadcrumbItems = [
         </div>
 
         <div>
-          <FAQAccordion client:visible items={servicesFaqs} />
+          <FAQAccordion items={servicesFaqs} />
         </div>
       </div>
     </div>

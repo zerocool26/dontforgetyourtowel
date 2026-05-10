@@ -3,10 +3,8 @@ import 'dotenv/config';
 
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
-import tailwind from '@astrojs/tailwind';
 import preact from '@astrojs/preact';
 import react from '@astrojs/react';
-import solid from '@astrojs/solid-js';
 import { defineConfig } from 'astro/config';
 
 import { createDeploymentConfig } from './config/deployment.js';
@@ -31,25 +29,14 @@ export default defineConfig({
         return !isLegacyRoutePath(page);
       },
     }),
-    tailwind({
-      applyBaseStyles: false,
-      configFile: './tailwind.config.ts',
-    }),
     // Avoid ambiguous JSX renderer selection when multiple frameworks are enabled.
     // We intentionally keep both integrations, but scope them to distinct directories.
     preact({
       include: ['src/components/**/*.jsx', 'src/components/**/*.tsx'],
-      exclude: ['src/components/react/**', 'src/components/solid/**'],
+      exclude: ['src/components/react/**'],
     }),
     react({
-      include: [
-        'src/components/react/**/*.jsx',
-        'src/components/react/**/*.tsx',
-      ],
-      exclude: ['src/components/solid/**'],
-    }),
-    solid({
-      include: ['src/components/solid/**/*'],
+      include: ['src/components/react/**/*.jsx', 'src/components/react/**/*.tsx'],
     }),
   ],
 });

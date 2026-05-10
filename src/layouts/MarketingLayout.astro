@@ -12,7 +12,6 @@ import StickyCTA from '../components/business/StickyCTA.astro';
 import RouteAtmosphere from '../components/business/RouteAtmosphere.astro';
 import SavedRoutesDock from '../components/business/SavedRoutesDock.astro';
 import LiveChat from '../components/business/LiveChat';
-import CommandPalette from '../components/CommandPalette';
 import PullToRefresh from '../components/ui/PullToRefresh.astro';
 import { BASE_PATH } from '../consts';
 import { getRouteContext } from '../utils/route-context';
@@ -191,7 +190,6 @@ const routeContext = getRouteContext(Astro.url.pathname);
         {showSavedRoutesDock ? <SavedRoutesDock /> : null}
         {showStickyCTA ? <StickyCTA /> : null}
         {showMobileNav ? <MobileNav /> : null}
-        <CommandPalette client:only="preact" />
         {showLiveChat ? <LiveChat client:idle /> : null}
       </div>
     </div>
@@ -199,5 +197,8 @@ const routeContext = getRouteContext(Astro.url.pathname);
     <PWARegistration />
     <WebVitals />
     <ErrorTracking />
+    <script>
+      import '../scripts/command-palette-loader';
+    </script>
   </body>
 </html>

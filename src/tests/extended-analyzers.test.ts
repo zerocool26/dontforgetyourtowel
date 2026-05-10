@@ -422,6 +422,51 @@ describe('Git Analyzer', () => {
     expect(uncommittedIssue).toBeDefined();
   });
 
+  it('should classify staged and unstaged porcelain status entries', async () => {
+    const { executeCommand } = await import('../utils/command-executor');
+    vi.mocked(executeCommand)
+      .mockResolvedValueOnce({
+        stdout: 'main',
+        stderr: '',
+        exitCode: 0,
+        signal: null,
+        duration: 10,
+      })
+      .mockResolvedValueOnce({
+        stdout:
+          ' M src/unstaged.ts\nM  src/staged.ts\nA  src/new.ts\n D src/removed.ts\n?? docs/new-guide.md',
+        stderr: '',
+        exitCode: 0,
+        signal: null,
+        duration: 10,
+      })
+      .mockResolvedValueOnce({
+        stdout: 'abc123 Latest commit',
+        stderr: '',
+        exitCode: 0,
+        signal: null,
+        duration: 10,
+      })
+      .mockResolvedValueOnce({
+        stdout: '0\t0',
+        stderr: '',
+        exitCode: 0,
+        signal: null,
+        duration: 10,
+      });
+
+    await analyzer.analyze(mockConfig);
+    const meta = analyzer.getLastAnalysis();
+
+    expect(meta?.fileChanges.modified).toEqual([
+      'src/unstaged.ts',
+      'src/staged.ts',
+    ]);
+    expect(meta?.fileChanges.added).toEqual(['src/new.ts']);
+    expect(meta?.fileChanges.deleted).toEqual(['src/removed.ts']);
+    expect(meta?.untracked).toEqual(['docs/new-guide.md']);
+  });
+
   it('should capture upstream branch misalignment', async () => {
     const { executeCommand } = await import('../utils/command-executor');
     vi.mocked(executeCommand)
@@ -633,6 +678,23 @@ describe('Security Analyzer', () => {
     const envPath = '/fake/path/.env.local';
     const fileContent = 'SECRET_KEY=should-not-commit';
 
+    const { executeCommand } = await import('../utils/command-executor');
+    vi.mocked(executeCommand)
+      .mockResolvedValueOnce({
+        stdout: '',
+        stderr: '',
+        exitCode: 0,
+        signal: null,
+        duration: 0,
+      })
+      .mockResolvedValueOnce({
+        stdout: '.env.local\n',
+        stderr: '',
+        exitCode: 0,
+        signal: null,
+        duration: 0,
+      });
+
     const { glob } = await import('glob');
     vi.mocked(glob)
       .mockResolvedValueOnce([]) // security patterns
@@ -654,5 +716,43 @@ describe('Security Analyzer', () => {
     });
 
     expect(issues.some(issue => issue.rule === 'env-files-in-repo')).toBe(true);
+  });
+
+  it('does not flag ignored local environment files that are not tracked', async () => {
+    const envPath = '/fake/path/.env.local';
+
+    const { executeCommand } = await import('../utils/command-executor');
+    vi.mocked(executeCommand)
+      .mockResolvedValueOnce({
+        stdout: '',
+        stderr: '',
+        exitCode: 0,
+        signal: null,
+        duration: 0,
+      })
+      .mockResolvedValueOnce({
+        stdout: '',
+        stderr: '',
+        exitCode: 0,
+        signal: null,
+        duration: 0,
+      });
+
+    const { glob } = await import('glob');
+    vi.mocked(glob)
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([envPath]);
+
+    const issues = await analyzer.analyze({
+      ...mockConfig,
+      projectRoot: '/fake/path',
+      ignore: [],
+      include: ['**/*'],
+    });
+
+    expect(issues.some(issue => issue.rule === 'env-files-in-repo')).toBe(
+      false
+    );
   });
 });

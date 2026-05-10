@@ -6,7 +6,7 @@ import ModernButton from '../components/ui/ModernButton.astro';
 import ModernCard from '../components/ui/ModernCard.astro';
 import PricingCalculator from '../components/business/PricingCalculator.tsx';
 import ROICalculator from '../components/business/ROICalculator.tsx';
-import FAQAccordion from '../components/ui/FAQAccordion.tsx';
+import FAQAccordion from '../components/ui/FAQAccordion.astro';
 import {
   pricingFaqs,
   pricingSignals,
@@ -445,7 +445,7 @@ const pricingSections = [
         </div>
 
         <div>
-          <FAQAccordion client:visible items={pricingFaqs} />
+          <FAQAccordion items={pricingFaqs} />
         </div>
       </div>
     </div>

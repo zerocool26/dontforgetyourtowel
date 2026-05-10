@@ -2,55 +2,63 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Interactivity Features', () => {
   test.describe('Command Palette', () => {
-    // Note: Command Palette uses client:only="preact" which may have hydration timing issues
-    // These tests are skipped pending investigation of Preact island hydration in static builds
-    test.skip('should open with keyboard shortcut', async ({ page }) => {
+    test('should open with keyboard shortcut', async ({ page }) => {
       await page.goto('./');
 
-      // Wait for client-side hydration
-      await page.waitForTimeout(2000);
+      await page.keyboard.press('ControlOrMeta+k');
 
-      // Press Cmd+K (Mac) or Ctrl+K (Windows/Linux)
-      if (process.platform === 'darwin') {
-        await page.keyboard.press('Meta+k');
-      } else {
-        await page.keyboard.press('Control+k');
-      }
-
-      // Check if modal is visible
-      const modal = page.locator(
-        'input[placeholder="Type a command or search..."]'
-      );
-      await expect(modal).toBeVisible({ timeout: 10000 });
+      await expect(
+        page.getByRole('dialog', { name: /command palette/i })
+      ).toBeVisible({
+        timeout: 10000,
+      });
+      await expect(
+        page.getByRole('combobox', { name: /search commands/i })
+      ).toBeVisible();
     });
 
-    test.skip('should navigate to services via command', async ({ page }) => {
+    test('should lazy-load and open from header search trigger', async ({
+      page,
+      isMobile,
+    }) => {
       await page.goto('./');
 
-      // Wait for client-side hydration
-      await page.waitForTimeout(2000);
+      await expect(page.locator('#command-palette-root')).toHaveCount(0);
 
-      // Open palette
-      if (process.platform === 'darwin') {
-        await page.keyboard.press('Meta+k');
+      if (isMobile) {
+        await page.getByRole('button', { name: /toggle navigation/i }).click();
+        await page.getByRole('button', { name: /search the site/i }).click();
       } else {
-        await page.keyboard.press('Control+k');
+        await page
+          .getByRole('button', { name: /open site search/i })
+          .first()
+          .click();
       }
 
-      // Wait for modal to appear
-      const input = page.locator(
-        'input[placeholder="Type a command or search..."]'
-      );
+      await expect(page.locator('#command-palette-root')).toHaveCount(1);
+      await expect(
+        page.getByRole('dialog', { name: /command palette/i })
+      ).toBeVisible({ timeout: 10000 });
+    });
+
+    test('should navigate to services via command', async ({ page }) => {
+      await page.goto('./');
+
+      await page.keyboard.press('ControlOrMeta+k');
+
+      const input = page.getByRole('combobox', {
+        name: /search commands/i,
+      });
       await expect(input).toBeVisible({ timeout: 10000 });
 
-      // Type "Services"
-      await input.fill('Services');
+      await input.fill('solution hub');
+      await expect(
+        page.getByRole('option', { name: /open solution hub/i })
+      ).toBeVisible({ timeout: 10000 });
 
-      // Press Enter on the first result
       await page.keyboard.press('Enter');
 
-      // Verify navigation
-      await expect(page).toHaveURL(/\/services/);
+      await expect(page).toHaveURL(/\/services\/?$/);
     });
   });
 
@@ -123,7 +131,7 @@ test.describe('Interactivity Features', () => {
         quiz.getByTestId('services-quiz-recommendation-label')
       ).toBeVisible({ timeout: 10000 });
       await expect(
-        quiz.getByText(/Managed IT Services \(Bronze/i)
+        quiz.getByText(/Managed IT and Support/i).first()
       ).toBeVisible();
     });
 
@@ -134,20 +142,20 @@ test.describe('Interactivity Features', () => {
       await page.waitForLoadState('domcontentloaded');
 
       await expect(
-        page.getByRole('heading', { name: /let’s scope your next initiative/i })
+        page.getByRole('heading', { name: /send the right context once/i })
       ).toBeVisible();
 
       await expect(
-        page.getByRole('heading', { name: /choose the right channel/i })
+        page.getByRole('heading', { name: /matches the conversation/i })
       ).toBeVisible();
 
       await expect(
         page.getByRole('heading', {
-          name: /what to include in your first message/i,
+          name: /first message short, direct, and useful/i,
         })
       ).toBeVisible();
 
-      const salesChannel = page.getByText(/new project \/ sales/i).first();
+      const salesChannel = page.getByText(/strategy and discovery/i).first();
       await expect(salesChannel).toBeVisible();
 
       const emailLink = page
@@ -224,28 +232,23 @@ test.describe('Interactivity Features', () => {
     });
   });
 
-  test.describe('Editorial signal cabinet', () => {
-    test('should switch the highlighted trade signal on the landing page', async ({
+  test.describe('Homepage operating standard', () => {
+    test('should expose the operating signals on the landing page', async ({
       page,
     }) => {
       await page.goto('./');
       await page.waitForLoadState('domcontentloaded');
 
-      const cabinet = page.locator('[data-signal-cabinet]').first();
-      await expect(cabinet).toBeVisible();
-
       await expect(
-        cabinet.locator('[data-signal-cabinet-title]')
-      ).toContainText(/mechanical/i);
-
-      await cabinet.getByRole('button', { name: /electrical/i }).click();
-
+        page.getByRole('heading', { name: /operating model easier/i })
+      ).toBeVisible();
       await expect(
-        cabinet.locator('[data-signal-cabinet-title]')
-      ).toContainText(/electrical/i);
+        page.getByRole('heading', { name: /response ownership/i })
+      ).toBeVisible();
       await expect(
-        cabinet.getByRole('button', { name: /electrical/i })
-      ).toHaveAttribute('aria-pressed', 'true');
+        page.getByRole('heading', { name: /security baseline/i })
+      ).toBeVisible();
+      await expect(page.locator('.home-homepage-first30 li')).toHaveCount(3);
     });
   });
 

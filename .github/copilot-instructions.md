@@ -3,6 +3,7 @@
 ## Architecture
 
 - This workspace is an **Astro 5 static site** with **Preact** as the primary interactive UI layer.
+- Cross-agent handoff rules live in `AGENTS.md`; continuation context lives in `docs/AI-DEVELOPMENT-GUIDE.md`.
 - Keep **React** components inside `src/components/react/**` and **Solid** components inside `src/components/solid/**`; do not mix framework folders.
 - Use `src/layouts/MarketingLayout.astro` for public-facing pages and prefer shared UI primitives like `src/components/ui/ModernButton.astro` and `src/components/ui/ModernCard.astro`.
 - Internal links must use `withBasePath()` from `src/utils/helpers.ts` so GitHub Pages/project-site deployments keep working.
@@ -10,6 +11,7 @@
 ## Build and Test
 
 - Required runtime: **Node >= 22** and **npm 11.6.1**.
+- Use `npm run verify:fast` for normal route/component handoffs and `npm run verify:full` for layout, routing, dependency, or deployment changes.
 - Use `npm run health-check` for fast critical analysis and `npm run error-review:deployment` before release-grade deployment changes.
 - Primary validation commands:
   - `npm run lint`

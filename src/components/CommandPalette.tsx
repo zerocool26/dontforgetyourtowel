@@ -101,6 +101,10 @@ type WorkerResponse = { type: 'results'; query: string; ids: string[] };
 type FuseImport = typeof import('fuse.js');
 type FuseInstance = import('fuse.js').default<CommandItem>;
 
+interface CommandPaletteProps {
+  initialOpen?: boolean;
+}
+
 const FUSE_OPTIONS = {
   keys: ['label', 'category', 'keywords', 'description'],
   threshold: 0.3,
@@ -264,8 +268,10 @@ const BASE_COMMANDS: CommandItem[] = [
   },
 ];
 
-export default function CommandPalette() {
-  const [isOpen, setIsOpen] = useState(false);
+export default function CommandPalette({
+  initialOpen = false,
+}: CommandPaletteProps) {
+  const [isOpen, setIsOpen] = useState(initialOpen);
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);

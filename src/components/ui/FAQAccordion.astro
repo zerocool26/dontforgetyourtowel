@@ -1,0 +1,38 @@
+---
+export interface FAQItem {
+  title: string;
+  content: string;
+}
+
+interface Props {
+  items: FAQItem[];
+}
+
+const { items } = Astro.props;
+---
+
+<div class="grid gap-4">
+  {
+    items.map((item, index) => (
+      <details
+        class="tone-border tone-surface group overflow-hidden rounded-2xl border"
+        open={index === 0}
+      >
+        <summary class="tone-title min-h-touch flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 text-left text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400/60 [&::-webkit-details-marker]:hidden [@media(hover:hover)]:hover:bg-white/5">
+          <span>{item.title}</span>
+          <span
+            class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/10 text-lg text-zinc-400 transition-transform group-open:rotate-45 group-open:text-accent-300"
+            aria-hidden="true"
+          >
+            +
+          </span>
+        </summary>
+        <div class="overflow-hidden">
+          <p class="tone-body px-5 pb-5 text-sm leading-relaxed">
+            {item.content}
+          </p>
+        </div>
+      </details>
+    ))
+  }
+</div>
