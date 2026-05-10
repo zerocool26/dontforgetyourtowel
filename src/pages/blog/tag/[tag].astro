@@ -1,21 +1,173 @@
 ---
 import { getCollection } from 'astro:content';
-import LegacyRedirect from '../../../components/LegacyRedirect.astro';
+import type { CollectionEntry } from 'astro:content';
+import MarketingLayout from '../../../layouts/MarketingLayout.astro';
+import ModernButton from '../../../components/ui/ModernButton.astro';
+import { withBasePath } from '../../../utils/helpers';
 
 export const prerender = true;
 
-export async function getStaticPaths() {
-  // Keep legacy tag URLs resolvable and redirect them.
-  const posts = (await getCollection('blog' as never)) as any[];
-  const published = posts.filter(entry => !entry.data.draft);
+type BlogPost = CollectionEntry<'blog'>;
 
+export async function getStaticPaths() {
+  const posts = (await getCollection('blog')).filter(
+    entry => !entry.data.draft
+  );
   const tags = new Set<string>();
-  published.forEach(entry => {
-    (entry.data.tags || []).forEach((t: string) => tags.add(t));
+
+  posts.forEach(entry => {
+    entry.data.tags.forEach(tag => tags.add(tag));
   });
 
-  return Array.from(tags).map(tag => ({ params: { tag } }));
+  return Array.from(tags).map(tag => ({
+    params: { tag },
+    props: {
+      tag,
+      posts: posts
+        .filter(entry => entry.data.tags.includes(tag))
+        .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()),
+    },
+  }));
 }
+
+const { tag, posts } = Astro.props as { tag: string; posts: BlogPost[] };
 ---
 
-<LegacyRedirect destination="services/#case-studies" />
+<MarketingLayout
+  title={`${tag} Articles | Olive Chicago Blog`}
+  description={`Articles tagged ${tag} from Olive Chicago on managed IT, security, Microsoft 365, cloud operations, ecommerce, and digital systems.`}
+  bodyClass="creative-page"
+  mainClass="relative isolate overflow-x-clip"
+  showFooter={true}
+  showStickyCTA={false}
+  showLiveChat={false}
+  showSavedRoutesDock={false}
+>
+  <section class="tag-page">
+    <div class="premium-container">
+      <div class="tag-page__header">
+        <p class="tag-eyebrow">Blog tag</p>
+        <h1>{tag}</h1>
+        <p>
+          Focused notes that mention {tag}, collected so readers can follow a
+          practical thread instead of bouncing through an archive.
+        </p>
+        <ModernButton href={withBasePath('blog/')} variant="outline">
+          Back to all posts
+        </ModernButton>
+      </div>
+
+      <div class="tag-grid">
+        {
+          posts.map(post => (
+            <a class="tag-card" href={withBasePath(`blog/${post.id}/`)}>
+              <p class="tag-card__date">
+                {post.data.pubDate.toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
+                })}
+              </p>
+              <h2>{post.data.title}</h2>
+              <p>{post.data.description}</p>
+              <div class="tag-card__tags">
+                {post.data.tags.slice(0, 3).map(item => (
+                  <span>{item}</span>
+                ))}
+              </div>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</MarketingLayout>
+
+<style>
+  .tag-page {
+    padding: clamp(6rem, 9vw, 8rem) 0 clamp(4rem, 8vw, 6rem);
+  }
+
+  .tag-page__header {
+    display: grid;
+    gap: 1rem;
+    max-width: 48rem;
+  }
+
+  .tag-eyebrow,
+  .tag-card__date {
+    margin: 0;
+    color: color-mix(in srgb, var(--color-text-muted) 90%, transparent);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .tag-page h1,
+  .tag-card h2 {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-family: var(--font-display);
+    font-size: clamp(1.45rem, 3.5vw, 3.6rem);
+    font-weight: 650;
+    line-height: 1.03;
+    letter-spacing: 0;
+    text-wrap: balance;
+  }
+
+  .tag-page__header p,
+  .tag-card p {
+    margin: 0;
+    color: color-mix(in srgb, var(--color-text-secondary) 94%, transparent);
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+
+  .tag-grid {
+    display: grid;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .tag-card {
+    display: grid;
+    gap: 0.85rem;
+    padding: 1.25rem;
+    border: 1px solid color-mix(in srgb, var(--color-border) 74%, transparent);
+    border-radius: var(--radius-sm);
+    background: color-mix(in srgb, var(--color-surface) 84%, transparent);
+    transition:
+      border-color 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .tag-card:hover {
+    transform: translateY(-3px);
+    border-color: color-mix(in srgb, var(--color-primary) 28%, transparent);
+  }
+
+  .tag-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+  }
+
+  .tag-card__tags span {
+    display: inline-flex;
+    min-height: 2rem;
+    align-items: center;
+    padding: 0 0.7rem;
+    border: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
+    border-radius: 999px;
+    color: color-mix(in srgb, var(--color-text-primary) 78%, transparent);
+    font-size: 0.78rem;
+  }
+
+  @media (min-width: 860px) {
+    .tag-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

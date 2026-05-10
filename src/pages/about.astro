@@ -9,7 +9,7 @@ import { withBasePath } from '../utils/helpers';
 
 const supportHref = `mailto:${encodeURIComponent(
   CONTACT_EMAIL
-)}?subject=${encodeURIComponent('Proof lab walkthrough request')}`;
+)}?subject=${encodeURIComponent('Ecommerce demo walkthrough request')}`;
 
 const proofSignals = [
   {
@@ -32,7 +32,7 @@ const proofSignals = [
 const proofPoints = [
   {
     title: 'Presentation that can actually sell',
-    copy: 'The route shows what a premium buyer-facing experience feels like when it still has structure, hierarchy, and restraint.',
+    copy: 'The route shows what a serious buyer-facing experience feels like when it has structure, hierarchy, and real store behavior.',
   },
   {
     title: 'Real decision points, not just nicer visuals',
@@ -142,6 +142,25 @@ const demoDepartments = [
   'Creator gear',
 ];
 
+const commerceTrustSignals = [
+  {
+    label: 'Shipping clarity',
+    copy: 'Delivery estimate, warehouse signal, free-shipping threshold, and shipping expectations are visible before checkout.',
+  },
+  {
+    label: 'Returns and support',
+    copy: 'Return terms and support reassurance should sit near product and cart decisions, not hide in a footer-only policy.',
+  },
+  {
+    label: 'Review honesty',
+    copy: 'Ratings, review counts, and buyer proof should help answer uncertainty without becoming a wall of badges.',
+  },
+  {
+    label: 'Checkout reassurance',
+    copy: 'Payment, promo, quantity, savings, and handoff states should reduce doubt at the moment the buyer is deciding.',
+  },
+];
+
 const implementationTracks = servicesExtended.filter(service =>
   [
     'client-portal-web-refresh',
@@ -159,7 +178,7 @@ const featuredProducts = demoProducts
 
 <MarketingLayout
   title="E Commerce Demo | Interactive Buyer-Facing Demo"
-  description="Interactive experience lab for premium digital walkthroughs, client-facing system reviews, and buyer-facing product experience exploration."
+  description="Interactive ecommerce demo for catalog search, product confidence, cart clarity, checkout review, and buyer-facing system exploration."
   bodyClass="creative-page"
   showFooter={true}
   showStickyCTA={false}
@@ -400,6 +419,34 @@ const featuredProducts = demoProducts
 
         <div class="proof-department-strip" aria-label="Demo departments">
           {demoDepartments.map(department => <span>{department}</span>)}
+        </div>
+      </div>
+    </section>
+
+    <section class="proof-section" id="commerce-trust" data-page-section>
+      <div class="premium-container">
+        <div class="proof-section__intro">
+          <p class="proof-eyebrow">Commerce trust</p>
+          <h2 class="proof-section__title">
+            Trust signals should be specific, close to the decision, and never a
+            badge pile.
+          </h2>
+          <p class="proof-section__copy">
+            The demo is tuned around the ecommerce details experts watch for:
+            shipping transparency, return confidence, real reviews, checkout
+            reassurance, and product clarity.
+          </p>
+        </div>
+
+        <div class="proof-trust-grid">
+          {
+            commerceTrustSignals.map(item => (
+              <article class="proof-standard">
+                <h3>{item.label}</h3>
+                <p>{item.copy}</p>
+              </article>
+            ))
+          }
         </div>
       </div>
     </section>
@@ -691,6 +738,7 @@ const featuredProducts = demoProducts
   .proof-review-metrics,
   .proof-scenario-links,
   .proof-standards-grid,
+  .proof-trust-grid,
   .proof-department-strip {
     display: grid;
     gap: 1rem;
@@ -951,6 +999,10 @@ const featuredProducts = demoProducts
       grid-template-columns: repeat(4, minmax(0, 1fr));
     }
 
+    .proof-trust-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
     .proof-review-metrics,
     .proof-scenario-links {
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1106,7 +1158,7 @@ const featuredProducts = demoProducts
     };
 
     const getActiveShareData = () => ({
-      title: `Proof lab review — ${
+      title: `Ecommerce demo review — ${
         activeState?.textContent?.trim() || 'Olive Chicago'
       }`,
       text: [activeCopy?.textContent?.trim(), activeProof?.textContent?.trim()]

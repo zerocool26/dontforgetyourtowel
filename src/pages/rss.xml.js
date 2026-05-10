@@ -1,14 +1,24 @@
+import rss from '@astrojs/rss';
+import { getCollection } from 'astro:content';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+
 export const prerender = true;
 
-export async function GET() {
-  return new Response(
-    '<message>RSS feed has been retired for this site.</message>',
-    {
-      status: 410,
-      headers: {
-        'Content-Type': 'application/xml; charset=utf-8',
-        'Cache-Control': 'public, max-age=3600',
-      },
-    }
-  );
+export async function GET(context) {
+  const posts = (await getCollection('blog'))
+    .filter(entry => !entry.data.draft)
+    .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+  return rss({
+    title: `${SITE_TITLE} Blog`,
+    description: SITE_DESCRIPTION,
+    site: context.site,
+    items: posts.map(post => ({
+      title: post.data.title,
+      description: post.data.description,
+      pubDate: post.data.pubDate,
+      link: `/blog/${post.id}/`,
+      categories: post.data.tags,
+    })),
+  });
 }

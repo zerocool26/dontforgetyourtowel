@@ -1,13 +1,14 @@
-## Github Pages 2026 Demo
+## Olive Chicago Website
 
-Astro static site with base-path-safe routing, premium marketing UI, and
+Astro static site for Olive Chicago with base-path-safe routing, managed IT
+service content, ecommerce demo surfaces, blog/news/photo routes, and
 Playwright/Vitest quality gates.
 
 ### Environment
 
 - Node `>=22`
 - npm `11.6.1`
-- Astro 5 static output
+- Astro 6 static output
 - Preact as the primary interactive UI layer for public-facing experiences
 
 ### Development workflow
@@ -34,11 +35,16 @@ These workspace instruction files are intended to reduce drift between human edi
 
 - `/` Home
 - `/services/` Service catalog and engagement flow
-- `/about/` Portfolio + interactive commerce showcase
+- `/pricing/` Directional managed IT pricing and scope guidance
+- `/about/` Interactive ecommerce showcase
+- `/blog/` Practical managed IT and digital systems articles
+- `/news/` News and podcast style advisory route
+- `/photos/` Photo gallery route
 - `/contact-hq/` Contact intake and recommendation handoff
 
-Legacy content routes such as `/blog/*` and `/rss.xml` are retired and now redirect
-or return decommissioned responses.
+RSS is active for current content. Legacy/development routes may still exist for
+compatibility or internal demos, but active public navigation should stay focused
+on the buyer routes above.
 
 ### Cleanup and archive policy
 

@@ -55,7 +55,7 @@ export async function GET() {
       id: 'page-home',
       title: 'Home',
       description:
-        'Chicago managed IT homepage for support, security, Microsoft 365, cloud, and premium digital proof',
+        'Chicago managed IT homepage for support ownership, security baseline, Microsoft 365, cloud, backup, and buyer proof',
       category: 'Page',
       url: '/',
       tags: ['home', 'landing', 'managed it', 'security', 'cloud', 'm365'],
@@ -67,7 +67,7 @@ export async function GET() {
         'Interactive gallery of cinematic visual studies with filters, view modes, and links back into the live site',
       category: 'Page',
       url: 'gallery/',
-      tags: ['gallery', 'design', 'art', 'creative', 'interface', 'premium'],
+      tags: ['gallery', 'design', 'art', 'creative', 'interface', 'proof'],
     },
     {
       id: 'page-blog',
@@ -140,7 +140,7 @@ export async function GET() {
       id: 'page-services',
       title: 'Services',
       description:
-        'Buyer-focused solution hub for managed IT, security, Microsoft 365, cloud, and premium digital delivery',
+        'Buyer-focused solution hub for managed IT, security, Microsoft 365, cloud, backup, onboarding, and digital delivery',
       category: 'Page',
       url: 'services/',
       tags: ['services', 'managed it', 'security', 'cloud', 'm365'],

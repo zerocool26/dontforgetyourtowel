@@ -2,7 +2,7 @@
 
 ## Architecture
 
-- This workspace is an **Astro 5 static site** with **Preact** as the primary interactive UI layer.
+- This workspace is an **Astro 6 static site** with **Preact** as the primary interactive UI layer.
 - Cross-agent handoff rules live in `AGENTS.md`; continuation context lives in `docs/AI-DEVELOPMENT-GUIDE.md`.
 - Keep **React** components inside `src/components/react/**` and **Solid** components inside `src/components/solid/**`; do not mix framework folders.
 - Use `src/layouts/MarketingLayout.astro` for public-facing pages and prefer shared UI primitives like `src/components/ui/ModernButton.astro` and `src/components/ui/ModernCard.astro`.

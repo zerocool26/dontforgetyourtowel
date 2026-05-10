@@ -1,9 +1,9 @@
 ---
-title: 'FinTech: SOC 2 Readiness + Managed Security'
+title: 'Financial Services: SOC 2 Readiness Without Slowing Delivery'
 industry: 'Financial Services'
-summary: 'Helped a growing FinTech prepare for SOC 2 with a security roadmap, policies, and continuous monitoring.'
-challenge: 'The team lacked formalized security controls, audit-ready documentation, and repeatable incident response.'
-solution: 'Delivered a vCISO-led SOC 2 readiness program with governance, SIEM/EDR, and monthly vulnerability reporting.'
+summary: 'Turned a scattered security program into practical SOC 2 readiness work with identity controls, evidence habits, endpoint response, and leadership reporting.'
+challenge: 'The team had strong engineering talent but weak evidence routines, uneven access reviews, and no repeatable way to explain incident response or vendor risk.'
+solution: 'Built a vCISO-led readiness lane covering access policy, endpoint response, vulnerability review, evidence collection, security awareness, and monthly control reporting.'
 results:
   - label: 'Audit readiness'
     value: '12 weeks'
@@ -17,4 +17,4 @@ published: 2025-08-02
 
 ## Outcome
 
-A practical control set—implemented quickly—so engineering could keep shipping while security matured.
+The work gave leadership a usable control story while engineering kept shipping. The important change was not paperwork; it was making evidence, ownership, and response expectations part of the normal operating rhythm.

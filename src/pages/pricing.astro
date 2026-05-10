@@ -106,10 +106,44 @@ const quotePrep = [
   'Known projects in the next six months: moves, migrations, refreshes, website, portal, or ecommerce work',
 ];
 
+const scopeBoundaries = [
+  {
+    label: 'Usually recurring',
+    items: [
+      'Help desk triage and user support',
+      'Endpoint monitoring, patching, and baseline hygiene',
+      'Microsoft 365 administration and access changes',
+      'Backup monitoring and routine reporting',
+      'Vendor coordination tied to supported systems',
+    ],
+  },
+  {
+    label: 'Usually project-scoped',
+    items: [
+      'Tenant migrations, server migrations, and major cloud changes',
+      'Office moves, network redesign, cabling, and hardware refreshes',
+      'Compliance program buildout, audit remediation, and vCISO projects',
+      'Website, ecommerce, portal, and client-facing digital builds',
+      'Large automation, integration, or reporting workstreams',
+    ],
+  },
+  {
+    label: 'Needs discovery',
+    items: [
+      'After-hours response expectations and executive escalation',
+      'Cyber insurance, HIPAA, SOC 2, or regulated evidence needs',
+      'Multi-site support, onsite requirements, and critical production systems',
+      'Current provider transition, backup handoff, and access transfer',
+      'Line-of-business applications with unusual vendor constraints',
+    ],
+  },
+];
+
 const pricingSections = [
   { label: 'Plans', href: '#plans' },
   { label: 'SLA matrix', href: '#sla' },
   { label: 'Scope examples', href: '#scope-examples' },
+  { label: 'Boundaries', href: '#scope-boundaries' },
   { label: 'Estimate', href: '#estimate' },
   { label: 'FAQ', href: '#faq' },
 ];
@@ -484,6 +518,44 @@ const pricingSections = [
           </ul>
         </div>
       </ModernCard>
+    </div>
+  </section>
+
+  <section
+    class="tone-section-divider border-b"
+    id="scope-boundaries"
+    data-reveal
+  >
+    <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
+      <div class="tone-section-heading">
+        <p class="tone-section-kicker">Scope boundaries</p>
+        <h2 class="tone-section-title">
+          The quote should say what is recurring, what is project work, and what
+          needs discovery.
+        </h2>
+        <p class="tone-section-copy">
+          This is where many MSP conversations get fuzzy. Clear boundaries make
+          pricing easier to trust and reduce surprises after onboarding.
+        </p>
+      </div>
+
+      <div class="mt-10 grid gap-5 lg:grid-cols-3">
+        {
+          scopeBoundaries.map(group => (
+            <ModernCard variant="default" className="h-full p-6">
+              <h3 class="text-xl font-semibold text-white">{group.label}</h3>
+              <ul class="mt-5 space-y-3 text-sm leading-6 text-slate-300">
+                {group.items.map(item => (
+                  <li class="flex items-start gap-2">
+                    <span class="tone-accent-dot mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </ModernCard>
+          ))
+        }
+      </div>
     </div>
   </section>
 

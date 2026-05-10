@@ -15,6 +15,19 @@ export interface ServiceCategoryBrief {
   warningSigns: string[];
 }
 
+export interface OnboardingPhase {
+  phase: string;
+  title: string;
+  goal: string;
+  checkpoints: string[];
+  buyerVisibleOutput: string;
+}
+
+export interface ProviderSelectionQuestion {
+  question: string;
+  whyItMatters: string;
+}
+
 export const servicesExtended: Service[] = [
   {
     id: 'managed-help-desk',
@@ -396,5 +409,92 @@ export const serviceOperatingFacts = [
   {
     label: 'Microsoft 365 is an operating system for the business.',
     copy: 'Teams, SharePoint, OneDrive, Exchange, licensing, retention, and backup need governance or the tenant slowly becomes expensive clutter.',
+  },
+];
+
+export const onboardingPhases: OnboardingPhase[] = [
+  {
+    phase: 'Days 0-14',
+    title: 'Access, scope, and support handoff',
+    goal: 'Stop guessing. Confirm access, ownership, users, devices, vendors, and how people get help.',
+    checkpoints: [
+      'Admin access and service accounts reviewed',
+      'User, device, server, network, Microsoft 365, and vendor inventory started',
+      'Ticket channels, escalation rules, VIP users, and urgent issues documented',
+    ],
+    buyerVisibleOutput:
+      'A support handoff map showing where requests go, who owns them, and what is still blocked.',
+  },
+  {
+    phase: 'Days 15-30',
+    title: 'Monitoring, security baseline, and backup proof',
+    goal: 'Bring the core operating layer under observation and close obvious risk before bigger projects begin.',
+    checkpoints: [
+      'Endpoint tooling, patch posture, and alert ownership reviewed',
+      'MFA, admin roles, email security, risky forwarding, and guest access checked',
+      'Backup scope and restore expectations verified instead of assumed',
+    ],
+    buyerVisibleOutput:
+      'A baseline report with urgent fixes, monitoring status, backup confidence, and security gaps.',
+  },
+  {
+    phase: 'Days 31-60',
+    title: 'Recurring issues and Microsoft 365 cleanup',
+    goal: 'Use early ticket data and tenant review to reduce repeat problems instead of only answering them faster.',
+    checkpoints: [
+      'Recurring tickets grouped by root cause',
+      'Teams, SharePoint, external sharing, licenses, and abandoned workspaces reviewed',
+      'Vendor and lifecycle risks converted into a near-term action list',
+    ],
+    buyerVisibleOutput:
+      'A practical 60-day improvement list with owners, sequencing, and budget notes.',
+  },
+  {
+    phase: 'Days 61-90',
+    title: 'Roadmap, cadence, and executive reporting',
+    goal: 'Move from takeover mode into a normal operating rhythm leadership can understand.',
+    checkpoints: [
+      'Monthly reporting format agreed',
+      'Quarterly roadmap themes ranked by risk, cost, and operating impact',
+      'Project candidates separated from recurring support scope',
+    ],
+    buyerVisibleOutput:
+      'A 90-day roadmap that separates support baseline, security work, M365/cloud cleanup, and project scope.',
+  },
+];
+
+export const providerSelectionQuestions: ProviderSelectionQuestion[] = [
+  {
+    question:
+      'What exactly is included in recurring support, and what becomes a project?',
+    whyItMatters:
+      'This prevents surprise invoices and keeps migrations, office moves, portal work, and major security projects visible.',
+  },
+  {
+    question:
+      'Who owns backup monitoring, restore testing, and the first hour of an incident?',
+    whyItMatters:
+      'A backup dashboard is not the same as a recovery plan. Ownership matters when pressure is high.',
+  },
+  {
+    question:
+      'How do you reduce recurring tickets instead of only responding faster?',
+    whyItMatters:
+      'Better support should create fewer repeat issues, cleaner endpoint standards, and clearer user guidance over time.',
+  },
+  {
+    question: 'What will leadership see every month?',
+    whyItMatters:
+      'Useful reporting should connect tickets, security, backup, projects, risk, and upcoming decisions.',
+  },
+  {
+    question: 'How do you handle Microsoft 365 governance?',
+    whyItMatters:
+      'Teams, SharePoint, external sharing, retention, backup, and licensing are often where invisible business drag lives.',
+  },
+  {
+    question: 'How does onboarding work if we are leaving another provider?',
+    whyItMatters:
+      'Access transfer, backup handoff, RMM replacement, documentation, and support cutover need a clean timeline.',
   },
 ];
