@@ -24,9 +24,9 @@ export type ControlStackItem = z.infer<typeof ControlStackItemSchema>;
 export type InsightReport = z.infer<typeof InsightReportSchema>;
 
 export const heroSignals: string[] = [
-  '24/7 monitoring with proactive patching',
-  'Identity + endpoint hardening that scales',
-  'Cloud modernization without downtime drama',
+  'Support queue, escalation, and vendor ownership',
+  'MFA, endpoint, email, and backup evidence',
+  'Microsoft 365 cleanup tied to real working habits',
 ];
 
 export const clientBadges: string[] = [
@@ -37,41 +37,41 @@ export const clientBadges: string[] = [
 ];
 
 export const keyMetrics: Metric[] = [
-  { value: '<1 day', label: 'Target first response for non-urgent intake' },
-  { value: '24/7', label: 'Monitoring and alerting can be layered in' },
-  { value: '30 days', label: 'Typical stabilization window for first outputs' },
+  { value: '1 day', label: 'Typical target for non-urgent first replies' },
+  { value: '30-90', label: 'Days to baseline, stabilize, and roadmap' },
+  { value: '0 fluff', label: 'Tool names without ownership do not count' },
 ];
 
 export const landingPillars: Pillar[] = [
   {
     title: 'Proactive operations',
     description:
-      'Monitoring, patching, and hygiene work that reduces incidents before they become interruptions.',
+      'Monitoring, patching, vendor follow-up, and hygiene work that reduces avoidable interruptions.',
   },
   {
     title: 'Security-first baseline',
     description:
-      'Identity, device, and access controls designed to shrink your attack surface without slowing teams down.',
+      'Identity, device, email, backup, and access controls explained in language owners can use.',
   },
   {
     title: 'Cloud done right',
     description:
-      'Migrations, hardening, and cost visibility—with guardrails that keep reliability and security aligned.',
+      'Microsoft 365 and cloud cleanup with guardrails for access, sharing, backup, cost, and reliability.',
   },
   {
     title: 'Helpdesk that resolves',
     description:
-      'Fast triage, clear communication, and durable fixes—so the same issue doesn’t boomerang next week.',
+      'Clear triage, status updates, escalation paths, and root-cause work so the same issue does not boomerang next week.',
   },
   {
     title: 'Continuity planning',
     description:
-      'Backups, recovery drills, and incident response practices that keep you in control when it matters most.',
+      'Backup monitoring, restore testing, recovery notes, and incident roles that keep decisions clearer under pressure.',
   },
   {
     title: 'Strategy + roadmap',
     description:
-      'Practical guidance on tooling, risk, and modernization—translating priorities into a plan your business can follow.',
+      'Practical guidance on renewals, lifecycle, risk, and modernization translated into a plan the business can follow.',
   },
 ];
 
@@ -138,13 +138,13 @@ export const playbookSteps: PlaybookStep[] = [
 export const testimonials: Testimonial[] = [
   {
     quote:
-      'The value was not another tool. It was finally knowing who owned support, security follow-up, and the next decision.',
+      'The value was not another tool. It was finally knowing who owned tickets, access cleanup, backup follow-up, and the next decision.',
     name: 'Operations leader',
     role: 'Professional services group',
   },
   {
     quote:
-      'The onboarding exposed stale access, backup assumptions, and recurring ticket patterns we had stopped seeing clearly.',
+      'The onboarding exposed stale access, backup assumptions, license waste, and recurring ticket patterns we had stopped seeing clearly.',
     name: 'Managing partner',
     role: 'Multi-site healthcare office',
   },

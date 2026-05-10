@@ -120,29 +120,29 @@ const hasIntakeContext = Boolean(
 const channels = [
   {
     title: 'Strategy and discovery',
-    note: 'Scope review, planning assumptions, buying questions, and next-step recommendations for Chicago-area support, security, or modernization work.',
+    note: 'Scope review, user/device assumptions, provider-transition questions, budget shape, and next-step recommendations.',
     subject: 'Strategy and discovery inquiry',
   },
   {
     title: 'Managed operations and support',
-    note: 'Support questions, operational friction, service requests, and coverage discussions.',
+    note: 'Support coverage, recurring tickets, onboarding/offboarding, vendor confusion, device standards, and response expectations.',
     subject: 'Managed services support request',
   },
   {
     title: 'Security and advisory',
-    note: 'Architecture guidance, security posture reviews, compliance planning, and leadership support.',
+    note: 'MFA, admin access, endpoint protection, email risk, backup evidence, cyber-insurance pressure, and response planning.',
     subject: 'Security advisory request',
   },
   {
     title: 'Projects and digital systems',
-    note: 'Cloud projects, office moves, workflow automation, website refreshes, portals, and co-delivery conversations.',
+    note: 'Microsoft 365 cleanup, cloud projects, office moves, workflow automation, website refreshes, portals, and co-delivery conversations.',
     subject: 'Build and collaboration inquiry',
   },
 ];
 
 const firstMessageChecklist = [
   'The main problem you want fixed or improved',
-  'What your current environment looks like today',
+  'Rough user count, device count, locations, and current provider situation',
   'Key constraints such as timing, compliance, budget, or team capacity',
   'Anything urgent or customer-visible',
   'Who needs to approve the next step',
@@ -157,31 +157,31 @@ const fitSignals = [
   {
     label: 'Worth a conversation',
     title: 'Recurring issues are starting to cost real attention.',
-    copy: 'Slow response, unclear escalation, stale access, surprise renewals, messy onboarding, or weak reporting are usually signs the operating model needs attention.',
+    copy: 'Slow response, unclear escalation, stale access, surprise renewals, messy onboarding, repeated printer/network/app complaints, or weak reporting are usually signs the operating model needs attention.',
   },
   {
     label: 'Not the right first move',
     title: 'If the request is only a one-off break/fix task.',
-    copy: 'One-off emergency work may not justify a relationship unless it connects to a broader support, security, recovery, or modernization need.',
+    copy: 'One-off emergency work may not justify a relationship unless it connects to a broader support, security, recovery, provider-transition, or modernization need.',
   },
 ];
 
 const responsePrep = [
   {
     title: 'For support coverage',
-    copy: 'Send user count, device count, current provider pain, hours needed, core apps, and the top three recurring tickets.',
+    copy: 'Send user count, device count, site count, current provider pain, hours needed, core apps, and the top three recurring tickets.',
   },
   {
     title: 'For security review',
-    copy: 'Send cyber insurance requirements, MFA status, endpoint tool, backup concerns, compliance pressure, and any recent incidents.',
+    copy: 'Send cyber-insurance requirements, MFA status, endpoint tool, email security notes, backup concerns, compliance pressure, and any recent incidents.',
   },
   {
     title: 'For Microsoft 365 or cloud',
-    copy: 'Send tenant pain, SharePoint/Teams issues, license count, migration goals, external sharing concerns, and backup expectations.',
+    copy: 'Send tenant pain, SharePoint/Teams issues, license count, migration goals, external sharing concerns, retention assumptions, and backup expectations.',
   },
   {
     title: 'For digital or ecommerce work',
-    copy: 'Send the buyer path, product/catalog needs, content state, approval owner, launch window, and what the current site fails to do.',
+    copy: 'Send the buyer path, product or service catalog needs, content state, approval owner, launch window, analytics notes, and what the current site fails to do.',
   },
 ];
 
@@ -308,12 +308,13 @@ const faqSchema = {
           <div class="tone-page-header">
             <p class="tone-page-eyebrow">Contact HQ</p>
             <h1 class="tone-page-title max-w-5xl">
-              Send the context once. Get a clear next move.
+              Send the messy context once. Get a clear next move.
             </h1>
             <p class="tone-page-copy max-w-3xl">
               Use this page when you need help sorting the first move:
-              day-to-day IT support, security review, Microsoft 365 cleanup,
-              cloud work, backup confidence, or a buyer-facing digital system.
+              day-to-day IT support, provider transition, security review,
+              Microsoft 365 cleanup, cloud work, backup confidence, or a
+              buyer-facing digital system.
             </p>
           </div>
 
@@ -361,8 +362,9 @@ const faqSchema = {
                 {CONTACT_EMAIL}
               </p>
               <p class="mt-3 text-sm leading-6 text-slate-300">
-                Email works best when it includes the problem, timing,
-                constraints, approval owner, and anything customer-visible.
+                Email works best when it includes the problem, rough size,
+                timing, constraints, approval owner, current provider context,
+                and anything customer-visible.
               </p>
             </div>
 
@@ -370,8 +372,8 @@ const faqSchema = {
               <div class="tone-panel-soft rounded-2xl p-4">
                 <p class="text-sm font-semibold text-white">What to send</p>
                 <p class="mt-2 text-sm leading-6 text-slate-300">
-                  The actual problem, current setup, rough user count or site
-                  count, and anything urgent or approval-sensitive.
+                  The actual problem, current setup, rough user/device/site
+                  count, and anything urgent, regulated, or approval-sensitive.
                 </p>
               </div>
               <div class="tone-panel-soft rounded-2xl p-4">
@@ -544,7 +546,8 @@ const faqSchema = {
         </h2>
         <p class="tone-section-copy">
           It needs enough context to decide whether the first move is support,
-          security, Microsoft 365, cloud, recovery, or a digital build.
+          security, Microsoft 365, cloud, recovery, provider transition, or a
+          digital build.
         </p>
       </div>
 
@@ -591,7 +594,7 @@ const faqSchema = {
         </h2>
         <p class="tone-section-copy">
           Clear routing reduces handoffs and gets the request in front of the
-          right people faster.
+          right owner faster.
         </p>
       </div>
 
@@ -633,8 +636,9 @@ const faqSchema = {
             Keep the first message short, direct, and useful.
           </h2>
           <p class="tone-section-copy">
-            Most intake friction comes from missing context. A direct summary is
-            much better than a polished but vague request.
+            Most intake friction comes from missing context. A direct summary
+            with rough counts and constraints is much better than a polished but
+            vague request.
           </p>
         </div>
 
@@ -682,7 +686,8 @@ const faqSchema = {
         </h2>
         <p class="tone-section-copy">
           The goal is to move a serious request into the right path quickly:
-          discovery, pricing, stabilization, roadmap, or implementation.
+          discovery, pricing, stabilization, provider transition, roadmap, or
+          implementation.
         </p>
       </div>
 

@@ -39,19 +39,19 @@ const caseStudies = (
 const entryLanes = [
   {
     title: 'Managed IT and support',
-    copy: 'Start here when help desk ownership, onboarding, patching, vendor coordination, and day-to-day follow-through are the priority.',
+    copy: 'Start here when users need a real help path, devices need standards, onboarding is messy, or vendors keep bouncing issues back.',
     href: '#service-tracks',
     cta: 'View support track',
   },
   {
     title: 'Security and compliance',
-    copy: 'Use this lane for identity, endpoint protection, awareness, response planning, and practical compliance readiness.',
+    copy: 'Use this lane for MFA, admin access, endpoint protection, email risk, backup evidence, cyber-insurance requests, and response planning.',
     href: '#technology-catalog',
     cta: 'Open capability catalog',
   },
   {
     title: 'Cloud, Microsoft 365, and roadmap work',
-    copy: 'If you need M365 cleanup, cloud migration, workflow automation, office projects, or digital-system work, start here and shape the right mix.',
+    copy: 'Use this lane for SharePoint/Teams sprawl, license waste, cloud migration, office changes, automation candidates, or client-facing digital work.',
     href: '#service-planner',
     cta: 'Compare solution options',
   },
@@ -72,27 +72,27 @@ const serviceSections = [
 const serviceTracks = [
   {
     title: 'Managed IT and support operations',
-    copy: 'Stabilize the day-to-day layer first: support ownership, device hygiene, onboarding, vendor wrangling, reporting, and escalation discipline.',
+    copy: 'Stabilize the day-to-day layer first: ticket routing, endpoint standards, onboarding/offboarding, vendor follow-up, reporting, and escalation discipline.',
     detail:
-      'Best for teams that are tired of reactive support, recurring issues, and messy accountability.',
+      'Best for teams with recurring tickets, unclear ownership, stale devices, slow provider response, or no useful monthly reporting.',
   },
   {
     title: 'Cybersecurity and compliance motion',
-    copy: 'Build a practical security posture around identity, endpoints, awareness, response readiness, and evidence habits that leadership can actually understand.',
+    copy: 'Build a practical security posture around identity, endpoints, email, awareness, backup evidence, incident contacts, and reviewable control notes.',
     detail:
-      'Best for regulated, high-visibility, or security-conscious teams that still need momentum.',
+      'Best for cyber-insurance renewals, regulated teams, leadership risk reviews, recent incidents, or environments with too many exceptions.',
   },
   {
     title: 'Cloud and Microsoft 365 modernization',
-    copy: 'Move beyond maintenance with cloud, collaboration, backup, and governance work that reduces drag and improves visibility across the business.',
+    copy: 'Clean up Teams, SharePoint, Exchange, OneDrive, external sharing, retention assumptions, licensing, and migration plans before the tenant becomes expensive clutter.',
     detail:
-      'Best for teams that need modernization without getting buried in vague transformation language or tool sprawl.',
+      'Best for teams that depend on Microsoft 365 every day but cannot explain who owns sites, groups, guest access, licenses, or backups.',
   },
   {
     title: 'Client-facing digital systems',
-    copy: 'Prototype, design, and deliver higher-trust websites, portals, and launch surfaces when the front door matters just as much as the back office.',
+    copy: 'Prototype and deliver websites, portals, intake paths, commerce screens, and launch pages when the public experience needs to support revenue or service.',
     detail:
-      'Best for launches, portals, buyer-facing upgrades, and firms whose presentation should better match their operations.',
+      'Best for firms where the real operation is strong, but the website, form flow, or customer handoff makes the business look less capable.',
   },
 ];
 
@@ -100,43 +100,43 @@ const deliveryPrograms = [
   {
     title: 'Stabilize and document',
     description:
-      'Start with help desk ownership, endpoint standards, and documentation so the environment stops leaking time and trust.',
-    outputs: ['Support ownership', 'Device standards', 'Reporting rhythm'],
+      'Start with help desk ownership, admin access, endpoint standards, vendor records, and documentation so support stops depending on memory.',
+    outputs: ['Support lanes', 'Device inventory', 'Vendor map'],
   },
   {
     title: 'Secure and standardize',
     description:
-      'Layer in identity, endpoint protection, awareness, and continuity planning so security becomes part of normal operations.',
-    outputs: ['Identity controls', 'Security baseline', 'Continuity habits'],
+      'Layer in identity controls, endpoint protection, email safety, backup verification, and incident roles so security becomes normal work.',
+    outputs: ['MFA review', 'Backup evidence', 'Incident contacts'],
   },
   {
     title: 'Modernize and present',
     description:
-      'Use cloud, Microsoft 365, workflow automation, and selective digital delivery to make the client-facing side of the business feel as strong as the operations behind it.',
-    outputs: ['Cloud roadmap', 'Workflow wins', 'Premium buyer experience'],
+      'Use Microsoft 365 cleanup, cloud work, small automations, and selective digital delivery when they remove real friction or improve the buyer path.',
+    outputs: ['M365 rules', 'Workflow shortlist', 'Buyer-path fixes'],
   },
 ];
 
 const diagnosticBoard = [
   {
     lane: 'Support drag',
-    trigger: 'Tickets get closed, but the same friction keeps returning.',
+    trigger: 'Tickets close, but the same users and issues keep coming back.',
     inspect: [
       'Recurring ticket patterns',
       'Onboarding and offboarding gaps',
-      'Endpoint age, standards, and patch state',
+      'Endpoint age, warranty, patch state, and setup standards',
     ],
     output:
-      'A support ownership map with first fixes, escalation rules, and recurring-issue reduction targets.',
+      'A support ownership map with escalation rules, vendor handoffs, and recurring-issue reduction targets.',
   },
   {
     lane: 'Security ambiguity',
     trigger:
-      'Leadership cannot tell whether the environment is actually safer.',
+      'Leadership cannot tell whether the basics are actually under control.',
     inspect: [
       'MFA and conditional access',
       'Endpoint and email controls',
-      'Backup proof and response habits',
+      'Backup coverage, restore proof, and incident contacts',
     ],
     output:
       'A practical security baseline with evidence, insurance-readiness notes, and the next control sequence.',
@@ -145,7 +145,7 @@ const diagnosticBoard = [
     lane: 'Microsoft 365 sprawl',
     trigger: 'Teams, SharePoint, licensing, and access rules feel improvised.',
     inspect: [
-      'Tenant governance and guest access',
+      'Tenant governance, guest access, and risky sharing',
       'SharePoint/Teams lifecycle',
       'Retention, backup, and license usage',
     ],
@@ -155,14 +155,14 @@ const diagnosticBoard = [
   {
     lane: 'Digital trust gap',
     trigger:
-      'The website, portal, or buyer flow undersells the quality of the work.',
+      'The website, portal, or buyer flow undersells the quality of the business.',
     inspect: [
       'Mobile buying path',
       'Trust signals and intake clarity',
-      'Content, performance, and launch constraints',
+      'Content, performance, analytics, and launch constraints',
     ],
     output:
-      'A route-level improvement plan with priority screens, proof moments, and measurable launch criteria.',
+      'A screen-level improvement plan with priority pages, trust gaps, and measurable launch criteria.',
   },
 ];
 
@@ -216,14 +216,14 @@ const breadcrumbItems = [
           <div class="tone-page-header">
             <p class="tone-page-eyebrow">Chicago services hub</p>
             <h1 class="tone-page-title">
-              Managed IT, cybersecurity, Microsoft 365, cloud, and digital
-              systems without the vague service-menu maze.
+              Managed IT, cybersecurity, Microsoft 365, cloud, and digital work
+              organized around real business problems.
             </h1>
             <p class="tone-page-copy max-w-3xl">
-              Start with the pressure point: recurring tickets, weak security
-              proof, messy Microsoft 365, unreliable backup, network drag, or a
-              public-facing system that needs to help sales instead of sitting
-              there.
+              Start with the pressure point: recurring tickets, stale user
+              access, cyber-insurance questions, messy Microsoft 365, unreliable
+              restore confidence, network drag, or a public-facing system that
+              should help sales.
             </p>
           </div>
 
@@ -289,8 +289,8 @@ const breadcrumbItems = [
                 {serviceCategories.length}
               </p>
               <p class="tone-metric-card__detail">
-                Deep enough for specifics, simple enough for a first pass on
-                mobile.
+                Specific enough for real scoping, simple enough for a first pass
+                on mobile.
               </p>
             </ModernCard>
           </div>
@@ -314,8 +314,8 @@ const breadcrumbItems = [
           </h2>
           <p class="tone-section-copy">
             Buyers do not need a giant catalog first. They need to know what
-            should be inspected, what gets stabilized, and what output they
-            should expect to see.
+            should be inspected, what gets stabilized, who owns the next action,
+            and what output they should expect to see.
           </p>
         </div>
 
@@ -366,7 +366,7 @@ const breadcrumbItems = [
         <div class="tone-section-heading">
           <p class="tone-section-kicker">Core tracks</p>
           <h2 class="tone-section-title">
-            Four ways Olive usually enters an environment.
+            Four realistic ways Olive usually enters an environment.
           </h2>
           <p class="tone-section-copy">
             Most engagements start in one lane, then pull in adjacent work only
@@ -410,8 +410,9 @@ const breadcrumbItems = [
         </h2>
         <p class="tone-section-copy">
           Onboarding should not feel like a handoff into a black box. It should
-          define access, support channels, security baseline, backup proof,
-          recurring issues, Microsoft 365 cleanup, and the first roadmap.
+          define access, support channels, security baseline, backup evidence,
+          recurring issues, Microsoft 365 cleanup, vendor handoffs, and the
+          first roadmap.
         </p>
       </div>
 
@@ -462,8 +463,8 @@ const breadcrumbItems = [
           Proof should sound like before, after, and what changed.
         </h2>
         <p class="tone-section-copy">
-          These are anonymized examples of the kinds of operating outcomes the
-          service model is built to create.
+          These are anonymized examples of practical outcomes: fewer repeat
+          issues, cleaner ownership, better evidence, and clearer next steps.
         </p>
       </div>
 
@@ -535,7 +536,7 @@ const breadcrumbItems = [
           <p class="tone-section-copy">
             Strong providers should answer these directly. The answers reveal
             whether the engagement is built around operations or just a bundle
-            of tools.
+            of tools with a monthly invoice.
           </p>
         </div>
 
@@ -609,7 +610,7 @@ const breadcrumbItems = [
         </h2>
         <p class="tone-section-copy">
           The point is to stack the right work in the right order so the
-          environment gets calmer before it gets more ambitious.
+          environment gets easier to support before it gets more ambitious.
         </p>
       </div>
 
@@ -733,7 +734,8 @@ const breadcrumbItems = [
           <p class="mt-4 text-sm leading-7 text-slate-300">
             Use the catalog once the lane is clear. It shows the systems Olive
             can own across support, security, Microsoft 365, cloud, continuity,
-            networking, advisory, and selective project work.
+            networking, vendor coordination, advisory, and selective project
+            work.
           </p>
           <div class="mt-6 flex flex-wrap gap-2">
             {

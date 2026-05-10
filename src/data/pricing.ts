@@ -34,15 +34,15 @@ export const pricingTiers: PricingTier[] = [
     name: 'Core Coverage',
     price: '$95-$125 / user / mo',
     description:
-      'Directional range for firms that need dependable support, patching, endpoint oversight, and a calmer operating baseline.',
+      'Directional range for firms that need a real support queue, patch visibility, endpoint oversight, onboarding help, and basic vendor follow-through.',
     bestFor: 'Smaller teams or first-time MSP buyers standardizing support',
     responseSla: 'Business-hours support with documented escalation',
     ctaLabel: 'Start with Core Coverage',
     perks: [
-      'Help desk, monitoring, and patch management',
-      'User onboarding and offboarding workflows',
-      'Endpoint inventory, device hygiene, and warranty notes',
-      'Basic documentation, backup oversight, and vendor coordination',
+      'Help desk queue, monitoring, and patch visibility',
+      'User onboarding, offboarding, and access-change workflows',
+      'Endpoint inventory, device hygiene, warranty, and refresh notes',
+      'Basic documentation, backup alert review, and vendor coordination',
     ],
   },
   {
@@ -50,7 +50,7 @@ export const pricingTiers: PricingTier[] = [
     name: 'Secure Operations',
     price: '$135-$175 / user / mo',
     description:
-      'Directional range for companies that need stronger identity, security baselines, Microsoft 365 governance, and strategic review rhythm.',
+      'Directional range for companies that need stronger identity controls, Microsoft 365 governance, backup evidence, reporting, and recurring review rhythm.',
     bestFor:
       'Hybrid teams that need proactive IT plus stronger security posture',
     responseSla: 'Priority response with regular review cadence',
@@ -58,9 +58,9 @@ export const pricingTiers: PricingTier[] = [
     ctaLabel: 'Choose Secure Operations',
     perks: [
       'Everything in Core Coverage',
-      'Identity, MFA, and access policy support',
+      'MFA, conditional access, admin-role, and guest-access review',
       'Email security, awareness support, and risky-forwarding checks',
-      'Quarterly roadmap, lifecycle planning, and Microsoft 365 governance',
+      'Quarterly roadmap, lifecycle planning, and Microsoft 365 governance notes',
     ],
   },
   {
@@ -68,7 +68,7 @@ export const pricingTiers: PricingTier[] = [
     name: 'Co-Managed and Regulated',
     price: '$165-$215 / user / mo',
     description:
-      'Directional range for internal IT partnerships, regulated environments, and teams that need deeper coverage, documentation, and recovery discipline.',
+      'Directional range for internal IT partnerships, regulated environments, cyber-insurance pressure, and teams that need deeper documentation and recovery discipline.',
     bestFor: 'Healthcare, finance, manufacturing, and co-managed IT teams',
     responseSla:
       'Faster response, tighter escalation, and security-aware triage',
@@ -76,8 +76,8 @@ export const pricingTiers: PricingTier[] = [
     perks: [
       'Everything in Secure Operations',
       'Co-managed support for internal IT or operations staff',
-      'Compliance readiness, evidence habits, and audit support coordination',
-      'Recovery runbooks, restore testing, and stronger change discipline',
+      'Compliance readiness, evidence habits, and audit-support coordination',
+      'Recovery runbooks, restore testing, change notes, and incident-role clarity',
     ],
   },
   {
@@ -85,7 +85,7 @@ export const pricingTiers: PricingTier[] = [
     name: 'Custom',
     price: 'Quoted after assessment',
     description:
-      'Built for multi-site operations, cloud-heavy estates, dedicated security programs, office projects, or client-facing digital work.',
+      'Built for multi-site operations, cloud-heavy estates, dedicated security programs, office moves, server projects, or client-facing digital work.',
     bestFor:
       'Complex environments with layered delivery, vCISO, or project work',
     responseSla: 'Custom escalation matrix, SLAs, and operating cadence',
@@ -93,7 +93,7 @@ export const pricingTiers: PricingTier[] = [
     perks: [
       'Custom pricing by users, devices, sites, servers, and coverage model',
       'Dedicated security, cloud, or project leadership',
-      'Cloud migrations, office refreshes, ecommerce demos, and portal work',
+      'Cloud migrations, office refreshes, server work, ecommerce, and portal builds',
       'A delivery model tuned to business-critical operations and approvals',
     ],
   },
@@ -132,7 +132,7 @@ export const servicesFaqs: FAQEntry[] = [
     title:
       'How do you decide whether we need MSP, security, cloud, or AI services first?',
     content:
-      'We start with operational pressure points: downtime, risk exposure, modernization debt, or manual process drag. The best starting package usually solves the current constraint first, then layers in adjacent improvements.',
+      'We start with operational pressure points: recurring tickets, stale access, backup uncertainty, cyber-insurance requirements, Microsoft 365 sprawl, downtime risk, or manual process drag. The best starting package usually solves the current constraint first, then layers in adjacent work.',
   },
   {
     title:
@@ -154,18 +154,20 @@ export const servicesFaqs: FAQEntry[] = [
     title:
       'What if we need application engineering or cloud modernization on top of managed operations?',
     content:
-      'That is one of our strongest fits. We can combine operational coverage with cloud engineering, platform hardening, automation, and AI delivery under a single operating model.',
+      'That can be a strong fit when the project affects operations, support, security, or the buyer path. We can combine recurring coverage with cloud engineering, platform hardening, automation, and selective digital delivery under one operating model.',
   },
 ];
 
 export const pricingSignals: TrustSignal[] = [
   {
     label: 'Directional Chicago ranges',
-    sublabel: 'Ranges are meant to orient the first budget conversation',
+    sublabel:
+      'Ranges are meant to orient the first budget conversation, not replace discovery',
   },
   {
     label: 'After-hours available',
-    sublabel: '24/7 monitoring and response can be layered in where needed',
+    sublabel:
+      '24/7 monitoring and response can be layered in when the business case is real',
   },
   {
     label: 'Co-managed support',
@@ -174,37 +176,37 @@ export const pricingSignals: TrustSignal[] = [
   {
     label: 'Projects scoped separately',
     sublabel:
-      'Migrations, office work, and digital builds stay visible on their own',
+      'Migrations, office work, server projects, and digital builds stay visible on their own',
   },
 ];
 
 export const slaComparisonRows: SlaComparisonRow[] = [
   {
     capability: 'Helpdesk and support coverage',
-    essentials: 'Business-hours + monitored escalation',
-    growth: 'Priority queue + proactive review',
-    securePlus: 'Priority queue + co-managed / security-aware triage',
+    essentials: 'Business-hours queue + escalation path',
+    growth: 'Priority queue + monthly review',
+    securePlus: 'Priority queue + co-managed or security-aware triage',
     custom: 'Custom routing and escalation matrix',
   },
   {
     capability: 'Endpoint / device management',
-    essentials: 'Core monitoring and patching',
-    growth: 'Enhanced hygiene + policy controls',
-    securePlus: 'Advanced hardening and reporting',
-    custom: 'Cross-site and bespoke fleet strategy',
+    essentials: 'Inventory, monitoring, and patch visibility',
+    growth: 'Enhanced hygiene, warranty, and policy controls',
+    securePlus: 'Hardening notes, encryption checks, and reporting',
+    custom: 'Cross-site fleet standards and refresh planning',
   },
   {
     capability: 'Identity and access security',
-    essentials: 'Foundational guidance',
-    growth: 'MFA, SSO, and access review support',
-    securePlus: 'Advanced identity governance',
-    custom: 'Program-level identity architecture',
+    essentials: 'Foundational MFA and admin review',
+    growth: 'MFA, SSO, guest access, and access-review support',
+    securePlus: 'Conditional access and advanced identity governance',
+    custom: 'Program-level identity architecture and policy design',
   },
   {
     capability: 'Incident readiness',
-    essentials: 'Escalation playbook light',
+    essentials: 'Light escalation playbook',
     growth: 'Documented response ownership',
-    securePlus: 'Managed response and recovery workflows',
+    securePlus: 'Managed response and recovery workflow planning',
     custom: 'Dedicated security program alignment',
   },
   {

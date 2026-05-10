@@ -55,16 +55,16 @@ export async function GET() {
       id: 'page-home',
       title: 'Home',
       description:
-        'Chicago managed IT homepage for support ownership, security baseline, Microsoft 365, cloud, backup, and buyer proof',
+        'Chicago managed IT homepage for support ownership, security baseline, Microsoft 365, cloud, backup, and buyer-facing digital work',
       category: 'Page',
       url: '/',
       tags: ['home', 'landing', 'managed it', 'security', 'cloud', 'm365'],
     },
     {
       id: 'page-gallery',
-      title: 'Design Gallery',
+      title: 'Design Library',
       description:
-        'Interactive gallery of cinematic visual studies with filters, view modes, and links back into the live site',
+        'Interactive design library with visual studies for support, security, infrastructure, commerce, and mobile workflows',
       category: 'Page',
       url: 'gallery/',
       tags: ['gallery', 'design', 'art', 'creative', 'interface', 'proof'],
@@ -89,18 +89,18 @@ export async function GET() {
     },
     {
       id: 'page-photos',
-      title: 'Photo Gallery',
+      title: 'Photo Library',
       description:
-        'Curated photo references for support, infrastructure, cybersecurity, modern work, and ecommerce experiences',
+        'Curated photo references for support, infrastructure, cybersecurity, Microsoft 365, and buyer-facing pages',
       category: 'Page',
       url: 'photos/',
       tags: ['photos', 'gallery', 'infrastructure', 'security', 'digital'],
     },
     {
       id: 'page-about',
-      title: 'E Commerce Demo',
+      title: 'Commerce Lab',
       description:
-        'Interactive experience lab with search, compare, cart persistence, and checkout simulation',
+        'Interactive commerce lab with search, compare, cart persistence, shareable states, and checkout review',
       category: 'Page',
       url: 'about/',
       tags: [
@@ -114,24 +114,24 @@ export async function GET() {
     },
     {
       id: 'page-about-demo-cart',
-      title: 'E Commerce Demo - Cart Launch',
-      description: 'Open the ecommerce demo directly into cart mode',
+      title: 'Commerce Lab - Cart Launch',
+      description: 'Open the commerce lab directly into cart mode',
       category: 'Page',
       url: 'about/?demo=cart#shop-experience',
       tags: ['experience-lab', 'shop-demo', 'cart', 'launch'],
     },
     {
       id: 'page-about-demo-compare',
-      title: 'E Commerce Demo - Compare Launch',
-      description: 'Open the ecommerce demo with compare mode active',
+      title: 'Commerce Lab - Compare Launch',
+      description: 'Open the commerce lab with compare mode active',
       category: 'Page',
       url: 'about/?demo=compare#shop-experience',
       tags: ['experience-lab', 'shop-demo', 'compare', 'launch'],
     },
     {
       id: 'page-about-demo-checkout',
-      title: 'E Commerce Demo - Checkout Launch',
-      description: 'Open the ecommerce demo in checkout simulation mode',
+      title: 'Commerce Lab - Checkout Launch',
+      description: 'Open the commerce lab in checkout review mode',
       category: 'Page',
       url: 'about/?demo=checkout&product=aurora-hoodie#shop-experience',
       tags: ['experience-lab', 'shop-demo', 'checkout', 'launch'],
@@ -166,7 +166,8 @@ export async function GET() {
     {
       id: 'page-services-planner',
       title: 'Services Planner',
-      description: 'Interactive matrix for choosing the best service lane',
+      description:
+        'Interactive matrix for choosing the best first service lane',
       category: 'Page',
       url: 'services/#service-planner',
       tags: ['services', 'planner', 'comparison', 'matrix', 'roadmap'],
@@ -175,7 +176,7 @@ export async function GET() {
       id: 'page-pricing',
       title: 'Pricing',
       description:
-        'Live plans, SLA comparison, pricing calculator, and ROI model',
+        'Directional plans, SLA comparison, pricing calculator, and ROI model',
       category: 'Page',
       url: 'pricing/',
       tags: ['pricing', 'plans', 'quote', 'sla', 'calculator'],
@@ -191,7 +192,8 @@ export async function GET() {
     {
       id: 'page-contact-hq',
       title: 'Contact',
-      description: 'Project intake, support channels, and engagement kickoff',
+      description:
+        'Project intake, support lanes, provider-transition context, and engagement kickoff',
       category: 'Page',
       url: 'contact-hq/',
       tags: ['contact', 'intake', 'support', 'project'],

@@ -1083,13 +1083,13 @@ export const tradeProfiles: TradeProfile[] = [
     eyebrow: 'Technology Operations',
     accent: '#c4b5fd',
     summary:
-      'Managed IT, cybersecurity, cloud, AI, and business technology services repositioned as one of the seven trade lanes instead of a separate site inside the site.',
+      'Managed IT, cybersecurity, Microsoft 365, cloud, backup, and business technology services organized around ownership, evidence, and delivery.',
     heroTitle:
-      'MSP and tech services now operate like the other trades: visible, integrated, and field-ready.',
+      'MSP and tech services built around support queues, security baselines, vendor handoffs, and project work that can be explained.',
     heroDescription:
-      'The original technology stack remains in place, but it is now organized as a peer trade within the broader site. That means support, security, cloud, AI, and digital systems all connect back to the same landing page and delivery model.',
+      'The technology stack is organized around the things buyers actually need to understand: support ownership, Microsoft 365 governance, backup confidence, security evidence, and selective digital work.',
     marketFocus:
-      'Managed IT, cybersecurity, cloud, AI enablement, ecommerce support, and business systems modernization.',
+      'Managed IT, cybersecurity, Microsoft 365, cloud, backup, automation, ecommerce support, and business systems modernization.',
     metrics: [
       {
         label: 'Service depth',
@@ -1099,7 +1099,7 @@ export const tradeProfiles: TradeProfile[] = [
       {
         label: 'Support profile',
         value: 'Managed ops',
-        note: 'Recurring service, modernization, and advisory work coexist.',
+        note: 'Recurring service, cleanup, modernization, and advisory work coexist.',
       },
       {
         label: 'Site role',
@@ -1139,9 +1139,9 @@ export const tradeProfiles: TradeProfile[] = [
         ],
       },
       {
-        title: 'AI and digital systems',
+        title: 'Automation and digital systems',
         description:
-          'Automation, AI enablement, ecommerce support, and custom digital systems that extend the rest of the business.',
+          'Automation, practical AI enablement, ecommerce support, portals, and custom digital systems that support the rest of the business.',
         deliverables: [
           'Automation workflows',
           'AI readiness and governance',
@@ -1150,9 +1150,9 @@ export const tradeProfiles: TradeProfile[] = [
       },
     ],
     differentiators: [
-      'The technology stack stays fully intact while becoming part of the seven-trade navigation model.',
-      'MSP and tech services can now connect directly to physical-trade workflows, facilities, and service operations.',
-      'The site keeps its showroom, ecommerce, and interactive capabilities while adding stronger service architecture.',
+      'Support, security, Microsoft 365, cloud, backup, and digital work stay connected to one buying path.',
+      'MSP and tech services can connect directly to facilities, vendors, service operations, and the systems people use every day.',
+      'The site keeps its interactive capabilities while grounding them in clearer service architecture.',
     ],
     sectors: [
       {
@@ -1179,9 +1179,9 @@ export const tradeProfiles: TradeProfile[] = [
         shortLabel: 'Managed Operations',
         title: 'MSP Managed Operations',
         description:
-          'Managed IT operations, support workflows, and recurring service delivery now framed as one of the site’s core trade lanes.',
+          'Managed IT operations, support workflows, and recurring service delivery framed as a practical operating lane.',
         intro:
-          'This page keeps the MSP foundation intact while presenting it in the same high-visibility structure as the rest of the trades. It is about repeatable operations, not generic tech fluff.',
+          'This page keeps the MSP foundation focused on repeatable operations: intake, monitoring, response, reporting, access cleanup, backup evidence, and vendor ownership.',
         sections: [
           {
             title: 'Operational service model',

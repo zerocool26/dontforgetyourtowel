@@ -10,19 +10,19 @@ const proofSignals = [
     value: 'URL-backed',
     label: 'Review presets',
     detail:
-      'Stakeholders can open cart, compare, quick view, and checkout states from a single shareable route.',
+      'Stakeholders can reopen cart, compare, quick view, and checkout states without a long screen-share explanation.',
   },
   {
     value: 'Live',
     label: 'Buyer interactions',
     detail:
-      'Search, compare, quick view, and checkout all move inside the actual demo instead of static mockups.',
+      'Search, compare, quick view, cart, and checkout behavior can be tested directly instead of guessed from mockups.',
   },
   {
     value: 'Mobile-first',
     label: 'Presentation rhythm',
     detail:
-      'Controls stay readable and tappable without turning the page into a dense feature spreadsheet.',
+      'Controls stay readable and tappable because most buyer research and approval checks happen on imperfect screens.',
   },
 ];
 
@@ -30,7 +30,7 @@ const quickActions = [
   {
     title: 'Start with discovery',
     description:
-      'Jump into a search-led review and show how product finding stays fast.',
+      'Jump into search and product detail behavior to see whether finding and evaluating an item stays fast.',
     state: 'quickview',
     productId: 'spectral-sneaker',
     buttonLabel: 'Open quick view',
@@ -39,7 +39,7 @@ const quickActions = [
   {
     title: 'Walk the decision moment',
     description:
-      'Open the compare state to review scanability, tradeoffs, and confidence-building details.',
+      'Open compare to review scanability, tradeoffs, reassurance, and whether the next step is obvious.',
     state: 'compare',
     buttonLabel: 'Open compare',
     command: 'open-compare',
@@ -47,7 +47,7 @@ const quickActions = [
   {
     title: 'Review conversion friction',
     description:
-      'Go directly to checkout and discuss the reassurance points that protect handoff and payment intent.',
+      'Go directly to checkout and review shipping, totals, reassurance, and handoff points that protect buyer intent.',
     state: 'checkout',
     productId: 'aurora-hoodie',
     buttonLabel: 'Jump to checkout',
@@ -58,19 +58,19 @@ const quickActions = [
 const guidedReviewSteps = [
   {
     title: 'Frame the audience first',
-    copy: 'Set the review around merchandising, revenue, or stakeholder signoff so the right details matter first.',
+    copy: 'Set the review around merchandising, sales, owner approval, or stakeholder signoff so the right details matter first.',
   },
   {
     title: 'Open a believable journey state',
-    copy: 'Use a preset that mirrors the actual question being asked instead of clicking around while narrating.',
+    copy: 'Use a preset that mirrors the actual question being asked instead of clicking around while narrating the intent.',
   },
   {
     title: 'Show the confidence layer',
-    copy: 'Point to compare clarity, quick-view context, or checkout reassurance so the route proves trust, not just styling.',
+    copy: 'Point to compare clarity, quick-view context, shipping detail, and checkout reassurance so trust is visible, not implied.',
   },
   {
     title: 'Share the exact moment',
-    copy: 'Copy the state URL and keep the conversation synchronized across teams, vendors, or follow-up notes.',
+    copy: 'Copy the state URL and keep the conversation synchronized across owners, vendors, and follow-up notes.',
   },
 ];
 
@@ -84,30 +84,30 @@ const storeStandards = [
 const commerceTrustSignals = [
   {
     title: 'Storytelling that stays actionable',
-    copy: 'Strong visual rhythm, but every section still earns the next buyer step.',
+    copy: 'Strong visual rhythm, but every section still has to earn the next buyer step.',
   },
   {
     title: 'Review states that are easy to share',
-    copy: 'A single URL can reopen the exact demo moment being discussed in the room.',
+    copy: 'A single URL can reopen the exact screen state being discussed in the room.',
   },
   {
     title: 'Operational credibility',
-    copy: 'The route behaves like something a team could actually review, refine, and ship.',
+    copy: 'The lab behaves like something a team could actually review, refine, QA, and ship.',
   },
 ];
 
 const implementationTracks = [
   {
     title: 'Executive walkthrough',
-    copy: 'Use the presets and proof board to explain value quickly without getting lost in product mechanics.',
+    copy: 'Use presets and the review board to explain value quickly without getting lost in product mechanics.',
   },
   {
     title: 'Design + content critique',
-    copy: 'Review visual hierarchy, motion, trust cues, and CTA clarity in a route that already feels finished.',
+    copy: 'Review hierarchy, motion, trust cues, product copy, CTA clarity, and mobile behavior in one place.',
   },
   {
     title: 'Production handoff',
-    copy: 'Translate the demo states into build tickets, product rules, and real storefront acceptance criteria.',
+    copy: 'Translate review states into build tickets, product rules, QA notes, and real acceptance criteria.',
   },
 ];
 
@@ -146,7 +146,7 @@ const featuredProducts = [
     data={{
       name: 'Commerce Lab',
       description:
-        'Interactive commerce lab with proof board, shareable review states, and accessibility-minded controls.',
+        'Interactive commerce lab with review board, shareable screen states, and accessibility-minded controls.',
     }}
   />
 
@@ -156,14 +156,14 @@ const featuredProducts = [
         <div class="tone-page-header">
           <p class="tone-page-eyebrow">Commerce lab</p>
           <h1 class="tone-page-title">
-            Buyer-facing digital systems should prove trust while people are
+            Buyer-facing digital systems should earn trust while people are
             still deciding.
           </h1>
           <p class="tone-page-copy">
             A storefront, booking path, portal, or product page has to do more
             than look polished. It needs fast finding, confident comparison,
-            clean handoff, and a review trail teams can share before anything
-            ships.
+            clear totals, useful reassurance, clean handoff, and a review trail
+            teams can share before anything ships.
           </p>
 
           <div class="tone-page-actions">
@@ -186,7 +186,7 @@ const featuredProducts = [
 
         <div class="demo-page-hero__panel tone-panel-soft">
           <p class="demo-page-panel__label">
-            What a modern review should prove
+            What a serious review should check
           </p>
           <div class="demo-page-signal-grid">
             {
@@ -241,8 +241,8 @@ const featuredProducts = [
           <div>
             <p class="demo-launch-card__eyebrow">Back to baseline</p>
             <p>
-              Clear the query-backed launch state and reopen the default
-              showcase view.
+              Clear the query-backed launch state and reopen the baseline
+              commerce view.
             </p>
           </div>
           <button
@@ -261,9 +261,9 @@ const featuredProducts = [
     <div class="premium-container">
       <div class="demo-proof-grid">
         <article class="demo-proof-board tone-panel-soft">
-          <p class="tone-section-kicker">Scenario proof board</p>
+          <p class="tone-section-kicker">Scenario review board</p>
           <div class="demo-proof-board__headline">
-            <h2 data-demo-active-state>Default showcase loaded</h2>
+            <h2 data-demo-active-state>Baseline commerce view loaded</h2>
             <p>
               The board updates as you change review states, so teams can keep
               the narrative, audience, and share URL aligned.
@@ -283,8 +283,8 @@ const featuredProducts = [
             <article class="demo-proof-metric">
               <p>Proof</p>
               <strong data-demo-metric-proof>
-                The default showcase gives the room a clean starting point
-                before drilling into a buyer task.
+                The baseline view gives the room a clean starting point before
+                drilling into a buyer task.
               </strong>
             </article>
           </div>
@@ -292,7 +292,9 @@ const featuredProducts = [
           <div class="demo-share-board">
             <div class="demo-share-board__meta">
               <p>Share title</p>
-              <strong data-demo-share-title>Default showcase loaded</strong>
+              <strong data-demo-share-title
+                >Baseline commerce view loaded</strong
+              >
             </div>
             <div class="demo-share-board__meta">
               <p>Share URL</p>
@@ -504,11 +506,11 @@ const featuredProducts = [
     const anchor = '#shop-experience';
     const demoStates = {
       default: {
-        title: 'Default showcase loaded',
+        title: 'Baseline commerce view loaded',
         focus: 'Storefront overview',
         audience: 'Stakeholder walkthroughs',
         proof:
-          'The default showcase gives the room a clean starting point before drilling into a buyer task.',
+          'The baseline commerce view gives the room a clean starting point before drilling into a buyer task.',
       },
       cart: {
         title: 'Cart review active',

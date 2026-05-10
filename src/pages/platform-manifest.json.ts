@@ -12,7 +12,7 @@ export async function GET() {
     platform: {
       name: 'Olive Chicago',
       description:
-        'Chicago managed IT platform for support ownership, security, Microsoft 365, cloud, proof routes, and supporting gallery references.',
+        'Chicago managed IT platform for support ownership, security, Microsoft 365, cloud, backup confidence, commerce lab, and visual references.',
       experienceModes: [
         {
           id: 'cinematic',
@@ -37,7 +37,7 @@ export async function GET() {
     routes: {
       home: '/',
       about: 'about/',
-      proof: 'about/',
+      commerceLab: 'about/',
       gallery: 'gallery/',
       blog: 'blog/',
       news: 'news/',

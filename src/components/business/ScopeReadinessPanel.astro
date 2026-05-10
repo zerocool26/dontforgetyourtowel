@@ -29,7 +29,7 @@ const checks = [
     id: 'constraints',
     label: 'Constraints are documented',
     detail:
-      'Access, systems, users, outages, compliance, or occupancy needs are known.',
+      'Access, systems, users, devices, outages, compliance, budget, or vendor constraints are known.',
     weight: 35,
   },
   {
@@ -233,7 +233,7 @@ const checks = [
       {
         min: 30,
         status: 'Good discovery candidate.',
-        copy: 'You have enough signal to route the work. Bring the missing constraint into the first conversation.',
+        copy: 'You have enough signal to choose the first lane. Bring the missing constraint into the first conversation.',
       },
       {
         min: 65,
@@ -243,7 +243,7 @@ const checks = [
       {
         min: 100,
         status: 'Ready for execution planning.',
-        copy: 'The core inputs are clear. The next move is a route, schedule, and operating owner for the first phase.',
+        copy: 'The core inputs are clear. The next move is a schedule, scope owner, and first-phase operating plan.',
       },
     ];
 

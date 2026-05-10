@@ -34,28 +34,28 @@ export const servicesExtended: Service[] = [
     name: 'Managed Help Desk and Escalation',
     category: 'Managed IT & Support',
     description:
-      'Business-hours or extended-hours support for day-to-day issues, escalation handling, and end-user follow-through.',
+      'Support queue ownership for user issues, escalation handling, status updates, and follow-through when a fix needs a vendor or deeper investigation.',
   },
   {
     id: 'co-managed-it',
     name: 'Co-Managed IT Support',
     category: 'Managed IT & Support',
     description:
-      'Flexible support for internal IT teams that need help with coverage, projects, documentation, or specialized expertise.',
+      'Shared delivery for internal IT or operations teams that need extra coverage, project help, documentation cleanup, or a second set of technical hands.',
   },
   {
     id: 'endpoint-management',
     name: 'Endpoint Management and Patching',
     category: 'Managed IT & Support',
     description:
-      'Policy-based workstation management, patching, asset visibility, and device hygiene across laptops, desktops, and mobile endpoints.',
+      'Workstation inventory, patch visibility, device health, warranty notes, encryption checks, and setup standards across laptops, desktops, and mobile endpoints.',
   },
   {
     id: 'user-onboarding',
     name: 'User Onboarding and Offboarding',
     category: 'Managed IT & Support',
     description:
-      'Account setup, access changes, device preparation, and documented joiner-mover-leaver workflows.',
+      'New-hire setup, role changes, departed-user lockout, device prep, mailbox handling, and documented joiner-mover-leaver workflows.',
   },
   {
     id: 'asset-lifecycle',
@@ -69,7 +69,7 @@ export const servicesExtended: Service[] = [
     name: 'Vendor and ISP Coordination',
     category: 'Managed IT & Support',
     description:
-      'Single-owner coordination for internet providers, software vendors, telecom, and line-of-business technology partners.',
+      'Single-owner coordination for ISPs, telecom, printers, software vendors, line-of-business application providers, and support escalations that cross company boundaries.',
   },
 
   {
@@ -77,14 +77,14 @@ export const servicesExtended: Service[] = [
     name: 'Managed Endpoint Protection and MDR',
     category: 'Cybersecurity & Compliance',
     description:
-      'Endpoint detection, response workflows, and managed monitoring to reduce dwell time and improve containment.',
+      'Endpoint protection, alert routing, response workflows, and managed monitoring options that help reduce dwell time and improve containment.',
   },
   {
     id: 'identity-access-management',
     name: 'Identity, MFA, and Access Policy',
     category: 'Cybersecurity & Compliance',
     description:
-      'Microsoft Entra ID, SSO, MFA, conditional access, and role-based access controls built around practical user security.',
+      'Microsoft Entra ID, SSO, MFA, conditional access, admin role review, guest access, and role-based controls built around practical user security.',
   },
   {
     id: 'email-security-awareness',
@@ -98,14 +98,14 @@ export const servicesExtended: Service[] = [
     name: 'Vulnerability and Security Baseline Reviews',
     category: 'Cybersecurity & Compliance',
     description:
-      'Recurring reviews of exposure, hardening opportunities, patch gaps, and security controls that need executive attention.',
+      'Recurring reviews of exposure, hardening gaps, patch status, risky settings, control evidence, and security items that need executive attention.',
   },
   {
     id: 'incident-response-planning',
     name: 'Incident Response Planning',
     category: 'Cybersecurity & Compliance',
     description:
-      'Response playbooks, escalation paths, tabletop guidance, and roles for ransomware, phishing, and account compromise events.',
+      'Response playbooks, escalation paths, tabletop guidance, decision owners, and contact lists for ransomware, phishing, and account compromise events.',
   },
   {
     id: 'vciso-compliance',
@@ -120,14 +120,14 @@ export const servicesExtended: Service[] = [
     name: 'Microsoft 365 Administration',
     category: 'Cloud & Microsoft 365',
     description:
-      'Administration of Microsoft 365 tenants, licensing, collaboration tools, and everyday productivity services.',
+      'Administration of Exchange, Teams, SharePoint, OneDrive, users, licenses, groups, mail flow, and the everyday settings that keep Microsoft 365 usable.',
   },
   {
     id: 'm365-security-governance',
     name: 'Microsoft 365 Security and Governance',
     category: 'Cloud & Microsoft 365',
     description:
-      'Governance for Exchange, Teams, SharePoint, OneDrive, and retention settings so the platform stays usable and controlled.',
+      'External sharing, guest access, retention assumptions, site lifecycle, mailbox forwarding, admin roles, and governance decisions for Microsoft 365.',
   },
   {
     id: 'cloud-migration-modernization',
@@ -141,14 +141,14 @@ export const servicesExtended: Service[] = [
     name: 'SharePoint, Teams, and Intranet Rollouts',
     category: 'Cloud & Microsoft 365',
     description:
-      'Collaboration architecture, file structure, intranet planning, and adoption support for distributed teams.',
+      'Collaboration structure, file architecture, Teams rules, SharePoint cleanup, intranet planning, and adoption support for distributed teams.',
   },
   {
     id: 'cloud-license-cost-optimization',
     name: 'Cloud, License, and SaaS Cost Optimization',
     category: 'Cloud & Microsoft 365',
     description:
-      'Rightsizing licenses, reducing cloud waste, and improving visibility into recurring technology spend.',
+      'License right-sizing, unused-seat review, SaaS renewal visibility, cloud waste reduction, and recurring technology spend cleanup.',
   },
   {
     id: 'saas-admin-governance',
@@ -163,7 +163,7 @@ export const servicesExtended: Service[] = [
     name: 'Network Monitoring and Support',
     category: 'Network & Infrastructure',
     description:
-      'Monitoring, maintenance, and troubleshooting for business networks, switches, routers, and core infrastructure services.',
+      'Monitoring, maintenance, documentation, and troubleshooting for firewalls, switches, routers, Wi-Fi, ISP handoffs, and core connectivity.',
   },
   {
     id: 'firewall-secure-remote-access',
@@ -199,14 +199,14 @@ export const servicesExtended: Service[] = [
     name: 'Backup Monitoring and Restore Testing',
     category: 'Backup, Continuity & Recovery',
     description:
-      'Daily backup oversight, alerting, documented restore checks, and practical verification that recovery actually works.',
+      'Backup alert review, coverage checks, restore testing, retention notes, and practical verification that recovery can actually work.',
   },
   {
     id: 'business-continuity-planning',
     name: 'Business Continuity Planning',
     category: 'Backup, Continuity & Recovery',
     description:
-      'Continuity planning that ties backup, communications, key systems, and operational priorities into a realistic recovery model.',
+      'Continuity planning that ties backups, communications, vendors, key systems, staff roles, and operating priorities into a realistic recovery model.',
   },
   {
     id: 'disaster-recovery-runbooks',
@@ -242,21 +242,21 @@ export const servicesExtended: Service[] = [
     name: 'Workflow Automation and AI Enablement',
     category: 'Strategy, Automation & Digital Systems',
     description:
-      'Small-scale automation, reporting workflows, AI-assisted internal processes, and governance for practical use cases.',
+      'Small-scale automation, reporting cleanup, AI-assisted internal processes, approval rules, and governance for practical use cases that have an owner.',
   },
   {
     id: 'client-portal-web-refresh',
     name: 'Website and Client-Facing Experience Refreshes',
     category: 'Strategy, Automation & Digital Systems',
     description:
-      'Higher-trust websites, launch pages, and service presentation systems for firms whose front door needs to match their operations.',
+      'Higher-trust websites, launch pages, service pages, intake flows, and presentation systems for firms whose front door needs to match their operations.',
   },
   {
     id: 'client-portal-intranet',
     name: 'Client Portals and Internal Hubs',
     category: 'Strategy, Automation & Digital Systems',
     description:
-      'Portals, intranets, and structured self-service experiences for onboarding, documentation, and account visibility.',
+      'Client portals, internal hubs, intranets, forms, and structured self-service experiences for onboarding, documentation, and account visibility.',
   },
   {
     id: 'discovery-roadmapping',
@@ -400,15 +400,15 @@ export const serviceCategoryBriefs: ServiceCategoryBrief[] = [
 export const serviceOperatingFacts = [
   {
     label: 'Good MSP buying starts with ownership.',
-    copy: 'Tool names matter less than who owns tickets, alerts, onboarding, vendors, backups, and executive communication.',
+    copy: 'Tool names matter less than who owns tickets, alerts, onboarding, offboarding, vendors, backups, and the monthly explanation of what changed.',
   },
   {
     label: 'Security has to be visible.',
-    copy: 'Identity, endpoint, email, backup, and response controls should be explained in normal business language, not hidden inside a stack list.',
+    copy: 'Identity, endpoint, email, backup, risky forwarding, and response controls should be explained in normal business language, not hidden inside a stack list.',
   },
   {
     label: 'Microsoft 365 is an operating system for the business.',
-    copy: 'Teams, SharePoint, OneDrive, Exchange, licensing, retention, and backup need governance or the tenant slowly becomes expensive clutter.',
+    copy: 'Teams, SharePoint, OneDrive, Exchange, licensing, retention, guest access, and backup need governance or the tenant slowly becomes expensive clutter.',
   },
 ];
 

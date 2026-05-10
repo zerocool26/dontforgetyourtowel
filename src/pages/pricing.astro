@@ -55,7 +55,7 @@ const faqSchema = {
 const pricingDrivers = [
   {
     title: 'User and device count',
-    copy: 'Seats are only the beginning. Laptops, shared workstations, servers, mobile devices, warranty age, and endpoint standards all change the work.',
+    copy: 'Seats are only the beginning. Laptops, shared workstations, servers, mobile devices, warranty age, encryption state, and endpoint standards all change the work.',
   },
   {
     title: 'Coverage and response expectations',
@@ -63,11 +63,11 @@ const pricingDrivers = [
   },
   {
     title: 'Security and compliance depth',
-    copy: 'MFA, conditional access, EDR/MDR, awareness, vulnerability review, audit evidence, and response planning add real recurring ownership.',
+    copy: 'MFA, conditional access, EDR/MDR, email controls, awareness, vulnerability review, audit evidence, backup proof, and response planning add real recurring ownership.',
   },
   {
     title: 'Projects and modernization workstreams',
-    copy: 'Cloud migrations, Microsoft 365 cleanup, office moves, portal work, ecommerce demos, and infrastructure refreshes should be scoped visibly.',
+    copy: 'Cloud migrations, Microsoft 365 cleanup, server work, office moves, portal work, ecommerce, and infrastructure refreshes should be scoped visibly.',
   },
 ];
 
@@ -100,10 +100,10 @@ const quoteExamples = [
 
 const quotePrep = [
   'User count, shared workstation count, and number of locations',
-  'Servers, key applications, Microsoft 365 tenant notes, and cloud footprint',
+  'Servers, key applications, Microsoft 365 tenant notes, backup scope, and cloud footprint',
   'Current provider pain: slow response, recurring issues, poor security visibility, unclear reporting, or weak project follow-through',
   'Compliance pressure, cyber insurance requirements, and backup or recovery concerns',
-  'Known projects in the next six months: moves, migrations, refreshes, website, portal, or ecommerce work',
+  'Known projects in the next six months: moves, migrations, server refreshes, website, portal, or ecommerce work',
 ];
 
 const scopeBoundaries = [
@@ -112,8 +112,8 @@ const scopeBoundaries = [
     items: [
       'Help desk triage and user support',
       'Endpoint monitoring, patching, and baseline hygiene',
-      'Microsoft 365 administration and access changes',
-      'Backup monitoring and routine reporting',
+      'Microsoft 365 administration, license notes, and access changes',
+      'Backup monitoring, alert review, and routine reporting',
       'Vendor coordination tied to supported systems',
     ],
   },
@@ -144,21 +144,21 @@ const approvalPack = [
     role: 'Finance',
     concern: 'Why does this recurring cost belong in the budget?',
     answer:
-      'Tie the plan to fewer escalations, cleaner onboarding, lower interruption cost, security evidence, and a visible support rhythm.',
+      'Tie the plan to fewer escalations, cleaner onboarding, lower interruption cost, cyber-insurance evidence, renewal visibility, and a visible support rhythm.',
     artifacts: ['Plan range', 'Cost drivers', 'ROI model'],
   },
   {
     role: 'Operations',
     concern: 'What gets better in the first 30 to 90 days?',
     answer:
-      'Show the stabilization work: access cleanup, endpoint standards, support routing, backup verification, and recurring-ticket reduction.',
+      'Show the stabilization work: access cleanup, endpoint standards, support routing, vendor records, backup verification, and recurring-ticket reduction.',
     artifacts: ['First-phase scope', 'SLA matrix', 'Quote prep'],
   },
   {
     role: 'Security',
     concern: 'What evidence proves risk is being handled?',
     answer:
-      'Map identity, endpoint, email, backup, response habits, and compliance pressure to specific ownership and reporting outputs.',
+      'Map identity, endpoint, email, backup, risky forwarding, response contacts, and compliance pressure to specific ownership and reporting outputs.',
     artifacts: ['Baseline controls', 'Insurance notes', 'Restore proof'],
   },
 ];
@@ -207,12 +207,13 @@ const pricingSections = [
           <div class="tone-page-header">
             <p class="tone-page-eyebrow">Pricing</p>
             <h1 class="tone-page-title">
-              Practical pricing guidance before you sit through a sales call.
+              Practical pricing guidance before the sales call gets fuzzy.
             </h1>
             <p class="tone-page-copy max-w-3xl">
               See the plan shapes, budget drivers, scope boundaries, and
-              approval questions that usually determine the real monthly number
-              for managed IT, security, Microsoft 365, cloud, and digital work.
+              approval questions that usually determine the real monthly number:
+              users, devices, sites, servers, risk, response expectations, and
+              project work.
             </p>
           </div>
 
@@ -261,8 +262,8 @@ const pricingSections = [
               </p>
               <p class="mt-3 text-sm leading-6 text-slate-300">
                 The right quote depends on users, devices, servers, locations,
-                response expectations, security depth, and project work. This
-                page helps you pressure-test the shape first.
+                response expectations, backup confidence, security depth, and
+                project work. This page helps you pressure-test the shape first.
               </p>
             </div>
 
@@ -271,14 +272,14 @@ const pricingSections = [
                 <p class="text-sm font-semibold text-white">Best first move</p>
                 <p class="mt-2 text-sm leading-6 text-slate-300">
                   Compare the plan levels, then use the calculators if you need
-                  a faster budget check.
+                  a faster budget check before asking for exact scope.
                 </p>
               </div>
               <div class="tone-panel-soft rounded-2xl p-4">
                 <p class="text-sm font-semibold text-white">When to email</p>
                 <p class="mt-2 text-sm leading-6 text-slate-300">
                   Email once the question shifts from rough fit to exact scope,
-                  timeline, or approval-ready pricing.
+                  transition timing, or approval-ready pricing.
                 </p>
               </div>
             </div>
@@ -333,8 +334,8 @@ const pricingSections = [
           </h2>
           <p class="tone-section-copy">
             The proposal has to survive internal review. Use this section to
-            translate the number into risk reduction, operational relief, and
-            evidence the business can understand.
+            translate the number into reduced interruptions, cleaner ownership,
+            risk reduction, and evidence the business can understand.
           </p>
           <ModernButton
             href="#estimate"
@@ -557,7 +558,7 @@ const pricingSections = [
           Match the quote to an environment you recognize.
         </h2>
         <p class="tone-section-copy">
-          These are not quotes. They show how experienced providers think
+          These are not quotes. They show how an experienced provider thinks
           through fit before promising a number.
         </p>
       </div>
@@ -619,7 +620,7 @@ const pricingSections = [
         </h2>
         <p class="tone-section-copy">
           This is where many MSP conversations get fuzzy. Clear boundaries make
-          pricing easier to trust and reduce surprises after onboarding.
+          pricing easier to trust and reduce surprise invoices after onboarding.
         </p>
       </div>
 
@@ -652,7 +653,7 @@ const pricingSections = [
         </h2>
         <p class="tone-section-copy">
           Use these calculators to pressure-test assumptions before discovery,
-          leadership review, or a pricing call.
+          leadership review, budget approval, or a pricing call.
         </p>
       </div>
 
@@ -713,9 +714,9 @@ const pricingSections = [
               Need a best-fit quote instead of a rough estimate?
             </h2>
             <p class="tone-section-copy max-w-2xl">
-              Send over user counts, locations, critical systems, support
-              expectations, and any major security, cloud, or project
-              priorities.
+              Send over user counts, locations, critical systems, backup
+              concerns, support expectations, and any major security, cloud, or
+              project priorities.
             </p>
           </div>
 

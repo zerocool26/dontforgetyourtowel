@@ -131,9 +131,9 @@ export const studioUrgencyProfiles: StudioUrgencyProfile[] = [
   },
   {
     id: 'flagship',
-    label: 'Executive showcase',
+    label: 'Leadership-ready',
     summary:
-      'Increase polish, instrumentation, and executive-facing presentation when the route needs to carry more weight.',
+      'Increase polish, instrumentation, and leadership-ready presentation when the work needs to carry more weight.',
     investmentMultiplier: 1.32,
     timelineMultiplier: 1.1,
   },
@@ -144,15 +144,15 @@ export const studioSurfaces: StudioSurface[] = [
     id: 'surface-home',
     title: 'Chicago homepage',
     description:
-      'The public front door that frames managed IT, security, cloud, and selective digital work.',
+      'The public front door that frames managed IT, security, Microsoft 365, backup, and selective digital work.',
     href: '/',
     tags: ['homepage', 'messaging', 'trust', 'cta'],
   },
   {
     id: 'surface-experience',
-    title: 'Experience lab',
+    title: 'Commerce lab',
     description:
-      'Interactive proof route showing how client-facing systems can feel premium without losing structure.',
+      'Interactive lab showing how client-facing systems can handle real product, intake, mobile, and checkout behavior.',
     href: 'about/',
     tags: ['experience', 'portal', 'buyer', 'interactive'],
   },
@@ -160,7 +160,7 @@ export const studioSurfaces: StudioSurface[] = [
     id: 'surface-services',
     title: 'Service planning matrix',
     description:
-      'Interactive routing layer that maps business pressure to service lanes and phased rollout plans.',
+      'Interactive planning layer that maps business pressure to service lanes, scope boundaries, and phased rollout plans.',
     href: 'services/#service-planner',
     tags: ['services', 'planner', 'matrix', 'consulting'],
   },
@@ -204,7 +204,7 @@ export const engineeringSignals: StudioSignal[] = [
   {
     title: 'Buyer-safe interactive logic',
     detail:
-      'The planner turns vague requests into a structured first-phase brief without requiring a heavy custom form flow.',
+      'The planner turns vague requests into a structured first-phase brief with counts, constraints, and ownership questions.',
   },
   {
     title: 'Base-path safe deployment model',
@@ -229,7 +229,7 @@ export const studioPresets: StudioPreset[] = [
     name: 'Support Stabilization Plan',
     kicker: 'Managed IT planning',
     summary:
-      'A first-phase plan for teams that need steadier support, cleaner ownership, and a better operational baseline.',
+      'A first-phase plan for teams that need a real support queue, cleaner ownership, better documentation, and a stronger operating baseline.',
     audience:
       'Owners, operations leaders, and small internal IT teams who need support to feel organized again.',
     contactService: 'msp',
@@ -251,9 +251,9 @@ export const studioPresets: StudioPreset[] = [
     coreCrew: ['Service delivery lead', 'Technical account owner'],
     surfaceIds: ['surface-services', 'surface-contact'],
     outcomes: [
-      'A steadier help desk and endpoint support baseline',
-      'Cleaner documentation, ownership, and escalation paths',
-      'A 90-day plan for reducing repeat issues and hidden friction',
+      'A steadier help desk, onboarding, and endpoint support baseline',
+      'Cleaner documentation, vendor ownership, and escalation paths',
+      'A 90-day plan for reducing repeat tickets and hidden friction',
     ],
   },
   {
@@ -283,9 +283,9 @@ export const studioPresets: StudioPreset[] = [
     coreCrew: ['Security and compliance lead', 'Technical account owner'],
     surfaceIds: ['surface-services', 'surface-pricing'],
     outcomes: [
-      'Identity, endpoint, and backup priorities sequenced clearly',
-      'A sharper compliance and evidence habit baseline',
-      'Leadership-ready security talking points and next steps',
+      'Identity, endpoint, email, and backup priorities sequenced clearly',
+      'A sharper compliance, cyber-insurance, and evidence baseline',
+      'Leadership-ready security notes and next steps',
     ],
   },
   {
@@ -316,8 +316,8 @@ export const studioPresets: StudioPreset[] = [
     surfaceIds: ['surface-services', 'surface-pricing'],
     outcomes: [
       'A clearer Microsoft 365, cloud, and collaboration roadmap',
-      'Better governance for users, files, and licenses',
-      'A phased migration plan that reduces disruption and rework',
+      'Better governance for users, files, guest access, and licenses',
+      'A phased migration or cleanup plan that reduces disruption and rework',
     ],
   },
   {
@@ -380,8 +380,8 @@ export const studioPresets: StudioPreset[] = [
     surfaceIds: ['surface-home', 'surface-experience', 'surface-contact'],
     outcomes: [
       'A clearer service story and stronger first impression',
-      'A buyer-facing system that feels premium on mobile',
-      'A phased plan for launch, content, and post-launch hardening',
+      'A buyer-facing system that works on mobile and answers real questions',
+      'A phased plan for launch, content, analytics, and post-launch hardening',
     ],
   },
 ];
@@ -392,7 +392,7 @@ export const studioModules: StudioModule[] = [
     title: 'Support Workflow Cleanup',
     category: 'Operations Layer',
     description:
-      'Clarify support ownership, onboarding flows, vendor handoffs, and recurring issue management so the team stops improvising.',
+      'Clarify support ownership, onboarding/offboarding, vendor handoffs, and recurring issue management so the team stops improvising.',
     investment: 6000,
     weeks: 2,
     deliverable:
@@ -410,7 +410,7 @@ export const studioModules: StudioModule[] = [
     title: 'Endpoint and Device Standardization',
     category: 'Operations Layer',
     description:
-      'Set device standards, patch expectations, onboarding baselines, and a healthier endpoint management rhythm.',
+      'Set device standards, patch expectations, encryption checks, warranty notes, onboarding baselines, and a healthier endpoint management rhythm.',
     investment: 7000,
     weeks: 2,
     deliverable:
@@ -428,7 +428,7 @@ export const studioModules: StudioModule[] = [
     title: 'Identity and Access Hardening',
     category: 'Security Layer',
     description:
-      'Tighten MFA, admin roles, access reviews, and account governance across Microsoft 365 and critical systems.',
+      'Tighten MFA, admin roles, guest access, access reviews, and account governance across Microsoft 365 and critical systems.',
     investment: 9000,
     weeks: 3,
     deliverable:
@@ -446,7 +446,7 @@ export const studioModules: StudioModule[] = [
     title: 'Backup and Recovery Readiness',
     category: 'Security Layer',
     description:
-      'Review backup coverage, restore confidence, recovery documentation, and the highest-risk continuity gaps first.',
+      'Review backup coverage, restore confidence, retention assumptions, recovery documentation, and the highest-risk continuity gaps first.',
     investment: 8000,
     weeks: 2,
     deliverable:
@@ -464,7 +464,7 @@ export const studioModules: StudioModule[] = [
     title: 'Website and Portal Refresh',
     category: 'Experience Layer',
     description:
-      'Upgrade service messaging, hierarchy, mobile UX, and buyer confidence cues across the public front door or client portal.',
+      'Upgrade service messaging, hierarchy, mobile UX, forms, proof points, and buyer confidence cues across the public front door or client portal.',
     investment: 10000,
     weeks: 3,
     deliverable:
@@ -518,7 +518,7 @@ export const studioModules: StudioModule[] = [
     title: 'Microsoft 365 and Collaboration Rollout',
     category: 'Platform Layer',
     description:
-      'Plan the first Microsoft 365, SharePoint, Teams, or intranet improvements that will reduce friction and improve control.',
+      'Plan the first Microsoft 365, SharePoint, Teams, guest access, licensing, or intranet improvements that reduce friction and improve control.',
     investment: 8500,
     weeks: 2,
     deliverable:
@@ -536,7 +536,7 @@ export const studioModules: StudioModule[] = [
     title: 'Network and Site Reliability Plan',
     category: 'Platform Layer',
     description:
-      'Set the first priorities for networks, Wi-Fi, firewalls, remote access, or multi-site consistency without overengineering the scope.',
+      'Set the first priorities for networks, Wi-Fi, firewalls, ISP handoffs, remote access, or multi-site consistency without overengineering the scope.',
     investment: 8000,
     weeks: 2,
     deliverable:
