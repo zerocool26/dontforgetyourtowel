@@ -48,7 +48,7 @@ export const DEPLOYMENT_CONFIG = DEPLOYMENT;
 export const CONTACT_EMAIL =
   (readPublicEnv('PUBLIC_CONTACT_EMAIL', 'NEXT_PUBLIC_CONTACT_EMAIL') as
     | string
-    | undefined) || 'hello@example.com';
+    | undefined) || 'hello@olivechicago.com';
 
 export const SITE_CONFIG = {
   title: SITE_TITLE,

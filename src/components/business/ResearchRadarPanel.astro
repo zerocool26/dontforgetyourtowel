@@ -1,5 +1,7 @@
 ---
 import {
+  competitiveProofPatterns2026,
+  designQualityPrinciples2026,
   marketSignals2026,
   resourceRecommendations2026,
   technologyRadar2026,
@@ -54,6 +56,78 @@ const statusClass = {
       ))
     }
   </div>
+
+  <section class="research-radar__proof tone-panel-soft">
+    <div class="research-radar__panel-header">
+      <p class="research-radar__eyebrow">What real MSP sites prove</p>
+      <h3>Market expectations to meet without inventing credentials.</h3>
+      <p>
+        The best providers make proof visible. Olive should do the same, but
+        only with claims that are true, sourced, or framed as operating process.
+      </p>
+    </div>
+
+    <div class="research-radar__proof-grid">
+      {
+        competitiveProofPatterns2026.map(item => (
+          <article class="research-radar__proof-card">
+            <h4>{item.pattern}</h4>
+            <div class="research-radar__move">
+              <span>Buyer expectation</span>
+              <p>{item.whatBuyersExpect}</p>
+            </div>
+            <div class="research-radar__move">
+              <span>Olive rule</span>
+              <p>{item.oliveRule}</p>
+            </div>
+            <div class="research-radar__sources">
+              {item.sources.map(source => (
+                <a href={source.href} target="_blank" rel="noreferrer">
+                  {source.label}
+                </a>
+              ))}
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="research-radar__design tone-panel-soft">
+    <div class="research-radar__panel-header">
+      <p class="research-radar__eyebrow">Design quality playbook</p>
+      <h3>2026-grade creative direction should feel operationally useful.</h3>
+      <p>
+        Premium technology sites are not just prettier. They make decisions,
+        proof, accessibility, and performance easier to trust.
+      </p>
+    </div>
+
+    <div class="research-radar__design-grid">
+      {
+        designQualityPrinciples2026.map(item => (
+          <article class="research-radar__design-card">
+            <h4>{item.principle}</h4>
+            <div class="research-radar__move">
+              <span>Mature teams</span>
+              <p>{item.whatMatureTeamsDo}</p>
+            </div>
+            <div class="research-radar__move">
+              <span>Olive application</span>
+              <p>{item.oliveApplication}</p>
+            </div>
+            <div class="research-radar__sources">
+              {item.sources.map(source => (
+                <a href={source.href} target="_blank" rel="noreferrer">
+                  {source.label}
+                </a>
+              ))}
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </section>
 
   <div class="research-radar__grid">
     <section class="research-radar__panel tone-panel-soft">
@@ -139,19 +213,29 @@ const statusClass = {
   .research-radar__header,
   .research-radar__signals,
   .research-radar__grid,
+  .research-radar__proof,
+  .research-radar__proof-grid,
+  .research-radar__design,
+  .research-radar__design-grid,
   .research-radar__panel,
   .research-radar__list,
+  .research-radar__proof-card,
+  .research-radar__design-card,
   .research-radar__item {
     display: grid;
     gap: 1rem;
   }
 
   .research-radar__signals,
+  .research-radar__proof,
+  .research-radar__design,
   .research-radar__grid {
     margin-top: 1.5rem;
   }
 
   .research-radar__signal,
+  .research-radar__proof,
+  .research-radar__design,
   .research-radar__panel {
     min-width: 0;
     padding: clamp(1rem, 2vw, 1.35rem);
@@ -159,6 +243,8 @@ const statusClass = {
   }
 
   .research-radar__signal,
+  .research-radar__proof-card,
+  .research-radar__design-card,
   .research-radar__item {
     align-content: start;
   }
@@ -252,6 +338,21 @@ const statusClass = {
       color-mix(in srgb, var(--color-border) 62%, transparent);
   }
 
+  .research-radar__proof-card {
+    min-width: 0;
+    padding-top: 1rem;
+    border-top: 1px solid
+      color-mix(in srgb, var(--color-border) 62%, transparent);
+  }
+
+  .research-radar__design-card {
+    min-width: 0;
+    padding: 1rem;
+    border: 1px solid color-mix(in srgb, var(--color-border) 62%, transparent);
+    border-radius: 0.85rem;
+    background: color-mix(in srgb, var(--color-surface) 54%, transparent);
+  }
+
   .research-radar__item-header {
     display: flex;
     flex-wrap: wrap;
@@ -278,7 +379,9 @@ const statusClass = {
   }
 
   @media (min-width: 860px) {
-    .research-radar__signals {
+    .research-radar__signals,
+    .research-radar__proof-grid,
+    .research-radar__design-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }

@@ -27,6 +27,20 @@ export interface ResourceRecommendation {
   sources: RadarSource[];
 }
 
+export interface CompetitiveProofPattern {
+  pattern: string;
+  whatBuyersExpect: string;
+  oliveRule: string;
+  sources: RadarSource[];
+}
+
+export interface DesignQualityPrinciple {
+  principle: string;
+  whatMatureTeamsDo: string;
+  oliveApplication: string;
+  sources: RadarSource[];
+}
+
 export const marketSignals2026: MarketSignal[] = [
   {
     title: 'Serious MSP pages lead with operating ownership.',
@@ -117,6 +131,179 @@ export const marketSignals2026: MarketSignal[] = [
         label: 'Web Platform Baseline',
         href: 'https://web.dev/baseline',
         type: 'reference',
+      },
+    ],
+  },
+];
+
+export const competitiveProofPatterns2026: CompetitiveProofPattern[] = [
+  {
+    pattern: 'Proof badges and partner signals',
+    whatBuyersExpect:
+      'Mature MSP websites often show partner status, awards, platform certifications, compliance partners, retention signals, and support proof near service decisions.',
+    oliveRule:
+      'Publish only verified credentials. Where credentials are not available yet, use transparent operating proof: onboarding outputs, security baselines, restore evidence, and QA gates.',
+    sources: [
+      {
+        label: 'BEMO proof and partner signals',
+        href: 'https://www.bemopro.com/',
+        type: 'industry',
+      },
+      {
+        label: 'Bulletproof recognition and managed security positioning',
+        href: 'https://bulletproofsi.com/',
+        type: 'industry',
+      },
+    ],
+  },
+  {
+    pattern: 'Measurable service promises',
+    whatBuyersExpect:
+      'High-converting providers translate service into response expectations, uptime language, SOC coverage, implementation cadence, or monthly/quarterly review rhythm.',
+    oliveRule:
+      'Keep Olive promises scoped as targets, cadence, and buyer-visible outputs unless contractual SLAs are finalized.',
+    sources: [
+      {
+        label: 'Teleon managed IT and cybersecurity metrics',
+        href: 'https://www.teleon.org/',
+        type: 'industry',
+      },
+      {
+        label: 'Fluid IT retention and advisor positioning',
+        href: 'https://www.fluiditservices.com/',
+        type: 'industry',
+      },
+    ],
+  },
+  {
+    pattern: 'Technology stack clarity',
+    whatBuyersExpect:
+      'Buyers want to know whether the provider can own Microsoft 365, identity, endpoint, cloud, backup, network, compliance tooling, and security monitoring as connected work.',
+    oliveRule:
+      'Show the service stack as ownership areas and decision outputs, not a logo wall or vendor list without context.',
+    sources: [
+      {
+        label: 'Microsoft Zero Trust guidance',
+        href: 'https://learn.microsoft.com/security/zero-trust/',
+        type: 'official',
+      },
+      {
+        label: 'Microsoft 365 Copilot setup guide',
+        href: 'https://learn.microsoft.com/microsoft-365-copilot/microsoft-365-copilot-setup',
+        type: 'official',
+      },
+      {
+        label: 'Managed Solution Microsoft services positioning',
+        href: 'https://www.managedsolution.com/',
+        type: 'industry',
+      },
+    ],
+  },
+  {
+    pattern: 'Vertical and compliance fit',
+    whatBuyersExpect:
+      'Credible sites state who they fit best, where they work, which compliance pressures they understand, and when a buyer should start with an assessment.',
+    oliveRule:
+      'Keep Chicago-area fit specific: healthcare groups, professional services, light manufacturing, multi-site offices, and Microsoft-heavy teams.',
+    sources: [
+      {
+        label: 'CISA small business cyber guidance',
+        href: 'https://www.cisa.gov/resources-tools/resources/cyber-guidance-small-businesses',
+        type: 'official',
+      },
+      {
+        label: 'NIST Cybersecurity Framework 2.0',
+        href: 'https://www.nist.gov/cyberframework',
+        type: 'official',
+      },
+      {
+        label: 'NetSafe managed IT positioning',
+        href: 'https://netsafesolutions.com/',
+        type: 'industry',
+      },
+    ],
+  },
+];
+
+export const designQualityPrinciples2026: DesignQualityPrinciple[] = [
+  {
+    principle: 'Accessible polish as a default, not an afterthought',
+    whatMatureTeamsDo:
+      'The best design systems make contrast, keyboard behavior, reduced motion, target size, and assistive-technology feedback part of the component contract.',
+    oliveApplication:
+      'Keep public pages calm on mobile, preserve visible focus states, test important flows with Playwright, and treat accessibility as delivery quality rather than compliance decoration.',
+    sources: [
+      {
+        label: 'Apple accessibility guidance',
+        href: 'https://developer.apple.com/design/human-interface-guidelines/accessibility',
+        type: 'official',
+      },
+      {
+        label: 'IBM Carbon accessibility',
+        href: 'https://carbondesignsystem.com/guidelines/accessibility/overview/',
+        type: 'official',
+      },
+      {
+        label: 'W3C WCAG 2.2',
+        href: 'https://www.w3.org/TR/WCAG22/',
+        type: 'official',
+      },
+    ],
+  },
+  {
+    principle: 'Workflow-first interface density',
+    whatMatureTeamsDo:
+      'Operational products avoid decorative clutter and make repeated work faster through clear hierarchy, progressive disclosure, predictable controls, and state that stays shareable.',
+    oliveApplication:
+      'Design MSP surfaces like working tools: short routes to service fit, pricing, proof, contact, and demo states that leadership can reopen without re-explaining context.',
+    sources: [
+      {
+        label: 'Shopify Polaris design principles',
+        href: 'https://polaris-react.shopify.com/design',
+        type: 'official',
+      },
+      {
+        label: 'Material Design',
+        href: 'https://m3.material.io/',
+        type: 'official',
+      },
+    ],
+  },
+  {
+    principle: 'Enterprise systems are documented visually',
+    whatMatureTeamsDo:
+      'Strong B2B sites show how decisions, services, risks, and evidence connect. They use structured cards, comparison tables, diagrams, and source-backed copy instead of vague feature pages.',
+    oliveApplication:
+      'Keep building reusable data-backed panels: service catalog, buyer routes, proof sections, research radar, and search index entries that all describe the same operating model.',
+    sources: [
+      {
+        label: 'IBM Carbon data visualization',
+        href: 'https://carbondesignsystem.com/data-visualization/introduction/',
+        type: 'official',
+      },
+      {
+        label: 'Nielsen Norman Group B2B UX',
+        href: 'https://www.nngroup.com/articles/b2b-website-usability/',
+        type: 'reference',
+      },
+    ],
+  },
+  {
+    principle: 'Performance budgets are part of the brand',
+    whatMatureTeamsDo:
+      'Modern technology brands prove competence by shipping fast, stable, inspectable pages with repeatable quality budgets rather than relying on heavy effects to signal sophistication.',
+    oliveApplication:
+      'Use static Astro pages, route-contained heavy demos, Lighthouse CI reports, and conservative JavaScript hydration as visible proof of disciplined engineering.',
+    sources: [
+      {
+        label: 'Core Web Vitals',
+        href: 'https://web.dev/articles/vitals',
+        type: 'official',
+      },
+      {
+        label: 'Lighthouse CI',
+        href: 'https://github.com/GoogleChrome/lighthouse-ci',
+        type: 'official',
       },
     ],
   },
@@ -233,11 +420,11 @@ export const resourceRecommendations2026: ResourceRecommendation[] = [
   },
   {
     name: 'Lighthouse CI',
-    status: 'Evaluate next',
+    status: 'Downloaded now',
     whyItHelps:
       'Turns performance, accessibility, best-practice, and SEO budgets into repeatable CI evidence instead of one-off audits.',
     adoptionNote:
-      'Best next when deployment URLs or preview builds are stable enough to enforce budgets without noisy false positives.',
+      'Added as a local report script with conservative warning budgets for key buyer routes. Tighten thresholds after collecting stable baseline data.',
     sources: [
       {
         label: 'Lighthouse CI docs',

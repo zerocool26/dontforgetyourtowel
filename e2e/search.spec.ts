@@ -114,6 +114,11 @@ test.describe('Search index discoverability', () => {
     expect(radarItems.map(item => item.title)).toEqual(
       expect.arrayContaining([
         '@astrojs/check',
+        'Lighthouse CI',
+        'Proof badges and partner signals',
+        'Measurable service promises',
+        'Accessible polish as a default, not an afterthought',
+        'Workflow-first interface density',
         'Core Web Vitals and INP-minded UI',
         'AI-ready content governance',
       ])

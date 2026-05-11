@@ -40,12 +40,12 @@ const createCaseStudy = async (argv: unknown) => {
   const content = `---
 title: "${title}"
 industry: "${industry || 'Other'}"
-summary: "${summary || 'Outcome-focused transformation summary'}"
-challenge: "${challenge || 'Document the core operational or technical challenge.'}"
-solution: "${solution || 'Describe the implemented architecture and delivery approach.'}"
+summary: "${summary || 'Operational case study created for review before publication.'}"
+challenge: "${challenge || 'Capture the business risk, workflow drag, or technical uncertainty that made the work necessary.'}"
+solution: "${solution || 'Explain the managed-service, security, cloud, or systems work delivered and how ownership changed.'}"
 results:
-  - label: "Lead metric"
-    value: "TBD"
+  - label: "Decision clarity"
+    value: "Scope, owner, and next action documented"
 tags: ${JSON.stringify(tags ? tags.split(',') : [])}
 published: ${date}
 ---
@@ -54,15 +54,15 @@ published: ${date}
 
 ## Background
 
-Add project background and business context.
+Record the buyer setting, team size, operating pressure, and what had to be true before work could start.
 
 ## Implementation
 
-Describe architecture, execution, and rollout details.
+Explain the sequence of work, key decisions, handoffs, validation steps, and how risk was controlled during rollout.
 
 ## Outcomes
 
-Document measurable results and learnings.
+Summarize measured outcomes, evidence produced, and the next operating decision the client can now make.
 `;
 
   await ensureDir(CASE_STUDY_DIR);

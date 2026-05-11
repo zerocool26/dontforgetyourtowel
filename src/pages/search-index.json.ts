@@ -4,6 +4,8 @@ import { isLegacyRouteUrl } from '../utils/legacy-routes';
 import { tradeProfiles } from '../data/trades';
 import { decisionHandoffLanes } from '../data/decision-handoff';
 import {
+  competitiveProofPatterns2026,
+  designQualityPrinciples2026,
   marketSignals2026,
   resourceRecommendations2026,
   technologyRadar2026,
@@ -88,6 +90,43 @@ export async function GET() {
         'research',
         'market signal',
         ...signal.sources.map(source => source.label.toLowerCase()),
+      ],
+    })),
+    ...competitiveProofPatterns2026.map(item => ({
+      id: `research-proof-${item.pattern
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '')}`,
+      title: item.pattern,
+      description: `${item.whatBuyersExpect} Olive rule: ${item.oliveRule}`,
+      category: 'Research Radar',
+      url: 'services/#research-radar',
+      date: new Date().toISOString(),
+      tags: [
+        '2026',
+        'research',
+        'competitive proof',
+        'msp website',
+        ...item.sources.map(source => source.label.toLowerCase()),
+      ],
+    })),
+    ...designQualityPrinciples2026.map(item => ({
+      id: `research-design-${item.principle
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '')}`,
+      title: item.principle,
+      description: `${item.whatMatureTeamsDo} ${item.oliveApplication}`,
+      category: 'Research Radar',
+      url: 'services/#research-radar',
+      date: new Date().toISOString(),
+      tags: [
+        '2026',
+        'research',
+        'design quality',
+        'accessibility',
+        'performance',
+        ...item.sources.map(source => source.label.toLowerCase()),
       ],
     })),
     ...technologyRadar2026.map(item => ({

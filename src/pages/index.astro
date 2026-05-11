@@ -596,7 +596,55 @@ const startOptions = [
   </section>
 
   <script>
-    import '../scripts/home-orbit-scene';
+    const scheduleHomeOrbitScene = () => {
+      const root = document.querySelector<HTMLElement>(
+        '[data-home-orbit-root]'
+      );
+
+      if (!root || root.dataset.homeOrbitScheduled === 'true') return;
+
+      root.dataset.homeOrbitScheduled = 'true';
+
+      const prefersStaticScene = window.matchMedia(
+        '(prefers-reduced-motion: reduce)'
+      ).matches;
+      const saveData =
+        (navigator as Navigator & { connection?: { saveData?: boolean } })
+          .connection?.saveData === true;
+
+      if (prefersStaticScene || saveData) {
+        root.dataset.homeOrbitMode = 'static';
+        return;
+      }
+
+      const loadScene = () => {
+        import('../scripts/home-orbit-scene').catch(error => {
+          console.error('[HomeOrbitScene] Failed to load scene', error);
+        });
+      };
+
+      const loadWhenIdle = () => {
+        if ('requestIdleCallback' in window) {
+          window.requestIdleCallback(loadScene, { timeout: 5000 });
+          return;
+        }
+
+        globalThis.setTimeout(loadScene, 1200);
+      };
+
+      const scheduleAfterLoad = () => {
+        globalThis.setTimeout(loadWhenIdle, 1800);
+      };
+
+      if (document.readyState === 'complete') {
+        scheduleAfterLoad();
+      } else {
+        window.addEventListener('load', scheduleAfterLoad, { once: true });
+      }
+    };
+
+    scheduleHomeOrbitScene();
+    document.addEventListener('astro:page-load', scheduleHomeOrbitScene);
   </script>
 
   <style>
