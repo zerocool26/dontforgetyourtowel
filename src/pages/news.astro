@@ -466,7 +466,7 @@ const editorialActions = [
             playerProgress.style.width = button.dataset.newsProgress || '0%';
           }
 
-          playerChapters.innerHTML = '';
+          playerChapters.replaceChildren();
           chapters.forEach(chapter => {
             const chip = document.createElement('span');
             chip.textContent = chapter;
@@ -520,7 +520,7 @@ const editorialActions = [
           question.textContent = button.dataset.newsBriefQuestion || '';
           signal.textContent = button.dataset.newsBriefSignal || '';
           angle.textContent = button.dataset.newsBriefAngle || '';
-          actions.innerHTML = '';
+          actions.replaceChildren();
 
           (button.dataset.newsBriefActions || '')
             .split('|')

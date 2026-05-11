@@ -266,6 +266,7 @@ export default function OperationalIntelligenceWorkbench({
                   <label key={evidence} className={checked ? 'is-checked' : ''}>
                     <input
                       type="checkbox"
+                      aria-label={evidence}
                       checked={checked}
                       onChange={() => toggleEvidence(evidence)}
                     />

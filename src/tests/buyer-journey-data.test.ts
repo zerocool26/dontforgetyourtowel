@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
   businessOfferCatalog,
@@ -133,5 +133,28 @@ describe('Buyer journey data integrity', () => {
     expect(radarCopy).not.toContain('lorem');
     expect(radarCopy).toContain('microsoft 365');
     expect(radarCopy).toContain('core web vitals');
+  });
+
+  it('keeps public blog content on production slugs', () => {
+    const blogFiles = readdirSync(join(process.cwd(), 'src', 'data', 'blog'));
+
+    expect(blogFiles).toEqual(
+      expect.arrayContaining([
+        'managed-it-provider-first-30-days.md',
+        'chicago-smb-security-baseline.md',
+        'microsoft-365-cleanup-business-project.md',
+        'competent-msp-website-signals.md',
+        'ecommerce-demo-review-before-build.mdx',
+      ])
+    );
+    expect(blogFiles).not.toEqual(
+      expect.arrayContaining([
+        'first-post.md',
+        'second-post.md',
+        'third-post.md',
+        'markdown-style-guide.md',
+        'using-mdx.mdx',
+      ])
+    );
   });
 });

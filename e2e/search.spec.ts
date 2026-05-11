@@ -126,4 +126,31 @@ test.describe('Search index discoverability', () => {
       )
     ).toBe(true);
   });
+
+  test('uses production blog slugs instead of starter article URLs', async ({
+    request,
+  }) => {
+    const response = await request.get('./search-index.json');
+    expect(response.ok()).toBeTruthy();
+
+    const items = (await response.json()) as Array<{ url?: string }>;
+    const urls = items
+      .map(item => item.url)
+      .filter((url): url is string => typeof url === 'string');
+
+    expect(urls).toEqual(
+      expect.arrayContaining([
+        'blog/managed-it-provider-first-30-days/',
+        'blog/chicago-smb-security-baseline/',
+        'blog/microsoft-365-cleanup-business-project/',
+        'blog/competent-msp-website-signals/',
+        'blog/ecommerce-demo-review-before-build/',
+      ])
+    );
+    expect(urls).not.toContain('blog/first-post/');
+    expect(urls).not.toContain('blog/second-post/');
+    expect(urls).not.toContain('blog/third-post/');
+    expect(urls).not.toContain('blog/markdown-style-guide/');
+    expect(urls).not.toContain('blog/using-mdx/');
+  });
 });
