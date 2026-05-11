@@ -4,6 +4,7 @@ import OperationalIntelligenceWorkbench from '../components/business/Operational
 import ModernButton from '../components/ui/ModernButton.astro';
 import { CONTACT_EMAIL } from '../consts';
 import { operatingIntelligenceItems } from '../data/operating-intelligence';
+import { homeRouteGuideLinks } from '../data/site-navigation';
 import { withBasePath } from '../utils/helpers';
 
 const contactHref = `mailto:${encodeURIComponent(
@@ -36,38 +37,18 @@ const heroSignals = [
   },
 ];
 
-const siteGuide = [
-  {
-    label: 'Solutions',
-    copy: 'Support, security, Microsoft 365, backup, network, and buyer-facing systems.',
-    href: withBasePath('services/'),
-  },
-  {
-    label: 'Pricing',
-    copy: 'Ranges, scope drivers, approval logic, and what changes the monthly number.',
-    href: withBasePath('pricing/'),
-  },
-  {
-    label: 'Digital proof',
-    copy: 'Working screens that show buyer paths, not decorative mockups.',
-    href: withBasePath('about/'),
-  },
-  {
-    label: 'Blog',
-    copy: 'Practical notes on transitions, backup assumptions, Microsoft 365, and scope.',
-    href: withBasePath('blog/'),
-  },
-  {
-    label: 'Briefings',
-    copy: 'Short reads on budget, risk, insurance, AI pressure, and operations.',
-    href: withBasePath('news/'),
-  },
-  {
-    label: 'Visual library',
-    copy: 'Reference material for pages, proposals, launches, and interface direction.',
-    href: withBasePath('photos/'),
-  },
+const heroProofPoints = [
+  'Recurring tickets get an owner',
+  'Security evidence is documented',
+  'Microsoft 365 cleanup has rules',
+  'Digital intake moves buyers forward',
 ];
+
+const siteGuide = homeRouteGuideLinks.map(link => ({
+  ...link,
+  copy: link.description ?? '',
+  href: withBasePath(link.href),
+}));
 
 const serviceLanes = [
   {
@@ -220,6 +201,72 @@ const startOptions = [
           aria-hidden="true"></canvas>
       </div>
     </div>
+
+    <div class="home-homepage-hero__overlay">
+      <div class="premium-container home-homepage-hero__grid">
+        <div class="home-homepage-hero__content">
+          <p class="home-homepage-eyebrow">
+            Chicago managed IT + practical digital systems
+          </p>
+          <h1 class="home-homepage-title">
+            Olive Chicago managed IT for companies that need technology to stay
+            owned.
+          </h1>
+          <p class="home-homepage-copy home-homepage-copy--hero">
+            Support, cybersecurity, Microsoft 365, cloud, backup, networking,
+            and selective digital systems for Chicago-area teams with no room
+            for unclear ownership.
+          </p>
+          <p class="home-homepage-claim home-homepage-claim--hero">
+            Start with the loose end: recurring tickets, stale access, backup
+            uncertainty, vendor confusion, or a site that no longer reflects the
+            business.
+          </p>
+
+          <div class="home-homepage-actions home-homepage-actions--hero">
+            <ModernButton
+              href={withBasePath('services/')}
+              variant="gradient"
+              className="min-h-[52px]"
+              rounded="sm"
+            >
+              View solutions
+            </ModernButton>
+            <ModernButton
+              href={withBasePath('pricing/')}
+              variant="outline"
+              className="min-h-[52px]"
+              rounded="sm"
+            >
+              See pricing
+            </ModernButton>
+            <a
+              class="home-homepage-fit-link"
+              href={withBasePath('contact-hq/')}
+            >
+              Start fit check
+            </a>
+          </div>
+        </div>
+
+        <aside
+          class="home-homepage-hero__proof"
+          aria-label="Managed service proof points"
+        >
+          <p class="home-homepage-eyebrow">Operating proof</p>
+          <div class="home-homepage-proof-list">
+            {
+              heroProofPoints.map((point, index) => (
+                <div class="home-homepage-proof-item">
+                  <span>{String(index + 1).padStart(2, '0')}</span>
+                  <p>{point}</p>
+                </div>
+              ))
+            }
+          </div>
+        </aside>
+      </div>
+    </div>
   </section>
 
   <section
@@ -229,50 +276,19 @@ const startOptions = [
   >
     <div class="premium-container home-homepage-intro__grid">
       <div class="home-homepage-section__intro">
-        <p class="home-homepage-eyebrow">
-          Chicago managed IT + practical digital systems
-        </p>
-        <h1 class="home-homepage-title">
-          Olive Chicago managed IT for companies that need technology to stay
-          owned.
-        </h1>
+        <p class="home-homepage-eyebrow">Why buyers stay oriented</p>
+        <h2 class="home-homepage-section__title">
+          The site starts with ownership before it asks you to browse a catalog.
+        </h2>
         <p class="home-homepage-copy">
-          Support, cybersecurity, Microsoft 365, cloud, backup, networking, and
-          selective digital systems for Chicago-area teams with no room for
-          unclear ownership.
+          A useful MSP conversation should identify the operating pressure, the
+          evidence needed, who owns the next action, and which route makes the
+          decision easier.
         </p>
         <p class="home-homepage-claim">
-          Start with the loose end: recurring tickets, stale access, backup
-          uncertainty, vendor confusion, or a site that no longer reflects the
-          business.
+          That means support, security, recovery, Microsoft 365, cloud, network,
+          and digital work are framed by the buyer problem first.
         </p>
-
-        <div class="home-homepage-actions">
-          <ModernButton
-            href={withBasePath('services/')}
-            variant="gradient"
-            className="min-h-[52px]"
-            rounded="sm"
-          >
-            View solutions
-          </ModernButton>
-          <ModernButton
-            href={withBasePath('pricing/')}
-            variant="outline"
-            className="min-h-[52px]"
-            rounded="sm"
-          >
-            See pricing
-          </ModernButton>
-          <ModernButton
-            href={withBasePath('contact-hq/')}
-            variant="secondary"
-            className="min-h-[52px]"
-            rounded="sm"
-          >
-            Start fit check
-          </ModernButton>
-        </div>
 
         <div class="home-homepage-jump-links" aria-label="Popular routes">
           {
@@ -579,7 +595,7 @@ const startOptions = [
     .home-homepage-hero {
       isolation: isolate;
       overflow: hidden;
-      min-height: calc(100svh - 4.35rem);
+      min-height: clamp(38.75rem, 84svh, 46rem);
       padding: 0;
       background:
         linear-gradient(
@@ -593,6 +609,141 @@ const startOptions = [
           color-mix(in srgb, var(--color-background) 92%, black 8%),
           color-mix(in srgb, var(--color-surface) 66%, black 34%)
         );
+    }
+
+    .home-homepage-hero::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      background:
+        linear-gradient(
+          90deg,
+          rgba(8, 9, 11, 0.86),
+          rgba(8, 9, 11, 0.62) 42%,
+          rgba(8, 9, 11, 0.18) 72%,
+          rgba(8, 9, 11, 0.58)
+        ),
+        linear-gradient(
+          180deg,
+          rgba(8, 9, 11, 0.2),
+          transparent 48%,
+          rgba(8, 9, 11, 0.72)
+        );
+    }
+
+    .home-homepage-hero__overlay {
+      position: relative;
+      z-index: 4;
+      min-height: inherit;
+      display: flex;
+      align-items: center;
+      padding: clamp(2rem, 5vw, 4rem) 0;
+    }
+
+    .home-homepage-hero__grid {
+      display: grid;
+      gap: clamp(1.35rem, 4vw, 3rem);
+      align-items: end;
+    }
+
+    .home-homepage-hero__content {
+      display: grid;
+      gap: 1rem;
+      max-width: 56rem;
+    }
+
+    .home-homepage-copy--hero {
+      max-width: 48rem;
+      font-size: clamp(1.05rem, 1.45vw, 1.28rem);
+      line-height: 1.62;
+    }
+
+    .home-homepage-claim--hero {
+      max-width: 42rem;
+      background: color-mix(in srgb, var(--color-background) 34%, transparent);
+      padding-block: 0.1rem;
+      backdrop-filter: blur(8px);
+    }
+
+    .home-homepage-actions--hero {
+      align-items: center;
+      margin-top: 0.2rem;
+    }
+
+    .home-homepage-fit-link {
+      display: inline-flex;
+      min-height: 52px;
+      align-items: center;
+      border-bottom: 1px solid
+        color-mix(in srgb, var(--color-primary) 46%, transparent);
+      color: color-mix(in srgb, var(--color-text-primary) 82%, transparent);
+      font-weight: 700;
+      line-height: 1;
+      transition:
+        border-color 0.18s ease,
+        color 0.18s ease;
+    }
+
+    .home-homepage-fit-link:hover {
+      border-color: color-mix(
+        in srgb,
+        var(--color-primary-strong) 72%,
+        white 8%
+      );
+      color: var(--color-text-primary);
+    }
+
+    .home-homepage-hero__proof {
+      display: grid;
+      gap: 0.85rem;
+      width: min(100%, 26rem);
+      border-left: 1px solid
+        color-mix(in srgb, var(--color-primary) 34%, transparent);
+      background: linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--color-background) 34%, transparent),
+        transparent
+      );
+      padding: 1rem 0 1rem 1rem;
+      backdrop-filter: blur(8px);
+    }
+
+    .home-homepage-proof-list {
+      display: grid;
+      gap: 0.65rem;
+    }
+
+    .home-homepage-proof-item {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 0.7rem;
+      align-items: center;
+      min-height: 2.8rem;
+    }
+
+    .home-homepage-proof-item span {
+      display: inline-flex;
+      width: 2.2rem;
+      height: 2.2rem;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid color-mix(in srgb, var(--color-border) 82%, transparent);
+      border-radius: 0.5rem;
+      background: color-mix(in srgb, var(--color-surface) 62%, transparent);
+      color: color-mix(in srgb, var(--color-primary-strong) 82%, white 18%);
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+    }
+
+    .home-homepage-proof-item p {
+      margin: 0;
+      color: color-mix(in srgb, var(--color-text-primary) 84%, transparent);
+      font-size: 0.92rem;
+      line-height: 1.42;
     }
 
     .home-homepage-intro__grid,
@@ -1238,6 +1389,10 @@ const startOptions = [
         gap: 2rem;
       }
 
+      .home-homepage-hero__grid {
+        grid-template-columns: minmax(0, 1fr) minmax(20rem, 26rem);
+      }
+
       .home-homepage-guide__grid {
         grid-template-columns: repeat(3, minmax(0, 1fr));
       }
@@ -1278,18 +1433,90 @@ const startOptions = [
 
     @media (max-width: 767px) {
       .home-homepage-hero {
-        min-height: calc(100svh - 4.35rem);
-        padding-top: 0.75rem;
+        min-height: min(40rem, calc(100svh - 5.25rem));
+      }
+
+      .home-homepage-hero::after {
+        background:
+          linear-gradient(
+            180deg,
+            rgba(8, 9, 11, 0.9),
+            rgba(8, 9, 11, 0.62) 42%,
+            rgba(8, 9, 11, 0.82)
+          ),
+          linear-gradient(90deg, rgba(8, 9, 11, 0.62), rgba(8, 9, 11, 0.18));
+      }
+
+      .home-homepage-hero__overlay {
+        align-items: end;
+        padding: 1.4rem 0 1.6rem;
+      }
+
+      .home-homepage-hero__grid {
+        gap: 1rem;
+      }
+
+      .home-homepage-hero__content {
+        gap: 0.85rem;
       }
 
       .home-homepage-title {
         max-width: 100%;
-        font-size: clamp(2.35rem, 11vw, 4rem);
+        font-size: clamp(2.05rem, 9.8vw, 3.55rem);
+      }
+
+      .home-homepage-copy--hero {
+        font-size: 1rem;
+        line-height: 1.55;
+      }
+
+      .home-homepage-claim--hero {
+        display: none;
       }
 
       .home-homepage-actions,
       .home-homepage-actions--closeout {
         flex-direction: column;
+      }
+
+      .home-homepage-actions--hero {
+        align-items: stretch;
+      }
+
+      .home-homepage-fit-link {
+        justify-content: center;
+        min-height: 48px;
+      }
+
+      .home-homepage-hero__proof {
+        width: 100%;
+        gap: 0.65rem;
+        padding: 0.85rem 0 0 0;
+        border-top: 1px solid
+          color-mix(in srgb, var(--color-primary) 28%, transparent);
+        border-left: 0;
+        background: transparent;
+      }
+
+      .home-homepage-proof-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.45rem;
+      }
+
+      .home-homepage-proof-item {
+        min-height: 2.4rem;
+        gap: 0.5rem;
+      }
+
+      .home-homepage-proof-item span {
+        width: 1.85rem;
+        height: 1.85rem;
+        border-radius: 0.42rem;
+      }
+
+      .home-homepage-proof-item p {
+        font-size: 0.78rem;
+        line-height: 1.28;
       }
 
       .home-homepage-jump-links {

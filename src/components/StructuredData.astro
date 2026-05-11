@@ -11,6 +11,12 @@ import {
   SITE_TITLE,
   SITE_URL,
 } from '../consts';
+import {
+  businessAreaServed,
+  businessAudience,
+  businessOfferCatalog,
+  businessServiceTypes,
+} from '../data/business-profile';
 
 export interface Props {
   type?:
@@ -43,18 +49,30 @@ const websiteSchema = {
   url: baseUrl,
   description: SITE_DESCRIPTION,
   inLanguage: 'en-US',
+  publisher: {
+    '@type': 'ProfessionalService',
+    name: SITE_TITLE,
+    url: baseUrl,
+  },
   ...data,
 };
 
 // Organization schema
 const organizationSchema = {
   '@context': 'https://schema.org',
-  '@type': 'Organization',
+  '@type': 'ProfessionalService',
   name: SITE_TITLE,
   alternateName: SITE_CONFIG.author,
   url: baseUrl,
   description: SITE_DESCRIPTION,
   email: CONTACT_EMAIL,
+  areaServed: businessAreaServed,
+  audience: businessAudience.map(name => ({
+    '@type': 'BusinessAudience',
+    name,
+  })),
+  knowsAbout: businessServiceTypes,
+  hasOfferCatalog: businessOfferCatalog,
   logo: {
     '@type': 'ImageObject',
     url: logoUrl,
@@ -120,12 +138,13 @@ const serviceSchema = {
   description: data.description || SITE_DESCRIPTION,
   url: currentUrl,
   provider: {
-    '@type': 'Organization',
+    '@type': 'ProfessionalService',
     name: SITE_TITLE,
     url: baseUrl,
+    areaServed: businessAreaServed,
   },
   serviceType: data.serviceType || data.name || data.title,
-  areaServed: data.areaServed || 'United States',
+  areaServed: data.areaServed || businessAreaServed,
   audience: data.audience,
   hasOfferCatalog: data.hasOfferCatalog,
   offers: data.offers,
@@ -140,10 +159,11 @@ const contactSchema = {
   description: data.description || 'Project intake and contact routing.',
   url: currentUrl,
   mainEntity: {
-    '@type': 'Organization',
+    '@type': 'ProfessionalService',
     name: SITE_TITLE,
     url: baseUrl,
     email: CONTACT_EMAIL,
+    areaServed: businessAreaServed,
   },
   ...data,
 };

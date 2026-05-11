@@ -1,0 +1,96 @@
+export type SiteLink = {
+  label: string;
+  href: string;
+  description?: string;
+};
+
+export type FooterSignal = {
+  label: string;
+  value: string;
+  detail: string;
+};
+
+export const buyerPathLinks: SiteLink[] = [
+  {
+    label: 'Solutions',
+    href: 'services/',
+    description:
+      'Support, security, Microsoft 365, backup, network, and buyer-facing systems.',
+  },
+  {
+    label: 'Pricing',
+    href: 'pricing/',
+    description:
+      'Ranges, scope drivers, approval logic, and what changes the monthly number.',
+  },
+  {
+    label: 'Digital Proof',
+    href: 'about/',
+    description:
+      'Working screens that show buyer paths, not decorative mockups.',
+  },
+  {
+    label: 'Contact',
+    href: 'contact-hq/',
+    description:
+      'Fit intake for support coverage, budget shape, transition risk, or digital system scope.',
+  },
+];
+
+export const researchProofLinks: SiteLink[] = [
+  {
+    label: 'Blog',
+    href: 'blog/',
+    description:
+      'Practical notes on transitions, backup assumptions, Microsoft 365, and scope.',
+  },
+  {
+    label: 'Briefings',
+    href: 'news/',
+    description:
+      'Short reads on budget, risk, insurance, AI pressure, and operations.',
+  },
+  {
+    label: 'Photo Library',
+    href: 'photos/',
+    description:
+      'Reference material for pages, proposals, launches, and interface direction.',
+  },
+  {
+    label: 'Design Library',
+    href: 'gallery/',
+    description:
+      'Visual studies for support, security, infrastructure, commerce, and mobile workflows.',
+  },
+];
+
+export const supportLinks: SiteLink[] = [
+  { label: 'Privacy', href: 'privacy/' },
+  { label: 'Terms', href: 'terms/' },
+];
+
+export const homeRouteGuideLinks: SiteLink[] = [
+  ...buyerPathLinks.slice(0, 3),
+  ...researchProofLinks.slice(0, 3),
+];
+
+export const footerSignals: FooterSignal[] = [
+  {
+    label: 'Coverage',
+    value: 'Support + security baseline',
+    detail:
+      'Help desk, endpoints, Microsoft 365, backup, networking, access, vendors, and security evidence.',
+  },
+  {
+    label: 'Built for',
+    value: 'Chicago-area teams',
+    detail:
+      'Professional services, healthcare offices, light manufacturing, multi-site teams, and owner-led firms that need fewer loose ends.',
+  },
+  {
+    label: 'Best first move',
+    value: '30-minute fit review',
+    detail:
+      'Lead with the pressure point, rough user/device count, current provider context, timing, and approval constraint.',
+  },
+];

@@ -98,9 +98,9 @@ export async function GET() {
     },
     {
       id: 'page-about',
-      title: 'Commerce Lab',
+      title: 'Digital Proof Lab',
       description:
-        'Interactive commerce lab with search, compare, cart persistence, shareable states, and checkout review',
+        'Interactive digital proof lab with search, compare, cart persistence, shareable states, and checkout review',
       category: 'Page',
       url: 'about/',
       tags: [
@@ -114,24 +114,24 @@ export async function GET() {
     },
     {
       id: 'page-about-demo-cart',
-      title: 'Commerce Lab - Cart Launch',
-      description: 'Open the commerce lab directly into cart mode',
+      title: 'Digital Proof Lab - Cart Launch',
+      description: 'Open the digital proof lab directly into cart mode',
       category: 'Page',
       url: 'about/?demo=cart#shop-experience',
       tags: ['experience-lab', 'shop-demo', 'cart', 'launch'],
     },
     {
       id: 'page-about-demo-compare',
-      title: 'Commerce Lab - Compare Launch',
-      description: 'Open the commerce lab with compare mode active',
+      title: 'Digital Proof Lab - Compare Launch',
+      description: 'Open the digital proof lab with compare mode active',
       category: 'Page',
       url: 'about/?demo=compare#shop-experience',
       tags: ['experience-lab', 'shop-demo', 'compare', 'launch'],
     },
     {
       id: 'page-about-demo-checkout',
-      title: 'Commerce Lab - Checkout Launch',
-      description: 'Open the commerce lab in checkout review mode',
+      title: 'Digital Proof Lab - Checkout Launch',
+      description: 'Open the digital proof lab in checkout review mode',
       category: 'Page',
       url: 'about/?demo=checkout&product=aurora-hoodie#shop-experience',
       tags: ['experience-lab', 'shop-demo', 'checkout', 'launch'],

@@ -1,48 +1,29 @@
 ---
 import { withBasePath } from '../utils/helpers';
 import ModernButton from './ui/ModernButton.astro';
+import {
+  buyerPathLinks,
+  footerSignals,
+  researchProofLinks,
+  supportLinks,
+} from '../data/site-navigation';
 
 const today = new Date();
 
-const primaryLinks = [
-  { label: 'Solutions', href: withBasePath('services/') },
-  { label: 'Pricing', href: withBasePath('pricing/') },
-  { label: 'Commerce Lab', href: withBasePath('about/') },
-  { label: 'Contact', href: withBasePath('contact-hq/') },
-];
+const primaryLinks = buyerPathLinks.map(link => ({
+  ...link,
+  href: withBasePath(link.href),
+}));
 
-const editorialLinks = [
-  { label: 'Blog', href: withBasePath('blog/') },
-  { label: 'Briefings', href: withBasePath('news/') },
-  { label: 'Photo Library', href: withBasePath('photos/') },
-  { label: 'Design Library', href: withBasePath('gallery/') },
-];
+const editorialLinks = researchProofLinks.map(link => ({
+  ...link,
+  href: withBasePath(link.href),
+}));
 
-const supportLinks = [
-  { label: 'Privacy', href: withBasePath('privacy/') },
-  { label: 'Terms', href: withBasePath('terms/') },
-];
-
-const footerSignals = [
-  {
-    label: 'Coverage',
-    value: 'Support + security baseline',
-    detail:
-      'Help desk, endpoints, Microsoft 365, backup, networking, access, vendors, and security evidence.',
-  },
-  {
-    label: 'Built for',
-    value: 'Chicago-area teams',
-    detail:
-      'Professional services, healthcare offices, light manufacturing, multi-site teams, and owner-led firms that need fewer loose ends.',
-  },
-  {
-    label: 'Best first move',
-    value: '30-minute fit review',
-    detail:
-      'Lead with the pressure point, rough user/device count, current provider context, timing, and approval constraint.',
-  },
-];
+const footerSupportLinks = supportLinks.map(link => ({
+  ...link,
+  href: withBasePath(link.href),
+}));
 ---
 
 <footer class="tone-shell-footer tone-border border-t" role="contentinfo">
@@ -90,7 +71,7 @@ const footerSignals = [
           <p class="footer-nav__label">Support</p>
           <div class="footer-nav__links">
             {
-              supportLinks.map(link => (
+              footerSupportLinks.map(link => (
                 <a class="footer-link" href={link.href}>
                   {link.label}
                 </a>

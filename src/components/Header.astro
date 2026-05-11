@@ -4,16 +4,15 @@ import { withBasePath } from '../utils/helpers';
 import { tradeProfiles } from '../data/trades';
 import { getTradeVisual } from '../data/trade-visuals';
 import { getRouteContext } from '../utils/route-context';
+import { buyerPathLinks } from '../data/site-navigation';
 
 const homeHref = withBasePath('/');
 const mobileSiteTitle = SITE_TITLE;
 
-const links = [
-  { label: 'Solutions', href: withBasePath('services/') },
-  { label: 'Pricing', href: withBasePath('pricing/') },
-  { label: 'Commerce Lab', href: withBasePath('about/') },
-  { label: 'Contact', href: withBasePath('contact-hq/') },
-];
+const links = buyerPathLinks.map(link => ({
+  ...link,
+  href: withBasePath(link.href),
+}));
 
 const tradeLinks = tradeProfiles.map(trade => ({
   label: getTradeVisual(trade.slug).navLabel,

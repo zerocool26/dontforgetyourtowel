@@ -55,14 +55,18 @@ describe('Runtime routes', () => {
     expect(expiry.getTime()).toBeGreaterThan(Date.now());
   });
 
-  it('returns 410 for retired rss.xml', async () => {
-    const res = await rssGET({} as any);
-    expect(res.status).toBe(410);
+  it('emits the active blog rss.xml feed', async () => {
+    const res = await rssGET({
+      site: new URL('https://olivechicago.test/'),
+    } as any);
+    expect(res.status).toBe(200);
 
     const contentType = res.headers.get('Content-Type') ?? '';
     expect(contentType).toContain('application/xml');
 
     const text = await res.text();
-    expect(text).toContain('RSS feed has been retired');
+    expect(text).toContain('<title>Olive Chicago Blog</title>');
+    expect(text).toContain('Provider transition checklist');
+    expect(text).not.toContain('Draft security note');
   });
 });

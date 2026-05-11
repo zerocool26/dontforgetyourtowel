@@ -19,6 +19,11 @@ import {
   serviceOperatingFacts,
   servicesExtended,
 } from '../data/services-extended';
+import {
+  businessAreaServed,
+  businessAudience,
+  businessOfferCatalog,
+} from '../data/business-profile';
 import { operatingIntelligenceItems } from '../data/operating-intelligence';
 import { servicesFaqs, pricingTiers } from '../data/pricing';
 import { withBasePath } from '../utils/helpers';
@@ -206,6 +211,19 @@ const breadcrumbItems = [
       name: 'Services Hub',
       description:
         'Buyer-focused solution hub for managed operations, security, Microsoft 365, cloud, backup, onboarding, and digital delivery.',
+    }}
+  />
+  <StructuredData
+    type="service"
+    data={{
+      name: 'Chicago managed IT, cybersecurity, Microsoft 365, and digital systems',
+      serviceType: 'Managed IT services',
+      areaServed: businessAreaServed,
+      audience: businessAudience.map(name => ({
+        '@type': 'BusinessAudience',
+        name,
+      })),
+      hasOfferCatalog: businessOfferCatalog,
     }}
   />
   <StructuredData type="breadcrumbs" data={{ items: breadcrumbItems }} />
