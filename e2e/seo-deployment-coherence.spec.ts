@@ -36,17 +36,18 @@ test.describe('SEO + deployment coherence', () => {
     expect(urls).not.toContain('demo-lab/');
     expect(urls).not.toContain('dashboard/');
     expect(urls).not.toContain('demo/');
-    expect(urls).not.toContain('blog/');
+    expect(urls).toContain('blog/');
   });
 
-  test('rss endpoint is explicitly retired', async ({ request }) => {
+  test('rss endpoint serves the active blog feed', async ({ request }) => {
     const rssResponse = await request.get('./rss.xml');
-    expect(rssResponse.status()).toBe(410);
+    expect(rssResponse.status()).toBe(200);
 
     const contentType = rssResponse.headers()['content-type'] ?? '';
     expect(contentType).toContain('application/xml');
 
     const body = await rssResponse.text();
-    expect(body).toContain('RSS feed has been retired');
+    expect(body).toContain('<title>Olive Chicago Blog</title>');
+    expect(body).toContain('<rss');
   });
 });

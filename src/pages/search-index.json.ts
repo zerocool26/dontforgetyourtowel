@@ -2,6 +2,7 @@ import { getCollection } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 import { isLegacyRouteUrl } from '../utils/legacy-routes';
 import { tradeProfiles } from '../data/trades';
+import { decisionHandoffLanes } from '../data/decision-handoff';
 import {
   getTradeOperations,
   getTradeSubpageOperations,
@@ -48,6 +49,22 @@ export async function GET() {
     url: `blog/${entry.id}/`,
     date: entry.data.pubDate.toISOString(),
     tags: ['blog', ...(entry.data.tags ?? [])],
+  }));
+
+  const decisionHandoffItems: SearchItem[] = decisionHandoffLanes.map(lane => ({
+    id: `handoff-${lane.id}`,
+    title: `${lane.label} handoff`,
+    description: `${lane.pressure} First output: ${lane.firstOutput}`,
+    category: 'Decision Handoff',
+    url: lane.href,
+    date: new Date().toISOString(),
+    tags: [
+      'decision handoff',
+      'intake',
+      'buyer path',
+      lane.id,
+      lane.label.toLowerCase(),
+    ],
   }));
 
   const staticPages = [
@@ -269,6 +286,7 @@ export async function GET() {
   const searchItems: SearchItem[] = [
     ...caseStudyItems,
     ...blogItems,
+    ...decisionHandoffItems,
     ...staticPages,
     ...tradeItems,
   ].filter(item => !isLegacyRouteUrl(item.url));
