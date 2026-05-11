@@ -10,6 +10,7 @@ import ServiceCatalog from '../components/business/ServiceCatalog.tsx';
 import ServiceComparisonMatrix from '../components/business/ServiceComparisonMatrix.tsx';
 import ServicesQuiz from '../components/business/ServicesQuiz.tsx';
 import DecisionHandoffPanel from '../components/business/DecisionHandoffPanel.astro';
+import ResearchRadarPanel from '../components/business/ResearchRadarPanel.astro';
 import ScopeReadinessPanel from '../components/business/ScopeReadinessPanel.astro';
 import FAQAccordion from '../components/ui/FAQAccordion.astro';
 import { CONTACT_EMAIL } from '../consts';
@@ -73,6 +74,7 @@ const entryLanes = [
 const serviceSections = [
   { label: 'Diagnostic', href: '#diagnostic-board' },
   { label: 'Handoff', href: '#decision-handoff' },
+  { label: '2026 radar', href: '#research-radar' },
   { label: 'Workbench', href: '#operating-intelligence' },
   { label: 'Tracks', href: '#service-tracks' },
   { label: 'Buyer guide', href: '#buyer-guide' },
@@ -393,6 +395,17 @@ const breadcrumbItems = [
           }
         </div>
       </div>
+    </div>
+  </section>
+
+  <section
+    class="tone-section-divider border-b"
+    id="research-radar"
+    data-reveal
+    data-page-section
+  >
+    <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
+      <ResearchRadarPanel />
     </div>
   </section>
 

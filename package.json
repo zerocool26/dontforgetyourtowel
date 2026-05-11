@@ -11,7 +11,8 @@
     "postinstall": "node scripts/copy-three-decoders.mjs",
     "dev": "astro dev",
     "build": "astro build",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "npm run typecheck:astro && tsc --noEmit",
+    "typecheck:astro": "astro check --minimumSeverity error",
     "preview": "astro preview",
     "astro": "astro",
     "test": "vitest run",
@@ -103,6 +104,7 @@
     "fast-xml-parser": "^5.3.4"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.9",
     "@axe-core/playwright": "^4.11.0",
     "@headlessui/tailwindcss": "^0.2.2",
     "@playwright/test": "^1.58.1",

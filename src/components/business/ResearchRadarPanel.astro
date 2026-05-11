@@ -1,0 +1,302 @@
+---
+import {
+  marketSignals2026,
+  resourceRecommendations2026,
+  technologyRadar2026,
+} from '../../data/research-radar';
+
+const statusClass = {
+  'Live in project': 'research-radar__status--live',
+  'Added this pass': 'research-radar__status--added',
+  'Evaluate next': 'research-radar__status--next',
+  'Downloaded now': 'research-radar__status--added',
+  'Already present': 'research-radar__status--live',
+};
+---
+
+<div class="research-radar" data-research-radar>
+  <div class="research-radar__header">
+    <div class="tone-section-heading">
+      <p class="tone-section-kicker">2026 research radar</p>
+      <h2 class="tone-section-title">
+        Real website patterns, official guidance, and web-platform moves worth
+        building around.
+      </h2>
+      <p class="tone-section-copy">
+        The goal is not to chase every shiny tool. The goal is to turn current
+        market expectations into practical service copy, stronger proof, and a
+        safer technical roadmap.
+      </p>
+    </div>
+  </div>
+
+  <div class="research-radar__signals" aria-label="Market signals">
+    {
+      marketSignals2026.map(signal => (
+        <article class="research-radar__signal tone-panel-soft">
+          <div>
+            <p class="research-radar__eyebrow">Market signal</p>
+            <h3>{signal.title}</h3>
+            <p>{signal.buyerReality}</p>
+          </div>
+          <div class="research-radar__move">
+            <span>Site move</span>
+            <p>{signal.siteMove}</p>
+          </div>
+          <div class="research-radar__sources">
+            {signal.sources.map(source => (
+              <a href={source.href} target="_blank" rel="noreferrer">
+                {source.label}
+              </a>
+            ))}
+          </div>
+        </article>
+      ))
+    }
+  </div>
+
+  <div class="research-radar__grid">
+    <section class="research-radar__panel tone-panel-soft">
+      <div class="research-radar__panel-header">
+        <p class="research-radar__eyebrow">Web and product radar</p>
+        <h3>What to use, protect, or evaluate next.</h3>
+      </div>
+      <div class="research-radar__list">
+        {
+          technologyRadar2026.map(item => (
+            <article class="research-radar__item">
+              <div class="research-radar__item-header">
+                <h4>{item.title}</h4>
+                <span
+                  class:list={[
+                    'research-radar__status',
+                    statusClass[item.status],
+                  ]}
+                >
+                  {item.status}
+                </span>
+              </div>
+              <p>{item.fit}</p>
+              <div class="research-radar__move">
+                <span>Project use</span>
+                <p>{item.projectUse}</p>
+              </div>
+              <div class="research-radar__sources">
+                {item.sources.map(source => (
+                  <a href={source.href} target="_blank" rel="noreferrer">
+                    {source.label}
+                  </a>
+                ))}
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="research-radar__panel tone-panel-soft">
+      <div class="research-radar__panel-header">
+        <p class="research-radar__eyebrow">Downloads and tools</p>
+        <h3>Useful additions without bloating the stack.</h3>
+      </div>
+      <div class="research-radar__list">
+        {
+          resourceRecommendations2026.map(item => (
+            <article class="research-radar__item">
+              <div class="research-radar__item-header">
+                <h4>{item.name}</h4>
+                <span
+                  class:list={[
+                    'research-radar__status',
+                    statusClass[item.status],
+                  ]}
+                >
+                  {item.status}
+                </span>
+              </div>
+              <p>{item.whyItHelps}</p>
+              <div class="research-radar__move">
+                <span>Adoption note</span>
+                <p>{item.adoptionNote}</p>
+              </div>
+              <div class="research-radar__sources">
+                {item.sources.map(source => (
+                  <a href={source.href} target="_blank" rel="noreferrer">
+                    {source.label}
+                  </a>
+                ))}
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </section>
+  </div>
+</div>
+
+<style>
+  .research-radar,
+  .research-radar__header,
+  .research-radar__signals,
+  .research-radar__grid,
+  .research-radar__panel,
+  .research-radar__list,
+  .research-radar__item {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .research-radar__signals,
+  .research-radar__grid {
+    margin-top: 1.5rem;
+  }
+
+  .research-radar__signal,
+  .research-radar__panel {
+    min-width: 0;
+    padding: clamp(1rem, 2vw, 1.35rem);
+    border-radius: 1.1rem;
+  }
+
+  .research-radar__signal,
+  .research-radar__item {
+    align-content: start;
+  }
+
+  .research-radar__eyebrow,
+  .research-radar__move span {
+    margin: 0;
+    color: color-mix(in srgb, var(--color-text-muted) 90%, transparent);
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .research-radar h3,
+  .research-radar h4,
+  .research-radar p {
+    margin: 0;
+  }
+
+  .research-radar h3,
+  .research-radar h4 {
+    color: var(--color-text-primary);
+    font-family: var(--font-display);
+    font-weight: 650;
+    line-height: 1.12;
+    text-wrap: balance;
+  }
+
+  .research-radar h3 {
+    margin-top: 0.5rem;
+    font-size: clamp(1.25rem, 2.2vw, 1.8rem);
+  }
+
+  .research-radar h4 {
+    font-size: 1rem;
+  }
+
+  .research-radar p {
+    color: color-mix(in srgb, var(--color-text-secondary) 95%, transparent);
+    line-height: 1.68;
+  }
+
+  .research-radar__move {
+    display: grid;
+    gap: 0.4rem;
+    padding-top: 0.9rem;
+    border-top: 1px solid
+      color-mix(in srgb, var(--color-border) 62%, transparent);
+  }
+
+  .research-radar__sources {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+  }
+
+  .research-radar__sources a,
+  .research-radar__status {
+    display: inline-flex;
+    min-height: 2rem;
+    align-items: center;
+    border: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
+    border-radius: 999px;
+    font-size: 0.76rem;
+    font-weight: 650;
+    line-height: 1.2;
+  }
+
+  .research-radar__sources a {
+    padding: 0.35rem 0.7rem;
+    color: color-mix(in srgb, var(--color-text-primary) 82%, transparent);
+    text-decoration: none;
+    transition:
+      border-color 0.2s ease,
+      color 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .research-radar__sources a:hover,
+  .research-radar__sources a:focus-visible {
+    border-color: color-mix(in srgb, var(--color-primary) 44%, transparent);
+    color: var(--color-text-primary);
+    transform: translateY(-1px);
+  }
+
+  .research-radar__item {
+    padding-top: 1rem;
+    border-top: 1px solid
+      color-mix(in srgb, var(--color-border) 62%, transparent);
+  }
+
+  .research-radar__item-header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .research-radar__status {
+    padding: 0.3rem 0.65rem;
+    color: var(--color-text-primary);
+  }
+
+  .research-radar__status--live {
+    background: color-mix(in srgb, #39d98a 12%, transparent);
+  }
+
+  .research-radar__status--added {
+    background: color-mix(in srgb, var(--color-primary) 16%, transparent);
+  }
+
+  .research-radar__status--next {
+    background: color-mix(in srgb, #7aa8ff 13%, transparent);
+  }
+
+  @media (min-width: 860px) {
+    .research-radar__signals {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1120px) {
+    .research-radar__grid {
+      grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .research-radar__sources a {
+      transition: none;
+    }
+
+    .research-radar__sources a:hover,
+    .research-radar__sources a:focus-visible {
+      transform: none;
+    }
+  }
+</style>

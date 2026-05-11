@@ -75,7 +75,7 @@ const formatDate = (date: Date) =>
   });
 
 const getReadingMinutes = (post: BlogPost) => {
-  const wordCount = post.body.split(/\s+/).filter(Boolean).length;
+  const wordCount = (post.body ?? '').split(/\s+/).filter(Boolean).length;
   return Math.max(2, Math.round(wordCount / 180));
 };
 ---

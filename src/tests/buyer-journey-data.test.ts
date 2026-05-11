@@ -7,6 +7,11 @@ import {
 } from '../data/business-profile';
 import { decisionHandoffLanes } from '../data/decision-handoff';
 import {
+  marketSignals2026,
+  resourceRecommendations2026,
+  technologyRadar2026,
+} from '../data/research-radar';
+import {
   buyerPathLinks,
   footerSignals,
   homeRouteGuideLinks,
@@ -97,5 +102,36 @@ describe('Buyer journey data integrity', () => {
       expect(signal.value.trim().length).toBeGreaterThan(8);
       expect(signal.detail.trim().length).toBeGreaterThan(70);
     });
+  });
+
+  it('keeps the 2026 research radar source-backed and production-specific', () => {
+    const sourceSets = [
+      ...marketSignals2026.map(item => item.sources),
+      ...technologyRadar2026.map(item => item.sources),
+      ...resourceRecommendations2026.map(item => item.sources),
+    ];
+
+    expect(marketSignals2026.length).toBeGreaterThanOrEqual(4);
+    expect(technologyRadar2026.length).toBeGreaterThanOrEqual(5);
+    expect(resourceRecommendations2026.length).toBeGreaterThanOrEqual(3);
+    expect(
+      resourceRecommendations2026.some(item => item.status === 'Downloaded now')
+    ).toBe(true);
+
+    sourceSets.flat().forEach(source => {
+      expect(source.href).toMatch(/^https:\/\//);
+      expect(source.label.length).toBeGreaterThan(8);
+    });
+
+    const radarCopy = JSON.stringify({
+      marketSignals2026,
+      technologyRadar2026,
+      resourceRecommendations2026,
+    }).toLowerCase();
+
+    expect(radarCopy).not.toContain('placeholder');
+    expect(radarCopy).not.toContain('lorem');
+    expect(radarCopy).toContain('microsoft 365');
+    expect(radarCopy).toContain('core web vitals');
   });
 });

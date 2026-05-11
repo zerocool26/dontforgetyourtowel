@@ -28,6 +28,7 @@ test.describe('Search index discoverability', () => {
     expect(urls).toContain('blog/');
     expect(urls).toContain('pricing/#plans');
     expect(urls).toContain('services/#service-tracks');
+    expect(urls).toContain('services/#research-radar');
 
     expect(urls).not.toContain('dashboard/');
     expect(urls).not.toContain('dashboard-v2/');
@@ -92,5 +93,37 @@ test.describe('Search index discoverability', () => {
         'Digital trust handoff',
       ])
     );
+  });
+
+  test('indexes 2026 research radar resources', async ({ request }) => {
+    const response = await request.get('./search-index.json');
+    expect(response.ok()).toBeTruthy();
+
+    const items = (await response.json()) as Array<{
+      category?: string;
+      title?: string;
+      tags?: string[];
+      url?: string;
+    }>;
+
+    const radarItems = items.filter(item => item.category === 'Research Radar');
+    expect(radarItems.length).toBeGreaterThanOrEqual(10);
+    expect(new Set(radarItems.map(item => item.url))).toEqual(
+      new Set(['services/#research-radar'])
+    );
+    expect(radarItems.map(item => item.title)).toEqual(
+      expect.arrayContaining([
+        '@astrojs/check',
+        'Core Web Vitals and INP-minded UI',
+        'AI-ready content governance',
+      ])
+    );
+    expect(
+      radarItems.some(item =>
+        (item.tags ?? []).some(tag =>
+          /downloaded now|technology radar/i.test(tag)
+        )
+      )
+    ).toBe(true);
   });
 });

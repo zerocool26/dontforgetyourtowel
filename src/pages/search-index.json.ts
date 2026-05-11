@@ -4,6 +4,11 @@ import { isLegacyRouteUrl } from '../utils/legacy-routes';
 import { tradeProfiles } from '../data/trades';
 import { decisionHandoffLanes } from '../data/decision-handoff';
 import {
+  marketSignals2026,
+  resourceRecommendations2026,
+  technologyRadar2026,
+} from '../data/research-radar';
+import {
   getTradeOperations,
   getTradeSubpageOperations,
 } from '../data/trade-operations';
@@ -66,6 +71,50 @@ export async function GET() {
       lane.label.toLowerCase(),
     ],
   }));
+
+  const researchRadarItems: SearchItem[] = [
+    ...marketSignals2026.map(signal => ({
+      id: `research-market-${signal.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '')}`,
+      title: signal.title,
+      description: `${signal.buyerReality} ${signal.siteMove}`,
+      category: 'Research Radar',
+      url: 'services/#research-radar',
+      date: new Date().toISOString(),
+      tags: [
+        '2026',
+        'research',
+        'market signal',
+        ...signal.sources.map(source => source.label.toLowerCase()),
+      ],
+    })),
+    ...technologyRadar2026.map(item => ({
+      id: `research-tech-${item.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '')}`,
+      title: item.title,
+      description: `${item.fit} ${item.projectUse}`,
+      category: 'Research Radar',
+      url: 'services/#research-radar',
+      date: new Date().toISOString(),
+      tags: ['2026', 'technology radar', item.status.toLowerCase()],
+    })),
+    ...resourceRecommendations2026.map(item => ({
+      id: `research-resource-${item.name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '')}`,
+      title: item.name,
+      description: `${item.whyItHelps} ${item.adoptionNote}`,
+      category: 'Research Radar',
+      url: 'services/#research-radar',
+      date: new Date().toISOString(),
+      tags: ['2026', 'tooling', 'resource', item.status.toLowerCase()],
+    })),
+  ];
 
   const staticPages = [
     {
@@ -287,6 +336,7 @@ export async function GET() {
     ...caseStudyItems,
     ...blogItems,
     ...decisionHandoffItems,
+    ...researchRadarItems,
     ...staticPages,
     ...tradeItems,
   ].filter(item => !isLegacyRouteUrl(item.url));
