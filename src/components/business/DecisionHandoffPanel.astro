@@ -1,0 +1,267 @@
+---
+import { decisionHandoffLanes } from '../../data/decision-handoff';
+import { withBasePath } from '../../utils/helpers';
+
+export interface Props {
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+  activeId?: string;
+  compact?: boolean;
+}
+
+const {
+  eyebrow = 'Decision handoff',
+  title = 'Turn a messy buying question into the right first move.',
+  description = 'Strong engagements start by naming the pressure, collecting the right evidence, and producing one useful first output.',
+  activeId = '',
+  compact = false,
+} = Astro.props as Props;
+---
+
+<div
+  class:list={[
+    'decision-handoff',
+    compact && 'decision-handoff--compact',
+    activeId && 'decision-handoff--has-active',
+  ]}
+  data-decision-handoff
+>
+  <div class="decision-handoff__header">
+    <div>
+      <p class="decision-handoff__eyebrow">{eyebrow}</p>
+      <h2>{title}</h2>
+      <p>{description}</p>
+    </div>
+  </div>
+
+  <div class="decision-handoff__lanes">
+    {
+      decisionHandoffLanes.map((lane, index) => (
+        <article
+          class:list={[
+            'decision-handoff__lane',
+            activeId === lane.id && 'is-active',
+          ]}
+          data-handoff-lane={lane.id}
+        >
+          <div class="decision-handoff__lane-top">
+            <span>{String(index + 1).padStart(2, '0')}</span>
+            <p>{lane.label}</p>
+          </div>
+
+          <p class="decision-handoff__pressure">{lane.pressure}</p>
+
+          <div class="decision-handoff__evidence">
+            <p>Evidence to bring</p>
+            <ul>
+              {lane.evidence.map(item => (
+                <li>{item}</li>
+              ))}
+            </ul>
+          </div>
+
+          <div class="decision-handoff__output">
+            <p>First useful output</p>
+            <strong>{lane.firstOutput}</strong>
+          </div>
+
+          <a class="decision-handoff__link" href={withBasePath(lane.href)}>
+            {lane.cta}
+          </a>
+        </article>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .decision-handoff {
+    display: grid;
+    gap: 1.4rem;
+  }
+
+  .decision-handoff__header {
+    display: grid;
+    gap: 1rem;
+    max-width: 54rem;
+  }
+
+  .decision-handoff__eyebrow,
+  .decision-handoff__lane-top span,
+  .decision-handoff__lane-top p,
+  .decision-handoff__evidence p,
+  .decision-handoff__output p,
+  .decision-handoff__link {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .decision-handoff__eyebrow,
+  .decision-handoff__evidence p,
+  .decision-handoff__output p {
+    color: color-mix(in srgb, var(--color-text-muted) 92%, transparent);
+    font-size: 0.66rem;
+  }
+
+  .decision-handoff__header h2 {
+    max-width: 18ch;
+    margin: 0;
+    color: var(--color-text-primary);
+    font-family: var(--font-display);
+    font-size: clamp(1.7rem, 3vw, 3rem);
+    font-weight: 650;
+    letter-spacing: 0;
+    line-height: 1.03;
+    text-wrap: balance;
+  }
+
+  .decision-handoff__header p:not(.decision-handoff__eyebrow),
+  .decision-handoff__pressure,
+  .decision-handoff__evidence li,
+  .decision-handoff__output strong {
+    margin: 0;
+    color: color-mix(in srgb, var(--color-text-secondary) 96%, transparent);
+    line-height: 1.66;
+  }
+
+  .decision-handoff__lanes {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .decision-handoff__lane {
+    display: grid;
+    gap: 1rem;
+    min-width: 0;
+    border: 1px solid color-mix(in srgb, var(--color-border) 74%, transparent);
+    border-radius: 0.5rem;
+    background:
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, white 2.5%, transparent),
+        transparent 34%
+      ),
+      color-mix(in srgb, var(--color-surface) 78%, transparent);
+    padding: 1.05rem;
+  }
+
+  .decision-handoff__lane.is-active {
+    border-color: color-mix(in srgb, var(--color-primary) 38%, transparent);
+    background:
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--color-primary) 9%, transparent),
+        transparent 44%
+      ),
+      color-mix(in srgb, var(--color-surface) 88%, transparent);
+  }
+
+  .decision-handoff__lane-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.8rem;
+  }
+
+  .decision-handoff__lane-top span {
+    display: inline-flex;
+    width: 2.35rem;
+    height: 2.35rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.55rem;
+    border: 1px solid color-mix(in srgb, var(--color-primary) 28%, transparent);
+    background: color-mix(in srgb, var(--color-primary) 8%, transparent);
+    color: color-mix(in srgb, var(--color-text-primary) 86%, transparent);
+    font-size: 0.66rem;
+  }
+
+  .decision-handoff__lane-top p {
+    color: color-mix(in srgb, var(--color-text-primary) 82%, transparent);
+    font-size: 0.68rem;
+    text-align: right;
+  }
+
+  .decision-handoff__pressure {
+    color: color-mix(in srgb, var(--color-text-primary) 84%, transparent);
+    font-size: 0.98rem;
+  }
+
+  .decision-handoff__evidence,
+  .decision-handoff__output {
+    display: grid;
+    gap: 0.65rem;
+    padding-top: 0.85rem;
+    border-top: 1px solid
+      color-mix(in srgb, var(--color-border) 64%, transparent);
+  }
+
+  .decision-handoff__evidence ul {
+    display: grid;
+    gap: 0.5rem;
+    margin: 0;
+    padding-left: 1rem;
+  }
+
+  .decision-handoff__evidence li,
+  .decision-handoff__output strong {
+    font-size: 0.9rem;
+  }
+
+  .decision-handoff__output strong {
+    display: block;
+    color: color-mix(in srgb, var(--color-text-primary) 86%, transparent);
+    font-weight: 600;
+  }
+
+  .decision-handoff__link {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    margin-top: auto;
+    border: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
+    border-radius: 0.5rem;
+    background: color-mix(in srgb, var(--color-surface) 80%, transparent);
+    padding: 0 0.9rem;
+    color: color-mix(in srgb, var(--color-text-primary) 82%, transparent);
+    font-size: 0.66rem;
+    transition:
+      border-color 0.18s ease,
+      background 0.18s ease,
+      transform 0.18s ease;
+  }
+
+  .decision-handoff__link:hover {
+    transform: translateY(-1px);
+    border-color: color-mix(in srgb, var(--color-primary) 34%, transparent);
+    background: color-mix(in srgb, var(--color-primary) 8%, transparent);
+    color: var(--color-text-primary);
+  }
+
+  @media (min-width: 920px) {
+    .decision-handoff__header {
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      max-width: none;
+      align-items: end;
+    }
+
+    .decision-handoff__lanes {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .decision-handoff--compact .decision-handoff__lanes {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 640px) {
+    .decision-handoff__lane {
+      padding: 0.95rem;
+    }
+  }
+</style>

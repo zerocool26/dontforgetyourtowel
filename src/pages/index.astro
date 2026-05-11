@@ -1,6 +1,7 @@
 ---
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 import OperationalIntelligenceWorkbench from '../components/business/OperationalIntelligenceWorkbench.tsx';
+import DecisionHandoffPanel from '../components/business/DecisionHandoffPanel.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
 import { CONTACT_EMAIL } from '../consts';
 import { operatingIntelligenceItems } from '../data/operating-intelligence';
@@ -343,6 +344,21 @@ const startOptions = [
           ))
         }
       </div>
+    </div>
+  </section>
+
+  <section
+    class="home-homepage-section home-homepage-section--handoff"
+    id="decision-handoff"
+    data-page-section
+  >
+    <div class="premium-container">
+      <DecisionHandoffPanel
+        activeId="support-ownership"
+        eyebrow="Decision handoff"
+        title="A mature first conversation has an output before it has a pitch."
+        description="Use the pressure point to choose the right evidence, first output, and route before the conversation turns into a broad tool list."
+      />
     </div>
   </section>
 

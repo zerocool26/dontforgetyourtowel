@@ -7,6 +7,7 @@ import ModernButton from '../components/ui/ModernButton.astro';
 import FAQAccordion from '../components/ui/FAQAccordion.astro';
 import ScopeReadinessPanel from '../components/business/ScopeReadinessPanel.astro';
 import OperationalIntelligenceWorkbench from '../components/business/OperationalIntelligenceWorkbench.tsx';
+import DecisionHandoffPanel from '../components/business/DecisionHandoffPanel.astro';
 import { withBasePath } from '../utils/helpers';
 import { CONTACT_EMAIL } from '../consts';
 import { studioPresets } from '../data/build-studio';
@@ -227,6 +228,7 @@ const engagementSteps = [
 ];
 
 const contactSections = [
+  { label: 'Handoff', href: '#decision-handoff' },
   { label: 'Router', href: '#contact-workbench' },
   { label: 'Fit', href: '#fit' },
   { label: 'Channels', href: '#channels' },
@@ -543,6 +545,22 @@ const faqSchema = {
           </div>
         </div>
       </div>
+    </div>
+  </section>
+
+  <section
+    class="tone-section-divider border-b"
+    id="decision-handoff"
+    data-reveal
+    data-page-section
+  >
+    <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
+      <DecisionHandoffPanel
+        activeId={serviceIntentLabel ? 'support-ownership' : 'budget-scope'}
+        eyebrow="Intake handoff"
+        title="Send the context that lets someone route the work responsibly."
+        description="The first contact should make the next action obvious: support ownership, security baseline, budget and scope, or buyer-facing digital trust."
+      />
     </div>
   </section>
 

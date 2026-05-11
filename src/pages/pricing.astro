@@ -5,6 +5,7 @@ import StructuredData from '../components/StructuredData.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
 import ModernCard from '../components/ui/ModernCard.astro';
 import OperationalIntelligenceWorkbench from '../components/business/OperationalIntelligenceWorkbench.tsx';
+import DecisionHandoffPanel from '../components/business/DecisionHandoffPanel.astro';
 import PricingCalculator from '../components/business/PricingCalculator.tsx';
 import ROICalculator from '../components/business/ROICalculator.tsx';
 import FAQAccordion from '../components/ui/FAQAccordion.astro';
@@ -174,6 +175,7 @@ const pricingSections = [
   { label: 'Workbench', href: '#pricing-workbench' },
   { label: 'Plans', href: '#plans' },
   { label: 'Approval', href: '#approval-pack' },
+  { label: 'Handoff', href: '#decision-handoff' },
   { label: 'SLA matrix', href: '#sla' },
   { label: 'Scope examples', href: '#scope-examples' },
   { label: 'Boundaries', href: '#scope-boundaries' },
@@ -328,6 +330,22 @@ const pricingSections = [
           ))
         }
       </div>
+    </div>
+  </section>
+
+  <section
+    class="tone-section-divider border-b"
+    id="decision-handoff"
+    data-reveal
+    data-page-section
+  >
+    <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
+      <DecisionHandoffPanel
+        activeId="budget-scope"
+        eyebrow="Pricing handoff"
+        title="A better quote starts with the evidence that changes scope."
+        description="Use this to separate recurring coverage, project work, and discovery gaps before a number becomes hard to defend internally."
+      />
     </div>
   </section>
 
