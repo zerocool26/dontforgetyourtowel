@@ -4,7 +4,12 @@
  */
 
 import { announce, setAriaAttributes } from '../utils/a11y';
-import { CONTACT_EMAIL } from '../consts';
+import {
+  CONTACT_CALENDAR_URL,
+  CONTACT_CRM_LABEL,
+  CONTACT_EMAIL,
+  CONTACT_FORM_ENDPOINT,
+} from '../consts';
 import { emailSchema, phoneSchema } from '../utils/validation';
 import { addNotification, notify } from '../store/index';
 
@@ -298,42 +303,95 @@ class EnhancedContactForm {
       const phone = formData.get('phone') as string;
       const budget = formData.get('budget') as string;
       const timeline = formData.get('timeline') as string;
+      const leadSource = formData.get('leadSource') as string;
+      const serviceIntent = formData.get('serviceIntent') as string;
+      const solutionIntent = formData.get('solutionIntent') as string;
+      const tradeIntent = formData.get('tradeIntent') as string;
+      const tradePageIntent = formData.get('tradePageIntent') as string;
+      const workspaceTitle = formData.get('workspaceTitle') as string;
+      const workspaceSummary = formData.get('workspaceSummary') as string;
+      const routeContext = formData.get('routeContext') as string;
+      const scheduleRequested = formData.get('scheduleRequested') as string;
+      const website = formData.get('website') as string;
+      const utmSource = formData.get('utmSource') as string;
+      const utmMedium = formData.get('utmMedium') as string;
+      const utmCampaign = formData.get('utmCampaign') as string;
 
-      const body = `Name: ${name}
-Email: ${email}
-${company ? `Company: ${company}\n` : ''}${phone ? `Phone: ${phone}\n` : ''}${budget ? `Budget: ${budget}\n` : ''}${timeline ? `Timeline: ${timeline}\n` : ''}
-Subject: ${subject}
+      if (website) {
+        throw new Error('spam-detected');
+      }
 
-Message:
-${message}`;
+      if (!CONTACT_FORM_ENDPOINT) {
+        throw new Error('missing-contact-endpoint');
+      }
 
-      const mailtoLink = `mailto:${encodeURIComponent(CONTACT_EMAIL)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      const payload = {
+        createdAt: new Date().toISOString(),
+        name,
+        email,
+        company,
+        phone,
+        subject,
+        budget,
+        timeline,
+        message,
+        leadSource,
+        intents: {
+          service: serviceIntent,
+          solution: solutionIntent,
+          trade: tradeIntent,
+          tradePage: tradePageIntent,
+          workspaceTitle,
+          workspaceSummary,
+          routeContext,
+          scheduleRequested: scheduleRequested === 'true',
+        },
+        attribution: {
+          referrer: document.referrer || '',
+          path: window.location.pathname,
+          search: window.location.search,
+          utmSource,
+          utmMedium,
+          utmCampaign,
+        },
+      };
 
-      // Open mailto
-      const mailtoAnchor = document.createElement('a');
-      mailtoAnchor.href = mailtoLink;
-      mailtoAnchor.rel = 'noreferrer';
-      mailtoAnchor.style.display = 'none';
-      document.body.appendChild(mailtoAnchor);
-      mailtoAnchor.click();
-      mailtoAnchor.remove();
+      const response = await fetch(CONTACT_FORM_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
 
-      // Show success notification using our store
-      notify.success('Opening your email client...');
+      if (!response.ok) {
+        throw new Error(`crm-${response.status}`);
+      }
+
+      notify.success(`Intake sent to ${CONTACT_CRM_LABEL}`);
       addNotification({
-        type: 'info',
-        title: 'Email Client',
-        message: `If nothing happens, please email us directly at ${CONTACT_EMAIL}`,
+        type: 'success',
+        title: 'Intake received',
+        message:
+          'Your project brief was routed successfully. A follow-up owner can now review it with full context.',
         duration: 8000,
       });
 
       this.showStatus(
-        'info',
-        `Opening your email client... If nothing happens, please email us directly at ${CONTACT_EMAIL}`
+        'success',
+        'Intake received. Expect a routed follow-up with the next recommended step.'
+      );
+      this.form?.setAttribute('data-contact-success', 'true');
+      this.form?.dispatchEvent(
+        new CustomEvent('contact:submitted', {
+          bubbles: true,
+          detail: payload,
+        })
       );
 
       // Announce success
-      announce('Form submitted successfully. Opening email client.', 'polite');
+      announce('Form submitted successfully.', 'polite');
 
       // Reset form after short delay
       setTimeout(() => {
@@ -341,12 +399,28 @@ ${message}`;
         this.errors.clear();
         announce('Form has been reset', 'polite');
       }, 2000);
-    } catch {
-      notify.error('Unable to open email client');
-      this.showStatus(
-        'error',
-        `Unable to open email client. Please email us directly at ${CONTACT_EMAIL}`
-      );
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'unknown-contact-error';
+      const fallback =
+        CONTACT_CALENDAR_URL ||
+        `mailto:${encodeURIComponent(CONTACT_EMAIL)}?subject=${encodeURIComponent('Project intake follow-up')}`;
+
+      const statusMessage =
+        message === 'spam-detected'
+          ? 'Spam protection blocked this submission.'
+          : message === 'missing-contact-endpoint'
+            ? 'Intake routing is temporarily unavailable. Use the scheduling option or direct contact path while routing is restored.'
+            : 'Unable to route intake right now. Use the scheduling option or direct contact path while routing is restored.';
+
+      notify.error('Unable to route intake');
+      addNotification({
+        type: 'error',
+        title: 'Routing unavailable',
+        message: statusMessage,
+        duration: 8000,
+      });
+      this.showStatus('error', `${statusMessage} ${fallback}`);
       announce('Error submitting form. Please try again.', 'assertive');
     } finally {
       this.setLoading(false);
@@ -502,7 +576,9 @@ ${message}`;
   private setLoading(loading: boolean): void {
     if (this.submitButton) {
       this.submitButton.disabled = loading;
-      this.submitButton.textContent = loading ? 'Sending...' : 'Send Message';
+      this.submitButton.textContent = loading
+        ? 'Routing intake...'
+        : 'Submit intake';
 
       setAriaAttributes(this.submitButton, {
         busy: loading,

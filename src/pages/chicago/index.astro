@@ -1,0 +1,82 @@
+---
+import MarketingLayout from '../../layouts/MarketingLayout.astro';
+import StructuredData from '../../components/StructuredData.astro';
+import ModernButton from '../../components/ui/ModernButton.astro';
+import ModernCard from '../../components/ui/ModernCard.astro';
+import { chicagoServicePages } from '../../data/authority-pages';
+import { buildContactHqHref } from '../../utils/contact';
+import { withBasePath } from '../../utils/helpers';
+---
+
+<MarketingLayout
+  title="Chicago IT Service Areas | Olive Chicago"
+  description="Chicago service pages for managed IT, cybersecurity, Microsoft 365, backup and disaster recovery, and co-managed IT."
+  bodyClass="creative-page"
+  mainClass="relative isolate overflow-x-clip"
+>
+  <StructuredData
+    type="collection"
+    data={{
+      name: 'Chicago service pages',
+      description:
+        'Collection of Chicago-area managed IT, security, Microsoft 365, backup, and co-managed IT service pages.',
+    }}
+  />
+
+  <section class="premium-page-section pt-10 sm:pt-14" data-page-section>
+    <div class="premium-container">
+      <div class="tone-page-header max-w-4xl">
+        <p class="tone-page-eyebrow">Chicago service pages</p>
+        <h1 class="tone-page-title">
+          Local buyer pages built around real operating pressure.
+        </h1>
+        <p class="tone-page-copy">
+          These pages exist to answer the practical version of the search: who
+          owns support, security, Microsoft 365, backup, or co-managed coverage
+          when a Chicago-area team needs calm leadership and fewer loose ends.
+        </p>
+        <div class="tone-page-actions">
+          <ModernButton
+            href={buildContactHqHref({
+              brief:
+                'I want to discuss a Chicago managed IT, security, Microsoft 365, backup, or co-managed need.',
+            })}
+            variant="gradient"
+            className="min-h-[52px]"
+          >
+            Start local intake
+          </ModernButton>
+          <ModernButton
+            href={withBasePath('services/')}
+            variant="outline"
+            className="min-h-[52px]"
+          >
+            Review all services
+          </ModernButton>
+        </div>
+      </div>
+
+      <div class="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {
+          chicagoServicePages.map(page => (
+            <ModernCard>
+              <p class="tone-label">{page.eyebrow}</p>
+              <h2 class="tone-title mt-3 text-2xl">{page.title}</h2>
+              <p class="tone-body mt-3">{page.description}</p>
+              <ul class="tone-body mt-4 grid gap-2 pl-5">
+                {page.outcomes.slice(0, 2).map(item => (
+                  <li>{item}</li>
+                ))}
+              </ul>
+              <div class="mt-5">
+                <ModernButton href={withBasePath(`chicago/${page.slug}/`)}>
+                  Open page
+                </ModernButton>
+              </div>
+            </ModernCard>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</MarketingLayout>

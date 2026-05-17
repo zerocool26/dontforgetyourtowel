@@ -49,6 +49,21 @@ export const CONTACT_EMAIL =
   (readPublicEnv('PUBLIC_CONTACT_EMAIL', 'NEXT_PUBLIC_CONTACT_EMAIL') as
     | string
     | undefined) || 'hello@olivechicago.com';
+export const CONTACT_FORM_ENDPOINT =
+  (readPublicEnv(
+    'PUBLIC_CONTACT_FORM_ENDPOINT',
+    'NEXT_PUBLIC_CONTACT_FORM_ENDPOINT'
+  ) as string | undefined) || '';
+export const CONTACT_CALENDAR_URL =
+  (readPublicEnv(
+    'PUBLIC_CONTACT_CALENDAR_URL',
+    'NEXT_PUBLIC_CONTACT_CALENDAR_URL'
+  ) as string | undefined) || '';
+export const CONTACT_CRM_LABEL =
+  (readPublicEnv(
+    'PUBLIC_CONTACT_CRM_LABEL',
+    'NEXT_PUBLIC_CONTACT_CRM_LABEL'
+  ) as string | undefined) || 'CRM intake';
 
 export const SITE_CONFIG = {
   title: SITE_TITLE,

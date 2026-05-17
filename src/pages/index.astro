@@ -3,14 +3,16 @@ import MarketingLayout from '../layouts/MarketingLayout.astro';
 import OperationalIntelligenceWorkbench from '../components/business/OperationalIntelligenceWorkbench.tsx';
 import DecisionHandoffPanel from '../components/business/DecisionHandoffPanel.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
-import { CONTACT_EMAIL } from '../consts';
 import { operatingIntelligenceItems } from '../data/operating-intelligence';
 import { homeRouteGuideLinks } from '../data/site-navigation';
 import { withBasePath } from '../utils/helpers';
+import { buildContactHqHref, getContactCalendarHref } from '../utils/contact';
 
-const contactHref = `mailto:${encodeURIComponent(
-  CONTACT_EMAIL
-)}?subject=${encodeURIComponent('Strategy intake - Olive Chicago')}`;
+const contactHref = buildContactHqHref({
+  brief:
+    'I want to scope support ownership, security, Microsoft 365, backup, or a buyer-facing system.',
+});
+const scheduleHref = getContactCalendarHref();
 
 const workbenchItems = operatingIntelligenceItems.map(item => ({
   ...item,
@@ -20,29 +22,29 @@ const workbenchItems = operatingIntelligenceItems.map(item => ({
 const heroSignals = [
   {
     label: 'Operate',
-    value: 'A support layer someone actually owns.',
+    value: 'Named ownership for the operating layer.',
     detail:
-      'Tickets, devices, onboarding, vendors, and escalation stay visible.',
+      'Tickets, devices, onboarding, vendors, and escalation stay visible to leadership.',
   },
   {
     label: 'Protect',
-    value: 'Security evidence instead of vague reassurance.',
+    value: 'Security posture that can be reviewed, not guessed.',
     detail:
-      'Identity, endpoints, email, backup, and response contacts get documented.',
+      'Identity, endpoints, email, backup, and response expectations get documented early.',
   },
   {
     label: 'Present',
-    value: 'Digital systems that make the company easier to trust.',
+    value: 'Selected digital systems framed as business proof.',
     detail:
-      'Pages, forms, portals, and commerce flows are judged by buyer movement.',
+      'Pages, forms, portals, and proof screens are judged by buyer movement and clarity.',
   },
 ];
 
 const heroProofPoints = [
-  'Recurring tickets get an owner',
-  'Security evidence is documented',
-  'Microsoft 365 cleanup has rules',
-  'Digital intake moves buyers forward',
+  'Same-business-day first review target',
+  '30 / 60 / 90-day onboarding shape',
+  'Monthly reporting with named owners',
+  'Proof-led digital systems when trust is on the line',
 ];
 
 const siteGuide = homeRouteGuideLinks.map(link => ({
@@ -372,9 +374,9 @@ const startOptions = [
         client:only="preact"
         items={workbenchItems}
         defaultItemId="support-ownership"
-        eyebrow="Expert operating layer"
-        title="A working diagnostic for support, security, recovery, Microsoft 365, and digital trust."
-        description="This is the layer that should make the site feel useful: choose a pressure point, inspect the signals, collect the evidence, and move into the right next route with a real handoff brief."
+        eyebrow="Chicago Operations Studio"
+        title="A working diagnostic for support, security, recovery, Microsoft 365, and proof-led digital systems."
+        description="Choose the pressure point, inspect the signals, collect the evidence, and move into the right route with a handoff brief that an owner can actually use."
       />
     </div>
   </section>
@@ -580,14 +582,14 @@ const startOptions = [
               variant="gradient"
               className="min-h-[52px]"
             >
-              Book intake
+              Start intake
             </ModernButton>
             <ModernButton
-              href={withBasePath('pricing/')}
+              href={scheduleHref}
               variant="outline"
               className="min-h-[52px]"
             >
-              Review pricing
+              Book planning call
             </ModernButton>
           </div>
         </div>
@@ -625,21 +627,34 @@ const startOptions = [
 
       const loadWhenIdle = () => {
         if ('requestIdleCallback' in window) {
-          window.requestIdleCallback(loadScene, { timeout: 5000 });
+          window.requestIdleCallback(loadScene, { timeout: 7000 });
           return;
         }
 
-        globalThis.setTimeout(loadScene, 1200);
+        globalThis.setTimeout(loadScene, 2200);
       };
 
-      const scheduleAfterLoad = () => {
-        globalThis.setTimeout(loadWhenIdle, 1800);
+      const scheduleAfterVisible = () => {
+        const observer = new IntersectionObserver(
+          entries => {
+            const visible = entries.some(entry => entry.isIntersecting);
+            if (!visible) return;
+            observer.disconnect();
+            globalThis.setTimeout(loadWhenIdle, 1200);
+          },
+          {
+            rootMargin: '160px 0px',
+            threshold: 0.15,
+          }
+        );
+
+        observer.observe(root);
       };
 
       if (document.readyState === 'complete') {
-        scheduleAfterLoad();
+        scheduleAfterVisible();
       } else {
-        window.addEventListener('load', scheduleAfterLoad, { once: true });
+        window.addEventListener('load', scheduleAfterVisible, { once: true });
       }
     };
 

@@ -86,7 +86,28 @@ export default function OperationalIntelligenceWorkbench({
     ].join('\n');
   }, [activeItem, checkedEvidence, motionMode]);
 
-  if (!activeItem) return null;
+  const canCopy =
+    typeof navigator !== 'undefined' && Boolean(navigator.clipboard);
+
+  if (!activeItem) {
+    return (
+      <section
+        className={`ops-workbench ${compact ? 'ops-workbench--compact' : ''}`}
+        data-testid="operational-intelligence-workbench"
+        aria-labelledby="ops-workbench-title"
+      >
+        <div className="ops-workbench__header">
+          <div className="ops-workbench__header-copy">
+            <p className="ops-workbench__eyebrow">{eyebrow}</p>
+            <h2 id="ops-workbench-title" className="ops-workbench__title">
+              {title}
+            </h2>
+            <p className="ops-workbench__description">{description}</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   const switchItem = (item: WorkbenchItem) => {
     setActiveId(item.id);
@@ -108,7 +129,7 @@ export default function OperationalIntelligenceWorkbench({
   };
 
   const copyBrief = async () => {
-    if (!navigator.clipboard) {
+    if (!canCopy) {
       setCopyState('failed');
       return;
     }

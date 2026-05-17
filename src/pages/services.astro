@@ -13,7 +13,6 @@ import DecisionHandoffPanel from '../components/business/DecisionHandoffPanel.as
 import ResearchRadarPanel from '../components/business/ResearchRadarPanel.astro';
 import ScopeReadinessPanel from '../components/business/ScopeReadinessPanel.astro';
 import FAQAccordion from '../components/ui/FAQAccordion.astro';
-import { CONTACT_EMAIL } from '../consts';
 import {
   onboardingPhases,
   providerSelectionQuestions,
@@ -29,10 +28,13 @@ import {
 import { operatingIntelligenceItems } from '../data/operating-intelligence';
 import { servicesFaqs, pricingTiers } from '../data/pricing';
 import { withBasePath } from '../utils/helpers';
+import { buildContactHqHref } from '../utils/contact';
 
-const startProjectHref = `mailto:${encodeURIComponent(
-  CONTACT_EMAIL
-)}?subject=${encodeURIComponent('Chicago managed services planning inquiry')}`;
+const startProjectHref = buildContactHqHref({
+  service: 'msp',
+  brief:
+    'I want to discuss support ownership, security, Microsoft 365, backup, or a selected digital system.',
+});
 
 const serviceCategories = Array.from(
   new Set(servicesExtended.map(service => service.category))
@@ -276,7 +278,7 @@ const breadcrumbItems = [
               variant="outline"
               className="hidden min-h-[50px] sm:inline-flex"
             >
-              Start planning intake
+              Start structured intake
             </ModernButton>
           </div>
 

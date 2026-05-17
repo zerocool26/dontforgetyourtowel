@@ -15,6 +15,13 @@ vi.mock('../../utils/validation', () => ({
   phoneSchema: { safeParse: vi.fn().mockReturnValue({ success: true }) },
 }));
 
+vi.mock('../../consts', () => ({
+  CONTACT_EMAIL: 'hello@olivechicago.com',
+  CONTACT_FORM_ENDPOINT: 'https://crm.example.com/intake',
+  CONTACT_CALENDAR_URL: 'https://calendar.example.com/review',
+  CONTACT_CRM_LABEL: 'CRM intake',
+}));
+
 vi.mock('../../store/index', () => ({
   addNotification: vi.fn(),
   notify: {
@@ -64,6 +71,11 @@ describe('EnhancedContactForm', () => {
     form.appendChild(statusDiv);
 
     document.body.appendChild(form);
+
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+    }) as unknown as typeof fetch;
 
     // Mock window.location
     Object.defineProperty(window, 'location', {
@@ -152,13 +164,6 @@ describe('EnhancedContactForm', () => {
   it('should submit successfully when valid', async () => {
     new EnhancedContactForm();
 
-    let clickedHref = '';
-    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (
-      this: HTMLAnchorElement
-    ) {
-      clickedHref = this.href;
-    });
-
     // Fill form
     const setVal = (name: string, val: string) => {
       const el = form.querySelector(`[name="${name}"]`) as HTMLInputElement;
@@ -176,9 +181,13 @@ describe('EnhancedContactForm', () => {
 
     // Submit
     form.dispatchEvent(new Event('submit', { cancelable: true }));
+    await Promise.resolve();
 
-    // Should trigger a mailto link
-    expect(clickedHref).toContain('mailto:');
-    expect(clickedHref).toContain('john%40example.com');
+    expect(global.fetch).toHaveBeenCalledWith(
+      'https://crm.example.com/intake',
+      expect.objectContaining({
+        method: 'POST',
+      })
+    );
   });
 });

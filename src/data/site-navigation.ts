@@ -24,10 +24,10 @@ export const buyerPathLinks: SiteLink[] = [
       'Ranges, scope drivers, approval logic, and what changes the monthly number.',
   },
   {
-    label: 'Digital Proof',
+    label: 'Proof',
     href: 'about/',
     description:
-      'Working screens that show buyer paths, not decorative mockups.',
+      'Selected digital systems, annotated screens, and proof-led business context.',
   },
   {
     label: 'Contact',
@@ -51,16 +51,16 @@ export const researchProofLinks: SiteLink[] = [
       'Short reads on budget, risk, insurance, AI pressure, and operations.',
   },
   {
-    label: 'Photo Library',
-    href: 'photos/',
+    label: 'Trust Center',
+    href: 'trust-center/',
     description:
-      'Reference material for pages, proposals, launches, and interface direction.',
+      'Public backup, recovery, response, data-handling, and review posture.',
   },
   {
-    label: 'Design Library',
-    href: 'gallery/',
+    label: 'Chicago service pages',
+    href: 'chicago/',
     description:
-      'Visual studies for support, security, infrastructure, commerce, and mobile workflows.',
+      'Local service pages for managed IT, cybersecurity, Microsoft 365, backup, and co-managed support.',
   },
 ];
 

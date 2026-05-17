@@ -19,6 +19,7 @@ import { getRouteContext } from '../utils/route-context';
 interface Props {
   title: string;
   description: string;
+  noIndex?: boolean;
   mainClass?: string;
   bodyClass?: string;
   showFooter?: boolean;
@@ -38,6 +39,7 @@ interface Props {
 const {
   title,
   description,
+  noIndex = false,
   mainClass = 'space-y-20 pb-24',
   bodyClass = '',
   showFooter = false,
@@ -59,6 +61,7 @@ const routeContext = getRouteContext(Astro.url.pathname);
     <BaseHead
       title={title}
       description={description}
+      noIndex={noIndex}
       enableClientRouter={enableClientRouter}
     />
     <StructuredData type="website" />

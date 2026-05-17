@@ -9,6 +9,7 @@ import { defineConfig } from 'astro/config';
 
 import { createDeploymentConfig } from './config/deployment.js';
 import { isLegacyRoutePath } from './config/legacyRoutes.js';
+import { isHiddenPublicRoutePath } from './config/routeVisibility.js';
 
 const { basePath, siteUrl } = createDeploymentConfig();
 
@@ -29,7 +30,7 @@ export default defineConfig({
     mdx(),
     sitemap({
       filter: page => {
-        return !isLegacyRoutePath(page);
+        return !isLegacyRoutePath(page) && !isHiddenPublicRoutePath(page);
       },
     }),
     // Avoid ambiguous JSX renderer selection when multiple frameworks are enabled.

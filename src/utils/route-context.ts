@@ -1,5 +1,6 @@
-import { BASE_PATH, CONTACT_EMAIL } from '../consts';
+import { BASE_PATH } from '../consts';
 import { tradeProfiles } from '../data/trades';
+import { buildContactHqHref } from './contact';
 import { withBasePath } from './helpers';
 
 export interface RouteContextLink {
@@ -53,9 +54,9 @@ export function getRouteContext(pathname: string): RouteContext {
     accent: '#d1b37a',
     kicker: 'Site Atlas',
     title:
-      'A calmer route system for Chicago managed IT, security, cloud, and premium client experiences.',
+      'A calmer route system for Chicago operations, managed IT, security, and proof-led digital systems.',
     description:
-      'Use this atlas to move between solutions, pricing, experience, and intake routes without falling into bloated brochure navigation.',
+      'Use this atlas to move between solutions, pricing, proof, trust, and intake routes without falling into bloated brochure navigation.',
     currentTitle: 'Landing page',
     currentDescription:
       'Chicago-focused managed IT shell with route-aware navigation, proof surfaces, and mobile-first buyer flows.',
@@ -73,8 +74,9 @@ export function getRouteContext(pathname: string): RouteContext {
         href: withBasePath('pricing/'),
       },
       {
-        label: 'Open experience lab',
-        detail: 'See the premium interactive work that backs the pitch.',
+        label: 'Open proof',
+        detail:
+          'See selected digital systems framed as business proof, not a side quest.',
         href: withBasePath('about/'),
       },
     ],
@@ -104,9 +106,9 @@ export function getRouteContext(pathname: string): RouteContext {
           href: withBasePath('services/#service-planner'),
         },
         {
-          label: 'Open experience lab',
+          label: 'Open proof',
           detail:
-            'See the interactive proof route that complements the gallery.',
+            'See the proof route that connects digital systems to buyer outcomes.',
           href: withBasePath('about/'),
         },
       ],
@@ -135,9 +137,8 @@ export function getRouteContext(pathname: string): RouteContext {
           href: withBasePath('pricing/'),
         },
         {
-          label: 'Open experience lab',
-          detail:
-            'See the interactive proof route behind the digital direction.',
+          label: 'Open proof',
+          detail: 'See the proof route behind the digital systems direction.',
           href: withBasePath('about/'),
         },
         {
@@ -251,17 +252,17 @@ export function getRouteStickyCTA(pathname: string): RouteStickyCTA {
       ? activeTrade.subpages.find(subpage => subpage.slug === pathSegments[2])
       : undefined;
 
-  const buildMailto = (subject: string) =>
-    `mailto:${encodeURIComponent(CONTACT_EMAIL)}?subject=${encodeURIComponent(subject)}`;
-
   let cta: RouteStickyCTA = {
     accent: '#d7f75b',
     eyebrow: 'Project intake',
-    copy: 'Want a flagship build brief in two minutes?',
-    detail: 'Review the service hub or route directly into intake.',
+    copy: 'Need a clearer next move for operations, security, or a buyer-facing system?',
+    detail: 'Review the service hub or route directly into structured intake.',
     secondaryHref: withBasePath('services/'),
     secondaryLabel: 'Explore solutions',
-    primaryHref: buildMailto('Premium project inquiry'),
+    primaryHref: buildContactHqHref({
+      brief:
+        'I want to scope managed IT, security, Microsoft 365, backup, or a proof-led digital system.',
+    }),
     primaryLabel: 'Start brief',
   };
 
@@ -274,8 +275,11 @@ export function getRouteStickyCTA(pathname: string): RouteStickyCTA {
           detail:
             'The gallery stays connected to real proof and solution routes instead of floating as isolated art direction.',
           secondaryHref: withBasePath('about/'),
-          secondaryLabel: 'Open experience lab',
-          primaryHref: `${withBasePath('contact-hq/')}?tradePage=${encodeURIComponent('Design Gallery')}&brief=${encodeURIComponent('I want to discuss a gallery-inspired site direction.')}`,
+          secondaryLabel: 'Open proof',
+          primaryHref: buildContactHqHref({
+            tradePage: 'Design Gallery',
+            brief: 'I want to discuss a gallery-inspired site direction.',
+          }),
           primaryLabel: 'Discuss concept',
         }
       : {
@@ -283,10 +287,13 @@ export function getRouteStickyCTA(pathname: string): RouteStickyCTA {
           eyebrow: 'Strategy intake',
           copy: 'Need calmer operations, better security, or a stronger digital front door that actually converts?',
           detail:
-            'Solutions, pricing, experience, and intake stay tied together instead of branching into disconnected funnels.',
+            'Solutions, pricing, proof, and intake stay tied together instead of branching into disconnected funnels.',
           secondaryHref: withBasePath('services/'),
           secondaryLabel: 'Explore solutions',
-          primaryHref: `${withBasePath('contact-hq/')}?brief=${encodeURIComponent('I want to scope managed IT, security, cloud, Microsoft 365, or a premium client-facing system.')}`,
+          primaryHref: buildContactHqHref({
+            brief:
+              'I want to scope managed IT, security, cloud, Microsoft 365, or a premium client-facing system.',
+          }),
           primaryLabel: 'Start brief',
         };
   } else if (currentPath.startsWith('/services')) {
@@ -298,7 +305,11 @@ export function getRouteStickyCTA(pathname: string): RouteStickyCTA {
         'The solution hub, planner, and pricing routes all feed the same intake path.',
       secondaryHref: withBasePath('pricing/'),
       secondaryLabel: 'Review pricing',
-      primaryHref: `${withBasePath('contact-hq/')}?service=${encodeURIComponent('msp')}&brief=${encodeURIComponent('I want to discuss support, security, Microsoft 365, cloud, or a custom delivery plan.')}`,
+      primaryHref: buildContactHqHref({
+        service: 'msp',
+        brief:
+          'I want to discuss support, security, Microsoft 365, cloud, or a custom delivery plan.',
+      }),
       primaryLabel: 'Start service intake',
     };
   } else if (activeTrade) {
@@ -317,7 +328,10 @@ export function getRouteStickyCTA(pathname: string): RouteStickyCTA {
         : 'Overview, subpages, and intake behave like one working vertical instead of a thin marketing shell.',
       secondaryHref: withBasePath(`trades/${activeTrade.slug}/`),
       secondaryLabel: activeSubpage ? 'Trade overview' : 'Open route',
-      primaryHref: `${withBasePath('contact-hq/')}?trade=${encodeURIComponent(activeTrade.slug)}&tradePage=${encodeURIComponent(tradePageLabel)}`,
+      primaryHref: buildContactHqHref({
+        trade: activeTrade.slug,
+        tradePage: tradePageLabel,
+      }),
       primaryLabel: activeSubpage
         ? 'Start this route'
         : `Start ${activeTrade.shortName}`,

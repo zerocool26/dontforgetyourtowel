@@ -9,11 +9,16 @@ import ScopeReadinessPanel from '../components/business/ScopeReadinessPanel.astr
 import OperationalIntelligenceWorkbench from '../components/business/OperationalIntelligenceWorkbench.tsx';
 import DecisionHandoffPanel from '../components/business/DecisionHandoffPanel.astro';
 import { withBasePath } from '../utils/helpers';
-import { CONTACT_EMAIL } from '../consts';
+import {
+  CONTACT_CALENDAR_URL,
+  CONTACT_CRM_LABEL,
+  CONTACT_EMAIL,
+} from '../consts';
 import { studioPresets } from '../data/build-studio';
 import { operatingIntelligenceItems } from '../data/operating-intelligence';
 import { servicesExtended } from '../data/services-extended';
 import { tradeProfiles } from '../data/trades';
+import { buildContactHqHref } from '../utils/contact';
 
 const serviceIntent = Astro.url.searchParams.get('service')?.trim() ?? '';
 const solutionIntent = Astro.url.searchParams.get('solution')?.trim() ?? '';
@@ -79,36 +84,13 @@ const tradeIntentLabel =
   recommendedTradeLabel[tradeIntent.toLowerCase()] ?? tradeIntent;
 
 const kickoffSubject = tradeIntentLabel
-  ? `New project inquiry — ${tradeIntentLabel}`
+  ? `${tradeIntentLabel} inquiry`
   : serviceIntentLabel
-    ? `New project inquiry — ${serviceIntentLabel}`
+    ? `${serviceIntentLabel} inquiry`
     : solutionIntentLabel
-      ? `New project inquiry — ${solutionIntentLabel}`
-      : 'New project inquiry';
-
-const kickoffBodyLines = [
-  tradeIntentLabel ? `Context focus: ${tradeIntentLabel}` : '',
-  tradePageIntent ? `Context route: ${tradePageIntent}` : '',
-  solutionIntentLabel ? `Build path: ${solutionIntentLabel}` : '',
-  briefIntent ? `Build brief: ${briefIntent}` : '',
-  workspaceTitleIntent ? `Workspace title: ${workspaceTitleIntent}` : '',
-  workspaceSummaryIntent ? `Workspace summary: ${workspaceSummaryIntent}` : '',
-  workspaceRoutesIntent.length
-    ? `Workspace routes:\n${workspaceRoutesIntent
-        .map(route => `- ${route.title} (${route.category})`)
-        .join('\n')}`
-    : '',
-].filter(Boolean);
-
-const kickoffMailtoParams = new URLSearchParams({
-  subject: kickoffSubject,
-});
-
-if (kickoffBodyLines.length) {
-  kickoffMailtoParams.set('body', kickoffBodyLines.join('\n\n'));
-}
-
-const kickoffHref = `mailto:${encodeURIComponent(CONTACT_EMAIL)}?${kickoffMailtoParams.toString()}`;
+      ? `${solutionIntentLabel} inquiry`
+      : 'Chicago Operations Studio inquiry';
+const scheduleHref = CONTACT_CALENDAR_URL || '#structured-intake';
 const hasIntakeContext = Boolean(
   tradeIntentLabel ||
   tradePageIntent ||
@@ -325,30 +307,30 @@ const faqSchema = {
           <div class="tone-page-header">
             <p class="tone-page-eyebrow">Contact HQ</p>
             <h1 class="tone-page-title max-w-5xl">
-              Send the messy context once. Get a clear next move.
+              Chicago Operations Studio intake, built for real routing.
             </h1>
             <p class="tone-page-copy max-w-3xl">
-              Use this when the first move is not obvious: provider transition,
-              daily support, security review, Microsoft 365 cleanup, cloud work,
-              backup confidence, or a buyer-facing digital system.
+              Use one structured brief for support ownership, security posture,
+              Microsoft 365 cleanup, backup confidence, provider transition, or
+              proof-led digital system work. The goal is a routed next move, not
+              another vague contact thread.
             </p>
           </div>
 
           <div class="tone-page-actions">
             <ModernButton
-              href={kickoffHref}
-              data-kickoff-mailto
+              href="#structured-intake"
               variant="primary"
               className="min-h-[50px]"
             >
-              Email project details
+              Start structured intake
             </ModernButton>
             <ModernButton
-              href={withBasePath('services/')}
+              href={scheduleHref}
               variant="secondary"
               className="min-h-[50px]"
             >
-              Review solutions first
+              Schedule a planning call
             </ModernButton>
           </div>
 
@@ -372,38 +354,72 @@ const faqSchema = {
               <p
                 class="font-mono text-[0.68rem] uppercase tracking-[0.24em] text-white/50"
               >
-                Best contact path
+                Intake system
               </p>
               <p class="mt-3 text-lg font-semibold text-white">
-                {CONTACT_EMAIL}
+                {CONTACT_CRM_LABEL}
               </p>
               <p class="mt-3 text-sm leading-6 text-slate-300">
-                Email works best when it includes the problem, rough size,
-                timing, constraints, approval owner, current provider context,
-                and anything customer-visible.
+                Structured intake captures routing context, qualification
+                detail, source attribution, and scheduling intent in one place
+                so the follow-up owner starts with the full picture.
               </p>
             </div>
 
             <div class="grid gap-4 sm:grid-cols-2">
               <div class="tone-panel-soft rounded-2xl p-4">
-                <p class="text-sm font-semibold text-white">What to send</p>
+                <p class="text-sm font-semibold text-white">Response target</p>
                 <p class="mt-2 text-sm leading-6 text-slate-300">
-                  The actual problem, current setup, rough user/device/site
-                  count, and anything urgent, regulated, or approval-sensitive.
+                  Most qualified inquiries get a same-business-day first review
+                  with a recommended lane, missing inputs, and next action.
                 </p>
               </div>
               <div class="tone-panel-soft rounded-2xl p-4">
-                <p class="text-sm font-semibold text-white">
-                  What happens next
-                </p>
+                <p class="text-sm font-semibold text-white">Best backup path</p>
                 <p class="mt-2 text-sm leading-6 text-slate-300">
-                  We help route the request into the right lane before jumping
-                  into solution overload.
+                  If you already know you want a live conversation, use the
+                  scheduling option first and keep the intake form for the full
+                  handoff detail.
                 </p>
               </div>
             </div>
           </div>
         </ModernCard>
+      </div>
+
+      <div class="mt-6 grid gap-4 md:grid-cols-3">
+        <div class="tone-panel-soft rounded-2xl p-5">
+          <p
+            class="font-mono text-[0.64rem] uppercase tracking-[0.2em] text-white/45"
+          >
+            Built for
+          </p>
+          <p class="mt-3 text-sm leading-7 text-slate-300">
+            Chicago-area firms that need calmer operations, stronger proof, and
+            clearer owner handoffs.
+          </p>
+        </div>
+        <div class="tone-panel-soft rounded-2xl p-5">
+          <p
+            class="font-mono text-[0.64rem] uppercase tracking-[0.2em] text-white/45"
+          >
+            What gets routed
+          </p>
+          <p class="mt-3 text-sm leading-7 text-slate-300">
+            Support, security, Microsoft 365, backup/recovery, provider
+            transition, roadmap, and selected digital system work.
+          </p>
+        </div>
+        <div class="tone-panel-soft rounded-2xl p-5">
+          <p
+            class="font-mono text-[0.64rem] uppercase tracking-[0.2em] text-white/45"
+          >
+            Direct contact
+          </p>
+          <p class="mt-3 text-sm leading-7 text-slate-300">
+            {CONTACT_EMAIL}
+          </p>
+        </div>
       </div>
 
       <div
@@ -550,6 +566,270 @@ const faqSchema = {
 
   <section
     class="tone-section-divider border-b"
+    id="structured-intake"
+    data-reveal
+    data-page-section
+  >
+    <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
+      <div class="grid gap-8 lg:grid-cols-[0.92fr_1.08fr] lg:items-start">
+        <div class="tone-section-heading">
+          <p class="tone-section-kicker">Structured intake</p>
+          <h2 class="tone-section-title">
+            Give the next owner a brief they can actually act on.
+          </h2>
+          <p class="tone-section-copy">
+            This form captures the real pressure point, company shape, timing,
+            risk, source, and route context. It is built for routing, not for a
+            generic “hello”.
+          </p>
+
+          <div class="mt-8 grid gap-4">
+            <div class="tone-panel-soft rounded-2xl p-5">
+              <p class="text-sm font-semibold text-white">What belongs here</p>
+              <p class="mt-2 text-sm leading-7 text-slate-300">
+                Support ownership gaps, security review, Microsoft 365 cleanup,
+                backup doubt, provider transitions, compliance pressure,
+                leadership planning, and buyer-facing system proof work.
+              </p>
+            </div>
+            <div class="tone-panel-soft rounded-2xl p-5">
+              <p class="text-sm font-semibold text-white">
+                What speeds routing
+              </p>
+              <p class="mt-2 text-sm leading-7 text-slate-300">
+                User count, locations, current provider context, recurring pain,
+                timing, approval owner, and anything regulated or
+                customer-visible.
+              </p>
+            </div>
+            <div class="tone-panel-soft rounded-2xl p-5">
+              <p class="text-sm font-semibold text-white">
+                Need a live review?
+              </p>
+              <div class="mt-3 flex flex-wrap gap-3">
+                <ModernButton
+                  href={scheduleHref}
+                  variant="secondary"
+                  className="min-h-[46px]"
+                >
+                  Book planning call
+                </ModernButton>
+                <ModernButton
+                  href={withBasePath('pricing/')}
+                  variant="outline"
+                  className="min-h-[46px]"
+                >
+                  Review pricing first
+                </ModernButton>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <ModernCard variant="glass" className="p-6 sm:p-8">
+          <form
+            id="contact-form"
+            data-keyboard-aware
+            class="contact-intake-form space-y-5"
+            novalidate
+          >
+            <div class="grid gap-4 sm:grid-cols-2">
+              <label class="contact-form-field">
+                <span>First name</span>
+                <input
+                  class="contact-form-input form-input"
+                  type="text"
+                  name="firstName"
+                  autocomplete="given-name"
+                  required
+                />
+                <span class="form-error hidden"></span>
+              </label>
+              <label class="contact-form-field">
+                <span>Last name</span>
+                <input
+                  class="contact-form-input form-input"
+                  type="text"
+                  name="lastName"
+                  autocomplete="family-name"
+                  required
+                />
+                <span class="form-error hidden"></span>
+              </label>
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+              <label class="contact-form-field">
+                <span>Email</span>
+                <input
+                  class="contact-form-input form-input"
+                  type="email"
+                  name="email"
+                  autocomplete="email"
+                  inputmode="email"
+                  required
+                />
+                <span class="form-error hidden"></span>
+              </label>
+              <label class="contact-form-field">
+                <span>Phone</span>
+                <input
+                  class="contact-form-input form-input"
+                  type="tel"
+                  name="phone"
+                  autocomplete="tel"
+                />
+                <span class="form-error hidden"></span>
+              </label>
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+              <label class="contact-form-field">
+                <span>Company</span>
+                <input
+                  class="contact-form-input form-input"
+                  type="text"
+                  name="company"
+                  autocomplete="organization"
+                />
+                <span class="form-error hidden"></span>
+              </label>
+              <label class="contact-form-field">
+                <span>Subject</span>
+                <input
+                  class="contact-form-input form-input"
+                  type="text"
+                  name="subject"
+                  value={kickoffSubject}
+                  required
+                />
+                <span class="form-error hidden"></span>
+              </label>
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+              <label class="contact-form-field">
+                <span>Budget shape</span>
+                <select class="contact-form-input form-select" name="budget">
+                  <option value="">Select range</option>
+                  <option value="Under $3k / month">Under $3k / month</option>
+                  <option value="$3k - $7.5k / month"
+                    >$3k - $7.5k / month</option
+                  >
+                  <option value="$7.5k - $15k / month"
+                    >$7.5k - $15k / month</option
+                  >
+                  <option value="$15k+ / month">$15k+ / month</option>
+                  <option value="Project scoped">Project scoped</option>
+                  <option value="Need guidance">Need guidance</option>
+                </select>
+                <span class="form-error hidden"></span>
+              </label>
+              <label class="contact-form-field">
+                <span>Timing</span>
+                <select class="contact-form-input form-select" name="timeline">
+                  <option value="">Select timing</option>
+                  <option value="Urgent / this week">Urgent / this week</option>
+                  <option value="This month">This month</option>
+                  <option value="This quarter">This quarter</option>
+                  <option value="Next 6 months">Next 6 months</option>
+                  <option value="Planning ahead">Planning ahead</option>
+                </select>
+                <span class="form-error hidden"></span>
+              </label>
+            </div>
+
+            <label class="contact-form-field">
+              <span>What needs attention?</span>
+              <textarea
+                class="contact-form-input contact-form-textarea form-textarea"
+                name="message"
+                rows="7"
+                required
+              >
+              </textarea>
+              <span class="form-help">
+                Include the pressure point, rough user/device/site count,
+                current provider context, key constraint, and what success
+                should look like.
+              </span>
+              <span class="form-error hidden"></span>
+            </label>
+
+            <label class="contact-form-consent">
+              <input
+                class="form-checkbox"
+                type="checkbox"
+                name="terms"
+                required
+              />
+              <span>
+                I understand this intake is used to route the request and start
+                a follow-up conversation.
+              </span>
+            </label>
+
+            <input type="hidden" name="leadSource" value="website-contact-hq" />
+            <input type="hidden" name="serviceIntent" value="" />
+            <input type="hidden" name="solutionIntent" value="" />
+            <input type="hidden" name="tradeIntent" value="" />
+            <input type="hidden" name="tradePageIntent" value="" />
+            <input type="hidden" name="workspaceTitle" value="" />
+            <input type="hidden" name="workspaceSummary" value="" />
+            <input type="hidden" name="routeContext" value="contact-hq" />
+            <input type="hidden" name="scheduleRequested" value="false" />
+            <input type="hidden" name="utmSource" value="" />
+            <input type="hidden" name="utmMedium" value="" />
+            <input type="hidden" name="utmCampaign" value="" />
+            <input
+              class="sr-only"
+              type="text"
+              name="website"
+              tabindex="-1"
+              autocomplete="off"
+            />
+
+            <div class="form-status hidden rounded-2xl px-4 py-3 text-sm"></div>
+
+            <div class="flex flex-col gap-3 sm:flex-row">
+              <button
+                type="submit"
+                class="tone-focus-accent inline-flex min-h-[52px] items-center justify-center rounded-xl bg-[color:var(--color-primary-strong)] px-5 text-sm font-semibold text-[color:var(--color-text-inverse)] transition hover:brightness-105"
+              >
+                Submit intake
+              </button>
+              <ModernButton
+                href={scheduleHref}
+                variant="outline"
+                className="min-h-[52px]"
+              >
+                Book planning call
+              </ModernButton>
+            </div>
+          </form>
+
+          <div
+            id="contact-success-panel"
+            class="contact-success-panel mt-5 hidden rounded-2xl border border-emerald-300/20 bg-emerald-500/10 p-5"
+          >
+            <p
+              class="font-mono text-[0.64rem] uppercase tracking-[0.2em] text-emerald-100/70"
+            >
+              Intake received
+            </p>
+            <p class="mt-3 text-sm leading-7 text-slate-100">
+              The brief is ready for review. If you want to accelerate the next
+              step, use the planning call option while routing happens in
+              parallel.
+            </p>
+          </div>
+        </ModernCard>
+      </div>
+    </div>
+  </section>
+
+  <section
+    class="tone-section-divider border-b"
     id="decision-handoff"
     data-reveal
     data-page-section
@@ -662,9 +942,12 @@ const faqSchema = {
               </p>
               <a
                 class="tone-accent-link mt-5 inline-flex text-sm hover:underline"
-                href={`mailto:${encodeURIComponent(CONTACT_EMAIL)}?subject=${encodeURIComponent(channel.subject)}`}
+                href={buildContactHqHref({
+                  brief: channel.subject,
+                  schedule: 'false',
+                })}
               >
-                Email this channel
+                Route through intake
               </a>
             </ModernCard>
           ))
@@ -795,14 +1078,16 @@ const faqSchema = {
             <p class="tone-section-kicker">Primary contact</p>
             <h2 class="tone-section-title">Ready to send the first message?</h2>
             <p class="tone-section-copy max-w-2xl">
-              Email the context you have, even if the scope is not fully shaped
-              yet. The immediate goal is to identify the right next move.
+              Send the context once, even if the scope is not fully shaped yet.
+              The immediate goal is still the same: route the request into the
+              right next move.
             </p>
             <p class="text-sm text-slate-300">
-              <a
-                class="tone-accent-link hover:underline"
-                href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a
-              >
+              <a class="tone-accent-link hover:underline" href={scheduleHref}>
+                Book a planning call
+              </a>
+              <span class="mx-2 text-white/30">/</span>
+              <span>{CONTACT_EMAIL}</span>
             </p>
           </div>
 
@@ -810,19 +1095,18 @@ const faqSchema = {
             class="flex flex-col gap-3 sm:flex-row lg:flex-col lg:justify-end"
           >
             <ModernButton
-              href={kickoffHref}
-              data-kickoff-mailto
+              href="#structured-intake"
               variant="primary"
               className="min-h-[50px]"
             >
-              Email now
+              Start intake
             </ModernButton>
             <ModernButton
-              href={withBasePath('services/')}
+              href={scheduleHref}
               variant="secondary"
               className="min-h-[50px]"
             >
-              Explore solutions first
+              Schedule call
             </ModernButton>
           </div>
         </div>
@@ -833,7 +1117,6 @@ const faqSchema = {
   <script
     is:inline
     define:vars={{
-      contactEmail: CONTACT_EMAIL,
       serviceLabels: recommendedServiceLabel,
       serviceCatalogLabels: serviceCatalogLabel,
       solutionLabels: recommendedSolutionLabel,
@@ -847,9 +1130,13 @@ const faqSchema = {
       const briefValue = (params.get('brief') || '').trim();
       const tradeKey = (params.get('trade') || '').trim();
       const tradePageValue = (params.get('tradePage') || '').trim();
+      const scheduleValue = (params.get('schedule') || '').trim();
       const workspaceTitle = (params.get('workspaceTitle') || '').trim();
       const workspaceSummary = (params.get('workspaceSummary') || '').trim();
       const workspaceRoutesRaw = (params.get('workspaceRoutes') || '').trim();
+      const utmSource = (params.get('utm_source') || '').trim();
+      const utmMedium = (params.get('utm_medium') || '').trim();
+      const utmCampaign = (params.get('utm_campaign') || '').trim();
       let workspaceRoutes = [];
 
       if (workspaceRoutesRaw) {
@@ -915,6 +1202,34 @@ const faqSchema = {
       const workspaceRoutesNode = document.getElementById(
         'intake-context-workspace-routes'
       );
+      const subjectField = document.querySelector('input[name="subject"]');
+      const serviceIntentInput = document.querySelector(
+        'input[name="serviceIntent"]'
+      );
+      const solutionIntentInput = document.querySelector(
+        'input[name="solutionIntent"]'
+      );
+      const tradeIntentInput = document.querySelector(
+        'input[name="tradeIntent"]'
+      );
+      const tradePageIntentInput = document.querySelector(
+        'input[name="tradePageIntent"]'
+      );
+      const workspaceTitleInput = document.querySelector(
+        'input[name="workspaceTitle"]'
+      );
+      const workspaceSummaryInput = document.querySelector(
+        'input[name="workspaceSummary"]'
+      );
+      const scheduleRequestedInput = document.querySelector(
+        'input[name="scheduleRequested"]'
+      );
+      const utmSourceInput = document.querySelector('input[name="utmSource"]');
+      const utmMediumInput = document.querySelector('input[name="utmMedium"]');
+      const utmCampaignInput = document.querySelector(
+        'input[name="utmCampaign"]'
+      );
+      const successPanel = document.getElementById('contact-success-panel');
 
       const applyField = (row, node, value) => {
         if (!(row instanceof HTMLElement) || !(node instanceof HTMLElement)) {
@@ -979,52 +1294,141 @@ const faqSchema = {
       }
 
       const kickoffSubject = tradeLabel
-        ? `New project inquiry — ${tradeLabel}`
+        ? `${tradeLabel} inquiry`
         : serviceLabel
-          ? `New project inquiry — ${serviceLabel}`
+          ? `${serviceLabel} inquiry`
           : solutionLabel
-            ? `New project inquiry — ${solutionLabel}`
-            : 'New project inquiry';
+            ? `${solutionLabel} inquiry`
+            : 'Chicago Operations Studio inquiry';
 
-      const bodyLines = [];
-      if (tradeLabel) {
-        bodyLines.push(`Context focus: ${tradeLabel}`);
+      if (subjectField instanceof HTMLInputElement) {
+        subjectField.value = kickoffSubject;
       }
-      if (tradePageValue) {
-        bodyLines.push(`Context route: ${tradePageValue}`);
+      if (serviceIntentInput instanceof HTMLInputElement) {
+        serviceIntentInput.value = serviceLabel;
       }
-      if (solutionLabel) {
-        bodyLines.push(`Build path: ${solutionLabel}`);
+      if (solutionIntentInput instanceof HTMLInputElement) {
+        solutionIntentInput.value = solutionLabel;
       }
-      if (briefValue) {
-        bodyLines.push(`Build brief: ${briefValue}`);
+      if (tradeIntentInput instanceof HTMLInputElement) {
+        tradeIntentInput.value = tradeLabel;
       }
-      if (workspaceTitle) {
-        bodyLines.push(`Workspace title: ${workspaceTitle}`);
+      if (tradePageIntentInput instanceof HTMLInputElement) {
+        tradePageIntentInput.value = tradePageValue;
       }
-      if (workspaceSummary) {
-        bodyLines.push(`Workspace summary: ${workspaceSummary}`);
+      if (workspaceTitleInput instanceof HTMLInputElement) {
+        workspaceTitleInput.value = workspaceTitle;
       }
-      if (workspaceRoutes.length) {
-        bodyLines.push(
-          `Workspace routes:\n${workspaceRoutes
-            .map(route => `- ${route.title} (${route.category})`)
-            .join('\n')}`
-        );
+      if (workspaceSummaryInput instanceof HTMLInputElement) {
+        workspaceSummaryInput.value = workspaceSummary;
+      }
+      if (scheduleRequestedInput instanceof HTMLInputElement) {
+        scheduleRequestedInput.value = String(scheduleValue === 'true');
+      }
+      if (utmSourceInput instanceof HTMLInputElement) {
+        utmSourceInput.value = utmSource;
+      }
+      if (utmMediumInput instanceof HTMLInputElement) {
+        utmMediumInput.value = utmMedium;
+      }
+      if (utmCampaignInput instanceof HTMLInputElement) {
+        utmCampaignInput.value = utmCampaign;
       }
 
-      const mailtoParams = new URLSearchParams({ subject: kickoffSubject });
-      if (bodyLines.length) {
-        mailtoParams.set('body', bodyLines.join('\n\n'));
-      }
-
-      const dynamicKickoffHref = `mailto:${encodeURIComponent(contactEmail)}?${mailtoParams.toString()}`;
-
-      document.querySelectorAll('[data-kickoff-mailto]').forEach(link => {
-        if (link instanceof HTMLAnchorElement) {
-          link.href = dynamicKickoffHref;
+      document.addEventListener('contact:submitted', () => {
+        if (successPanel instanceof HTMLElement) {
+          successPanel.classList.remove('hidden');
+          successPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
       });
     })();
   </script>
+  <script>
+    import '../scripts/contact-form';
+  </script>
 </MarketingLayout>
+
+<style is:inline>
+  .contact-form-field {
+    display: grid;
+    gap: 0.6rem;
+  }
+
+  .contact-form-field > span:first-child,
+  .contact-form-consent {
+    color: var(--color-text-primary);
+    font-size: 0.92rem;
+    font-weight: 600;
+  }
+
+  .contact-form-input {
+    width: 100%;
+    min-height: 3.15rem;
+    border: 1px solid color-mix(in srgb, var(--color-border) 82%, transparent);
+    border-radius: 0.95rem;
+    background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+    color: var(--color-text-primary);
+    padding: 0.9rem 1rem;
+  }
+
+  .contact-form-input:focus {
+    outline: 2px solid color-mix(in srgb, var(--color-primary) 52%, transparent);
+    outline-offset: 2px;
+  }
+
+  .contact-form-textarea {
+    min-height: 10rem;
+    resize: vertical;
+  }
+
+  .contact-form-consent {
+    display: flex;
+    gap: 0.8rem;
+    align-items: flex-start;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+  }
+
+  .contact-form-consent input {
+    margin-top: 0.15rem;
+  }
+
+  .form-help,
+  .form-error,
+  .form-status {
+    font-size: 0.82rem;
+    line-height: 1.6;
+  }
+
+  .form-help {
+    color: var(--color-text-muted);
+  }
+
+  .form-error {
+    color: #f4b2b2;
+  }
+
+  .form-status {
+    border: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
+    background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+    color: var(--color-text-secondary);
+  }
+
+  .alert-success {
+    border-color: rgba(134, 239, 172, 0.28);
+    background: rgba(34, 197, 94, 0.12);
+    color: #dcfce7;
+  }
+
+  .alert-error {
+    border-color: rgba(248, 113, 113, 0.28);
+    background: rgba(127, 29, 29, 0.2);
+    color: #fecaca;
+  }
+
+  .alert-info {
+    border-color: rgba(191, 219, 254, 0.28);
+    background: rgba(37, 99, 235, 0.12);
+    color: #dbeafe;
+  }
+</style>

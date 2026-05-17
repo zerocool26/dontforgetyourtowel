@@ -6,6 +6,7 @@ import OperationalIntelligenceWorkbench from '../components/business/Operational
 import EcommerceShowcase from '../components/demo-lab/EcommerceShowcase';
 import { operatingIntelligenceItems } from '../data/operating-intelligence';
 import { withBasePath } from '../utils/helpers';
+import { buildContactHqHref } from '../utils/contact';
 
 const workbenchItems = operatingIntelligenceItems.map(item => ({
   ...item,
@@ -14,22 +15,22 @@ const workbenchItems = operatingIntelligenceItems.map(item => ({
 
 const proofSignals = [
   {
-    value: 'URL-backed',
-    label: 'Review presets',
+    value: 'Business-framed',
+    label: 'Selected proof states',
     detail:
-      'Stakeholders can reopen cart, compare, quick view, and checkout states without a long screen-share explanation.',
+      'Stakeholders can reopen comparison, quick-view, and checkout moments with business context intact.',
   },
   {
-    value: 'Live',
-    label: 'Buyer interactions',
+    value: 'Annotated',
+    label: 'Decision moments',
     detail:
-      'Search, compare, quick view, cart, and checkout behavior can be tested directly instead of guessed from mockups.',
+      'Search, compare, quick view, cart, and checkout behavior is explained in terms of trust and conversion.',
   },
   {
-    value: 'Mobile-first',
-    label: 'Presentation rhythm',
+    value: 'Reviewable',
+    label: 'Executive proof',
     detail:
-      'Controls stay readable and tappable because most buyer research and approval checks happen on imperfect screens.',
+      'The point is not novelty. It is making premium digital work easier to approve, QA, and hand off.',
   },
 ];
 
@@ -140,8 +141,8 @@ const featuredProducts = [
 ---
 
 <MarketingLayout
-  title="Digital Proof Lab | Olive Chicago"
-  description="Interactive digital proof lab with shareable review states, safety controls, and a live proof board for buyer-facing systems."
+  title="Proof + Selected Digital Systems | Olive Chicago"
+  description="Proof-led digital systems page with annotated review states, business outcomes, and a live selected-demo walkthrough."
   bodyClass="creative-page"
   mainClass="relative isolate overflow-x-clip"
   showFooter={true}
@@ -161,14 +162,14 @@ const featuredProducts = [
     <div class="premium-container">
       <div class="demo-page-hero__grid">
         <div class="tone-page-header">
-          <p class="tone-page-eyebrow">Digital proof lab</p>
+          <p class="tone-page-eyebrow">Proof + selected digital systems</p>
           <h1 class="tone-page-title">
-            Buyer-facing systems should prove trust before the sales call.
+            Digital systems should read like business proof, not a side project.
           </h1>
           <p class="tone-page-copy">
-            Storefronts, portals, product pages, and intake paths need fast
-            finding, clear comparison, useful reassurance, clean handoff, and a
-            review trail teams can share before anything ships.
+            When Olive handles buyer-facing systems, the standard is the same as
+            managed operations: clearer ownership, calmer review states, visible
+            trust cues, and outcomes that leadership can actually defend.
           </p>
 
           <div class="tone-page-actions">
@@ -177,10 +178,14 @@ const featuredProducts = [
               variant="gradient"
               className="min-h-[52px]"
             >
-              Open live demo
+              Review selected proof
             </ModernButton>
             <ModernButton
-              href={withBasePath('contact-hq/')}
+              href={buildContactHqHref({
+                solution: 'digital',
+                brief:
+                  'I want to discuss a proof-led website, portal, ecommerce, or intake system.',
+              })}
               variant="outline"
               className="min-h-[52px]"
             >
@@ -220,9 +225,9 @@ const featuredProducts = [
         compact
         items={workbenchItems}
         defaultItemId="digital-trust"
-        eyebrow="Digital trust system"
-        title="Use the demo to connect design choices to buyer movement."
-        description="Digital work should not be decoration. This workbench shows the evidence, automation, launch criteria, and ownership that turn a storefront, portal, or intake path into a business system."
+        eyebrow="Proof system"
+        title="Connect design choices to buyer movement, owner clarity, and launch confidence."
+        description="Digital work should not be decoration. This workbench maps the evidence, automation, launch criteria, and ownership that turn a storefront, portal, or intake path into a business system."
       />
     </div>
   </section>
@@ -507,7 +512,7 @@ const featuredProducts = [
             </div>
             <p>
               Search, quick view, compare, cart, and checkout are all wired into
-              the live demo below.
+              the selected proof demo below.
             </p>
           </div>
 

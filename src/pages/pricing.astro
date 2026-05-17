@@ -16,12 +16,12 @@ import {
   pricingTiers,
   slaComparisonRows,
 } from '../data/pricing';
-import { CONTACT_EMAIL } from '../consts';
 import { withBasePath } from '../utils/helpers';
+import { buildContactHqHref } from '../utils/contact';
 
-const requestQuoteHref = `mailto:${encodeURIComponent(
-  CONTACT_EMAIL
-)}?subject=${encodeURIComponent('Chicago MSP pricing and roadmap request')}`;
+const requestQuoteHref = buildContactHqHref({
+  brief: 'I want executive-defensible pricing guidance and scope support.',
+});
 
 const workbenchItems = operatingIntelligenceItems.map(item => ({
   ...item,
@@ -246,7 +246,7 @@ const pricingSections = [
               variant="outline"
               className="hidden min-h-[50px] sm:inline-flex"
             >
-              Request a roadmap quote
+              Start pricing intake
             </ModernButton>
           </div>
 
@@ -387,6 +387,13 @@ const pricingSections = [
             className="min-h-[48px]"
           >
             Model the impact
+          </ModernButton>
+          <ModernButton
+            href={withBasePath('pricing-approval-brief.txt')}
+            variant="outline"
+            className="min-h-[48px]"
+          >
+            Download approval brief
           </ModernButton>
         </div>
 
@@ -705,7 +712,7 @@ const pricingSections = [
         <PricingCalculator
           client:only="preact"
           ctaHref={requestQuoteHref}
-          ctaLabel="Email for a quote"
+          ctaLabel="Start pricing intake"
           title="Estimate monthly cost"
           description="Use the model to sanity-check budget before discovery. We validate the assumptions once we understand your users, devices, and response expectations."
         />

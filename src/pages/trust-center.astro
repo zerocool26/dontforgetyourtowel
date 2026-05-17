@@ -1,0 +1,136 @@
+---
+import MarketingLayout from '../layouts/MarketingLayout.astro';
+import StructuredData from '../components/StructuredData.astro';
+import ModernButton from '../components/ui/ModernButton.astro';
+import ModernCard from '../components/ui/ModernCard.astro';
+import FAQAccordion from '../components/ui/FAQAccordion.astro';
+import {
+  trustCenterPractices,
+  trustCenterSignals,
+} from '../data/authority-pages';
+import { buildContactHqHref } from '../utils/contact';
+import { withBasePath } from '../utils/helpers';
+
+const trustFaqs = [
+  {
+    title: 'Do you publish every internal control publicly?',
+    content:
+      'No. This page is meant to show posture, review rhythm, and accountability without oversharing internal implementation detail that would weaken security.',
+  },
+  {
+    title: 'What should a buyer expect before onboarding?',
+    content:
+      'A fit conversation, scope framing, owner identification, and a clear picture of which operating risks need attention first.',
+  },
+  {
+    title: 'Can this page support security questionnaires or approvals?',
+    content:
+      'Yes. It gives leadership a public summary of backup, incident coordination, data handling, and review cadence before deeper conversations.',
+  },
+];
+---
+
+<MarketingLayout
+  title="Trust Center | Olive Chicago"
+  description="Public trust center covering backup posture, incident coordination, data handling, review cadence, and practical operating accountability."
+  bodyClass="creative-page"
+  mainClass="relative isolate overflow-x-clip"
+>
+  <StructuredData
+    type="service"
+    data={{
+      name: 'Olive Chicago Trust Center',
+      description:
+        'Public trust center with backup, incident response, data handling, and operating review posture for Chicago-area managed IT and security engagements.',
+      serviceType: 'Trust center',
+    }}
+  />
+
+  <section class="premium-page-section pt-10 sm:pt-14" data-page-section>
+    <div class="premium-container">
+      <div class="tone-page-header max-w-4xl">
+        <p class="tone-page-eyebrow">Trust center</p>
+        <h1 class="tone-page-title">
+          Public operating trust for support, security, recovery, and vendor
+          coordination.
+        </h1>
+        <p class="tone-page-copy">
+          Buyers should not have to guess how backup, recovery, escalation, and
+          review cadence are handled. This page summarizes the posture Olive
+          uses to keep technical ownership calm, visible, and reviewable.
+        </p>
+        <div class="tone-page-actions">
+          <ModernButton
+            href={buildContactHqHref({
+              service: 'security',
+              brief:
+                'I want to review trust, backup, incident coordination, or security posture.',
+            })}
+            variant="gradient"
+            className="min-h-[52px]"
+          >
+            Start trust review
+          </ModernButton>
+          <ModernButton
+            href={withBasePath('contact-hq/')}
+            variant="outline"
+            className="min-h-[52px]"
+          >
+            Contact HQ
+          </ModernButton>
+        </div>
+      </div>
+
+      <div class="mt-8 grid gap-4 md:grid-cols-3">
+        {
+          trustCenterSignals.map(signal => (
+            <ModernCard>
+              <p class="tone-label">{signal.label}</p>
+              <h2 class="tone-title mt-3 text-xl">{signal.value}</h2>
+              <p class="tone-body mt-3">{signal.detail}</p>
+            </ModernCard>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="premium-page-section" data-page-section>
+    <div
+      class="premium-container grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]"
+    >
+      <div class="grid gap-4">
+        {
+          trustCenterPractices.map(practice => (
+            <ModernCard>
+              <h2 class="tone-title text-2xl">{practice.title}</h2>
+              <p class="tone-body mt-3">{practice.copy}</p>
+              <ul class="tone-body mt-4 grid gap-2 pl-5">
+                {practice.bullets.map(item => (
+                  <li>{item}</li>
+                ))}
+              </ul>
+            </ModernCard>
+          ))
+        }
+      </div>
+
+      <ModernCard className="h-fit">
+        <p class="tone-label">What buyers can expect</p>
+        <h2 class="tone-title mt-3 text-2xl">Operating rhythm</h2>
+        <div class="tone-body mt-4 grid gap-3">
+          <p>1. Fit review and pressure-point framing.</p>
+          <p>2. Scope, owner, and risk priorities established.</p>
+          <p>3. Transition or remediation lane agreed before tool churn.</p>
+          <p>4. Monthly review rhythm with next actions and visible owners.</p>
+        </div>
+      </ModernCard>
+    </div>
+  </section>
+
+  <section class="premium-page-section pb-16 sm:pb-20" data-page-section>
+    <div class="premium-container max-w-4xl">
+      <FAQAccordion items={trustFaqs} />
+    </div>
+  </section>
+</MarketingLayout>
