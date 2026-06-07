@@ -8,7 +8,7 @@ test.describe('Homepage buyer landing', () => {
     await expect(
       page.getByRole('heading', {
         level: 1,
-        name: /CHICAGOS #1 MSP for companies that expect excellent support/i,
+        name: /CHICAGOS #1 MSP for IT support that gets answered, owned, and proven/i,
       })
     ).toBeAttached();
     await expect(
@@ -20,14 +20,14 @@ test.describe('Homepage buyer landing', () => {
     await page.goto('./');
 
     await expect(
-      page.getByRole('link', { name: /View services/i })
-    ).toHaveAttribute('href', /services\/$/);
+      page.getByRole('link', { name: /Start fit check/i }).first()
+    ).toHaveAttribute('href', /contact-hq\/$/);
     await expect(
       page.getByRole('link', { name: /See pricing/i })
     ).toHaveAttribute('href', /pricing\/$/);
     await expect(
-      page.getByRole('link', { name: /Start fit check/i })
-    ).toHaveAttribute('href', /contact-hq\/$/);
+      page.getByRole('link', { name: /View services/i }).first()
+    ).toHaveAttribute('href', /services\/$/);
   });
 
   test('renders a nonblank 3D hero canvas', async ({ page }) => {
@@ -83,9 +83,8 @@ test.describe('Homepage buyer landing', () => {
 
     await expect(page.locator('#operating-standard')).toBeVisible();
     await expect(
-      page.getByRole('heading', { name: /first phase/i })
+      page.getByRole('heading', { name: /first phase should calm/i })
     ).toBeVisible();
-    await expect(page.getByText(/First 30 days/i)).toBeVisible();
     await expect(page.locator('.home-homepage-first30 li')).toHaveCount(3);
   });
 

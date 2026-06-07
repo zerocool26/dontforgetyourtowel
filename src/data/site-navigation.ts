@@ -12,7 +12,7 @@ export type FooterSignal = {
 
 export const buyerPathLinks: SiteLink[] = [
   {
-    label: 'Solutions',
+    label: 'Services',
     href: 'services/',
     description:
       'Managed IT, cybersecurity, Microsoft 365, backup, network, and support ownership.',

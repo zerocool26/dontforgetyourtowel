@@ -10,7 +10,7 @@ test.describe('Landing page integrity', () => {
     await expect(
       page.getByRole('heading', {
         level: 1,
-        name: /CHICAGOS #1 MSP for companies that expect excellent support/i,
+        name: /CHICAGOS #1 MSP for IT support that gets answered, owned, and proven/i,
       })
     ).toBeAttached();
     await expect(
@@ -37,7 +37,7 @@ test.describe('Landing page integrity', () => {
           name: /main navigation/i,
         });
     await expect(
-      navSurface.getByRole('link', { name: /^solutions$/i })
+      navSurface.getByRole('link', { name: /^services$/i })
     ).toHaveAttribute('href', /\/services\/?$/);
     await expect(
       navSurface.getByRole('link', { name: /^pricing$/i })
@@ -76,7 +76,7 @@ test.describe('Landing page integrity', () => {
     await expect(
       page.getByRole('heading', {
         level: 1,
-        name: /CHICAGOS #1 MSP for companies that expect excellent support/i,
+        name: /CHICAGOS #1 MSP for IT support that gets answered, owned, and proven/i,
       })
     ).toBeAttached();
     await expect(
