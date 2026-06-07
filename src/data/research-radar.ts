@@ -356,8 +356,8 @@ export const technologyRadar2026: TechnologyRadarItem[] = [
         type: 'official',
       },
       {
-        label: 'axe-core Playwright package',
-        href: 'https://github.com/dequelabs/axe-core-npm/tree/develop/packages/playwright',
+        label: 'axe-core repository',
+        href: 'https://github.com/dequelabs/axe-core',
         type: 'official',
       },
     ],
