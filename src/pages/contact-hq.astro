@@ -210,12 +210,9 @@ const engagementSteps = [
 ];
 
 const contactSections = [
-  { label: 'Handoff', href: '#decision-handoff' },
-  { label: 'Router', href: '#contact-workbench' },
   { label: 'Fit', href: '#fit' },
   { label: 'Channels', href: '#channels' },
   { label: 'Message checklist', href: '#intake' },
-  { label: 'Readiness', href: '#readiness' },
   { label: 'FAQ', href: '#faq' },
 ];
 
@@ -278,7 +275,7 @@ const faqSchema = {
 <MarketingLayout
   title="Contact | CHICAGOS #1 MSP"
   description="Contact and intake page for Chicago-area strategy, support, security advisory, roadmap conversations, cloud projects, and workflow support."
-  bodyClass="creative-page"
+  bodyClass="creative-page buyer-reframe contact-reframe"
   showFooter={true}
   showStickyCTA={false}
   showLiveChat={false}
@@ -307,13 +304,13 @@ const faqSchema = {
           <div class="tone-page-header">
             <p class="tone-page-eyebrow">Contact HQ</p>
             <h1 class="tone-page-title max-w-5xl">
-              Chicago Operations Studio intake, built for real routing.
+              Send the right context once.
             </h1>
             <p class="tone-page-copy max-w-3xl">
-              Use one structured brief for support ownership, security posture,
+              Use one short brief for support ownership, security posture,
               Microsoft 365 cleanup, backup confidence, provider transition, or
-              portal, intake, or workflow support. The goal is a routed next
-              move, not another vague contact thread.
+              workflow support. The goal is a routed next move, not another
+              vague contact thread.
             </p>
           </div>
 
@@ -323,14 +320,14 @@ const faqSchema = {
               variant="primary"
               className="min-h-[50px]"
             >
-              Start structured intake
+              Send intake
             </ModernButton>
             <ModernButton
               href={scheduleHref}
               variant="secondary"
               className="min-h-[50px]"
             >
-              Schedule a planning call
+              Schedule call
             </ModernButton>
           </div>
 
@@ -360,9 +357,9 @@ const faqSchema = {
                 {CONTACT_CRM_LABEL}
               </p>
               <p class="mt-3 text-sm leading-6 text-slate-300">
-                Structured intake captures routing context, qualification
-                detail, source attribution, and scheduling intent in one place
-                so the follow-up owner starts with the full picture.
+                Structured intake captures routing context, qualification, and
+                scheduling intent in one place so the follow-up owner starts
+                with the real picture.
               </p>
             </div>
 
@@ -387,7 +384,7 @@ const faqSchema = {
         </ModernCard>
       </div>
 
-      <div class="mt-6 grid gap-4 md:grid-cols-3">
+      <div class="mt-6 hidden gap-4 md:grid md:grid-cols-3">
         <div class="tone-panel-soft rounded-2xl p-5">
           <p
             class="font-mono text-[0.64rem] uppercase tracking-[0.2em] text-white/45"
@@ -395,8 +392,8 @@ const faqSchema = {
             Built for
           </p>
           <p class="mt-3 text-sm leading-7 text-slate-300">
-            Chicago-area firms that need calmer operations, stronger proof, and
-            clearer owner handoffs.
+            Chicago-area firms that need calmer operations and clearer owner
+            handoffs.
           </p>
         </div>
         <div class="tone-panel-soft rounded-2xl p-5">
@@ -406,8 +403,8 @@ const faqSchema = {
             What gets routed
           </p>
           <p class="mt-3 text-sm leading-7 text-slate-300">
-            Support, security, Microsoft 365, backup/recovery, provider
-            transition, roadmap, and workflow support.
+            Support, security, Microsoft 365, backup, transition, roadmap, and
+            workflow support.
           </p>
         </div>
         <div class="tone-panel-soft rounded-2xl p-5">

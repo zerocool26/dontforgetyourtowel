@@ -75,16 +75,10 @@ const entryLanes = [
 
 const serviceSections = [
   { label: 'Diagnostic', href: '#diagnostic-board' },
-  { label: 'Handoff', href: '#decision-handoff' },
-  { label: '2026 radar', href: '#research-radar' },
-  { label: 'Workbench', href: '#operating-intelligence' },
   { label: 'Tracks', href: '#service-tracks' },
-  { label: 'Buyer guide', href: '#buyer-guide' },
-  { label: 'Onboarding', href: '#onboarding' },
-  { label: 'Proof', href: '#case-studies' },
   { label: 'Catalog', href: '#technology-catalog' },
   { label: 'Comparison', href: '#service-planner' },
-  { label: 'Quiz', href: '#service-quiz' },
+  { label: 'Proof', href: '#case-studies' },
   { label: 'FAQ', href: '#faq' },
 ];
 
@@ -205,7 +199,7 @@ const breadcrumbItems = [
   title="Services Hub | CHICAGOS #1 MSP"
   description="Chicago-focused managed IT, cybersecurity, Microsoft 365, cloud, backup, networking, and workflow support."
   mainClass="relative isolate overflow-x-clip"
-  bodyClass="creative-page"
+  bodyClass="creative-page buyer-reframe services-reframe"
   showFooter={true}
   showStickyCTA={false}
   showLiveChat={false}
@@ -248,37 +242,29 @@ const breadcrumbItems = [
           <div class="tone-page-header">
             <p class="tone-page-eyebrow">Chicago services hub</p>
             <h1 class="tone-page-title">
-              Managed IT, security, Microsoft 365, backup, and network support
-              with clear ownership.
+              Services that make IT feel owned again.
             </h1>
             <p class="tone-page-copy max-w-3xl">
-              Start with the pressure point: recurring tickets, stale access,
-              cyber-insurance questions, Microsoft 365 sprawl, restore doubt,
-              network drag, or a public-facing system that should help sales.
+              Pick the problem first: support drag, risky access, Microsoft 365
+              sprawl, backup doubt, network friction, or a workflow that should
+              help the business instead of slowing it down.
             </p>
           </div>
 
           <div class="tone-page-actions">
             <ModernButton
-              href="#service-tracks"
+              href={startProjectHref}
               variant="primary"
               className="min-h-[50px]"
             >
-              Explore core tracks
+              Start fit check
             </ModernButton>
             <ModernButton
               href={withBasePath('pricing/')}
               variant="secondary"
               className="min-h-[50px]"
             >
-              Review pricing guidance
-            </ModernButton>
-            <ModernButton
-              href={startProjectHref}
-              variant="outline"
-              className="hidden min-h-[50px] sm:inline-flex"
-            >
-              Start structured intake
+              See pricing
             </ModernButton>
           </div>
 
@@ -299,10 +285,10 @@ const breadcrumbItems = [
         <div class="grid gap-4">
           <ModernCard variant="glass" className="tone-metric-card p-6">
             <p class="tone-metric-card__label">How to use this page</p>
-            <p class="tone-metric-card__value">Diagnose, then choose</p>
+            <p class="tone-metric-card__value">Diagnose first</p>
             <p class="tone-metric-card__detail">
-              Pick the operational problem first. Then compare tracks, outputs,
-              onboarding, proof, and pricing only where it helps the decision.
+              Start with the symptom, then use the tracks and catalog to see
+              what should be owned, measured, and handled first.
             </p>
           </ModernCard>
           <div class="grid gap-4 sm:grid-cols-2">
@@ -310,8 +296,7 @@ const breadcrumbItems = [
               <p class="tone-metric-card__label">Solution lanes</p>
               <p class="tone-metric-card__value">4</p>
               <p class="tone-metric-card__detail">
-                Support, security, modernization, and client-facing workflow
-                support.
+                Support, security, modernization, and workflow support.
               </p>
             </ModernCard>
             <ModernCard variant="default" className="tone-metric-card p-5">
@@ -320,12 +305,36 @@ const breadcrumbItems = [
                 {serviceCategories.length}
               </p>
               <p class="tone-metric-card__detail">
-                Specific enough for real scoping, simple enough for a first pass
-                on mobile.
+                Specific enough for scoping, calm enough for a first pass.
               </p>
             </ModernCard>
           </div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="buyer-proof-strip" aria-label="Service decision proof">
+    <div class="buyer-proof-strip__inner mx-auto max-w-[1240px] px-4 sm:px-6">
+      <div class="buyer-proof-strip__item">
+        <p class="buyer-proof-strip__label">Buyer problem</p>
+        <p class="buyer-proof-strip__copy">
+          Tickets, access, backups, vendors, and Microsoft 365 ownership feel
+          scattered.
+        </p>
+      </div>
+      <div class="buyer-proof-strip__item">
+        <p class="buyer-proof-strip__label">Best fit</p>
+        <p class="buyer-proof-strip__copy">
+          Chicago teams that want a calmer operating rhythm, not a bigger
+          brochure.
+        </p>
+      </div>
+      <div class="buyer-proof-strip__item">
+        <p class="buyer-proof-strip__label">Next action</p>
+        <p class="buyer-proof-strip__copy">
+          Share the pressure point and get the first service lane framed.
+        </p>
       </div>
     </div>
   </section>

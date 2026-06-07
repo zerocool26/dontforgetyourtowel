@@ -172,13 +172,9 @@ const approvalPack = [
 ];
 
 const pricingSections = [
-  { label: 'Workbench', href: '#pricing-workbench' },
   { label: 'Plans', href: '#plans' },
   { label: 'Approval', href: '#approval-pack' },
-  { label: 'Handoff', href: '#decision-handoff' },
   { label: 'SLA matrix', href: '#sla' },
-  { label: 'Scope examples', href: '#scope-examples' },
-  { label: 'Boundaries', href: '#scope-boundaries' },
   { label: 'Estimate', href: '#estimate' },
   { label: 'FAQ', href: '#faq' },
 ];
@@ -188,7 +184,7 @@ const pricingSections = [
   title="Pricing | CHICAGOS #1 MSP"
   description="Directional Chicago MSP pricing, SLA guidance, and planning tools for support, security, Microsoft 365, cloud, backup, and workflow support."
   mainClass="relative isolate overflow-x-clip"
-  bodyClass="creative-page"
+  bodyClass="creative-page buyer-reframe pricing-reframe"
   showFooter={true}
   showStickyCTA={false}
   showLiveChat={false}
@@ -216,37 +212,28 @@ const pricingSections = [
         <div class="space-y-6">
           <div class="tone-page-header">
             <p class="tone-page-eyebrow">Pricing</p>
-            <h1 class="tone-page-title">
-              Pricing guidance that makes scope easier to defend.
-            </h1>
+            <h1 class="tone-page-title">Pricing that is easier to defend.</h1>
             <p class="tone-page-copy max-w-3xl">
-              See plan shapes, budget drivers, scope boundaries, and approval
-              questions before a quote turns vague: users, devices, sites,
-              servers, risk, response expectations, and project work.
+              Get a practical range before the sales call. Compare plan shapes,
+              budget drivers, response expectations, and what usually belongs in
+              recurring support versus project scope.
             </p>
           </div>
 
           <div class="tone-page-actions">
             <ModernButton
-              href="#plans"
+              href={requestQuoteHref}
               variant="primary"
               className="min-h-[50px]"
             >
-              Compare plans
+              Start pricing intake
             </ModernButton>
             <ModernButton
-              href="#estimate"
+              href="#plans"
               variant="secondary"
               className="min-h-[50px]"
             >
-              Open calculators
-            </ModernButton>
-            <ModernButton
-              href={requestQuoteHref}
-              variant="outline"
-              className="hidden min-h-[50px] sm:inline-flex"
-            >
-              Start pricing intake
+              Compare plans
             </ModernButton>
           </div>
 
@@ -266,13 +253,12 @@ const pricingSections = [
                 Pricing logic
               </p>
               <p class="mt-3 text-lg font-semibold text-white">
-                Price follows support depth, risk, locations, and execution
-                scope.
+                Price follows support depth, risk, locations, and project scope.
               </p>
               <p class="mt-3 text-sm leading-6 text-slate-300">
-                The right quote depends on users, devices, servers, locations,
-                response expectations, backup confidence, security depth, and
-                project work. This page helps you pressure-test the shape first.
+                The right quote depends on users, devices, locations, response
+                expectations, backup confidence, security depth, and planned
+                work. This page helps you pressure-test the shape first.
               </p>
             </div>
 
@@ -280,8 +266,8 @@ const pricingSections = [
               <div class="tone-panel-soft rounded-2xl p-4">
                 <p class="text-sm font-semibold text-white">Best first move</p>
                 <p class="mt-2 text-sm leading-6 text-slate-300">
-                  Compare the plan levels, then use the calculators if you need
-                  a faster budget check before asking for exact scope.
+                  Compare the plan levels, then use the estimate section for a
+                  fast budget check before asking for exact scope.
                 </p>
               </div>
               <div class="tone-panel-soft rounded-2xl p-4">
@@ -307,6 +293,31 @@ const pricingSections = [
             </a>
           ))
         }
+      </div>
+    </div>
+  </section>
+
+  <section class="buyer-proof-strip" aria-label="Pricing decision proof">
+    <div class="buyer-proof-strip__inner mx-auto max-w-[1240px] px-4 sm:px-6">
+      <div class="buyer-proof-strip__item">
+        <p class="buyer-proof-strip__label">Buyer problem</p>
+        <p class="buyer-proof-strip__copy">
+          MSP pricing feels vague because support, risk, and projects get
+          blended together.
+        </p>
+      </div>
+      <div class="buyer-proof-strip__item">
+        <p class="buyer-proof-strip__label">Best fit</p>
+        <p class="buyer-proof-strip__copy">
+          Leaders who need a defensible budget range before committing to
+          discovery.
+        </p>
+      </div>
+      <div class="buyer-proof-strip__item">
+        <p class="buyer-proof-strip__label">Next action</p>
+        <p class="buyer-proof-strip__copy">
+          Send users, devices, sites, risk pressure, and current provider pain.
+        </p>
       </div>
     </div>
   </section>

@@ -33,8 +33,12 @@ const trustFaqs = [
 <MarketingLayout
   title="Trust Center | CHICAGOS #1 MSP"
   description="Public trust center covering backup posture, incident coordination, data handling, review cadence, and practical operating accountability."
-  bodyClass="creative-page"
+  bodyClass="creative-page buyer-reframe trust-reframe"
   mainClass="relative isolate overflow-x-clip"
+  showFooter={true}
+  showStickyCTA={false}
+  showLiveChat={false}
+  showSavedRoutesDock={false}
 >
   <StructuredData
     type="service"
@@ -46,53 +50,69 @@ const trustFaqs = [
     }}
   />
 
-  <section class="premium-page-section pt-10 sm:pt-14" data-page-section>
-    <div class="premium-container">
-      <div class="tone-page-header max-w-4xl">
-        <p class="tone-page-eyebrow">Trust center</p>
-        <h1 class="tone-page-title">
-          Public operating trust for support, security, recovery, and vendor
-          coordination.
-        </h1>
-        <p class="tone-page-copy">
-          Buyers should not have to guess how backup, recovery, escalation, and
-          review cadence are handled. This page summarizes the posture a serious
-          provider uses to keep technical ownership calm, visible, and
-          reviewable.
-        </p>
-        <div class="tone-page-actions">
-          <ModernButton
-            href={buildContactHqHref({
-              service: 'security',
-              brief:
-                'I want to review trust, backup, incident coordination, or security posture.',
-            })}
-            variant="gradient"
-            className="min-h-[52px]"
-          >
-            Start trust review
-          </ModernButton>
-          <ModernButton
-            href={withBasePath('contact-hq/')}
-            variant="outline"
-            className="min-h-[52px]"
-          >
-            Contact HQ
-          </ModernButton>
+  <section
+    class="tone-page-hero tone-section-divider border-b"
+    data-page-section
+    data-reveal
+  >
+    <div class="tone-page-hero__inner mx-auto max-w-[1240px] px-4 sm:px-6">
+      <div class="grid gap-10 lg:grid-cols-[1.08fr_0.92fr] lg:items-end">
+        <div class="space-y-6">
+          <div class="tone-page-header">
+            <p class="tone-page-eyebrow">Trust center</p>
+            <h1 class="tone-page-title">
+              Trust should feel visible before the call.
+            </h1>
+            <p class="tone-page-copy">
+              This is the public proof layer for backup posture, incident
+              coordination, data handling, review cadence, and operating
+              accountability.
+            </p>
+          </div>
+          <div class="tone-page-actions">
+            <ModernButton
+              href={buildContactHqHref({
+                service: 'security',
+                brief:
+                  'I want to review trust, backup, incident coordination, or security posture.',
+              })}
+              variant="primary"
+              className="min-h-[52px]"
+            >
+              Start trust review
+            </ModernButton>
+            <ModernButton
+              href={withBasePath('contact-hq/')}
+              variant="secondary"
+              className="min-h-[52px]"
+            >
+              Contact HQ
+            </ModernButton>
+          </div>
         </div>
-      </div>
 
-      <div class="mt-8 grid gap-4 md:grid-cols-3">
-        {
-          trustCenterSignals.map(signal => (
-            <ModernCard>
-              <p class="tone-label">{signal.label}</p>
-              <h2 class="tone-title mt-3 text-xl">{signal.value}</h2>
-              <p class="tone-body mt-3">{signal.detail}</p>
-            </ModernCard>
-          ))
-        }
+        <ModernCard variant="glass" className="tone-metric-card p-6 sm:p-8">
+          <p class="tone-metric-card__label">Buyer reassurance</p>
+          <p class="tone-metric-card__value">Visible posture</p>
+          <p class="tone-metric-card__detail">
+            The goal is not to publish sensitive internals. It is to show the
+            operating habits a serious provider uses before deeper review.
+          </p>
+        </ModernCard>
       </div>
+    </div>
+  </section>
+
+  <section class="buyer-proof-strip" aria-label="Trust proof">
+    <div class="buyer-proof-strip__inner mx-auto max-w-[1240px] px-4 sm:px-6">
+      {
+        trustCenterSignals.slice(0, 3).map(signal => (
+          <div class="buyer-proof-strip__item">
+            <p class="buyer-proof-strip__label">{signal.label}</p>
+            <p class="buyer-proof-strip__copy">{signal.value}</p>
+          </div>
+        ))
+      }
     </div>
   </section>
 
@@ -129,7 +149,11 @@ const trustFaqs = [
     </div>
   </section>
 
-  <section class="premium-page-section pb-16 sm:pb-20" data-page-section>
+  <section
+    class="premium-page-section pb-16 sm:pb-20"
+    id="faq"
+    data-page-section
+  >
     <div class="premium-container max-w-4xl">
       <FAQAccordion items={trustFaqs} />
     </div>

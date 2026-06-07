@@ -2509,6 +2509,186 @@ header.header-hidden {
     }
   }
 
+  .buyer-reframe {
+    --buyer-hero-offset: clamp(5rem, 8vw, 8rem);
+  }
+
+  .buyer-reframe .tone-page-hero {
+    background:
+      linear-gradient(
+        145deg,
+        color-mix(
+          in srgb,
+          var(--route-accent, var(--color-primary)) 14%,
+          transparent
+        ),
+        transparent 36%
+      ),
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--color-surface) 96%, transparent),
+        color-mix(in srgb, var(--color-surface) 88%, transparent)
+      );
+  }
+
+  .buyer-reframe .tone-page-hero__inner {
+    padding-top: var(--buyer-hero-offset);
+    padding-bottom: clamp(3rem, 6vw, 5.5rem);
+  }
+
+  .buyer-reframe .tone-page-header {
+    max-width: 48rem;
+  }
+
+  .buyer-reframe .tone-page-title {
+    max-width: 14ch;
+    font-size: clamp(2.4rem, 5.4vw, 5rem);
+    line-height: 0.98;
+  }
+
+  .buyer-reframe .tone-page-copy {
+    max-width: 52ch;
+    font-size: clamp(1rem, 1.22vw, 1.16rem);
+    line-height: 1.62;
+  }
+
+  .buyer-reframe .tone-page-actions {
+    gap: 0.75rem;
+  }
+
+  .buyer-reframe .tone-page-actions .modern-button {
+    min-height: 52px;
+  }
+
+  .buyer-reframe .tone-page-jump-links {
+    max-width: 44rem;
+  }
+
+  .buyer-reframe .tone-chip-jump {
+    min-height: 40px;
+    border-radius: 0.65rem;
+    padding-inline: 0.9rem;
+  }
+
+  .buyer-reframe .tone-metric-card {
+    border-color: color-mix(
+      in srgb,
+      var(--route-accent, var(--color-primary)) 18%,
+      var(--color-border)
+    );
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-surface) 94%, white 2%),
+      color-mix(in srgb, var(--color-surface) 86%, transparent)
+    );
+  }
+
+  .buyer-reframe .tone-metric-card__value {
+    font-size: clamp(1.35rem, 2.4vw, 1.95rem);
+  }
+
+  .buyer-reframe .tone-section-heading {
+    max-width: 48rem;
+  }
+
+  .buyer-reframe .tone-section-copy {
+    line-height: 1.64;
+  }
+
+  .buyer-reframe .buyer-proof-strip {
+    border-block: 1px solid
+      color-mix(in srgb, var(--color-border) 72%, transparent);
+    background:
+      linear-gradient(
+        90deg,
+        transparent,
+        color-mix(
+          in srgb,
+          var(--route-accent, var(--color-primary)) 7%,
+          transparent
+        ),
+        transparent
+      ),
+      color-mix(in srgb, var(--color-surface) 92%, transparent);
+  }
+
+  .buyer-reframe .buyer-proof-strip__inner {
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .buyer-reframe .buyer-proof-strip__item {
+    min-height: 96px;
+    border-left: 1px solid
+      color-mix(in srgb, var(--color-border) 68%, transparent);
+    padding: 1.1rem;
+  }
+
+  .buyer-reframe .buyer-proof-strip__item:first-child {
+    border-left: 0;
+  }
+
+  .buyer-reframe .buyer-proof-strip__label {
+    margin: 0;
+    font-family: var(--font-sans);
+    font-size: 0.67rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--color-text-muted) 88%, transparent);
+  }
+
+  .buyer-reframe .buyer-proof-strip__copy {
+    margin: 0.45rem 0 0;
+    color: var(--color-text-primary);
+    font-size: clamp(0.95rem, 1.2vw, 1.05rem);
+    font-weight: 650;
+    line-height: 1.35;
+  }
+
+  @media (max-width: 767px) {
+    .buyer-reframe {
+      --buyer-hero-offset: 2.25rem;
+    }
+
+    .buyer-reframe .tone-page-hero__inner {
+      padding-bottom: 2.75rem;
+    }
+
+    .buyer-reframe .tone-page-title {
+      max-width: 100%;
+      font-size: clamp(2.15rem, 10vw, 3.15rem);
+    }
+
+    .buyer-reframe .tone-page-actions .modern-button {
+      width: 100%;
+    }
+
+    .buyer-reframe .tone-page-hero__inner > .grid > :nth-child(2) {
+      display: none;
+    }
+
+    .buyer-reframe .tone-page-jump-links {
+      display: none;
+    }
+
+    .buyer-reframe .buyer-proof-strip__inner {
+      grid-template-columns: 1fr;
+    }
+
+    .buyer-reframe .buyer-proof-strip__item {
+      border-left: 0;
+      border-top: 1px solid
+        color-mix(in srgb, var(--color-border) 68%, transparent);
+      padding: 1rem 0;
+    }
+
+    .buyer-reframe .buyer-proof-strip__item:first-child {
+      border-top: 0;
+    }
+  }
+
   [data-theme='corporate'] .creative-hero-shell,
   [data-theme='corporate'] .creative-panel,
   [data-theme='corporate'] .creative-section-shell {
