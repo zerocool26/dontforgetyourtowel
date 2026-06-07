@@ -21,30 +21,31 @@ const workbenchItems = operatingIntelligenceItems.map(item => ({
 
 const heroSignals = [
   {
-    label: 'Operate',
-    value: 'Named ownership for the operating layer.',
+    label: 'Customer excellence',
+    value: 'Every request has context, priority, and an owner.',
     detail:
-      'Tickets, devices, onboarding, vendors, and escalation stay visible to leadership.',
+      'Support should feel calm because status, escalation, and next steps are never hidden.',
   },
   {
-    label: 'Protect',
-    value: 'Security posture that can be reviewed, not guessed.',
+    label: 'Real service depth',
+    value:
+      'The core offer is support, security, Microsoft 365, backup, and network.',
     detail:
-      'Identity, endpoints, email, backup, and response expectations get documented early.',
+      'No vague technology bundle. Each lane has a buyer problem, included work, and proof output.',
   },
   {
-    label: 'Present',
-    value: 'Selected digital systems framed as business proof.',
+    label: 'Business visibility',
+    value: 'Leadership gets plain-language proof, not tool noise.',
     detail:
-      'Pages, forms, portals, and proof screens are judged by buyer movement and clarity.',
+      'Monthly reporting should connect tickets, security, backups, projects, risk, and decisions.',
   },
 ];
 
 const heroProofPoints = [
-  'Named owner for every recurring issue',
-  'Security baseline tied to evidence',
-  'Backup and restore posture surfaced early',
-  '30 / 60 / 90-day plan leadership can approve',
+  'Fast triage targets set by plan',
+  'Named escalation owner for stuck issues',
+  'Backup and restore proof reviewed early',
+  'Monthly clarity for leadership decisions',
 ];
 
 const siteGuide = homeRouteGuideLinks.map(link => ({
@@ -56,66 +57,93 @@ const siteGuide = homeRouteGuideLinks.map(link => ({
 const serviceLanes = [
   {
     index: '01',
-    label: 'Operate',
-    title: 'Daily IT support with named ownership.',
-    copy: 'Help desk, onboarding, patching, device standards, vendor follow-up, and queue clarity.',
+    label: 'Support',
+    title: 'Managed IT support.',
+    copy: 'Help desk, endpoint hygiene, onboarding, offboarding, patching, and vendor follow-through.',
     href: withBasePath('services/'),
   },
   {
     index: '02',
-    label: 'Protect',
-    title: 'Cybersecurity that shows its work.',
-    copy: 'MFA, conditional access, endpoint protection, email defense, backup proof, and incident contacts.',
+    label: 'Security',
+    title: 'Cybersecurity baseline.',
+    copy: 'MFA, conditional access, endpoint protection, email defense, awareness, and response contacts.',
     href: withBasePath('services/#technology-catalog'),
   },
   {
     index: '03',
-    label: 'Modernize',
-    title: 'Microsoft 365 and cloud cleanup that reduces drag.',
-    copy: 'Teams, SharePoint, Exchange, licensing, access rules, migrations, and automation candidates.',
+    label: 'Microsoft 365',
+    title: 'Microsoft 365 and cloud operations.',
+    copy: 'Exchange, Teams, SharePoint, OneDrive, licensing, access rules, migrations, and governance.',
     href: withBasePath('services/#technology-catalog'),
   },
   {
     index: '04',
-    label: 'Present',
-    title: 'Selective digital systems for better sales and intake.',
-    copy: 'Websites, portals, demos, ecommerce, and contact flows built around trust and movement.',
-    href: withBasePath('about/'),
+    label: 'Continuity',
+    title: 'Backup, network, and recovery.',
+    copy: 'Backup monitoring, restore testing, firewalls, Wi-Fi, ISP coordination, and recovery runbooks.',
+    href: withBasePath('services/#technology-catalog'),
   },
 ];
 
-const experienceHubs = [
+const excellenceStandards = [
   {
-    code: 'DX',
-    label: 'Proof',
-    title: 'Live commerce and intake behavior',
-    copy: 'Carts, comparison, quick views, checkout review, shareable states, and mobile behavior.',
-    meta: ['Stateful screens', 'Mobile review', 'Checkout path'],
-    href: withBasePath('about/'),
+    code: '01',
+    label: 'Response',
+    title: 'Support cannot disappear into a queue.',
+    copy: 'Every request should show priority, owner, status, next action, and escalation path.',
+    meta: ['Triage', 'Status', 'Escalation'],
   },
   {
-    code: 'JG',
-    label: 'Guidance',
-    title: 'Field notes for operators and owners',
-    copy: 'Short explanations for provider transitions, security posture, backup gaps, and scope.',
-    meta: ['Provider switch', 'Backup gaps', 'M365 cleanup'],
-    href: withBasePath('blog/'),
+    code: '02',
+    label: 'Security',
+    title: 'Security must be explainable to non-technical leaders.',
+    copy: 'Identity, endpoint, email, backup, and response posture should be reviewed in plain language.',
+    meta: ['MFA', 'Endpoint', 'Email'],
   },
   {
-    code: 'NP',
-    label: 'Signals',
-    title: 'Briefings on change that affects operations',
-    copy: 'Security requirements, Microsoft changes, AI workflow pressure, and buyer expectations.',
-    meta: ['Insurance', 'AI policy', 'M365 changes'],
-    href: withBasePath('news/'),
+    code: '03',
+    label: 'Continuity',
+    title: 'Backup confidence comes from restore proof.',
+    copy: 'Coverage, alerts, retention, recovery owners, and restore tests should be visible before crisis.',
+    meta: ['Coverage', 'Restore', 'Runbook'],
   },
   {
-    code: 'PG',
-    label: 'Visuals',
-    title: 'Photo and design reference library',
-    copy: 'Reusable art direction for pages, proposals, launches, and client-facing screens.',
-    meta: ['Photo sets', 'Interface studies', 'Launch assets'],
-    href: withBasePath('photos/'),
+    code: '04',
+    label: 'Planning',
+    title: 'A great MSP helps leadership decide.',
+    copy: 'Budget, lifecycle, risk, vendor, and project decisions should be surfaced before they become emergencies.',
+    meta: ['Budget', 'Lifecycle', 'Roadmap'],
+  },
+];
+
+const offerComparison = [
+  {
+    market: 'Flat-rate support',
+    buyerNeeds:
+      'Clear response model, escalation owner, recurring-issue reduction, and monthly reporting.',
+    ourStandard:
+      'Support scope is tied to named ownership, queue visibility, device hygiene, and vendor follow-through.',
+  },
+  {
+    market: 'Cybersecurity add-ons',
+    buyerNeeds:
+      'Identity, endpoint, email, backup, awareness, response, and insurance evidence connected in one baseline.',
+    ourStandard:
+      'Security is positioned as operating proof, not a pile of disconnected tools.',
+  },
+  {
+    market: 'Microsoft 365 admin',
+    buyerNeeds:
+      'Governance for Teams, SharePoint, guest access, licensing, retention assumptions, and backup.',
+    ourStandard:
+      'Microsoft 365 is treated like business infrastructure, with cleanup priorities and owner decisions.',
+  },
+  {
+    market: 'Backup monitoring',
+    buyerNeeds:
+      'Restore testing, coverage notes, recovery order, incident contacts, and runbook clarity.',
+    ourStandard:
+      'Continuity work is reviewed early so recovery does not become a guess during an outage.',
   },
 ];
 
@@ -172,7 +200,7 @@ const startOptions = [
   },
   {
     title: 'Need fit clarity?',
-    copy: 'Sort whether the first move is support, security, recovery, Microsoft 365 cleanup, or digital build.',
+    copy: 'Sort whether the first move is support, security, recovery, Microsoft 365 cleanup, or workflow build.',
     href: withBasePath('contact-hq/'),
     cta: 'Open fit intake',
   },
@@ -180,8 +208,8 @@ const startOptions = [
 ---
 
 <MarketingLayout
-  title="CHICAGOS #1 MSP | Managed IT, Security, Microsoft 365, and Digital Systems"
-  description="Chicago-area managed IT, cybersecurity, Microsoft 365, backup, networking, and selective digital systems for firms that need steadier operations and a stronger first impression."
+  title="CHICAGOS #1 MSP | Managed IT, Security, Microsoft 365, and Workflow Support"
+  description="Chicago-area managed IT, cybersecurity, Microsoft 365, backup, networking, and customer-first support for firms that need clearer ownership."
   mainClass="relative overflow-x-clip"
   bodyClass="creative-page"
   showFooter={true}
@@ -210,19 +238,20 @@ const startOptions = [
       <div class="premium-container home-homepage-hero__grid">
         <div class="home-homepage-hero__content">
           <p class="home-homepage-eyebrow">
-            Chicago managed IT | security | Microsoft 365 | continuity
+            Customer-first managed IT for Chicago businesses
           </p>
           <h1 class="home-homepage-title">
-            CHICAGOS #1 MSP for companies that need technology to stay owned.
+            CHICAGOS #1 MSP for companies that expect excellent support.
           </h1>
           <p class="home-homepage-copy home-homepage-copy--hero">
-            An operations-first MSP experience for support, cybersecurity,
-            Microsoft 365, cloud, backup, networking, and buyer-facing systems
-            that should feel calm under pressure.
+            Managed IT, cybersecurity, Microsoft 365, backup, network, and
+            recovery support built around fast triage, visible ownership, and
+            plain-language decisions.
           </p>
           <p class="home-homepage-claim home-homepage-claim--hero">
-            No vague tool bundle. The first useful output is a map: what is
-            broken, who owns it, what evidence proves it, and what happens next.
+            No mystery queue. No random tool list. The business logic is simple:
+            customers should know who owns the issue, what is included, what is
+            risky, and what happens next.
           </p>
 
           <div class="home-homepage-actions home-homepage-actions--hero">
@@ -232,7 +261,7 @@ const startOptions = [
               className="min-h-[52px]"
               rounded="sm"
             >
-              View solutions
+              View services
             </ModernButton>
             <ModernButton
               href={withBasePath('pricing/')}
@@ -280,17 +309,16 @@ const startOptions = [
       <div class="home-homepage-section__intro">
         <p class="home-homepage-eyebrow">Why buyers stay oriented</p>
         <h2 class="home-homepage-section__title">
-          The experience starts with ownership before it asks you to browse a
-          catalog.
+          The site starts with the service promise, not a wall of sections.
         </h2>
         <p class="home-homepage-copy">
-          A serious MSP conversation should identify the operating pressure, the
-          evidence needed, who owns the next action, and which route makes the
-          decision easier.
+          A high-converting MSP site should answer the buyer’s first questions
+          fast: what is included, who owns support, how security is handled, how
+          pricing works, and how to start without friction.
         </p>
         <p class="home-homepage-claim">
-          That means support, security, recovery, Microsoft 365, cloud, network,
-          and digital work are framed by the buyer problem first.
+          Every section below has one job: clarify fit, reduce risk, and move a
+          serious customer toward a useful conversation.
         </p>
 
         <div class="home-homepage-jump-links" aria-label="Popular routes">
@@ -327,12 +355,11 @@ const startOptions = [
       <div class="home-homepage-section__intro">
         <p class="home-homepage-eyebrow">Start here</p>
         <h2 class="home-homepage-section__title">
-          Find the first useful move.
+          Pick the decision you are trying to make.
         </h2>
         <p class="home-homepage-section__copy">
-          Most buyers arrive with one of four questions: who owns support, are
-          the basics secure, what will this cost, or is the front door hurting
-          trust.
+          Most buyers need one of five things: service clarity, budget clarity,
+          trust proof, contact routing, or a local Chicago service page.
         </p>
       </div>
 
@@ -375,7 +402,7 @@ const startOptions = [
         items={workbenchItems}
         defaultItemId="support-ownership"
         eyebrow="Chicago Operations Studio"
-        title="A working diagnostic for support, security, recovery, Microsoft 365, and proof-led digital systems."
+        title="A working diagnostic for support, security, recovery, Microsoft 365, and service ownership."
         description="Choose the pressure point, inspect the signals, collect the evidence, and move into the right route with a handoff brief that an owner can actually use."
       />
     </div>
@@ -386,12 +413,11 @@ const startOptions = [
       <div class="home-homepage-section__intro">
         <p class="home-homepage-eyebrow">What we do</p>
         <h2 class="home-homepage-section__title">
-          Four lanes that make the operating model easier to own.
+          Four clear service lanes, no filler.
         </h2>
         <p class="home-homepage-section__copy">
-          Run the daily IT layer, harden the security baseline, clean up
-          Microsoft 365 and cloud systems, and build digital surfaces when they
-          support sales or service.
+          These are the core services a real MSP buyer expects, expressed in
+          business language and backed by practical outputs.
         </p>
       </div>
 
@@ -415,26 +441,68 @@ const startOptions = [
   </section>
 
   <section
-    class="home-homepage-section home-homepage-section--experience"
-    id="experience-hubs"
+    class="home-homepage-section home-homepage-section--comparison"
+    id="offer-comparison"
     data-page-section
   >
     <div class="premium-container">
       <div class="home-homepage-section__intro">
-        <p class="home-homepage-eyebrow">Featured experiences</p>
+        <p class="home-homepage-eyebrow">Competitive clarity</p>
         <h2 class="home-homepage-section__title">
-          Proof should be inspectable.
+          Match the offer against what customers actually need.
         </h2>
         <p class="home-homepage-section__copy">
-          Working examples, briefings, and visual references show how the
-          company thinks, builds, and explains technical work before a call.
+          Chicago competitors commonly emphasize flat-rate support, help desk,
+          cybersecurity, cloud, and backup. The winning offer makes the proof,
+          ownership, and boundaries clearer than everyone else.
+        </p>
+      </div>
+
+      <div class="home-homepage-comparison-table">
+        {
+          offerComparison.map(item => (
+            <article class="home-homepage-comparison-row">
+              <div>
+                <span>Market offer</span>
+                <p>{item.market}</p>
+              </div>
+              <div>
+                <span>Buyer needs</span>
+                <p>{item.buyerNeeds}</p>
+              </div>
+              <div>
+                <span>Our standard</span>
+                <p>{item.ourStandard}</p>
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section
+    class="home-homepage-section home-homepage-section--experience"
+    id="customer-excellence"
+    data-page-section
+  >
+    <div class="premium-container">
+      <div class="home-homepage-section__intro">
+        <p class="home-homepage-eyebrow">Customer excellence system</p>
+        <h2 class="home-homepage-section__title">
+          The experience should feel energetic because the service is clear.
+        </h2>
+        <p class="home-homepage-section__copy">
+          Design energy is not decoration. The color, spacing, and motion should
+          make the buyer feel control: issues move, evidence appears, and the
+          next action is obvious.
         </p>
       </div>
 
       <div class="home-homepage-experience-grid">
         {
-          experienceHubs.map(item => (
-            <a class="home-homepage-experience-card" href={item.href}>
+          excellenceStandards.map(item => (
+            <article class="home-homepage-experience-card">
               <div class="home-homepage-experience-card__topline">
                 <span class="home-homepage-experience-card__code">
                   {item.code}
@@ -450,7 +518,7 @@ const startOptions = [
                   <span>{meta}</span>
                 ))}
               </div>
-            </a>
+            </article>
           ))
         }
       </div>
@@ -466,11 +534,11 @@ const startOptions = [
       <div class="home-homepage-section__intro">
         <p class="home-homepage-eyebrow">Buyer realities</p>
         <h2 class="home-homepage-section__title">
-          The real buying questions are practical.
+          The buying questions are practical.
         </h2>
         <p class="home-homepage-section__copy">
-          A strong MSP site should answer ownership, risk, budget, evidence, and
-          what happens after the first conversation.
+          A strong MSP site should answer ownership, risk, budget, evidence,
+          service boundaries, and what happens after the first conversation.
         </p>
       </div>
 
@@ -567,8 +635,8 @@ const startOptions = [
           <div>
             <p class="home-homepage-eyebrow">Ready to move</p>
             <h3 class="home-homepage-closeout__title">
-              Make the operating layer easier to own and the digital front door
-              easier to trust.
+              Make the operating layer easier to own and the client-facing
+              workflow easier to trust.
             </h3>
             <p class="home-homepage-closeout__copy">
               The first conversation should identify the pressure point, risk,
@@ -619,9 +687,10 @@ const startOptions = [
       ctx.clearRect(0, 0, width, height);
 
       const wash = ctx.createLinearGradient(0, 0, width, height);
-      wash.addColorStop(0, '#0b1115');
-      wash.addColorStop(0.42, '#111c20');
-      wash.addColorStop(1, '#070809');
+      wash.addColorStop(0, '#101415');
+      wash.addColorStop(0.38, '#172b29');
+      wash.addColorStop(0.72, '#151318');
+      wash.addColorStop(1, '#070807');
       ctx.fillStyle = wash;
       ctx.fillRect(0, 0, width, height);
 
@@ -634,7 +703,7 @@ const startOptions = [
         width * 0.38
       );
       glow.addColorStop(0, 'rgba(98, 216, 198, 0.24)');
-      glow.addColorStop(0.45, 'rgba(246, 198, 91, 0.12)');
+      glow.addColorStop(0.42, 'rgba(246, 198, 91, 0.18)');
       glow.addColorStop(1, 'rgba(7, 8, 9, 0)');
       ctx.fillStyle = glow;
       ctx.fillRect(0, 0, width, height);
@@ -790,16 +859,26 @@ const startOptions = [
       min-height: clamp(38.75rem, 84svh, 46rem);
       padding: 0;
       background:
+        radial-gradient(
+          circle at 73% 38%,
+          rgba(86, 214, 194, 0.18),
+          transparent 30%
+        ),
+        radial-gradient(
+          circle at 88% 16%,
+          rgba(246, 198, 91, 0.12),
+          transparent 24%
+        ),
         linear-gradient(
           135deg,
-          color-mix(in srgb, var(--color-primary) 8%, transparent),
-          transparent 38%,
-          color-mix(in srgb, var(--color-primary-strong) 6%, transparent)
+          color-mix(in srgb, var(--color-primary) 11%, transparent),
+          transparent 36%,
+          color-mix(in srgb, var(--color-primary-strong) 9%, transparent)
         ),
         linear-gradient(
           180deg,
-          color-mix(in srgb, var(--color-background) 92%, black 8%),
-          color-mix(in srgb, var(--color-surface) 66%, black 34%)
+          color-mix(in srgb, var(--color-background) 82%, #15302d 18%),
+          color-mix(in srgb, var(--color-surface) 70%, #251f12 30%)
         );
     }
 
@@ -812,16 +891,16 @@ const startOptions = [
       background:
         linear-gradient(
           90deg,
-          rgba(8, 9, 11, 0.86),
-          rgba(8, 9, 11, 0.62) 42%,
-          rgba(8, 9, 11, 0.18) 72%,
-          rgba(8, 9, 11, 0.58)
+          rgba(8, 9, 11, 0.8),
+          rgba(8, 9, 11, 0.48) 42%,
+          rgba(8, 9, 11, 0.08) 72%,
+          rgba(8, 9, 11, 0.38)
         ),
         linear-gradient(
           180deg,
-          rgba(8, 9, 11, 0.2),
+          rgba(8, 9, 11, 0.12),
           transparent 48%,
-          rgba(8, 9, 11, 0.72)
+          rgba(8, 9, 11, 0.64)
         );
     }
 
@@ -1432,8 +1511,50 @@ const startOptions = [
     .home-homepage-lanes,
     .home-homepage-experience-grid,
     .home-homepage-realities,
-    .home-homepage-signal-grid {
+    .home-homepage-signal-grid,
+    .home-homepage-comparison-table {
       margin-top: 1.5rem;
+    }
+
+    .home-homepage-comparison-table {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .home-homepage-comparison-row {
+      display: grid;
+      gap: 0.85rem;
+      border: 1px solid color-mix(in srgb, var(--color-border) 76%, transparent);
+      border-radius: 0.5rem;
+      background:
+        linear-gradient(
+          90deg,
+          color-mix(in srgb, var(--color-primary) 8%, transparent),
+          transparent 38%
+        ),
+        color-mix(in srgb, var(--color-surface) 82%, transparent);
+      padding: 1rem;
+    }
+
+    .home-homepage-comparison-row div {
+      display: grid;
+      gap: 0.35rem;
+    }
+
+    .home-homepage-comparison-row span {
+      color: color-mix(in srgb, var(--color-text-muted) 88%, transparent);
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .home-homepage-comparison-row p {
+      margin: 0;
+      color: color-mix(in srgb, var(--color-text-primary) 82%, transparent);
+      font-size: 0.92rem;
+      line-height: 1.5;
     }
 
     .home-homepage-lane__meta,
@@ -1603,6 +1724,11 @@ const startOptions = [
 
       .home-homepage-signal-grid {
         grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .home-homepage-comparison-row {
+        grid-template-columns: 0.7fr 1fr 1fr;
+        align-items: start;
       }
 
       .home-homepage-operating__grid {

@@ -1,8 +1,8 @@
 ## CHICAGOS #1 MSP Website
 
 Astro static site for CHICAGOS #1 MSP with base-path-safe routing, managed IT
-service content, ecommerce demo surfaces, blog/news/photo routes, and
-Playwright/Vitest quality gates.
+service content, trust/proof routes, Chicago service pages, and Playwright/Vitest
+quality gates.
 
 ### Environment
 
@@ -36,8 +36,8 @@ These workspace instruction files are intended to reduce drift between human edi
 - `/` Home
 - `/services/` Service catalog and engagement flow
 - `/pricing/` Directional managed IT pricing and scope guidance
-- `/about/` Interactive ecommerce showcase
-- `/blog/` Practical managed IT and digital systems articles
+- `/trust-center/` Customer excellence, security, backup, and operating proof
+- `/blog/` Practical managed IT, security, Microsoft 365, and recovery articles
 - `/news/` News and podcast style advisory route
 - `/photos/` Photo gallery route
 - `/contact-hq/` Contact intake and recommendation handoff

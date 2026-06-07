@@ -5,7 +5,7 @@ export const businessServiceTypes = [
   'Cloud consulting',
   'Backup and recovery',
   'Network support',
-  'Digital systems consulting',
+  'Client portal and intake workflow consulting',
 ] as const;
 
 export const businessAreaServed = [

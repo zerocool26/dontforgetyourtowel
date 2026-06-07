@@ -12,7 +12,7 @@ export async function GET() {
     platform: {
       name: 'CHICAGOS #1 MSP',
       description:
-        'Chicago managed IT platform for support ownership, security, Microsoft 365, cloud, backup confidence, commerce lab, and visual references.',
+        'Chicago managed IT platform for customer excellence, support ownership, security, Microsoft 365, backup confidence, and proof-led service decisions.',
       experienceModes: [
         {
           id: 'cinematic',
@@ -36,8 +36,7 @@ export async function GET() {
     },
     routes: {
       home: '/',
-      about: 'about/',
-      commerceLab: 'about/',
+      trustCenter: 'trust-center/',
       gallery: 'gallery/',
       blog: 'blog/',
       news: 'news/',

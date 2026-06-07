@@ -10,7 +10,7 @@ test.describe('Accessibility', () => {
     await expect(
       page.getByRole('heading', {
         level: 1,
-        name: /CHICAGOS #1 MSP for companies/i,
+        name: /CHICAGOS #1 MSP for companies that expect excellent support/i,
       })
     ).toBeAttached();
     await expect(
@@ -58,7 +58,7 @@ test.describe('Accessibility', () => {
     await page.waitForLoadState('domcontentloaded');
     await expect(
       page.getByRole('heading', {
-        name: /Four lanes that make the operating model easier/i,
+        name: /Four clear service lanes/i,
       })
     ).toBeVisible();
 

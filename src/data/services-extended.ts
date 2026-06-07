@@ -226,49 +226,49 @@ export const servicesExtended: Service[] = [
   {
     id: 'roadmapping-vcio',
     name: 'vCIO Roadmapping and Budget Planning',
-    category: 'Strategy, Automation & Digital Systems',
+    category: 'Strategy, Automation & Workflow Systems',
     description:
       'Quarterly technology planning, budgeting guidance, lifecycle recommendations, and executive translation of IT priorities.',
   },
   {
     id: 'office-moves-refreshes',
     name: 'Office Moves, Refreshes, and Site Changes',
-    category: 'Strategy, Automation & Digital Systems',
+    category: 'Strategy, Automation & Workflow Systems',
     description:
       'Planning and delivery support for office openings, relocations, expansions, and workspace technology changes.',
   },
   {
     id: 'workflow-automation-ai-enablement',
     name: 'Workflow Automation and AI Enablement',
-    category: 'Strategy, Automation & Digital Systems',
+    category: 'Strategy, Automation & Workflow Systems',
     description:
       'Small-scale automation, reporting cleanup, AI-assisted internal processes, approval rules, and governance for practical use cases that have an owner.',
   },
   {
     id: 'client-portal-web-refresh',
     name: 'Website and Client-Facing Experience Refreshes',
-    category: 'Strategy, Automation & Digital Systems',
+    category: 'Strategy, Automation & Workflow Systems',
     description:
       'Higher-trust websites, launch pages, service pages, intake flows, and presentation systems for firms whose front door needs to match their operations.',
   },
   {
     id: 'client-portal-intranet',
     name: 'Client Portals and Internal Hubs',
-    category: 'Strategy, Automation & Digital Systems',
+    category: 'Strategy, Automation & Workflow Systems',
     description:
       'Client portals, internal hubs, intranets, forms, and structured self-service experiences for onboarding, documentation, and account visibility.',
   },
   {
     id: 'discovery-roadmapping',
     name: 'Discovery, Documentation, and First-Phase Roadmaps',
-    category: 'Strategy, Automation & Digital Systems',
+    category: 'Strategy, Automation & Workflow Systems',
     description:
       'Current-state reviews, documentation cleanup, and phased plans that make the next 30, 60, or 90 days more manageable.',
   },
   {
     id: 'qa-release-hardening',
     name: 'Launch QA and Release Hardening',
-    category: 'Strategy, Automation & Digital Systems',
+    category: 'Strategy, Automation & Workflow Systems',
     description:
       'Testing, launch checklists, and handoff discipline for digital projects that need to feel polished and dependable.',
   },
@@ -376,22 +376,22 @@ export const serviceCategoryBriefs: ServiceCategoryBrief[] = [
     ],
   },
   {
-    category: 'Strategy, Automation & Digital Systems',
+    category: 'Strategy, Automation & Workflow Systems',
     buyerQuestion:
       'Which projects will reduce drag, improve trust, or create measurable leverage instead of just adding tools?',
     whatWeCheck: [
       'Manual handoffs, reporting gaps, buyer-facing friction, and approval bottlenecks',
-      'Website, portal, ecommerce, intake, documentation, and internal hub needs',
+      'Portal, intake, documentation, internal hub, and client-facing service needs',
       'Budget timing, owner capacity, launch risk, and governance requirements',
     ],
     firstOutputs: [
       'First-phase roadmap with owners and decision points',
       'Automation or portal candidates ranked by impact',
-      'Launch checklist for client-facing digital work',
+      'Launch checklist for client-facing workflow work',
     ],
     warningSigns: [
       'Automation ideas do not have a process owner',
-      'A website refresh is treated separately from buyer workflow',
+      'A website refresh is treated separately from client workflow',
       'Projects launch without support, QA, or handoff ownership',
     ],
   },
@@ -468,7 +468,7 @@ export const providerSelectionQuestions: ProviderSelectionQuestion[] = [
     question:
       'What exactly is included in recurring support, and what becomes a project?',
     whyItMatters:
-      'This prevents surprise invoices and keeps migrations, office moves, portal work, and major security projects visible.',
+      'This prevents surprise invoices and keeps migrations, office moves, portal work, workflow systems, and major security projects visible.',
   },
   {
     question:

@@ -9,7 +9,7 @@ import {
 import { withBasePath } from '../utils/helpers';
 
 const featuredPhoto =
-  photoGalleryItems.find(item => item.id === 'commerce-review-room') ||
+  photoGalleryItems.find(item => item.id === 'workflow-review-room') ||
   photoGalleryItems[0];
 
 const collectionCopy: Record<string, string> = {
@@ -19,8 +19,8 @@ const collectionCopy: Record<string, string> = {
     'Infrastructure, equipment, and technical depth with real physical weight.',
   'Inspection deck':
     'Security posture, control evidence, backup review, and incident-readiness references.',
-  'Commerce review':
-    'Buyer-facing work, demos, product sessions, and premium creative cues.',
+  'Workflow review':
+    'Client-facing portals, intake paths, service handoffs, and premium creative cues.',
   'Workflow scenes':
     'Planning, Microsoft 365 cleanup, governance, vendor handoff, and operating motion.',
 };
@@ -45,7 +45,7 @@ const photoStats = [
     label: 'Collections',
     value: String(photoGalleryCollections.length),
     detail:
-      'Grouped around operations, infrastructure, security, workflow, and buyer-facing design.',
+      'Grouped around operations, infrastructure, security, workflow, and client-facing design.',
   },
   {
     label: 'Best use',
@@ -56,15 +56,15 @@ const photoStats = [
 ];
 
 const galleryUses = [
-  'Support services, proposals, case studies, and digital review pages with imagery that feels deliberate rather than generic.',
-  'Give content sections visual context for operations, infrastructure, security, Microsoft 365, and buyer-facing work.',
+  'Support services, proposals, case studies, and workflow review pages with imagery that feels deliberate rather than generic.',
+  'Give content sections visual context for operations, infrastructure, security, Microsoft 365, and client-facing work.',
   'Help future page expansions keep a coherent visual system with filterable, reusable references and less stock-photo drift.',
 ];
 ---
 
 <MarketingLayout
   title="Photo Library | CHICAGOS #1 MSP"
-  description="Curated photo library with filterable visual references for systems, workspace, infrastructure, security, and buyer-facing digital experiences."
+  description="Curated photo library with filterable visual references for systems, workspace, infrastructure, security, and client-facing workflow experiences."
   noIndex={true}
   bodyClass="creative-page"
   mainClass="relative isolate overflow-x-clip"
@@ -83,8 +83,8 @@ const galleryUses = [
           </h1>
           <p class="tone-page-copy">
             The library keeps operations, infrastructure, security, Microsoft
-            365, workflow, and buyer-facing visuals organized so future pages do
-            not fall back into generic stock imagery.
+            365, workflow, and client-facing visuals organized so future pages
+            do not fall back into generic stock imagery.
           </p>
 
           <div class="tone-page-actions">

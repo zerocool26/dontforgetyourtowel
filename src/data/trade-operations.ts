@@ -350,7 +350,7 @@ export const tradeOperations: Record<string, TradeOperationProfile> = {
         title: 'Core scope',
         items: [
           'Managed IT, cloud support, security hardening, and automation work',
-          'Project delivery for infrastructure, ecommerce, and AI systems',
+          'Project delivery for infrastructure, workflow, and AI systems',
           'Documentation that connects support activity to business operations',
         ],
       },

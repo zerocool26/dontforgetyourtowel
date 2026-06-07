@@ -54,7 +54,7 @@ export function getRouteContext(pathname: string): RouteContext {
     accent: '#d1b37a',
     kicker: 'Site Atlas',
     title:
-      'A calmer route system for Chicago operations, managed IT, security, and proof-led digital systems.',
+      'A calmer route system for Chicago operations, managed IT, security, and customer-excellence proof.',
     description:
       'Use this atlas to move between solutions, pricing, proof, trust, and intake routes without falling into bloated brochure navigation.',
     currentTitle: 'Landing page',
@@ -74,10 +74,10 @@ export function getRouteContext(pathname: string): RouteContext {
         href: withBasePath('pricing/'),
       },
       {
-        label: 'Open proof',
+        label: 'Open trust center',
         detail:
-          'See selected digital systems framed as business proof, not a side quest.',
-        href: withBasePath('about/'),
+          'Review customer excellence, security posture, backup evidence, and response ownership.',
+        href: withBasePath('trust-center/'),
       },
     ],
   };
@@ -88,7 +88,7 @@ export function getRouteContext(pathname: string): RouteContext {
       kicker: 'Gallery Atlas',
       title: 'Gallery concepts stay wired into the real client experience map.',
       description:
-        'This gallery is not isolated art direction. It routes back into the live managed IT, experience, and intake surfaces that actually sell the work.',
+        'This gallery is not isolated art direction. It routes back into managed IT, trust, services, and intake surfaces that actually sell the work.',
       currentTitle: 'Design Gallery',
       currentDescription:
         'Interactive gallery mode for cinematic visual studies, curatorial filters, and route-linked concepts.',
@@ -106,10 +106,10 @@ export function getRouteContext(pathname: string): RouteContext {
           href: withBasePath('services/#service-planner'),
         },
         {
-          label: 'Open proof',
+          label: 'Open trust center',
           detail:
-            'See the proof route that connects digital systems to buyer outcomes.',
-          href: withBasePath('about/'),
+            'See the proof route that connects customer excellence to buyer confidence.',
+          href: withBasePath('trust-center/'),
         },
       ],
     };
@@ -118,7 +118,7 @@ export function getRouteContext(pathname: string): RouteContext {
       accent: '#d1b37a',
       kicker: 'Services Atlas',
       title:
-        'One solution hub for operations, security, Microsoft 365, cloud, and selective digital work.',
+        'One solution hub for operations, security, Microsoft 365, cloud, backup, and workflow support.',
       description:
         'The services hub leads with buyer pressure and keeps the deeper catalog available only when it is genuinely useful.',
       currentTitle: 'Services Hub',
@@ -137,9 +137,10 @@ export function getRouteContext(pathname: string): RouteContext {
           href: withBasePath('pricing/'),
         },
         {
-          label: 'Open proof',
-          detail: 'See the proof route behind the digital systems direction.',
-          href: withBasePath('about/'),
+          label: 'Open trust center',
+          detail:
+            'See the proof route behind the customer-excellence standard.',
+          href: withBasePath('trust-center/'),
         },
         {
           label: 'Start intake',
@@ -198,7 +199,7 @@ export function getRouteContext(pathname: string): RouteContext {
             {
               label: 'Open services hub',
               detail:
-                'See how this trade links back into the retained digital systems.',
+                'See how this trade links back into support, security, backup, and workflow services.',
               href: withBasePath('services/'),
             },
           ],
@@ -224,7 +225,7 @@ export function getRouteContext(pathname: string): RouteContext {
         {
           label: 'Open services hub',
           detail:
-            'See the bridge between trade lanes and retained digital systems.',
+            'See the bridge between trade lanes and the shared MSP service architecture.',
           href: withBasePath('services/'),
         },
         {
@@ -255,13 +256,13 @@ export function getRouteStickyCTA(pathname: string): RouteStickyCTA {
   let cta: RouteStickyCTA = {
     accent: '#d7f75b',
     eyebrow: 'Project intake',
-    copy: 'Need a clearer next move for operations, security, or a buyer-facing system?',
+    copy: 'Need a clearer next move for operations, security, backup, or workflow support?',
     detail: 'Review the service hub or route directly into structured intake.',
     secondaryHref: withBasePath('services/'),
     secondaryLabel: 'Explore solutions',
     primaryHref: buildContactHqHref({
       brief:
-        'I want to scope managed IT, security, Microsoft 365, backup, or a proof-led digital system.',
+        'I want to scope managed IT, security, Microsoft 365, backup, or workflow support.',
     }),
     primaryLabel: 'Start brief',
   };
@@ -274,7 +275,7 @@ export function getRouteStickyCTA(pathname: string): RouteStickyCTA {
           copy: 'Want this direction translated into a live client experience?',
           detail:
             'The gallery stays connected to real proof and solution routes instead of floating as isolated art direction.',
-          secondaryHref: withBasePath('about/'),
+          secondaryHref: withBasePath('trust-center/'),
           secondaryLabel: 'Open proof',
           primaryHref: buildContactHqHref({
             tradePage: 'Design Gallery',
@@ -285,14 +286,14 @@ export function getRouteStickyCTA(pathname: string): RouteStickyCTA {
       : {
           accent: '#d1b37a',
           eyebrow: 'Strategy intake',
-          copy: 'Need calmer operations, better security, or a stronger digital front door that actually converts?',
+          copy: 'Need calmer operations, better security, or a stronger client-facing workflow that actually converts?',
           detail:
             'Solutions, pricing, proof, and intake stay tied together instead of branching into disconnected funnels.',
           secondaryHref: withBasePath('services/'),
           secondaryLabel: 'Explore solutions',
           primaryHref: buildContactHqHref({
             brief:
-              'I want to scope managed IT, security, cloud, Microsoft 365, or a premium client-facing system.',
+              'I want to scope managed IT, security, cloud, Microsoft 365, or a premium client-facing workflow.',
           }),
           primaryLabel: 'Start brief',
         };

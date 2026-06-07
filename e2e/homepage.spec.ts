@@ -8,7 +8,7 @@ test.describe('Homepage buyer landing', () => {
     await expect(
       page.getByRole('heading', {
         level: 1,
-        name: /CHICAGOS #1 MSP for companies/i,
+        name: /CHICAGOS #1 MSP for companies that expect excellent support/i,
       })
     ).toBeAttached();
     await expect(
@@ -20,7 +20,7 @@ test.describe('Homepage buyer landing', () => {
     await page.goto('./');
 
     await expect(
-      page.getByRole('link', { name: /View solutions/i })
+      page.getByRole('link', { name: /View services/i })
     ).toHaveAttribute('href', /services\/$/);
     await expect(
       page.getByRole('link', { name: /See pricing/i })
@@ -67,10 +67,15 @@ test.describe('Homepage buyer landing', () => {
 
     await expect(page.locator('#services')).toBeVisible();
     await expect(
-      page.getByRole('heading', { name: /Four lanes/i })
+      page.getByRole('heading', { name: /Four clear service lanes/i })
     ).toBeVisible();
 
-    for (const label of ['Operate', 'Protect', 'Modernize', 'Present']) {
+    for (const label of [
+      'Support',
+      'Security',
+      'Microsoft 365',
+      'Continuity',
+    ]) {
       await expect(
         page.locator('.home-homepage-lane__label', { hasText: label })
       ).toHaveCount(1);

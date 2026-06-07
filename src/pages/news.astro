@@ -53,9 +53,9 @@ const advisories = [
     copy: 'If the same issues keep returning, the problem is usually process, policy, endpoint standards, or an application workflow that needs attention.',
   },
   {
-    topic: 'Digital systems',
-    title: 'A demo should test the real buying path.',
-    copy: 'For ecommerce and portals, review search, filters, cart state, product detail, trust cues, totals, forms, and checkout before approving a build plan.',
+    topic: 'Workflow systems',
+    title: 'A portal or intake path should prove the real handoff.',
+    copy: 'For portals and intake flows, review routing, trust cues, form friction, mobile behavior, ownership, and status feedback before approving a build plan.',
   },
 ];
 
@@ -73,8 +73,8 @@ const newsDesk = [
     note: 'Help desk response patterns, recurring-ticket reduction, onboarding/offboarding, vendor ownership, endpoint refresh, and executive reporting.',
   },
   {
-    beat: 'Digital commerce',
-    note: 'Search, filters, product detail, cart clarity, checkout friction, real photography, reviews, forms, analytics, and mobile conversion paths.',
+    beat: 'Workflow trust',
+    note: 'Portals, intake paths, service pages, forms, status feedback, analytics, proof cues, and mobile conversion paths.',
   },
 ];
 
@@ -113,16 +113,13 @@ const briefingBuilder = [
     actions: ['Map guest access', 'Review stale sites', 'Set lifecycle rules'],
   },
   {
-    beat: 'Digital systems',
-    signal: 'The buyer-facing path is not keeping up with the service quality.',
-    question: 'Which screen most affects trust or conversion?',
+    beat: 'Workflow systems',
+    signal:
+      'The client-facing path is not keeping up with the service quality.',
+    question: 'Which handoff most affects trust or conversion?',
     angle:
-      'Connect visual craft to the actual buying path: mobile clarity, proof, intake, product detail, and follow-through.',
-    actions: [
-      'Audit mobile path',
-      'Find proof gaps',
-      'Prototype the key screen',
-    ],
+      'Connect visual craft to the actual service path: mobile clarity, proof, intake, status feedback, and follow-through.',
+    actions: ['Audit mobile path', 'Find proof gaps', 'Prototype the handoff'],
   },
 ];
 
@@ -133,9 +130,9 @@ const editorialActions = [
     href: withBasePath('blog/'),
   },
   {
-    title: 'See the live demo',
-    copy: 'Pair the editorial commentary with an interactive storefront review route.',
-    href: withBasePath('about/'),
+    title: 'Review the proof',
+    copy: 'Pair the editorial commentary with the trust, backup, response, and customer-excellence proof route.',
+    href: withBasePath('trust-center/'),
   },
   {
     title: 'Scope the work',
@@ -147,7 +144,7 @@ const editorialActions = [
 
 <MarketingLayout
   title="News + Podcast | CHICAGOS #1 MSP"
-  description="Editorial desk and podcast-style briefings on managed IT, security, Microsoft 365, operations, and digital buying systems."
+  description="Editorial desk and podcast-style briefings on managed IT, security, Microsoft 365, operations, service ownership, and workflow systems."
   bodyClass="creative-page"
   mainClass="relative isolate overflow-x-clip"
   showFooter={true}
@@ -160,7 +157,7 @@ const editorialActions = [
     data={{
       name: 'CHICAGOS #1 MSP News and Podcast',
       description:
-        'Short editorial signals and podcast-style briefings about managed IT, security, Microsoft 365, and digital systems.',
+        'Short editorial signals and podcast-style briefings about managed IT, security, Microsoft 365, service ownership, and workflow systems.',
     }}
   />
 
@@ -174,8 +171,9 @@ const editorialActions = [
           </h1>
           <p class="tone-page-copy">
             Security requirements, Microsoft 365 changes, AI workflow pressure,
-            support operations, and digital buying paths move quickly. This desk
-            turns the change into practical notes for operators and owners.
+            support operations, and client-facing workflow paths move quickly.
+            This desk turns the change into practical notes for operators and
+            owners.
           </p>
 
           <div class="tone-page-actions">

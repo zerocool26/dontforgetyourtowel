@@ -32,10 +32,10 @@ const commands: PaletteCommand[] = [
     keywords: ['contact', 'intake', 'fit'],
   },
   {
-    id: 'open-ecommerce-demo',
-    label: 'Open E Commerce Demo',
-    href: '/about/',
-    keywords: ['demo', 'shop', 'e commerce', 'portfolio'],
+    id: 'open-trust-center',
+    label: 'Open Trust Center',
+    href: '/trust-center/',
+    keywords: ['trust', 'proof', 'security', 'backup', 'customer excellence'],
   },
   {
     id: 'open-blog',

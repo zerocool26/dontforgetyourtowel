@@ -42,7 +42,7 @@ test.describe('Buyer decision handoff', () => {
       handoff.getByRole('link', { name: /Compare pricing logic/i })
     ).toHaveAttribute('href', /pricing\/#plans$/);
     await expect(
-      handoff.getByRole('link', { name: /Open digital proof/i })
-    ).toHaveAttribute('href', /about\/$/);
+      handoff.getByRole('link', { name: /Open workflow planning/i })
+    ).toHaveAttribute('href', /services\/#service-planner$/);
   });
 });

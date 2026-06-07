@@ -85,7 +85,7 @@ export const pricingTiers: PricingTier[] = [
     name: 'Custom',
     price: 'Quoted after assessment',
     description:
-      'Built for multi-site operations, cloud-heavy estates, dedicated security programs, office moves, server projects, or client-facing digital work.',
+      'Built for multi-site operations, cloud-heavy estates, dedicated security programs, office moves, server projects, or workflow-critical systems.',
     bestFor:
       'Complex environments with layered delivery, vCISO, or project work',
     responseSla: 'Custom escalation matrix, SLAs, and operating cadence',
@@ -93,7 +93,7 @@ export const pricingTiers: PricingTier[] = [
     perks: [
       'Custom pricing by users, devices, sites, servers, and coverage model',
       'Dedicated security, cloud, or project leadership',
-      'Cloud migrations, office refreshes, server work, ecommerce, and portal builds',
+      'Cloud migrations, office refreshes, server work, portals, and workflow systems',
       'A delivery model tuned to business-critical operations and approvals',
     ],
   },
@@ -154,7 +154,7 @@ export const servicesFaqs: FAQEntry[] = [
     title:
       'What if we need application engineering or cloud modernization on top of managed operations?',
     content:
-      'That can be a strong fit when the project affects operations, support, security, or the buyer path. We can combine recurring coverage with cloud engineering, platform hardening, automation, and selective digital delivery under one operating model.',
+      'That can be a strong fit when the project affects operations, support, security, or a client-facing workflow. We can combine recurring coverage with cloud engineering, platform hardening, automation, portals, and intake improvements under one operating model.',
   },
 ];
 
@@ -176,7 +176,7 @@ export const pricingSignals: TrustSignal[] = [
   {
     label: 'Projects scoped separately',
     sublabel:
-      'Migrations, office work, server projects, and digital builds stay visible on their own',
+      'Migrations, office work, server projects, portals, and workflow builds stay visible on their own',
   },
 ];
 

@@ -62,7 +62,7 @@ describe('Buyer journey data integrity', () => {
       [...buyerPathLinks, ...researchProofLinks].map(link => link.href)
     );
 
-    expect(homeRouteGuideLinks).toHaveLength(6);
+    expect(homeRouteGuideLinks).toHaveLength(5);
     homeRouteGuideLinks.forEach(link => {
       expect(knownHrefs.has(link.href)).toBe(true);
     });
@@ -155,7 +155,7 @@ describe('Buyer journey data integrity', () => {
         'chicago-smb-security-baseline.md',
         'microsoft-365-cleanup-business-project.md',
         'competent-msp-website-signals.md',
-        'ecommerce-demo-review-before-build.mdx',
+        'client-intake-workflow-review-before-build.mdx',
       ])
     );
     expect(blogFiles).not.toEqual(

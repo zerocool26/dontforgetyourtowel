@@ -39,7 +39,7 @@ const analyticsEnabled =
 // MSP/IT services branding (safe defaults; customise as needed)
 export const SITE_TITLE = 'CHICAGOS #1 MSP';
 export const SITE_DESCRIPTION =
-  'Chicago-area managed IT, cybersecurity, cloud, Microsoft 365, backup, and selective digital systems for teams that need calmer operations and a sharper front door.';
+  'Chicago-area managed IT, cybersecurity, cloud, Microsoft 365, backup, networking, and workflow support for teams that need clearer ownership and calmer operations.';
 export const SITE_URL = DEPLOYMENT.siteUrl;
 export const BASE_PATH = import.meta.env.BASE_URL ?? DEPLOYMENT.basePath;
 export const DEPLOYMENT_CONFIG = DEPLOYMENT;

@@ -106,10 +106,10 @@ export const studioModuleCategoryOrder: StudioModuleCategory[] = [
 ];
 
 export const studioMetricLabels: Record<StudioMetricKey, string> = {
-  experience: 'Buyer experience',
+  experience: 'Client experience',
   intelligence: 'Workflow leverage',
   resilience: 'Operational resilience',
-  conversion: 'Sales readiness',
+  conversion: 'Decision readiness',
 };
 
 export const studioUrgencyProfiles: StudioUrgencyProfile[] = [
@@ -144,17 +144,17 @@ export const studioSurfaces: StudioSurface[] = [
     id: 'surface-home',
     title: 'Chicago homepage',
     description:
-      'The public front door that frames managed IT, security, Microsoft 365, backup, and selective digital work.',
+      'The public front door that frames managed IT, security, Microsoft 365, backup, networking, and workflow support.',
     href: '/',
     tags: ['homepage', 'messaging', 'trust', 'cta'],
   },
   {
     id: 'surface-experience',
-    title: 'Commerce lab',
+    title: 'Trust and workflow proof',
     description:
-      'Interactive lab showing how client-facing systems can handle real product, intake, mobile, and checkout behavior.',
-    href: 'about/',
-    tags: ['experience', 'portal', 'buyer', 'interactive'],
+      'Proof route showing customer excellence, security posture, backup confidence, response ownership, portals, and intake quality.',
+    href: 'trust-center/',
+    tags: ['trust', 'portal', 'workflow', 'proof'],
   },
   {
     id: 'surface-services',
@@ -354,12 +354,12 @@ export const studioPresets: StudioPreset[] = [
   },
   {
     id: 'client-experience-refresh',
-    name: 'Client Experience Refresh',
-    kicker: 'Digital experience planning',
+    name: 'Client Workflow Refresh',
+    kicker: 'Workflow experience planning',
     summary:
-      'A targeted plan for firms that need their website, client portal, or launch surface to better match the quality of their operations.',
+      'A targeted plan for firms that need their website, client portal, intake path, or service handoff to better match the quality of their operations.',
     audience:
-      'Firms with a credible back office but a weak first impression, dated site, or underpowered client-facing system.',
+      'Firms with a credible back office but a weak first impression, dated site, or underpowered client-facing workflow.',
     contactService: 'digital',
     baseInvestment: 30000,
     baseWeeks: 8,
@@ -380,7 +380,7 @@ export const studioPresets: StudioPreset[] = [
     surfaceIds: ['surface-home', 'surface-experience', 'surface-contact'],
     outcomes: [
       'A clearer service story and stronger first impression',
-      'A buyer-facing system that works on mobile and answers real questions',
+      'A client-facing workflow that works on mobile and answers real questions',
       'A phased plan for launch, content, analytics, and post-launch hardening',
     ],
   },
@@ -461,14 +461,14 @@ export const studioModules: StudioModule[] = [
   },
   {
     id: 'website-portal-refresh',
-    title: 'Website and Portal Refresh',
+    title: 'Website, Portal, and Intake Refresh',
     category: 'Experience Layer',
     description:
-      'Upgrade service messaging, hierarchy, mobile UX, forms, proof points, and buyer confidence cues across the public front door or client portal.',
+      'Upgrade service messaging, hierarchy, mobile UX, forms, proof points, and client confidence cues across the public front door, portal, or intake path.',
     investment: 10000,
     weeks: 3,
     deliverable:
-      'A stronger buyer-facing surface with clearer trust signals and structure',
+      'A stronger client-facing surface with clearer trust signals and structure',
     surfaceIds: ['surface-home', 'surface-experience', 'surface-contact'],
     impact: {
       experience: 12,
@@ -609,7 +609,7 @@ const phaseTemplates = [
   {
     label: 'Modernize or launch',
     summary:
-      'Move into the cloud, security, automation, or buyer-facing work that earns the next investment.',
+      'Move into the cloud, security, automation, or client-facing workflow work that earns the next investment.',
     weight: 0.28,
   },
   {

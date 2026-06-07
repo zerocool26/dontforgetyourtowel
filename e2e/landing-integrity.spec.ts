@@ -10,7 +10,7 @@ test.describe('Landing page integrity', () => {
     await expect(
       page.getByRole('heading', {
         level: 1,
-        name: /CHICAGOS #1 MSP for companies/i,
+        name: /CHICAGOS #1 MSP for companies that expect excellent support/i,
       })
     ).toBeAttached();
     await expect(
@@ -76,7 +76,7 @@ test.describe('Landing page integrity', () => {
     await expect(
       page.getByRole('heading', {
         level: 1,
-        name: /CHICAGOS #1 MSP for companies/i,
+        name: /CHICAGOS #1 MSP for companies that expect excellent support/i,
       })
     ).toBeAttached();
     await expect(

@@ -18,19 +18,19 @@ const proofSignals = [
     value: 'Business-framed',
     label: 'Selected proof states',
     detail:
-      'Stakeholders can reopen comparison, quick-view, and checkout moments with business context intact.',
+      'Stakeholders can reopen comparison, intake, and handoff moments with business context intact.',
   },
   {
     value: 'Annotated',
     label: 'Decision moments',
     detail:
-      'Search, compare, quick view, cart, and checkout behavior is explained in terms of trust and conversion.',
+      'Search, compare, intake, and handoff behavior is explained in terms of trust and conversion.',
   },
   {
     value: 'Reviewable',
     label: 'Executive proof',
     detail:
-      'The point is not novelty. It is making premium digital work easier to approve, QA, and hand off.',
+      'The point is not novelty. It is making premium workflow work easier to approve, QA, and hand off.',
   },
 ];
 
@@ -38,7 +38,7 @@ const quickActions = [
   {
     title: 'Start with discovery',
     description:
-      'Jump into search and product detail behavior to see whether finding and evaluating an item stays fast.',
+      'Jump into search and detail behavior to see whether finding and evaluating the right path stays fast.',
     state: 'quickview',
     productId: 'spectral-sneaker',
     buttonLabel: 'Open quick view',
@@ -55,10 +55,10 @@ const quickActions = [
   {
     title: 'Review conversion friction',
     description:
-      'Go directly to checkout and review shipping, totals, reassurance, and handoff points that protect buyer intent.',
+      'Go directly to the final handoff and review reassurance, clarity, and ownership points that protect buyer intent.',
     state: 'checkout',
     productId: 'aurora-hoodie',
-    buttonLabel: 'Jump to checkout',
+    buttonLabel: 'Jump to handoff',
     command: 'start-checkout',
   },
 ];
@@ -66,7 +66,7 @@ const quickActions = [
 const guidedReviewSteps = [
   {
     title: 'Frame the audience first',
-    copy: 'Set the review around merchandising, sales, owner approval, or stakeholder signoff so the right details matter first.',
+    copy: 'Set the review around service fit, owner approval, or stakeholder signoff so the right details matter first.',
   },
   {
     title: 'Open a believable journey state',
@@ -74,7 +74,7 @@ const guidedReviewSteps = [
   },
   {
     title: 'Show the confidence layer',
-    copy: 'Point to compare clarity, quick-view context, shipping detail, and checkout reassurance so trust is visible, not implied.',
+    copy: 'Point to compare clarity, detail context, next-step reassurance, and handoff ownership so trust is visible, not implied.',
   },
   {
     title: 'Share the exact moment',
@@ -89,10 +89,10 @@ const storeStandards = [
   'Shareable states for async approvals and follow-up',
 ];
 
-const commerceTrustSignals = [
+const workflowTrustSignals = [
   {
     title: 'Storytelling that stays actionable',
-    copy: 'Strong visual rhythm, but every section still has to earn the next buyer step.',
+    copy: 'Strong visual rhythm, but every section still has to earn the next client step.',
   },
   {
     title: 'Review states that are easy to share',
@@ -107,15 +107,15 @@ const commerceTrustSignals = [
 const implementationTracks = [
   {
     title: 'Executive walkthrough',
-    copy: 'Use presets and the review board to explain value quickly without getting lost in product mechanics.',
+    copy: 'Use presets and the review board to explain value quickly without getting lost in mechanics.',
   },
   {
     title: 'Design + content critique',
-    copy: 'Review hierarchy, motion, trust cues, product copy, CTA clarity, and mobile behavior in one place.',
+    copy: 'Review hierarchy, motion, trust cues, service copy, CTA clarity, and mobile behavior in one place.',
   },
   {
     title: 'Production handoff',
-    copy: 'Translate review states into build tickets, product rules, QA notes, and real acceptance criteria.',
+    copy: 'Translate review states into build tickets, workflow rules, QA notes, and real acceptance criteria.',
   },
 ];
 
@@ -124,13 +124,13 @@ const featuredProducts = [
     title: 'Aurora Hoodie',
     state: 'checkout',
     productId: 'aurora-hoodie',
-    note: 'Use for shipping reassurance, checkout sequencing, and conversion handoff review.',
+    note: 'Use for final-step reassurance, sequencing, and conversion handoff review.',
   },
   {
     title: 'Spectral Sneaker',
     state: 'quickview',
     productId: 'spectral-sneaker',
-    note: 'Use for merchandising, quick-view context, and product-storytelling discussion.',
+    note: 'Use for detail context and service-storytelling discussion.',
   },
   {
     title: 'Compare set',
@@ -141,8 +141,8 @@ const featuredProducts = [
 ---
 
 <MarketingLayout
-  title="Proof + Selected Digital Systems | CHICAGOS #1 MSP"
-  description="Proof-led digital systems page with annotated review states, business outcomes, and a live selected-demo walkthrough."
+  title="Legacy Proof Lab | CHICAGOS #1 MSP"
+  description="Legacy workflow proof lab with annotated review states, business outcomes, and a compatibility walkthrough."
   bodyClass="creative-page"
   mainClass="relative isolate overflow-x-clip"
   showFooter={true}
@@ -152,9 +152,9 @@ const featuredProducts = [
   <StructuredData
     type="website"
     data={{
-      name: 'Digital Proof Lab',
+      name: 'Legacy Workflow Proof Lab',
       description:
-        'Interactive digital proof lab with review board, shareable screen states, and accessibility-minded controls.',
+        'Legacy workflow proof lab with review board, shareable screen states, and accessibility-minded controls.',
     }}
   />
 
@@ -162,12 +162,13 @@ const featuredProducts = [
     <div class="premium-container">
       <div class="demo-page-hero__grid">
         <div class="tone-page-header">
-          <p class="tone-page-eyebrow">Proof + selected digital systems</p>
+          <p class="tone-page-eyebrow">Legacy workflow proof lab</p>
           <h1 class="tone-page-title">
-            Digital systems should read like business proof, not a side project.
+            Workflow systems should read like business proof, not a side
+            project.
           </h1>
           <p class="tone-page-copy">
-            When buyer-facing systems are in scope, the standard is the same as
+            When client-facing systems are in scope, the standard is the same as
             managed operations: clearer ownership, calmer review states, visible
             trust cues, and outcomes that leadership can actually defend.
           </p>
@@ -184,12 +185,12 @@ const featuredProducts = [
               href={buildContactHqHref({
                 solution: 'digital',
                 brief:
-                  'I want to discuss a proof-led website, portal, ecommerce, or intake system.',
+                  'I want to discuss a proof-led website, portal, or intake system.',
               })}
               variant="outline"
               className="min-h-[52px]"
             >
-              Scope a digital system
+              Scope a workflow system
             </ModernButton>
           </div>
         </div>
@@ -216,7 +217,7 @@ const featuredProducts = [
 
   <section
     class="demo-page-section"
-    id="digital-trust-system"
+    id="workflow-trust-system"
     data-page-section
   >
     <div class="premium-container">
@@ -224,10 +225,10 @@ const featuredProducts = [
         client:only="preact"
         compact
         items={workbenchItems}
-        defaultItemId="digital-trust"
+        defaultItemId="workflow-trust"
         eyebrow="Proof system"
-        title="Connect design choices to buyer movement, owner clarity, and launch confidence."
-        description="Digital work should not be decoration. This workbench maps the evidence, automation, launch criteria, and ownership that turn a storefront, portal, or intake path into a business system."
+        title="Connect design choices to client movement, owner clarity, and launch confidence."
+        description="Workflow work should not be decoration. This workbench maps the evidence, automation, launch criteria, and ownership that turn a portal or intake path into a business system."
       />
     </div>
   </section>
@@ -270,7 +271,7 @@ const featuredProducts = [
             <p class="demo-launch-card__eyebrow">Back to baseline</p>
             <p>
               Clear the query-backed launch state and reopen the baseline
-              commerce view.
+              workflow view.
             </p>
           </div>
           <button
@@ -291,7 +292,7 @@ const featuredProducts = [
         <article class="demo-proof-board tone-panel-soft">
           <p class="tone-section-kicker">Scenario review board</p>
           <div class="demo-proof-board__headline">
-            <h2 data-demo-active-state>Baseline commerce view loaded</h2>
+            <h2 data-demo-active-state>Baseline workflow view loaded</h2>
             <p>
               The board updates as you change review states, so teams can keep
               the narrative, audience, and share URL aligned.
@@ -301,7 +302,7 @@ const featuredProducts = [
           <div class="demo-proof-metrics">
             <article class="demo-proof-metric">
               <p>Focus</p>
-              <strong data-demo-metric-focus>Storefront overview</strong>
+              <strong data-demo-metric-focus>Workflow overview</strong>
             </article>
             <article class="demo-proof-metric">
               <p>Audience</p>
@@ -321,7 +322,7 @@ const featuredProducts = [
             <div class="demo-share-board__meta">
               <p>Share title</p>
               <strong data-demo-share-title
-                >Baseline commerce view loaded</strong
+                >Baseline workflow view loaded</strong
               >
             </div>
             <div class="demo-share-board__meta">
@@ -400,7 +401,7 @@ const featuredProducts = [
           <p class="tone-section-kicker">Trust signals</p>
           <div class="demo-trust-list">
             {
-              commerceTrustSignals.map(signal => (
+              workflowTrustSignals.map(signal => (
                 <div>
                   <h3>{signal.title}</h3>
                   <p>{signal.copy}</p>
@@ -507,12 +508,12 @@ const featuredProducts = [
         <article class="demo-console-card tone-panel-soft">
           <div class="demo-live-header">
             <div>
-              <p class="tone-section-kicker">Live storefront</p>
-              <h2>Use the real interactions, not a slideshow.</h2>
+              <p class="tone-section-kicker">Legacy interaction</p>
+              <h2>Use real interactions, not a slideshow.</h2>
             </div>
             <p>
-              Search, quick view, compare, cart, and checkout are all wired into
-              the selected proof demo below.
+              Search, detail, compare, selection, and final handoff are wired
+              into the selected proof interaction below.
             </p>
           </div>
 
@@ -534,18 +535,18 @@ const featuredProducts = [
     const anchor = '#shop-experience';
     const demoStates = {
       default: {
-        title: 'Baseline commerce view loaded',
-        focus: 'Storefront overview',
+        title: 'Baseline workflow view loaded',
+        focus: 'Workflow overview',
         audience: 'Stakeholder walkthroughs',
         proof:
-          'The baseline commerce view gives the room a clean starting point before drilling into a buyer task.',
+          'The baseline workflow view gives the room a clean starting point before drilling into a client task.',
       },
       cart: {
-        title: 'Cart review active',
-        focus: 'Cart confidence',
+        title: 'Selection review active',
+        focus: 'Selection confidence',
         audience: 'Conversion reviews',
         proof:
-          'Cart details stay easy to scan while totals, shipping, and next actions remain visible.',
+          'Selection details stay easy to scan while next actions and confidence cues remain visible.',
       },
       compare: {
         title: 'Compare review active',
@@ -556,17 +557,17 @@ const featuredProducts = [
       },
       quickview: {
         title: 'Quick view review active',
-        focus: 'Product storytelling',
-        audience: 'Merchandising reviews',
+        focus: 'Service storytelling',
+        audience: 'Stakeholder reviews',
         proof:
-          'Quick view keeps product context visible without forcing the audience out of the browse flow.',
+          'Quick view keeps service context visible without forcing the audience out of the browse flow.',
       },
       checkout: {
-        title: 'Checkout review active',
-        focus: 'Checkout reassurance',
+        title: 'Final handoff review active',
+        focus: 'Handoff reassurance',
         audience: 'Revenue ops handoff',
         proof:
-          'Shipping details, payment steps, and order confidence surface without breaking the buyer rhythm.',
+          'Final details, confirmation steps, and handoff confidence surface without breaking the buyer rhythm.',
       },
     };
 

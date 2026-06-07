@@ -19,7 +19,11 @@ const legacyBlogRedirects = [
   },
   {
     from: './blog/using-mdx/',
-    to: /\/blog\/ecommerce-demo-review-before-build\/$/,
+    to: /\/blog\/client-intake-workflow-review-before-build\/$/,
+  },
+  {
+    from: './blog/ecommerce-demo-review-before-build/',
+    to: /\/blog\/client-intake-workflow-review-before-build\/$/,
   },
 ];
 

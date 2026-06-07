@@ -33,7 +33,7 @@ import { buildContactHqHref } from '../utils/contact';
 const startProjectHref = buildContactHqHref({
   service: 'msp',
   brief:
-    'I want to discuss support ownership, security, Microsoft 365, backup, or a selected digital system.',
+    'I want to discuss support ownership, security, Microsoft 365, backup, network, or workflow support.',
 });
 
 const serviceCategories = Array.from(
@@ -67,7 +67,7 @@ const entryLanes = [
   },
   {
     title: 'Cloud, Microsoft 365, and roadmap work',
-    copy: 'Use this lane for SharePoint/Teams sprawl, license waste, cloud migration, office changes, automation candidates, or client-facing digital work.',
+    copy: 'Use this lane for SharePoint/Teams sprawl, license waste, cloud migration, office changes, automation candidates, or workflow cleanup.',
     href: '#service-planner',
     cta: 'Compare solution options',
   },
@@ -108,10 +108,10 @@ const serviceTracks = [
       'Best for teams that depend on Microsoft 365 every day but cannot explain who owns sites, groups, guest access, licenses, or backups.',
   },
   {
-    title: 'Client-facing digital systems',
-    copy: 'Prototype and deliver websites, portals, intake paths, commerce screens, and launch pages when the public experience needs to support revenue or service.',
+    title: 'Workflow portals and intake systems',
+    copy: 'Prototype and deliver portals, intake paths, forms, service pages, and client-facing workflows when they support revenue or service.',
     detail:
-      'Best for firms where the real operation is strong, but the website, form flow, or customer handoff makes the business look less capable.',
+      'Best for firms where support, sales, onboarding, or customer handoff needs a cleaner digital path.',
   },
 ];
 
@@ -129,10 +129,10 @@ const deliveryPrograms = [
     outputs: ['MFA review', 'Backup evidence', 'Incident contacts'],
   },
   {
-    title: 'Modernize and present',
+    title: 'Modernize and streamline',
     description:
-      'Use Microsoft 365 cleanup, cloud work, small automations, and selective digital delivery when they remove real friction or improve the buyer path.',
-    outputs: ['M365 rules', 'Workflow shortlist', 'Buyer-path fixes'],
+      'Use Microsoft 365 cleanup, cloud work, small automations, and workflow improvements when they remove real friction.',
+    outputs: ['M365 rules', 'Workflow shortlist', 'Intake-path fixes'],
   },
 ];
 
@@ -172,16 +172,16 @@ const diagnosticBoard = [
       'A cleanup roadmap that separates urgent risk, governance rules, and workflow wins.',
   },
   {
-    lane: 'Digital trust gap',
+    lane: 'Workflow trust gap',
     trigger:
-      'The website, portal, or buyer flow undersells the quality of the business.',
+      'The portal, intake path, or client handoff undersells the quality of the business.',
     inspect: [
-      'Mobile buying path',
+      'Mobile service path',
       'Trust signals and intake clarity',
       'Content, performance, analytics, and launch constraints',
     ],
     output:
-      'A screen-level improvement plan with priority pages, trust gaps, and measurable launch criteria.',
+      'A workflow improvement plan with priority pages, trust gaps, and measurable launch criteria.',
   },
 ];
 
@@ -203,7 +203,7 @@ const breadcrumbItems = [
 
 <MarketingLayout
   title="Services Hub | CHICAGOS #1 MSP"
-  description="Chicago-focused managed IT, cybersecurity, Microsoft 365, cloud, backup, networking, and selective digital systems."
+  description="Chicago-focused managed IT, cybersecurity, Microsoft 365, cloud, backup, networking, and workflow support."
   mainClass="relative isolate overflow-x-clip"
   bodyClass="creative-page"
   showFooter={true}
@@ -216,13 +216,13 @@ const breadcrumbItems = [
     data={{
       name: 'Services Hub',
       description:
-        'Buyer-focused solution hub for managed operations, security, Microsoft 365, cloud, backup, onboarding, and digital delivery.',
+        'Buyer-focused solution hub for managed operations, security, Microsoft 365, cloud, backup, onboarding, and workflow support.',
     }}
   />
   <StructuredData
     type="service"
     data={{
-      name: 'Chicago managed IT, cybersecurity, Microsoft 365, and digital systems',
+      name: 'Chicago managed IT, cybersecurity, Microsoft 365, backup, and network support',
       serviceType: 'Managed IT services',
       areaServed: businessAreaServed,
       audience: businessAudience.map(name => ({
@@ -248,8 +248,8 @@ const breadcrumbItems = [
           <div class="tone-page-header">
             <p class="tone-page-eyebrow">Chicago services hub</p>
             <h1 class="tone-page-title">
-              Managed IT, security, Microsoft 365, and digital systems with
-              clear ownership.
+              Managed IT, security, Microsoft 365, backup, and network support
+              with clear ownership.
             </h1>
             <p class="tone-page-copy max-w-3xl">
               Start with the pressure point: recurring tickets, stale access,
@@ -310,8 +310,8 @@ const breadcrumbItems = [
               <p class="tone-metric-card__label">Solution lanes</p>
               <p class="tone-metric-card__value">4</p>
               <p class="tone-metric-card__detail">
-                Support, security, modernization, and client-facing digital
-                systems.
+                Support, security, modernization, and client-facing workflow
+                support.
               </p>
             </ModernCard>
             <ModernCard variant="default" className="tone-metric-card p-5">

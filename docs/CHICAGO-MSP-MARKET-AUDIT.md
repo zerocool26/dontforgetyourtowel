@@ -70,7 +70,7 @@ The primary service groups were reset to:
 3. Cloud and Microsoft 365
 4. Network and Infrastructure
 5. Backup, Continuity and Recovery
-6. Strategy, Automation and Digital Systems
+6. Strategy, Automation and Workflow Systems
 
 ## Visual Direction
 

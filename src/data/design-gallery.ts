@@ -133,8 +133,8 @@ export const galleryInstallations: GalleryInstallation[] = [
       { label: 'Read', value: 'Comfort continuity' },
       { label: 'Signal', value: 'TAB aware' },
     ],
-    sourceLabel: 'Open E Commerce Demo',
-    sourceHref: withBasePath('about/'),
+    sourceLabel: 'Open Trust Center',
+    sourceHref: withBasePath('trust-center/'),
     size: 'standard',
   },
   {
@@ -187,7 +187,7 @@ export const galleryInstallations: GalleryInstallation[] = [
     medium: 'Cross-site synthesis piece',
     room: 'Atrium',
     summary:
-      'A cross-platform visual system that ties managed operations, trust, proof routes, and interactive product work into one editorial source-of-truth canvas.',
+      'A cross-platform visual system that ties managed operations, trust, proof routes, and workflow support into one editorial source-of-truth canvas.',
     curatorNote:
       'This installation exists to prove the homepage can be both a command center and a design object without losing clarity.',
     palette: ['#d8f279', '#82dcd1', '#111317'],

@@ -59,8 +59,8 @@ const recommendedServiceLabel: Record<string, string> = {
   msp: 'Managed IT and Support',
   security: 'Cybersecurity & Compliance',
   cloud: 'Cloud and Microsoft 365',
-  ai: 'Automation and Digital Workflow',
-  digital: 'Client-Facing Digital Systems',
+  ai: 'Automation and Workflow Systems',
+  digital: 'Client-Facing Workflow Systems',
 };
 
 const serviceCatalogLabel = Object.fromEntries(
@@ -111,7 +111,7 @@ const defaultContactWorkbenchId =
   serviceIntent.includes('backup') || serviceIntent.includes('recovery')
     ? 'recovery-confidence'
     : solutionIntentLabel
-      ? 'digital-trust'
+      ? 'workflow-trust'
       : 'support-ownership';
 
 const channels = [
@@ -131,8 +131,8 @@ const channels = [
     subject: 'Security advisory request',
   },
   {
-    title: 'Projects and digital systems',
-    note: 'Microsoft 365 cleanup, cloud projects, office moves, workflow automation, website refreshes, portals, and co-delivery conversations.',
+    title: 'Projects and workflow systems',
+    note: 'Microsoft 365 cleanup, cloud projects, office moves, workflow automation, portals, intake paths, and co-delivery conversations.',
     subject: 'Build and collaboration inquiry',
   },
 ];
@@ -149,7 +149,7 @@ const fitSignals = [
   {
     label: 'Good fit',
     title: 'You want ownership, not a ticket-only vendor.',
-    copy: 'The strongest fit is a team that needs support, security, Microsoft 365, backup, vendor coordination, or digital work tied to visible business outcomes.',
+    copy: 'The strongest fit is a team that needs support, security, Microsoft 365, backup, vendor coordination, or workflow work tied to visible business outcomes.',
   },
   {
     label: 'Worth a conversation',
@@ -177,8 +177,8 @@ const responsePrep = [
     copy: 'Send tenant pain, SharePoint/Teams issues, license count, migration goals, external sharing concerns, retention assumptions, and backup expectations.',
   },
   {
-    title: 'For digital or ecommerce work',
-    copy: 'Send the buyer path, product or service catalog needs, content state, approval owner, launch window, analytics notes, and what the current site fails to do.',
+    title: 'For portal, intake, or workflow work',
+    copy: 'Send the service path, catalog needs, content state, approval owner, launch window, analytics notes, and where the current handoff fails.',
   },
 ];
 
@@ -277,7 +277,7 @@ const faqSchema = {
 
 <MarketingLayout
   title="Contact | CHICAGOS #1 MSP"
-  description="Contact and intake page for Chicago-area strategy, support, security advisory, roadmap conversations, cloud projects, and selective digital-system work."
+  description="Contact and intake page for Chicago-area strategy, support, security advisory, roadmap conversations, cloud projects, and workflow support."
   bodyClass="creative-page"
   showFooter={true}
   showStickyCTA={false}
@@ -312,8 +312,8 @@ const faqSchema = {
             <p class="tone-page-copy max-w-3xl">
               Use one structured brief for support ownership, security posture,
               Microsoft 365 cleanup, backup confidence, provider transition, or
-              proof-led digital system work. The goal is a routed next move, not
-              another vague contact thread.
+              portal, intake, or workflow support. The goal is a routed next
+              move, not another vague contact thread.
             </p>
           </div>
 
@@ -407,7 +407,7 @@ const faqSchema = {
           </p>
           <p class="mt-3 text-sm leading-7 text-slate-300">
             Support, security, Microsoft 365, backup/recovery, provider
-            transition, roadmap, and selected digital system work.
+            transition, roadmap, and workflow support.
           </p>
         </div>
         <div class="tone-panel-soft rounded-2xl p-5">
@@ -840,7 +840,7 @@ const faqSchema = {
         activeId={serviceIntentLabel ? 'support-ownership' : 'budget-scope'}
         eyebrow="Intake handoff"
         title="Send the context that lets someone route the work responsibly."
-        description="The first contact should make the next action obvious: support ownership, security baseline, budget and scope, or buyer-facing digital trust."
+        description="The first contact should make the next action obvious: support ownership, security baseline, budget and scope, or workflow trust."
       />
     </div>
   </section>
@@ -879,7 +879,7 @@ const faqSchema = {
         <p class="tone-section-copy">
           It needs enough context to decide whether the first move is support,
           security, Microsoft 365, cloud, recovery, provider transition, or a
-          digital build.
+          workflow build.
         </p>
       </div>
 

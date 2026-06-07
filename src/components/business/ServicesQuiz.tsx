@@ -56,7 +56,7 @@ function recommendationLabel(answer: Answer): string {
     case 'cloud':
       return 'Cloud and Microsoft 365 — Secure Operations → Custom';
     case 'ai':
-      return 'Automation and Digital Systems — Co-Managed → Custom';
+      return 'Automation and Workflow Systems — Co-Managed → Custom';
   }
 }
 

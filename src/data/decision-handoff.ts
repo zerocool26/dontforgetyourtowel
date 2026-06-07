@@ -55,18 +55,18 @@ export const decisionHandoffLanes: DecisionHandoffLane[] = [
     cta: 'Compare pricing logic',
   },
   {
-    id: 'digital-trust',
-    label: 'Digital trust',
+    id: 'workflow-trust',
+    label: 'Workflow trust',
     pressure:
-      'The website, portal, intake path, or commerce flow undersells the business or slows down buyer movement.',
+      'A portal, intake path, form flow, or client handoff slows down support, sales, or service delivery.',
     evidence: [
-      'Target audience, conversion path, and current dead ends',
+      'Target audience, service path, and current dead ends',
       'Content, analytics, mobile, performance, and approval constraints',
       'Launch window, owner, and systems that need to connect',
     ],
     firstOutput:
-      'A screen-level improvement plan with priority moments, trust gaps, acceptance criteria, and launch constraints.',
-    href: 'about/',
-    cta: 'Open digital proof',
+      'A workflow improvement plan with priority moments, trust gaps, acceptance criteria, and launch constraints.',
+    href: 'services/#service-planner',
+    cta: 'Open workflow planning',
   },
 ];

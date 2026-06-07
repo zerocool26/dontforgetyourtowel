@@ -29,9 +29,9 @@ describe('Runtime routes', () => {
     expect(
       shortcutUrls.some((u: any) => String(u).includes('contact-hq'))
     ).toBe(true);
-    expect(shortcutUrls.some((u: any) => String(u).includes('about'))).toBe(
-      true
-    );
+    expect(
+      shortcutUrls.some((u: any) => String(u).includes('trust-center'))
+    ).toBe(true);
   });
 
   it('emits robots.txt with sitemap pointing to the canonical site', async () => {

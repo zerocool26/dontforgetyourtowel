@@ -78,60 +78,60 @@ export const landingPillars: Pillar[] = [
 export const systemHighlightItems: HighlightItem[] = [
   {
     label: '01',
-    title: 'Runtime zero',
+    title: 'Service ownership map',
     description:
-      'Every widget renders at build time. No hydration scripts, no runtime costs, and nothing to babysit once deployed.',
+      'Every account starts by naming who owns tickets, escalation, vendors, onboarding, offboarding, and recurring issue follow-up.',
   },
   {
     label: '02',
-    title: 'Design tokens',
+    title: 'Security baseline',
     description:
-      'Tailwind defaults ship with a balanced industrial palette, typography scale, and consistent radii for hard-working UI.',
+      'MFA, admin roles, endpoint coverage, email risk, risky forwarding, and response contacts are reviewed in plain business language.',
   },
   {
     label: '03',
-    title: 'Governance ready',
+    title: 'Backup proof',
     description:
-      'Collections enforce schema rules so status updates, changelogs, and compliance notes stay structured and audit friendly.',
+      'Backup alerts, retention assumptions, restore access, protected systems, and recovery priorities are turned into reviewable evidence.',
   },
   {
     label: '04',
-    title: 'Trusted rollouts',
+    title: 'Microsoft 365 governance',
     description:
-      'Preview pipelines and a pre-deploy script combine lint, type-check, and error review into one repeatable command.',
+      'Teams, SharePoint, OneDrive, Exchange, licenses, guest access, sharing rules, and backup expectations get practical owner rules.',
   },
   {
     label: '05',
-    title: 'Reporting cadence',
+    title: 'Vendor coordination',
     description:
-      'Templates cover weekly health, major launches, and incident retros with carefully spaced typography for readability.',
+      'Internet, phones, line-of-business apps, copier vendors, security tools, and cloud providers stop becoming ownerless side quests.',
   },
   {
     label: '06',
-    title: 'Static integrations',
+    title: 'Monthly leadership review',
     description:
-      'Embed charts, badges, and data snapshots as generated assets—no need for third-party scripts or live connections.',
+      'Tickets, risks, security posture, backup confidence, renewals, projects, and next decisions are summarized for business owners.',
   },
 ];
 
 export const playbookSteps: PlaybookStep[] = [
   {
     step: '01',
-    title: 'Capture the essentials',
+    title: 'Confirm the pressure point',
     detail:
-      'Start with project health, key metrics, and last deployment summary. The hero section keeps copy tight and scannable.',
+      'Start with the business issue: recurring support pain, stale access, weak backup confidence, tenant sprawl, provider transition, or security proof.',
   },
   {
     step: '02',
-    title: 'Frame executive updates',
+    title: 'Stabilize the baseline',
     detail:
-      'Use highlights and testimonials to communicate wins, risk, and customer impact without shipping new dashboards.',
+      'Map users, devices, locations, vendors, Microsoft 365, backups, security controls, and priority gaps before selling a giant tool stack.',
   },
   {
     step: '03',
-    title: 'Publish with confidence',
+    title: 'Review with leadership',
     detail:
-      'Run the bundled pre-deploy script. Once green, push to main and let GitHub Pages handle the static release.',
+      'Turn the work into a clear monthly view of open risks, completed fixes, budget decisions, and the next right move.',
   },
 ];
 
@@ -152,75 +152,75 @@ export const testimonials: Testimonial[] = [
 
 export const engagementTracks: EngagementTrack[] = [
   {
-    name: 'Launch blueprint',
-    timeline: 'Two-week audit',
+    name: '30-day stabilization',
+    timeline: 'First 30 days',
     summary:
-      'Tighten your narrative, metrics, and governance cadence before going live. Ideal for teams modernising status updates.',
+      'Create a clean operating picture before the relationship expands: users, devices, tickets, vendors, backup assumptions, and urgent security gaps.',
     deliverables: [
-      'Architecture and deployment review',
-      'Narrative + tone workshop',
-      'Executive-ready content roadmap',
+      'User, device, vendor, and application map',
+      'Ticket and escalation ownership review',
+      'Priority risk and first-fix roadmap',
     ],
   },
   {
-    name: 'Operations retainer',
-    timeline: 'Quarterly partnership',
+    name: 'Secure operations',
+    timeline: 'Managed monthly coverage',
     summary:
-      'Embed our team to produce ongoing executive readouts, maintain templates, and ensure every release hits the standard.',
+      'Ongoing managed IT support with security, Microsoft 365, backup, reporting, vendor coordination, and business-facing ownership.',
     deliverables: [
-      'Monthly leadership briefs',
-      'Metrics instrumentation guides',
-      'Quarterly QBR deck support',
+      'Help desk and escalation coverage',
+      'Security and backup evidence review',
+      'Monthly leadership summary',
     ],
   },
   {
-    name: 'Executive brief kit',
-    timeline: '10-day turnaround',
+    name: 'Roadmap and workflow support',
+    timeline: 'Project-based or quarterly',
     summary:
-      'A polished library of layouts, messaging frameworks, and checklists so your team can publish with confidence on day one.',
+      'Practical modernization for Microsoft 365 cleanup, cloud projects, office moves, onboarding flow, portals, forms, and client-facing handoffs.',
     deliverables: [
-      'Template and block library',
-      'Copy and tone standards',
-      'Rollout and review checklist',
+      'Project scope and dependency map',
+      'Workflow or portal handoff plan',
+      'Launch, adoption, and review checklist',
     ],
   },
 ];
 
 export const controlStack: ControlStackItem[] = [
   {
-    name: 'Release discipline',
-    metric: '±48h',
-    metricLabel: 'Deployment forecast',
+    name: 'Support ownership',
+    metric: '1 day',
+    metricLabel: 'Typical non-urgent reply target',
     summary:
-      'Keep engineering, compliance, and stakeholders aligned on when the next release lands and what makes it production ready.',
+      'Make the support model visible so employees know where to go, managers know what is recurring, and leadership sees what changed.',
     bullets: [
-      'Automated status scoring before every push',
-      'Risk narratives surfaced for leadership reviews',
-      'Evidence bundles generated for compliance teams',
+      'Ticket routing, escalation, and vendor ownership',
+      'Onboarding, offboarding, and access cleanup',
+      'Recurring issue review before problems normalize',
     ],
   },
   {
-    name: 'Operations telemetry',
-    metric: '92%',
-    metricLabel: 'Report reuse rate',
+    name: 'Security evidence',
+    metric: '5 layers',
+    metricLabel: 'Identity, endpoint, email, backup, response',
     summary:
-      'Turn recurring reports into governed templates that stay polished, accessible, and painless to update.',
+      'Security gets judged by proof, not by how many acronyms appear in a proposal.',
     bullets: [
-      'Composable sections for launches and retros',
-      'Single source of truth for product and ops data',
-      'Structured archives with search-friendly metadata',
+      'MFA, admin, endpoint, and email review',
+      'Risky forwarding and external sharing checks',
+      'Incident contacts and response expectations',
     ],
   },
   {
-    name: 'Stakeholder clarity',
-    metric: '15 min',
-    metricLabel: 'Executive prep time',
+    name: 'Continuity proof',
+    metric: '30-90',
+    metricLabel: 'Days to baseline and roadmap',
     summary:
-      'Deliver succinct, on-brand briefings that cut through noise while capturing the detail auditors expect.',
+      'Backup and recovery work has to be understandable before an outage, ransomware event, or vendor failure tests it.',
     bullets: [
-      'Narrative frameworks tuned for revenue and risk',
-      'Live-to-static workflows for dashboards and charts',
-      'Versioned approvals with automated changelogs',
+      'Protected systems, retention, and restore access',
+      'Restore-test and alert-handling expectations',
+      'Recovery priorities, contacts, and next actions',
     ],
   },
 ];
@@ -228,51 +228,51 @@ export const controlStack: ControlStackItem[] = [
 export const insightReports: InsightReport[] = [
   {
     category: 'Brief',
-    title: 'Incident simulation kit',
+    title: 'Incident response owner map',
     description:
-      'A ready-to-run exercise playbook that keeps product, operations, and customer teams aligned before the next escalation.',
-    linkLabel: 'Preview the kit',
-    href: 'services/',
+      'A simple review of who gets called, what systems matter first, what evidence exists, and what has to happen in the first hour.',
+    linkLabel: 'Review the approach',
+    href: 'trust-center/',
   },
   {
     category: 'Checklist',
-    title: 'Launch governance audit',
+    title: 'Provider transition checklist',
     description:
-      'A condensed review flow for security, compliance, and product sign-off designed for static delivery teams.',
-    linkLabel: 'Run the audit',
+      'A clean handoff flow for access, documentation, tools, vendors, backups, contracts, and support expectations.',
+    linkLabel: 'Start transition intake',
     href: 'contact-hq/',
   },
   {
     category: 'Playbook',
-    title: 'Executive reporting cadence',
+    title: 'Monthly leadership cadence',
     description:
-      'Weekly, monthly, and quarterly templates that reduce prep while amplifying the story leadership needs to hear.',
-    linkLabel: 'See the cadence',
-    href: 'about/',
+      'A practical review rhythm for tickets, security posture, backup confidence, projects, renewals, risks, and upcoming decisions.',
+    linkLabel: 'See the service model',
+    href: 'services/',
   },
 ];
 
 export const securitySummary: SecuritySummary = {
   intro:
-    'Security conversations stay straightforward when every asset is static, audited, and version controlled inside the repo.',
+    'Security conversations stay straightforward when ownership, evidence, and response expectations are visible before pressure hits.',
   principles: [
     {
-      indicator: 'No runtime dependencies',
-      title: 'Static by default',
+      indicator: 'Identity and access',
+      title: 'Least privilege before tool sprawl',
       description:
-        'Pages compile to pure HTML and CSS. Nothing runs on the client, so there are no API keys, secrets, or third-party scripts to manage.',
+        'Admin roles, MFA, guest access, risky forwarding, and onboarding/offboarding habits are reviewed before more complex controls are added.',
     },
     {
-      indicator: 'Structured content model',
-      title: 'Schema-backed content',
+      indicator: 'Backup and recovery',
+      title: 'Restore confidence is evidence',
       description:
-        'Collections and TypeScript types enforce the fields you expect, tightening editorial workflows and keeping compliance teams confident.',
+        'Protected systems, retention assumptions, alert handling, restore access, and recovery order are clarified so backup is not just a dashboard.',
     },
     {
-      indicator: 'Operator-grade logging',
-      title: 'Predictable deploys',
+      indicator: 'Response ownership',
+      title: 'Incidents need named roles',
       description:
-        'Pre-deploy scripts verify types, lint rules, and error states before release, producing an auditable trail for every push to production.',
+        'Security and continuity planning names contacts, vendor dependencies, decision owners, and the first actions leadership should expect.',
     },
   ],
 };

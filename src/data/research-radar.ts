@@ -111,11 +111,11 @@ export const marketSignals2026: MarketSignal[] = [
   },
   {
     title:
-      'Performance, accessibility, and shareable states are trust signals.',
+      'Performance, accessibility, and shareable review states are trust signals.',
     buyerReality:
       'High-quality technology sites increasingly prove competence through fast loading, stable interaction, keyboard access, reduced motion support, and links that reopen exact review states.',
     siteMove:
-      'Keep static-first pages, route-contained 3D, Playwright coverage, Core Web Vitals awareness, and shareable demo states as product proof.',
+      'Keep static-first pages, route-contained rich media, Playwright coverage, Core Web Vitals awareness, and shareable planning states as product proof.',
     sources: [
       {
         label: 'Google Core Web Vitals',
@@ -255,7 +255,7 @@ export const designQualityPrinciples2026: DesignQualityPrinciple[] = [
     whatMatureTeamsDo:
       'Operational products avoid decorative clutter and make repeated work faster through clear hierarchy, progressive disclosure, predictable controls, and state that stays shareable.',
     siteApplication:
-      'Design MSP surfaces like working tools: short routes to service fit, pricing, proof, contact, and demo states that leadership can reopen without re-explaining context.',
+      'Design MSP surfaces like working tools: short routes to service fit, pricing, proof, contact, and planning states that leadership can reopen without re-explaining context.',
     sources: [
       {
         label: 'Shopify Polaris design principles',
@@ -293,7 +293,7 @@ export const designQualityPrinciples2026: DesignQualityPrinciple[] = [
     whatMatureTeamsDo:
       'Modern technology brands prove competence by shipping fast, stable, inspectable pages with repeatable quality budgets rather than relying on heavy effects to signal sophistication.',
     siteApplication:
-      'Use static Astro pages, route-contained heavy demos, Lighthouse CI reports, and conservative JavaScript hydration as visible proof of disciplined engineering.',
+      'Use static Astro pages, route-contained rich interactions, Lighthouse CI reports, and conservative JavaScript hydration as visible proof of disciplined engineering.',
     sources: [
       {
         label: 'Core Web Vitals',
@@ -334,7 +334,7 @@ export const technologyRadar2026: TechnologyRadarItem[] = [
     status: 'Live in project',
     fit: 'Important for trust, search quality, and buyer confidence on mobile connections.',
     projectUse:
-      'Protect calm mobile hierarchy, stable dimensions, route-contained heavy demos, and low-jank interactive controls.',
+      'Protect calm mobile hierarchy, stable dimensions, route-contained rich interactions, and low-jank interactive controls.',
     sources: [
       {
         label: 'Google INP guidance',
@@ -348,7 +348,7 @@ export const technologyRadar2026: TechnologyRadarItem[] = [
     status: 'Live in project',
     fit: 'A practical way to keep marketing routes, redirects, search, and keyboard-visible flows honest.',
     projectUse:
-      'Expand buyer-journey coverage around contact, pricing, service anchors, legacy redirects, and interactive demo states.',
+      'Expand buyer-journey coverage around contact, pricing, service anchors, legacy redirects, trust proof, and planning states.',
     sources: [
       {
         label: 'Playwright documentation',

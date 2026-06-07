@@ -209,27 +209,27 @@ export const operatingIntelligenceItems: OperatingIntelligenceItem[] = [
     },
   },
   {
-    id: 'digital-trust',
-    label: 'Digital',
-    title: 'Buyer-facing trust system',
+    id: 'workflow-trust',
+    label: 'Workflow',
+    title: 'Portal and intake workflow system',
     question:
-      'Does the public experience make the business easier to understand, trust, and contact?',
+      'Does the client-facing workflow make the business easier to contact, route, and serve?',
     summary:
-      'Treats websites, portals, forms, ecommerce, demos, and client-facing screens as operational systems with buyer questions, proof, mobile behavior, analytics, and launch ownership.',
+      'Treats portals, forms, intake paths, service pages, and client-facing screens as operating systems with owner decisions, proof, mobile behavior, analytics, and launch ownership.',
     owner: 'Sales + operations + digital owner',
     investmentSignal:
       'Usually driven by priority pages, content readiness, proof gaps, launch timing, integrations, analytics, and workflow depth.',
-    path: 'about/',
-    ctaLabel: 'Open digital proof',
+    path: 'services/#service-planner',
+    ctaLabel: 'Open workflow planning',
     signals: [
-      'The real business is strong, but the website feels smaller than the company.',
+      'The real service is strong, but the intake or portal path feels smaller than the company.',
       'Buyers cannot quickly find proof, pricing logic, services, or a next step.',
-      'Forms, portals, or checkout paths create dead ends on mobile.',
+      'Forms, portals, or handoff paths create dead ends on mobile.',
       'There is no review trail for what changed, why, and how success is measured.',
     ],
     firstActions: [
-      'Map the buyer path, top questions, proof gaps, mobile friction, analytics, and handoff points.',
-      'Prioritize the few screens that most affect trust, clarity, intake, or sales movement.',
+      'Map the service path, top questions, proof gaps, mobile friction, analytics, and handoff points.',
+      'Prioritize the few screens that most affect trust, clarity, intake, or service movement.',
       'Prototype the target flow before expanding into design, content, integrations, or launch work.',
     ],
     evidence: [
@@ -252,7 +252,7 @@ export const operatingIntelligenceItems: OperatingIntelligenceItem[] = [
       harden:
         'Add clearer content structure, proof systems, intake logic, analytics, accessibility, and launch QA.',
       modernize:
-        'Build interactive demos, calculators, portals, saved states, personalization, and reviewable digital workflows.',
+        'Build calculators, portals, saved states, routing rules, and reviewable client-facing workflows.',
     },
   },
 ];

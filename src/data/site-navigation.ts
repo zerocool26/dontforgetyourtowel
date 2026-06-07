@@ -15,7 +15,7 @@ export const buyerPathLinks: SiteLink[] = [
     label: 'Solutions',
     href: 'services/',
     description:
-      'Support, security, Microsoft 365, backup, network, and buyer-facing systems.',
+      'Managed IT, cybersecurity, Microsoft 365, backup, network, and support ownership.',
   },
   {
     label: 'Pricing',
@@ -25,15 +25,15 @@ export const buyerPathLinks: SiteLink[] = [
   },
   {
     label: 'Proof',
-    href: 'about/',
+    href: 'trust-center/',
     description:
-      'Selected digital systems, annotated screens, and proof-led business context.',
+      'Customer excellence standards, security posture, backup evidence, and operating proof.',
   },
   {
     label: 'Contact',
     href: 'contact-hq/',
     description:
-      'Fit intake for support coverage, budget shape, transition risk, or digital system scope.',
+      'Fit intake for support coverage, budget shape, transition risk, or workflow scope.',
   },
 ];
 
@@ -70,8 +70,8 @@ export const supportLinks: SiteLink[] = [
 ];
 
 export const homeRouteGuideLinks: SiteLink[] = [
-  ...buyerPathLinks.slice(0, 3),
-  ...researchProofLinks.slice(0, 3),
+  ...buyerPathLinks,
+  researchProofLinks[3],
 ];
 
 export const footerSignals: FooterSignal[] = [

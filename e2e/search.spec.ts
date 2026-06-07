@@ -23,8 +23,7 @@ test.describe('Search index discoverability', () => {
 
     expect(urls).toContain('services/');
     expect(urls).toContain('contact-hq/');
-    expect(urls).toContain('about/');
-    expect(urls).toContain('about/?demo=cart#shop-experience');
+    expect(urls).toContain('trust-center/');
     expect(urls).toContain('blog/');
     expect(urls).toContain('pricing/#plans');
     expect(urls).toContain('services/#service-tracks');
@@ -36,9 +35,10 @@ test.describe('Search index discoverability', () => {
     expect(urls).not.toContain('demo-lab/');
     expect(urls).not.toContain('shop-demo/');
     expect(urls).not.toContain('utility-demo/');
+    expect(urls).not.toContain('about/?demo=cart#shop-experience');
   });
 
-  test('contains expected searchable metadata for the digital proof lab', async ({
+  test('contains expected searchable metadata for the trust center', async ({
     request,
   }) => {
     const response = await request.get('./search-index.json');
@@ -51,15 +51,13 @@ test.describe('Search index discoverability', () => {
       url?: string;
     }>;
 
-    const portfolioDemo = items.find(
-      item => item.url === 'about/?demo=cart#shop-experience'
-    );
-    expect(portfolioDemo).toBeTruthy();
-    expect(portfolioDemo?.id).toContain('about-demo-cart');
-    expect(portfolioDemo?.title).toContain('Digital Proof Lab');
+    const trustCenter = items.find(item => item.url === 'trust-center/');
+    expect(trustCenter).toBeTruthy();
+    expect(trustCenter?.id).toContain('trust-center');
+    expect(trustCenter?.title).toContain('Trust Center');
     expect(
-      (portfolioDemo?.tags ?? []).some(tag =>
-        /experience-lab|demo|ecommerce|cart/i.test(tag)
+      (trustCenter?.tags ?? []).some(tag =>
+        /trust|proof|backup|customer excellence/i.test(tag)
       )
     ).toBe(true);
   });
@@ -82,7 +80,7 @@ test.describe('Search index discoverability', () => {
         'services/#service-tracks',
         'services/#technology-catalog',
         'pricing/#plans',
-        'about/',
+        'services/#service-planner',
       ])
     );
     expect(handoffs.map(item => item.title)).toEqual(
@@ -90,7 +88,7 @@ test.describe('Search index discoverability', () => {
         'Support ownership handoff',
         'Security baseline handoff',
         'Budget and scope handoff',
-        'Digital trust handoff',
+        'Workflow trust handoff',
       ])
     );
   });
@@ -149,9 +147,10 @@ test.describe('Search index discoverability', () => {
         'blog/chicago-smb-security-baseline/',
         'blog/microsoft-365-cleanup-business-project/',
         'blog/competent-msp-website-signals/',
-        'blog/ecommerce-demo-review-before-build/',
+        'blog/client-intake-workflow-review-before-build/',
       ])
     );
+    expect(urls).not.toContain('blog/ecommerce-demo-review-before-build/');
     expect(urls).not.toContain('blog/first-post/');
     expect(urls).not.toContain('blog/second-post/');
     expect(urls).not.toContain('blog/third-post/');

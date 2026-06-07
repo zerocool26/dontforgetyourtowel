@@ -1087,9 +1087,9 @@ export const tradeProfiles: TradeProfile[] = [
     heroTitle:
       'MSP and tech services built around support queues, security baselines, vendor handoffs, and project work that can be explained.',
     heroDescription:
-      'The technology stack is organized around the things buyers actually need to understand: support ownership, Microsoft 365 governance, backup confidence, security evidence, and selective digital work.',
+      'The technology stack is organized around the things buyers actually need to understand: support ownership, Microsoft 365 governance, backup confidence, security evidence, and workflow support.',
     marketFocus:
-      'Managed IT, cybersecurity, Microsoft 365, cloud, backup, automation, ecommerce support, and business systems modernization.',
+      'Managed IT, cybersecurity, Microsoft 365, cloud, backup, automation, workflow support, and business systems modernization.',
     metrics: [
       {
         label: 'Service depth',
@@ -1139,18 +1139,18 @@ export const tradeProfiles: TradeProfile[] = [
         ],
       },
       {
-        title: 'Automation and digital systems',
+        title: 'Automation and workflow systems',
         description:
-          'Automation, practical AI enablement, ecommerce support, portals, and custom digital systems that support the rest of the business.',
+          'Automation, practical AI enablement, portal support, and custom workflow systems that support the rest of the business.',
         deliverables: [
           'Automation workflows',
           'AI readiness and governance',
-          'Digital experience support',
+          'Workflow experience support',
         ],
       },
     ],
     differentiators: [
-      'Support, security, Microsoft 365, cloud, backup, and digital work stay connected to one buying path.',
+      'Support, security, Microsoft 365, cloud, backup, and workflow work stay connected to one buying path.',
       'MSP and tech services can connect directly to facilities, vendors, service operations, and the systems people use every day.',
       'The site keeps its interactive capabilities while grounding them in clearer service architecture.',
     ],

@@ -72,7 +72,7 @@ const FOCUS_PROFILES: Record<
     categories: [
       'Cloud & Microsoft 365',
       'Network & Infrastructure',
-      'Strategy, Automation & Digital Systems',
+      'Strategy, Automation & Workflow Systems',
     ],
     outcomes: [
       'Cleaner Microsoft 365, cloud, and hybrid environment decisions',
@@ -82,10 +82,10 @@ const FOCUS_PROFILES: Record<
   },
   automate: {
     label: 'Improve workflows and client experience',
-    lead: 'Use automation, reporting, and selective digital work where the payoff is visible.',
+    lead: 'Use automation, reporting, portals, and intake improvements where the payoff is visible.',
     recommendedPlan: 'Co-Managed → Custom',
     categories: [
-      'Strategy, Automation & Digital Systems',
+      'Strategy, Automation & Workflow Systems',
       'Cloud & Microsoft 365',
       'Managed IT & Support',
     ],
@@ -142,7 +142,7 @@ const INDUSTRY_PROFILES: Record<
     boostCategories: [
       'Managed IT & Support',
       'Cloud & Microsoft 365',
-      'Strategy, Automation & Digital Systems',
+      'Strategy, Automation & Workflow Systems',
     ],
     keywords: ['workflow', 'collaboration', 'identity', 'support', 'client'],
   },
@@ -152,7 +152,7 @@ const INDUSTRY_PROFILES: Record<
     boostCategories: [
       'Cloud & Microsoft 365',
       'Cybersecurity & Compliance',
-      'Strategy, Automation & Digital Systems',
+      'Strategy, Automation & Workflow Systems',
     ],
     keywords: ['cloud', 'platform', 'automation', 'identity', 'saas'],
   },

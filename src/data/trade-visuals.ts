@@ -110,7 +110,7 @@ export const tradeVisuals: Record<string, TradeVisual> = {
     stageBullets: [
       'Managed ops still live',
       'Security and cloud lanes',
-      'AI and commerce support',
+      'AI and workflow support',
     ],
     subpageLabel: 'Division overview',
     themeClass: 'trade-experience--msp',
