@@ -277,16 +277,16 @@ describe('Deployment Analyzer', () => {
     expect(Array.isArray(issues)).toBe(true);
   });
 
-  it('should handle build during npm lifecycle', async () => {
+  it('should handle build during Bun lifecycle', async () => {
     // Simulate being in build lifecycle
-    const originalEnv = process.env.npm_lifecycle_event;
-    process.env.npm_lifecycle_event = 'build';
+    const originalEnv = process.env.BUN_LIFECYCLE_EVENT;
+    process.env.BUN_LIFECYCLE_EVENT = 'build';
 
     const issues = await analyzer.analyze(mockConfig);
     expect(Array.isArray(issues)).toBe(true);
 
     // Restore
-    process.env.npm_lifecycle_event = originalEnv;
+    process.env.BUN_LIFECYCLE_EVENT = originalEnv;
   });
 
   it('should skip when deployment checks are disabled', async () => {
@@ -623,7 +623,7 @@ describe('Security Analyzer', () => {
     };
   });
 
-  it('handles npm audit errors gracefully', async () => {
+  it('handles Bun audit errors gracefully', async () => {
     const { executeCommand } = await import('../utils/command-executor');
     vi.mocked(executeCommand).mockRejectedValueOnce(
       new Error('network offline')
@@ -633,11 +633,13 @@ describe('Security Analyzer', () => {
     expect(Array.isArray(issues)).toBe(true);
   });
 
-  it('parses npm audit output respecting severity threshold', async () => {
+  it('parses Bun audit output respecting severity threshold', async () => {
     const { executeCommand } = await import('../utils/command-executor');
     vi.mocked(executeCommand).mockResolvedValueOnce({
       stdout: JSON.stringify({
-        metadata: { vulnerabilities: { critical: 1, high: 1, moderate: 2 } },
+        packageA: [{ severity: 'critical' }],
+        packageB: [{ severity: 'high' }],
+        packageC: [{ severity: 'moderate' }, { severity: 'moderate' }],
       }),
       stderr: '',
       exitCode: 0,
@@ -653,11 +655,12 @@ describe('Security Analyzer', () => {
     expect(issues.some(i => i.severity.level === 'medium')).toBe(false);
   });
 
-  it('honors medium threshold for npm audit output with low severity vulns', async () => {
+  it('honors medium threshold for Bun audit output with low severity vulns', async () => {
     const { executeCommand } = await import('../utils/command-executor');
     vi.mocked(executeCommand).mockResolvedValueOnce({
       stdout: JSON.stringify({
-        metadata: { vulnerabilities: { moderate: 1, low: 2 } },
+        packageA: [{ severity: 'moderate' }],
+        packageB: [{ severity: 'low' }, { severity: 'low' }],
       }),
       stderr: '',
       exitCode: 0,

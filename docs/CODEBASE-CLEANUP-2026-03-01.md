@@ -53,7 +53,7 @@ These docs referenced deprecated routes/components and old upgrade prompts that 
 
 ## Verification checklist
 
-- Re-run `npm run build` after each cleanup wave.
+- Re-run `bun run build` after each cleanup wave.
 - Confirm no imports point to archived files.
 - Keep only current routes/components in top-level docs (`README.md`).
 
@@ -78,8 +78,8 @@ After the archive pass, additional reliability and feature-completion fixes were
 
 ### Verification outcome
 
-- `npm run lint` ✅
-- `npm run build` ✅
+- `bun run lint` ✅
+- `bun run build` ✅
 - `runTests` (all) ✅
 
 ## Compatibility redirects added

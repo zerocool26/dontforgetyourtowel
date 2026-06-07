@@ -20,7 +20,7 @@ const ASTRO_BUILD_LOCK_RE = /\bastro\s+build\b/i;
 
 function isAstroBuildCommand(command: string): boolean {
   const trimmed = command.trim();
-  return trimmed === 'npm run build' || ASTRO_BUILD_LOCK_RE.test(trimmed);
+  return trimmed === 'bun run build' || ASTRO_BUILD_LOCK_RE.test(trimmed);
 }
 
 let astroBuildQueue: Promise<void> = Promise.resolve();

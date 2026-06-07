@@ -7,19 +7,19 @@ quality gates.
 ### Environment
 
 - Node `>=22`
-- npm `11.6.1`
+- Bun `1.3.8`
 - Astro 6 static output
 - Preact as the primary interactive UI layer for public-facing experiences
 
 ### Development workflow
 
-- Install dependencies with `npm install`
-- Start local development with `npm run dev`
-- Use `npm run lint` and `npm run typecheck` for fast static validation
-- Use `npm test` for unit coverage and `npm run test:e2e` for browser flows
-- Use `npm run verify:fast` before handing off route/component changes
-- Use `npm run verify:full` before layout, dependency, routing, or deployment changes
-- Use `npm run deploy-ready` before release-quality changes
+- Install dependencies with `bun install`
+- Start local development with `bun run dev`
+- Use `bun run lint` and `bun run typecheck` for fast static validation
+- Use `bun run test` for unit coverage and `bun run test:e2e` for browser flows
+- Use `bun run verify:fast` before handing off route/component changes
+- Use `bun run verify:full` before layout, dependency, routing, or deployment changes
+- Use `bun run deploy-ready` before release-quality changes
 
 ### Workspace instruction system
 
@@ -56,12 +56,12 @@ hard-deleted from git history.
 
 ### Validation commands
 
-- `npm run lint`
-- `npm run typecheck`
-- `npm test`
-- `npm run test:e2e`
-- `npm run build`
-- `npm run verify:fast`
-- `npm run verify:full`
-- `npm run deps:audit`
-- `npm run deploy-ready`
+- `bun run lint`
+- `bun run typecheck`
+- `bun run test`
+- `bun run test:e2e`
+- `bun run build`
+- `bun run verify:fast`
+- `bun run verify:full`
+- `bun run deps:audit`
+- `bun run deploy-ready`

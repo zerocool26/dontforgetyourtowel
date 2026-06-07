@@ -28,11 +28,11 @@ This is an Astro 6 static marketing site for CHICAGOS #1 MSP, a Chicago-area man
 
 ## Validation Tiers
 
-- Tiny docs/content edit: `npm run typecheck`
-- Component or route edit: `npm run verify:fast`
-- Layout, routing, dependency, or deployment edit: `npm run verify:full`
-- Release candidate: `npm run deploy-ready`
-- Dependency/security pass: `npm run deps:audit`
+- Tiny docs/content edit: `bun run typecheck`
+- Component or route edit: `bun run verify:fast`
+- Layout, routing, dependency, or deployment edit: `bun run verify:full`
+- Release candidate: `bun run deploy-ready`
+- Dependency/security pass: `bun run deps:audit`
 
 ## Current Priorities
 

@@ -7,6 +7,7 @@ import type {
 import { executeCommand } from '../utils/command-executor';
 import { AnalysisError, CommandExecutionError } from '../errors';
 import { logger } from '../utils/logger';
+import { isPackageLifecycleEvent } from '../utils/lifecycle';
 
 export class DeploymentAnalyzer implements AnalysisModule {
   name = 'DeploymentAnalyzer';
@@ -19,7 +20,7 @@ export class DeploymentAnalyzer implements AnalysisModule {
     // Skip deployment analysis during build process to prevent issues
     if (
       process.env.NODE_ENV === 'production' ||
-      process.env.npm_lifecycle_event === 'build'
+      isPackageLifecycleEvent('build')
     ) {
       return false;
     }
@@ -114,11 +115,11 @@ export class DeploymentAnalyzer implements AnalysisModule {
 
   private async checkLinting(config: AnalyzerConfig): Promise<'pass' | 'fail'> {
     try {
-      if (process.env.npm_lifecycle_event === 'build') {
+      if (isPackageLifecycleEvent('build')) {
         return 'pass';
       }
 
-      const { exitCode } = await executeCommand('npm run lint', {
+      const { exitCode } = await executeCommand('bun run lint', {
         cwd: config.projectRoot,
         ignoreExitCode: true,
       });
@@ -132,11 +133,11 @@ export class DeploymentAnalyzer implements AnalysisModule {
 
   private async checkTests(config: AnalyzerConfig): Promise<'pass' | 'fail'> {
     try {
-      if (process.env.npm_lifecycle_event === 'build') {
+      if (isPackageLifecycleEvent('build')) {
         return 'pass';
       }
 
-      const { exitCode } = await executeCommand('npm test -- --run', {
+      const { exitCode } = await executeCommand('bun run test', {
         cwd: config.projectRoot,
         ignoreExitCode: true,
         timeout: 60000, // 60 second timeout for tests
@@ -153,21 +154,14 @@ export class DeploymentAnalyzer implements AnalysisModule {
     config: AnalyzerConfig
   ): Promise<'pass' | 'fail' | 'warning'> {
     try {
-      const { stdout } = await executeCommand('npm outdated --json', {
+      const { stdout } = await executeCommand('bun outdated', {
         cwd: config.projectRoot,
         ignoreExitCode: true,
       });
 
-      if (!stdout || stdout === '{}') return 'pass';
+      if (!stdout) return 'pass';
 
-      const outdated = JSON.parse(stdout);
-      const majorUpdates = Object.values(outdated).filter(
-        (pkg: unknown) =>
-          (pkg as { current: string; latest: string }).current?.split(
-            '.'
-          )[0] !==
-          (pkg as { current: string; latest: string }).latest?.split('.')[0]
-      );
+      const majorUpdates = this.parseMajorOutdatedUpdates(stdout);
 
       if (majorUpdates.length > 5) return 'warning';
       return 'pass';
@@ -218,7 +212,7 @@ export class DeploymentAnalyzer implements AnalysisModule {
       // Skip build check if we're already in a build process to avoid circular dependency
       if (
         process.env.NODE_ENV === 'production' ||
-        process.env.npm_lifecycle_event === 'build'
+        isPackageLifecycleEvent('build')
       ) {
         logger.info(
           'Skipping build check during build process to avoid circular dependency'
@@ -226,7 +220,7 @@ export class DeploymentAnalyzer implements AnalysisModule {
         return 'pass';
       }
 
-      const { exitCode } = await executeCommand('npm run build', {
+      const { exitCode } = await executeCommand('bun run build', {
         cwd: config.projectRoot,
       });
       return exitCode === 0 ? 'pass' : 'fail';
@@ -235,7 +229,7 @@ export class DeploymentAnalyzer implements AnalysisModule {
         error instanceof CommandExecutionError
           ? error
           : new CommandExecutionError(
-              'npm run build',
+              'bun run build',
               null,
               null,
               '',
@@ -252,13 +246,13 @@ export class DeploymentAnalyzer implements AnalysisModule {
       // Skip type check during build process to prevent hangs
       if (
         process.env.NODE_ENV === 'production' ||
-        process.env.npm_lifecycle_event === 'build'
+        isPackageLifecycleEvent('build')
       ) {
         logger.info('Skipping type check during build process');
         return 'pass';
       }
 
-      const { exitCode } = await executeCommand('npx tsc --noEmit', {
+      const { exitCode } = await executeCommand('bunx tsc --noEmit', {
         cwd: config.projectRoot,
       });
       return exitCode === 0 ? 'pass' : 'fail';
@@ -267,7 +261,7 @@ export class DeploymentAnalyzer implements AnalysisModule {
         error instanceof CommandExecutionError
           ? error
           : new CommandExecutionError(
-              'npx tsc --noEmit',
+              'bunx tsc --noEmit',
               null,
               null,
               '',
@@ -286,7 +280,7 @@ export class DeploymentAnalyzer implements AnalysisModule {
       linting: 'Fix linting issues',
       testing: 'Ensure all tests pass',
       dependencies:
-        'Review available major dependency upgrades and plan migrations deliberately; security vulnerabilities are checked separately with npm audit.',
+        'Review available major dependency upgrades and plan migrations deliberately; security vulnerabilities are checked separately with Bun audit.',
       security: 'Address security vulnerabilities',
       performance: 'Optimize performance issues',
       accessibility: 'Fix accessibility issues',
@@ -295,6 +289,26 @@ export class DeploymentAnalyzer implements AnalysisModule {
     };
 
     return suggestions[check] || `Review and fix ${check} issues`;
+  }
+
+  private parseMajorOutdatedUpdates(output: string): string[] {
+    return output
+      .split(/\r?\n/)
+      .map(line => line.trim())
+      .filter(line => line.startsWith('|') && !line.includes('---'))
+      .map(line =>
+        line
+          .split('|')
+          .map(part => part.trim())
+          .filter(Boolean)
+      )
+      .filter(columns => columns.length >= 4 && columns[0] !== 'Package')
+      .filter(([, current, , latest]) => {
+        const currentMajor = current.split('.')[0];
+        const latestMajor = latest.split('.')[0];
+        return currentMajor && latestMajor && currentMajor !== latestMajor;
+      })
+      .map(([name]) => name);
   }
 
   getLastChecklist(): DeploymentChecklist | null {

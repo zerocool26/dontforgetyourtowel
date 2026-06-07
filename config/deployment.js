@@ -49,8 +49,8 @@ const getRepoInfo = env => {
   const owner =
     getEnvValue(env, ['GITHUB_OWNER', 'GITHUB_ACTOR', 'REPOSITORY_OWNER']) ||
     '';
-  // Intentionally do NOT fall back to `npm_package_name`.
-  // npm injects it for local scripts, which would incorrectly force a non-root
+  // Intentionally do NOT fall back to package-manager-injected package names.
+  // Local script runners can inject them, which would incorrectly force a non-root
   // base path for local dev/build/preview and can make all assets (including 3D)
   // appear broken when hosted under a different path.
   const fallbackRepo = getEnvValue(env, ['REPO_NAME', 'PROJECT_NAME']) || '';

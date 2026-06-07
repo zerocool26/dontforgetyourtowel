@@ -12,4 +12,4 @@ applyTo: "src/pages/**/*.astro"
 - Reuse project color tokens and global utility classes instead of introducing raw hex colors in route markup unless there is a route-specific art-direction reason.
 - Preserve existing `data-*` hooks, anchors, and headings that are covered by tests or route-to-route deep links.
 - Keep primary mobile tap targets at least 44px tall; 48px is preferred for major CTAs.
-- When changing route behavior or interactions, validate with `npm run lint`, `npm run typecheck`, `npm run build`, and the most relevant focused Playwright spec.
+- When changing route behavior or interactions, validate with `bun run lint`, `bun run typecheck`, `bun run build`, and the most relevant focused Playwright spec.

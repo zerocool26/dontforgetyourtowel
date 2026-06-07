@@ -38,11 +38,11 @@ Avoid promoting services that cannot be explained in one business sentence or th
 
 ## Validation Map
 
-- `npm run verify:fast`: typecheck, lint, and unit tests.
-- `npm run verify:full`: fast checks, build, and critical health check.
-- `npm run deploy-ready`: release-grade analyzer, typecheck, lint, tests, and build.
-- `npm run deps:audit`: dependency audit at moderate severity or higher.
-- `npm run test:e2e -- <spec>`: focused browser validation for a touched route.
+- `bun run verify:fast`: typecheck, lint, and unit tests.
+- `bun run verify:full`: fast checks, build, and critical health check.
+- `bun run deploy-ready`: release-grade analyzer, typecheck, lint, tests, and build.
+- `bun run deps:audit`: dependency audit at moderate severity or higher.
+- `bun run test:e2e -- <spec>`: focused browser validation for a touched route.
 
 ## Design Guardrails
 
@@ -57,4 +57,4 @@ Avoid promoting services that cannot be explained in one business sentence or th
 - Patch and minor updates within the current major are safe when validation passes.
 - Major upgrades require a scoped migration branch and focused notes.
 - Astro, official Astro integrations, Tailwind, React, Preact, Three.js, and Playwright should be upgraded together only when their migration guides have been checked.
-- Do not use `npm audit fix --force` on this project without treating it as a major-framework migration.
+- Do not force dependency audit remediations on this project without treating them as a major-framework migration.

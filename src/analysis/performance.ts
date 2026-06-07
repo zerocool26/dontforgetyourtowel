@@ -6,6 +6,7 @@ import type {
 import { executeCommand } from '../utils/command-executor';
 import { AnalysisError, CommandExecutionError } from '../errors';
 import { logger } from '../utils/logger';
+import { isPackageLifecycleEvent } from '../utils/lifecycle';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { glob } from 'glob';
@@ -91,7 +92,7 @@ export class PerformanceAnalyzer implements AnalysisModule {
     const issues: CodeIssue[] = [];
 
     try {
-      if (process.env.npm_lifecycle_event === 'build') {
+      if (isPackageLifecycleEvent('build')) {
         logger.info('Skipping performance checks during build lifecycle');
         return issues;
       }
@@ -247,7 +248,7 @@ export class PerformanceAnalyzer implements AnalysisModule {
       }
 
       const { stdout, stderr } = await executeCommand(
-        'npx astro build --dry-run',
+        'bunx astro build --dry-run',
         {
           cwd: config.projectRoot,
           ignoreExitCode: true,
@@ -381,7 +382,7 @@ export class PerformanceAnalyzer implements AnalysisModule {
       return true;
     }
 
-    if (process.env.npm_lifecycle_event === 'test') {
+    if (isPackageLifecycleEvent('test')) {
       return true;
     }
 

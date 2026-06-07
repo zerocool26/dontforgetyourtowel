@@ -10,16 +10,16 @@
 
 ## Build and Test
 
-- Required runtime: **Node >= 22** and **npm 11.6.1**.
-- Use `npm run verify:fast` for normal route/component handoffs and `npm run verify:full` for layout, routing, dependency, or deployment changes.
-- Use `npm run health-check` for fast critical analysis and `npm run error-review:deployment` before release-grade deployment changes.
+- Required runtime: **Node >= 22** and **Bun 1.3.8**.
+- Use `bun run verify:fast` for normal route/component handoffs and `bun run verify:full` for layout, routing, dependency, or deployment changes.
+- Use `bun run health-check` for fast critical analysis and `bun run error-review:deployment` before release-grade deployment changes.
 - Primary validation commands:
-  - `npm run lint`
-  - `npm run typecheck`
-  - `npm test`
-  - `npm run test:e2e`
-  - `npm run build`
-- For release-quality validation, use `npm run deploy-ready`.
+  - `bun run lint`
+  - `bun run typecheck`
+  - `bun run test`
+  - `bun run test:e2e`
+  - `bun run build`
+- For release-quality validation, use `bun run deploy-ready`.
 
 ## Conventions
 

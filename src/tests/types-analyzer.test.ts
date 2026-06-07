@@ -70,7 +70,7 @@ describe('TypesAnalyzer', () => {
       const issues = await analyzer.analyze(mockConfig);
       expect(issues).toEqual([]);
       expect(executeCommand).toHaveBeenCalledWith(
-        'npx tsc --noEmit --skipLibCheck',
+        'bunx tsc --noEmit --skipLibCheck',
         expect.objectContaining({
           cwd: mockConfig.projectRoot,
           ignoreExitCode: true,
@@ -126,7 +126,7 @@ ${file2}(20,15): error TS2531: Object is possibly 'null'.`;
 
     it('should handle command execution errors', async () => {
       const error = new CommandExecutionError(
-        'npx tsc',
+        'bunx tsc',
         1,
         null,
         '',

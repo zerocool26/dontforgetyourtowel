@@ -79,7 +79,7 @@ describe('Error Handling System', () => {
   describe('CommandExecutionError', () => {
     it('should store all command execution details', () => {
       const error = new CommandExecutionError(
-        'npm test',
+        'bun run test',
         1,
         'SIGTERM' as NodeJS.Signals,
         'Test output',
@@ -96,7 +96,7 @@ describe('Error Handling System', () => {
         stderr: string;
       }>(error.details);
 
-      expect(commandDetails.command).toBe('npm test');
+      expect(commandDetails.command).toBe('bun run test');
       expect(commandDetails.exitCode).toBe(1);
       expect(commandDetails.signal).toBe('SIGTERM');
       expect(commandDetails.stdout).toBe('Test output');

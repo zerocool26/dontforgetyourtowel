@@ -76,7 +76,7 @@ describe('Individual Analysis Modules', () => {
       const { executeCommand } = await import('../utils/command-executor');
       vi.mocked(executeCommand).mockRejectedValueOnce(
         new CommandExecutionError(
-          'npx tsc --noEmit',
+          'bunx tsc --noEmit',
           1,
           null,
           '',

@@ -23,7 +23,7 @@ export class SecurityAnalyzer implements AnalysisModule {
     const issues: CodeIssue[] = [];
 
     try {
-      // Check for known vulnerabilities via npm audit
+      // Check for known vulnerabilities via Bun audit
       await this.checkDependencyVulnerabilities(config, issues);
 
       // Check for security anti-patterns
@@ -50,22 +50,22 @@ export class SecurityAnalyzer implements AnalysisModule {
   }
 
   /**
-   * Check for dependency vulnerabilities using npm audit
+   * Check for dependency vulnerabilities using Bun audit
    */
   private async checkDependencyVulnerabilities(
     config: AnalyzerConfig,
     issues: CodeIssue[]
   ): Promise<void> {
     try {
-      const lockfilePath = path.join(config.projectRoot, 'package-lock.json');
+      const lockfilePath = path.join(config.projectRoot, 'bun.lock');
       try {
         await fs.access(lockfilePath);
       } catch {
-        logger.debug('No package-lock.json found; skipping npm audit check');
+        logger.debug('No bun.lock found; skipping Bun audit check');
         return;
       }
 
-      const { stdout } = await executeCommand('npm audit --json', {
+      const { stdout } = await executeCommand('bun audit --json', {
         cwd: config.projectRoot,
         ignoreExitCode: true,
         timeout: 15000,
@@ -75,29 +75,29 @@ export class SecurityAnalyzer implements AnalysisModule {
 
       if (!stdout) {
         logger.debug(
-          'npm audit did not return data; skipping dependency vulnerability check'
+          'Bun audit did not return data; skipping dependency vulnerability check'
         );
         return;
       }
 
-      let audit: {
-        metadata?: { vulnerabilities?: Record<string, number> };
-      };
+      let audit: unknown;
 
       try {
         audit = JSON.parse(stdout);
       } catch (parseError) {
-        logger.debug('Unable to parse npm audit output', { parseError });
+        logger.debug('Unable to parse Bun audit output', { parseError });
         return;
       }
 
-      if (audit.metadata?.vulnerabilities) {
+      const vulnerabilityCounts = this.getVulnerabilityCounts(audit);
+
+      if (vulnerabilityCounts) {
         const {
           critical = 0,
           high = 0,
           moderate = 0,
           low = 0,
-        } = audit.metadata.vulnerabilities;
+        } = vulnerabilityCounts;
 
         const severityBuckets: Array<{
           count: number;
@@ -112,25 +112,25 @@ export class SecurityAnalyzer implements AnalysisModule {
             label: 'critical',
             rule: 'dependency-vulnerability',
             suggestion:
-              'Run `npm audit fix --force` or update vulnerable packages manually',
-            description: `Found ${critical} critical security vulnerabilities in dependencies. Run \`npm audit fix\` to resolve.`,
-            autoFixable: true,
+              'Use `bun audit --audit-level critical` to inspect advisories, then update vulnerable packages deliberately',
+            description: `Found ${critical} critical security vulnerabilities in dependencies.`,
+            autoFixable: false,
           },
           {
             count: high,
             label: 'high',
             rule: 'dependency-vulnerability',
             suggestion:
-              'Run `npm audit` to see details and `npm audit fix` to resolve',
+              'Use `bun audit --audit-level high` to see details and update vulnerable packages',
             description: `Found ${high} high severity security vulnerabilities in dependencies.`,
-            autoFixable: true,
+            autoFixable: false,
           },
           {
             count: moderate,
             label: 'medium',
             rule: 'dependency-vulnerability',
             suggestion:
-              'Review vulnerabilities with `npm audit` and update when possible',
+              'Review vulnerabilities with `bun audit` and update when possible',
             description: `Found ${moderate} moderate security vulnerabilities in dependencies.`,
             autoFixable: false,
           },
@@ -173,7 +173,7 @@ export class SecurityAnalyzer implements AnalysisModule {
               file: 'package.json',
               rule: bucket.rule,
               category: 'Security',
-              source: 'npm-audit',
+              source: 'bun-audit',
               suggestion: bucket.suggestion,
               autoFixable: bucket.autoFixable,
             });
@@ -181,9 +181,54 @@ export class SecurityAnalyzer implements AnalysisModule {
         }
       }
     } catch (error) {
-      // npm audit may fail or return non-zero on vulnerabilities, which is expected
-      logger.debug('npm audit check skipped or failed', { error });
+      // Bun audit may fail or return non-zero on vulnerabilities, which is expected.
+      logger.debug('Bun audit check skipped or failed', { error });
     }
+  }
+
+  private getVulnerabilityCounts(
+    audit: unknown
+  ): Record<'critical' | 'high' | 'moderate' | 'low', number> | null {
+    if (!audit || typeof audit !== 'object') {
+      return null;
+    }
+
+    const maybeMetadata = audit as {
+      metadata?: { vulnerabilities?: Record<string, number> };
+    };
+    if (maybeMetadata.metadata?.vulnerabilities) {
+      return {
+        critical: maybeMetadata.metadata.vulnerabilities.critical ?? 0,
+        high: maybeMetadata.metadata.vulnerabilities.high ?? 0,
+        moderate: maybeMetadata.metadata.vulnerabilities.moderate ?? 0,
+        low: maybeMetadata.metadata.vulnerabilities.low ?? 0,
+      };
+    }
+
+    const counts = { critical: 0, high: 0, moderate: 0, low: 0 };
+    for (const advisories of Object.values(audit)) {
+      if (!Array.isArray(advisories)) {
+        continue;
+      }
+
+      for (const advisory of advisories) {
+        if (!advisory || typeof advisory !== 'object') {
+          continue;
+        }
+
+        const severity = String(
+          (advisory as { severity?: unknown }).severity ?? ''
+        ).toLowerCase();
+        if (severity === 'critical') counts.critical += 1;
+        if (severity === 'high') counts.high += 1;
+        if (severity === 'moderate' || severity === 'medium') {
+          counts.moderate += 1;
+        }
+        if (severity === 'low') counts.low += 1;
+      }
+    }
+
+    return counts;
   }
 
   /**

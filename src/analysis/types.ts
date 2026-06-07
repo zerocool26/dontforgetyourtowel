@@ -21,7 +21,7 @@ export class TypesAnalyzer implements AnalysisModule {
 
     try {
       const { stdout, stderr } = await executeCommand(
-        'npx tsc --noEmit --skipLibCheck',
+        'bunx tsc --noEmit --skipLibCheck',
         {
           cwd: config.projectRoot,
           ignoreExitCode: true,

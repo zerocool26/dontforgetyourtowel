@@ -21,7 +21,7 @@ export class SyntaxAnalyzer implements AnalysisModule {
 
     try {
       const { stdout, stderr } = await executeCommand(
-        'npx tsc --noEmit --listFiles',
+        'bunx tsc --noEmit --listFiles',
         {
           cwd: config.projectRoot,
           ignoreExitCode: true,
