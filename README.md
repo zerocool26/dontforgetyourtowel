@@ -1,6 +1,6 @@
-## Olive Chicago Website
+## CHICAGOS #1 MSP Website
 
-Astro static site for Olive Chicago with base-path-safe routing, managed IT
+Astro static site for CHICAGOS #1 MSP with base-path-safe routing, managed IT
 service content, ecommerce demo surfaces, blog/news/photo routes, and
 Playwright/Vitest quality gates.
 

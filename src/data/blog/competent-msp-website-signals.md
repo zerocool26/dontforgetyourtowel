@@ -27,4 +27,4 @@ Strong pages answer practical questions:
 
 Good content does not need hype. It should name the pressure point, explain the service in plain language, and make the next decision easier.
 
-That is the standard Olive Chicago should keep across every route.
+That is the standard CHICAGOS #1 MSP should keep across every route.

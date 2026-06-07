@@ -34,7 +34,7 @@ export const businessAudience = [
 
 export const businessOfferCatalog = {
   '@type': 'OfferCatalog',
-  name: 'Olive Chicago service lines',
+  name: 'CHICAGOS #1 MSP service lines',
   itemListElement: businessServiceTypes.map(serviceType => ({
     '@type': 'Offer',
     itemOffered: {

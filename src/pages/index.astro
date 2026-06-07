@@ -41,10 +41,10 @@ const heroSignals = [
 ];
 
 const heroProofPoints = [
-  'Same-business-day first review target',
-  '30 / 60 / 90-day onboarding shape',
-  'Monthly reporting with named owners',
-  'Proof-led digital systems when trust is on the line',
+  'Named owner for every recurring issue',
+  'Security baseline tied to evidence',
+  'Backup and restore posture surfaced early',
+  '30 / 60 / 90-day plan leadership can approve',
 ];
 
 const siteGuide = homeRouteGuideLinks.map(link => ({
@@ -180,7 +180,7 @@ const startOptions = [
 ---
 
 <MarketingLayout
-  title="Olive Chicago | Managed IT, Security, Microsoft 365, and Digital Systems"
+  title="CHICAGOS #1 MSP | Managed IT, Security, Microsoft 365, and Digital Systems"
   description="Chicago-area managed IT, cybersecurity, Microsoft 365, backup, networking, and selective digital systems for firms that need steadier operations and a stronger first impression."
   mainClass="relative overflow-x-clip"
   bodyClass="creative-page"
@@ -198,6 +198,7 @@ const startOptions = [
         role="img"
         aria-label="Interactive 3D operations field showing managed IT, security, and digital proof"
       >
+        <div class="home-orbit-scene__fallback" aria-hidden="true"></div>
         <canvas
           class="home-orbit-scene__canvas"
           data-home-orbit-canvas
@@ -209,21 +210,19 @@ const startOptions = [
       <div class="premium-container home-homepage-hero__grid">
         <div class="home-homepage-hero__content">
           <p class="home-homepage-eyebrow">
-            Chicago managed IT + practical digital systems
+            Chicago managed IT | security | Microsoft 365 | continuity
           </p>
           <h1 class="home-homepage-title">
-            Olive Chicago managed IT for companies that need technology to stay
-            owned.
+            CHICAGOS #1 MSP for companies that need technology to stay owned.
           </h1>
           <p class="home-homepage-copy home-homepage-copy--hero">
-            Support, cybersecurity, Microsoft 365, cloud, backup, networking,
-            and selective digital systems for Chicago-area teams with no room
-            for unclear ownership.
+            An operations-first MSP experience for support, cybersecurity,
+            Microsoft 365, cloud, backup, networking, and buyer-facing systems
+            that should feel calm under pressure.
           </p>
           <p class="home-homepage-claim home-homepage-claim--hero">
-            Start with the loose end: recurring tickets, stale access, backup
-            uncertainty, vendor confusion, or a site that no longer reflects the
-            business.
+            No vague tool bundle. The first useful output is a map: what is
+            broken, who owns it, what evidence proves it, and what happens next.
           </p>
 
           <div class="home-homepage-actions home-homepage-actions--hero">
@@ -281,10 +280,11 @@ const startOptions = [
       <div class="home-homepage-section__intro">
         <p class="home-homepage-eyebrow">Why buyers stay oriented</p>
         <h2 class="home-homepage-section__title">
-          The site starts with ownership before it asks you to browse a catalog.
+          The experience starts with ownership before it asks you to browse a
+          catalog.
         </h2>
         <p class="home-homepage-copy">
-          A useful MSP conversation should identify the operating pressure, the
+          A serious MSP conversation should identify the operating pressure, the
           evidence needed, who owns the next action, and which route makes the
           decision easier.
         </p>
@@ -386,7 +386,7 @@ const startOptions = [
       <div class="home-homepage-section__intro">
         <p class="home-homepage-eyebrow">What we do</p>
         <h2 class="home-homepage-section__title">
-          Four lanes, one operating standard.
+          Four lanes that make the operating model easier to own.
         </h2>
         <p class="home-homepage-section__copy">
           Run the daily IT layer, harden the security baseline, clean up
@@ -598,6 +598,114 @@ const startOptions = [
   </section>
 
   <script>
+    const paintHomeOrbitFallback = (root: HTMLElement) => {
+      const canvas = root.querySelector<HTMLCanvasElement>(
+        '[data-home-orbit-canvas]'
+      );
+      if (!canvas) return;
+
+      const width = Math.max(320, Math.round(root.clientWidth || 960));
+      const height = Math.max(320, Math.round(root.clientHeight || 620));
+      const ratio = Math.min(window.devicePixelRatio || 1, 2);
+      const ctx = canvas.getContext('2d', { willReadFrequently: false });
+      if (!ctx) return;
+
+      canvas.width = Math.round(width * ratio);
+      canvas.height = Math.round(height * ratio);
+      canvas.style.width = '100%';
+      canvas.style.height = '100%';
+
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+      ctx.clearRect(0, 0, width, height);
+
+      const wash = ctx.createLinearGradient(0, 0, width, height);
+      wash.addColorStop(0, '#0b1115');
+      wash.addColorStop(0.42, '#111c20');
+      wash.addColorStop(1, '#070809');
+      ctx.fillStyle = wash;
+      ctx.fillRect(0, 0, width, height);
+
+      const glow = ctx.createRadialGradient(
+        width * 0.68,
+        height * 0.42,
+        8,
+        width * 0.68,
+        height * 0.42,
+        width * 0.38
+      );
+      glow.addColorStop(0, 'rgba(98, 216, 198, 0.24)');
+      glow.addColorStop(0.45, 'rgba(246, 198, 91, 0.12)');
+      glow.addColorStop(1, 'rgba(7, 8, 9, 0)');
+      ctx.fillStyle = glow;
+      ctx.fillRect(0, 0, width, height);
+
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = 'rgba(251, 247, 239, 0.09)';
+      for (let index = -3; index < 18; index += 1) {
+        const x = index * 84;
+        ctx.beginPath();
+        ctx.moveTo(x, height * 0.12);
+        ctx.lineTo(x + width * 0.22, height * 0.92);
+        ctx.stroke();
+      }
+
+      const skyline = [
+        [0.56, 0.28, 0.028],
+        [0.6, 0.18, 0.018],
+        [0.64, 0.24, 0.024],
+        [0.69, 0.32, 0.03],
+        [0.74, 0.2, 0.02],
+        [0.79, 0.27, 0.026],
+      ];
+      const baseY = height * 0.76;
+      skyline.forEach(([xScale, hScale, wScale], index) => {
+        const barWidth = width * wScale;
+        const barHeight = height * hScale;
+        const x = width * xScale - barWidth / 2;
+        const y = baseY - barHeight;
+        const bar = ctx.createLinearGradient(x, y, x, baseY);
+        bar.addColorStop(
+          0,
+          index % 2 === 0
+            ? 'rgba(98, 216, 198, 0.68)'
+            : 'rgba(246, 198, 91, 0.58)'
+        );
+        bar.addColorStop(1, 'rgba(251, 247, 239, 0.08)');
+        ctx.fillStyle = bar;
+        ctx.fillRect(x, y, barWidth, barHeight);
+      });
+
+      ctx.strokeStyle = 'rgba(98, 216, 198, 0.46)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.ellipse(
+        width * 0.68,
+        height * 0.42,
+        width * 0.16,
+        height * 0.08,
+        -0.22,
+        0,
+        Math.PI * 2
+      );
+      ctx.stroke();
+
+      for (let index = 0; index < 28; index += 1) {
+        const angle = (index / 28) * Math.PI * 2;
+        const radius = width * (0.08 + (index % 4) * 0.016);
+        const x = width * 0.68 + Math.cos(angle) * radius;
+        const y = height * 0.42 + Math.sin(angle) * radius * 0.48;
+        ctx.fillStyle =
+          index % 3 === 0
+            ? 'rgba(246, 198, 91, 0.72)'
+            : 'rgba(251, 247, 239, 0.62)';
+        ctx.beginPath();
+        ctx.arc(x, y, 2.4 + (index % 2), 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      root.dataset.homeOrbitFallbackPainted = 'true';
+    };
+
     const scheduleHomeOrbitScene = () => {
       const root = document.querySelector<HTMLElement>(
         '[data-home-orbit-root]'
@@ -606,6 +714,7 @@ const startOptions = [
       if (!root || root.dataset.homeOrbitScheduled === 'true') return;
 
       root.dataset.homeOrbitScheduled = 'true';
+      paintHomeOrbitFallback(root);
 
       const prefersStaticScene = window.matchMedia(
         '(prefers-reduced-motion: reduce)'
@@ -614,9 +723,13 @@ const startOptions = [
         (navigator as Navigator & { connection?: { saveData?: boolean } })
           .connection?.saveData === true;
 
-      if (prefersStaticScene || saveData) {
+      if (saveData) {
         root.dataset.homeOrbitMode = 'static';
         return;
+      }
+
+      if (prefersStaticScene) {
+        root.dataset.homeOrbitMode = 'static';
       }
 
       const loadScene = () => {

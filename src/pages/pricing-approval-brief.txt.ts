@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 
-const brief = `Olive Chicago pricing approval brief
+const brief = `CHICAGOS #1 MSP pricing approval brief
 
 Use this short brief when leadership needs a plain-language reason to approve managed IT or security coverage.
 

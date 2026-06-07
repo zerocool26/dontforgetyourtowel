@@ -221,7 +221,7 @@ const routeContext = getRouteContext(Astro.url.pathname);
     }
   }
 
-  const SAVED_ROUTES_DOCK_STORAGE_KEY = 'olive-saved-routes-dock-state';
+  const SAVED_ROUTES_DOCK_STORAGE_KEY = 'chicagos-msp-saved-routes-dock-state';
 
   const bindSavedRoutesDock = () => {
     window.__savedRoutesDockCleanup?.();
@@ -450,7 +450,7 @@ const routeContext = getRouteContext(Astro.url.pathname);
         const href = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = href;
-        link.download = 'olive-route-workspace.json';
+        link.download = 'chicagos-msp-route-workspace.json';
         document.body.appendChild(link);
         link.click();
         link.remove();
@@ -536,7 +536,7 @@ const routeContext = getRouteContext(Astro.url.pathname);
       return button;
     });
 
-    window.addEventListener('olive:route-pins-updated', render);
+    window.addEventListener('chicagos-msp:route-pins-updated', render);
     window.addEventListener('saved-routes-dock:toggle', handleToggle);
     window.addEventListener('saved-routes-dock:open', handleOpen);
     render();
@@ -563,7 +563,7 @@ const routeContext = getRouteContext(Astro.url.pathname);
       clearHandlers.forEach(button => {
         button.removeEventListener('click', handleClear);
       });
-      window.removeEventListener('olive:route-pins-updated', render);
+      window.removeEventListener('chicagos-msp:route-pins-updated', render);
       window.removeEventListener('saved-routes-dock:toggle', handleToggle);
       window.removeEventListener('saved-routes-dock:open', handleOpen);
     };

@@ -565,7 +565,7 @@ export default function CommandPalette({
             const href = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = href;
-            link.download = 'olive-route-workspace.json';
+            link.download = 'chicagos-msp-route-workspace.json';
             document.body.appendChild(link);
             link.click();
             link.remove();
@@ -612,21 +612,21 @@ export default function CommandPalette({
     };
 
     window.addEventListener(
-      'olive:route-memory-updated',
+      'chicagos-msp:route-memory-updated',
       handleRouteMemoryUpdate as EventListener
     );
     window.addEventListener(
-      'olive:route-pins-updated',
+      'chicagos-msp:route-pins-updated',
       handleRoutePinsUpdate as EventListener
     );
 
     return () => {
       window.removeEventListener(
-        'olive:route-memory-updated',
+        'chicagos-msp:route-memory-updated',
         handleRouteMemoryUpdate as EventListener
       );
       window.removeEventListener(
-        'olive:route-pins-updated',
+        'chicagos-msp:route-pins-updated',
         handleRoutePinsUpdate as EventListener
       );
     };

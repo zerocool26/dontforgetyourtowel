@@ -30,14 +30,14 @@ export interface ResourceRecommendation {
 export interface CompetitiveProofPattern {
   pattern: string;
   whatBuyersExpect: string;
-  oliveRule: string;
+  proofRule: string;
   sources: RadarSource[];
 }
 
 export interface DesignQualityPrinciple {
   principle: string;
   whatMatureTeamsDo: string;
-  oliveApplication: string;
+  siteApplication: string;
   sources: RadarSource[];
 }
 
@@ -47,7 +47,7 @@ export const marketSignals2026: MarketSignal[] = [
     buyerReality:
       'The strongest managed-service sites make help desk, escalation, vendor, security, and roadmap ownership easy to understand before they list tools.',
     siteMove:
-      'Keep Olive centered on support ownership, security evidence, Microsoft 365 governance, backup proof, and next actions instead of generic "all your IT needs" language.',
+      'Keep the brand centered on support ownership, security evidence, Microsoft 365 governance, backup proof, and next actions instead of generic "all your IT needs" language.',
     sources: [
       {
         label: 'NCSC managed service provider guidance',
@@ -141,7 +141,7 @@ export const competitiveProofPatterns2026: CompetitiveProofPattern[] = [
     pattern: 'Proof badges and partner signals',
     whatBuyersExpect:
       'Mature MSP websites often show partner status, awards, platform certifications, compliance partners, retention signals, and support proof near service decisions.',
-    oliveRule:
+    proofRule:
       'Publish only verified credentials. Where credentials are not available yet, use transparent operating proof: onboarding outputs, security baselines, restore evidence, and QA gates.',
     sources: [
       {
@@ -160,8 +160,8 @@ export const competitiveProofPatterns2026: CompetitiveProofPattern[] = [
     pattern: 'Measurable service promises',
     whatBuyersExpect:
       'High-converting providers translate service into response expectations, uptime language, SOC coverage, implementation cadence, or monthly/quarterly review rhythm.',
-    oliveRule:
-      'Keep Olive promises scoped as targets, cadence, and buyer-visible outputs unless contractual SLAs are finalized.',
+    proofRule:
+      'Keep service promises scoped as targets, cadence, and buyer-visible outputs unless contractual SLAs are finalized.',
     sources: [
       {
         label: 'Teleon managed IT and cybersecurity metrics',
@@ -179,7 +179,7 @@ export const competitiveProofPatterns2026: CompetitiveProofPattern[] = [
     pattern: 'Technology stack clarity',
     whatBuyersExpect:
       'Buyers want to know whether the provider can own Microsoft 365, identity, endpoint, cloud, backup, network, compliance tooling, and security monitoring as connected work.',
-    oliveRule:
+    proofRule:
       'Show the service stack as ownership areas and decision outputs, not a logo wall or vendor list without context.',
     sources: [
       {
@@ -203,7 +203,7 @@ export const competitiveProofPatterns2026: CompetitiveProofPattern[] = [
     pattern: 'Vertical and compliance fit',
     whatBuyersExpect:
       'Credible sites state who they fit best, where they work, which compliance pressures they understand, and when a buyer should start with an assessment.',
-    oliveRule:
+    proofRule:
       'Keep Chicago-area fit specific: healthcare groups, professional services, light manufacturing, multi-site offices, and Microsoft-heavy teams.',
     sources: [
       {
@@ -230,7 +230,7 @@ export const designQualityPrinciples2026: DesignQualityPrinciple[] = [
     principle: 'Accessible polish as a default, not an afterthought',
     whatMatureTeamsDo:
       'The best design systems make contrast, keyboard behavior, reduced motion, target size, and assistive-technology feedback part of the component contract.',
-    oliveApplication:
+    siteApplication:
       'Keep public pages calm on mobile, preserve visible focus states, test important flows with Playwright, and treat accessibility as delivery quality rather than compliance decoration.',
     sources: [
       {
@@ -254,7 +254,7 @@ export const designQualityPrinciples2026: DesignQualityPrinciple[] = [
     principle: 'Workflow-first interface density',
     whatMatureTeamsDo:
       'Operational products avoid decorative clutter and make repeated work faster through clear hierarchy, progressive disclosure, predictable controls, and state that stays shareable.',
-    oliveApplication:
+    siteApplication:
       'Design MSP surfaces like working tools: short routes to service fit, pricing, proof, contact, and demo states that leadership can reopen without re-explaining context.',
     sources: [
       {
@@ -273,7 +273,7 @@ export const designQualityPrinciples2026: DesignQualityPrinciple[] = [
     principle: 'Enterprise systems are documented visually',
     whatMatureTeamsDo:
       'Strong B2B sites show how decisions, services, risks, and evidence connect. They use structured cards, comparison tables, diagrams, and source-backed copy instead of vague feature pages.',
-    oliveApplication:
+    siteApplication:
       'Keep building reusable data-backed panels: service catalog, buyer routes, proof sections, research radar, and search index entries that all describe the same operating model.',
     sources: [
       {
@@ -292,7 +292,7 @@ export const designQualityPrinciples2026: DesignQualityPrinciple[] = [
     principle: 'Performance budgets are part of the brand',
     whatMatureTeamsDo:
       'Modern technology brands prove competence by shipping fast, stable, inspectable pages with repeatable quality budgets rather than relying on heavy effects to signal sophistication.',
-    oliveApplication:
+    siteApplication:
       'Use static Astro pages, route-contained heavy demos, Lighthouse CI reports, and conservative JavaScript hydration as visible proof of disciplined engineering.',
     sources: [
       {

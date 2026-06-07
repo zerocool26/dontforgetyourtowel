@@ -312,7 +312,9 @@ export default function OperationalIntelligenceWorkbench({
 
           <div className="ops-workbench__brief">
             <h3>Generated handoff brief</h3>
-            <pre>{activeBrief}</pre>
+            <pre aria-label="Generated handoff brief" tabIndex={0}>
+              {activeBrief}
+            </pre>
             <button type="button" onClick={copyBrief}>
               {copyState === 'copied'
                 ? 'Brief copied'

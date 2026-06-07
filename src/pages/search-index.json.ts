@@ -98,7 +98,7 @@ export async function GET() {
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-|-$/g, '')}`,
       title: item.pattern,
-      description: `${item.whatBuyersExpect} Olive rule: ${item.oliveRule}`,
+      description: `${item.whatBuyersExpect} Proof rule: ${item.proofRule}`,
       category: 'Research Radar',
       url: 'services/#research-radar',
       date: new Date().toISOString(),
@@ -116,7 +116,7 @@ export async function GET() {
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-|-$/g, '')}`,
       title: item.principle,
-      description: `${item.whatMatureTeamsDo} ${item.oliveApplication}`,
+      description: `${item.whatMatureTeamsDo} ${item.siteApplication}`,
       category: 'Research Radar',
       url: 'services/#research-radar',
       date: new Date().toISOString(),

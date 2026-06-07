@@ -27,8 +27,8 @@ export interface WorkspaceDraft {
   lines: string[];
 }
 
-export const ROUTE_MEMORY_STORAGE_KEY = 'olive-recent-routes';
-export const ROUTE_PIN_STORAGE_KEY = 'olive-pinned-routes';
+export const ROUTE_MEMORY_STORAGE_KEY = 'chicagos-msp-recent-routes';
+export const ROUTE_PIN_STORAGE_KEY = 'chicagos-msp-pinned-routes';
 const MAX_RECENT_ROUTES = 6;
 const MAX_PINNED_ROUTES = 8;
 
@@ -65,7 +65,7 @@ export const normalizeRouteUrl = (urlish: string): string => {
   if (!urlish) return '/';
 
   try {
-    const parsed = new URL(urlish, 'https://olive.local');
+    const parsed = new URL(urlish, 'https://chicagos-msp.local');
     const normalizedPath = stripBasePath(parsed.pathname).replace(/\/+$/, '');
     const path = normalizedPath.length ? normalizedPath : '/';
     const search = parsed.search || '';
@@ -145,13 +145,13 @@ export const pushRecentRoute = (
   ].slice(0, MAX_RECENT_ROUTES);
 
   setLocalStorage(ROUTE_MEMORY_STORAGE_KEY, nextItems);
-  window.dispatchEvent(new CustomEvent('olive:route-memory-updated'));
+  window.dispatchEvent(new CustomEvent('chicagos-msp:route-memory-updated'));
 };
 
 export const clearRecentRoutes = (): void => {
   if (typeof window === 'undefined') return;
   setLocalStorage<RecentRoute[]>(ROUTE_MEMORY_STORAGE_KEY, []);
-  window.dispatchEvent(new CustomEvent('olive:route-memory-updated'));
+  window.dispatchEvent(new CustomEvent('chicagos-msp:route-memory-updated'));
 };
 
 export const isPinnedRoute = (url: string): boolean => {
@@ -179,7 +179,7 @@ export const pinRoute = (
   ].slice(0, MAX_PINNED_ROUTES);
 
   setLocalStorage(ROUTE_PIN_STORAGE_KEY, nextItems);
-  window.dispatchEvent(new CustomEvent('olive:route-pins-updated'));
+  window.dispatchEvent(new CustomEvent('chicagos-msp:route-pins-updated'));
 };
 
 export const unpinRoute = (url: string): void => {
@@ -190,7 +190,7 @@ export const unpinRoute = (url: string): void => {
     item => item.url !== normalizedUrl
   );
   setLocalStorage(ROUTE_PIN_STORAGE_KEY, nextItems);
-  window.dispatchEvent(new CustomEvent('olive:route-pins-updated'));
+  window.dispatchEvent(new CustomEvent('chicagos-msp:route-pins-updated'));
 };
 
 export const togglePinnedRoute = (
@@ -208,7 +208,7 @@ export const togglePinnedRoute = (
 export const clearPinnedRoutes = (): void => {
   if (typeof window === 'undefined') return;
   setLocalStorage<RecentRoute[]>(ROUTE_PIN_STORAGE_KEY, []);
-  window.dispatchEvent(new CustomEvent('olive:route-pins-updated'));
+  window.dispatchEvent(new CustomEvent('chicagos-msp:route-pins-updated'));
 };
 
 export const buildWorkspaceDraft = (

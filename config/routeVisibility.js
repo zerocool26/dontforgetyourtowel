@@ -6,7 +6,7 @@ const HIDDEN_PUBLIC_ROUTE_PATTERNS = [
 
 function normalizeRouteInput(value) {
   try {
-    const parsed = new URL(value, 'https://olivechicago.local');
+    const parsed = new URL(value, 'https://chicagos1msp.local');
     return parsed.pathname.replace(/\/+$/, '') || '/';
   } catch {
     return String(value).replace(/\/+$/, '') || '/';

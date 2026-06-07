@@ -37,7 +37,7 @@ const analyticsEnabled =
   analyticsFlag === 'on';
 
 // MSP/IT services branding (safe defaults; customise as needed)
-export const SITE_TITLE = 'Olive Chicago';
+export const SITE_TITLE = 'CHICAGOS #1 MSP';
 export const SITE_DESCRIPTION =
   'Chicago-area managed IT, cybersecurity, cloud, Microsoft 365, backup, and selective digital systems for teams that need calmer operations and a sharper front door.';
 export const SITE_URL = DEPLOYMENT.siteUrl;
@@ -48,7 +48,7 @@ export const DEPLOYMENT_CONFIG = DEPLOYMENT;
 export const CONTACT_EMAIL =
   (readPublicEnv('PUBLIC_CONTACT_EMAIL', 'NEXT_PUBLIC_CONTACT_EMAIL') as
     | string
-    | undefined) || 'hello@olivechicago.com';
+    | undefined) || 'hello@chicagos1msp.com';
 export const CONTACT_FORM_ENDPOINT =
   (readPublicEnv(
     'PUBLIC_CONTACT_FORM_ENDPOINT',
@@ -68,7 +68,7 @@ export const CONTACT_CRM_LABEL =
 export const SITE_CONFIG = {
   title: SITE_TITLE,
   description: SITE_DESCRIPTION,
-  author: 'Olive Chicago',
+  author: 'CHICAGOS #1 MSP',
   defaultLanguage: 'en-US',
   // Social links
   social: {
@@ -91,7 +91,7 @@ export const SITE_CONFIG = {
  */
 export const THEME_CONFIG = {
   defaultTheme: 'ops-center' as const,
-  storageKey: 'olive-theme-preference',
+  storageKey: 'chicagos-msp-theme-preference',
   supportedThemes: ['ops-center', 'corporate', 'terminal'] as const,
 } as const;
 

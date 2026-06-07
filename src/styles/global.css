@@ -21,21 +21,21 @@
     --viewport-height: 100vh;
     --viewport-height-dynamic: 100vh;
 
-    --color-background: #08090b;
-    --color-surface: #121417;
-    --color-surface-subtle: rgba(18, 20, 23, 0.86);
-    --color-border: rgba(229, 234, 239, 0.13);
-    --color-primary: #9db4c9;
-    --color-primary-strong: #c3a36b;
-    --color-success: #7cab8b;
-    --color-warning: #c3a36b;
-    --color-danger: #c98282;
-    --color-text-primary: #f3f5f6;
-    --color-text-secondary: #b9c0c7;
-    --color-text-muted: #7d858d;
-    --color-text-inverse: #08090b;
-    --shadow-soft: 0 28px 68px -42px rgba(0, 0, 0, 0.6);
-    --shadow-strong: 0 46px 110px -58px rgba(0, 0, 0, 0.76);
+    --color-background: #070809;
+    --color-surface: #15171a;
+    --color-surface-subtle: rgba(22, 24, 27, 0.9);
+    --color-border: rgba(235, 242, 248, 0.17);
+    --color-primary: #62d8c6;
+    --color-primary-strong: #f6c65b;
+    --color-success: #7bd88f;
+    --color-warning: #f6c65b;
+    --color-danger: #ff7a7a;
+    --color-text-primary: #fbf7ef;
+    --color-text-secondary: #d2d8dd;
+    --color-text-muted: #939ba3;
+    --color-text-inverse: #071014;
+    --shadow-soft: 0 28px 68px -40px rgba(0, 0, 0, 0.62);
+    --shadow-strong: 0 46px 110px -56px rgba(0, 0, 0, 0.78);
     --radius-sm: 6px;
     --radius-md: 10px;
     --radius-lg: 14px;
@@ -150,15 +150,25 @@
     background-color: var(--color-background);
     background-image:
       linear-gradient(
+        115deg,
+        rgba(98, 216, 198, 0.105) 0%,
+        transparent 28%,
+        rgba(246, 198, 91, 0.07) 62%,
+        transparent 100%
+      ),
+      linear-gradient(
         180deg,
-        rgba(157, 180, 201, 0.06) 0%,
+        rgba(98, 216, 198, 0.055) 0%,
         transparent 18%,
-        rgba(195, 163, 107, 0.035) 46%,
+        rgba(246, 198, 91, 0.045) 46%,
         transparent 70%
       ),
-      linear-gradient(180deg, #08090b 0%, #101216 54%, #07080a 100%);
-    background-size: 100% 100%;
-    background-position: center, center;
+      linear-gradient(180deg, #070809 0%, #121418 54%, #070809 100%);
+    background-size:
+      100% 100%,
+      100% 100%,
+      100% 100%;
+    background-position: center, center, center;
     color: var(--color-text-primary);
     font-family: var(--font-sans);
     line-height: 1.68;
@@ -2219,26 +2229,31 @@ header.header-hidden {
   }
 
   .tone-panel-soft {
-    border: 1px solid color-mix(in srgb, var(--color-border) 74%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-border) 88%, transparent);
     background:
       linear-gradient(
         180deg,
-        color-mix(in srgb, var(--color-surface) 96%, white 2%),
-        color-mix(in srgb, var(--color-surface) 88%, transparent)
+        color-mix(in srgb, var(--color-surface) 92%, white 7%),
+        color-mix(in srgb, var(--color-surface) 82%, transparent)
       ),
       linear-gradient(
         180deg,
         color-mix(
           in srgb,
-          var(--route-accent, var(--color-primary)) 3%,
+          var(--route-accent, var(--color-primary)) 5%,
           transparent
         ),
-        transparent 36%
+        transparent 42%
       ),
-      color-mix(in srgb, var(--color-surface) 84%, transparent);
+      linear-gradient(
+        135deg,
+        transparent,
+        color-mix(in srgb, var(--color-primary-strong) 3%, transparent)
+      ),
+      color-mix(in srgb, var(--color-surface) 90%, transparent);
     box-shadow:
-      inset 0 1px 0 color-mix(in srgb, white 5%, transparent),
-      0 22px 48px -40px rgba(0, 0, 0, 0.58);
+      inset 0 1px 0 color-mix(in srgb, white 7%, transparent),
+      0 28px 58px -42px rgba(0, 0, 0, 0.72);
     backdrop-filter: blur(12px);
   }
 
@@ -2283,9 +2298,15 @@ header.header-hidden {
     overflow: clip;
     padding-top: clamp(0.5rem, 1.2vw, 1rem);
     background: linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--color-surface) 34%, transparent),
-      transparent 64%
+      115deg,
+      color-mix(
+        in srgb,
+        var(--route-accent, var(--color-primary)) 10%,
+        transparent
+      ),
+      transparent 34%,
+      color-mix(in srgb, var(--color-primary-strong) 7%, transparent),
+      transparent 76%
     );
   }
 
@@ -3040,15 +3061,27 @@ header.header-hidden {
 
   .creative-page
     :where(.tone-panel-soft, .tone-cta-band, .premium-card, .card) {
-    border-color: color-mix(in srgb, var(--color-border) 76%, transparent);
+    border-color: color-mix(in srgb, var(--color-border) 88%, transparent);
     background:
       linear-gradient(
         180deg,
-        color-mix(in srgb, var(--color-surface) 88%, white 2%),
+        color-mix(in srgb, var(--color-surface) 90%, white 6%),
         color-mix(in srgb, var(--color-surface) 78%, transparent)
       ),
+      linear-gradient(
+        135deg,
+        color-mix(
+          in srgb,
+          var(--route-accent, var(--color-primary)) 4%,
+          transparent
+        ),
+        transparent 48%,
+        color-mix(in srgb, var(--color-primary-strong) 3%, transparent)
+      ),
       color-mix(in srgb, var(--color-surface) 78%, transparent);
-    box-shadow: none;
+    box-shadow:
+      inset 0 1px 0 color-mix(in srgb, white 5%, transparent),
+      0 24px 54px -44px rgba(0, 0, 0, 0.68);
   }
 
   .creative-page

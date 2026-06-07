@@ -65,7 +65,7 @@ const metaTags = generateMetaTags({
 });
 
 const themeChrome = {
-  'ops-center': '#05070c',
+  'ops-center': '#070809',
   corporate: '#f8fafc',
   terminal: '#041108',
 } as const;
@@ -82,7 +82,7 @@ const defaultExperienceMode = 'editorial';
 <!-- Theme color for mobile browsers - adapts to color scheme -->
 <meta
   name="theme-color"
-  content="#05070c"
+  content="#070809"
   media="(prefers-color-scheme: dark)"
   data-theme-color
 />
@@ -174,7 +174,8 @@ const defaultExperienceMode = 'editorial';
       window.__theme = theme;
 
       const savedExperienceMode =
-        localStorage.getItem('olive-experience-mode') || defaultExperienceMode;
+        localStorage.getItem('chicagos-msp-experience-mode') ||
+        defaultExperienceMode;
       root.dataset.experienceMode = savedExperienceMode;
       window.__experienceMode = savedExperienceMode;
     } catch (error) {

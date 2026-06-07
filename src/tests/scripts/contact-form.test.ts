@@ -16,7 +16,7 @@ vi.mock('../../utils/validation', () => ({
 }));
 
 vi.mock('../../consts', () => ({
-  CONTACT_EMAIL: 'hello@olivechicago.com',
+  CONTACT_EMAIL: 'hello@chicagos1msp.com',
   CONTACT_FORM_ENDPOINT: 'https://crm.example.com/intake',
   CONTACT_CALENDAR_URL: 'https://calendar.example.com/review',
   CONTACT_CRM_LABEL: 'CRM intake',

@@ -11,7 +11,7 @@ describe('Runtime routes', () => {
     expect(res.status).toBe(200);
 
     const manifest = await res.json();
-    expect(manifest.short_name).toBe('OC');
+    expect(manifest.short_name).toBe('MSP');
     expect(manifest.background_color).toBe('#070807');
     expect(typeof manifest.start_url).toBe('string');
     expect(typeof manifest.scope).toBe('string');
@@ -57,7 +57,7 @@ describe('Runtime routes', () => {
 
   it('emits the active blog rss.xml feed', async () => {
     const res = await rssGET({
-      site: new URL('https://olivechicago.test/'),
+      site: new URL('https://chicagos1msp.test/'),
     } as any);
     expect(res.status).toBe(200);
 
@@ -65,7 +65,7 @@ describe('Runtime routes', () => {
     expect(contentType).toContain('application/xml');
 
     const text = await res.text();
-    expect(text).toContain('<title>Olive Chicago Blog</title>');
+    expect(text).toContain('<title>CHICAGOS #1 MSP Blog</title>');
     expect(text).toContain('Provider transition checklist');
     expect(text).not.toContain('Draft security note');
   });

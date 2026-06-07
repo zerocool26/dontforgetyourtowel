@@ -426,8 +426,8 @@ const routeContext = getRouteContext(Astro.url.pathname);
     pinLinkButtons.forEach(button => {
       button.addEventListener('click', handlePinSuggestion);
     });
-    window.addEventListener('olive:route-memory-updated', renderHistory);
-    window.addEventListener('olive:route-pins-updated', renderPins);
+    window.addEventListener('chicagos-msp:route-memory-updated', renderHistory);
+    window.addEventListener('chicagos-msp:route-pins-updated', renderPins);
 
     window.__routeAtlasCleanup = () => {
       clearButton?.removeEventListener('click', handleClear);
@@ -439,8 +439,11 @@ const routeContext = getRouteContext(Astro.url.pathname);
       pinLinkButtons.forEach(button => {
         button.removeEventListener('click', handlePinSuggestion);
       });
-      window.removeEventListener('olive:route-memory-updated', renderHistory);
-      window.removeEventListener('olive:route-pins-updated', renderPins);
+      window.removeEventListener(
+        'chicagos-msp:route-memory-updated',
+        renderHistory
+      );
+      window.removeEventListener('chicagos-msp:route-pins-updated', renderPins);
     };
   };
 

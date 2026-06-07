@@ -4,11 +4,11 @@ test.describe('Homepage buyer landing', () => {
   test('loads the current Chicago managed IT homepage', async ({ page }) => {
     await page.goto('./');
 
-    await expect(page).toHaveTitle(/Olive Chicago/i);
+    await expect(page).toHaveTitle(/CHICAGOS #1 MSP/i);
     await expect(
       page.getByRole('heading', {
         level: 1,
-        name: /Olive Chicago managed IT/i,
+        name: /CHICAGOS #1 MSP for companies/i,
       })
     ).toBeAttached();
     await expect(

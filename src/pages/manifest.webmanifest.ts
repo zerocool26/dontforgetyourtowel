@@ -7,13 +7,13 @@ export const prerender = true;
 export const GET: APIRoute = () => {
   const manifest = {
     name: SITE_TITLE,
-    short_name: 'OC',
+    short_name: 'MSP',
     description: SITE_DESCRIPTION,
     start_url: withBasePath(''),
     scope: withBasePath(''),
     display: 'standalone',
     background_color: '#070807',
-    theme_color: '#d7f75b',
+    theme_color: '#62d8c6',
     orientation: 'portrait-primary',
     categories: ['business', 'productivity', 'portfolio'],
     icons: [

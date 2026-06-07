@@ -15,12 +15,12 @@ export type ColorScheme = 'light' | 'dark' | 'system';
 export type ExperienceMode = 'cinematic' | 'editorial' | 'blueprint';
 
 const THEME_CHROME: Record<Theme, string> = {
-  'ops-center': '#05070c',
+  'ops-center': '#070809',
   corporate: '#f8fafc',
   terminal: '#041108',
 };
 
-const EXPERIENCE_MODE_STORAGE_KEY = 'olive-experience-mode';
+const EXPERIENCE_MODE_STORAGE_KEY = 'chicagos-msp-experience-mode';
 
 export const theme = atom<Theme>('ops-center');
 export const colorScheme = atom<ColorScheme>('system');
@@ -90,7 +90,7 @@ export function setExperienceMode(newMode: ExperienceMode) {
   }
   if (typeof window !== 'undefined') {
     window.dispatchEvent(
-      new CustomEvent('olive:experience-mode-updated', {
+      new CustomEvent('chicagos-msp:experience-mode-updated', {
         detail: { mode: newMode },
       })
     );

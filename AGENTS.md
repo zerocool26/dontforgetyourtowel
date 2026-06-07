@@ -1,6 +1,6 @@
 # Agent Guide
 
-This is an Astro 6 static marketing site for Olive Chicago, a Chicago-area managed IT, cybersecurity, Microsoft 365, cloud, backup, networking, and selective digital systems provider.
+This is an Astro 6 static marketing site for CHICAGOS #1 MSP, a Chicago-area managed IT, cybersecurity, Microsoft 365, cloud, backup, networking, and selective digital systems provider.
 
 ## First Moves
 

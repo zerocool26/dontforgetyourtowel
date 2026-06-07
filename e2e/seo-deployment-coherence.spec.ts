@@ -47,7 +47,7 @@ test.describe('SEO + deployment coherence', () => {
     expect(contentType).toContain('application/xml');
 
     const body = await rssResponse.text();
-    expect(body).toContain('<title>Olive Chicago Blog</title>');
+    expect(body).toContain('<title>CHICAGOS #1 MSP Blog</title>');
     expect(body).toContain('<rss');
   });
 });

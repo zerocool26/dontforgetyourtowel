@@ -94,7 +94,7 @@ const isTradeActiveHref = (href: string) => {
       <span
         class="header-brand-mark relative inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-[10px] font-bold uppercase tracking-widest transition-colors duration-200"
       >
-        OC
+        #1
       </span>
       <div class="flex min-w-0 flex-col leading-none">
         <span
@@ -510,7 +510,7 @@ const isTradeActiveHref = (href: string) => {
       const countTargets = Array.from(
         document.querySelectorAll('[data-saved-routes-count]')
       ).filter(node => node instanceof HTMLElement);
-      const pinnedRoutesStorageKey = 'olive-pinned-routes';
+      const pinnedRoutesStorageKey = 'chicagos-msp-pinned-routes';
 
       const updateCounts = async () => {
         try {
@@ -544,9 +544,12 @@ const isTradeActiveHref = (href: string) => {
         });
       });
 
-      window.addEventListener('olive:route-pins-updated', updateCounts);
+      window.addEventListener('chicagos-msp:route-pins-updated', updateCounts);
       globalScope.__headerSavedRoutesCleanup = () => {
-        window.removeEventListener('olive:route-pins-updated', updateCounts);
+        window.removeEventListener(
+          'chicagos-msp:route-pins-updated',
+          updateCounts
+        );
       };
       updateCounts();
     };

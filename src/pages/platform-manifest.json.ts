@@ -10,7 +10,7 @@ export async function GET() {
     version: 1,
     generatedAt: new Date().toISOString(),
     platform: {
-      name: 'Olive Chicago',
+      name: 'CHICAGOS #1 MSP',
       description:
         'Chicago managed IT platform for support ownership, security, Microsoft 365, cloud, backup confidence, commerce lab, and visual references.',
       experienceModes: [

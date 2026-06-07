@@ -53,7 +53,7 @@ export const trustCenterPractices = [
   },
   {
     title: 'Vendor and incident coordination',
-    copy: 'Olive coordinates with internet, line-of-business, cloud, and security vendors so clients are not left brokering technical disputes during stressful events.',
+    copy: 'The support team coordinates with internet, line-of-business, cloud, and security vendors so clients are not left brokering technical disputes during stressful events.',
     bullets: [
       'Escalation contacts and communication expectations documented',
       'Vendor case ownership stays visible instead of disappearing into email chains',
@@ -66,7 +66,7 @@ export const chicagoServicePages: LocalServicePage[] = [
   {
     slug: 'managed-it',
     title: 'Chicago Managed IT Services',
-    seoTitle: 'Chicago Managed IT Services | Olive Chicago',
+    seoTitle: 'Chicago Managed IT Services | CHICAGOS #1 MSP',
     description:
       'Managed IT services for Chicago-area teams that need clearer support ownership, stronger standards, and reporting leadership can actually use.',
     eyebrow: 'Chicago managed IT services',
@@ -97,14 +97,14 @@ export const chicagoServicePages: LocalServicePage[] = [
       {
         title: 'Do you support co-managed internal IT teams?',
         content:
-          'Yes. Olive can own a coverage lane, projects, security standards, or vendor coordination while internal IT keeps strategic or on-site ownership.',
+          'Yes. The engagement can own a coverage lane, projects, security standards, or vendor coordination while internal IT keeps strategic or on-site ownership.',
       },
     ],
   },
   {
     slug: 'cybersecurity',
     title: 'Chicago Cybersecurity Services',
-    seoTitle: 'Chicago Cybersecurity Services | Olive Chicago',
+    seoTitle: 'Chicago Cybersecurity Services | CHICAGOS #1 MSP',
     description:
       'Chicago cybersecurity services for companies that need practical identity, endpoint, email, backup, and review discipline without theater.',
     eyebrow: 'Chicago cybersecurity services',
@@ -135,14 +135,14 @@ export const chicagoServicePages: LocalServicePage[] = [
       {
         title: 'Can this work alongside an existing security vendor?',
         content:
-          'Yes. Olive can coordinate with MDR, cyber-insurance, or compliance partners when a client needs tighter day-to-day ownership around those relationships.',
+          'Yes. The team can coordinate with MDR, cyber-insurance, or compliance partners when a client needs tighter day-to-day ownership around those relationships.',
       },
     ],
   },
   {
     slug: 'microsoft-365',
     title: 'Chicago Microsoft 365 Support',
-    seoTitle: 'Chicago Microsoft 365 Support | Olive Chicago',
+    seoTitle: 'Chicago Microsoft 365 Support | CHICAGOS #1 MSP',
     description:
       'Chicago Microsoft 365 support for companies that need tenant cleanup, sharing control, license discipline, and clearer collaboration ownership.',
     eyebrow: 'Chicago Microsoft 365 support',
@@ -180,7 +180,7 @@ export const chicagoServicePages: LocalServicePage[] = [
   {
     slug: 'backup-disaster-recovery',
     title: 'Chicago Backup and Disaster Recovery',
-    seoTitle: 'Chicago Backup and Disaster Recovery | Olive Chicago',
+    seoTitle: 'Chicago Backup and Disaster Recovery | CHICAGOS #1 MSP',
     description:
       'Chicago backup and disaster recovery support for companies that need real restore confidence, recovery priorities, and documented owner actions.',
     eyebrow: 'Chicago backup and disaster recovery',
@@ -219,7 +219,7 @@ export const chicagoServicePages: LocalServicePage[] = [
   {
     slug: 'co-managed-it',
     title: 'Chicago Co-Managed IT',
-    seoTitle: 'Chicago Co-Managed IT | Olive Chicago',
+    seoTitle: 'Chicago Co-Managed IT | CHICAGOS #1 MSP',
     description:
       'Chicago co-managed IT support for internal teams that need overflow coverage, stronger vendor coordination, and a sharper operating cadence.',
     eyebrow: 'Chicago co-managed IT',
@@ -239,7 +239,7 @@ export const chicagoServicePages: LocalServicePage[] = [
       'Coverage lane definition and handoff rules',
       'Escalation, vendor, and project coordination model',
       'Shared reporting and planning cadence',
-      'Defined boundaries for internal IT versus Olive ownership',
+      'Defined boundaries for internal IT versus partner ownership',
     ],
     faqs: [
       {
@@ -248,7 +248,7 @@ export const chicagoServicePages: LocalServicePage[] = [
           'Not if ownership is set clearly. The whole point is to define who owns tickets, escalations, projects, vendors, and reporting before pressure builds.',
       },
       {
-        title: 'Can Olive take only one slice of responsibility?',
+        title: 'Can one slice of responsibility be scoped first?',
         content:
           'Yes. Co-managed work can focus on help desk, infrastructure, Microsoft 365, security review, backup ownership, or project execution.',
       },
