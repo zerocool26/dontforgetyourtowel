@@ -22,7 +22,7 @@ const workbenchItems = operatingIntelligenceItems.map(item => ({
 const heroSignals = [
   {
     label: 'Customer excellence',
-    value: 'Every request has context, priority, and an owner.',
+    value: 'Issues are owned, prioritized, and followed through.',
     detail:
       'Support should feel calm because status, escalation, and next steps are never hidden.',
   },
@@ -42,10 +42,31 @@ const heroSignals = [
 ];
 
 const heroProofPoints = [
-  'Fast triage targets set by plan',
+  'Fast triage rules set by plan',
   'Named escalation owner for stuck issues',
   'Backup and restore proof reviewed early',
-  'Monthly clarity for leadership decisions',
+  'Monthly decision summary for leadership',
+];
+
+const heroFitCards = [
+  {
+    label: 'Best fit',
+    value: '25-150 user teams',
+    detail:
+      'Chicago-area firms that need support ownership, security proof, and fewer loose ends.',
+  },
+  {
+    label: 'First review',
+    value: 'Users, devices, access, backups',
+    detail:
+      'The first pass maps Microsoft 365, vendors, network gear, recurring tickets, and admin roles.',
+  },
+  {
+    label: 'First output',
+    value: '30/60/90 operating plan',
+    detail:
+      'A plain-language plan with owners, risks, budget shape, and the first work worth proving.',
+  },
 ];
 
 const siteGuide = homeRouteGuideLinks.map(link => ({
@@ -59,7 +80,10 @@ const serviceLanes = [
     index: '01',
     label: 'Support',
     title: 'Managed IT support.',
-    copy: 'Help desk, endpoint hygiene, onboarding, offboarding, patching, and vendor follow-through.',
+    copy: 'Help desk, onboarding, endpoint hygiene, patching, and vendor follow-through.',
+    fit: 'Recurring tickets, slow responses, messy onboarding, or vendor finger-pointing.',
+    output:
+      'Support lanes, escalation rules, device standards, and issue-reduction targets.',
     href: withBasePath('services/'),
   },
   {
@@ -67,6 +91,9 @@ const serviceLanes = [
     label: 'Security',
     title: 'Cybersecurity baseline.',
     copy: 'MFA, conditional access, endpoint protection, email defense, awareness, and response contacts.',
+    fit: 'Insurance pressure, stale admin access, email risk, or unclear incident ownership.',
+    output:
+      'Identity, endpoint, email, backup, and response evidence leadership can review.',
     href: withBasePath('services/#technology-catalog'),
   },
   {
@@ -74,13 +101,19 @@ const serviceLanes = [
     label: 'Microsoft 365',
     title: 'Microsoft 365 and cloud operations.',
     copy: 'Exchange, Teams, SharePoint, OneDrive, licensing, access rules, migrations, and governance.',
+    fit: 'Teams sprawl, risky sharing, license waste, migrations, or unclear tenant ownership.',
+    output:
+      'Governance rules, cleanup priorities, license notes, and migration or workflow next steps.',
     href: withBasePath('services/#technology-catalog'),
   },
   {
     index: '04',
     label: 'Continuity',
     title: 'Backup, network, and recovery.',
-    copy: 'Backup monitoring, restore testing, firewalls, Wi-Fi, ISP coordination, and recovery runbooks.',
+    copy: 'Backup monitoring, restore testing, firewall, Wi-Fi, ISP, and recovery runbooks.',
+    fit: 'Restore doubt, network drag, aging firewalls, ISP issues, or no written recovery order.',
+    output:
+      'Coverage notes, restore-test proof, recovery contacts, and recovery order.',
     href: withBasePath('services/#technology-catalog'),
   },
 ];
@@ -278,6 +311,21 @@ const startOptions = [
               Start fit check
             </a>
           </div>
+
+          <div
+            class="home-homepage-fit-grid"
+            aria-label="Best fit and first engagement output"
+          >
+            {
+              heroFitCards.map(card => (
+                <article class="home-homepage-fit-card">
+                  <span>{card.label}</span>
+                  <strong>{card.value}</strong>
+                  <p>{card.detail}</p>
+                </article>
+              ))
+            }
+          </div>
         </div>
 
         <aside
@@ -309,16 +357,16 @@ const startOptions = [
       <div class="home-homepage-section__intro">
         <p class="home-homepage-eyebrow">Why buyers stay oriented</p>
         <h2 class="home-homepage-section__title">
-          The site starts with the service promise, not a wall of sections.
+          When IT feels scattered, customers feel it.
         </h2>
         <p class="home-homepage-copy">
-          A high-converting MSP site should answer the buyer’s first questions
-          fast: what is included, who owns support, how security is handled, how
-          pricing works, and how to start without friction.
+          The first job is to make ownership visible: what is included, who owns
+          support, how security is handled, where backup proof lives, how
+          pricing is shaped, and what happens after the first conversation.
         </p>
         <p class="home-homepage-claim">
-          Every section below has one job: clarify fit, reduce risk, and move a
-          serious customer toward a useful conversation.
+          That is the conversion logic: prove the operating model before asking
+          a serious buyer for trust.
         </p>
 
         <div class="home-homepage-jump-links" aria-label="Popular routes">
@@ -346,6 +394,49 @@ const startOptions = [
     </div>
   </section>
 
+  <section class="home-homepage-section" id="services" data-page-section>
+    <div class="premium-container">
+      <div class="home-homepage-section__intro">
+        <p class="home-homepage-eyebrow">What we do</p>
+        <h2 class="home-homepage-section__title">
+          Four clear service lanes buyers can understand fast.
+        </h2>
+        <p class="home-homepage-section__copy">
+          Built around the outcomes Chicago SMBs actually ask for: responsive
+          support, safer access, cleaner Microsoft 365, and recovery confidence.
+        </p>
+      </div>
+
+      <div class="home-homepage-lanes">
+        {
+          serviceLanes.map(lane => (
+            <a class="home-homepage-lane" href={lane.href}>
+              <div class="home-homepage-lane__meta">
+                <span class="home-homepage-lane__index">{lane.index}</span>
+                <span class="home-homepage-lane__label">{lane.label}</span>
+              </div>
+              <div class="home-homepage-lane__body">
+                <h3>{lane.title}</h3>
+                <p>{lane.copy}</p>
+                <dl class="home-homepage-lane__facts">
+                  <div>
+                    <dt>Best when</dt>
+                    <dd>{lane.fit}</dd>
+                  </div>
+                  <div>
+                    <dt>First proof</dt>
+                    <dd>{lane.output}</dd>
+                  </div>
+                </dl>
+              </div>
+              <span class="home-homepage-lane__cta">Open scope</span>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
   <section
     class="home-homepage-section home-homepage-section--guide"
     id="guide"
@@ -355,11 +446,11 @@ const startOptions = [
       <div class="home-homepage-section__intro">
         <p class="home-homepage-eyebrow">Start here</p>
         <h2 class="home-homepage-section__title">
-          Pick the decision you are trying to make.
+          Use the fastest route to a decision.
         </h2>
         <p class="home-homepage-section__copy">
-          Most buyers need one of five things: service clarity, budget clarity,
-          trust proof, contact routing, or a local Chicago service page.
+          Most buyers need one of five answers first: service fit, budget shape,
+          operating proof, contact routing, or a Chicago-specific service page.
         </p>
       </div>
 
@@ -405,38 +496,6 @@ const startOptions = [
         title="A working diagnostic for support, security, recovery, Microsoft 365, and service ownership."
         description="Choose the pressure point, inspect the signals, collect the evidence, and move into the right route with a handoff brief that an owner can actually use."
       />
-    </div>
-  </section>
-
-  <section class="home-homepage-section" id="services" data-page-section>
-    <div class="premium-container">
-      <div class="home-homepage-section__intro">
-        <p class="home-homepage-eyebrow">What we do</p>
-        <h2 class="home-homepage-section__title">
-          Four clear service lanes, no filler.
-        </h2>
-        <p class="home-homepage-section__copy">
-          These are the core services a real MSP buyer expects, expressed in
-          business language and backed by practical outputs.
-        </p>
-      </div>
-
-      <div class="home-homepage-lanes">
-        {
-          serviceLanes.map(lane => (
-            <a class="home-homepage-lane" href={lane.href}>
-              <div class="home-homepage-lane__meta">
-                <span class="home-homepage-lane__index">{lane.index}</span>
-                <span class="home-homepage-lane__label">{lane.label}</span>
-              </div>
-              <div class="home-homepage-lane__body">
-                <h3>{lane.title}</h3>
-                <p>{lane.copy}</p>
-              </div>
-            </a>
-          ))
-        }
-      </div>
     </div>
   </section>
 
@@ -941,6 +1000,60 @@ const startOptions = [
     .home-homepage-actions--hero {
       align-items: center;
       margin-top: 0.2rem;
+    }
+
+    .home-homepage-fit-grid {
+      display: grid;
+      gap: 0.65rem;
+      max-width: 56rem;
+      margin-top: 0.25rem;
+    }
+
+    .home-homepage-fit-card {
+      display: grid;
+      gap: 0.35rem;
+      min-height: 100%;
+      border: 1px solid
+        color-mix(in srgb, var(--color-text-primary) 10%, transparent);
+      border-radius: 0.5rem;
+      background:
+        linear-gradient(
+          180deg,
+          color-mix(in srgb, white 4%, transparent),
+          transparent 56%
+        ),
+        color-mix(in srgb, var(--color-background) 48%, transparent);
+      padding: 0.85rem;
+      backdrop-filter: blur(12px);
+    }
+
+    .home-homepage-fit-card span,
+    .home-homepage-fit-card strong {
+      margin: 0;
+    }
+
+    .home-homepage-fit-card span {
+      color: color-mix(in srgb, var(--color-primary-strong) 82%, white 18%);
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .home-homepage-fit-card strong {
+      color: var(--color-text-primary);
+      font-family: var(--font-display);
+      font-size: 0.98rem;
+      font-weight: 700;
+      line-height: 1.18;
+    }
+
+    .home-homepage-fit-card p {
+      margin: 0;
+      color: color-mix(in srgb, var(--color-text-secondary) 92%, transparent);
+      font-size: 0.78rem;
+      line-height: 1.48;
     }
 
     .home-homepage-fit-link {
@@ -1462,6 +1575,8 @@ const startOptions = [
     .home-homepage-experience-card__code,
     .home-homepage-lane__index,
     .home-homepage-lane__label,
+    .home-homepage-lane__cta,
+    .home-homepage-lane__facts dt,
     .home-homepage-start-item span {
       font-family: var(--font-mono);
       font-weight: 700;
@@ -1482,6 +1597,40 @@ const startOptions = [
         transform 0.2s ease,
         border-color 0.2s ease,
         background 0.2s ease;
+    }
+
+    .home-homepage-lane {
+      --lane-accent: var(--color-primary);
+      isolation: isolate;
+    }
+
+    .home-homepage-lane::before {
+      content: '';
+      position: absolute;
+      inset: 0 0 auto;
+      height: 2px;
+      background: linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--lane-accent) 88%, white 12%),
+        transparent 72%
+      );
+      opacity: 0.86;
+    }
+
+    .home-homepage-lane:nth-child(1) {
+      --lane-accent: #7bdcb5;
+    }
+
+    .home-homepage-lane:nth-child(2) {
+      --lane-accent: #7dd3fc;
+    }
+
+    .home-homepage-lane:nth-child(3) {
+      --lane-accent: #a7b7ff;
+    }
+
+    .home-homepage-lane:nth-child(4) {
+      --lane-accent: #f6c96c;
     }
 
     .home-homepage-guide__item:hover,
@@ -1574,8 +1723,16 @@ const startOptions = [
       justify-content: center;
       border-radius: 0.65rem;
       border: 1px solid
-        color-mix(in srgb, var(--color-primary) 28%, transparent);
-      background: color-mix(in srgb, var(--color-primary) 7%, transparent);
+        color-mix(
+          in srgb,
+          var(--lane-accent, var(--color-primary)) 34%,
+          transparent
+        );
+      background: color-mix(
+        in srgb,
+        var(--lane-accent, var(--color-primary)) 9%,
+        transparent
+      );
       color: color-mix(in srgb, var(--color-text-primary) 86%, transparent);
       font-size: 0.68rem;
     }
@@ -1583,6 +1740,60 @@ const startOptions = [
     .home-homepage-lane__label {
       color: color-mix(in srgb, var(--color-text-muted) 92%, transparent);
       font-size: 0.64rem;
+    }
+
+    .home-homepage-lane__body {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .home-homepage-lane__facts {
+      display: grid;
+      gap: 0.72rem;
+      margin: 0.2rem 0 0;
+      padding-top: 0.95rem;
+      border-top: 1px solid
+        color-mix(in srgb, var(--color-border) 66%, transparent);
+    }
+
+    .home-homepage-lane__facts div {
+      display: grid;
+      grid-template-columns: minmax(5.8rem, max-content) minmax(0, 1fr);
+      gap: 0.75rem;
+      align-items: baseline;
+    }
+
+    .home-homepage-lane__facts dt {
+      color: color-mix(
+        in srgb,
+        var(--lane-accent, var(--color-primary-strong)) 76%,
+        white 24%
+      );
+      font-size: 0.58rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .home-homepage-lane__facts dd {
+      margin: 0;
+      color: color-mix(in srgb, var(--color-text-secondary) 94%, transparent);
+      font-size: 0.88rem;
+      line-height: 1.5;
+    }
+
+    .home-homepage-lane__cta {
+      align-self: end;
+      width: fit-content;
+      border-bottom: 1px solid
+        color-mix(
+          in srgb,
+          var(--lane-accent, var(--color-primary)) 48%,
+          transparent
+        );
+      color: color-mix(in srgb, var(--color-text-primary) 76%, transparent);
+      font-size: 0.64rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
     }
 
     .home-homepage-experience-card__meta {
@@ -1706,6 +1917,10 @@ const startOptions = [
         grid-template-columns: minmax(0, 1fr) minmax(20rem, 26rem);
       }
 
+      .home-homepage-fit-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
       .home-homepage-guide__grid {
         grid-template-columns: repeat(3, minmax(0, 1fr));
       }
@@ -1789,6 +2004,10 @@ const startOptions = [
       }
 
       .home-homepage-claim--hero {
+        display: none;
+      }
+
+      .home-homepage-fit-grid {
         display: none;
       }
 

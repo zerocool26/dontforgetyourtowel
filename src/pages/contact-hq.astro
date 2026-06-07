@@ -640,6 +640,7 @@ const faqSchema = {
                   class="contact-form-input form-input"
                   type="text"
                   name="firstName"
+                  aria-label="First name"
                   autocomplete="given-name"
                   required
                 />
@@ -651,6 +652,7 @@ const faqSchema = {
                   class="contact-form-input form-input"
                   type="text"
                   name="lastName"
+                  aria-label="Last name"
                   autocomplete="family-name"
                   required
                 />
@@ -665,6 +667,7 @@ const faqSchema = {
                   class="contact-form-input form-input"
                   type="email"
                   name="email"
+                  aria-label="Email"
                   autocomplete="email"
                   inputmode="email"
                   required
@@ -677,6 +680,7 @@ const faqSchema = {
                   class="contact-form-input form-input"
                   type="tel"
                   name="phone"
+                  aria-label="Phone"
                   autocomplete="tel"
                 />
                 <span class="form-error hidden"></span>
@@ -690,6 +694,7 @@ const faqSchema = {
                   class="contact-form-input form-input"
                   type="text"
                   name="company"
+                  aria-label="Company"
                   autocomplete="organization"
                 />
                 <span class="form-error hidden"></span>
@@ -700,6 +705,7 @@ const faqSchema = {
                   class="contact-form-input form-input"
                   type="text"
                   name="subject"
+                  aria-label="Subject"
                   value={kickoffSubject}
                   required
                 />
@@ -761,6 +767,7 @@ const faqSchema = {
                 class="form-checkbox"
                 type="checkbox"
                 name="terms"
+                aria-label="Consent to route this intake request"
                 required
               />
               <span>
@@ -769,18 +776,78 @@ const faqSchema = {
               </span>
             </label>
 
-            <input type="hidden" name="leadSource" value="website-contact-hq" />
-            <input type="hidden" name="serviceIntent" value="" />
-            <input type="hidden" name="solutionIntent" value="" />
-            <input type="hidden" name="tradeIntent" value="" />
-            <input type="hidden" name="tradePageIntent" value="" />
-            <input type="hidden" name="workspaceTitle" value="" />
-            <input type="hidden" name="workspaceSummary" value="" />
-            <input type="hidden" name="routeContext" value="contact-hq" />
-            <input type="hidden" name="scheduleRequested" value="false" />
-            <input type="hidden" name="utmSource" value="" />
-            <input type="hidden" name="utmMedium" value="" />
-            <input type="hidden" name="utmCampaign" value="" />
+            <input
+              type="hidden"
+              name="leadSource"
+              value="website-contact-hq"
+              aria-label="Lead source"
+            />
+            <input
+              type="hidden"
+              name="serviceIntent"
+              value=""
+              aria-label="Service intent"
+            />
+            <input
+              type="hidden"
+              name="solutionIntent"
+              value=""
+              aria-label="Solution intent"
+            />
+            <input
+              type="hidden"
+              name="tradeIntent"
+              value=""
+              aria-label="Trade intent"
+            />
+            <input
+              type="hidden"
+              name="tradePageIntent"
+              value=""
+              aria-label="Trade page intent"
+            />
+            <input
+              type="hidden"
+              name="workspaceTitle"
+              value=""
+              aria-label="Workspace title"
+            />
+            <input
+              type="hidden"
+              name="workspaceSummary"
+              value=""
+              aria-label="Workspace summary"
+            />
+            <input
+              type="hidden"
+              name="routeContext"
+              value="contact-hq"
+              aria-label="Route context"
+            />
+            <input
+              type="hidden"
+              name="scheduleRequested"
+              value="false"
+              aria-label="Schedule requested"
+            />
+            <input
+              type="hidden"
+              name="utmSource"
+              value=""
+              aria-label="UTM source"
+            />
+            <input
+              type="hidden"
+              name="utmMedium"
+              value=""
+              aria-label="UTM medium"
+            />
+            <input
+              type="hidden"
+              name="utmCampaign"
+              value=""
+              aria-label="UTM campaign"
+            />
             <input
               class="sr-only"
               type="text"

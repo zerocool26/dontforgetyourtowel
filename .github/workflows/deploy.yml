@@ -24,18 +24,21 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
-          cache: npm
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v4
       - name: Install dependencies
-        run: npm ci
+        run: bun install --frozen-lockfile
       - name: Build
         env:
           # Ensure `astro.config.mjs` gets the canonical URL + base path that GitHub Pages
           # is configured to use (works for forks, renames, and custom Pages domains).
           SITE_URL: ${{ steps.pages.outputs.base_url }}
-        run: npm run build
+        run: bun run build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
