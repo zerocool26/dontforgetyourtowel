@@ -7,6 +7,7 @@ import ModernCard from '../components/ui/ModernCard.astro';
 import OperationalIntelligenceWorkbench from '../components/business/OperationalIntelligenceWorkbench.tsx';
 import DecisionHandoffPanel from '../components/business/DecisionHandoffPanel.astro';
 import ProofOperatingSystem from '../components/business/ProofOperatingSystem.astro';
+import ScopeLedger from '../components/business/ScopeLedger.tsx';
 import PricingCalculator from '../components/business/PricingCalculator.tsx';
 import ROICalculator from '../components/business/ROICalculator.tsx';
 import FAQAccordion from '../components/ui/FAQAccordion.astro';
@@ -15,6 +16,7 @@ import {
   pricingFaqs,
   pricingSignals,
   pricingTiers,
+  scopeLedgerDrivers,
   slaComparisonRows,
 } from '../data/pricing';
 import { withBasePath } from '../utils/helpers';
@@ -173,6 +175,7 @@ const approvalPack = [
 ];
 
 const pricingSections = [
+  { label: 'Scope ledger', href: '#scope-ledger' },
   { label: 'Plans', href: '#plans' },
   { label: 'Approval', href: '#approval-pack' },
   { label: 'SLA matrix', href: '#sla' },
@@ -306,6 +309,22 @@ const pricingSections = [
     ctaHref={requestQuoteHref}
     ctaLabel="Start pricing intake"
   />
+
+  <section
+    class="tone-section-divider border-b"
+    id="scope-ledger"
+    data-reveal
+    data-page-section
+  >
+    <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
+      <ScopeLedger
+        client:only="preact"
+        drivers={scopeLedgerDrivers}
+        plans={pricingTiers}
+        ctaHref={requestQuoteHref}
+      />
+    </div>
+  </section>
 
   <section class="tone-section-divider border-b" data-reveal>
     <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">

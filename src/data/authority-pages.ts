@@ -11,6 +11,19 @@ export type LocalServicePage = {
   faqs: Array<{ title: string; content: string }>;
 };
 
+export type TrustEvidenceStatus = 'public-safe' | 'reviewed' | 'private';
+
+export type TrustEvidenceVaultItem = {
+  id: string;
+  title: string;
+  buyerQuestion: string;
+  publicSignal: string;
+  evidenceDiscussed: string[];
+  privateBoundary: string;
+  reviewCadence: string;
+  status: TrustEvidenceStatus;
+};
+
 export const trustCenterSignals = [
   {
     label: 'Backup posture',
@@ -59,6 +72,115 @@ export const trustCenterPractices = [
       'Vendor case ownership stays visible instead of disappearing into email chains',
       'Incident response next actions are routed to an accountable owner',
     ],
+  },
+];
+
+export const trustEvidenceVault: TrustEvidenceVaultItem[] = [
+  {
+    id: 'backup-recovery',
+    title: 'Backup and recovery',
+    buyerQuestion: 'If something fails tomorrow, what can be restored first?',
+    publicSignal:
+      'Backup scope, recovery priorities, and restore expectations are reviewed before the relationship depends on them.',
+    evidenceDiscussed: [
+      'Protected systems',
+      'Restore access',
+      'Retention assumptions',
+      'Recovery order',
+    ],
+    privateBoundary:
+      'Sensitive backup architecture, storage locations, credentials, and runbook details are not published publicly.',
+    reviewCadence: 'Onboarding, then recurring account review',
+    status: 'public-safe',
+  },
+  {
+    id: 'identity-access',
+    title: 'Identity and access',
+    buyerQuestion: 'Can leadership explain who has privileged access?',
+    publicSignal:
+      'MFA, admin roles, guest access, and risky exceptions are treated as review items, not one-time setup tasks.',
+    evidenceDiscussed: [
+      'Admin-role review',
+      'MFA coverage',
+      'Guest access',
+      'Security exceptions',
+    ],
+    privateBoundary:
+      'User lists, privileged accounts, conditional access rules, and sensitive exceptions stay private.',
+    reviewCadence: 'Onboarding, access changes, and scheduled reviews',
+    status: 'reviewed',
+  },
+  {
+    id: 'endpoint-email',
+    title: 'Endpoint and email controls',
+    buyerQuestion:
+      'Are user devices and email risk being watched by someone accountable?',
+    publicSignal:
+      'Endpoint coverage, email security, risky forwarding, and alert routing are reviewed as part of the security baseline.',
+    evidenceDiscussed: [
+      'Endpoint coverage',
+      'Email protection notes',
+      'Risky forwarding',
+      'Alert ownership',
+    ],
+    privateBoundary:
+      'Tool configurations, alert logic, detection rules, and incident details are shared only in scoped review.',
+    reviewCadence: 'Initial baseline, then monthly or quarterly review',
+    status: 'reviewed',
+  },
+  {
+    id: 'incident-coordination',
+    title: 'Incident coordination',
+    buyerQuestion:
+      'Who coordinates vendors, users, and leadership when pressure hits?',
+    publicSignal:
+      'Incident contacts, escalation paths, vendor responsibilities, and communication expectations are documented before an emergency.',
+    evidenceDiscussed: [
+      'Incident contacts',
+      'Vendor escalation paths',
+      'Communication expectations',
+      'First-hour actions',
+    ],
+    privateBoundary:
+      'Incident playbooks, client-specific contacts, and response details are kept out of public pages.',
+    reviewCadence: 'Onboarding and after meaningful environment changes',
+    status: 'public-safe',
+  },
+  {
+    id: 'vendor-coordination',
+    title: 'Vendor coordination',
+    buyerQuestion:
+      'Will the provider own the messy handoff with outside vendors?',
+    publicSignal:
+      'Internet, line-of-business, cloud, telecom, and security vendors are mapped so issues do not disappear into email chains.',
+    evidenceDiscussed: [
+      'Vendor list',
+      'Support contacts',
+      'Escalation notes',
+      'Open vendor cases',
+    ],
+    privateBoundary:
+      'Client vendor account numbers, contracts, support portals, and credentials remain private.',
+    reviewCadence: 'Onboarding, vendor changes, and recurring service review',
+    status: 'reviewed',
+  },
+  {
+    id: 'data-handling',
+    title: 'Data handling',
+    buyerQuestion:
+      'How are sensitive details handled before support work starts?',
+    publicSignal:
+      'Sensitive information is handled through scoped support processes, access boundaries, and client-approved systems.',
+    evidenceDiscussed: [
+      'Approved systems',
+      'Access expectations',
+      'Support boundaries',
+      'Data-retention assumptions',
+    ],
+    privateBoundary:
+      'Credentials, private documents, client data, and sensitive logs are never requested through public pages.',
+    reviewCadence: 'Before onboarding and whenever workflow changes',
+    status: 'private',
   },
 ];
 

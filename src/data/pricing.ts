@@ -28,6 +28,21 @@ export interface TrustSignal {
   sublabel: string;
 }
 
+export interface ScopeLedgerDriver {
+  id: string;
+  label: string;
+  shortLabel: string;
+  whyItMovesCost: string;
+  recurringImpact: string;
+  projectImpact: string;
+  discoveryTrigger: string;
+  evidenceToBring: string[];
+  likelyPlanIds: Array<
+    'core-coverage' | 'secure-operations' | 'co-managed' | 'custom'
+  >;
+  defaultSelected?: boolean;
+}
+
 export const pricingTiers: PricingTier[] = [
   {
     id: 'core-coverage',
@@ -177,6 +192,193 @@ export const pricingSignals: TrustSignal[] = [
     label: 'Projects scoped separately',
     sublabel:
       'Migrations, office work, server projects, portals, and workflow builds stay visible on their own',
+  },
+];
+
+export const scopeLedgerDrivers: ScopeLedgerDriver[] = [
+  {
+    id: 'users-devices',
+    label: 'Users, devices, and shared workstations',
+    shortLabel: 'Users + devices',
+    whyItMovesCost:
+      'More people and endpoints create more support, patching, onboarding, offboarding, and lifecycle work.',
+    recurringImpact:
+      'Help desk coverage, endpoint monitoring, patching, access changes, and device standards.',
+    projectImpact:
+      'Device refreshes, imaging standards, cleanup, warranty work, and onboarding rebuilds.',
+    discoveryTrigger:
+      'Unknown shared machines, stale devices, or no clear inventory.',
+    evidenceToBring: [
+      'User count',
+      'Device count',
+      'Shared workstation count',
+      'Current inventory notes',
+    ],
+    likelyPlanIds: ['core-coverage', 'secure-operations'],
+    defaultSelected: true,
+  },
+  {
+    id: 'locations-onsite',
+    label: 'Locations, onsite needs, and office coverage',
+    shortLabel: 'Locations',
+    whyItMovesCost:
+      'Multiple sites add coordination, hardware, network, vendor, travel, and escalation complexity.',
+    recurringImpact:
+      'Site-aware support, vendor coordination, network checks, and escalation routing.',
+    projectImpact:
+      'Office moves, Wi-Fi refreshes, cabling coordination, firewall work, and hardware replacement.',
+    discoveryTrigger:
+      'More than one office, production areas, or recurring onsite needs.',
+    evidenceToBring: [
+      'Office count',
+      'Onsite expectations',
+      'Network gear list',
+      'Known move or refresh dates',
+    ],
+    likelyPlanIds: ['secure-operations', 'co-managed', 'custom'],
+  },
+  {
+    id: 'response-hours',
+    label: 'Response hours and escalation expectations',
+    shortLabel: 'Response',
+    whyItMovesCost:
+      'After-hours coverage, executive escalation, and faster response require staffing and process commitments.',
+    recurringImpact:
+      'Priority routing, escalation rules, review cadence, and response expectations.',
+    projectImpact:
+      'Escalation design, contact cleanup, runbook creation, and alert-routing changes.',
+    discoveryTrigger:
+      'After-hours operations, VIP support, urgent customer-facing systems, or unclear escalation.',
+    evidenceToBring: [
+      'Business hours',
+      'After-hours needs',
+      'Critical users or teams',
+      'Current escalation pain',
+    ],
+    likelyPlanIds: ['secure-operations', 'co-managed', 'custom'],
+  },
+  {
+    id: 'security-depth',
+    label: 'Security depth and cyber-insurance pressure',
+    shortLabel: 'Security',
+    whyItMovesCost:
+      'Identity, endpoint, email, backup proof, awareness, and incident readiness add recurring review work.',
+    recurringImpact:
+      'MFA review, admin-role checks, endpoint and email controls, exceptions, and evidence notes.',
+    projectImpact:
+      'Control cleanup, policy work, MDR rollout, insurance remediation, and incident planning.',
+    discoveryTrigger:
+      'Insurance renewal, audit request, recent incident, or unknown security coverage.',
+    evidenceToBring: [
+      'Insurance questionnaire',
+      'MFA status',
+      'Endpoint tool',
+      'Email security notes',
+      'Recent incident history',
+    ],
+    likelyPlanIds: ['secure-operations', 'co-managed', 'custom'],
+    defaultSelected: true,
+  },
+  {
+    id: 'm365-governance',
+    label: 'Microsoft 365, sharing, guests, and licensing',
+    shortLabel: 'Microsoft 365',
+    whyItMovesCost:
+      'Tenant sprawl creates recurring admin work around access, licenses, Teams, SharePoint, and recovery assumptions.',
+    recurringImpact:
+      'License review, access changes, guest review, sharing rules, mailbox support, and admin tasks.',
+    projectImpact:
+      'Tenant cleanup, migration work, SharePoint structure, retention decisions, and user adoption.',
+    discoveryTrigger:
+      'Unknown guests, stale Teams, license waste, risky sharing, or migration pressure.',
+    evidenceToBring: [
+      'License count',
+      'Tenant admin notes',
+      'Teams/SharePoint pain',
+      'Guest sharing concerns',
+    ],
+    likelyPlanIds: ['secure-operations', 'co-managed', 'custom'],
+  },
+  {
+    id: 'backup-recovery',
+    label: 'Backup, restore proof, and recovery priorities',
+    shortLabel: 'Recovery',
+    whyItMovesCost:
+      'Recovery confidence depends on protected systems, restore access, monitoring, retention, and business priority.',
+    recurringImpact:
+      'Backup alert review, recovery notes, restore reminders, and routine reporting.',
+    projectImpact:
+      'Backup redesign, restore testing, ransomware recovery planning, and runbook creation.',
+    discoveryTrigger:
+      'No restore history, unclear backup scope, ransomware concern, or critical systems without owners.',
+    evidenceToBring: [
+      'Backup tool',
+      'Protected systems list',
+      'Last restore test',
+      'Critical application list',
+    ],
+    likelyPlanIds: ['secure-operations', 'co-managed', 'custom'],
+    defaultSelected: true,
+  },
+  {
+    id: 'servers-apps',
+    label: 'Servers, cloud, and line-of-business applications',
+    shortLabel: 'Servers + apps',
+    whyItMovesCost:
+      'Servers and critical applications add vendor coordination, monitoring, patching, backup, and change-control needs.',
+    recurringImpact:
+      'Monitoring, patch windows, vendor tickets, backup checks, and admin coordination.',
+    projectImpact:
+      'Server migration, cloud cleanup, application upgrades, and infrastructure refreshes.',
+    discoveryTrigger:
+      'Aging servers, custom applications, vendor constraints, or no documented ownership.',
+    evidenceToBring: [
+      'Server count',
+      'Critical app list',
+      'Vendor contacts',
+      'Cloud footprint',
+    ],
+    likelyPlanIds: ['co-managed', 'custom'],
+  },
+  {
+    id: 'provider-transition',
+    label: 'Current provider transition and access handoff',
+    shortLabel: 'Provider switch',
+    whyItMovesCost:
+      'Switching providers adds access transfer, documentation recovery, backup validation, and user communication.',
+    recurringImpact:
+      'Transition support, ticket routing, vendor ownership, and early stabilization cadence.',
+    projectImpact:
+      'Access takeover, documentation rebuild, tool migration, backup handoff, and cutover planning.',
+    discoveryTrigger:
+      'Provider contract ending, poor documentation, unknown admin access, or unresolved backup ownership.',
+    evidenceToBring: [
+      'Contract timing',
+      'Admin access status',
+      'Tool list',
+      'Top reasons for switching',
+    ],
+    likelyPlanIds: ['secure-operations', 'co-managed', 'custom'],
+  },
+  {
+    id: 'projects-six-months',
+    label: 'Known projects in the next six months',
+    shortLabel: 'Projects',
+    whyItMovesCost:
+      'Moves, migrations, portal work, refreshes, and cleanup projects should not disappear inside monthly support.',
+    recurringImpact:
+      'Roadmap review, budget planning, stakeholder coordination, and vendor sequencing.',
+    projectImpact:
+      'Migration, refresh, office, workflow, automation, portal, or remediation scope.',
+    discoveryTrigger:
+      'Multiple upcoming changes, unclear owner, fixed launch date, or budget approval pressure.',
+    evidenceToBring: [
+      'Project list',
+      'Target dates',
+      'Approval owner',
+      'Known vendors',
+    ],
+    likelyPlanIds: ['co-managed', 'custom'],
   },
 ];
 

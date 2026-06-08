@@ -4,6 +4,7 @@ import StructuredData from '../components/StructuredData.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
 import ModernCard from '../components/ui/ModernCard.astro';
 import ProofOperatingSystem from '../components/business/ProofOperatingSystem.astro';
+import TrustEvidenceVault from '../components/business/TrustEvidenceVault.astro';
 import FAQAccordion from '../components/ui/FAQAccordion.astro';
 import { trustCenterPractices } from '../data/authority-pages';
 import { buildContactHqHref } from '../utils/contact';
@@ -109,6 +110,12 @@ const trustFaqs = [
     title="Badges matter less than clear responsibilities."
     description="Backup scope, incident contacts, access reviews, and review cadence should be easy to discuss before anyone shares sensitive internal details."
   />
+
+  <section class="premium-page-section" data-page-section>
+    <div class="premium-container">
+      <TrustEvidenceVault />
+    </div>
+  </section>
 
   <section class="premium-page-section" data-page-section>
     <div

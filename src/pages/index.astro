@@ -1,14 +1,17 @@
 ---
 import MarketingLayout from '../layouts/MarketingLayout.astro';
+import BuyerSituationRouter from '../components/business/BuyerSituationRouter.tsx';
 import DecisionHandoffPanel from '../components/business/DecisionHandoffPanel.astro';
 import OperatingProofBoard from '../components/business/OperatingProofBoard.astro';
 import ProofOperatingSystem from '../components/business/ProofOperatingSystem.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
+import { buyerSituations } from '../data/buyer-situations';
 import { withBasePath } from '../utils/helpers';
 
 const contactHref = withBasePath('contact-hq/');
 const pricingHref = withBasePath('pricing/');
 const servicesHref = withBasePath('services/');
+const trustHref = withBasePath('trust-center/');
 
 const heroStats = [
   {
@@ -132,6 +135,26 @@ const firstThirtyDays = [
     ctaHref={contactHref}
     ctaLabel="Send the main issue"
   />
+
+  <section
+    class="home-reboot-section home-reboot-section--router"
+    id="situation-router"
+    data-page-section
+  >
+    <div class="home-reboot-shell">
+      <BuyerSituationRouter
+        client:only="preact"
+        situations={buyerSituations}
+        contactHref={contactHref}
+        pricingHref={pricingHref}
+        trustHref={trustHref}
+        defaultSituationId="provider-stall"
+        eyebrow="Fit router"
+        title="Pick the pressure point. Get the right first move."
+        description="A serious MSP conversation should start with what is happening in the business, not a menu of tools. Choose the closest situation and send a cleaner first brief."
+      />
+    </div>
+  </section>
 
   <section class="home-reboot-section" id="services" data-page-section>
     <div class="home-reboot-shell">

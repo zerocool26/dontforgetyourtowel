@@ -1,0 +1,225 @@
+---
+import { trustEvidenceVault } from '../../data/authority-pages';
+
+const statusLabel = {
+  'public-safe': 'Public-safe',
+  reviewed: 'Reviewed',
+  private: 'Private boundary',
+};
+---
+
+<section class="trust-vault" aria-labelledby="trust-vault-title">
+  <div class="trust-vault__header">
+    <p class="trust-vault__eyebrow">Evidence vault</p>
+    <h2 id="trust-vault-title">What can be discussed before deeper review.</h2>
+    <p>
+      A public trust page should give companies useful reassurance without
+      exposing the internal details that should stay private.
+    </p>
+  </div>
+
+  <div class="trust-vault__grid">
+    {
+      trustEvidenceVault.map(item => (
+        <article class={`trust-vault__card is-${item.status}`}>
+          <div class="trust-vault__card-top">
+            <p>{item.title}</p>
+            <span>{statusLabel[item.status]}</span>
+          </div>
+
+          <h3>{item.buyerQuestion}</h3>
+          <p class="trust-vault__signal">{item.publicSignal}</p>
+
+          <div class="trust-vault__split">
+            <div>
+              <p class="trust-vault__label">Discussed in review</p>
+              <ul>
+                {item.evidenceDiscussed.map(detail => (
+                  <li>{detail}</li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <p class="trust-vault__label">Review cadence</p>
+              <p class="trust-vault__cadence">{item.reviewCadence}</p>
+            </div>
+          </div>
+
+          <div class="trust-vault__private">
+            <p class="trust-vault__label">Not published publicly</p>
+            <p>{item.privateBoundary}</p>
+          </div>
+        </article>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  .trust-vault {
+    display: grid;
+    gap: clamp(1.5rem, 3vw, 2rem);
+  }
+
+  .trust-vault__header {
+    display: grid;
+    gap: 0.9rem;
+    max-width: 62rem;
+  }
+
+  .trust-vault__eyebrow,
+  .trust-vault__card-top p,
+  .trust-vault__card-top span,
+  .trust-vault__label {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    line-height: 1.35;
+    text-transform: uppercase;
+  }
+
+  .trust-vault__eyebrow,
+  .trust-vault__label,
+  .trust-vault__card-top p {
+    color: color-mix(in srgb, var(--color-text-muted) 92%, transparent);
+  }
+
+  .trust-vault__header h2 {
+    max-width: 15ch;
+    margin: 0;
+    color: var(--color-text-primary);
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 4vw, 4rem);
+    font-weight: 760;
+    letter-spacing: 0;
+    line-height: 0.98;
+    text-wrap: balance;
+  }
+
+  .trust-vault__header > p:not(.trust-vault__eyebrow) {
+    max-width: 64ch;
+    margin: 0;
+    color: color-mix(in srgb, var(--color-text-secondary) 92%, transparent);
+    line-height: 1.68;
+  }
+
+  .trust-vault__grid {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .trust-vault__card {
+    display: grid;
+    gap: 1rem;
+    min-height: 100%;
+    border: 1px solid color-mix(in srgb, var(--color-border) 76%, transparent);
+    border-left-width: 4px;
+    border-radius: 12px;
+    background:
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, white 3%, transparent),
+        transparent 34%
+      ),
+      color-mix(in srgb, var(--color-surface) 88%, transparent);
+    box-shadow: 0 24px 58px -48px rgba(0, 0, 0, 0.72);
+    padding: clamp(1rem, 2vw, 1.2rem);
+  }
+
+  .trust-vault__card.is-public-safe {
+    border-left-color: color-mix(in srgb, var(--color-primary) 82%, white 8%);
+  }
+
+  .trust-vault__card.is-reviewed {
+    border-left-color: color-mix(
+      in srgb,
+      var(--color-primary-strong) 80%,
+      white 8%
+    );
+  }
+
+  .trust-vault__card.is-private {
+    border-left-color: #9eb7d8;
+  }
+
+  .trust-vault__card-top {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .trust-vault__card-top span {
+    display: inline-flex;
+    min-height: 1.85rem;
+    align-items: center;
+    border: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
+    border-radius: 999px;
+    color: color-mix(in srgb, var(--color-text-secondary) 90%, transparent);
+    padding: 0 0.65rem;
+  }
+
+  .trust-vault__card h3 {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-size: clamp(1.15rem, 2vw, 1.45rem);
+    line-height: 1.14;
+  }
+
+  .trust-vault__signal,
+  .trust-vault__cadence,
+  .trust-vault__private p:not(.trust-vault__label),
+  .trust-vault__card li {
+    color: color-mix(in srgb, var(--color-text-secondary) 92%, transparent);
+    font-size: 0.92rem;
+    line-height: 1.58;
+  }
+
+  .trust-vault__signal,
+  .trust-vault__cadence,
+  .trust-vault__private p {
+    margin: 0;
+  }
+
+  .trust-vault__split {
+    display: grid;
+    gap: 1rem;
+    border-top: 1px solid
+      color-mix(in srgb, var(--color-border) 62%, transparent);
+    padding-top: 1rem;
+  }
+
+  .trust-vault__card ul {
+    display: grid;
+    gap: 0.45rem;
+    margin: 0.65rem 0 0;
+    padding-left: 1.1rem;
+  }
+
+  .trust-vault__private {
+    display: grid;
+    gap: 0.45rem;
+    border: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--color-background) 28%, transparent);
+    padding: 0.85rem;
+  }
+
+  @media (min-width: 760px) {
+    .trust-vault__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .trust-vault__split {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 0.78fr);
+    }
+  }
+
+  @media (min-width: 1160px) {
+    .trust-vault__grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>
