@@ -3,6 +3,7 @@ import MarketingLayout from '../../layouts/MarketingLayout.astro';
 import StructuredData from '../../components/StructuredData.astro';
 import ModernButton from '../../components/ui/ModernButton.astro';
 import ModernCard from '../../components/ui/ModernCard.astro';
+import ProofOperatingSystem from '../../components/business/ProofOperatingSystem.astro';
 import { chicagoServicePages } from '../../data/authority-pages';
 import { buildContactHqHref } from '../../utils/contact';
 import { withBasePath } from '../../utils/helpers';
@@ -11,8 +12,12 @@ import { withBasePath } from '../../utils/helpers';
 <MarketingLayout
   title="Chicago IT Service Areas | CHICAGOS #1 MSP"
   description="Chicago service pages for managed IT, cybersecurity, Microsoft 365, backup and disaster recovery, and co-managed IT."
-  bodyClass="creative-page"
+  bodyClass="creative-page buyer-reframe chicago-reframe"
   mainClass="relative isolate overflow-x-clip"
+  showFooter={true}
+  showStickyCTA={false}
+  showLiveChat={false}
+  showSavedRoutesDock={false}
 >
   <StructuredData
     type="collection"
@@ -79,4 +84,16 @@ import { withBasePath } from '../../utils/helpers';
       </div>
     </div>
   </section>
+
+  <ProofOperatingSystem
+    compact
+    eyebrow="Local proof standard"
+    title="Every local service page should answer the buyer's real fear."
+    description="The point is not ranking for Chicago keywords. The point is showing how support ownership, recovery confidence, access discipline, and pricing clarity work for local teams."
+    ctaHref={buildContactHqHref({
+      brief:
+        'I want to discuss a Chicago managed IT, security, Microsoft 365, backup, or co-managed need.',
+    })}
+    ctaLabel="Start local intake"
+  />
 </MarketingLayout>

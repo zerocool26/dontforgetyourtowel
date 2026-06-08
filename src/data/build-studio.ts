@@ -347,7 +347,7 @@ export const studioPresets: StudioPreset[] = [
     coreCrew: ['Workflow automation lead', 'Operations analyst'],
     surfaceIds: ['surface-services', 'surface-contact'],
     outcomes: [
-      'A shortlist of realistic automation wins instead of vague AI promises',
+      'A shortlist of realistic automation wins instead of vague tool promises',
       'Cleaner reporting and internal workflow handoffs',
       'Guardrails for rolling out automation without creating new risk',
     ],

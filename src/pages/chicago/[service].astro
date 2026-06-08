@@ -3,6 +3,7 @@ import MarketingLayout from '../../layouts/MarketingLayout.astro';
 import StructuredData from '../../components/StructuredData.astro';
 import ModernButton from '../../components/ui/ModernButton.astro';
 import ModernCard from '../../components/ui/ModernCard.astro';
+import ProofOperatingSystem from '../../components/business/ProofOperatingSystem.astro';
 import FAQAccordion from '../../components/ui/FAQAccordion.astro';
 import {
   chicagoServicePages,
@@ -24,8 +25,12 @@ const { page } = Astro.props as { page: LocalServicePage };
 <MarketingLayout
   title={page.seoTitle}
   description={page.description}
-  bodyClass="creative-page"
+  bodyClass="creative-page buyer-reframe chicago-service-reframe"
   mainClass="relative isolate overflow-x-clip"
+  showFooter={true}
+  showStickyCTA={false}
+  showLiveChat={false}
+  showSavedRoutesDock={false}
 >
   <StructuredData
     type="service"
@@ -87,6 +92,15 @@ const { page } = Astro.props as { page: LocalServicePage };
       </div>
     </div>
   </section>
+
+  <ProofOperatingSystem
+    compact
+    showComparison={false}
+    showFit={false}
+    eyebrow="Service proof"
+    title="The service has to make ownership visible."
+    description="A local service page should not just name the category. It should show the evidence a buyer will use to trust the engagement."
+  />
 
   <section class="premium-page-section pb-16 sm:pb-20" data-page-section>
     <div class="premium-container max-w-4xl">

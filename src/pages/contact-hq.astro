@@ -8,6 +8,7 @@ import FAQAccordion from '../components/ui/FAQAccordion.astro';
 import ScopeReadinessPanel from '../components/business/ScopeReadinessPanel.astro';
 import OperationalIntelligenceWorkbench from '../components/business/OperationalIntelligenceWorkbench.tsx';
 import DecisionHandoffPanel from '../components/business/DecisionHandoffPanel.astro';
+import ProofOperatingSystem from '../components/business/ProofOperatingSystem.astro';
 import { withBasePath } from '../utils/helpers';
 import {
   CONTACT_CALENDAR_URL,
@@ -560,6 +561,15 @@ const faqSchema = {
       </div>
     </div>
   </section>
+
+  <ProofOperatingSystem
+    compact
+    showComparison={false}
+    showFit={false}
+    eyebrow="What happens after contact"
+    title="The note becomes a routed operating brief."
+    description="The first reply should not be a generic sales follow-up. It should identify the likely lane, missing inputs, owner, and next useful artifact."
+  />
 
   <section
     class="tone-section-divider border-b"

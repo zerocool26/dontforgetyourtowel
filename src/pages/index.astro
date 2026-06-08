@@ -1,13 +1,13 @@
 ---
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 import DecisionHandoffPanel from '../components/business/DecisionHandoffPanel.astro';
+import ProofOperatingSystem from '../components/business/ProofOperatingSystem.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
 import { withBasePath } from '../utils/helpers';
 
 const contactHref = withBasePath('contact-hq/');
 const pricingHref = withBasePath('pricing/');
 const servicesHref = withBasePath('services/');
-const proofHref = withBasePath('trust-center/');
 
 const heroStats = [
   {
@@ -69,42 +69,6 @@ const serviceLanes = [
     title: 'Backup, network, and recovery',
     copy: 'Backup monitoring, restore checks, firewall, Wi-Fi, ISP coordination, and recovery order.',
     href: withBasePath('services/#technology-catalog'),
-  },
-];
-
-const switchReasons = [
-  {
-    pain: 'Tickets disappear',
-    outcome: 'Clear owner, priority, status, and next action.',
-  },
-  {
-    pain: 'Security feels theoretical',
-    outcome:
-      'Identity, endpoint, email, backup, and admin evidence in one view.',
-  },
-  {
-    pain: 'Pricing feels slippery',
-    outcome:
-      'Scope drivers, plan shape, and approval questions surfaced early.',
-  },
-];
-
-const proofItems = [
-  {
-    title: 'Response ownership',
-    copy: 'Every support request should show who owns it, what changed, and when it escalates.',
-  },
-  {
-    title: 'Backup confidence',
-    copy: 'Coverage and restore assumptions should be reviewed before an outage makes them urgent.',
-  },
-  {
-    title: 'Microsoft 365 control',
-    copy: 'Access, sharing, licensing, guest users, and Teams sprawl need visible governance.',
-  },
-  {
-    title: 'Leadership summary',
-    copy: 'Owners need plain-English decisions, not a dashboard full of tool noise.',
   },
 ];
 
@@ -215,27 +179,13 @@ const firstThirtyDays = [
     </div>
   </section>
 
-  <section class="home-reboot-section" id="why-switch" data-page-section>
-    <div class="home-reboot-shell home-reboot-split">
-      <div class="home-reboot-section-heading">
-        <p class="home-reboot-kicker">Why buyers call</p>
-        <h2 class="home-reboot-section-title">
-          The site should make a stressed owner feel relief in the first minute.
-        </h2>
-      </div>
-
-      <div class="home-reboot-reasons">
-        {
-          switchReasons.map(item => (
-            <article class="home-reboot-reason">
-              <p>{item.pain}</p>
-              <h3>{item.outcome}</h3>
-            </article>
-          ))
-        }
-      </div>
-    </div>
-  </section>
+  <ProofOperatingSystem
+    eyebrow="Better than another MSP brochure"
+    title="Show the operating proof before asking for trust."
+    description="The site now leads with the artifacts a serious buyer needs: owner map, recovery receipt, access ledger, roadmap board, and pricing clarity."
+    ctaHref={contactHref}
+    ctaLabel="Send the pressure point"
+  />
 
   <section class="home-reboot-section" id="services" data-page-section>
     <div class="home-reboot-shell">
@@ -266,41 +216,6 @@ const firstThirtyDays = [
               <p>{lane.copy}</p>
               <strong>Open scope</strong>
             </a>
-          ))
-        }
-      </div>
-    </div>
-  </section>
-
-  <section
-    class="home-reboot-section home-reboot-section--proof"
-    data-page-section
-  >
-    <div class="home-reboot-shell home-reboot-proof-grid">
-      <div class="home-reboot-section-heading">
-        <p class="home-reboot-kicker">Proof buyers can feel</p>
-        <h2 class="home-reboot-section-title">
-          Replace tool lists with visible operating evidence.
-        </h2>
-        <p class="home-reboot-copy">
-          The strongest MSP websites sell confidence. The strongest MSP
-          relationships prove it month after month.
-        </p>
-        <a
-          class="home-reboot-text-link home-reboot-text-link--standalone"
-          href={proofHref}
-        >
-          Visit the trust center
-        </a>
-      </div>
-
-      <div class="home-reboot-proof-list">
-        {
-          proofItems.map(item => (
-            <article class="home-reboot-proof-item">
-              <h3>{item.title}</h3>
-              <p>{item.copy}</p>
-            </article>
           ))
         }
       </div>

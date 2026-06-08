@@ -130,7 +130,7 @@ export const pricingFaqs: FAQEntry[] = [
 export const servicesFaqs: FAQEntry[] = [
   {
     title:
-      'How do you decide whether we need MSP, security, cloud, or AI services first?',
+      'How do you decide whether we need MSP, security, cloud, or workflow automation first?',
     content:
       'We start with operational pressure points: recurring tickets, stale access, backup uncertainty, cyber-insurance requirements, Microsoft 365 sprawl, downtime risk, or manual process drag. The best starting package usually solves the current constraint first, then layers in adjacent work.',
   },

@@ -2,1113 +2,179 @@
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 import StructuredData from '../components/StructuredData.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
-import OperationalIntelligenceWorkbench from '../components/business/OperationalIntelligenceWorkbench.tsx';
-import EcommerceShowcase from '../components/demo-lab/EcommerceShowcase';
-import { operatingIntelligenceItems } from '../data/operating-intelligence';
-import { withBasePath } from '../utils/helpers';
+import ModernCard from '../components/ui/ModernCard.astro';
+import ProofOperatingSystem from '../components/business/ProofOperatingSystem.astro';
 import { buildContactHqHref } from '../utils/contact';
+import { withBasePath } from '../utils/helpers';
 
-const workbenchItems = operatingIntelligenceItems.map(item => ({
-  ...item,
-  ctaHref: withBasePath(item.path),
-}));
+const aboutIntakeHref = buildContactHqHref({
+  brief:
+    'I want to understand whether this operating model is the right fit for our company.',
+});
 
-const proofSignals = [
+const operatingPrinciples = [
   {
-    value: 'Business-framed',
-    label: 'Selected proof states',
-    detail:
-      'Stakeholders can reopen comparison, intake, and handoff moments with business context intact.',
+    label: '01',
+    title: 'Own the messy middle',
+    copy: 'Tickets, vendors, access, backups, Microsoft 365, and budget questions should not scatter across five half-owners.',
   },
   {
-    value: 'Annotated',
-    label: 'Decision moments',
-    detail:
-      'Search, compare, intake, and handoff behavior is explained in terms of trust and conversion.',
+    label: '02',
+    title: 'Show evidence early',
+    copy: 'The first review should produce artifacts leadership can inspect: owner map, recovery receipt, access ledger, roadmap board.',
   },
   {
-    value: 'Reviewable',
-    label: 'Executive proof',
-    detail:
-      'The point is not novelty. It is making premium workflow work easier to approve, QA, and hand off.',
+    label: '03',
+    title: 'Keep the stack explainable',
+    copy: 'Tools matter, but buyers need to understand risk, ownership, response, and cost before they care about acronyms.',
   },
 ];
 
-const quickActions = [
-  {
-    title: 'Start with discovery',
-    description:
-      'Jump into search and detail behavior to see whether finding and evaluating the right path stays fast.',
-    state: 'quickview',
-    productId: 'spectral-sneaker',
-    buttonLabel: 'Open quick view',
-    command: 'open-quick-view',
-  },
-  {
-    title: 'Walk the decision moment',
-    description:
-      'Open compare to review scanability, tradeoffs, reassurance, and whether the next step is obvious.',
-    state: 'compare',
-    buttonLabel: 'Open compare',
-    command: 'open-compare',
-  },
-  {
-    title: 'Review conversion friction',
-    description:
-      'Go directly to the final handoff and review reassurance, clarity, and ownership points that protect buyer intent.',
-    state: 'checkout',
-    productId: 'aurora-hoodie',
-    buttonLabel: 'Jump to handoff',
-    command: 'start-checkout',
-  },
-];
-
-const guidedReviewSteps = [
-  {
-    title: 'Frame the audience first',
-    copy: 'Set the review around service fit, owner approval, or stakeholder signoff so the right details matter first.',
-  },
-  {
-    title: 'Open a believable journey state',
-    copy: 'Use a preset that mirrors the actual question being asked instead of clicking around while narrating the intent.',
-  },
-  {
-    title: 'Show the confidence layer',
-    copy: 'Point to compare clarity, detail context, next-step reassurance, and handoff ownership so trust is visible, not implied.',
-  },
-  {
-    title: 'Share the exact moment',
-    copy: 'Copy the state URL and keep the conversation synchronized across owners, vendors, and follow-up notes.',
-  },
-];
-
-const storeStandards = [
-  'Fast scan paths for first-time visitors',
-  'Visible trust and proof near decision points',
-  'Reduced-motion and pause controls for stakeholder reviews',
-  'Shareable states for async approvals and follow-up',
-];
-
-const workflowTrustSignals = [
-  {
-    title: 'Storytelling that stays actionable',
-    copy: 'Strong visual rhythm, but every section still has to earn the next client step.',
-  },
-  {
-    title: 'Review states that are easy to share',
-    copy: 'A single URL can reopen the exact screen state being discussed in the room.',
-  },
-  {
-    title: 'Operational credibility',
-    copy: 'The lab behaves like something a team could actually review, refine, QA, and ship.',
-  },
-];
-
-const implementationTracks = [
-  {
-    title: 'Executive walkthrough',
-    copy: 'Use presets and the review board to explain value quickly without getting lost in mechanics.',
-  },
-  {
-    title: 'Design + content critique',
-    copy: 'Review hierarchy, motion, trust cues, service copy, CTA clarity, and mobile behavior in one place.',
-  },
-  {
-    title: 'Production handoff',
-    copy: 'Translate review states into build tickets, workflow rules, QA notes, and real acceptance criteria.',
-  },
-];
-
-const featuredProducts = [
-  {
-    title: 'Aurora Hoodie',
-    state: 'checkout',
-    productId: 'aurora-hoodie',
-    note: 'Use for final-step reassurance, sequencing, and conversion handoff review.',
-  },
-  {
-    title: 'Spectral Sneaker',
-    state: 'quickview',
-    productId: 'spectral-sneaker',
-    note: 'Use for detail context and service-storytelling discussion.',
-  },
-  {
-    title: 'Compare set',
-    state: 'compare',
-    note: 'Use for decision support and scan-friendly differentiation review.',
-  },
+const notForEveryone = [
+  'Teams that only want one-off break/fix without standards',
+  'Buyers who want the cheapest ticket queue regardless of risk',
+  'Projects with no owner, approval path, or operating outcome',
 ];
 ---
 
 <MarketingLayout
-  title="Legacy Proof Lab | CHICAGOS #1 MSP"
-  description="Legacy workflow proof lab with annotated review states, business outcomes, and a compatibility walkthrough."
-  bodyClass="creative-page"
+  title="About | CHICAGOS #1 MSP"
+  description="About CHICAGOS #1 MSP: a Chicago-area managed IT, security, Microsoft 365, backup, and operating proof partner for teams that need clearer ownership."
+  bodyClass="creative-page buyer-reframe about-reframe"
   mainClass="relative isolate overflow-x-clip"
   showFooter={true}
   showStickyCTA={false}
+  showLiveChat={false}
   showSavedRoutesDock={false}
 >
   <StructuredData
-    type="website"
+    type="organization"
     data={{
-      name: 'Legacy Workflow Proof Lab',
+      name: 'CHICAGOS #1 MSP',
       description:
-        'Legacy workflow proof lab with review board, shareable screen states, and accessibility-minded controls.',
+        'Chicago-area managed IT, cybersecurity, Microsoft 365, backup, recovery, and operating proof partner.',
     }}
   />
 
-  <section class="demo-page-hero" data-page-section>
-    <div class="premium-container">
-      <div class="demo-page-hero__grid">
-        <div class="tone-page-header">
-          <p class="tone-page-eyebrow">Legacy workflow proof lab</p>
-          <h1 class="tone-page-title">
-            Workflow systems should read like business proof, not a side
-            project.
-          </h1>
-          <p class="tone-page-copy">
-            When client-facing systems are in scope, the standard is the same as
-            managed operations: clearer ownership, calmer review states, visible
-            trust cues, and outcomes that leadership can actually defend.
-          </p>
+  <section
+    class="tone-page-hero tone-section-divider border-b"
+    data-page-section
+    data-reveal
+  >
+    <div class="tone-page-hero__inner mx-auto max-w-[1240px] px-4 sm:px-6">
+      <div class="grid gap-10 lg:grid-cols-[1.08fr_0.92fr] lg:items-end">
+        <div class="space-y-6">
+          <div class="tone-page-header">
+            <p class="tone-page-eyebrow">About the operating model</p>
+            <h1 class="tone-page-title">
+              The best MSP is the one that makes ownership obvious.
+            </h1>
+            <p class="tone-page-copy">
+              This is a Chicago-area IT partner for businesses that are tired of
+              vague tickets, unclear vendors, backup doubt, Microsoft 365
+              sprawl, and security claims nobody can prove.
+            </p>
+          </div>
 
           <div class="tone-page-actions">
             <ModernButton
-              href="#shop-experience"
-              variant="gradient"
+              href={aboutIntakeHref}
+              variant="primary"
               className="min-h-[52px]"
             >
-              Review selected proof
+              Start fit check
             </ModernButton>
             <ModernButton
-              href={buildContactHqHref({
-                solution: 'digital',
-                brief:
-                  'I want to discuss a proof-led website, portal, or intake system.',
-              })}
-              variant="outline"
+              href={withBasePath('trust-center/')}
+              variant="secondary"
               className="min-h-[52px]"
             >
-              Scope a workflow system
+              Review proof
             </ModernButton>
           </div>
         </div>
 
-        <div class="demo-page-hero__panel tone-panel-soft">
-          <p class="demo-page-panel__label">
-            What a serious review should check
+        <ModernCard variant="glass" className="tone-metric-card p-6 sm:p-8">
+          <p class="tone-metric-card__label">Positioning</p>
+          <p class="tone-metric-card__value">Operations first</p>
+          <p class="tone-metric-card__detail">
+            Managed IT, security, Microsoft 365, backup, and workflow support
+            are treated as one accountability model, not disconnected service
+            menu items.
           </p>
-          <div class="demo-page-signal-grid">
-            {
-              proofSignals.map(signal => (
-                <article class="demo-page-signal">
-                  <p>{signal.label}</p>
-                  <h2>{signal.value}</h2>
-                  <span>{signal.detail}</span>
-                </article>
-              ))
-            }
-          </div>
+        </ModernCard>
+      </div>
+    </div>
+  </section>
+
+  <ProofOperatingSystem
+    compact
+    eyebrow="Why the model is different"
+    title="The proof is built into how the work runs."
+    description="The website, sales process, and service model all point to the same standard: make the next owner, risk, and decision visible."
+    ctaHref={aboutIntakeHref}
+    ctaLabel="Ask if we fit"
+  />
+
+  <section class="tone-section-divider border-b" data-page-section data-reveal>
+    <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
+      <div class="grid gap-8 lg:grid-cols-[0.75fr_1.25fr] lg:items-start">
+        <div class="tone-section-heading">
+          <p class="tone-section-kicker">Operating principles</p>
+          <h2 class="tone-section-title">
+            Fewer claims. Better evidence. Cleaner ownership.
+          </h2>
+        </div>
+
+        <div class="grid gap-4 md:grid-cols-3">
+          {
+            operatingPrinciples.map(item => (
+              <ModernCard variant="glass" className="h-full p-5">
+                <p class="font-mono text-[0.68rem] font-bold uppercase tracking-[0.18em] text-white/45">
+                  {item.label}
+                </p>
+                <h3 class="mt-4 text-xl font-semibold leading-tight text-white">
+                  {item.title}
+                </h3>
+                <p class="mt-3 text-sm leading-6 text-slate-300">{item.copy}</p>
+              </ModernCard>
+            ))
+          }
         </div>
       </div>
     </div>
   </section>
 
-  <section
-    class="demo-page-section"
-    id="workflow-trust-system"
-    data-page-section
-  >
-    <div class="premium-container">
-      <OperationalIntelligenceWorkbench
-        client:only="preact"
-        compact
-        items={workbenchItems}
-        defaultItemId="workflow-trust"
-        eyebrow="Proof system"
-        title="Connect design choices to client movement, owner clarity, and launch confidence."
-        description="Workflow work should not be decoration. This workbench maps the evidence, automation, launch criteria, and ownership that turn a portal or intake path into a business system."
-      />
-    </div>
-  </section>
+  <section class="tone-section-divider border-b" data-page-section data-reveal>
+    <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
+      <div class="grid gap-8 lg:grid-cols-2 lg:items-start">
+        <ModernCard variant="glass" className="p-6 sm:p-8">
+          <p class="tone-section-kicker">Best fit</p>
+          <h2 class="mt-4 text-3xl font-semibold leading-tight text-white">
+            Owner-led teams that need calm, not theater.
+          </h2>
+          <p class="mt-4 text-base leading-7 text-slate-300">
+            The strongest fit is a 15-150 user Chicago-area business with real
+            operating pressure: recurring support pain, stale access, weak
+            recovery confidence, Microsoft 365 clutter, provider transition, or
+            a leadership team that wants proof instead of noise.
+          </p>
+        </ModernCard>
 
-  <section class="demo-page-section" data-page-section>
-    <div class="premium-container">
-      <div class="tone-section-heading">
-        <p class="tone-section-kicker">Launch states</p>
-        <h2 class="tone-section-title">
-          Open the exact decision moment instead of clicking around and hoping
-          the value becomes obvious.
-        </h2>
-      </div>
-
-      <div class="demo-launch-grid">
-        {
-          quickActions.map(action => (
-            <article class="demo-launch-card tone-panel-soft">
-              <div>
-                <p class="demo-launch-card__eyebrow">{action.title}</p>
-                <p>{action.description}</p>
-              </div>
-              <button
-                type="button"
-                class="demo-action-button"
-                data-demo-command={action.command}
-                data-demo-state={action.state}
-                data-demo-product={action.productId}
-              >
-                {action.buttonLabel}
-              </button>
-            </article>
-          ))
-        }
-
-        <article
-          class="demo-launch-card tone-panel-soft demo-launch-card--reset"
-        >
-          <div>
-            <p class="demo-launch-card__eyebrow">Back to baseline</p>
-            <p>
-              Clear the query-backed launch state and reopen the baseline
-              workflow view.
-            </p>
-          </div>
-          <button
-            type="button"
-            class="demo-action-button demo-action-button--ghost"
-            data-demo-reset
-          >
-            Reset launch state
-          </button>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <section class="demo-page-section" data-page-section>
-    <div class="premium-container">
-      <div class="demo-proof-grid">
-        <article class="demo-proof-board tone-panel-soft">
-          <p class="tone-section-kicker">Scenario review board</p>
-          <div class="demo-proof-board__headline">
-            <h2 data-demo-active-state>Baseline workflow view loaded</h2>
-            <p>
-              The board updates as you change review states, so teams can keep
-              the narrative, audience, and share URL aligned.
-            </p>
-          </div>
-
-          <div class="demo-proof-metrics">
-            <article class="demo-proof-metric">
-              <p>Focus</p>
-              <strong data-demo-metric-focus>Workflow overview</strong>
-            </article>
-            <article class="demo-proof-metric">
-              <p>Audience</p>
-              <strong data-demo-metric-audience>Stakeholder walkthroughs</strong
-              >
-            </article>
-            <article class="demo-proof-metric">
-              <p>Proof</p>
-              <strong data-demo-metric-proof>
-                The baseline view gives the room a clean starting point before
-                drilling into a buyer task.
-              </strong>
-            </article>
-          </div>
-
-          <div class="demo-share-board">
-            <div class="demo-share-board__meta">
-              <p>Share title</p>
-              <strong data-demo-share-title
-                >Baseline workflow view loaded</strong
-              >
-            </div>
-            <div class="demo-share-board__meta">
-              <p>Share URL</p>
-              <strong data-demo-share-url
-                >{withBasePath('about/#shop-experience')}</strong
-              >
-            </div>
-            <div class="demo-share-board__actions">
-              <button
-                type="button"
-                class="demo-share-button"
-                data-demo-copy-link
-              >
-                Copy launch link
-              </button>
-              <button
-                type="button"
-                class="demo-share-button"
-                data-demo-native-share
-              >
-                Native share
-              </button>
-            </div>
-            <div class="demo-share-platforms" data-demo-share-platforms>
-              <button
-                type="button"
-                class="share-button"
-                data-demo-share-platform="email">Email</button
-              >
-              <button
-                type="button"
-                class="share-button"
-                data-demo-share-platform="linkedin">LinkedIn</button
-              >
-              <button
-                type="button"
-                class="share-button"
-                data-demo-share-platform="x">X</button
-              >
-            </div>
-          </div>
-        </article>
-
-        <article class="demo-proof-board tone-panel-soft">
-          <p class="tone-section-kicker">Review choreography</p>
-          <div class="demo-step-list">
+        <ModernCard variant="default" className="p-6 sm:p-8">
+          <p class="tone-section-kicker">Not the right first move</p>
+          <ul class="mt-5 grid gap-3 text-sm leading-6 text-slate-300">
             {
-              guidedReviewSteps.map((step, index) => (
-                <div class="demo-step-item">
-                  <span>0{index + 1}</span>
-                  <div>
-                    <h3>{step.title}</h3>
-                    <p>{step.copy}</p>
-                  </div>
-                </div>
+              notForEveryone.map(item => (
+                <li class="flex gap-3">
+                  <span class="tone-accent-dot mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full" />
+                  <span>{item}</span>
+                </li>
               ))
             }
-          </div>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <section class="demo-page-section" data-page-section>
-    <div class="premium-container">
-      <div class="demo-assurance-grid">
-        <article class="demo-assurance-card tone-panel-soft">
-          <p class="tone-section-kicker">Store standards</p>
-          <ul class="demo-bullet-list">
-            {storeStandards.map(item => <li>{item}</li>)}
           </ul>
-        </article>
-
-        <article class="demo-assurance-card tone-panel-soft">
-          <p class="tone-section-kicker">Trust signals</p>
-          <div class="demo-trust-list">
-            {
-              workflowTrustSignals.map(signal => (
-                <div>
-                  <h3>{signal.title}</h3>
-                  <p>{signal.copy}</p>
-                </div>
-              ))
-            }
-          </div>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <section class="demo-page-section" data-page-section>
-    <div class="premium-container">
-      <div class="tone-section-heading">
-        <p class="tone-section-kicker">Implementation depth</p>
-        <h2 class="tone-section-title">
-          Useful in the room today, and useful to the build team after the
-          meeting.
-        </h2>
-      </div>
-
-      <div class="demo-delivery-grid">
-        <article class="demo-delivery-card tone-panel-soft">
-          <div class="demo-track-list">
-            {
-              implementationTracks.map(track => (
-                <div class="demo-track-item">
-                  <h3>{track.title}</h3>
-                  <p>{track.copy}</p>
-                </div>
-              ))
-            }
-          </div>
-        </article>
-
-        <article class="demo-delivery-card tone-panel-soft">
-          <p class="demo-page-panel__label">Featured review presets</p>
-          <div class="demo-product-preset-list">
-            {
-              featuredProducts.map(item => (
-                <button
-                  type="button"
-                  class="demo-product-preset"
-                  data-demo-launch={
-                    item.state === 'compare'
-                      ? 'open-compare'
-                      : item.state === 'quickview'
-                        ? 'open-quick-view'
-                        : 'start-checkout'
-                  }
-                  data-demo-state={item.state}
-                  data-demo-product={item.productId}
-                >
-                  <strong>{item.title}</strong>
-                  <span>{item.note}</span>
-                </button>
-              ))
-            }
-          </div>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <section class="demo-page-section" data-page-section>
-    <div class="premium-container">
-      <div class="demo-console-grid">
-        <article class="demo-console-card tone-panel-soft">
-          <h2>Safety console</h2>
-          <p>
-            Review with motion, pause, and performance controls visible so the
-            lab can serve both creative critique and practical stakeholder
-            walkthroughs.
-          </p>
-          <div class="demo-console-actions">
-            <button
-              type="button"
-              class="demo-toggle-button"
-              data-demo-toggle="paused"
-            >
-              Toggle pause
-            </button>
-            <button
-              type="button"
-              class="demo-toggle-button"
-              data-demo-toggle="reduced"
-            >
-              Toggle reduced motion
-            </button>
-            <button
-              type="button"
-              class="demo-toggle-button"
-              data-demo-toggle="perf"
-            >
-              Toggle perf mode
-            </button>
-          </div>
-          <p class="demo-console-status" data-testid="demo-safety-status">
-            pause off • reduced motion off • perf mode off
-          </p>
-        </article>
-
-        <article class="demo-console-card tone-panel-soft">
-          <div class="demo-live-header">
-            <div>
-              <p class="tone-section-kicker">Legacy interaction</p>
-              <h2>Use real interactions, not a slideshow.</h2>
-            </div>
-            <p>
-              Search, detail, compare, selection, and final handoff are wired
-              into the selected proof interaction below.
-            </p>
-          </div>
-
-          <div
-            class="demo-live-shell"
-            id="shop-experience"
-            data-demo-module="ecommerce-showcase"
-          >
-            <EcommerceShowcase client:only="preact" />
-          </div>
-        </article>
+        </ModernCard>
       </div>
     </div>
   </section>
 </MarketingLayout>
-
-<script is:inline>
-  (() => {
-    const anchor = '#shop-experience';
-    const demoStates = {
-      default: {
-        title: 'Baseline workflow view loaded',
-        focus: 'Workflow overview',
-        audience: 'Stakeholder walkthroughs',
-        proof:
-          'The baseline workflow view gives the room a clean starting point before drilling into a client task.',
-      },
-      cart: {
-        title: 'Selection review active',
-        focus: 'Selection confidence',
-        audience: 'Conversion reviews',
-        proof:
-          'Selection details stay easy to scan while next actions and confidence cues remain visible.',
-      },
-      compare: {
-        title: 'Compare review active',
-        focus: 'Decision support',
-        audience: 'Buying team approvals',
-        proof:
-          'Comparison states stay easy to scan when the decision moment gets busy.',
-      },
-      quickview: {
-        title: 'Quick view review active',
-        focus: 'Service storytelling',
-        audience: 'Stakeholder reviews',
-        proof:
-          'Quick view keeps service context visible without forcing the audience out of the browse flow.',
-      },
-      checkout: {
-        title: 'Final handoff review active',
-        focus: 'Handoff reassurance',
-        audience: 'Revenue ops handoff',
-        proof:
-          'Final details, confirmation steps, and handoff confidence surface without breaking the buyer rhythm.',
-      },
-    };
-
-    const commandStateMap = {
-      'open-cart': 'cart',
-      'open-compare': 'compare',
-      'open-quick-view': 'quickview',
-      'start-checkout': 'checkout',
-    };
-
-    const commandActionMap = {
-      cart: 'open-cart',
-      compare: 'open-compare',
-      quickview: 'open-quick-view',
-      checkout: 'start-checkout',
-    };
-
-    const initDemoPage = () => {
-      const html = document.documentElement;
-      const activeState = document.querySelector('[data-demo-active-state]');
-      const focusMetric = document.querySelector('[data-demo-metric-focus]');
-      const audienceMetric = document.querySelector(
-        '[data-demo-metric-audience]'
-      );
-      const proofMetric = document.querySelector('[data-demo-metric-proof]');
-      const shareTitle = document.querySelector('[data-demo-share-title]');
-      const shareUrl = document.querySelector('[data-demo-share-url]');
-      const copyLink = document.querySelector('[data-demo-copy-link]');
-      const nativeShare = document.querySelector('[data-demo-native-share]');
-      const resetButton = document.querySelector('[data-demo-reset]');
-      const commandButtons = Array.from(
-        document.querySelectorAll('[data-demo-command], [data-demo-launch]')
-      );
-      const toggleButtons = Array.from(
-        document.querySelectorAll('[data-demo-toggle]')
-      );
-      const status = document.querySelector(
-        '[data-testid="demo-safety-status"]'
-      );
-      const sharePlatformButtons = Array.from(
-        document.querySelectorAll('[data-demo-share-platform]')
-      );
-
-      if (
-        !(html instanceof HTMLElement) ||
-        !(activeState instanceof HTMLElement)
-      ) {
-        return;
-      }
-
-      if (html.dataset.demoPageBound === 'true') {
-        return;
-      }
-
-      html.dataset.demoPageBound = 'true';
-
-      const readStateFromUrl = () => {
-        const params = new URLSearchParams(window.location.search);
-        const demo = params.get('demo') || 'default';
-        return demo in demoStates ? demo : 'default';
-      };
-
-      const buildShareUrl = state => {
-        const url = new URL(window.location.href);
-        if (state === 'default') {
-          url.searchParams.delete('demo');
-          url.searchParams.delete('product');
-        }
-
-        url.hash = 'shop-experience';
-        return `${url.pathname}${url.search}${url.hash}`;
-      };
-
-      const dispatchDemoCommand = (action, productId) => {
-        const detail = {
-          action,
-          productId: productId || undefined,
-        };
-
-        window.__pendingDemoCommand = detail;
-        window.dispatchEvent(new CustomEvent('demo:ecom-command', { detail }));
-      };
-
-      const scrollProofBoardIntoView = () => {
-        if (window.location.hash !== anchor) return;
-
-        const shortcutButton = document.querySelector(
-          '[data-ecom="review-shortcut-discovery"]'
-        );
-        const reviewBoard = document.querySelector(
-          '[data-ecom="review-board"]'
-        );
-        const fallbackTarget = document.querySelector(anchor);
-        const target =
-          shortcutButton instanceof HTMLElement
-            ? shortcutButton
-            : reviewBoard instanceof HTMLElement
-              ? reviewBoard
-              : fallbackTarget instanceof HTMLElement
-                ? fallbackTarget
-                : null;
-
-        target?.scrollIntoView({ behavior: 'auto', block: 'center' });
-      };
-
-      const syncSafetyStatus = () => {
-        const paused = html.getAttribute('data-demo-paused') === 'true';
-        const reduced =
-          html.getAttribute('data-demo-reduced-motion') === 'true';
-        const perf = html.getAttribute('data-demo-perf') === 'true';
-
-        if (status instanceof HTMLElement) {
-          status.textContent = `pause ${paused ? 'on' : 'off'} • reduced motion ${reduced ? 'on' : 'off'} • perf mode ${perf ? 'on' : 'off'}`;
-        }
-      };
-
-      const syncBoard = state => {
-        const current = demoStates[state] || demoStates.default;
-        const url = buildShareUrl(state);
-
-        activeState.textContent = current.title;
-        if (focusMetric instanceof HTMLElement)
-          focusMetric.textContent = current.focus;
-        if (audienceMetric instanceof HTMLElement)
-          audienceMetric.textContent = current.audience;
-        if (proofMetric instanceof HTMLElement)
-          proofMetric.textContent = current.proof;
-        if (shareTitle instanceof HTMLElement)
-          shareTitle.textContent = current.title;
-        if (shareUrl instanceof HTMLElement) shareUrl.textContent = url;
-      };
-
-      const setLaunchState = (state, productId) => {
-        const nextUrl = new URL(window.location.href);
-
-        if (state === 'default') {
-          nextUrl.searchParams.delete('demo');
-          nextUrl.searchParams.delete('product');
-        } else {
-          nextUrl.searchParams.set('demo', state);
-          if (productId) {
-            nextUrl.searchParams.set('product', productId);
-          } else {
-            nextUrl.searchParams.delete('product');
-          }
-        }
-
-        nextUrl.hash = 'shop-experience';
-        window.history.replaceState({}, '', nextUrl.toString());
-        syncBoard(state);
-      };
-
-      commandButtons.forEach(button => {
-        if (!(button instanceof HTMLButtonElement)) return;
-        button.addEventListener('click', () => {
-          const state = button.dataset.demoState || 'default';
-          const action =
-            button.dataset.demoCommand ||
-            button.dataset.demoLaunch ||
-            commandActionMap[state];
-          const productId = button.dataset.demoProduct || '';
-
-          setLaunchState(state, productId);
-          dispatchDemoCommand(action, productId);
-
-          const section = document.querySelector(anchor);
-          if (section instanceof HTMLElement) {
-            section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
-
-          window.setTimeout(scrollProofBoardIntoView, 120);
-        });
-      });
-
-      if (resetButton instanceof HTMLButtonElement) {
-        resetButton.addEventListener('click', () => {
-          setLaunchState('default');
-        });
-      }
-
-      toggleButtons.forEach(button => {
-        if (!(button instanceof HTMLButtonElement)) return;
-        button.addEventListener('click', () => {
-          const type = button.dataset.demoToggle;
-          if (!type) return;
-
-          const attrName =
-            type === 'reduced'
-              ? 'data-demo-reduced-motion'
-              : type === 'perf'
-                ? 'data-demo-perf'
-                : 'data-demo-paused';
-
-          const current = html.getAttribute(attrName) === 'true';
-          html.setAttribute(attrName, String(!current));
-          syncSafetyStatus();
-        });
-      });
-
-      if (copyLink instanceof HTMLButtonElement) {
-        copyLink.addEventListener('click', async () => {
-          const state = readStateFromUrl();
-          const currentUrl = `${window.location.origin}${buildShareUrl(state)}`;
-          try {
-            await navigator.clipboard.writeText(currentUrl);
-            copyLink.textContent = 'Copied';
-          } catch {
-            copyLink.textContent = 'Unavailable';
-          }
-          window.setTimeout(() => {
-            copyLink.textContent = 'Copy launch link';
-          }, 1200);
-        });
-      }
-
-      if (nativeShare instanceof HTMLButtonElement) {
-        nativeShare.addEventListener('click', async () => {
-          const state = readStateFromUrl();
-          const current = demoStates[state] || demoStates.default;
-          const currentUrl = `${window.location.origin}${buildShareUrl(state)}`;
-          if (navigator.share) {
-            try {
-              await navigator.share({ title: current.title, url: currentUrl });
-            } catch {
-              // ignore cancelled shares
-            }
-          }
-        });
-      }
-
-      sharePlatformButtons.forEach(button => {
-        if (!(button instanceof HTMLButtonElement)) return;
-        button.addEventListener('click', () => {
-          const state = readStateFromUrl();
-          const current = demoStates[state] || demoStates.default;
-          const currentUrl = `${window.location.origin}${buildShareUrl(state)}`;
-          const encodedUrl = encodeURIComponent(currentUrl);
-          const encodedTitle = encodeURIComponent(current.title);
-          const platform = button.dataset.demoSharePlatform;
-
-          const targetUrl =
-            platform === 'email'
-              ? `mailto:?subject=${encodedTitle}&body=${encodedUrl}`
-              : platform === 'linkedin'
-                ? `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`
-                : `https://x.com/intent/post?text=${encodedTitle}%20${encodedUrl}`;
-
-          window.open(targetUrl, '_blank', 'noopener,noreferrer');
-        });
-      });
-
-      window.addEventListener('popstate', () => {
-        syncBoard(readStateFromUrl());
-      });
-
-      window.addEventListener('demo:ecom-ready', scrollProofBoardIntoView);
-
-      syncSafetyStatus();
-      syncBoard(readStateFromUrl());
-      window.setTimeout(scrollProofBoardIntoView, 120);
-    };
-
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initDemoPage, {
-        once: true,
-      });
-    } else {
-      initDemoPage();
-    }
-
-    document.addEventListener('astro:page-load', initDemoPage);
-  })();
-</script>
-
-<style is:inline>
-  .demo-page-hero,
-  .demo-page-section {
-    padding: clamp(4.25rem, 8vw, 6.75rem) 0;
-    border-bottom: 1px solid
-      color-mix(in srgb, var(--color-border) 70%, transparent);
-  }
-
-  .demo-page-hero {
-    padding-top: clamp(5.8rem, 9vw, 7.5rem);
-  }
-
-  .demo-page-hero__grid,
-  .demo-page-signal-grid,
-  .demo-launch-grid,
-  .demo-proof-grid,
-  .demo-assurance-grid,
-  .demo-delivery-grid,
-  .demo-console-grid {
-    display: grid;
-    gap: 1rem;
-  }
-
-  .demo-page-hero__panel,
-  .demo-launch-card,
-  .demo-proof-board,
-  .demo-assurance-card,
-  .demo-delivery-card,
-  .demo-console-card {
-    min-width: 0;
-    padding: 1.2rem;
-    border-radius: 1.5rem;
-  }
-
-  .demo-page-panel__label,
-  .demo-launch-card__eyebrow,
-  .demo-proof-metric p,
-  .demo-share-board__meta p,
-  .demo-console-status,
-  .demo-track-item h3 {
-    margin: 0;
-    font-family: var(--font-mono);
-    letter-spacing: 0.16em;
-  }
-
-  .demo-page-panel__label,
-  .demo-launch-card__eyebrow,
-  .demo-proof-metric p,
-  .demo-share-board__meta p,
-  .demo-console-status {
-    font-size: 0.68rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: color-mix(in srgb, var(--color-text-muted) 92%, transparent);
-  }
-
-  .demo-page-signal-grid,
-  .demo-proof-metrics,
-  .demo-share-board,
-  .demo-step-list,
-  .demo-trust-list,
-  .demo-track-list,
-  .demo-product-preset-list,
-  .demo-console-actions,
-  .demo-share-platforms {
-    display: grid;
-    gap: 0.9rem;
-  }
-
-  .demo-page-signal-grid {
-    margin-top: 1rem;
-  }
-
-  .demo-page-signal,
-  .demo-proof-metric,
-  .demo-product-preset,
-  .demo-action-button,
-  .demo-share-button,
-  .share-button,
-  .demo-toggle-button {
-    border: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
-    border-radius: 1.15rem;
-    background: color-mix(in srgb, var(--color-surface) 88%, transparent);
-  }
-
-  .demo-page-signal {
-    padding: 1rem;
-  }
-
-  .demo-page-signal p,
-  .demo-page-signal span,
-  .demo-launch-card p,
-  .demo-proof-board p,
-  .demo-step-item p,
-  .demo-trust-list p,
-  .demo-track-item p,
-  .demo-product-preset span,
-  .demo-console-card p {
-    margin: 0;
-    color: color-mix(in srgb, var(--color-text-secondary) 96%, transparent);
-    line-height: 1.66;
-  }
-
-  .demo-page-signal h2,
-  .demo-proof-board h2,
-  .demo-step-item h3,
-  .demo-trust-list h3,
-  .demo-track-item h3,
-  .demo-live-header h2,
-  .demo-product-preset strong {
-    margin: 0;
-    color: var(--color-text-primary);
-    font-family: var(--font-display);
-    font-weight: 650;
-    line-height: 1.04;
-    text-wrap: balance;
-  }
-
-  .demo-launch-grid,
-  .demo-proof-grid,
-  .demo-assurance-grid,
-  .demo-delivery-grid,
-  .demo-console-grid {
-    margin-top: 1.5rem;
-  }
-
-  .demo-launch-card,
-  .demo-proof-board,
-  .demo-assurance-card,
-  .demo-delivery-card,
-  .demo-console-card {
-    display: grid;
-    gap: 1rem;
-  }
-
-  .demo-action-button,
-  .demo-share-button,
-  .share-button,
-  .demo-toggle-button,
-  .demo-product-preset {
-    display: inline-flex;
-    min-height: 48px;
-    align-items: center;
-    justify-content: center;
-    padding: 0.9rem 1rem;
-    color: var(--color-text-primary);
-    font-weight: 600;
-    transition:
-      transform 0.2s ease,
-      border-color 0.2s ease,
-      background 0.2s ease;
-  }
-
-  .demo-action-button,
-  .demo-toggle-button {
-    background:
-      linear-gradient(
-        135deg,
-        color-mix(in srgb, var(--color-primary) 16%, transparent),
-        color-mix(in srgb, var(--color-primary-strong) 12%, transparent)
-      ),
-      color-mix(in srgb, var(--color-surface) 90%, transparent);
-  }
-
-  .demo-action-button--ghost {
-    background: color-mix(in srgb, var(--color-surface) 86%, transparent);
-  }
-
-  .demo-action-button:hover,
-  .demo-share-button:hover,
-  .share-button:hover,
-  .demo-toggle-button:hover,
-  .demo-product-preset:hover {
-    transform: translateY(-1px);
-    border-color: color-mix(in srgb, var(--color-primary) 30%, transparent);
-  }
-
-  .demo-proof-board__headline,
-  .demo-live-header {
-    display: grid;
-    gap: 0.75rem;
-  }
-
-  .demo-share-board__actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-  }
-
-  .demo-share-board__meta strong,
-  .demo-proof-metric strong {
-    display: block;
-    margin-top: 0.4rem;
-    color: var(--color-text-primary);
-    font-size: 1rem;
-    font-weight: 600;
-    line-height: 1.45;
-  }
-
-  .demo-step-item {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 0.85rem;
-    padding-top: 0.85rem;
-    border-top: 1px solid
-      color-mix(in srgb, var(--color-border) 64%, transparent);
-  }
-
-  .demo-step-item span {
-    color: color-mix(in srgb, var(--color-text-primary) 44%, transparent);
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    font-weight: 700;
-    letter-spacing: 0.16em;
-  }
-
-  .demo-bullet-list {
-    margin: 0;
-    padding-left: 1.1rem;
-    display: grid;
-    gap: 0.8rem;
-    color: color-mix(in srgb, var(--color-text-secondary) 96%, transparent);
-  }
-
-  .demo-trust-list,
-  .demo-track-list,
-  .demo-product-preset-list,
-  .demo-console-actions {
-    margin-top: 0.25rem;
-  }
-
-  .demo-product-preset {
-    align-items: flex-start;
-    justify-content: flex-start;
-    flex-direction: column;
-    text-align: left;
-    gap: 0.4rem;
-  }
-
-  .demo-live-shell {
-    overflow: visible;
-    min-width: 0;
-    max-width: 100%;
-    scroll-margin-top: 5.5rem;
-    border-radius: 1.35rem;
-    border: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
-    background: color-mix(in srgb, var(--color-surface) 88%, transparent);
-  }
-
-  @media (min-width: 960px) {
-    .demo-page-hero__grid,
-    .demo-proof-grid,
-    .demo-assurance-grid,
-    .demo-delivery-grid,
-    .demo-console-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .demo-page-signal-grid,
-    .demo-launch-grid {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-  }
-
-  @media (max-width: 767px) {
-    .demo-share-board__actions {
-      flex-direction: column;
-    }
-  }
-</style>

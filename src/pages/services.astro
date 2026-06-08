@@ -10,6 +10,7 @@ import ServiceCatalog from '../components/business/ServiceCatalog.tsx';
 import ServiceComparisonMatrix from '../components/business/ServiceComparisonMatrix.tsx';
 import ServicesQuiz from '../components/business/ServicesQuiz.tsx';
 import DecisionHandoffPanel from '../components/business/DecisionHandoffPanel.astro';
+import ProofOperatingSystem from '../components/business/ProofOperatingSystem.astro';
 import ResearchRadarPanel from '../components/business/ResearchRadarPanel.astro';
 import ScopeReadinessPanel from '../components/business/ScopeReadinessPanel.astro';
 import FAQAccordion from '../components/ui/FAQAccordion.astro';
@@ -314,30 +315,14 @@ const breadcrumbItems = [
     </div>
   </section>
 
-  <section class="buyer-proof-strip" aria-label="Service decision proof">
-    <div class="buyer-proof-strip__inner mx-auto max-w-[1240px] px-4 sm:px-6">
-      <div class="buyer-proof-strip__item">
-        <p class="buyer-proof-strip__label">Buyer problem</p>
-        <p class="buyer-proof-strip__copy">
-          Tickets, access, backups, vendors, and Microsoft 365 ownership feel
-          scattered.
-        </p>
-      </div>
-      <div class="buyer-proof-strip__item">
-        <p class="buyer-proof-strip__label">Best fit</p>
-        <p class="buyer-proof-strip__copy">
-          Chicago teams that want a calmer operating rhythm, not a bigger
-          brochure.
-        </p>
-      </div>
-      <div class="buyer-proof-strip__item">
-        <p class="buyer-proof-strip__label">Next action</p>
-        <p class="buyer-proof-strip__copy">
-          Share the pressure point and get the first service lane framed.
-        </p>
-      </div>
-    </div>
-  </section>
+  <ProofOperatingSystem
+    compact
+    eyebrow="Service proof system"
+    title="Every service has to produce an artifact."
+    description="Support, security, Microsoft 365, and recovery work should leave behind visible ownership, evidence, and decisions."
+    ctaHref={startProjectHref}
+    ctaLabel="Start service fit check"
+  />
 
   <section
     class="tone-section-divider border-b"
