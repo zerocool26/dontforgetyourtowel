@@ -48,7 +48,8 @@ export const GET: APIRoute = () => {
       {
         name: 'Trust Center',
         short_name: 'Trust',
-        description: 'Review security, backup, response, and operating proof',
+        description:
+          'Review security, backup, response, and support accountability',
         url: withBasePath('trust-center/'),
         icons: [{ src: withBasePath('favicon-192.png'), sizes: '192x192' }],
       },

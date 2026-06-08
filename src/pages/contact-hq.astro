@@ -186,15 +186,15 @@ const responsePrep = [
 const engagementSteps = [
   {
     phase: '01',
-    title: 'Confirm the pressure point',
+    title: 'Confirm the main issue',
     detail:
       'Make sure the real issue is clear before anyone jumps into solution mode.',
   },
   {
     phase: '02',
-    title: 'Recommend the right lane',
+    title: 'Recommend the right owner',
     detail:
-      'Identify the best starting lane and the adjacent work that actually belongs in view.',
+      'Identify the best starting point and any related work that should stay in view.',
   },
   {
     phase: '03',
@@ -236,7 +236,7 @@ const faqs = [
   {
     title: 'What if we are not sure which service should lead?',
     content:
-      'That is a normal starting point. Send the context you have, and we will help identify the right lead lane and any supporting work that should stay attached.',
+      'That is a normal starting point. Send the context you have, and we will help identify the right first owner and any supporting work that should stay attached.',
   },
 ];
 
@@ -310,8 +310,8 @@ const faqSchema = {
             <p class="tone-page-copy max-w-3xl">
               Use one short brief for support ownership, security posture,
               Microsoft 365 cleanup, backup confidence, provider transition, or
-              workflow support. The goal is a routed next move, not another
-              vague contact thread.
+              workflow support. The goal is a useful first reply, not another
+              vague email thread.
             </p>
           </div>
 
@@ -358,9 +358,9 @@ const faqSchema = {
                 {CONTACT_CRM_LABEL}
               </p>
               <p class="mt-3 text-sm leading-6 text-slate-300">
-                Structured intake captures routing context, qualification, and
-                scheduling intent in one place so the follow-up owner starts
-                with the real picture.
+                The intake captures the problem, company shape, timing, and
+                scheduling preference so the follow-up starts with the real
+                picture.
               </p>
             </div>
 
@@ -369,7 +369,7 @@ const faqSchema = {
                 <p class="text-sm font-semibold text-white">Response target</p>
                 <p class="mt-2 text-sm leading-6 text-slate-300">
                   Most qualified inquiries get a same-business-day first review
-                  with a recommended lane, missing inputs, and next action.
+                  with a recommended owner, missing details, and next action.
                 </p>
               </div>
               <div class="tone-panel-soft rounded-2xl p-4">
@@ -567,8 +567,8 @@ const faqSchema = {
     showComparison={false}
     showFit={false}
     eyebrow="What happens after contact"
-    title="The note becomes a routed operating brief."
-    description="The first reply should not be a generic sales follow-up. It should identify the likely lane, missing inputs, owner, and next useful artifact."
+    title="Your note should turn into a useful first reply."
+    description="The first response should identify the likely owner, missing details, urgency, and next step instead of sending a canned sales email."
   />
 
   <section
@@ -585,9 +585,9 @@ const faqSchema = {
             Give the next owner a brief they can actually act on.
           </h2>
           <p class="tone-section-copy">
-            This form captures the real pressure point, company shape, timing,
-            risk, source, and route context. It is built for routing, not for a
-            generic “hello”.
+            This form captures the real issue, company shape, timing, risk, and
+            next-step preference. It is built for a useful first reply, not a
+            blank contact request.
           </p>
 
           <div class="mt-8 grid gap-4">
@@ -596,12 +596,12 @@ const faqSchema = {
               <p class="mt-2 text-sm leading-7 text-slate-300">
                 Support ownership gaps, security review, Microsoft 365 cleanup,
                 backup doubt, provider transitions, compliance pressure,
-                leadership planning, and buyer-facing system proof work.
+                leadership planning, and client-facing workflow work.
               </p>
             </div>
             <div class="tone-panel-soft rounded-2xl p-5">
               <p class="text-sm font-semibold text-white">
-                What speeds routing
+                What helps the first reply
               </p>
               <p class="mt-2 text-sm leading-7 text-slate-300">
                 User count, locations, current provider context, recurring pain,
@@ -914,7 +914,7 @@ const faqSchema = {
         activeId={serviceIntentLabel ? 'support-ownership' : 'budget-scope'}
         eyebrow="Intake handoff"
         title="Send the context that lets someone route the work responsibly."
-        description="The first contact should make the next action obvious: support ownership, security baseline, budget and scope, or workflow trust."
+        description="The first contact should make the next action obvious: support ownership, security baseline, budget and scope, or workflow cleanup."
       />
     </div>
   </section>
@@ -932,8 +932,8 @@ const faqSchema = {
         items={workbenchItems}
         defaultItemId={defaultContactWorkbenchId}
         eyebrow="Intake router"
-        title="Shape the message before it becomes a vague contact form."
-        description="Pick the closest operating pressure, collect the evidence that matters, and generate a concise handoff brief for the first email or planning conversation."
+        title="Shape the message before you send it."
+        description="Pick the closest issue, collect the records that matter, and generate a concise first note for email or a planning conversation."
       />
     </div>
   </section>
@@ -994,13 +994,13 @@ const faqSchema = {
   >
     <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
       <div class="tone-section-heading">
-        <p class="tone-section-kicker">Contact lanes</p>
+        <p class="tone-section-kicker">Contact paths</p>
         <h2 class="tone-section-title">
-          Choose the lane that matches the conversation.
+          Choose the path that matches the conversation.
         </h2>
         <p class="tone-section-copy">
-          Clear routing reduces handoffs and gets the request in front of the
-          right owner faster.
+          Clear context reduces handoffs and gets the request in front of the
+          right person faster.
         </p>
       </div>
 
@@ -1134,7 +1134,7 @@ const faqSchema = {
           <h2 class="tone-section-title">Common questions before kickoff.</h2>
           <p class="tone-section-copy">
             These cover the most common uncertainties around timing, scope,
-            collaboration, and choosing the right starting lane.
+            collaboration, and choosing the right starting point.
           </p>
         </div>
 

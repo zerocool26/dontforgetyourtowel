@@ -4,13 +4,6 @@ import { isLegacyRouteUrl } from '../utils/legacy-routes';
 import { tradeProfiles } from '../data/trades';
 import { decisionHandoffLanes } from '../data/decision-handoff';
 import {
-  competitiveProofPatterns2026,
-  designQualityPrinciples2026,
-  marketSignals2026,
-  resourceRecommendations2026,
-  technologyRadar2026,
-} from '../data/research-radar';
-import {
   getTradeOperations,
   getTradeSubpageOperations,
 } from '../data/trade-operations';
@@ -74,87 +67,6 @@ export async function GET() {
     ],
   }));
 
-  const researchRadarItems: SearchItem[] = [
-    ...marketSignals2026.map(signal => ({
-      id: `research-market-${signal.title
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-|-$/g, '')}`,
-      title: signal.title,
-      description: `${signal.buyerReality} ${signal.siteMove}`,
-      category: 'Research Radar',
-      url: 'services/#research-radar',
-      date: new Date().toISOString(),
-      tags: [
-        '2026',
-        'research',
-        'market signal',
-        ...signal.sources.map(source => source.label.toLowerCase()),
-      ],
-    })),
-    ...competitiveProofPatterns2026.map(item => ({
-      id: `research-proof-${item.pattern
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-|-$/g, '')}`,
-      title: item.pattern,
-      description: `${item.whatBuyersExpect} Proof rule: ${item.proofRule}`,
-      category: 'Research Radar',
-      url: 'services/#research-radar',
-      date: new Date().toISOString(),
-      tags: [
-        '2026',
-        'research',
-        'competitive proof',
-        'msp website',
-        ...item.sources.map(source => source.label.toLowerCase()),
-      ],
-    })),
-    ...designQualityPrinciples2026.map(item => ({
-      id: `research-design-${item.principle
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-|-$/g, '')}`,
-      title: item.principle,
-      description: `${item.whatMatureTeamsDo} ${item.siteApplication}`,
-      category: 'Research Radar',
-      url: 'services/#research-radar',
-      date: new Date().toISOString(),
-      tags: [
-        '2026',
-        'research',
-        'design quality',
-        'accessibility',
-        'performance',
-        ...item.sources.map(source => source.label.toLowerCase()),
-      ],
-    })),
-    ...technologyRadar2026.map(item => ({
-      id: `research-tech-${item.title
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-|-$/g, '')}`,
-      title: item.title,
-      description: `${item.fit} ${item.projectUse}`,
-      category: 'Research Radar',
-      url: 'services/#research-radar',
-      date: new Date().toISOString(),
-      tags: ['2026', 'technology radar', item.status.toLowerCase()],
-    })),
-    ...resourceRecommendations2026.map(item => ({
-      id: `research-resource-${item.name
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-|-$/g, '')}`,
-      title: item.name,
-      description: `${item.whyItHelps} ${item.adoptionNote}`,
-      category: 'Research Radar',
-      url: 'services/#research-radar',
-      date: new Date().toISOString(),
-      tags: ['2026', 'tooling', 'resource', item.status.toLowerCase()],
-    })),
-  ];
-
   const staticPages = [
     {
       id: 'page-home',
@@ -167,12 +79,12 @@ export async function GET() {
     },
     {
       id: 'page-gallery',
-      title: 'Design Library',
+      title: 'Visual References',
       description:
-        'Interactive design library with visual studies for support, security, infrastructure, workflow, and mobile clarity',
+        'Visual references for infrastructure, support, security, and service communication',
       category: 'Page',
       url: 'gallery/',
-      tags: ['gallery', 'design', 'art', 'creative', 'interface', 'proof'],
+      tags: ['gallery', 'visuals', 'infrastructure', 'security', 'support'],
     },
     {
       id: 'page-blog',
@@ -196,7 +108,7 @@ export async function GET() {
       id: 'page-photos',
       title: 'Photo Library',
       description:
-        'Curated photo references for support, infrastructure, cybersecurity, Microsoft 365, and buyer-facing pages',
+        'Curated photo references for support, infrastructure, cybersecurity, and Microsoft 365',
       category: 'Page',
       url: 'photos/',
       tags: ['photos', 'gallery', 'infrastructure', 'security', 'digital'],
@@ -205,7 +117,7 @@ export async function GET() {
       id: 'page-trust-center',
       title: 'Trust Center',
       description:
-        'Customer excellence, security, backup, incident coordination, data handling, and operating proof',
+        'Security posture, backup review, incident coordination, data handling, and support accountability',
       category: 'Page',
       url: 'trust-center/',
       tags: [
@@ -221,7 +133,7 @@ export async function GET() {
       id: 'page-services',
       title: 'Services',
       description:
-        'Buyer-focused solution hub for managed IT, security, Microsoft 365, cloud, backup, onboarding, and workflow support',
+        'Managed IT, security, Microsoft 365, cloud, backup, onboarding, and workflow support',
       category: 'Page',
       url: 'services/',
       tags: ['services', 'managed it', 'security', 'cloud', 'm365'],
@@ -351,7 +263,6 @@ export async function GET() {
     ...caseStudyItems,
     ...blogItems,
     ...decisionHandoffItems,
-    ...researchRadarItems,
     ...staticPages,
     ...tradeItems,
   ].filter(item => !isLegacyRouteUrl(item.url));

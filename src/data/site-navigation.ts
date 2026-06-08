@@ -27,7 +27,7 @@ export const buyerPathLinks: SiteLink[] = [
     label: 'Proof',
     href: 'trust-center/',
     description:
-      'Customer excellence standards, security posture, backup evidence, and operating proof.',
+      'Security posture, backup review, incident coordination, and support accountability.',
   },
   {
     label: 'Contact',
@@ -48,7 +48,7 @@ export const researchProofLinks: SiteLink[] = [
     label: 'Briefings',
     href: 'news/',
     description:
-      'Short reads on budget, risk, insurance, AI pressure, and operations.',
+      'Short reads on budget, risk, insurance, security, Microsoft 365, and operations.',
   },
   {
     label: 'Trust Center',

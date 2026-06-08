@@ -239,17 +239,17 @@ export const servicesExtended: Service[] = [
   },
   {
     id: 'workflow-automation-ai-enablement',
-    name: 'Workflow Automation and AI Enablement',
+    name: 'Workflow Automation and Intake Systems',
     category: 'Strategy, Automation & Workflow Systems',
     description:
-      'Small-scale automation, reporting cleanup, AI-assisted internal processes, approval rules, and governance for practical use cases that have an owner.',
+      'Small-scale automation, reporting cleanup, approval rules, and internal handoff improvements for processes that have a real owner.',
   },
   {
     id: 'client-portal-web-refresh',
-    name: 'Website and Client-Facing Experience Refreshes',
+    name: 'Client Intake and Service Page Refreshes',
     category: 'Strategy, Automation & Workflow Systems',
     description:
-      'Higher-trust websites, launch pages, service pages, intake flows, and presentation systems for firms whose front door needs to match their operations.',
+      'Service pages, intake flows, launch pages, and client handoffs for firms whose front door needs to match the quality of their operations.',
   },
   {
     id: 'client-portal-intranet',
@@ -378,9 +378,9 @@ export const serviceCategoryBriefs: ServiceCategoryBrief[] = [
   {
     category: 'Strategy, Automation & Workflow Systems',
     buyerQuestion:
-      'Which projects will reduce drag, improve trust, or create measurable leverage instead of just adding tools?',
+      'Which projects will reduce drag, improve trust, or remove repeat work instead of just adding tools?',
     whatWeCheck: [
-      'Manual handoffs, reporting gaps, buyer-facing friction, and approval bottlenecks',
+      'Manual handoffs, reporting gaps, client intake friction, and approval bottlenecks',
       'Portal, intake, documentation, internal hub, and client-facing service needs',
       'Budget timing, owner capacity, launch risk, and governance requirements',
     ],
@@ -391,7 +391,7 @@ export const serviceCategoryBriefs: ServiceCategoryBrief[] = [
     ],
     warningSigns: [
       'Automation ideas do not have a process owner',
-      'A website refresh is treated separately from client workflow',
+      'A site refresh is treated separately from intake, service, or handoff problems',
       'Projects launch without support, QA, or handoff ownership',
     ],
   },

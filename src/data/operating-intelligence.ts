@@ -215,26 +215,26 @@ export const operatingIntelligenceItems: OperatingIntelligenceItem[] = [
     question:
       'Does the client-facing workflow make the business easier to contact, route, and serve?',
     summary:
-      'Treats portals, forms, intake paths, service pages, and client-facing screens as operating systems with owner decisions, proof, mobile behavior, analytics, and launch ownership.',
-    owner: 'Sales + operations + digital owner',
+      'Organizes portals, forms, intake paths, service pages, and client handoffs around clear owners, mobile usability, analytics, and launch responsibility.',
+    owner: 'Sales + operations owner',
     investmentSignal:
-      'Usually driven by priority pages, content readiness, proof gaps, launch timing, integrations, analytics, and workflow depth.',
+      'Usually driven by intake friction, unclear handoffs, launch timing, integrations, analytics, and workflow depth.',
     path: 'services/#service-planner',
     ctaLabel: 'Open workflow planning',
     signals: [
       'The real service is strong, but the intake or portal path feels smaller than the company.',
-      'Buyers cannot quickly find proof, pricing logic, services, or a next step.',
+      'Prospects cannot quickly find proof, pricing logic, services, or a next step.',
       'Forms, portals, or handoff paths create dead ends on mobile.',
       'There is no review trail for what changed, why, and how success is measured.',
     ],
     firstActions: [
       'Map the service path, top questions, proof gaps, mobile friction, analytics, and handoff points.',
-      'Prioritize the few screens that most affect trust, clarity, intake, or service movement.',
-      'Prototype the target flow before expanding into design, content, integrations, or launch work.',
+      'Prioritize the few pages or form steps that most affect trust, clarity, intake, or service movement.',
+      'Prototype the target flow before expanding into integrations, approvals, or launch work.',
     ],
     evidence: [
-      'Buyer path map',
-      'Priority screen list',
+      'Service path map',
+      'Priority page list',
       'Trust gap review',
       'Mobile friction notes',
       'Analytics and event plan',
@@ -248,9 +248,9 @@ export const operatingIntelligenceItems: OperatingIntelligenceItem[] = [
     ],
     motion: {
       stabilize:
-        'Fix the highest-friction pages, broken handoffs, unclear CTAs, mobile problems, and missing proof.',
+        'Fix the highest-friction pages, broken handoffs, unclear next steps, mobile problems, and missing proof.',
       harden:
-        'Add clearer content structure, proof systems, intake logic, analytics, accessibility, and launch QA.',
+        'Add clearer service copy, proof points, intake logic, analytics, accessibility, and launch QA.',
       modernize:
         'Build calculators, portals, saved states, routing rules, and reviewable client-facing workflows.',
     },

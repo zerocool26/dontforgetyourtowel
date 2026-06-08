@@ -981,7 +981,7 @@ export const tradeProfiles: TradeProfile[] = [
       },
     ],
     differentiators: [
-      'Auto repair content is tailored to maintenance programs, diagnostics, and fleet operations instead of generic service copy.',
+      'Auto repair content is matched to maintenance programs, diagnostics, and fleet operations instead of generic service copy.',
       'Customer communication is built around decision-ready findings and clear turnaround expectations.',
       'Bay operations and service consistency are positioned as core strengths, not back-office details.',
     ],
@@ -1152,7 +1152,7 @@ export const tradeProfiles: TradeProfile[] = [
     differentiators: [
       'Support, security, Microsoft 365, cloud, backup, and workflow work stay connected to one buying path.',
       'MSP and tech services can connect directly to facilities, vendors, service operations, and the systems people use every day.',
-      'The site keeps its interactive capabilities while grounding them in clearer service architecture.',
+      'The public experience keeps its interactive tools while grounding them in clearer service architecture.',
     ],
     sectors: [
       {

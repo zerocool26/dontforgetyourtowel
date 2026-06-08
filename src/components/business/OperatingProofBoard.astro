@@ -1,0 +1,238 @@
+---
+import { operatingProofRows } from '../../data/operating-proof';
+import { withBasePath } from '../../utils/helpers';
+---
+
+<aside
+  class="operating-proof-board"
+  data-testid="home-orbit-scene"
+  data-home-orbit-root
+  aria-labelledby="operating-proof-board-title"
+>
+  <div class="operating-proof-board__header">
+    <div>
+      <p>First review model</p>
+      <h2 id="operating-proof-board-title">What we check first</h2>
+    </div>
+    <span>Owners, risks, next steps</span>
+  </div>
+
+  <div class="operating-proof-board__rows">
+    {
+      operatingProofRows.map(row => (
+        <a
+          class={`operating-proof-board__row is-${row.status}`}
+          href={withBasePath(row.href)}
+        >
+          <span class="operating-proof-board__area">{row.area}</span>
+          <div class="operating-proof-board__main">
+            <strong>{row.signal}</strong>
+            <small>{row.detail}</small>
+          </div>
+          <div class="operating-proof-board__meta">
+            <span>{row.statusLabel}</span>
+            <em>{row.record}</em>
+          </div>
+        </a>
+      ))
+    }
+  </div>
+
+  <div class="operating-proof-board__footer">
+    <span>After the first pass</span>
+    <strong
+      >you should know what is owned, what is risky, and what needs a decision.</strong
+    >
+  </div>
+</aside>
+
+<style>
+  .operating-proof-board {
+    display: grid;
+    gap: 0.85rem;
+    min-height: clamp(26rem, 38vw, 32rem);
+    overflow: hidden;
+    border: 1px solid rgba(248, 242, 231, 0.14);
+    border-radius: 8px;
+    background:
+      linear-gradient(180deg, rgba(248, 242, 231, 0.06), transparent 42%),
+      #101719;
+    box-shadow: 0 28px 70px -46px rgba(15, 23, 42, 0.5);
+    color: #f8f2e7;
+    padding: clamp(1rem, 2.4vw, 1.4rem);
+  }
+
+  .operating-proof-board__header,
+  .operating-proof-board__footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem 1rem;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid rgba(248, 242, 231, 0.12);
+    border-radius: 8px;
+    background: rgba(8, 13, 15, 0.56);
+    padding: 0.85rem;
+  }
+
+  .operating-proof-board__header p,
+  .operating-proof-board__header span,
+  .operating-proof-board__footer span,
+  .operating-proof-board__area,
+  .operating-proof-board__meta span,
+  .operating-proof-board__meta em {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    line-height: 1.35;
+    text-transform: uppercase;
+  }
+
+  .operating-proof-board__header p,
+  .operating-proof-board__header span,
+  .operating-proof-board__footer span {
+    color: rgba(248, 242, 231, 0.58);
+  }
+
+  .operating-proof-board__header h2 {
+    margin: 0.25rem 0 0;
+    color: #f8f2e7;
+    font-size: clamp(1.45rem, 2.4vw, 2rem);
+    line-height: 1;
+  }
+
+  .operating-proof-board__rows {
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .operating-proof-board__row {
+    display: grid;
+    grid-template-columns: minmax(4.5rem, 0.24fr) minmax(0, 1fr) minmax(
+        6.5rem,
+        0.28fr
+      );
+    gap: 0.8rem;
+    align-items: center;
+    min-height: 5.25rem;
+    border: 1px solid rgba(248, 242, 231, 0.11);
+    border-left-width: 4px;
+    border-radius: 8px;
+    background: rgba(8, 13, 15, 0.58);
+    padding: 0.85rem;
+    color: inherit;
+    transition:
+      border-color 0.18s ease,
+      background 0.18s ease;
+  }
+
+  .operating-proof-board__row:hover {
+    border-color: rgba(156, 230, 217, 0.34);
+    background: rgba(248, 242, 231, 0.055);
+  }
+
+  .operating-proof-board__row.is-clear {
+    border-left-color: #9ce6d9;
+  }
+
+  .operating-proof-board__row.is-review {
+    border-left-color: #f2c76f;
+  }
+
+  .operating-proof-board__row.is-planned {
+    border-left-color: #9eb7d8;
+  }
+
+  .operating-proof-board__row.is-risk {
+    border-left-color: #f4a6a6;
+  }
+
+  .operating-proof-board__area {
+    color: rgba(248, 242, 231, 0.62);
+  }
+
+  .operating-proof-board__main {
+    display: grid;
+    gap: 0.35rem;
+    min-width: 0;
+  }
+
+  .operating-proof-board__main strong,
+  .operating-proof-board__footer strong {
+    color: #f8f2e7;
+    font-weight: 760;
+    line-height: 1.2;
+  }
+
+  .operating-proof-board__main small {
+    color: rgba(248, 242, 231, 0.66);
+    font-size: 0.84rem;
+    line-height: 1.42;
+  }
+
+  .operating-proof-board__meta {
+    display: grid;
+    gap: 0.4rem;
+    justify-items: end;
+    text-align: right;
+  }
+
+  .operating-proof-board__meta span {
+    display: inline-flex;
+    min-height: 1.75rem;
+    align-items: center;
+    border: 1px solid rgba(156, 230, 217, 0.28);
+    border-radius: 6px;
+    background: rgba(156, 230, 217, 0.09);
+    color: #9ce6d9;
+    padding: 0 0.55rem;
+  }
+
+  .operating-proof-board__row.is-review .operating-proof-board__meta span {
+    border-color: rgba(242, 199, 111, 0.3);
+    background: rgba(242, 199, 111, 0.1);
+    color: #f2c76f;
+  }
+
+  .operating-proof-board__row.is-planned .operating-proof-board__meta span {
+    border-color: rgba(158, 183, 216, 0.3);
+    background: rgba(158, 183, 216, 0.1);
+    color: #cbdaf0;
+  }
+
+  .operating-proof-board__meta em {
+    color: rgba(248, 242, 231, 0.54);
+    font-style: normal;
+    letter-spacing: 0.06em;
+    text-transform: none;
+  }
+
+  @media (max-width: 767px) {
+    .operating-proof-board {
+      min-height: auto;
+      padding: 0.9rem;
+    }
+
+    .operating-proof-board__row {
+      grid-template-columns: 1fr;
+      min-height: auto;
+    }
+
+    .operating-proof-board__meta {
+      justify-items: start;
+      text-align: left;
+    }
+
+    .operating-proof-board__row:nth-child(n + 4) {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .operating-proof-board__row {
+      transition: none;
+    }
+  }
+</style>

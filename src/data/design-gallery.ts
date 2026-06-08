@@ -189,7 +189,7 @@ export const galleryInstallations: GalleryInstallation[] = [
     summary:
       'A cross-platform visual system that ties managed operations, trust, proof routes, and workflow support into one editorial source-of-truth canvas.',
     curatorNote:
-      'This installation exists to prove the homepage can be both a command center and a design object without losing clarity.',
+      'This reference shows how the homepage can feel like a calm command center without losing clarity.',
     palette: ['#d8f279', '#82dcd1', '#111317'],
     tags: ['platform', 'landing page', 'source of truth', 'architecture'],
     metrics: [

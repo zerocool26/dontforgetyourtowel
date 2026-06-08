@@ -47,8 +47,8 @@ const motionModes: Array<{
 
 export default function OperationalIntelligenceWorkbench({
   eyebrow = 'Operating intelligence',
-  title = 'Use the site like a working diagnostic, not a brochure.',
-  description = 'Pick a pressure point and the workbench shows signals, first actions, evidence, automation candidates, ownership, and the right next route.',
+  title = 'Start with the pressure point, then decide what needs attention first.',
+  description = 'Choose the issue closest to what is happening now. The checklist shows signals, first actions, records to collect, ownership, and the best next step.',
   items,
   defaultItemId,
   compact = false,

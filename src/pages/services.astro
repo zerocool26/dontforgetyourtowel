@@ -11,7 +11,6 @@ import ServiceComparisonMatrix from '../components/business/ServiceComparisonMat
 import ServicesQuiz from '../components/business/ServicesQuiz.tsx';
 import DecisionHandoffPanel from '../components/business/DecisionHandoffPanel.astro';
 import ProofOperatingSystem from '../components/business/ProofOperatingSystem.astro';
-import ResearchRadarPanel from '../components/business/ResearchRadarPanel.astro';
 import ScopeReadinessPanel from '../components/business/ScopeReadinessPanel.astro';
 import FAQAccordion from '../components/ui/FAQAccordion.astro';
 import {
@@ -317,9 +316,9 @@ const breadcrumbItems = [
 
   <ProofOperatingSystem
     compact
-    eyebrow="Service proof system"
-    title="Every service has to produce an artifact."
-    description="Support, security, Microsoft 365, and recovery work should leave behind visible ownership, evidence, and decisions."
+    eyebrow="What you should receive"
+    title="Every service should leave a clear record."
+    description="Support, security, Microsoft 365, and recovery work should leave behind owners, open decisions, and the next item to review."
     ctaHref={startProjectHref}
     ctaLabel="Start service fit check"
   />
@@ -334,8 +333,8 @@ const breadcrumbItems = [
       <DecisionHandoffPanel
         activeId="support-ownership"
         eyebrow="Service handoff"
-        title="Choose the first service lane by the output you need."
-        description="The right starting point is easier to defend when the pressure, evidence, and first deliverable are visible before the catalog opens."
+        title="Choose the first service lane by the problem you need solved."
+        description="The right starting point is easier to defend when the pressure, facts, and first deliverable are clear before the service catalog opens."
       />
     </div>
   </section>
@@ -354,9 +353,9 @@ const breadcrumbItems = [
             Start with the symptom. The right service lane gets obvious fast.
           </h2>
           <p class="tone-section-copy">
-            Buyers do not need a giant catalog first. They need to know what
-            should be inspected, what gets stabilized, who owns the next action,
-            and what output they should expect to see.
+            You should not have to sort through a giant catalog first. Start
+            with what is breaking down, then confirm what gets inspected, who
+            owns the next action, and what you should receive.
           </p>
         </div>
 
@@ -396,17 +395,6 @@ const breadcrumbItems = [
 
   <section
     class="tone-section-divider border-b"
-    id="research-radar"
-    data-reveal
-    data-page-section
-  >
-    <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
-      <ResearchRadarPanel />
-    </div>
-  </section>
-
-  <section
-    class="tone-section-divider border-b"
     id="operating-intelligence"
     data-reveal
     data-page-section
@@ -418,8 +406,8 @@ const breadcrumbItems = [
         items={workbenchItems}
         defaultItemId="security-evidence"
         eyebrow="Service intelligence"
-        title="Turn symptoms into service scope, evidence, and first actions."
-        description="A serious service page should help a buyer diagnose the problem. This workbench maps common operating pressure into ownership, evidence, automation candidates, and the next route."
+        title="Turn symptoms into service scope and first actions."
+        description="Use this to match common IT pressure to the first checks, records to collect, possible automation, and the right service route."
       />
     </div>
   </section>
@@ -508,7 +496,7 @@ const breadcrumbItems = [
               </ul>
               <div class="tone-divider-top mt-5 pt-4">
                 <p class="font-mono text-[0.62rem] uppercase tracking-[0.18em] text-white/40">
-                  Buyer-visible output
+                  What you receive
                 </p>
                 <p class="mt-2 text-sm leading-6 text-slate-200">
                   {phase.buyerVisibleOutput}
@@ -531,11 +519,11 @@ const breadcrumbItems = [
       <div class="tone-section-heading">
         <p class="tone-section-kicker">Proof stories</p>
         <h2 class="tone-section-title">
-          Proof should sound like before, after, and what changed.
+          Proof should show the problem, the work, and what changed.
         </h2>
         <p class="tone-section-copy">
-          These are anonymized examples of practical outcomes: fewer repeat
-          issues, cleaner ownership, better evidence, and clearer next steps.
+          These anonymized examples focus on practical outcomes: fewer repeat
+          issues, cleaner ownership, stronger records, and clearer next steps.
         </p>
       </div>
 
@@ -718,13 +706,13 @@ const breadcrumbItems = [
   >
     <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
       <div class="tone-section-heading">
-        <p class="tone-section-kicker">Buyer guide</p>
+        <p class="tone-section-kicker">Before we recommend coverage</p>
         <h2 class="tone-section-title">
           What gets inspected before a responsible recommendation.
         </h2>
         <p class="tone-section-copy">
-          A useful scope starts with the buyer question, the evidence to check,
-          and the first outputs leadership should see.
+          A useful scope starts with the business question, the records to
+          check, and the first outputs leadership should see.
         </p>
       </div>
 

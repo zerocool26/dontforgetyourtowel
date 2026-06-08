@@ -21,8 +21,8 @@ export interface Props {
 
 const {
   eyebrow = 'Why this MSP',
-  title = 'The difference is visible operating proof, not bigger promises.',
-  description = 'A generic MSP sells tools. A better partner shows ownership, recovery confidence, access discipline, and budget logic before the first contract.',
+  title = 'The difference is what gets documented and followed through.',
+  description = 'A stronger IT partner shows who owns support issues, what recovery depends on, where access risk lives, and which budget decisions need attention.',
   compact = false,
   showComparison = true,
   showFit = true,
@@ -51,8 +51,8 @@ const {
         aria-label="Operating proof dashboard showing support ownership, recovery, Microsoft 365 governance, and budget scope"
       >
         <div class="proof-system__console-top">
-          <span>Chicago operating proof</span>
-          <strong>not a brochure</strong>
+          <span>Chicago IT review</span>
+          <strong>owners, risks, next steps</strong>
         </div>
 
         <div class="proof-system__metric-grid">
@@ -104,9 +104,9 @@ const {
       showComparison ? (
         <div class="proof-system__comparison" aria-label="Provider contrast">
           <div class="proof-system__comparison-head">
-            <p>Buyer question</p>
-            <p>Generic MSP</p>
-            <p>Better answer here</p>
+            <p>Question</p>
+            <p>Typical answer</p>
+            <p>What gets documented</p>
           </div>
           {competitorContrasts.map(row => (
             <article class="proof-system__comparison-row">

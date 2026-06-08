@@ -1,6 +1,7 @@
 ---
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 import DecisionHandoffPanel from '../components/business/DecisionHandoffPanel.astro';
+import OperatingProofBoard from '../components/business/OperatingProofBoard.astro';
 import ProofOperatingSystem from '../components/business/ProofOperatingSystem.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
 import { withBasePath } from '../utils/helpers';
@@ -27,29 +28,11 @@ const heroStats = [
   },
 ];
 
-const boardSteps = [
-  {
-    label: 'Intake',
-    title: 'Issue lands with context',
-    detail: 'Users, devices, vendor, impact, and urgency are captured early.',
-  },
-  {
-    label: 'Owner',
-    title: 'One path stays accountable',
-    detail: 'Support, escalation, vendor follow-up, and status do not scatter.',
-  },
-  {
-    label: 'Proof',
-    title: 'Leaders see what changed',
-    detail: 'Tickets, security, backup, and roadmap decisions become visible.',
-  },
-];
-
 const serviceLanes = [
   {
     label: 'Support',
     title: 'Managed IT support',
-    copy: 'Help desk, onboarding, endpoint hygiene, patching, and vendor follow-through.',
+    copy: 'Help desk, onboarding, device standards, patching, and vendor follow-through.',
     href: servicesHref,
   },
   {
@@ -73,9 +56,9 @@ const serviceLanes = [
 ];
 
 const firstThirtyDays = [
-  'Map users, devices, Microsoft 365, backups, vendors, network gear, admin roles, and recurring issues.',
-  'Stabilize urgent support, access, email, and recovery gaps before expanding the roadmap.',
-  'Deliver a 30/60/90 operating plan with owners, budget shape, and the first proof worth reviewing.',
+  'Document users, devices, Microsoft 365, backups, vendors, network gear, admin roles, and recurring issues.',
+  'Stabilize the support, access, email, and recovery gaps that create the most daily disruption.',
+  'Deliver a 30/60/90 plan with owners, budget notes, and the decisions leadership needs to make next.',
 ];
 ---
 
@@ -96,12 +79,13 @@ const firstThirtyDays = [
           Managed IT for Chicago teams that need the work owned
         </p>
         <h1 class="home-reboot-title">
-          CHICAGOS #1 MSP for IT support that gets answered, owned, and proven.
+          Chicago managed IT support with owners, evidence, and clear next
+          steps.
         </h1>
         <p class="home-reboot-copy home-reboot-copy--large">
-          Managed IT, cybersecurity, Microsoft 365, backup, network, and
-          recovery support with a simple promise: the issue has an owner, the
-          risk has evidence, and the next step is clear.
+          For owner-led and operations-heavy teams that need support,
+          cybersecurity, Microsoft 365, backup, network, and vendor issues
+          handled by one accountable path.
         </p>
 
         <div class="home-reboot-actions" aria-label="Primary actions">
@@ -137,54 +121,16 @@ const firstThirtyDays = [
         </div>
       </div>
 
-      <aside class="home-reboot-board" aria-label="Support ownership board">
-        <div
-          class="home-reboot-board__scene"
-          data-testid="home-orbit-scene"
-          data-home-orbit-root
-          role="img"
-          aria-label="Operations board showing intake, owner, and proof lanes"
-        >
-          <canvas
-            class="home-reboot-board__canvas"
-            data-home-orbit-canvas
-            aria-hidden="true"></canvas>
-        </div>
-
-        <div class="home-reboot-board__content">
-          <div class="home-reboot-board__topline">
-            <span>Live operating model</span>
-            <strong>Calm IT starts here</strong>
-          </div>
-          <div class="home-reboot-board__steps">
-            {
-              boardSteps.map((step, index) => (
-                <article class="home-reboot-board-step">
-                  <span>{String(index + 1).padStart(2, '0')}</span>
-                  <div>
-                    <p>{step.label}</p>
-                    <h2>{step.title}</h2>
-                    <small>{step.detail}</small>
-                  </div>
-                </article>
-              ))
-            }
-          </div>
-          <div class="home-reboot-board__footer">
-            <span>First review output</span>
-            <strong>scope, risks, owners, budget shape</strong>
-          </div>
-        </div>
-      </aside>
+      <OperatingProofBoard />
     </div>
   </section>
 
   <ProofOperatingSystem
-    eyebrow="Better than another MSP brochure"
-    title="Show the operating proof before asking for trust."
-    description="The site now leads with the artifacts a serious buyer needs: owner map, recovery receipt, access ledger, roadmap board, and pricing clarity."
+    eyebrow="What leadership should see"
+    title="Support should leave a record, not another vague ticket thread."
+    description="The first review should make the basics visible: open issues, vendor ownership, backup confidence, access risk, Microsoft 365 cleanup, and the budget decisions ahead."
     ctaHref={contactHref}
-    ctaLabel="Send the pressure point"
+    ctaLabel="Send the main issue"
   />
 
   <section class="home-reboot-section" id="services" data-page-section>
@@ -194,11 +140,11 @@ const firstThirtyDays = [
       >
         <p class="home-reboot-kicker">Services</p>
         <h2 class="home-reboot-section-title">
-          Four clear service lanes buyers can understand fast.
+          Four service lanes that cover the daily IT mess.
         </h2>
         <p class="home-reboot-copy">
-          No giant capability wall. Start with the operating pressure, then
-          confirm the lane and proof output.
+          Start with the problem in front of you, then route it to the right
+          support, security, Microsoft 365, or recovery owner.
         </p>
       </div>
 
@@ -231,8 +177,8 @@ const firstThirtyDays = [
       <DecisionHandoffPanel
         activeId="support-ownership"
         eyebrow="Decision handoff"
-        title="A mature first conversation has an output before it has a pitch."
-        description="Choose the pressure point, bring the right evidence, and leave the first conversation with a clear service lane, owner, and next action."
+        title="A useful first conversation should leave you with a next step."
+        description="Bring the rough counts, the current provider problem, and the urgent risk. The first reply should point to the right owner, missing details, and next action."
       />
     </div>
   </section>
@@ -246,11 +192,11 @@ const firstThirtyDays = [
       <div class="home-reboot-section-heading">
         <p class="home-reboot-kicker">First phase</p>
         <h2 class="home-reboot-section-title">
-          The first phase should calm the room.
+          The first phase should reduce the noise.
         </h2>
         <p class="home-reboot-copy">
-          Before anyone buys a bigger stack, the environment needs a baseline,
-          visible owners, and a practical plan.
+          Before buying more tools, the environment needs a baseline, clear
+          owners, and a practical plan leadership can understand.
         </p>
       </div>
 
@@ -270,7 +216,7 @@ const firstThirtyDays = [
       <div>
         <p class="home-reboot-kicker">Ready when you are</p>
         <h2 class="home-reboot-section-title">
-          Send the pressure point. Get a cleaner next step.
+          Send the main issue. Get a clearer next step.
         </h2>
       </div>
       <div class="home-reboot-actions home-reboot-actions--final">
