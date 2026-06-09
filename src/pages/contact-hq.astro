@@ -9,6 +9,7 @@ import ScopeReadinessPanel from '../components/business/ScopeReadinessPanel.astr
 import OperationalIntelligenceWorkbench from '../components/business/OperationalIntelligenceWorkbench.tsx';
 import DecisionHandoffPanel from '../components/business/DecisionHandoffPanel.astro';
 import ProofOperatingSystem from '../components/business/ProofOperatingSystem.astro';
+import ProviderSelectionStandard from '../components/business/ProviderSelectionStandard.astro';
 import { withBasePath } from '../utils/helpers';
 import {
   CONTACT_CALENDAR_URL,
@@ -107,6 +108,12 @@ const workbenchItems = operatingIntelligenceItems.map(item => ({
   ...item,
   ctaHref: withBasePath(item.path),
 }));
+const contactHeroMediaDesktop = withBasePath(
+  'media/chicago-contact-intake.webp'
+);
+const contactHeroMediaMobile = withBasePath(
+  'media/chicago-contact-intake-mobile.webp'
+);
 
 const defaultContactWorkbenchId =
   serviceIntent.includes('backup') || serviceIntent.includes('recovery')
@@ -292,11 +299,24 @@ const faqSchema = {
   <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
 
   <section
-    class="tone-page-hero tone-section-divider border-b"
+    class="tone-page-hero tone-page-hero--media tone-section-divider border-b"
     data-reveal
     id="contact-hero"
     data-page-section
+    style="--hero-media-position: 58% center; --hero-media-mobile-position: center;"
   >
+    <picture class="tone-page-hero__media">
+      <source media="(max-width: 767px)" srcset={contactHeroMediaMobile} />
+      <img
+        src={contactHeroMediaDesktop}
+        alt="Chicago managed IT intake desk with laptop, phone, and support board"
+        loading="eager"
+        decoding="async"
+        fetchpriority="high"
+      />
+    </picture>
+    <div class="tone-page-hero__veil" aria-hidden="true"></div>
+
     <div
       class="tone-page-hero__inner mx-auto max-w-[1240px] px-4 pb-14 pt-20 sm:px-6 sm:pb-20 sm:pt-28"
     >
@@ -569,6 +589,16 @@ const faqSchema = {
     eyebrow="What happens after contact"
     title="Your note should turn into a useful first reply."
     description="The first response should identify the likely owner, missing details, urgency, and next step instead of sending a canned sales email."
+  />
+
+  <ProviderSelectionStandard
+    id="contact-proof-standard"
+    compact
+    eyebrow="Before the first call"
+    title="Use the first note to test whether the answers are real."
+    description="Send the pressure point, company shape, timing, and current provider context. The reply should route ownership, missing proof, urgency, and next action."
+    ctaHref="#structured-intake"
+    ctaLabel="Send intake"
   />
 
   <section

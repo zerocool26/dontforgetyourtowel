@@ -37,6 +37,51 @@ export const buyerPathLinks: SiteLink[] = [
   },
 ];
 
+export const buyerIntentLinks: SiteLink[] = [
+  {
+    label: 'Switching providers',
+    href: 'contact-hq/?service=provider-switch',
+    description:
+      'Access handoff, tool takeover, backup proof, and transition timing.',
+  },
+  {
+    label: 'Pricing clarity',
+    href: 'pricing/#scope-ledger',
+    description:
+      'Scope drivers, recurring support, project work, and approval notes.',
+  },
+  {
+    label: 'Security proof',
+    href: 'trust-center/#trust-selection-standard',
+    description:
+      'MFA, endpoint, email, incident, and backup evidence questions.',
+  },
+  {
+    label: 'Microsoft 365 cleanup',
+    href: 'contact-hq/?service=microsoft-365',
+    description:
+      'Teams, SharePoint, guest access, license waste, and governance.',
+  },
+  {
+    label: 'Recovery confidence',
+    href: 'contact-hq/?service=backup-recovery',
+    description:
+      'Backup scope, restore access, recovery order, and incident roles.',
+  },
+  {
+    label: 'Co-managed support',
+    href: 'chicago/co-managed-it/',
+    description:
+      'Shared coverage, internal IT handoffs, escalation, and reporting.',
+  },
+  {
+    label: 'Vendor ownership',
+    href: 'services/#buyer-guide',
+    description:
+      'Apps, telecom, internet, printers, cloud vendors, and loose escalations.',
+  },
+];
+
 export const researchProofLinks: SiteLink[] = [
   {
     label: 'Blog',

@@ -3,6 +3,7 @@ import MarketingLayout from '../../layouts/MarketingLayout.astro';
 import StructuredData from '../../components/StructuredData.astro';
 import ModernButton from '../../components/ui/ModernButton.astro';
 import ModernCard from '../../components/ui/ModernCard.astro';
+import LocalReadinessMap from '../../components/business/LocalReadinessMap.astro';
 import ProofOperatingSystem from '../../components/business/ProofOperatingSystem.astro';
 import { chicagoServicePages } from '../../data/authority-pages';
 import { buildContactHqHref } from '../../utils/contact';
@@ -85,6 +86,15 @@ import { withBasePath } from '../../utils/helpers';
       </div>
     </div>
   </section>
+
+  <LocalReadinessMap
+    compact
+    ctaHref={buildContactHqHref({
+      brief:
+        'I want to map local coverage, access, recovery, vendors, and review cadence for our Chicago-area team.',
+    })}
+    ctaLabel="Map local readiness"
+  />
 
   <ProofOperatingSystem
     compact

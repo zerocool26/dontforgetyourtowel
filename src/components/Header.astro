@@ -4,12 +4,17 @@ import { withBasePath } from '../utils/helpers';
 import { tradeProfiles } from '../data/trades';
 import { getTradeVisual } from '../data/trade-visuals';
 import { getRouteContext } from '../utils/route-context';
-import { buyerPathLinks } from '../data/site-navigation';
+import { buyerIntentLinks, buyerPathLinks } from '../data/site-navigation';
 
 const homeHref = withBasePath('/');
 const mobileSiteTitle = SITE_TITLE;
 
 const links = buyerPathLinks.map(link => ({
+  ...link,
+  href: withBasePath(link.href),
+}));
+
+const intentLinks = buyerIntentLinks.map(link => ({
   ...link,
   href: withBasePath(link.href),
 }));
@@ -215,6 +220,31 @@ const isTradeActiveHref = (href: string) => {
   </nav>
 
   {
+    !isTradePage ? (
+      <div class="header-intent-strip hidden border-t border-white/[0.05] lg:block">
+        <nav
+          class="mx-auto max-w-[1400px] px-5 sm:px-6 lg:px-8"
+          aria-label="Buyer situation navigation"
+        >
+          <div class="header-intent-strip__scroll">
+            <span class="header-intent-strip__label">Choose by situation</span>
+            {intentLinks.map(link => (
+              <a
+                class="header-intent-link tone-focus-accent"
+                href={link.href}
+                data-astro-prefetch
+                title={link.description}
+              >
+                {link.label}
+              </a>
+            ))}
+          </div>
+        </nav>
+      </div>
+    ) : null
+  }
+
+  {
     isTradePage ? (
       <div class="hidden border-t border-white/[0.05] lg:block">
         <nav
@@ -320,6 +350,27 @@ const isTradeActiveHref = (href: string) => {
                 </a>
               );
             })}
+          </div>
+        ) : null
+      }
+      {
+        !isTradePage ? (
+          <div class="border-t border-white/10 pt-3">
+            <p class="px-3 pb-2 font-mono text-[0.65rem] uppercase tracking-[0.24em] text-white/45">
+              Choose by situation
+            </p>
+            <div class="grid gap-2">
+              {intentLinks.map(link => (
+                <a
+                  class="header-intent-mobile-link tone-focus-accent"
+                  href={link.href}
+                  data-astro-prefetch
+                >
+                  <span>{link.label}</span>
+                  <small>{link.description}</small>
+                </a>
+              ))}
+            </div>
           </div>
         ) : null
       }
@@ -480,6 +531,68 @@ const isTradeActiveHref = (href: string) => {
     filter: saturate(1.05);
   }
 
+  .header-intent-strip {
+    background:
+      linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--header-route-accent) 5%, transparent),
+        transparent 52%
+      ),
+      color-mix(in srgb, var(--color-surface) 74%, transparent);
+  }
+
+  .header-intent-strip__scroll {
+    display: flex;
+    gap: 0.55rem;
+    align-items: center;
+    overflow-x: auto;
+    padding-block: 0.55rem;
+    scrollbar-width: none;
+  }
+
+  .header-intent-strip__scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .header-intent-strip__label {
+    flex: 0 0 auto;
+    color: color-mix(in srgb, var(--color-text-muted) 88%, transparent);
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .header-intent-link {
+    display: inline-flex;
+    min-height: 34px;
+    flex: 0 0 auto;
+    align-items: center;
+    border: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-surface) 86%, transparent);
+    color: color-mix(in srgb, var(--color-text-primary) 74%, transparent);
+    padding: 0 0.85rem;
+    font-size: 0.78rem;
+    font-weight: 720;
+    text-decoration: none;
+  }
+
+  .header-intent-link:hover {
+    border-color: color-mix(
+      in srgb,
+      var(--header-route-accent) 34%,
+      transparent
+    );
+    background: color-mix(
+      in srgb,
+      var(--header-route-accent) 9%,
+      var(--color-surface) 82%
+    );
+    color: var(--color-text-primary);
+  }
+
   .header-mobile-link {
     color: color-mix(in srgb, var(--color-text-primary) 76%, transparent);
   }
@@ -487,6 +600,43 @@ const isTradeActiveHref = (href: string) => {
   .header-mobile-link:hover {
     background: rgba(255, 255, 255, 0.05);
     color: var(--color-text-primary);
+  }
+
+  .header-intent-mobile-link {
+    display: grid;
+    gap: 0.25rem;
+    min-height: 58px;
+    align-content: center;
+    border: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
+    border-radius: 0.55rem;
+    background: color-mix(in srgb, var(--color-surface) 88%, transparent);
+    padding: 0.75rem;
+    text-decoration: none;
+  }
+
+  .header-intent-mobile-link span {
+    color: var(--color-text-primary);
+    font-weight: 720;
+    line-height: 1.2;
+  }
+
+  .header-intent-mobile-link small {
+    color: color-mix(in srgb, var(--color-text-secondary) 88%, transparent);
+    font-size: 0.78rem;
+    line-height: 1.35;
+  }
+
+  .header-intent-mobile-link:hover {
+    border-color: color-mix(
+      in srgb,
+      var(--header-route-accent) 28%,
+      transparent
+    );
+    background: color-mix(
+      in srgb,
+      var(--header-route-accent) 8%,
+      var(--color-surface) 90%
+    );
   }
 
   #mobile-menu > div {

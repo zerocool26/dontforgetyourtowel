@@ -4,6 +4,7 @@ import BuyerSituationRouter from '../components/business/BuyerSituationRouter.ts
 import DecisionHandoffPanel from '../components/business/DecisionHandoffPanel.astro';
 import OperatingProofBoard from '../components/business/OperatingProofBoard.astro';
 import ProofOperatingSystem from '../components/business/ProofOperatingSystem.astro';
+import ProviderSelectionStandard from '../components/business/ProviderSelectionStandard.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
 import { buyerSituations } from '../data/buyer-situations';
 import { withBasePath } from '../utils/helpers';
@@ -12,6 +13,8 @@ const contactHref = withBasePath('contact-hq/');
 const pricingHref = withBasePath('pricing/');
 const servicesHref = withBasePath('services/');
 const trustHref = withBasePath('trust-center/');
+const heroMediaDesktop = withBasePath('media/chicago-ops-command.webp');
+const heroMediaMobile = withBasePath('media/chicago-ops-command-mobile.webp');
 
 const heroStats = [
   {
@@ -63,6 +66,13 @@ const firstThirtyDays = [
   'Stabilize the support, access, email, and recovery gaps that create the most daily disruption.',
   'Deliver a 30/60/90 plan with owners, budget notes, and the decisions leadership needs to make next.',
 ];
+
+const firstReplySignals = [
+  'Main issue named',
+  'Likely first owner',
+  'Proof to bring',
+  'Next step and scope risk',
+];
 ---
 
 <MarketingLayout
@@ -76,19 +86,30 @@ const firstThirtyDays = [
   showSavedRoutesDock={false}
 >
   <section class="home-reboot-hero" id="landing-hero" data-page-section>
+    <picture class="home-reboot-hero__media">
+      <source media="(max-width: 767px)" srcset={heroMediaMobile} />
+      <img
+        src={heroMediaDesktop}
+        alt="Chicago skyline behind a managed IT operations desk at dusk"
+        loading="eager"
+        decoding="async"
+        fetchpriority="high"
+      />
+    </picture>
+    <div class="home-reboot-hero__shade" aria-hidden="true"></div>
+
     <div class="home-reboot-shell home-reboot-hero__grid">
       <div class="home-reboot-hero__content">
         <p class="home-reboot-kicker">
           Managed IT for Chicago teams that need the work owned
         </p>
         <h1 class="home-reboot-title">
-          Chicago managed IT support with owners, evidence, and clear next
-          steps.
+          When IT feels ownerless, the business slows down.
         </h1>
         <p class="home-reboot-copy home-reboot-copy--large">
-          For owner-led and operations-heavy teams that need support,
-          cybersecurity, Microsoft 365, backup, network, and vendor issues
-          handled by one accountable path.
+          Chicago-area support, cybersecurity, Microsoft 365, backup, network,
+          and vendor work organized around visible owners, evidence, and the
+          next decision.
         </p>
 
         <div class="home-reboot-actions" aria-label="Primary actions">
@@ -124,6 +145,45 @@ const firstThirtyDays = [
         </div>
       </div>
 
+      <aside
+        class="home-reboot-hero__brief"
+        aria-label="What a useful first reply should include"
+      >
+        <p class="home-reboot-kicker">First reply standard</p>
+        <h2>Not a sales pitch. A working diagnosis.</h2>
+        <ul>
+          {
+            firstReplySignals.map(signal => (
+              <li>
+                <span aria-hidden="true" />
+                {signal}
+              </li>
+            ))
+          }
+        </ul>
+        <a href="#situation-router">Route the issue</a>
+      </aside>
+    </div>
+  </section>
+
+  <section
+    class="home-reboot-section home-reboot-section--board"
+    id="operating-proof-board"
+    data-page-section
+  >
+    <div class="home-reboot-shell home-reboot-board-section">
+      <div class="home-reboot-section-heading">
+        <p class="home-reboot-kicker">Operating proof board</p>
+        <h2 class="home-reboot-section-title">
+          Five states a first review should make visible.
+        </h2>
+        <p class="home-reboot-copy">
+          Response ownership, access risk, recovery confidence, Microsoft 365
+          cleanup, and scope boundaries should be visible early enough to shape
+          the first decision.
+        </p>
+      </div>
+
       <OperatingProofBoard />
     </div>
   </section>
@@ -134,6 +194,15 @@ const firstThirtyDays = [
     description="The first review should make the basics visible: open issues, vendor ownership, backup confidence, access risk, Microsoft 365 cleanup, and the budget decisions ahead."
     ctaHref={contactHref}
     ctaLabel="Send the main issue"
+  />
+
+  <ProviderSelectionStandard
+    compact
+    eyebrow="Why this should feel different"
+    title="A good MSP makes the first questions easier to answer."
+    description="The advantage is not a longer service list. It is whether ownership, recovery, access, Microsoft 365, recurring issues, and scope boundaries become visible fast."
+    ctaHref={trustHref}
+    ctaLabel="Review proof"
   />
 
   <section
@@ -253,112 +322,6 @@ const firstThirtyDays = [
     </div>
   </section>
 
-  <script>
-    const paintHomeBoard = (root: HTMLElement) => {
-      const canvas = root.querySelector<HTMLCanvasElement>(
-        '[data-home-orbit-canvas]'
-      );
-      if (!canvas) return;
-
-      const width = Math.max(320, Math.round(root.clientWidth || 680));
-      const height = Math.max(320, Math.round(root.clientHeight || 560));
-      const ratio = Math.min(window.devicePixelRatio || 1, 2);
-      const ctx = canvas.getContext('2d', { willReadFrequently: false });
-      if (!ctx) return;
-
-      canvas.width = Math.round(width * ratio);
-      canvas.height = Math.round(height * ratio);
-      canvas.style.width = '100%';
-      canvas.style.height = '100%';
-      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-      ctx.clearRect(0, 0, width, height);
-
-      const background = ctx.createLinearGradient(0, 0, width, height);
-      background.addColorStop(0, '#f8f2e7');
-      background.addColorStop(0.42, '#cbeee6');
-      background.addColorStop(0.72, '#d9e4ff');
-      background.addColorStop(1, '#0a1113');
-      ctx.fillStyle = background;
-      ctx.fillRect(0, 0, width, height);
-
-      ctx.globalAlpha = 0.24;
-      ctx.strokeStyle = '#0f1720';
-      ctx.lineWidth = 1;
-      for (let x = 0; x <= width; x += 44) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, height);
-        ctx.stroke();
-      }
-      for (let y = 0; y <= height; y += 44) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(width, y);
-        ctx.stroke();
-      }
-      ctx.globalAlpha = 1;
-
-      const lanes = [
-        { y: 0.24, color: 'rgba(15, 118, 110, 0.82)' },
-        { y: 0.42, color: 'rgba(29, 78, 216, 0.72)' },
-        { y: 0.6, color: 'rgba(161, 98, 7, 0.72)' },
-      ];
-
-      lanes.forEach((lane, laneIndex) => {
-        const y = height * lane.y;
-        const startX = width * 0.14;
-        const endX = width * 0.84;
-        ctx.strokeStyle = lane.color;
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.moveTo(startX, y);
-        ctx.bezierCurveTo(width * 0.36, y - 36, width * 0.58, y + 42, endX, y);
-        ctx.stroke();
-
-        for (let index = 0; index < 4; index += 1) {
-          const progress = index / 3;
-          const x = startX + (endX - startX) * progress;
-          const dotY = y + Math.sin(progress * Math.PI * 2 + laneIndex) * 18;
-          ctx.fillStyle =
-            index === 3 ? 'rgba(6, 78, 59, 0.92)' : 'rgba(255, 255, 255, 0.84)';
-          ctx.strokeStyle = lane.color;
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.arc(x, dotY, index === 3 ? 8 : 6, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.stroke();
-        }
-      });
-
-      ctx.fillStyle = 'rgba(7, 14, 17, 0.86)';
-      ctx.fillRect(width * 0.58, height * 0.72, width * 0.29, height * 0.1);
-      ctx.fillStyle = 'rgba(248, 242, 231, 0.92)';
-      ctx.font = '700 12px system-ui, sans-serif';
-      ctx.fillText('OWNER + PROOF', width * 0.61, height * 0.78);
-    };
-
-    const setupHomeBoard = () => {
-      const roots = document.querySelectorAll<HTMLElement>(
-        '[data-home-orbit-root]'
-      );
-      roots.forEach(root => {
-        paintHomeBoard(root);
-        if (root.dataset.homeBoardBound === '1') return;
-        root.dataset.homeBoardBound = '1';
-
-        let frame = 0;
-        const repaint = () => {
-          cancelAnimationFrame(frame);
-          frame = requestAnimationFrame(() => paintHomeBoard(root));
-        };
-        window.addEventListener('resize', repaint, { passive: true });
-      });
-    };
-
-    setupHomeBoard();
-    document.addEventListener('astro:page-load', setupHomeBoard);
-  </script>
-
   <style>
     :global(.home-reboot) {
       background: linear-gradient(
@@ -382,30 +345,72 @@ const firstThirtyDays = [
 
     .home-reboot-hero {
       position: relative;
-      min-height: min(42rem, calc(100svh - 2rem));
+      min-height: min(47rem, calc(100svh - 1rem));
       display: grid;
       align-items: center;
       overflow: hidden;
-      padding: clamp(3.25rem, 6vw, 5.2rem) 0 clamp(2.5rem, 4vw, 3.5rem);
-      background:
-        linear-gradient(110deg, rgba(156, 230, 217, 0.18), transparent 34%),
-        linear-gradient(180deg, #17201d 0%, #101416 100%);
+      padding: clamp(4rem, 7vw, 6.5rem) 0 clamp(2.5rem, 5vw, 4rem);
+      background: #070809;
       color: #f8f2e7;
+      isolation: isolate;
+    }
+
+    .home-reboot-hero__media,
+    .home-reboot-hero__media img,
+    .home-reboot-hero__shade {
+      position: absolute;
+      inset: 0;
+    }
+
+    .home-reboot-hero__media {
+      z-index: -1;
+      overflow: hidden;
+    }
+
+    .home-reboot-hero__media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: 62% center;
+      filter: saturate(0.9) contrast(1.04);
+      transform: scale(1.015);
+    }
+
+    .home-reboot-hero__shade {
+      z-index: 0;
+      background:
+        linear-gradient(
+          90deg,
+          rgba(7, 8, 9, 0.98) 0%,
+          rgba(7, 8, 9, 0.88) 30%,
+          rgba(7, 8, 9, 0.44) 58%,
+          rgba(7, 8, 9, 0.56) 100%
+        ),
+        linear-gradient(
+          180deg,
+          rgba(7, 8, 9, 0.36) 0%,
+          rgba(7, 8, 9, 0.16) 46%,
+          rgba(7, 8, 9, 0.92) 100%
+        );
+      pointer-events: none;
     }
 
     .home-reboot-hero::before {
       content: '';
       position: absolute;
       inset: 0;
-      z-index: -1;
+      z-index: 1;
+      pointer-events: none;
       background:
-        linear-gradient(rgba(17, 24, 28, 0.06) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(17, 24, 28, 0.045) 1px, transparent 1px);
-      background-size: 58px 58px;
-      mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.65), transparent 82%);
+        linear-gradient(rgba(248, 242, 231, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(248, 242, 231, 0.026) 1px, transparent 1px);
+      background-size: 62px 62px;
+      mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.54), transparent 72%);
     }
 
     .home-reboot-hero__grid {
+      position: relative;
+      z-index: 2;
       display: grid;
       gap: clamp(2rem, 5vw, 4rem);
       align-items: center;
@@ -538,129 +543,73 @@ const firstThirtyDays = [
       line-height: 1.45;
     }
 
-    .home-reboot-board {
-      position: relative;
-      min-height: clamp(26rem, 38vw, 32rem);
-      overflow: hidden;
-      border: 1px solid rgba(248, 242, 231, 0.14);
-      border-radius: 8px;
-      background: #101719;
-      box-shadow: 0 28px 70px -46px rgba(15, 23, 42, 0.5);
-      color: #f8f2e7;
-      isolation: isolate;
-    }
-
-    .home-reboot-board__scene,
-    .home-reboot-board__canvas {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-
-    .home-reboot-board__scene::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background:
-        linear-gradient(90deg, rgba(8, 13, 15, 0.82), rgba(8, 13, 15, 0.14)),
-        linear-gradient(180deg, rgba(8, 13, 15, 0.08), rgba(8, 13, 15, 0.78));
-    }
-
-    .home-reboot-board__content {
-      position: relative;
-      z-index: 2;
+    .home-reboot-hero__brief {
       display: grid;
-      min-height: inherit;
-      align-content: space-between;
       gap: 1rem;
-      padding: clamp(1rem, 2.4vw, 1.4rem);
+      align-self: end;
+      max-width: 26rem;
+      margin-left: auto;
+      border: 1px solid rgba(248, 242, 231, 0.16);
+      border-radius: 10px;
+      background:
+        linear-gradient(145deg, rgba(156, 230, 217, 0.14), transparent 36%),
+        rgba(7, 10, 12, 0.68);
+      box-shadow: 0 32px 90px -54px rgba(0, 0, 0, 0.92);
+      padding: clamp(1rem, 2.4vw, 1.35rem);
+      backdrop-filter: blur(16px) saturate(1.1);
     }
 
-    .home-reboot-board__topline,
-    .home-reboot-board__footer {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem 1rem;
-      align-items: center;
-      justify-content: space-between;
-      border: 1px solid rgba(248, 242, 231, 0.14);
-      border-radius: 8px;
-      background: rgba(8, 13, 15, 0.58);
-      padding: 0.85rem;
-      backdrop-filter: blur(8px);
-    }
-
-    .home-reboot-board__topline span,
-    .home-reboot-board__footer span {
-      color: rgba(248, 242, 231, 0.6);
-      font-family: var(--font-mono);
-      font-size: 0.62rem;
-      font-weight: 800;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-    }
-
-    .home-reboot-board__topline strong,
-    .home-reboot-board__footer strong {
+    .home-reboot-hero__brief h2 {
+      max-width: 13ch;
+      margin: 0;
       color: #f8f2e7;
+      font-family: var(--font-display);
+      font-size: clamp(1.65rem, 2.6vw, 2.35rem);
+      font-weight: 780;
+      letter-spacing: 0;
+      line-height: 1;
+      text-wrap: balance;
+    }
+
+    .home-reboot-hero__brief ul {
+      display: grid;
+      gap: 0.6rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .home-reboot-hero__brief li {
+      display: flex;
+      gap: 0.65rem;
+      align-items: center;
+      color: rgba(248, 242, 231, 0.82);
       font-size: 0.95rem;
+      line-height: 1.35;
     }
 
-    .home-reboot-board__steps {
-      display: grid;
-      gap: 0.8rem;
+    .home-reboot-hero__brief li span {
+      width: 0.5rem;
+      height: 0.5rem;
+      flex: 0 0 auto;
+      border-radius: 999px;
+      background: #f2c76f;
+      box-shadow: 0 0 0 5px rgba(242, 199, 111, 0.12);
     }
 
-    .home-reboot-board-step {
-      display: grid;
-      grid-template-columns: auto minmax(0, 1fr);
-      gap: 0.85rem;
-      border: 1px solid rgba(248, 242, 231, 0.13);
-      border-radius: 8px;
-      background: rgba(8, 13, 15, 0.62);
-      padding: 1rem;
-      backdrop-filter: blur(10px);
-    }
-
-    .home-reboot-board-step > span {
+    .home-reboot-hero__brief a {
       display: inline-flex;
-      width: 2rem;
-      height: 2rem;
+      width: fit-content;
+      min-height: 48px;
       align-items: center;
       justify-content: center;
-      border: 1px solid rgba(156, 230, 217, 0.34);
-      border-radius: 6px;
-      color: #f2c76f;
-      font-family: var(--font-mono);
-      font-size: 0.64rem;
-      font-weight: 800;
-    }
-
-    .home-reboot-board-step p {
-      margin: 0;
+      border: 1px solid rgba(156, 230, 217, 0.38);
+      border-radius: 8px;
+      background: rgba(156, 230, 217, 0.12);
       color: #9ce6d9;
-      font-family: var(--font-mono);
-      font-size: 0.62rem;
-      font-weight: 800;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-    }
-
-    .home-reboot-board-step h2 {
-      margin: 0.2rem 0 0;
-      color: #f8f2e7;
-      font-size: 1.1rem;
-      line-height: 1.15;
-    }
-
-    .home-reboot-board-step small {
-      display: block;
-      margin-top: 0.45rem;
-      color: rgba(248, 242, 231, 0.68);
-      font-size: 0.86rem;
-      line-height: 1.45;
+      padding: 0 0.9rem;
+      font-weight: 780;
+      text-decoration: none;
     }
 
     .home-reboot-section {
@@ -681,6 +630,7 @@ const firstThirtyDays = [
 
     .home-reboot-split,
     .home-reboot-proof-grid,
+    .home-reboot-board-section,
     .home-reboot-operating,
     .home-reboot-final {
       display: grid;
@@ -824,6 +774,12 @@ const firstThirtyDays = [
       background: #080a0c;
     }
 
+    .home-reboot-section--board {
+      background:
+        linear-gradient(110deg, rgba(156, 230, 217, 0.09), transparent 42%),
+        #0c1113;
+    }
+
     .home-reboot-section--operating {
       background: #f6f0e6;
       color: #111827;
@@ -900,7 +856,7 @@ const firstThirtyDays = [
 
     @media (min-width: 980px) {
       .home-reboot-hero__grid {
-        grid-template-columns: minmax(0, 0.94fr) minmax(25rem, 0.74fr);
+        grid-template-columns: minmax(0, 0.92fr) minmax(22rem, 0.64fr);
       }
 
       .home-reboot-stat-grid {
@@ -909,6 +865,7 @@ const firstThirtyDays = [
 
       .home-reboot-split,
       .home-reboot-proof-grid,
+      .home-reboot-board-section,
       .home-reboot-operating,
       .home-reboot-final {
         grid-template-columns: minmax(0, 0.82fr) minmax(0, 1fr);
@@ -936,7 +893,22 @@ const firstThirtyDays = [
       .home-reboot-hero {
         min-height: auto;
         align-items: start;
-        padding: 1.65rem 0 2rem;
+        padding: 2.25rem 0 2rem;
+      }
+
+      .home-reboot-hero__media img {
+        object-position: 58% center;
+      }
+
+      .home-reboot-hero__shade {
+        background:
+          linear-gradient(
+            180deg,
+            rgba(7, 8, 9, 0.94) 0%,
+            rgba(7, 8, 9, 0.74) 42%,
+            rgba(7, 8, 9, 0.96) 100%
+          ),
+          linear-gradient(90deg, rgba(7, 8, 9, 0.88), rgba(7, 8, 9, 0.4));
       }
 
       .home-reboot-title {
@@ -966,27 +938,14 @@ const firstThirtyDays = [
         display: none;
       }
 
-      .home-reboot-board {
-        min-height: 8.5rem;
+      .home-reboot-hero__brief {
+        max-width: none;
+        margin-left: 0;
       }
 
-      .home-reboot-board__topline,
-      .home-reboot-board__footer {
-        align-items: flex-start;
-        flex-direction: column;
-      }
-
-      .home-reboot-board__steps,
-      .home-reboot-board__footer {
-        display: none;
-      }
-
-      .home-reboot-board-step h2 {
-        font-size: 1rem;
-      }
-
-      .home-reboot-board-step small {
-        font-size: 0.8rem;
+      .home-reboot-hero__brief h2 {
+        max-width: 15ch;
+        font-size: 1.55rem;
       }
     }
 

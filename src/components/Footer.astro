@@ -2,6 +2,7 @@
 import { withBasePath } from '../utils/helpers';
 import ModernButton from './ui/ModernButton.astro';
 import {
+  buyerIntentLinks,
   buyerPathLinks,
   footerSignals,
   researchProofLinks,
@@ -11,6 +12,11 @@ import {
 const today = new Date();
 
 const primaryLinks = buyerPathLinks.map(link => ({
+  ...link,
+  href: withBasePath(link.href),
+}));
+
+const intentLinks = buyerIntentLinks.map(link => ({
   ...link,
   href: withBasePath(link.href),
 }));
@@ -60,6 +66,20 @@ const footerSupportLinks = supportLinks.map(link => ({
               primaryLinks.map(link => (
                 <a class="footer-link" href={link.href}>
                   {link.label}
+                </a>
+              ))
+            }
+          </div>
+        </nav>
+
+        <nav class="footer-nav" aria-label="Buyer situation footer navigation">
+          <p class="footer-nav__label">Buyer situations</p>
+          <div class="footer-nav__links footer-nav__links--stack">
+            {
+              intentLinks.map(link => (
+                <a class="footer-link footer-link--intent" href={link.href}>
+                  <span>{link.label}</span>
+                  <small>{link.description}</small>
                 </a>
               ))
             }
@@ -202,9 +222,36 @@ const footerSupportLinks = supportLinks.map(link => ({
     gap: 0.75rem 1rem;
   }
 
+  .footer-nav__links--stack {
+    display: grid;
+    gap: 0.8rem;
+  }
+
   .footer-link {
     color: color-mix(in srgb, var(--color-text-secondary) 96%, transparent);
     font-size: 0.96rem;
+  }
+
+  .footer-link--intent {
+    display: grid;
+    gap: 0.25rem;
+    text-decoration: none;
+  }
+
+  .footer-link--intent span {
+    color: color-mix(in srgb, var(--color-text-primary) 86%, transparent);
+    font-weight: 640;
+    line-height: 1.2;
+  }
+
+  .footer-link--intent small {
+    color: color-mix(in srgb, var(--color-text-muted) 92%, transparent);
+    font-size: 0.78rem;
+    line-height: 1.4;
+  }
+
+  .footer-link--intent:hover span {
+    color: var(--color-text-primary);
   }
 
   .footer-link:hover {
@@ -262,7 +309,7 @@ const footerSupportLinks = supportLinks.map(link => ({
     }
 
     .footer-shell__middle {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 2rem;
     }
 

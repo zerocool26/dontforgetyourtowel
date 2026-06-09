@@ -1,6 +1,7 @@
 ---
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 import StructuredData from '../components/StructuredData.astro';
+import ResourceDecisionTools from '../components/business/ResourceDecisionTools.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
 import { withBasePath } from '../utils/helpers';
 
@@ -221,6 +222,13 @@ const editorialActions = [
       </div>
     </div>
   </section>
+
+  <ResourceDecisionTools
+    compact
+    eyebrow="Decision tools"
+    title="Turn a briefing into the next useful checklist."
+    description="Use the editorial beat to choose a worksheet for provider switching, recovery, Microsoft 365 cleanup, cyber-insurance evidence, or first-month MSP transition."
+  />
 
   <section class="news-section" id="episodes" data-page-section>
     <div class="premium-container">

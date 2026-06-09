@@ -2,6 +2,7 @@
 import { getCollection, render } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 import MarketingLayout from '../../layouts/MarketingLayout.astro';
+import ResourceDecisionTools from '../../components/business/ResourceDecisionTools.astro';
 import ModernButton from '../../components/ui/ModernButton.astro';
 import { withBasePath } from '../../utils/helpers';
 
@@ -59,7 +60,17 @@ const { Content } = await render(post);
       <div class="blog-post-body">
         <Content />
       </div>
+    </div>
 
+    <ResourceDecisionTools
+      id="article-decision-tools"
+      compact
+      eyebrow="Article tools"
+      title="Turn this note into the next useful check."
+      description="Use the worksheet preview to choose what proof, ownership, or scope context should be gathered before the next provider, recovery, Microsoft 365, security, or transition conversation."
+    />
+
+    <div class="premium-container">
       <div class="blog-post-next">
         <ModernButton href={withBasePath('blog/')} variant="outline">
           Back to blog

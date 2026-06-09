@@ -12,11 +12,11 @@ import ServiceComparisonMatrix from '../components/business/ServiceComparisonMat
 import ServicesQuiz from '../components/business/ServicesQuiz.tsx';
 import DecisionHandoffPanel from '../components/business/DecisionHandoffPanel.astro';
 import ProofOperatingSystem from '../components/business/ProofOperatingSystem.astro';
+import ProviderSelectionStandard from '../components/business/ProviderSelectionStandard.astro';
 import ScopeReadinessPanel from '../components/business/ScopeReadinessPanel.astro';
 import FAQAccordion from '../components/ui/FAQAccordion.astro';
 import {
   onboardingPhases,
-  providerSelectionQuestions,
   serviceCategoryBriefs,
   serviceOperatingFacts,
   servicesExtended,
@@ -39,6 +39,12 @@ const startProjectHref = buildContactHqHref({
 });
 const pricingHref = withBasePath('pricing/');
 const trustHref = withBasePath('trust-center/');
+const serviceHeroMediaDesktop = withBasePath(
+  'media/chicago-services-command.webp'
+);
+const serviceHeroMediaMobile = withBasePath(
+  'media/chicago-services-command-mobile.webp'
+);
 
 const serviceCategories = Array.from(
   new Set(servicesExtended.map(service => service.category))
@@ -184,11 +190,24 @@ const breadcrumbItems = [
   <StructuredData type="breadcrumbs" data={{ items: breadcrumbItems }} />
 
   <section
-    class="tone-page-hero tone-section-divider border-b"
+    class="tone-page-hero tone-page-hero--media tone-section-divider border-b"
     id="services-hero"
     data-reveal
     data-page-section
+    style="--hero-media-position: 58% center; --hero-media-mobile-position: center;"
   >
+    <picture class="tone-page-hero__media">
+      <source media="(max-width: 767px)" srcset={serviceHeroMediaMobile} />
+      <img
+        src={serviceHeroMediaDesktop}
+        alt="Chicago managed IT services desk with network hardware, diagrams, and skyline"
+        loading="eager"
+        decoding="async"
+        fetchpriority="high"
+      />
+    </picture>
+    <div class="tone-page-hero__veil" aria-hidden="true"></div>
+
     <div
       class="tone-page-hero__inner mx-auto max-w-[1240px] px-4 pb-14 pt-8 sm:px-6 sm:pb-20 sm:pt-32"
     >
@@ -501,43 +520,15 @@ const breadcrumbItems = [
     </div>
   </section>
 
-  <section
-    class="tone-section-divider border-b"
+  <ProviderSelectionStandard
     id="selection-questions"
-    data-reveal
-    data-page-section
-  >
-    <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
-      <div class="grid gap-8 lg:grid-cols-[0.82fr_1.18fr] lg:items-start">
-        <div class="tone-section-heading">
-          <p class="tone-section-kicker">Selection questions</p>
-          <h2 class="tone-section-title">
-            Ask these before signing an MSP agreement.
-          </h2>
-          <p class="tone-section-copy">
-            Strong providers should answer these directly. The answers reveal
-            whether the engagement is built around operations or just a bundle
-            of tools with a monthly invoice.
-          </p>
-        </div>
-
-        <div class="grid gap-3">
-          {
-            providerSelectionQuestions.map(item => (
-              <ModernCard variant="outline" className="p-5">
-                <h3 class="text-base font-semibold text-white">
-                  {item.question}
-                </h3>
-                <p class="mt-2 text-sm leading-6 text-slate-300">
-                  {item.whyItMatters}
-                </p>
-              </ModernCard>
-            ))
-          }
-        </div>
-      </div>
-    </div>
-  </section>
+    compact
+    eyebrow="Selection questions"
+    title="Ask these before signing an MSP agreement."
+    description="Strong answers should come with owner names, review habits, and buyer-visible proof. That is what separates an operating partner from a tool bundle."
+    ctaHref={startProjectHref}
+    ctaLabel="Start service fit check"
+  />
 
   <section
     class="tone-section-divider border-b"

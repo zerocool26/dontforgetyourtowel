@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 import MarketingLayout from '../../layouts/MarketingLayout.astro';
 import StructuredData from '../../components/StructuredData.astro';
+import ResourceDecisionTools from '../../components/business/ResourceDecisionTools.astro';
 import ModernButton from '../../components/ui/ModernButton.astro';
 import { withBasePath } from '../../utils/helpers';
 
@@ -173,6 +174,13 @@ const getReadingMinutes = (post: BlogPost) => {
       </div>
     </div>
   </section>
+
+  <ResourceDecisionTools
+    compact
+    eyebrow="Resource tools"
+    title="Start with a worksheet, then read deeper."
+    description="The best resource path helps a buyer decide what to inspect next. Choose a pressure point to preview the evidence, owners, and output that should shape the conversation."
+  />
 
   <section class="blog-page-section" data-page-section>
     <div class="premium-container">

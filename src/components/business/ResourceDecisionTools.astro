@@ -1,0 +1,479 @@
+---
+import ModernButton from '../ui/ModernButton.astro';
+import { resourceDecisionTools } from '../../data/resource-decision-tools';
+import { withBasePath } from '../../utils/helpers';
+
+export interface Props {
+  id?: string;
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+  compact?: boolean;
+}
+
+const {
+  id = 'decision-tools',
+  eyebrow = 'Decision tools',
+  title = 'Turn the next IT question into a usable checklist.',
+  description = 'Choose the pressure point and use the preview to see what evidence, owners, and next actions should be gathered before a sales call or internal approval conversation.',
+  compact = false,
+} = Astro.props as Props;
+
+const firstTool = resourceDecisionTools[0];
+---
+
+<section
+  id={id}
+  class:list={['resource-toolkit', compact && 'resource-toolkit--compact']}
+  data-resource-toolkit
+  data-page-section
+>
+  <div class="resource-toolkit__shell">
+    <div class="resource-toolkit__header">
+      <div>
+        <p class="resource-toolkit__eyebrow">{eyebrow}</p>
+        <h2>{title}</h2>
+      </div>
+      <p>{description}</p>
+    </div>
+
+    <div class="resource-toolkit__grid">
+      <div class="resource-toolkit__tools" aria-label="Choose a decision tool">
+        {
+          resourceDecisionTools.map((tool, index) => (
+            <button
+              type="button"
+              class:list={[
+                'resource-toolkit__tool',
+                index === 0 && 'is-active',
+              ]}
+              data-resource-tool-button
+              data-tool-id={tool.id}
+              data-tool-label={tool.label}
+              data-tool-title={tool.title}
+              data-tool-question={tool.buyerQuestion}
+              data-tool-pressure={tool.pressure}
+              data-tool-use-when={tool.useWhen}
+              data-tool-checks={tool.checks.join('|')}
+              data-tool-output={tool.output}
+              data-tool-cta-href={withBasePath(tool.ctaHref)}
+              data-tool-cta-label={tool.ctaLabel}
+              aria-pressed={index === 0 ? 'true' : 'false'}
+            >
+              <span>{tool.label}</span>
+              <strong>{tool.title}</strong>
+              <small>{tool.buyerQuestion}</small>
+            </button>
+          ))
+        }
+      </div>
+
+      <aside class="resource-toolkit__preview" aria-live="polite">
+        <div class="resource-toolkit__preview-top">
+          <p data-resource-tool-label>{firstTool.label}</p>
+          <span>Worksheet preview</span>
+        </div>
+
+        <h3 data-resource-tool-title>{firstTool.title}</h3>
+        <p data-resource-tool-pressure>{firstTool.pressure}</p>
+
+        <div class="resource-toolkit__preview-card">
+          <p>Use when</p>
+          <strong data-resource-tool-use-when>{firstTool.useWhen}</strong>
+        </div>
+
+        <div class="resource-toolkit__checks">
+          <p>Check first</p>
+          <ul data-resource-tool-checks>
+            {firstTool.checks.map(check => <li>{check}</li>)}
+          </ul>
+        </div>
+
+        <div class="resource-toolkit__output">
+          <p>Output</p>
+          <strong data-resource-tool-output>{firstTool.output}</strong>
+        </div>
+
+        <ModernButton
+          href={withBasePath(firstTool.ctaHref)}
+          variant="primary"
+          rounded="sm"
+          className="resource-toolkit__cta min-h-[50px]"
+          data-resource-tool-cta
+        >
+          {firstTool.ctaLabel}
+        </ModernButton>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<script is:inline>
+  (() => {
+    const initResourceToolkits = () => {
+      document.querySelectorAll('[data-resource-toolkit]').forEach(root => {
+        if (!(root instanceof HTMLElement)) return;
+        if (root.dataset.resourceToolkitBound === 'true') return;
+        root.dataset.resourceToolkitBound = 'true';
+
+        const buttons = Array.from(
+          root.querySelectorAll('[data-resource-tool-button]')
+        ).filter(button => button instanceof HTMLButtonElement);
+        const label = root.querySelector('[data-resource-tool-label]');
+        const title = root.querySelector('[data-resource-tool-title]');
+        const pressure = root.querySelector('[data-resource-tool-pressure]');
+        const useWhen = root.querySelector('[data-resource-tool-use-when]');
+        const checks = root.querySelector('[data-resource-tool-checks]');
+        const output = root.querySelector('[data-resource-tool-output]');
+        const cta = root.querySelector('[data-resource-tool-cta]');
+
+        const sync = button => {
+          buttons.forEach(item => {
+            const isActive = item === button;
+            item.classList.toggle('is-active', isActive);
+            item.setAttribute('aria-pressed', String(isActive));
+          });
+
+          root.dataset.activeTool = button.dataset.toolId || '';
+
+          if (label instanceof HTMLElement) {
+            label.textContent = button.dataset.toolLabel || '';
+          }
+          if (title instanceof HTMLElement) {
+            title.textContent = button.dataset.toolTitle || '';
+          }
+          if (pressure instanceof HTMLElement) {
+            pressure.textContent = button.dataset.toolPressure || '';
+          }
+          if (useWhen instanceof HTMLElement) {
+            useWhen.textContent = button.dataset.toolUseWhen || '';
+          }
+          if (output instanceof HTMLElement) {
+            output.textContent = button.dataset.toolOutput || '';
+          }
+          if (checks instanceof HTMLElement) {
+            checks.replaceChildren();
+            (button.dataset.toolChecks || '')
+              .split('|')
+              .filter(Boolean)
+              .forEach(check => {
+                const item = document.createElement('li');
+                item.textContent = check;
+                checks.appendChild(item);
+              });
+          }
+          if (cta instanceof HTMLAnchorElement) {
+            cta.href = button.dataset.toolCtaHref || cta.href;
+            const content = cta.querySelector('.modern-button__content');
+            if (content instanceof HTMLElement) {
+              content.textContent = button.dataset.toolCtaLabel || '';
+            } else {
+              cta.textContent = button.dataset.toolCtaLabel || '';
+            }
+          }
+        };
+
+        buttons.forEach(button => {
+          button.addEventListener('click', () => sync(button));
+        });
+      });
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initResourceToolkits, {
+        once: true,
+      });
+    } else {
+      initResourceToolkits();
+    }
+
+    document.addEventListener('astro:page-load', initResourceToolkits);
+  })();
+</script>
+
+<style>
+  .resource-toolkit {
+    position: relative;
+    overflow: clip;
+    border-block: 1px solid
+      color-mix(in srgb, var(--color-border) 72%, transparent);
+    background:
+      linear-gradient(
+        color-mix(in srgb, var(--color-text-primary) 3.5%, transparent) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--color-text-primary) 2.5%, transparent) 1px,
+        transparent 1px
+      ),
+      radial-gradient(
+        circle at 14% 10%,
+        color-mix(
+          in srgb,
+          var(--route-accent, var(--color-primary)) 13%,
+          transparent
+        ),
+        transparent 32%
+      ),
+      color-mix(in srgb, var(--color-surface) 92%, transparent);
+    background-size:
+      54px 54px,
+      54px 54px,
+      auto,
+      auto;
+  }
+
+  .resource-toolkit__shell {
+    width: min(100% - 2rem, 1240px);
+    margin-inline: auto;
+    padding-block: clamp(3.5rem, 7vw, 6.25rem);
+  }
+
+  .resource-toolkit--compact .resource-toolkit__shell {
+    padding-block: clamp(3rem, 5vw, 4.75rem);
+  }
+
+  .resource-toolkit__header {
+    display: grid;
+    gap: 1rem;
+    margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+  }
+
+  .resource-toolkit__eyebrow,
+  .resource-toolkit__tool span,
+  .resource-toolkit__preview-top,
+  .resource-toolkit__preview-card p,
+  .resource-toolkit__checks p,
+  .resource-toolkit__output p {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    font-weight: 800;
+    letter-spacing: 0.15em;
+    line-height: 1.35;
+    text-transform: uppercase;
+  }
+
+  .resource-toolkit__eyebrow,
+  .resource-toolkit__tool span,
+  .resource-toolkit__preview-top,
+  .resource-toolkit__preview-card p,
+  .resource-toolkit__checks p,
+  .resource-toolkit__output p {
+    color: color-mix(in srgb, var(--color-text-muted) 90%, transparent);
+  }
+
+  .resource-toolkit__header h2 {
+    max-width: 15ch;
+    margin: 0;
+    color: var(--color-text-primary);
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 4.3vw, 4.45rem);
+    font-weight: 760;
+    letter-spacing: 0;
+    line-height: 0.98;
+    text-wrap: balance;
+  }
+
+  .resource-toolkit__header > p {
+    max-width: 62ch;
+    margin: 0;
+    color: color-mix(in srgb, var(--color-text-secondary) 92%, transparent);
+    font-size: clamp(1rem, 1.25vw, 1.12rem);
+    line-height: 1.64;
+  }
+
+  .resource-toolkit__grid,
+  .resource-toolkit__tools,
+  .resource-toolkit__preview {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .resource-toolkit__tool,
+  .resource-toolkit__preview,
+  .resource-toolkit__preview-card,
+  .resource-toolkit__checks,
+  .resource-toolkit__output {
+    border: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
+    border-radius: 0.75rem;
+    background:
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, white 3%, transparent),
+        transparent 36%
+      ),
+      color-mix(in srgb, var(--color-surface) 88%, transparent);
+    box-shadow: 0 24px 58px -50px rgba(0, 0, 0, 0.72);
+  }
+
+  .resource-toolkit__tool {
+    display: grid;
+    gap: 0.55rem;
+    min-height: 8.5rem;
+    padding: 1rem;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition:
+      transform 0.2s ease,
+      border-color 0.2s ease,
+      background 0.2s ease;
+  }
+
+  .resource-toolkit__tool strong,
+  .resource-toolkit__preview h3,
+  .resource-toolkit__preview-card strong,
+  .resource-toolkit__output strong {
+    color: var(--color-text-primary);
+    font-weight: 760;
+    letter-spacing: 0;
+  }
+
+  .resource-toolkit__tool strong {
+    font-size: 1.02rem;
+    line-height: 1.22;
+  }
+
+  .resource-toolkit__tool small,
+  .resource-toolkit__preview > p,
+  .resource-toolkit__preview-card strong,
+  .resource-toolkit__checks li,
+  .resource-toolkit__output strong {
+    color: color-mix(in srgb, var(--color-text-secondary) 92%, transparent);
+    line-height: 1.5;
+  }
+
+  .resource-toolkit__tool.is-active,
+  .resource-toolkit__tool:hover {
+    transform: translateY(-1px);
+    border-color: color-mix(
+      in srgb,
+      var(--route-accent, var(--color-primary)) 34%,
+      transparent
+    );
+    background:
+      linear-gradient(
+        90deg,
+        color-mix(
+          in srgb,
+          var(--route-accent, var(--color-primary)) 9%,
+          transparent
+        ),
+        transparent 46%
+      ),
+      color-mix(in srgb, var(--color-surface) 94%, transparent);
+  }
+
+  .resource-toolkit__preview {
+    align-content: start;
+    padding: clamp(1rem, 2vw, 1.25rem);
+  }
+
+  .resource-toolkit__preview-top {
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    border-bottom: 1px solid
+      color-mix(in srgb, var(--color-border) 64%, transparent);
+    padding-bottom: 1rem;
+  }
+
+  .resource-toolkit__preview h3 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.65rem, 3vw, 2.5rem);
+    line-height: 1;
+    text-wrap: balance;
+  }
+
+  .resource-toolkit__preview > p {
+    margin: 0;
+  }
+
+  .resource-toolkit__preview-card,
+  .resource-toolkit__checks,
+  .resource-toolkit__output {
+    display: grid;
+    gap: 0.65rem;
+    padding: 0.9rem;
+  }
+
+  .resource-toolkit__checks ul {
+    display: grid;
+    gap: 0.55rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .resource-toolkit__checks li {
+    display: flex;
+    gap: 0.55rem;
+    font-size: 0.92rem;
+  }
+
+  .resource-toolkit__checks li::before {
+    content: '';
+    width: 0.42rem;
+    height: 0.42rem;
+    margin-top: 0.52rem;
+    flex: 0 0 auto;
+    border-radius: 999px;
+    background: color-mix(
+      in srgb,
+      var(--route-accent, var(--color-primary)) 76%,
+      white 10%
+    );
+  }
+
+  .resource-toolkit :global(.resource-toolkit__cta) {
+    align-self: stretch;
+  }
+
+  @media (min-width: 860px) {
+    .resource-toolkit__header {
+      grid-template-columns: minmax(0, 0.9fr) minmax(22rem, 0.62fr);
+      align-items: end;
+    }
+
+    .resource-toolkit__grid {
+      grid-template-columns: minmax(0, 1fr) minmax(21rem, 0.38fr);
+      align-items: start;
+    }
+  }
+
+  @media (min-width: 1120px) {
+    .resource-toolkit__tools {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 767px) {
+    .resource-toolkit__shell {
+      width: min(100% - 1.25rem, 1240px);
+    }
+
+    .resource-toolkit__header h2 {
+      max-width: 100%;
+      font-size: clamp(2rem, 9vw, 3rem);
+    }
+
+    .resource-toolkit__tool {
+      min-height: 5.5rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .resource-toolkit__tool {
+      transition-duration: 0.01ms !important;
+    }
+
+    .resource-toolkit__tool,
+    .resource-toolkit__tool:hover,
+    .resource-toolkit__tool.is-active {
+      transform: none !important;
+    }
+  }
+</style>
