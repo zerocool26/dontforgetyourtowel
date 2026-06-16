@@ -1,6 +1,14 @@
 ---
 import { operatingProofRows } from '../../data/operating-proof';
 import { withBasePath } from '../../utils/helpers';
+
+const rowIcons: Record<string, string> = {
+  'support-ownership': 'owner',
+  'security-access': 'access',
+  recovery: 'restore',
+  m365: 'm365',
+  'pricing-scope': 'scope',
+};
 ---
 
 <aside
@@ -11,10 +19,10 @@ import { withBasePath } from '../../utils/helpers';
 >
   <div class="operating-proof-board__header">
     <div>
-      <p>First review model</p>
-      <h2 id="operating-proof-board-title">What we check first</h2>
+      <p>Example first-review states</p>
+      <h2 id="operating-proof-board-title">Operating proof</h2>
     </div>
-    <span>Owners, risks, next steps</span>
+    <span>Owners, risks, next decisions</span>
   </div>
 
   <div class="operating-proof-board__rows">
@@ -23,7 +31,13 @@ import { withBasePath } from '../../utils/helpers';
         <a
           class={`operating-proof-board__row is-${row.status}`}
           href={withBasePath(row.href)}
+          aria-label={`${row.area}: ${row.signal}. ${row.detail} Status: ${row.statusLabel}. Evidence: ${row.record}.`}
         >
+          <span
+            class="operating-proof-board__icon"
+            data-icon={rowIcons[row.id] ?? 'proof'}
+            aria-hidden="true"
+          />
           <span class="operating-proof-board__area">{row.area}</span>
           <div class="operating-proof-board__main">
             <strong>{row.signal}</strong>
@@ -39,40 +53,61 @@ import { withBasePath } from '../../utils/helpers';
   </div>
 
   <div class="operating-proof-board__footer">
-    <span>After the first pass</span>
-    <strong
-      >you should know what is owned, what is risky, and what needs a decision.</strong
-    >
+    <div>
+      <span>Owner</span>
+      <strong>CHICAGOS #1 MSP team</strong>
+    </div>
+    <div>
+      <span>Output</span>
+      <strong>owners, risks, scope, next decision</strong>
+    </div>
   </div>
 </aside>
 
 <style>
   .operating-proof-board {
     display: grid;
-    gap: 0.85rem;
-    min-height: clamp(26rem, 38vw, 32rem);
+    gap: 0;
+    min-height: clamp(24rem, 36vw, 30rem);
     overflow: hidden;
-    border: 1px solid rgba(248, 242, 231, 0.14);
+    border: 1px solid color-mix(in srgb, var(--color-paper) 18%, transparent);
     border-radius: 8px;
     background:
-      linear-gradient(180deg, rgba(248, 242, 231, 0.06), transparent 42%),
-      #101719;
-    box-shadow: 0 28px 70px -46px rgba(15, 23, 42, 0.5);
-    color: #f8f2e7;
-    padding: clamp(1rem, 2.4vw, 1.4rem);
+      repeating-linear-gradient(
+        0deg,
+        transparent 0 4.45rem,
+        color-mix(in srgb, var(--color-paper) 10%, transparent) 4.45rem
+          calc(4.45rem + 1px)
+      ),
+      linear-gradient(180deg, rgba(248, 242, 231, 0.065), transparent 42%),
+      color-mix(in srgb, var(--color-surface) 78%, black 22%);
+    box-shadow:
+      0 30px 74px -50px rgba(0, 0, 0, 0.84),
+      inset 0 1px 0 color-mix(in srgb, white 8%, transparent);
+    color: var(--color-text-primary);
   }
 
   .operating-proof-board__header,
   .operating-proof-board__footer {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
     gap: 0.8rem 1rem;
     align-items: center;
-    justify-content: space-between;
-    border: 1px solid rgba(248, 242, 231, 0.12);
-    border-radius: 8px;
-    background: rgba(8, 13, 15, 0.56);
-    padding: 0.85rem;
+    border-color: color-mix(in srgb, var(--color-paper) 14%, transparent);
+    background: rgba(5, 7, 8, 0.34);
+    padding: clamp(0.9rem, 1.8vw, 1.15rem);
+  }
+
+  .operating-proof-board__header {
+    grid-template-columns: minmax(0, 1fr) auto;
+    border-bottom: 1px solid
+      color-mix(in srgb, var(--color-paper) 14%, transparent);
+  }
+
+  .operating-proof-board__footer {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: auto;
+    border-top: 1px solid
+      color-mix(in srgb, var(--color-paper) 14%, transparent);
   }
 
   .operating-proof-board__header p,
@@ -85,7 +120,7 @@ import { withBasePath } from '../../utils/helpers';
     font-family: var(--font-mono);
     font-size: 0.62rem;
     font-weight: 800;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.08em;
     line-height: 1.35;
     text-transform: uppercase;
   }
@@ -93,35 +128,37 @@ import { withBasePath } from '../../utils/helpers';
   .operating-proof-board__header p,
   .operating-proof-board__header span,
   .operating-proof-board__footer span {
-    color: rgba(248, 242, 231, 0.58);
+    color: color-mix(in srgb, var(--color-text-primary) 58%, transparent);
   }
 
   .operating-proof-board__header h2 {
     margin: 0.25rem 0 0;
-    color: #f8f2e7;
-    font-size: clamp(1.45rem, 2.4vw, 2rem);
+    color: var(--color-text-primary);
+    font-family: var(--font-mono);
+    font-size: clamp(1.35rem, 2vw, 1.85rem);
+    font-weight: 700;
+    letter-spacing: 0.08em;
     line-height: 1;
+    text-transform: uppercase;
   }
 
   .operating-proof-board__rows {
     display: grid;
-    gap: 0.65rem;
+    gap: 0;
   }
 
   .operating-proof-board__row {
     display: grid;
-    grid-template-columns: minmax(4.5rem, 0.24fr) minmax(0, 1fr) minmax(
+    grid-template-columns: 4.8rem minmax(7rem, 0.34fr) minmax(0, 1fr) minmax(
         6.5rem,
-        0.28fr
+        0.3fr
       );
-    gap: 0.8rem;
+    gap: 0;
     align-items: center;
-    min-height: 5.25rem;
-    border: 1px solid rgba(248, 242, 231, 0.11);
-    border-left-width: 4px;
-    border-radius: 8px;
-    background: rgba(8, 13, 15, 0.58);
-    padding: 0.85rem;
+    min-height: 4.55rem;
+    border-bottom: 1px solid
+      color-mix(in srgb, var(--color-paper) 14%, transparent);
+    background: rgba(5, 7, 8, 0.36);
     color: inherit;
     transition:
       border-color 0.18s ease,
@@ -129,100 +166,150 @@ import { withBasePath } from '../../utils/helpers';
   }
 
   .operating-proof-board__row:hover {
-    border-color: rgba(156, 230, 217, 0.34);
-    background: rgba(248, 242, 231, 0.055);
+    background: color-mix(in srgb, var(--color-primary) 6%, rgba(5, 7, 8, 0.5));
   }
 
   .operating-proof-board__row.is-clear {
-    border-left-color: #9ce6d9;
+    --row-status: var(--color-status-verified);
   }
 
   .operating-proof-board__row.is-review {
-    border-left-color: #f2c76f;
+    --row-status: var(--color-status-review);
   }
 
   .operating-proof-board__row.is-planned {
-    border-left-color: #9eb7d8;
+    --row-status: var(--color-status-planned);
   }
 
   .operating-proof-board__row.is-risk {
-    border-left-color: #f4a6a6;
+    --row-status: var(--color-status-risk);
+  }
+
+  .operating-proof-board__icon,
+  .operating-proof-board__area,
+  .operating-proof-board__main,
+  .operating-proof-board__meta {
+    height: 100%;
+    min-width: 0;
+    border-right: 1px solid
+      color-mix(in srgb, var(--color-paper) 13%, transparent);
+    padding: 0.86rem;
+  }
+
+  .operating-proof-board__icon {
+    display: grid;
+    place-items: center;
+    color: var(--row-status);
+  }
+
+  .operating-proof-board__icon::before {
+    content: attr(data-icon);
+    display: inline-flex;
+    width: 2.2rem;
+    height: 2.2rem;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid color-mix(in srgb, var(--row-status) 50%, transparent);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--row-status) 10%, transparent);
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    text-transform: uppercase;
   }
 
   .operating-proof-board__area {
-    color: rgba(248, 242, 231, 0.62);
+    display: flex;
+    align-items: center;
+    color: color-mix(in srgb, var(--color-text-primary) 76%, transparent);
   }
 
   .operating-proof-board__main {
     display: grid;
     gap: 0.35rem;
-    min-width: 0;
   }
 
   .operating-proof-board__main strong,
   .operating-proof-board__footer strong {
-    color: #f8f2e7;
+    color: var(--color-text-primary);
     font-weight: 760;
     line-height: 1.2;
   }
 
   .operating-proof-board__main small {
-    color: rgba(248, 242, 231, 0.66);
-    font-size: 0.84rem;
-    line-height: 1.42;
+    display: none;
   }
 
   .operating-proof-board__meta {
     display: grid;
     gap: 0.4rem;
-    justify-items: end;
+    justify-items: start;
     text-align: right;
+    border-right: 0;
   }
 
   .operating-proof-board__meta span {
     display: inline-flex;
     min-height: 1.75rem;
     align-items: center;
-    border: 1px solid rgba(156, 230, 217, 0.28);
+    border: 1px solid color-mix(in srgb, var(--row-status) 42%, transparent);
     border-radius: 6px;
-    background: rgba(156, 230, 217, 0.09);
-    color: #9ce6d9;
+    background: color-mix(in srgb, var(--row-status) 12%, transparent);
+    color: color-mix(in srgb, var(--row-status) 82%, white 18%);
     padding: 0 0.55rem;
   }
 
-  .operating-proof-board__row.is-review .operating-proof-board__meta span {
-    border-color: rgba(242, 199, 111, 0.3);
-    background: rgba(242, 199, 111, 0.1);
-    color: #f2c76f;
-  }
-
-  .operating-proof-board__row.is-planned .operating-proof-board__meta span {
-    border-color: rgba(158, 183, 216, 0.3);
-    background: rgba(158, 183, 216, 0.1);
-    color: #cbdaf0;
-  }
-
   .operating-proof-board__meta em {
-    color: rgba(248, 242, 231, 0.54);
+    color: color-mix(in srgb, var(--color-text-primary) 54%, transparent);
     font-style: normal;
     letter-spacing: 0.06em;
     text-transform: none;
   }
 
+  .operating-proof-board__footer div {
+    display: grid;
+    gap: 0.35rem;
+  }
+
   @media (max-width: 767px) {
     .operating-proof-board {
       min-height: auto;
-      padding: 0.9rem;
     }
 
     .operating-proof-board__row {
-      grid-template-columns: 1fr;
+      grid-template-columns: 3.4rem minmax(0, 1fr);
       min-height: auto;
+    }
+
+    .operating-proof-board__icon {
+      grid-row: 1 / span 3;
+      border-right: 1px solid
+        color-mix(in srgb, var(--color-paper) 13%, transparent);
+    }
+
+    .operating-proof-board__area,
+    .operating-proof-board__meta {
+      grid-column: 2;
+      border-right: 0;
+      padding-top: 0;
+    }
+
+    .operating-proof-board__main {
+      grid-column: 2;
+      border-right: 0;
+      padding-bottom: 0.45rem;
     }
 
     .operating-proof-board__meta {
       justify-items: start;
       text-align: left;
+    }
+
+    .operating-proof-board__header,
+    .operating-proof-board__footer {
+      grid-template-columns: 1fr;
     }
 
     .operating-proof-board__row:nth-child(n + 4) {

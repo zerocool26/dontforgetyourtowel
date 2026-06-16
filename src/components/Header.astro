@@ -43,7 +43,7 @@ const searchTriggerClasses =
   'header-action header-action--search tone-focus-accent inline-flex min-h-[46px] items-center gap-2 rounded-lg px-3.5 text-sm font-medium transition';
 
 const desktopNavLinkClasses =
-  'header-desktop-link tone-focus-accent relative flex h-full items-center border-l border-white/[0.06] px-4 text-[0.78rem] font-semibold uppercase tracking-[0.08em] transition-all duration-300';
+  'header-desktop-link tone-focus-accent relative flex h-full items-center border-l border-white/[0.06] px-4 text-[0.9rem] font-semibold tracking-[0.01em] transition-all duration-300';
 
 const mobileMenuLinkClasses =
   'header-mobile-link tone-focus-accent min-h-touch flex touch-manipulation items-center rounded-lg px-3 py-3 font-medium transition';
@@ -118,21 +118,6 @@ const isTradeActiveHref = (href: string) => {
 
     <div class="hidden h-full items-center lg:flex">
       {
-        (() => {
-          const active = isActiveHref(homeHref);
-          return (
-            <a
-              class={`${desktopNavLinkClasses} ${active ? 'is-active' : ''}`}
-              href={homeHref}
-              data-astro-prefetch
-              aria-current={active ? 'page' : undefined}
-            >
-              Home
-            </a>
-          );
-        })()
-      }
-      {
         headerLinks.map(link => {
           const active = isActiveHref(link.href);
           return (
@@ -190,7 +175,10 @@ const isTradeActiveHref = (href: string) => {
         <kbd class="tone-kbd rounded px-1.5 py-0.5 text-[10px]"> Ctrl/⌘ K </kbd>
       </button>
       <a class="header-cta tone-focus-accent" href={contactHref}>
-        Start fit check
+        <span>Start fit check</span>
+        <svg aria-hidden="true" viewBox="0 0 24 24">
+          <path d="M5 12h13m-5-5 5 5-5 5"></path>
+        </svg>
       </a>
     </div>
 
@@ -327,6 +315,16 @@ const isTradeActiveHref = (href: string) => {
           );
         })
       }
+      <a
+        class={`${mobileMenuLinkClasses} header-mobile-cta`}
+        href={contactHref}
+        data-astro-prefetch
+      >
+        <span>Start fit check</span>
+        <svg aria-hidden="true" viewBox="0 0 24 24">
+          <path d="M5 12h13m-5-5 5 5-5 5"></path>
+        </svg>
+      </a>
       {
         isTradePage ? (
           <div class="border-t border-white/10 pt-3">
@@ -381,14 +379,14 @@ const isTradeActiveHref = (href: string) => {
 <style>
   .header-nav-shell {
     position: relative;
-    border-radius: 0.5rem;
+    border-radius: 0;
   }
 
   .header-nav-shell::before {
     content: '';
     position: absolute;
     inset: 0;
-    border-radius: 0.5rem;
+    border-radius: 0;
     border: 1px solid color-mix(in srgb, white 4%, transparent);
     background: linear-gradient(
       180deg,
@@ -409,6 +407,7 @@ const isTradeActiveHref = (href: string) => {
   }
 
   .header-brand-mark {
+    position: relative;
     border: 1px solid color-mix(in srgb, var(--color-border) 68%, transparent);
     background:
       linear-gradient(
@@ -427,6 +426,17 @@ const isTradeActiveHref = (href: string) => {
       inset 0 1px 0 color-mix(in srgb, white 10%, transparent);
   }
 
+  .header-brand-mark::before {
+    content: '*';
+    position: absolute;
+    top: -1.15rem;
+    left: 50%;
+    color: color-mix(in srgb, var(--color-primary-strong) 82%, white 18%);
+    font-size: 0.85rem;
+    line-height: 1;
+    transform: translateX(-50%);
+  }
+
   .group:hover .header-brand-mark {
     border-color: color-mix(
       in srgb,
@@ -439,16 +449,16 @@ const isTradeActiveHref = (href: string) => {
   .header-desktop-link {
     margin-block: 0.35rem;
     border-left-color: transparent;
-    border-radius: 0.45rem;
-    color: color-mix(in srgb, var(--color-text-primary) 60%, transparent);
+    border-radius: 0;
+    color: color-mix(in srgb, var(--color-text-primary) 74%, transparent);
   }
 
   .header-desktop-link::after {
     content: '';
     position: absolute;
-    inset: 0.26rem;
+    inset: 0.32rem 0.18rem;
     height: auto;
-    border-radius: 0.4rem;
+    border-radius: 8px;
     background:
       linear-gradient(
         180deg,
@@ -512,8 +522,9 @@ const isTradeActiveHref = (href: string) => {
     min-height: 46px;
     align-items: center;
     justify-content: center;
+    gap: 0.7rem;
     border: 1px solid color-mix(in srgb, var(--color-primary) 38%, transparent);
-    border-radius: 0.45rem;
+    border-radius: 8px;
     background: linear-gradient(
       135deg,
       color-mix(in srgb, var(--color-primary) 80%, white 20%),
@@ -529,6 +540,17 @@ const isTradeActiveHref = (href: string) => {
   .header-cta:hover {
     color: var(--color-text-inverse);
     filter: saturate(1.05);
+  }
+
+  .header-cta svg,
+  .header-mobile-cta svg {
+    width: 1rem;
+    height: 1rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: square;
+    stroke-linejoin: miter;
+    stroke-width: 1.8;
   }
 
   .header-intent-strip {
@@ -570,7 +592,7 @@ const isTradeActiveHref = (href: string) => {
     flex: 0 0 auto;
     align-items: center;
     border: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
-    border-radius: 999px;
+    border-radius: 8px;
     background: color-mix(in srgb, var(--color-surface) 86%, transparent);
     color: color-mix(in srgb, var(--color-text-primary) 74%, transparent);
     padding: 0 0.85rem;
@@ -614,6 +636,25 @@ const isTradeActiveHref = (href: string) => {
     text-decoration: none;
   }
 
+  .header-mobile-cta {
+    justify-content: space-between;
+    border: 1px solid color-mix(in srgb, var(--color-primary) 38%, transparent);
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--color-primary) 76%, white 24%),
+      color-mix(in srgb, var(--color-primary-strong) 48%, white 52%)
+    );
+    color: var(--color-text-inverse);
+    font-weight: 800;
+    box-shadow:
+      0 18px 32px -28px color-mix(in srgb, var(--color-primary) 60%, black),
+      inset 0 1px 0 color-mix(in srgb, white 18%, transparent);
+  }
+
+  .header-mobile-cta:hover {
+    color: var(--color-text-inverse);
+  }
+
   .header-intent-mobile-link span {
     color: var(--color-text-primary);
     font-weight: 720;
@@ -641,6 +682,9 @@ const isTradeActiveHref = (href: string) => {
 
   #mobile-menu > div {
     position: relative;
+    max-height: calc(100dvh - 4.35rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
     border-radius: 0 0 0.5rem 0.5rem;
     background:
       linear-gradient(
@@ -654,6 +698,18 @@ const isTradeActiveHref = (href: string) => {
         transparent 46%
       );
     box-shadow: none;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--color-primary) 34%, transparent)
+      transparent;
+  }
+
+  #mobile-menu > div::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  #mobile-menu > div::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-primary) 32%, transparent);
   }
 </style>
 

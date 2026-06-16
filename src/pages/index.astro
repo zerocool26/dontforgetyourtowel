@@ -16,21 +16,18 @@ const trustHref = withBasePath('trust-center/');
 const heroMediaDesktop = withBasePath('media/chicago-ops-command.webp');
 const heroMediaMobile = withBasePath('media/chicago-ops-command-mobile.webp');
 
-const heroStats = [
+const heroProofSignals = [
   {
-    value: '25-150',
-    label: 'user teams',
-    detail: 'Best fit for owner-led and operations-heavy Chicago-area firms.',
+    label: 'Chicago-based team',
+    detail: 'Local operating context without tourist-theme filler.',
   },
   {
-    value: '4 lanes',
-    label: 'one owner',
-    detail: 'Support, security, Microsoft 365, and recovery handled together.',
+    label: 'Security and privacy first',
+    detail: 'Public-safe proof without exposing sensitive internals.',
   },
   {
-    value: '30/60/90',
-    label: 'first plan',
-    detail: 'A plain-language plan after the first environment review.',
+    label: 'Evidence you can show',
+    detail: 'Owners, risks, scope, and the next decision in plain language.',
   },
 ];
 
@@ -67,11 +64,11 @@ const firstThirtyDays = [
   'Deliver a 30/60/90 plan with owners, budget notes, and the decisions leadership needs to make next.',
 ];
 
-const firstReplySignals = [
-  'Main issue named',
-  'Likely first owner',
-  'Proof to bring',
-  'Next step and scope risk',
+const evidenceReceiptFields = [
+  { label: 'Account shape', value: '25-150 user teams' },
+  { label: 'Delivered', value: 'Operating proof board' },
+  { label: 'Review rhythm', value: 'onboarding, then cadence' },
+  { label: 'Pages', value: 'owners, risks, scope' },
 ];
 ---
 
@@ -127,53 +124,42 @@ const firstReplySignals = [
             rounded="sm"
             className="home-reboot-secondary-action"
           >
-            See pricing
+            See pricing logic
           </ModernButton>
-          <a class="home-reboot-text-link" href={servicesHref}>View services</a>
         </div>
 
-        <div class="home-reboot-stat-grid" aria-label="Buyer fit signals">
+        <div class="home-reboot-proof-signals" aria-label="Proof signals">
           {
-            heroStats.map(stat => (
-              <article class="home-reboot-stat">
-                <strong>{stat.value}</strong>
-                <span>{stat.label}</span>
-                <p>{stat.detail}</p>
-              </article>
+            heroProofSignals.map(signal => (
+              <p>
+                <span aria-hidden="true" />
+                <strong>{signal.label}</strong>
+                <small>{signal.detail}</small>
+              </p>
             ))
           }
         </div>
+        <a
+          class="home-reboot-text-link home-reboot-text-link--services"
+          href={servicesHref}
+        >
+          View services
+        </a>
       </div>
 
-      <aside
-        class="home-reboot-hero__brief"
-        aria-label="What a useful first reply should include"
-      >
-        <p class="home-reboot-kicker">First reply standard</p>
-        <h2>Not a sales pitch. A working diagnosis.</h2>
-        <ul>
-          {
-            firstReplySignals.map(signal => (
-              <li>
-                <span aria-hidden="true" />
-                {signal}
-              </li>
-            ))
-          }
-        </ul>
-        <a href="#situation-router">Route the issue</a>
-      </aside>
+      <div class="home-reboot-hero__board">
+        <OperatingProofBoard />
+      </div>
     </div>
   </section>
 
   <section
-    class="home-reboot-section home-reboot-section--board"
+    class="home-reboot-section home-reboot-section--receipt"
     id="operating-proof-board"
     data-page-section
   >
-    <div class="home-reboot-shell home-reboot-board-section">
+    <div class="home-reboot-shell home-reboot-receipt-section">
       <div class="home-reboot-section-heading">
-        <p class="home-reboot-kicker">Operating proof board</p>
         <h2 class="home-reboot-section-title">
           Five states a first review should make visible.
         </h2>
@@ -184,7 +170,26 @@ const firstReplySignals = [
         </p>
       </div>
 
-      <OperatingProofBoard />
+      <aside
+        class="home-reboot-receipt tone-artifact-paper"
+        aria-label="Example evidence receipt"
+      >
+        <div class="home-reboot-receipt__stack" aria-hidden="true"></div>
+        <div class="home-reboot-receipt__header">
+          <p>Evidence receipt</p>
+          <span class="tone-proof-stamp">Review complete</span>
+        </div>
+        <dl>
+          {
+            evidenceReceiptFields.map(field => (
+              <div>
+                <dt>{field.label}</dt>
+                <dd>{field.value}</dd>
+              </div>
+            ))
+          }
+        </dl>
+      </aside>
     </div>
   </section>
 
@@ -232,7 +237,7 @@ const firstReplySignals = [
       >
         <p class="home-reboot-kicker">Services</p>
         <h2 class="home-reboot-section-title">
-          Four service lanes that cover the daily IT mess.
+          Four clear service lanes for the daily IT mess.
         </h2>
         <p class="home-reboot-copy">
           Start with the problem in front of you, then route it to the right
@@ -284,7 +289,7 @@ const firstReplySignals = [
       <div class="home-reboot-section-heading">
         <p class="home-reboot-kicker">First phase</p>
         <h2 class="home-reboot-section-title">
-          The first phase should reduce the noise.
+          The first phase should calm the noise.
         </h2>
         <p class="home-reboot-copy">
           Before buying more tools, the environment needs a baseline, clear
@@ -349,7 +354,7 @@ const firstReplySignals = [
       display: grid;
       align-items: center;
       overflow: hidden;
-      padding: clamp(4rem, 7vw, 6.5rem) 0 clamp(2.5rem, 5vw, 4rem);
+      padding: clamp(4rem, 7vw, 6.5rem) 0 clamp(1rem, 2vw, 1.5rem);
       background: #070809;
       color: #f8f2e7;
       isolation: isolate;
@@ -502,114 +507,50 @@ const firstReplySignals = [
       justify-self: start;
     }
 
-    .home-reboot-stat-grid {
+    .home-reboot-proof-signals {
       display: grid;
-      gap: 0.65rem;
-      margin-top: 1rem;
+      gap: 0.8rem;
+      margin-top: 1.1rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(248, 242, 231, 0.16);
     }
 
-    .home-reboot-stat {
-      border: 1px solid rgba(248, 242, 231, 0.13);
-      border-radius: 8px;
-      background: rgba(248, 242, 231, 0.055);
-      padding: 1rem;
-    }
-
-    .home-reboot-stat strong,
-    .home-reboot-stat span {
-      display: block;
-    }
-
-    .home-reboot-stat strong {
-      color: #f8f2e7;
-      font-size: 1.4rem;
-      line-height: 1;
-    }
-
-    .home-reboot-stat span {
-      margin-top: 0.3rem;
-      color: #9ce6d9;
-      font-family: var(--font-mono);
-      font-size: 0.65rem;
-      font-weight: 800;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-    }
-
-    .home-reboot-stat p {
-      margin: 0.55rem 0 0;
-      color: rgba(248, 242, 231, 0.66);
-      font-size: 0.88rem;
+    .home-reboot-proof-signals p {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 0.1rem 0.6rem;
+      align-items: center;
+      margin: 0;
+      color: rgba(248, 242, 231, 0.78);
+      font-size: 0.9rem;
       line-height: 1.45;
     }
 
-    .home-reboot-hero__brief {
-      display: grid;
-      gap: 1rem;
-      align-self: end;
-      max-width: 26rem;
-      margin-left: auto;
-      border: 1px solid rgba(248, 242, 231, 0.16);
-      border-radius: 10px;
+    .home-reboot-proof-signals p > span {
+      grid-row: span 2;
+      width: 1.18rem;
+      height: 1.18rem;
+      border: 1px solid rgba(248, 242, 231, 0.24);
+      border-radius: 6px;
       background:
-        linear-gradient(145deg, rgba(156, 230, 217, 0.14), transparent 36%),
-        rgba(7, 10, 12, 0.68);
-      box-shadow: 0 32px 90px -54px rgba(0, 0, 0, 0.92);
-      padding: clamp(1rem, 2.4vw, 1.35rem);
-      backdrop-filter: blur(16px) saturate(1.1);
+        linear-gradient(135deg, rgba(104, 216, 204, 0.18), transparent),
+        rgba(248, 242, 231, 0.04);
     }
 
-    .home-reboot-hero__brief h2 {
-      max-width: 13ch;
-      margin: 0;
-      color: #f8f2e7;
-      font-family: var(--font-display);
-      font-size: clamp(1.65rem, 2.6vw, 2.35rem);
-      font-weight: 780;
-      letter-spacing: 0;
-      line-height: 1;
-      text-wrap: balance;
+    .home-reboot-proof-signals strong {
+      color: rgba(248, 242, 231, 0.9);
+      font-weight: 680;
     }
 
-    .home-reboot-hero__brief ul {
-      display: grid;
-      gap: 0.6rem;
-      margin: 0;
-      padding: 0;
-      list-style: none;
-    }
-
-    .home-reboot-hero__brief li {
-      display: flex;
-      gap: 0.65rem;
-      align-items: center;
-      color: rgba(248, 242, 231, 0.82);
-      font-size: 0.95rem;
+    .home-reboot-proof-signals small {
+      color: rgba(248, 242, 231, 0.55);
+      font-size: 0.78rem;
       line-height: 1.35;
     }
 
-    .home-reboot-hero__brief li span {
-      width: 0.5rem;
-      height: 0.5rem;
-      flex: 0 0 auto;
-      border-radius: 999px;
-      background: #f2c76f;
-      box-shadow: 0 0 0 5px rgba(242, 199, 111, 0.12);
-    }
-
-    .home-reboot-hero__brief a {
-      display: inline-flex;
-      width: fit-content;
-      min-height: 48px;
-      align-items: center;
-      justify-content: center;
-      border: 1px solid rgba(156, 230, 217, 0.38);
-      border-radius: 8px;
-      background: rgba(156, 230, 217, 0.12);
-      color: #9ce6d9;
-      padding: 0 0.9rem;
-      font-weight: 780;
-      text-decoration: none;
+    .home-reboot-hero__board {
+      align-self: end;
+      min-width: 0;
     }
 
     .home-reboot-section {
@@ -631,6 +572,7 @@ const firstReplySignals = [
     .home-reboot-split,
     .home-reboot-proof-grid,
     .home-reboot-board-section,
+    .home-reboot-receipt-section,
     .home-reboot-operating,
     .home-reboot-final {
       display: grid;
@@ -774,10 +716,115 @@ const firstReplySignals = [
       background: #080a0c;
     }
 
-    .home-reboot-section--board {
+    .home-reboot-section--receipt {
+      overflow: hidden;
       background:
-        linear-gradient(110deg, rgba(156, 230, 217, 0.09), transparent 42%),
-        #0c1113;
+        linear-gradient(
+          105deg,
+          rgba(5, 7, 8, 0.08),
+          transparent 46%,
+          rgba(217, 173, 99, 0.08)
+        ),
+        var(--color-paper);
+      color: var(--color-ink);
+    }
+
+    .home-reboot-section--receipt::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(16, 20, 23, 0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(16, 20, 23, 0.045) 1px, transparent 1px);
+      background-size: 5rem 5rem;
+      mask-image: linear-gradient(90deg, transparent, black 58%, transparent);
+      opacity: 0.7;
+    }
+
+    .home-reboot-section--receipt .home-reboot-section-heading,
+    .home-reboot-section--receipt .home-reboot-receipt {
+      position: relative;
+      z-index: 1;
+    }
+
+    .home-reboot-section--receipt .home-reboot-section-title {
+      color: var(--color-ink);
+    }
+
+    .home-reboot-section--receipt .home-reboot-copy {
+      color: rgba(16, 20, 23, 0.68);
+    }
+
+    .home-reboot-receipt {
+      position: relative;
+      display: grid;
+      gap: 1.15rem;
+      min-height: 20rem;
+      padding: clamp(1.15rem, 3vw, 2rem);
+    }
+
+    .home-reboot-receipt__stack {
+      position: absolute;
+      inset: -1.2rem 8% auto auto;
+      width: 76%;
+      height: 5rem;
+      border: 1px solid rgba(16, 20, 23, 0.12);
+      border-radius: 8px;
+      background: rgba(217, 173, 99, 0.2);
+      transform: rotate(-3deg);
+      z-index: -1;
+    }
+
+    .home-reboot-receipt__header {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(16, 20, 23, 0.18);
+      padding-bottom: 1rem;
+    }
+
+    .home-reboot-receipt__header p,
+    .home-reboot-receipt dt {
+      margin: 0;
+      color: rgba(16, 20, 23, 0.62);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .home-reboot-receipt__header p {
+      color: var(--color-ink);
+      font-size: clamp(1rem, 2vw, 1.35rem);
+    }
+
+    .home-reboot-receipt dl {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin: 0;
+      border: 1px solid rgba(16, 20, 23, 0.16);
+      border-width: 1px 0 0 1px;
+    }
+
+    .home-reboot-receipt dl > div {
+      display: grid;
+      gap: 0.5rem;
+      min-height: 6.2rem;
+      align-content: center;
+      border: 1px solid rgba(16, 20, 23, 0.16);
+      border-width: 0 1px 1px 0;
+      padding: 1rem;
+    }
+
+    .home-reboot-receipt dd {
+      margin: 0;
+      color: var(--color-ink);
+      font-size: clamp(1rem, 1.8vw, 1.22rem);
+      font-weight: 680;
+      line-height: 1.25;
     }
 
     .home-reboot-section--operating {
@@ -847,7 +894,6 @@ const firstReplySignals = [
     }
 
     @media (min-width: 720px) {
-      .home-reboot-stat-grid,
       .home-reboot-lanes,
       .home-reboot-proof-list {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -856,16 +902,17 @@ const firstReplySignals = [
 
     @media (min-width: 980px) {
       .home-reboot-hero__grid {
-        grid-template-columns: minmax(0, 0.92fr) minmax(22rem, 0.64fr);
+        grid-template-columns: minmax(0, 0.82fr) minmax(31rem, 0.98fr);
       }
 
-      .home-reboot-stat-grid {
+      .home-reboot-proof-signals {
         grid-template-columns: repeat(3, minmax(0, 1fr));
       }
 
       .home-reboot-split,
       .home-reboot-proof-grid,
       .home-reboot-board-section,
+      .home-reboot-receipt-section,
       .home-reboot-operating,
       .home-reboot-final {
         grid-template-columns: minmax(0, 0.82fr) minmax(0, 1fr);
@@ -934,18 +981,22 @@ const firstReplySignals = [
         width: 100%;
       }
 
-      .home-reboot-stat-grid {
+      .home-reboot-proof-signals {
+        gap: 0.65rem;
+        margin-top: 0.7rem;
+        padding-top: 0.75rem;
+      }
+
+      .home-reboot-proof-signals small {
         display: none;
       }
 
-      .home-reboot-hero__brief {
-        max-width: none;
-        margin-left: 0;
+      .home-reboot-text-link--services {
+        display: none;
       }
 
-      .home-reboot-hero__brief h2 {
-        max-width: 15ch;
-        font-size: 1.55rem;
+      .home-reboot-hero__board {
+        margin-top: 0.5rem;
       }
     }
 

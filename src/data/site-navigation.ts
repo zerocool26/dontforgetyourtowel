@@ -12,13 +12,13 @@ export type FooterSignal = {
 
 export const buyerPathLinks: SiteLink[] = [
   {
-    label: 'Services',
+    label: 'What We Own',
     href: 'services/',
     description:
       'Managed IT, cybersecurity, Microsoft 365, backup, network, and support ownership.',
   },
   {
-    label: 'Pricing',
+    label: 'Pricing Logic',
     href: 'pricing/',
     description:
       'Ranges, scope drivers, approval logic, and what changes the monthly number.',
@@ -30,10 +30,10 @@ export const buyerPathLinks: SiteLink[] = [
       'Security posture, backup review, incident coordination, and support accountability.',
   },
   {
-    label: 'Contact',
-    href: 'contact-hq/',
+    label: 'Resources',
+    href: 'blog/',
     description:
-      'Fit intake for support coverage, budget shape, transition risk, or workflow scope.',
+      'Decision tools, checklists, and practical guidance for MSP buying pressure.',
   },
 ];
 

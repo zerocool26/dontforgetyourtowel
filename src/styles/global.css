@@ -21,19 +21,27 @@
     --viewport-height: 100vh;
     --viewport-height-dynamic: 100vh;
 
-    --color-background: #070809;
-    --color-surface: #15171a;
-    --color-surface-subtle: rgba(22, 24, 27, 0.9);
-    --color-border: rgba(235, 242, 248, 0.17);
-    --color-primary: #62d8c6;
-    --color-primary-strong: #f6c65b;
-    --color-success: #7bd88f;
-    --color-warning: #f6c65b;
-    --color-danger: #ff7a7a;
-    --color-text-primary: #fbf7ef;
-    --color-text-secondary: #d2d8dd;
-    --color-text-muted: #939ba3;
+    --color-background: #050708;
+    --color-surface: #121619;
+    --color-surface-subtle: rgba(18, 22, 25, 0.9);
+    --color-border: rgba(244, 238, 226, 0.16);
+    --color-primary: #68d8cc;
+    --color-primary-strong: #d9ad63;
+    --color-success: #74d6a2;
+    --color-warning: #d9ad63;
+    --color-danger: #e88686;
+    --color-text-primary: #fbf4e8;
+    --color-text-secondary: #d8d4ca;
+    --color-text-muted: #938f86;
     --color-text-inverse: #071014;
+    --color-paper: #f5eddf;
+    --color-paper-soft: #e8dcc8;
+    --color-ink: #101417;
+    --color-steel: #91abc8;
+    --color-status-verified: #68d8cc;
+    --color-status-review: #d9ad63;
+    --color-status-risk: #e88686;
+    --color-status-planned: #91abc8;
     --shadow-soft: 0 28px 68px -40px rgba(0, 0, 0, 0.62);
     --shadow-strong: 0 46px 110px -56px rgba(0, 0, 0, 0.78);
     --radius-sm: 6px;
@@ -151,21 +159,18 @@
     background-image:
       linear-gradient(
         115deg,
-        rgba(98, 216, 198, 0.105) 0%,
-        transparent 28%,
-        rgba(246, 198, 91, 0.07) 62%,
+        color-mix(in srgb, var(--color-primary) 8%, transparent) 0%,
+        transparent 31%,
+        color-mix(in srgb, var(--color-primary-strong) 5%, transparent) 68%,
         transparent 100%
       ),
       linear-gradient(
         180deg,
-        rgba(98, 216, 198, 0.055) 0%,
-        transparent 18%,
-        rgba(246, 198, 91, 0.045) 46%,
-        transparent 70%
-      ),
-      linear-gradient(180deg, #070809 0%, #121418 54%, #070809 100%);
+        color-mix(in srgb, var(--color-background) 96%, white 4%) 0%,
+        var(--color-background) 52%,
+        #030405 100%
+      );
     background-size:
-      100% 100%,
       100% 100%,
       100% 100%;
     background-position: center, center, center;
@@ -185,19 +190,20 @@
     inset: 0;
     pointer-events: none;
     z-index: -1;
-    opacity: 0.018;
+    opacity: 0.032;
     background-image:
       linear-gradient(
         90deg,
-        transparent,
-        color-mix(in srgb, var(--color-primary) 18%, transparent) 42%,
-        transparent
+        color-mix(in srgb, var(--color-border) 38%, transparent) 1px,
+        transparent 1px
       ),
       linear-gradient(
         180deg,
-        color-mix(in srgb, white 18%, transparent),
-        transparent 32%
+        color-mix(in srgb, var(--color-border) 28%, transparent) 1px,
+        transparent 1px
       );
+    background-size: 7rem 7rem;
+    mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.82), transparent 72%);
   }
 
   body::after {
@@ -2021,13 +2027,13 @@ header.header-hidden {
     z-index: 0;
     overflow: hidden;
     pointer-events: none;
-    opacity: 0.14;
+    opacity: 0.2;
   }
 
   .tone-site-shell__grid {
     position: absolute;
     inset: 0;
-    opacity: 0.02;
+    opacity: 0.04;
     background-image:
       linear-gradient(
         180deg,
@@ -2039,7 +2045,7 @@ header.header-hidden {
         color-mix(in srgb, var(--color-border) 12%, transparent) 1px,
         transparent 1px
       );
-    background-size: clamp(84px, 9vw, 132px) clamp(84px, 9vw, 132px);
+    background-size: clamp(96px, 9vw, 140px) clamp(96px, 9vw, 140px);
     mask-image: linear-gradient(
       180deg,
       rgba(0, 0, 0, 0.64),
@@ -2082,7 +2088,7 @@ header.header-hidden {
   }
 
   .tone-site-shell__grain {
-    opacity: 0.012;
+    opacity: 0.018;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.42'/%3E%3C/svg%3E");
     background-size: 180px 180px;
     mix-blend-mode: normal;
@@ -2135,8 +2141,8 @@ header.header-hidden {
     background:
       linear-gradient(
         180deg,
-        color-mix(in srgb, var(--color-background) 96%, transparent),
-        color-mix(in srgb, var(--color-surface) 99%, transparent)
+        color-mix(in srgb, var(--color-background) 98%, transparent),
+        color-mix(in srgb, var(--color-surface) 92%, transparent)
       ),
       linear-gradient(
         90deg,
@@ -2148,26 +2154,29 @@ header.header-hidden {
         transparent 32%,
         color-mix(in srgb, var(--color-primary-strong) 0.75%, transparent)
       ),
-      color-mix(in srgb, var(--color-surface) 94%, transparent);
+      color-mix(in srgb, var(--color-background) 92%, transparent);
     border-color: color-mix(in srgb, var(--color-border) 80%, transparent);
-    box-shadow: inset 0 -1px 0 color-mix(in srgb, white 4%, transparent);
+    box-shadow:
+      inset 0 -1px 0 color-mix(in srgb, white 6%, transparent),
+      0 18px 34px -34px rgba(0, 0, 0, 0.76);
   }
 
   .tone-shell-footer {
     background:
-      radial-gradient(
-        circle at top center,
-        color-mix(
-          in srgb,
-          var(--route-accent, var(--color-primary)) 5%,
-          transparent
-        ),
-        transparent 28%
-      ),
       linear-gradient(
         180deg,
-        color-mix(in srgb, var(--color-surface) 88%, black 12%),
+        color-mix(in srgb, var(--color-surface) 74%, black 26%),
         color-mix(in srgb, var(--color-background) 98%, transparent)
+      ),
+      linear-gradient(
+        90deg,
+        color-mix(
+          in srgb,
+          var(--route-accent, var(--color-primary)) 6%,
+          transparent
+        ),
+        transparent 42%,
+        color-mix(in srgb, var(--color-primary-strong) 4%, transparent)
       ),
       color-mix(in srgb, var(--color-background) 94%, transparent);
   }
@@ -2233,8 +2242,8 @@ header.header-hidden {
     background:
       linear-gradient(
         180deg,
-        color-mix(in srgb, var(--color-surface) 92%, white 7%),
-        color-mix(in srgb, var(--color-surface) 82%, transparent)
+        color-mix(in srgb, var(--color-surface) 88%, white 4%),
+        color-mix(in srgb, var(--color-surface) 72%, transparent)
       ),
       linear-gradient(
         180deg,
@@ -2245,16 +2254,58 @@ header.header-hidden {
         ),
         transparent 42%
       ),
-      linear-gradient(
-        135deg,
-        transparent,
-        color-mix(in srgb, var(--color-primary-strong) 3%, transparent)
+      repeating-linear-gradient(
+        0deg,
+        transparent 0 2.7rem,
+        color-mix(in srgb, var(--color-border) 18%, transparent) 2.7rem
+          calc(2.7rem + 1px)
       ),
       color-mix(in srgb, var(--color-surface) 90%, transparent);
     box-shadow:
       inset 0 1px 0 color-mix(in srgb, white 7%, transparent),
-      0 28px 58px -42px rgba(0, 0, 0, 0.72);
-    backdrop-filter: blur(12px);
+      0 24px 54px -42px rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+  }
+
+  .tone-artifact-paper {
+    border: 1px solid color-mix(in srgb, var(--color-ink) 16%, transparent);
+    background:
+      repeating-linear-gradient(
+        0deg,
+        transparent 0 3.15rem,
+        color-mix(in srgb, var(--color-ink) 9%, transparent) 3.15rem
+          calc(3.15rem + 1px)
+      ),
+      linear-gradient(
+        135deg,
+        color-mix(in srgb, white 62%, var(--color-paper) 38%),
+        var(--color-paper)
+      );
+    color: var(--color-ink);
+    box-shadow:
+      0 26px 56px -42px rgba(0, 0, 0, 0.48),
+      inset 0 1px 0 rgba(255, 255, 255, 0.72);
+  }
+
+  .tone-proof-stamp {
+    display: inline-flex;
+    min-height: 2.15rem;
+    align-items: center;
+    border: 1px solid color-mix(in srgb, var(--color-primary) 48%, transparent);
+    border-radius: 8px;
+    color: color-mix(in srgb, var(--color-primary) 74%, var(--color-ink) 26%);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    padding: 0 0.7rem;
+    text-transform: uppercase;
+  }
+
+  .tone-ledger-row {
+    border-top: 1px solid
+      color-mix(in srgb, var(--color-border) 70%, transparent);
+    padding-block: 0.78rem;
   }
 
   .tone-divider-top {
@@ -2277,7 +2328,7 @@ header.header-hidden {
 
   .tone-chip-jump {
     min-height: 44px;
-    border-radius: 0.95rem;
+    border-radius: 8px;
     padding: 0.7rem 1rem;
     font-size: 0.7rem;
     font-weight: 600;
@@ -2287,7 +2338,14 @@ header.header-hidden {
 
   .tone-table-shell {
     border: 1px solid color-mix(in srgb, var(--color-border) 74%, transparent);
-    background: color-mix(in srgb, var(--color-surface) 94%, transparent);
+    background:
+      repeating-linear-gradient(
+        0deg,
+        transparent 0 3.4rem,
+        color-mix(in srgb, var(--color-border) 18%, transparent) 3.4rem
+          calc(3.4rem + 1px)
+      ),
+      color-mix(in srgb, var(--color-surface) 94%, transparent);
     box-shadow:
       inset 0 1px 0 color-mix(in srgb, white 4%, transparent),
       0 20px 42px -38px rgba(0, 0, 0, 0.46);
@@ -2371,13 +2429,13 @@ header.header-hidden {
   }
 
   .tone-page-title {
-    max-width: 18ch;
-    font-size: clamp(2rem, 4.2vw, 3.65rem);
+    max-width: 16ch;
+    font-size: clamp(2.35rem, 5vw, 4.7rem);
   }
 
   .tone-section-title {
-    max-width: 19ch;
-    font-size: clamp(1.65rem, 3vw, 2.45rem);
+    max-width: 20ch;
+    font-size: clamp(1.85rem, 3.4vw, 3.15rem);
   }
 
   .tone-page-copy,
@@ -2412,7 +2470,14 @@ header.header-hidden {
   .tone-metric-card {
     position: relative;
     overflow: hidden;
-    background: rgba(255, 255, 255, 0.022);
+    background:
+      repeating-linear-gradient(
+        0deg,
+        transparent 0 3rem,
+        color-mix(in srgb, var(--color-border) 18%, transparent) 3rem
+          calc(3rem + 1px)
+      ),
+      rgba(255, 255, 255, 0.022);
   }
 
   .tone-metric-card::after {
@@ -2541,8 +2606,8 @@ header.header-hidden {
   }
 
   .buyer-reframe .tone-page-title {
-    max-width: 14ch;
-    font-size: clamp(2.4rem, 5.4vw, 5rem);
+    max-width: 15ch;
+    font-size: clamp(2.65rem, 5.8vw, 5.65rem);
     line-height: 0.98;
   }
 
@@ -2648,11 +2713,11 @@ header.header-hidden {
   }
 
   .buyer-reframe .tone-page-hero--media {
-    min-height: min(44rem, calc(100svh - 2rem));
+    min-height: min(47rem, calc(100svh - 1rem));
     display: grid;
     align-items: end;
     isolation: isolate;
-    background: #07090a;
+    background: var(--color-background);
   }
 
   .buyer-reframe .tone-page-hero--media::before {
@@ -2661,7 +2726,7 @@ header.header-hidden {
       linear-gradient(rgba(248, 250, 252, 0.035) 1px, transparent 1px),
       linear-gradient(90deg, rgba(248, 250, 252, 0.026) 1px, transparent 1px);
     background-size: 58px 58px;
-    mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.58), transparent 76%);
+    mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.72), transparent 78%);
     opacity: 0.86;
   }
 
@@ -2683,7 +2748,7 @@ header.header-hidden {
     object-fit: cover;
     object-position: var(--hero-media-position, center);
     filter: saturate(0.9) contrast(1.04);
-    transform: scale(1.012);
+    transform: scale(1.018);
   }
 
   .buyer-reframe .tone-page-hero--media .tone-page-hero__veil {
@@ -2692,16 +2757,16 @@ header.header-hidden {
     background:
       linear-gradient(
         90deg,
-        rgba(7, 9, 10, 0.96) 0%,
-        rgba(7, 9, 10, 0.84) 32%,
-        rgba(7, 9, 10, 0.44) 64%,
-        rgba(7, 9, 10, 0.58) 100%
+        rgba(5, 7, 8, 0.98) 0%,
+        rgba(5, 7, 8, 0.88) 32%,
+        rgba(5, 7, 8, 0.5) 64%,
+        rgba(5, 7, 8, 0.7) 100%
       ),
       linear-gradient(
         180deg,
-        rgba(7, 9, 10, 0.22) 0%,
-        rgba(7, 9, 10, 0.18) 52%,
-        rgba(7, 9, 10, 0.92) 100%
+        rgba(5, 7, 8, 0.26) 0%,
+        rgba(5, 7, 8, 0.18) 52%,
+        rgba(5, 7, 8, 0.96) 100%
       );
   }
 
@@ -3107,6 +3172,32 @@ header.header-hidden {
       rgba(255, 255, 255, 0.015),
       rgba(255, 255, 255, 0)
     );
+  }
+
+  .premium-page-section {
+    position: relative;
+    border-bottom: 1px solid
+      color-mix(in srgb, var(--color-border) 76%, transparent);
+    padding-block: clamp(4rem, 7vw, 6.5rem);
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-surface) 48%, transparent),
+      color-mix(in srgb, var(--color-background) 98%, transparent)
+    );
+  }
+
+  .premium-page-section:nth-of-type(even) {
+    background:
+      linear-gradient(
+        90deg,
+        color-mix(
+          in srgb,
+          var(--route-accent, var(--color-primary)) 6%,
+          transparent
+        ),
+        transparent 48%
+      ),
+      color-mix(in srgb, var(--color-surface) 62%, var(--color-background) 38%);
   }
 
   .premium-container {

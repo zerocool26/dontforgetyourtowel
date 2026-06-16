@@ -8,7 +8,7 @@ test.describe('Homepage buyer landing', () => {
     await expect(
       page.getByRole('heading', {
         level: 1,
-        name: /CHICAGOS #1 MSP for IT support that gets answered, owned, and proven/i,
+        name: /When IT feels ownerless, the business slows down/i,
       })
     ).toBeAttached();
     await expect(
@@ -23,43 +23,21 @@ test.describe('Homepage buyer landing', () => {
       page.getByRole('link', { name: /Start fit check/i }).first()
     ).toHaveAttribute('href', /contact-hq\/$/);
     await expect(
-      page.getByRole('link', { name: /See pricing/i })
+      page.getByRole('link', { name: /See pricing logic/i })
     ).toHaveAttribute('href', /pricing\/$/);
     await expect(
-      page.getByRole('link', { name: /View services/i }).first()
+      page.getByRole('link', { name: /What we own/i }).first()
     ).toHaveAttribute('href', /services\/$/);
   });
 
-  test('renders a nonblank 3D hero canvas', async ({ page }) => {
+  test('renders the operating proof board in the hero', async ({ page }) => {
     await page.goto('./');
 
-    const canvas = page.locator('[data-testid="home-orbit-scene"] canvas');
-    await expect(canvas).toBeVisible();
-
-    const litPixels = await canvas.evaluate((node: HTMLCanvasElement) => {
-      const sample = document.createElement('canvas');
-      sample.width = 40;
-      sample.height = 40;
-      const ctx = sample.getContext('2d', { willReadFrequently: true });
-      if (!ctx) return 0;
-
-      ctx.drawImage(node, 0, 0, sample.width, sample.height);
-      const data = ctx.getImageData(0, 0, sample.width, sample.height).data;
-      let count = 0;
-
-      for (let index = 0; index < data.length; index += 4) {
-        if (
-          data[index + 3] > 4 &&
-          data[index] + data[index + 1] + data[index + 2] > 24
-        ) {
-          count += 1;
-        }
-      }
-
-      return count;
-    });
-
-    expect(litPixels).toBeGreaterThan(80);
+    const board = page.locator('[data-testid="home-orbit-scene"]');
+    await expect(board).toBeVisible();
+    await expect(board).toContainText(/Operating proof/i);
+    await expect(board).toContainText(/Ticket has owner/i);
+    await expect(board).toContainText(/Needs review/i);
   });
 
   test('presents service lanes and operating standard', async ({ page }) => {

@@ -4,6 +4,7 @@ import StructuredData from '../components/StructuredData.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
 import ModernCard from '../components/ui/ModernCard.astro';
 import ProofOperatingSystem from '../components/business/ProofOperatingSystem.astro';
+import RouteProofStrip from '../components/business/RouteProofStrip.astro';
 import { buildContactHqHref } from '../utils/contact';
 import { withBasePath } from '../utils/helpers';
 
@@ -34,6 +35,27 @@ const notForEveryone = [
   'Teams that only want one-off break/fix without standards',
   'Buyers who want the cheapest ticket queue regardless of risk',
   'Projects with no owner, approval path, or operating outcome',
+];
+
+const aboutRouteProof = [
+  {
+    label: 'Own',
+    title: 'Messy middle named',
+    copy: 'Tickets, vendors, access, backups, Microsoft 365, and budget stay attached.',
+    status: 'verified' as const,
+  },
+  {
+    label: 'Prove',
+    title: 'Record shown early',
+    copy: 'The first review leaves owners, recovery notes, access gaps, and a plan.',
+    status: 'review' as const,
+  },
+  {
+    label: 'Decide',
+    title: 'Next action visible',
+    copy: 'The operating model keeps risk, scope, and approval paths clear.',
+    status: 'planned' as const,
+  },
 ];
 ---
 
@@ -106,6 +128,15 @@ const notForEveryone = [
       </div>
     </div>
   </section>
+
+  <RouteProofStrip
+    label="Operating model"
+    title="IT that's owned, not outsourced."
+    note="This is the standard behind the service pages, not a decorative tagline."
+    items={aboutRouteProof}
+    ctaHref={aboutIntakeHref}
+    ctaLabel="Ask if we fit"
+  />
 
   <ProofOperatingSystem
     compact

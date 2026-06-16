@@ -8,6 +8,7 @@ import OperationalIntelligenceWorkbench from '../components/business/Operational
 import DecisionHandoffPanel from '../components/business/DecisionHandoffPanel.astro';
 import ProofOperatingSystem from '../components/business/ProofOperatingSystem.astro';
 import ProviderSelectionStandard from '../components/business/ProviderSelectionStandard.astro';
+import RouteProofStrip from '../components/business/RouteProofStrip.astro';
 import ScopeLedger from '../components/business/ScopeLedger.tsx';
 import PricingCalculator from '../components/business/PricingCalculator.tsx';
 import ROICalculator from '../components/business/ROICalculator.tsx';
@@ -188,6 +189,30 @@ const pricingSections = [
   { label: 'Estimate', href: '#estimate' },
   { label: 'FAQ', href: '#faq' },
 ];
+
+const pricingRouteProof = [
+  {
+    label: 'Range',
+    title: 'Transparent first pass',
+    copy: 'Directional numbers stay tied to users, devices, sites, response, and risk.',
+    status: 'verified' as const,
+    href: '#plans',
+  },
+  {
+    label: 'Drivers',
+    title: 'Scope changes shown',
+    copy: 'Security depth, recovery proof, Microsoft 365, and projects explain the movement.',
+    status: 'review' as const,
+    href: '#scope-ledger',
+  },
+  {
+    label: 'Approval',
+    title: 'Recurring vs project',
+    copy: 'Leadership sees what is monthly, what is one-time, and what still needs discovery.',
+    status: 'planned' as const,
+    href: '#approval-pack',
+  },
+];
 ---
 
 <MarketingLayout
@@ -323,6 +348,15 @@ const pricingSections = [
       </div>
     </div>
   </section>
+
+  <RouteProofStrip
+    label="Scope ledger"
+    title="Transparent ranges. Clear drivers. Logical approvals."
+    note="Final price is confirmed after the fit check, but the reasons should be visible before then."
+    items={pricingRouteProof}
+    ctaHref={requestQuoteHref}
+    ctaLabel="Map the scope"
+  />
 
   <ProofOperatingSystem
     compact

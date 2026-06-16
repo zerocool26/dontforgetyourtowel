@@ -10,7 +10,7 @@ test.describe('Landing page integrity', () => {
     await expect(
       page.getByRole('heading', {
         level: 1,
-        name: /CHICAGOS #1 MSP for IT support that gets answered, owned, and proven/i,
+        name: /When IT feels ownerless, the business slows down/i,
       })
     ).toBeAttached();
     await expect(
@@ -37,17 +37,18 @@ test.describe('Landing page integrity', () => {
           name: /main navigation/i,
         });
     await expect(
-      navSurface.getByRole('link', { name: /^services$/i })
+      navSurface.getByRole('link', { name: /^what we own$/i })
     ).toHaveAttribute('href', /\/services\/?$/);
     await expect(
-      navSurface.getByRole('link', { name: /^pricing$/i })
+      navSurface.getByRole('link', { name: /^pricing logic$/i })
     ).toHaveAttribute('href', /\/pricing\/?$/);
+    const contactSurface = isMobile ? navSurface : page.getByRole('banner');
     await expect(
-      navSurface.getByRole('link', { name: /^contact$/i })
+      contactSurface.getByRole('link', { name: /^start fit check$/i })
     ).toHaveAttribute('href', /\/contact-hq\/?$/);
   });
 
-  test('desktop rendering should show the operating map without horizontal overflow', async ({
+  test('desktop rendering should show the operating proof board without horizontal overflow', async ({
     page,
     isMobile,
   }) => {
@@ -58,9 +59,9 @@ test.describe('Landing page integrity', () => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('./');
 
-    await expect(
-      page.locator('[data-testid="home-orbit-scene"] canvas')
-    ).toBeVisible();
+    const board = page.locator('[data-testid="home-orbit-scene"]');
+    await expect(board).toBeVisible();
+    await expect(board).toContainText(/Operating proof/i);
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - window.innerWidth
     );
@@ -76,12 +77,12 @@ test.describe('Landing page integrity', () => {
     await expect(
       page.getByRole('heading', {
         level: 1,
-        name: /CHICAGOS #1 MSP for IT support that gets answered, owned, and proven/i,
+        name: /When IT feels ownerless, the business slows down/i,
       })
     ).toBeAttached();
     await expect(
-      page.locator('[data-testid="home-orbit-scene"] canvas')
-    ).toBeVisible();
+      page.locator('[data-testid="home-orbit-scene"]')
+    ).toContainText(/Operating proof/i);
 
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - window.innerWidth

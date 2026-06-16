@@ -5,6 +5,7 @@ import ModernButton from '../components/ui/ModernButton.astro';
 import ModernCard from '../components/ui/ModernCard.astro';
 import ProofOperatingSystem from '../components/business/ProofOperatingSystem.astro';
 import ProviderSelectionStandard from '../components/business/ProviderSelectionStandard.astro';
+import RouteProofStrip from '../components/business/RouteProofStrip.astro';
 import TrustEvidenceVault from '../components/business/TrustEvidenceVault.astro';
 import FAQAccordion from '../components/ui/FAQAccordion.astro';
 import { trustCenterPractices } from '../data/authority-pages';
@@ -31,6 +32,36 @@ const trustFaqs = [
     title: 'Can this page support security questionnaires or approvals?',
     content:
       'Yes. It gives leadership a public summary of backup, incident coordination, data handling, and review cadence before deeper conversations.',
+  },
+];
+
+const trustReviewHref = buildContactHqHref({
+  service: 'security',
+  brief:
+    'I want to review trust, backup, incident coordination, or security posture.',
+});
+
+const trustRouteProof = [
+  {
+    label: 'Backup',
+    title: 'Recovery order discussed',
+    copy: 'Protected systems, restore access, and business priority are part of the conversation.',
+    status: 'verified' as const,
+    href: '#trust-selection-standard',
+  },
+  {
+    label: 'Access',
+    title: 'Admin risk visible',
+    copy: 'Privileged access, MFA, guest access, and exceptions should not be vague.',
+    status: 'review' as const,
+    href: '#trust-selection-standard',
+  },
+  {
+    label: 'Incident',
+    title: 'Roles before panic',
+    copy: 'Escalation, communication, and vendor responsibilities get named before trouble.',
+    status: 'planned' as const,
+    href: '#faq',
   },
 ];
 ---
@@ -89,11 +120,7 @@ const trustFaqs = [
           </div>
           <div class="tone-page-actions">
             <ModernButton
-              href={buildContactHqHref({
-                service: 'security',
-                brief:
-                  'I want to review trust, backup, incident coordination, or security posture.',
-              })}
+              href={trustReviewHref}
               variant="primary"
               className="min-h-[52px]"
             >
@@ -121,6 +148,15 @@ const trustFaqs = [
     </div>
   </section>
 
+  <RouteProofStrip
+    label="Public-safe proof"
+    title="Review posture without oversharing internals."
+    note="Trust should show responsibilities and habits before deeper security detail."
+    items={trustRouteProof}
+    ctaHref={trustReviewHref}
+    ctaLabel="Start trust review"
+  />
+
   <ProofOperatingSystem
     compact
     showComparison={false}
@@ -136,11 +172,7 @@ const trustFaqs = [
     eyebrow="Trust test"
     title="A trust page should answer the questions buyers actually ask."
     description="Real confidence comes from reviewable ownership: recovery order, privileged access, incident roles, Microsoft 365 governance, recurring risks, and scope boundaries."
-    ctaHref={buildContactHqHref({
-      service: 'security',
-      brief:
-        'I want to review trust, backup, incident coordination, or security posture.',
-    })}
+    ctaHref={trustReviewHref}
     ctaLabel="Start trust review"
   />
 

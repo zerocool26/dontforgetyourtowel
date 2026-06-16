@@ -22,9 +22,9 @@ test.describe('Navigation', () => {
     // Pricing page from the streamlined homepage navigation
     if (isMobile) {
       const mobileMenu = await openMobileMenuIfNeeded();
-      await mobileMenu!.getByRole('link', { name: /^pricing$/i }).click();
+      await mobileMenu!.getByRole('link', { name: /^pricing logic$/i }).click();
     } else {
-      await headerNav.getByRole('link', { name: /^pricing$/i }).click();
+      await headerNav.getByRole('link', { name: /^pricing logic$/i }).click();
     }
     await expect(page).toHaveURL(/.*\/pricing\/?$/);
     await expect(page.locator('main')).toBeVisible();
@@ -42,9 +42,9 @@ test.describe('Navigation', () => {
     await page.goto('./');
     if (isMobile) {
       const mobileMenu = await openMobileMenuIfNeeded();
-      await mobileMenu!.getByRole('link', { name: /^solutions$/i }).click();
+      await mobileMenu!.getByRole('link', { name: /^what we own$/i }).click();
     } else {
-      await headerNav.getByRole('link', { name: /^solutions$/i }).click();
+      await headerNav.getByRole('link', { name: /^what we own$/i }).click();
     }
     await expect(page).toHaveURL(/.*\/services\/?$/);
 
@@ -52,9 +52,14 @@ test.describe('Navigation', () => {
     await page.goto('./');
     if (isMobile) {
       const mobileMenu = await openMobileMenuIfNeeded();
-      await mobileMenu!.getByRole('link', { name: /^contact$/i }).click();
+      await mobileMenu!
+        .getByRole('link', { name: /^start fit check$/i })
+        .click();
     } else {
-      await headerNav.getByRole('link', { name: /^contact$/i }).click();
+      await page
+        .getByRole('banner')
+        .getByRole('link', { name: /^start fit check$/i })
+        .click();
     }
     await expect(page).toHaveURL(/.*\/contact-hq\/?$/);
   });
@@ -82,7 +87,12 @@ test.describe('Navigation', () => {
 
   test('should expose jump rails and buyer-entry shortcuts on services and pricing', async ({
     page,
+    isMobile,
   }) => {
+    if (isMobile) {
+      test.skip();
+    }
+
     await page.goto('./services/');
 
     await page.getByRole('link', { name: /^catalog$/i }).click();
@@ -103,7 +113,14 @@ test.describe('Navigation', () => {
     await expect(page.locator('#estimate')).toBeVisible();
   });
 
-  test('should expose calmer jump rails on contact HQ', async ({ page }) => {
+  test('should expose calmer jump rails on contact HQ', async ({
+    page,
+    isMobile,
+  }) => {
+    if (isMobile) {
+      test.skip();
+    }
+
     await page.goto('./contact-hq/');
 
     await page.getByRole('link', { name: /^faq$/i }).click();

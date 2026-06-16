@@ -13,6 +13,7 @@ import ServicesQuiz from '../components/business/ServicesQuiz.tsx';
 import DecisionHandoffPanel from '../components/business/DecisionHandoffPanel.astro';
 import ProofOperatingSystem from '../components/business/ProofOperatingSystem.astro';
 import ProviderSelectionStandard from '../components/business/ProviderSelectionStandard.astro';
+import RouteProofStrip from '../components/business/RouteProofStrip.astro';
 import ScopeReadinessPanel from '../components/business/ScopeReadinessPanel.astro';
 import FAQAccordion from '../components/ui/FAQAccordion.astro';
 import {
@@ -90,6 +91,30 @@ const serviceSections = [
   { label: 'Comparison', href: '#service-planner' },
   { label: 'Proof', href: '#case-studies' },
   { label: 'FAQ', href: '#faq' },
+];
+
+const serviceRouteProof = [
+  {
+    label: 'Discover',
+    title: 'Problem first',
+    copy: 'Support drag, access risk, recovery doubt, or Microsoft 365 sprawl sets the lane.',
+    status: 'verified' as const,
+    href: '#diagnostic-board',
+  },
+  {
+    label: 'Design',
+    title: 'Owner and handoff',
+    copy: 'The service path names the first owner, expected proof, and next decision.',
+    status: 'planned' as const,
+    href: '#decision-handoff',
+  },
+  {
+    label: 'Deliver',
+    title: 'Record left behind',
+    copy: 'Outputs stay visible as owners, risks, scope notes, and follow-up work.',
+    status: 'verified' as const,
+    href: '#service-tracks',
+  },
 ];
 
 const serviceTracks = [
@@ -287,6 +312,15 @@ const breadcrumbItems = [
       </div>
     </div>
   </section>
+
+  <RouteProofStrip
+    label="Service route"
+    title="Proven, repeatable, Chicago-built."
+    note="The service catalog should explain ownership, not hide behind tool names."
+    items={serviceRouteProof}
+    ctaHref={startProjectHref}
+    ctaLabel="Start fit check"
+  />
 
   <ProofOperatingSystem
     compact

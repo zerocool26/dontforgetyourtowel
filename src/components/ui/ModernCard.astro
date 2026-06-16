@@ -123,7 +123,7 @@ const Tag = href ? 'a' : 'div';
     border: 1px solid color-mix(in srgb, var(--color-border) 76%, transparent);
     isolation: isolate;
     backdrop-filter: none;
-    box-shadow: none;
+    box-shadow: 0 22px 48px -42px rgba(0, 0, 0, 0.76);
   }
 
   .modern-card__surface {
@@ -133,11 +133,11 @@ const Tag = href ? 'a' : 'div';
     border-radius: inherit;
     background: linear-gradient(
       180deg,
-      rgba(255, 255, 255, 0.035),
-      rgba(255, 255, 255, 0.015) 26%,
+      rgba(255, 255, 255, 0.06),
+      rgba(255, 255, 255, 0.018) 26%,
       transparent 60%
     );
-    opacity: 0.24;
+    opacity: 0.34;
     pointer-events: none;
     transition: opacity 0.25s ease;
   }
@@ -159,10 +159,16 @@ const Tag = href ? 'a' : 'div';
 
   .modern-card--default {
     background:
+      repeating-linear-gradient(
+        0deg,
+        transparent 0 3.1rem,
+        color-mix(in srgb, var(--color-border) 12%, transparent) 3.1rem
+          calc(3.1rem + 1px)
+      ),
       linear-gradient(
         180deg,
-        color-mix(in srgb, var(--color-surface) 88%, white 2%),
-        color-mix(in srgb, var(--color-surface) 78%, transparent)
+        color-mix(in srgb, var(--color-surface) 90%, white 3%),
+        color-mix(in srgb, var(--color-surface) 72%, transparent)
       ),
       linear-gradient(
         135deg,
@@ -173,8 +179,7 @@ const Tag = href ? 'a' : 'div';
         ),
         transparent 64%
       ),
-      color-mix(in srgb, var(--color-surface) 82%, transparent);
-    box-shadow: none;
+      color-mix(in srgb, var(--color-surface) 86%, transparent);
   }
 
   .modern-card--outline {
@@ -191,20 +196,38 @@ const Tag = href ? 'a' : 'div';
   }
 
   .modern-card--gradient {
-    background: linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--color-text-primary) 2.5%, transparent),
-      color-mix(in srgb, var(--color-primary-strong) 4%, transparent)
+    border-color: color-mix(
+      in srgb,
+      var(--color-primary) 24%,
+      var(--color-border) 76%
     );
-    box-shadow: none;
+    background:
+      repeating-linear-gradient(
+        0deg,
+        transparent 0 3rem,
+        color-mix(in srgb, var(--color-primary) 10%, transparent) 3rem
+          calc(3rem + 1px)
+      ),
+      linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--color-primary) 13%, transparent),
+        color-mix(in srgb, var(--color-primary-strong) 9%, transparent)
+      ),
+      color-mix(in srgb, var(--color-surface) 88%, transparent);
   }
 
   .modern-card--glass {
     background:
+      repeating-linear-gradient(
+        0deg,
+        transparent 0 3rem,
+        color-mix(in srgb, var(--color-border) 14%, transparent) 3rem
+          calc(3rem + 1px)
+      ),
       linear-gradient(
         180deg,
-        color-mix(in srgb, var(--color-surface) 88%, white 2%),
-        color-mix(in srgb, var(--color-surface) 78%, transparent)
+        color-mix(in srgb, var(--color-surface) 88%, white 3%),
+        color-mix(in srgb, var(--color-surface) 72%, transparent)
       ),
       linear-gradient(
         135deg,
@@ -213,7 +236,6 @@ const Tag = href ? 'a' : 'div';
         transparent 60%
       ),
       color-mix(in srgb, var(--color-surface) 86%, transparent);
-    box-shadow: none;
     backdrop-filter: none;
   }
 

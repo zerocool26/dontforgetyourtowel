@@ -10,6 +10,7 @@ import OperationalIntelligenceWorkbench from '../components/business/Operational
 import DecisionHandoffPanel from '../components/business/DecisionHandoffPanel.astro';
 import ProofOperatingSystem from '../components/business/ProofOperatingSystem.astro';
 import ProviderSelectionStandard from '../components/business/ProviderSelectionStandard.astro';
+import RouteProofStrip from '../components/business/RouteProofStrip.astro';
 import { withBasePath } from '../utils/helpers';
 import {
   CONTACT_CALENDAR_URL,
@@ -222,6 +223,30 @@ const contactSections = [
   { label: 'Channels', href: '#channels' },
   { label: 'Message checklist', href: '#intake' },
   { label: 'FAQ', href: '#faq' },
+];
+
+const contactRouteProof = [
+  {
+    label: 'Business overview',
+    title: 'Plain-English problem',
+    copy: 'Send the main issue, company shape, timing, and approval constraint.',
+    status: 'verified' as const,
+    href: '#intake',
+  },
+  {
+    label: 'Current IT setup',
+    title: 'Provider and tool context',
+    copy: 'Share users, devices, locations, vendors, Microsoft 365, backup, and urgency.',
+    status: 'review' as const,
+    href: '#structured-intake',
+  },
+  {
+    label: 'Next response',
+    title: 'Owner and missing details',
+    copy: 'The reply should name a likely owner, what is missing, and the next step.',
+    status: 'planned' as const,
+    href: '#channels',
+  },
 ];
 
 const faqs = [
@@ -581,6 +606,15 @@ const faqSchema = {
       </div>
     </div>
   </section>
+
+  <RouteProofStrip
+    label="HQ intake checklist"
+    title="One submission. Better answers."
+    note="Include what you can; approximate counts are fine for the first pass."
+    items={contactRouteProof}
+    ctaHref="#structured-intake"
+    ctaLabel="Submit intake"
+  />
 
   <ProofOperatingSystem
     compact

@@ -12,7 +12,7 @@ test.describe('Base path smoke', () => {
     await expect(
       page.getByRole('heading', {
         level: 1,
-        name: /choose the right lane across support, security, Microsoft 365, cloud, continuity, and client-facing systems\./i,
+        name: /Services that make IT feel owned again/i,
       })
     ).toBeVisible();
 
@@ -20,13 +20,18 @@ test.describe('Base path smoke', () => {
     await expect(page).toHaveURL(/.*\/contact-hq\/?$/);
     await expect(
       page.getByRole('heading', {
-        name: /send the right context once and make the next move obvious\./i,
+        name: /Send the right context once/i,
       })
     ).toBeVisible();
 
     await page.goto('about/?demo=cart#shop-experience');
     await expect(page).toHaveURL(/.*\/about\/\?demo=cart#shop-experience$/);
-    await expect(page.locator('#shop-experience')).toBeVisible();
+    await expect(
+      page.getByRole('heading', {
+        level: 1,
+        name: /The best MSP is the one that makes ownership obvious/i,
+      })
+    ).toBeVisible();
   });
 
   test('header navigation keeps users on base-aware internal routes', async ({
@@ -41,12 +46,12 @@ test.describe('Base path smoke', () => {
       await menuButton.click();
 
       const mobileMenu = page.locator('#mobile-menu');
-      await mobileMenu.getByRole('link', { name: /^solutions$/i }).click();
+      await mobileMenu.getByRole('link', { name: /^what we own$/i }).click();
     } else {
       const headerNav = page.getByRole('navigation', {
         name: /main navigation/i,
       });
-      await headerNav.getByRole('link', { name: /^solutions$/i }).click();
+      await headerNav.getByRole('link', { name: /^what we own$/i }).click();
     }
 
     await expect(page).toHaveURL(/.*\/services\/?$/);

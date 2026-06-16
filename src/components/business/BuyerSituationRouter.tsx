@@ -51,8 +51,7 @@ export default function BuyerSituationRouter({
 
   const active = useMemo(
     () =>
-      situations.find(situation => situation.id === activeId) ??
-      situations[0],
+      situations.find(situation => situation.id === activeId) ?? situations[0],
     [activeId, situations]
   );
 
@@ -450,7 +449,11 @@ export default function BuyerSituationRouter({
       </div>
 
       <div className="buyer-router__grid">
-        <div className="buyer-router__list" role="list">
+        <div
+          className="buyer-router__list"
+          role="group"
+          aria-label="Buyer situations"
+        >
           {situations.map(situation => {
             const selected = situation.id === active.id;
 

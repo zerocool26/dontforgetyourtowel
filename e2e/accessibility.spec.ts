@@ -10,7 +10,7 @@ test.describe('Accessibility', () => {
     await expect(
       page.getByRole('heading', {
         level: 1,
-        name: /CHICAGOS #1 MSP for IT support that gets answered, owned, and proven/i,
+        name: /When IT feels ownerless, the business slows down/i,
       })
     ).toBeAttached();
     await expect(
