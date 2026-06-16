@@ -4,6 +4,13 @@ import { isLegacyRouteUrl } from '../utils/legacy-routes';
 import { tradeProfiles } from '../data/trades';
 import { decisionHandoffLanes } from '../data/decision-handoff';
 import {
+  competitiveProofPatterns2026,
+  designQualityPrinciples2026,
+  marketSignals2026,
+  resourceRecommendations2026,
+  technologyRadar2026,
+} from '../data/research-radar';
+import {
   getTradeOperations,
   getTradeSubpageOperations,
 } from '../data/trade-operations';
@@ -66,6 +73,94 @@ export async function GET() {
       lane.label.toLowerCase(),
     ],
   }));
+
+  const indexedAt = new Date().toISOString();
+  const slugify = (value: string) =>
+    value
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+  const sourceTags = (
+    sources: Array<{ label: string; type: string }>
+  ): string[] =>
+    sources.flatMap(source => [
+      source.type,
+      source.label.toLowerCase(),
+      ...source.label.toLowerCase().split(/\s+/).filter(Boolean),
+    ]);
+
+  const researchRadarItems: SearchItem[] = [
+    ...marketSignals2026.map(item => ({
+      id: `radar-market-${slugify(item.title)}`,
+      title: item.title,
+      description: `${item.buyerReality} Site move: ${item.siteMove}`,
+      category: 'Research Radar',
+      url: 'services/#research-radar',
+      date: indexedAt,
+      tags: [
+        'research radar',
+        'market signal',
+        'buyer reality',
+        ...sourceTags(item.sources),
+      ],
+    })),
+    ...competitiveProofPatterns2026.map(item => ({
+      id: `radar-proof-${slugify(item.pattern)}`,
+      title: item.pattern,
+      description: `${item.whatBuyersExpect} Proof rule: ${item.proofRule}`,
+      category: 'Research Radar',
+      url: 'services/#research-radar',
+      date: indexedAt,
+      tags: [
+        'research radar',
+        'competitive proof',
+        'proof pattern',
+        ...sourceTags(item.sources),
+      ],
+    })),
+    ...designQualityPrinciples2026.map(item => ({
+      id: `radar-design-${slugify(item.principle)}`,
+      title: item.principle,
+      description: `${item.whatMatureTeamsDo} Site application: ${item.siteApplication}`,
+      category: 'Research Radar',
+      url: 'services/#research-radar',
+      date: indexedAt,
+      tags: [
+        'research radar',
+        'design quality',
+        'accessibility',
+        ...sourceTags(item.sources),
+      ],
+    })),
+    ...technologyRadar2026.map(item => ({
+      id: `radar-technology-${slugify(item.title)}`,
+      title: item.title,
+      description: `${item.fit} Project use: ${item.projectUse}`,
+      category: 'Research Radar',
+      url: 'services/#research-radar',
+      date: indexedAt,
+      tags: [
+        'research radar',
+        'technology radar',
+        item.status.toLowerCase(),
+        ...sourceTags(item.sources),
+      ],
+    })),
+    ...resourceRecommendations2026.map(item => ({
+      id: `radar-resource-${slugify(item.name)}`,
+      title: item.name,
+      description: `${item.whyItHelps} Adoption note: ${item.adoptionNote}`,
+      category: 'Research Radar',
+      url: 'services/#research-radar',
+      date: indexedAt,
+      tags: [
+        'research radar',
+        'resource recommendation',
+        item.status.toLowerCase(),
+        ...sourceTags(item.sources),
+      ],
+    })),
+  ];
 
   const staticPages = [
     {
@@ -263,6 +358,7 @@ export async function GET() {
     ...caseStudyItems,
     ...blogItems,
     ...decisionHandoffItems,
+    ...researchRadarItems,
     ...staticPages,
     ...tradeItems,
   ].filter(item => !isLegacyRouteUrl(item.url));

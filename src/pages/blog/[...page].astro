@@ -4,7 +4,13 @@ import type { CollectionEntry } from 'astro:content';
 import MarketingLayout from '../../layouts/MarketingLayout.astro';
 import StructuredData from '../../components/StructuredData.astro';
 import ResourceDecisionTools from '../../components/business/ResourceDecisionTools.astro';
+import RouteProofStrip from '../../components/business/RouteProofStrip.astro';
 import ModernButton from '../../components/ui/ModernButton.astro';
+import {
+  getResourceLibraryRecord,
+  resourceLibraryLanes,
+  resourceLibraryProof,
+} from '../../data/resource-library';
 import { withBasePath } from '../../utils/helpers';
 
 export const prerender = true;
@@ -29,9 +35,33 @@ export async function getStaticPaths() {
 }
 
 const { posts } = Astro.props as { posts: BlogPost[] };
-const featuredPost = posts[0];
-const supportingPosts = posts.slice(1, 3);
-const remainingPosts = posts.slice(1);
+
+const formatDate = (date: Date) =>
+  date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+
+const getReadingMinutes = (post: BlogPost) => {
+  const wordCount = (post.body ?? '').split(/\s+/).filter(Boolean).length;
+  return Math.max(2, Math.round(wordCount / 180));
+};
+
+const resourceRows = posts.map(post => ({
+  post,
+  record: getResourceLibraryRecord(post.id),
+  dateLabel: formatDate(post.data.pubDate),
+  readingMinutes: getReadingMinutes(post),
+}));
+
+const featuredResource = resourceRows[0];
+const supportingRows = resourceRows.slice(1, 3);
+
+const laneCards = resourceLibraryLanes.map(lane => ({
+  ...lane,
+  count: resourceRows.filter(row => row.record.lane === lane.filter).length,
+}));
 
 const tagLeaderboard = Array.from(
   posts
@@ -45,45 +75,22 @@ const tagLeaderboard = Array.from(
   .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
   .map(([label]) => label);
 
-const filterTags = ['All', ...tagLeaderboard];
-
-const readingLanes = [
-  {
-    title: 'Buyer clarity',
-    copy: 'Articles that help operators understand ownership, provider fit, onboarding, and what a credible MSP should explain before a contract.',
-    href: withBasePath('services/'),
-    label: 'Explore solutions',
-  },
-  {
-    title: 'Security baseline',
-    copy: 'Practical notes on MFA, admin access, backup evidence, email security, response contacts, and cyber-insurance pressure.',
-    href: withBasePath('pricing/'),
-    label: 'See planning tracks',
-  },
-  {
-    title: 'Operational cleanup',
-    copy: 'Microsoft 365, support onboarding, vendor records, access cleanup, and runbook-style improvements that reduce daily drag.',
-    href: withBasePath('contact-hq/'),
-    label: 'Start an intake',
-  },
+const laneFilters = resourceLibraryLanes.map(lane => lane.filter);
+const filterTags = [
+  'All',
+  ...laneFilters,
+  ...tagLeaderboard.filter(tag => !laneFilters.includes(tag)),
 ];
 
-const formatDate = (date: Date) =>
-  date.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
-
-const getReadingMinutes = (post: BlogPost) => {
-  const wordCount = (post.body ?? '').split(/\s+/).filter(Boolean).length;
-  return Math.max(2, Math.round(wordCount / 180));
+const heroImage = {
+  desktop: withBasePath('media/chicago-ops-command.webp'),
+  mobile: withBasePath('media/chicago-ops-command-mobile.webp'),
 };
 ---
 
 <MarketingLayout
-  title="Blog | CHICAGOS #1 MSP"
-  description="Editorial field notes on managed IT, cybersecurity, Microsoft 365, cloud cleanup, backup confidence, and workflow support for Chicago-area teams."
+  title="Resources | CHICAGOS #1 MSP"
+  description="Practical resource library for managed IT, cybersecurity, Microsoft 365 cleanup, backup confidence, provider transitions, and workflow decisions for Chicago-area teams."
   bodyClass="creative-page"
   mainClass="relative isolate overflow-x-clip"
   showFooter={true}
@@ -94,25 +101,45 @@ const getReadingMinutes = (post: BlogPost) => {
   <StructuredData
     type="collection"
     data={{
-      name: 'CHICAGOS #1 MSP Blog',
+      name: 'CHICAGOS #1 MSP Resource Library',
       description:
-        'Editorial field notes about managed IT, security, Microsoft 365, backup confidence, and workflow support.',
+        'Decision-focused resources about managed IT, security, Microsoft 365, backup confidence, provider transitions, and workflow support.',
+      hasPart: posts.map(post => ({
+        '@type': 'BlogPosting',
+        headline: post.data.title,
+        url: withBasePath(`blog/${post.id}/`),
+      })),
     }}
   />
 
   <section class="blog-page-hero" data-page-section>
     <div class="premium-container">
       <div class="blog-page-hero__grid">
-        <div class="tone-page-header">
-          <p class="tone-page-eyebrow">Blog</p>
+        <div class="tone-page-header blog-page-hero__copy">
+          <p class="tone-page-eyebrow">Resource library</p>
           <h1 class="tone-page-title">
-            Field notes for cleaner technology decisions.
+            Resources that make the next IT decision clearer.
           </h1>
           <p class="tone-page-copy">
-            Plain-language guidance on provider transitions, stale access,
-            security baselines, Microsoft 365 cleanup, backup assumptions,
-            vendor ownership, and workflow systems that support service clarity.
+            Start with the pressure in front of you: provider transition,
+            security baseline, Microsoft 365 cleanup, backup confidence, or a
+            workflow handoff that needs better ownership.
           </p>
+
+          <div class="blog-hero-proof" aria-label="Resource library summary">
+            <span>
+              <strong>{posts.length}</strong>
+              <small>field notes</small>
+            </span>
+            <span>
+              <strong>{resourceLibraryLanes.length}</strong>
+              <small>decision lanes</small>
+            </span>
+            <span>
+              <strong>RSS</strong>
+              <small>feed ready</small>
+            </span>
+          </div>
 
           <div class="tone-page-actions">
             <ModernButton
@@ -120,7 +147,7 @@ const getReadingMinutes = (post: BlogPost) => {
               variant="gradient"
               className="min-h-[52px]"
             >
-              Browse articles
+              Browse decision library
             </ModernButton>
             <ModernButton
               href={withBasePath('news/')}
@@ -132,43 +159,82 @@ const getReadingMinutes = (post: BlogPost) => {
           </div>
         </div>
 
-        {
-          featuredPost ? (
-            <a
-              class="blog-feature tone-panel-soft"
-              href={withBasePath(`blog/${featuredPost.id}/`)}
-            >
-              <p class="blog-meta-kicker">Featured note</p>
-              <h2>{featuredPost.data.title}</h2>
-              <p>{featuredPost.data.description}</p>
-              <div class="blog-feature__meta">
-                <span>{formatDate(featuredPost.data.pubDate)}</span>
-                <span>{getReadingMinutes(featuredPost)} min read</span>
-              </div>
-              <div class="blog-tags">
-                {featuredPost.data.tags.slice(0, 4).map(tag => (
-                  <span>{tag}</span>
-                ))}
-              </div>
-            </a>
-          ) : null
-        }
+        <div class="blog-command-visual" aria-label="Featured resource">
+          <picture>
+            <source media="(max-width: 720px)" srcset={heroImage.mobile} />
+            <img
+              src={heroImage.desktop}
+              alt="Chicago office technology command desk used as a visual frame for resource planning."
+              loading="eager"
+              decoding="async"
+            />
+          </picture>
+
+          {
+            featuredResource ? (
+              <a
+                class="blog-feature-receipt tone-focus-accent"
+                href={withBasePath(`blog/${featuredResource.post.id}/`)}
+              >
+                <p class="blog-meta-kicker">Featured field note</p>
+                <h2>{featuredResource.post.data.title}</h2>
+                <p>{featuredResource.record.buyerQuestion}</p>
+                <ul aria-label="What this article helps inspect">
+                  {featuredResource.record.evidence.slice(0, 3).map(item => (
+                    <li>{item}</li>
+                  ))}
+                </ul>
+                <div class="blog-feature-receipt__meta">
+                  <span>{featuredResource.dateLabel}</span>
+                  <span>{featuredResource.readingMinutes} min read</span>
+                  <span>{featuredResource.record.stage}</span>
+                </div>
+              </a>
+            ) : null
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <RouteProofStrip
+    label="Resource operating receipt"
+    title="Read, inspect, act."
+    note="Each resource should reduce ambiguity before a call, project, contract, or internal review."
+    items={resourceLibraryProof}
+    ctaHref={withBasePath('contact-hq/')}
+    ctaLabel="Start fit check"
+  />
+
+  <section class="blog-page-section" data-page-section>
+    <div class="premium-container">
+      <div class="tone-section-heading">
+        <p class="tone-section-kicker">Decision lanes</p>
+        <h2 class="tone-section-title">
+          Pick the operating pressure before picking the article.
+        </h2>
       </div>
 
-      <div class="blog-signal-grid" aria-label="Editorial guideposts">
+      <div class="blog-lane-board" aria-label="Resource decision lanes">
         {
-          readingLanes.map(lane => (
-            <article class="blog-signal-card tone-panel-soft">
-              <p class="blog-meta-kicker">{lane.title}</p>
-              <p>{lane.copy}</p>
-              <ModernButton
-                href={lane.href}
-                variant="outline"
-                className="min-h-[46px]"
-              >
-                {lane.label}
-              </ModernButton>
-            </article>
+          laneCards.map(lane => (
+            <a
+              class="blog-lane-card tone-focus-accent"
+              href={`${withBasePath('blog/')}?topic=${encodeURIComponent(lane.filter)}#blog-library`}
+            >
+              <span class="blog-lane-card__rail" aria-hidden="true" />
+              <span class="blog-lane-card__top">
+                <span>{lane.shortLabel}</span>
+                <strong>
+                  {lane.count} {lane.count === 1 ? 'note' : 'notes'}
+                </strong>
+              </span>
+              <span class="blog-lane-card__body">
+                <strong>{lane.label}</strong>
+                <span>{lane.copy}</span>
+              </span>
+              <span class="blog-lane-card__proof">{lane.proof}</span>
+            </a>
           ))
         }
       </div>
@@ -182,99 +248,125 @@ const getReadingMinutes = (post: BlogPost) => {
     description="The best resource path helps a buyer decide what to inspect next. Choose a pressure point to preview the evidence, owners, and output that should shape the conversation."
   />
 
-  <section class="blog-page-section" data-page-section>
-    <div class="premium-container">
-      <div class="tone-section-heading">
-        <p class="tone-section-kicker">Start here</p>
-        <h2 class="tone-section-title">
-          Start with the notes that clarify support, security, and cleanup work.
-        </h2>
-      </div>
+  {
+    supportingRows.length ? (
+      <section class="blog-page-section" data-page-section>
+        <div class="premium-container">
+          <div class="tone-section-heading">
+            <p class="tone-section-kicker">Start here</p>
+            <h2 class="tone-section-title">
+              Two notes that quickly clarify support, security, and cleanup
+              work.
+            </h2>
+          </div>
 
-      <div class="blog-support-grid">
-        {
-          supportingPosts.map(post => (
-            <a
-              class="blog-support-card tone-panel-soft"
-              href={withBasePath(`blog/${post.id}/`)}
-            >
-              <div class="blog-support-card__meta">
-                <span>{formatDate(post.data.pubDate)}</span>
-                <span>{getReadingMinutes(post)} min read</span>
-              </div>
-              <h3>{post.data.title}</h3>
-              <p>{post.data.description}</p>
-              <div class="blog-tags">
-                {post.data.tags.slice(0, 3).map(tag => (
-                  <span>{tag}</span>
-                ))}
-              </div>
-            </a>
-          ))
-        }
-      </div>
-    </div>
-  </section>
+          <div class="blog-support-grid">
+            {supportingRows.map(row => (
+              <a
+                class="blog-support-card tone-focus-accent"
+                href={withBasePath(`blog/${row.post.id}/`)}
+              >
+                <span class="blog-support-card__meta">
+                  <span>{row.dateLabel}</span>
+                  <span>{row.readingMinutes} min read</span>
+                </span>
+                <h3>{row.post.data.title}</h3>
+                <p>{row.record.pressure}</p>
+                <span class="blog-support-card__next">
+                  {row.record.nextAction}
+                </span>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+    ) : null
+  }
 
   <section class="blog-page-section" id="blog-library" data-page-section>
     <div class="premium-container">
       <div class="tone-section-heading">
-        <p class="tone-section-kicker">Article library</p>
+        <p class="tone-section-kicker">Article ledger</p>
         <h2 class="tone-section-title">
           Filter by topic and jump to the question in front of you.
         </h2>
       </div>
 
-      <div class="blog-filter-bar" data-blog-filter-group>
-        {
-          filterTags.map((tag, index) => (
-            <button
-              type="button"
-              class:list={['blog-filter-button', index === 0 && 'is-active']}
-              data-blog-filter={tag}
-              aria-pressed={index === 0 ? 'true' : 'false'}
-            >
-              {tag}
-            </button>
-          ))
-        }
-      </div>
-
-      <div class="blog-state-bar tone-panel-soft">
-        <div>
-          <p class="blog-meta-kicker">Current view</p>
-          <p class="blog-state-bar__title" data-blog-active-state>
-            All topics • {posts.length} articles
-          </p>
+      <div class="blog-library-shell">
+        <div
+          class="blog-filter-bar"
+          data-blog-filter-group
+          role="toolbar"
+          aria-label="Filter resources by topic"
+        >
+          {
+            filterTags.map((tag, index) => (
+              <button
+                type="button"
+                class:list={['blog-filter-button', index === 0 && 'is-active']}
+                data-blog-filter={tag}
+                aria-pressed={index === 0 ? 'true' : 'false'}
+              >
+                {tag}
+              </button>
+            ))
+          }
         </div>
-        <button type="button" class="blog-state-button" data-blog-reset>
-          Reset filter
-        </button>
-      </div>
 
-      <div class="blog-grid" data-blog-grid>
-        {
-          remainingPosts.map(post => (
-            <a
-              class="blog-card"
-              href={withBasePath(`blog/${post.id}/`)}
-              data-blog-card
-              data-blog-tags={post.data.tags.join('|')}
-            >
-              <div class="blog-card__meta">
-                <span>{formatDate(post.data.pubDate)}</span>
-                <span>{getReadingMinutes(post)} min read</span>
-              </div>
-              <h3>{post.data.title}</h3>
-              <p>{post.data.description}</p>
-              <div class="blog-tags">
-                {post.data.tags.slice(0, 4).map(tag => (
-                  <span>{tag}</span>
-                ))}
-              </div>
-            </a>
-          ))
-        }
+        <div class="blog-state-bar tone-panel-soft">
+          <div>
+            <p class="blog-meta-kicker">Current view</p>
+            <p class="blog-state-bar__title" data-blog-active-state>
+              All topics - {resourceRows.length} articles
+            </p>
+          </div>
+          <button type="button" class="blog-state-button" data-blog-reset>
+            Reset filter
+          </button>
+        </div>
+
+        <div class="blog-ledger" data-blog-grid>
+          {
+            resourceRows.map(row => (
+              <a
+                class="blog-ledger-row tone-focus-accent"
+                href={withBasePath(`blog/${row.post.id}/`)}
+                data-blog-card
+                data-blog-tags={[row.record.lane, ...row.post.data.tags].join(
+                  '|'
+                )}
+              >
+                <span
+                  class="blog-ledger-row__status"
+                  data-status={row.record.status}
+                  aria-hidden="true"
+                />
+                <span class="blog-ledger-row__main">
+                  <span class="blog-meta-kicker">{row.record.lane}</span>
+                  <strong>{row.post.data.title}</strong>
+                  <span>{row.record.buyerQuestion}</span>
+                  <span class="blog-tags">
+                    {row.post.data.tags.slice(0, 4).map(tag => (
+                      <span>{tag}</span>
+                    ))}
+                  </span>
+                </span>
+                <span class="blog-ledger-row__proof">
+                  <span>
+                    {row.dateLabel} / {row.readingMinutes} min
+                  </span>
+                  <strong>{row.record.nextAction}</strong>
+                  <small>{row.record.proofCue}</small>
+                </span>
+              </a>
+            ))
+          }
+        </div>
+
+        <p class="blog-empty-state tone-panel-soft" data-blog-empty hidden>
+          No resources match this filter yet. Reset the view or start from a
+          worksheet above.
+        </p>
       </div>
     </div>
   </section>
@@ -285,26 +377,26 @@ const getReadingMinutes = (post: BlogPost) => {
         <div>
           <p class="blog-meta-kicker">Keep the editorial context going</p>
           <h2>
-            Pair the written guidance with briefings, live review examples, and
-            a clearer intake path.
+            Pair written guidance with live briefings, trust posture, and a
+            clearer intake path.
           </h2>
           <p>
-            The strongest editorial systems do not stop at articles. They help a
-            reader turn the idea into a question, a checklist, or a scoped
+            The strongest resource systems do not stop at articles. They help a
+            reader turn the idea into a worksheet, a proof request, or a scoped
             conversation.
           </p>
         </div>
         <div class="blog-editorial-cta__actions">
           <ModernButton
-            href={withBasePath('news/')}
-            variant="gradient"
+            href={withBasePath('rss.xml')}
+            variant="outline"
             className="min-h-[48px]"
           >
-            Open news + podcast
+            Subscribe by RSS
           </ModernButton>
           <ModernButton
             href={withBasePath('trust-center/')}
-            variant="outline"
+            variant="gradient"
             className="min-h-[48px]"
           >
             Review trust proof
@@ -327,6 +419,7 @@ const getReadingMinutes = (post: BlogPost) => {
       );
       const cards = Array.from(document.querySelectorAll('[data-blog-card]'));
       const resetButton = document.querySelector('[data-blog-reset]');
+      const emptyState = document.querySelector('[data-blog-empty]');
 
       if (!(root instanceof HTMLElement) || !(state instanceof HTMLElement)) {
         return;
@@ -338,9 +431,16 @@ const getReadingMinutes = (post: BlogPost) => {
 
       root.dataset.blogBound = 'true';
 
+      const availableFilters = new Set(
+        buttons
+          .filter(button => button instanceof HTMLElement)
+          .map(button => button.dataset.blogFilter || 'All')
+      );
+
       const readFilter = () => {
         const params = new URLSearchParams(window.location.search);
-        return params.get(FILTER_PARAM) || 'All';
+        const requested = params.get(FILTER_PARAM) || 'All';
+        return availableFilters.has(requested) ? requested : 'All';
       };
 
       let activeFilter = readFilter();
@@ -376,7 +476,10 @@ const getReadingMinutes = (post: BlogPost) => {
           if (isVisible) visibleCount += 1;
         });
 
-        state.textContent = `${activeFilter} • ${visibleCount} article${visibleCount === 1 ? '' : 's'}`;
+        state.textContent = `${activeFilter} - ${visibleCount} article${visibleCount === 1 ? '' : 's'}`;
+        if (emptyState instanceof HTMLElement) {
+          emptyState.hidden = visibleCount > 0;
+        }
         syncButtons();
         syncUrl();
       };
@@ -414,131 +517,364 @@ const getReadingMinutes = (post: BlogPost) => {
 <style is:inline>
   .blog-page-hero,
   .blog-page-section {
-    padding: clamp(4.25rem, 8vw, 6.75rem) 0;
     border-bottom: 1px solid
       color-mix(in srgb, var(--color-border) 70%, transparent);
   }
 
   .blog-page-hero {
-    padding-top: clamp(5.8rem, 9vw, 7.5rem);
+    padding: clamp(5.8rem, 9vw, 7.8rem) 0 clamp(4.25rem, 7vw, 6.25rem);
+    background:
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--color-surface) 72%, transparent),
+        transparent 58%
+      ),
+      linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--color-primary) 7%, transparent),
+        transparent 42%
+      );
+  }
+
+  .blog-page-section {
+    padding: clamp(4.25rem, 8vw, 6.75rem) 0;
   }
 
   .blog-page-hero__grid,
-  .blog-signal-grid,
+  .blog-lane-board,
   .blog-support-grid,
-  .blog-grid {
+  .blog-ledger {
     display: grid;
     gap: 1rem;
   }
 
-  .blog-feature,
-  .blog-signal-card,
+  .blog-page-hero__copy {
+    align-content: center;
+  }
+
+  .blog-hero-proof {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.7rem;
+    max-width: 35rem;
+  }
+
+  .blog-hero-proof span,
+  .blog-feature-receipt,
+  .blog-lane-card,
   .blog-support-card,
   .blog-state-bar,
+  .blog-ledger-row,
+  .blog-empty-state,
   .blog-editorial-cta {
-    padding: 1.2rem;
-    border-radius: 1.5rem;
+    border: 1px solid color-mix(in srgb, var(--color-border) 76%, transparent);
+    border-radius: 8px;
   }
 
-  .blog-meta-kicker,
-  .blog-support-card__meta,
-  .blog-card__meta,
-  .blog-state-bar__title {
-    margin: 0;
+  .blog-hero-proof span {
+    display: grid;
+    gap: 0.25rem;
+    min-height: 4.8rem;
+    align-content: center;
+    padding: 0.85rem;
+    background: color-mix(in srgb, var(--color-surface) 82%, transparent);
   }
 
-  .blog-meta-kicker,
+  .blog-hero-proof strong {
+    color: var(--color-text-primary);
+    font-family: var(--font-display);
+    font-size: clamp(1.25rem, 2vw, 1.65rem);
+    line-height: 1;
+  }
+
+  .blog-hero-proof small,
+  .blog-feature-receipt__meta,
   .blog-support-card__meta,
-  .blog-card__meta,
+  .blog-ledger-row__proof > span,
+  .blog-ledger-row__proof small,
+  .blog-lane-card__top,
+  .blog-lane-card__proof,
+  .blog-meta-kicker,
   .blog-filter-button,
   .blog-state-button {
     font-family: var(--font-mono);
     font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 0.16em;
+    font-weight: 760;
+    letter-spacing: 0.14em;
+    line-height: 1.35;
     text-transform: uppercase;
   }
 
-  .blog-meta-kicker,
+  .blog-hero-proof small,
+  .blog-feature-receipt__meta,
   .blog-support-card__meta,
-  .blog-card__meta {
+  .blog-ledger-row__proof > span,
+  .blog-ledger-row__proof small,
+  .blog-lane-card__top,
+  .blog-lane-card__proof,
+  .blog-meta-kicker {
     color: color-mix(in srgb, var(--color-text-muted) 92%, transparent);
   }
 
-  .blog-feature h2,
+  .blog-command-visual {
+    position: relative;
+    min-height: min(34rem, 72vw);
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--color-border) 74%, transparent);
+    border-radius: 8px;
+    background: var(--color-surface);
+    box-shadow: 0 34px 80px -62px rgba(0, 0, 0, 0.72);
+  }
+
+  .blog-command-visual picture,
+  .blog-command-visual img {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .blog-command-visual img {
+    position: absolute;
+    inset: 0;
+    object-fit: cover;
+    filter: saturate(0.94) contrast(1.02);
+  }
+
+  .blog-command-visual::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.58) 74%),
+      linear-gradient(90deg, rgba(0, 0, 0, 0.58), rgba(0, 0, 0, 0.06) 58%);
+    pointer-events: none;
+  }
+
+  .blog-feature-receipt {
+    position: absolute;
+    right: clamp(0.9rem, 3vw, 1.4rem);
+    bottom: clamp(0.9rem, 3vw, 1.4rem);
+    left: clamp(0.9rem, 3vw, 1.4rem);
+    z-index: 1;
+    display: grid;
+    gap: 0.75rem;
+    max-width: 38rem;
+    padding: clamp(1rem, 2.4vw, 1.35rem);
+    background:
+      repeating-linear-gradient(
+        0deg,
+        transparent 0 3.05rem,
+        color-mix(in srgb, var(--color-ink) 8%, transparent) 3.05rem
+          calc(3.05rem + 1px)
+      ),
+      linear-gradient(
+        135deg,
+        color-mix(in srgb, white 70%, var(--color-paper) 30%),
+        var(--color-paper)
+      );
+    color: var(--color-ink);
+    text-decoration: none;
+    box-shadow: 0 28px 70px -48px rgba(0, 0, 0, 0.88);
+  }
+
+  .blog-feature-receipt h2,
   .blog-support-card h3,
-  .blog-card h3,
   .blog-editorial-cta h2 {
     margin: 0;
-    color: var(--color-text-primary);
+    color: inherit;
     font-family: var(--font-display);
-    font-weight: 650;
+    font-weight: 680;
+    letter-spacing: 0;
     line-height: 1.04;
     text-wrap: balance;
   }
 
-  .blog-feature p,
-  .blog-signal-card p,
-  .blog-support-card p,
-  .blog-card p,
-  .blog-editorial-cta p {
-    margin: 0;
-    color: color-mix(in srgb, var(--color-text-secondary) 95%, transparent);
-    line-height: 1.68;
+  .blog-feature-receipt h2 {
+    font-size: clamp(1.28rem, 2.6vw, 2rem);
   }
 
-  .blog-feature,
+  .blog-feature-receipt p,
+  .blog-feature-receipt li {
+    color: color-mix(in srgb, var(--color-ink) 76%, transparent);
+    line-height: 1.52;
+  }
+
+  .blog-feature-receipt p,
+  .blog-feature-receipt ul,
+  .blog-support-card p,
+  .blog-editorial-cta p,
+  .blog-empty-state {
+    margin: 0;
+  }
+
+  .blog-feature-receipt ul {
+    display: grid;
+    gap: 0.35rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .blog-feature-receipt li {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.5rem;
+  }
+
+  .blog-feature-receipt li::before {
+    content: '';
+    width: 0.55rem;
+    height: 0.55rem;
+    margin-top: 0.5rem;
+    border: 1px solid var(--color-status-verified);
+    background: color-mix(
+      in srgb,
+      var(--color-status-verified) 18%,
+      transparent
+    );
+  }
+
+  .blog-feature-receipt .blog-meta-kicker,
+  .blog-feature-receipt__meta {
+    color: color-mix(in srgb, var(--color-ink) 58%, transparent);
+  }
+
+  .blog-feature-receipt__meta,
+  .blog-tags,
+  .blog-editorial-cta__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+
+  .blog-lane-board {
+    margin-top: 1.5rem;
+  }
+
+  .blog-lane-card {
+    position: relative;
+    display: grid;
+    gap: 0.95rem;
+    min-height: 13.5rem;
+    overflow: hidden;
+    padding: 1.05rem;
+    background:
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, white 3%, transparent),
+        transparent 50%
+      ),
+      color-mix(in srgb, var(--color-surface) 90%, transparent);
+    color: inherit;
+    text-decoration: none;
+    transition:
+      transform 0.2s ease,
+      border-color 0.2s ease,
+      background 0.2s ease;
+  }
+
+  .blog-lane-card:hover,
+  .blog-support-card:hover,
+  .blog-ledger-row:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--color-primary) 34%, transparent);
+  }
+
+  .blog-lane-card__rail {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+    background: color-mix(in srgb, var(--color-primary) 48%, transparent);
+  }
+
+  .blog-lane-card__top {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: space-between;
+  }
+
+  .blog-lane-card__top strong {
+    color: color-mix(in srgb, var(--color-primary) 76%, white 10%);
+  }
+
+  .blog-lane-card__body {
+    display: grid;
+    gap: 0.55rem;
+  }
+
+  .blog-lane-card__body strong {
+    color: var(--color-text-primary);
+    font-family: var(--font-display);
+    font-size: clamp(1.12rem, 2vw, 1.45rem);
+    line-height: 1.05;
+  }
+
+  .blog-lane-card__body span,
+  .blog-lane-card__proof,
+  .blog-support-card p,
+  .blog-ledger-row__main > span:not(.blog-meta-kicker):not(.blog-tags),
+  .blog-editorial-cta p,
+  .blog-empty-state {
+    color: color-mix(in srgb, var(--color-text-secondary) 94%, transparent);
+    line-height: 1.65;
+  }
+
+  .blog-lane-card__proof {
+    align-self: end;
+    padding-top: 0.85rem;
+    border-top: 1px solid
+      color-mix(in srgb, var(--color-border) 74%, transparent);
+    letter-spacing: 0.08em;
+  }
+
+  .blog-support-grid {
+    margin-top: 1.5rem;
+  }
+
   .blog-support-card,
-  .blog-card,
   .blog-editorial-cta {
     display: grid;
     gap: 0.9rem;
-    border: 1px solid color-mix(in srgb, var(--color-border) 74%, transparent);
+    padding: 1.15rem;
     background: color-mix(in srgb, var(--color-surface) 90%, transparent);
+    color: inherit;
+    text-decoration: none;
     transition:
       transform 0.2s ease,
       border-color 0.2s ease;
   }
 
-  .blog-feature:hover,
-  .blog-support-card:hover,
-  .blog-card:hover {
-    transform: translateY(-2px);
-    border-color: color-mix(in srgb, var(--color-primary) 30%, transparent);
+  .blog-support-card h3,
+  .blog-editorial-cta h2 {
+    color: var(--color-text-primary);
+    font-size: clamp(1.2rem, 2.4vw, 1.8rem);
   }
 
-  .blog-feature__meta,
-  .blog-support-card__meta,
-  .blog-card__meta,
-  .blog-filter-bar,
-  .blog-tags,
-  .blog-editorial-cta__actions {
+  .blog-support-card__next {
+    align-self: end;
+    color: color-mix(in srgb, var(--color-primary) 82%, white 10%);
+    font-weight: 720;
+  }
+
+  .blog-library-shell {
+    margin-top: 1.5rem;
+  }
+
+  .blog-filter-bar {
+    position: sticky;
+    z-index: 4;
+    top: 4.75rem;
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem;
-  }
-
-  .blog-tags span,
-  .blog-filter-button,
-  .blog-state-button {
+    gap: 0.55rem;
+    padding: 0.65rem;
     border: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
-    border-radius: 999px;
-  }
-
-  .blog-tags span {
-    display: inline-flex;
-    min-height: 2rem;
-    align-items: center;
-    padding: 0 0.75rem;
-    color: color-mix(in srgb, var(--color-text-primary) 78%, transparent);
-    font-size: 0.78rem;
-  }
-
-  .blog-filter-bar,
-  .blog-state-bar,
-  .blog-grid,
-  .blog-editorial-cta {
-    margin-top: 1.5rem;
+    border-radius: 8px;
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-surface) 94%, transparent),
+      color-mix(in srgb, var(--color-background) 82%, transparent)
+    );
+    backdrop-filter: blur(18px);
   }
 
   .blog-filter-button,
@@ -547,51 +883,250 @@ const getReadingMinutes = (post: BlogPost) => {
     min-height: 44px;
     align-items: center;
     justify-content: center;
-    padding: 0.8rem 1rem;
-    background: color-mix(in srgb, var(--color-surface) 88%, transparent);
-    color: color-mix(in srgb, var(--color-text-primary) 80%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-surface) 86%, transparent);
+    color: color-mix(in srgb, var(--color-text-primary) 82%, transparent);
     transition:
       transform 0.2s ease,
       border-color 0.2s ease,
       background 0.2s ease;
   }
 
-  .blog-filter-button.is-active {
-    background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+  .blog-filter-button {
+    padding: 0.72rem 0.9rem;
+  }
+
+  .blog-state-button {
+    padding: 0.75rem 1rem;
+  }
+
+  .blog-filter-button:hover,
+  .blog-state-button:hover {
+    transform: translateY(-1px);
     border-color: color-mix(in srgb, var(--color-primary) 28%, transparent);
+  }
+
+  .blog-filter-button.is-active {
+    background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+    border-color: color-mix(in srgb, var(--color-primary) 34%, transparent);
     color: var(--color-text-primary);
+  }
+
+  .blog-state-bar,
+  .blog-empty-state {
+    margin-top: 1rem;
+    padding: 1rem;
   }
 
   .blog-state-bar {
     display: flex;
     flex-wrap: wrap;
     gap: 1rem;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
   }
 
   .blog-state-bar__title {
+    margin: 0;
     color: var(--color-text-primary);
-    font-size: 0.96rem;
-    font-weight: 600;
-    letter-spacing: normal;
-    text-transform: none;
+    font-size: 0.98rem;
+    font-weight: 680;
+  }
+
+  .blog-ledger {
+    margin-top: 1rem;
+  }
+
+  .blog-ledger-row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.95rem;
+    padding: 1rem;
+    background:
+      linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--color-primary) 5%, transparent),
+        transparent 32%
+      ),
+      color-mix(in srgb, var(--color-surface) 88%, transparent);
+    color: inherit;
+    text-decoration: none;
+    transition:
+      transform 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .blog-ledger-row[hidden] {
+    display: none;
+  }
+
+  .blog-ledger-row__status {
+    width: 0.9rem;
+    height: 0.9rem;
+    margin-top: 0.2rem;
+    border: 1px solid currentColor;
+    border-radius: 3px;
+  }
+
+  .blog-ledger-row__status[data-status='verified'] {
+    color: var(--color-status-verified);
+    background: color-mix(
+      in srgb,
+      var(--color-status-verified) 18%,
+      transparent
+    );
+  }
+
+  .blog-ledger-row__status[data-status='review'] {
+    color: var(--color-status-review);
+    background: color-mix(in srgb, var(--color-status-review) 16%, transparent);
+  }
+
+  .blog-ledger-row__status[data-status='planned'] {
+    color: var(--color-status-planned);
+    background: color-mix(
+      in srgb,
+      var(--color-status-planned) 14%,
+      transparent
+    );
+  }
+
+  .blog-ledger-row__main,
+  .blog-ledger-row__proof {
+    display: grid;
+    gap: 0.45rem;
+    min-width: 0;
+  }
+
+  .blog-ledger-row__main > strong {
+    color: var(--color-text-primary);
+    font-family: var(--font-display);
+    font-size: clamp(1.08rem, 1.8vw, 1.35rem);
+    font-weight: 680;
+    line-height: 1.12;
+    text-wrap: balance;
+  }
+
+  .blog-ledger-row__proof {
+    align-content: start;
+    grid-column: 2;
+    padding-top: 0.1rem;
+  }
+
+  .blog-ledger-row__proof strong {
+    color: color-mix(in srgb, var(--color-primary) 82%, white 10%);
+    font-size: 0.95rem;
+    line-height: 1.35;
+  }
+
+  .blog-ledger-row__proof small {
+    letter-spacing: 0.08em;
+  }
+
+  .blog-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+  }
+
+  .blog-tags span {
+    display: inline-flex;
+    min-height: 2rem;
+    align-items: center;
+    border: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
+    border-radius: 999px;
+    padding: 0 0.65rem;
+    color: color-mix(in srgb, var(--color-text-primary) 78%, transparent);
+    font-size: 0.76rem;
+  }
+
+  .blog-empty-state {
+    display: block;
+  }
+
+  .blog-empty-state[hidden] {
+    display: none;
+  }
+
+  .blog-editorial-cta {
+    align-items: center;
+  }
+
+  @media (min-width: 760px) {
+    .blog-support-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .blog-ledger-row {
+      grid-template-columns: auto minmax(0, 1fr) minmax(13rem, 0.36fr);
+      align-items: start;
+    }
+
+    .blog-ledger-row__proof {
+      grid-column: auto;
+      border-left: 1px solid
+        color-mix(in srgb, var(--color-border) 72%, transparent);
+      padding-left: 1rem;
+    }
+
+    .blog-editorial-cta {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
   }
 
   @media (min-width: 960px) {
     .blog-page-hero__grid {
-      grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
-      align-items: end;
+      display: grid;
+      grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr);
+      gap: clamp(1.5rem, 4vw, 3rem);
+      align-items: center;
     }
 
-    .blog-signal-grid,
-    .blog-support-grid,
-    .blog-grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+    .blog-lane-board {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 640px) {
+    .blog-hero-proof {
+      grid-template-columns: 1fr;
     }
 
-    .blog-feature {
-      min-height: 100%;
+    .blog-command-visual {
+      min-height: 34rem;
+    }
+
+    .blog-filter-bar {
+      top: 4.25rem;
+      max-height: 12rem;
+      overflow: auto;
+    }
+
+    .blog-editorial-cta__actions {
+      width: 100%;
+    }
+
+    .blog-editorial-cta__actions .modern-button {
+      width: 100%;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .blog-lane-card,
+    .blog-support-card,
+    .blog-ledger-row,
+    .blog-filter-button,
+    .blog-state-button {
+      transition: none;
+    }
+
+    .blog-lane-card:hover,
+    .blog-support-card:hover,
+    .blog-ledger-row:hover,
+    .blog-filter-button:hover,
+    .blog-state-button:hover {
+      transform: none;
     }
   }
 </style>

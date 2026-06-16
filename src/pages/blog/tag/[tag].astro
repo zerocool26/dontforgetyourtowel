@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 import MarketingLayout from '../../../layouts/MarketingLayout.astro';
 import ModernButton from '../../../components/ui/ModernButton.astro';
+import { getResourceLibraryRecord } from '../../../data/resource-library';
 import { withBasePath } from '../../../utils/helpers';
 
 export const prerender = true;
@@ -31,11 +32,32 @@ export async function getStaticPaths() {
 }
 
 const { tag, posts } = Astro.props as { tag: string; posts: BlogPost[] };
+
+const formatDate = (date: Date) =>
+  date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+
+const getReadingMinutes = (post: BlogPost) => {
+  const wordCount = (post.body ?? '').split(/\s+/).filter(Boolean).length;
+  return Math.max(2, Math.round(wordCount / 180));
+};
+
+const tagRows = posts.map(post => ({
+  post,
+  record: getResourceLibraryRecord(post.id),
+  dateLabel: formatDate(post.data.pubDate),
+  readingMinutes: getReadingMinutes(post),
+}));
+
+const laneSummary = Array.from(new Set(tagRows.map(row => row.record.lane)));
 ---
 
 <MarketingLayout
-  title={`${tag} Articles | CHICAGOS #1 MSP Blog`}
-  description={`Articles tagged ${tag} from CHICAGOS #1 MSP on managed IT, security, Microsoft 365, cloud operations, backup, and workflow systems.`}
+  title={`${tag} Resources | CHICAGOS #1 MSP Blog`}
+  description={`Resources tagged ${tag} from CHICAGOS #1 MSP on managed IT, security, Microsoft 365, cloud operations, backup, and workflow systems.`}
   bodyClass="creative-page"
   mainClass="relative isolate overflow-x-clip"
   showFooter={true}
@@ -46,35 +68,62 @@ const { tag, posts } = Astro.props as { tag: string; posts: BlogPost[] };
   <section class="tag-page">
     <div class="premium-container">
       <div class="tag-page__header">
-        <p class="tag-eyebrow">Blog tag</p>
-        <h1>{tag}</h1>
-        <p>
-          Focused notes that mention {tag}, collected so readers can follow a
-          practical thread instead of bouncing through an archive.
-        </p>
+        <div>
+          <p class="tag-eyebrow">Topic ledger</p>
+          <h1>{tag}</h1>
+          <p>
+            Focused resources that mention {tag}, grouped by the operating
+            decision they help clarify.
+          </p>
+        </div>
+
+        <aside class="tag-receipt" aria-label="Topic summary">
+          <p class="tag-eyebrow">Resource count</p>
+          <strong>
+            {`${tagRows.length} ${tagRows.length === 1 ? 'note' : 'notes'}`}
+          </strong>
+          <span>
+            {
+              laneSummary.length
+                ? `Decision lanes: ${laneSummary.join(', ')}`
+                : 'Decision lane context will appear as resources are added.'
+            }
+          </span>
+        </aside>
+      </div>
+
+      <div class="tag-page__actions">
         <ModernButton href={withBasePath('blog/')} variant="outline">
-          Back to all posts
+          Back to all resources
+        </ModernButton>
+        <ModernButton
+          href={`${withBasePath('blog/')}?topic=${encodeURIComponent(tag)}#blog-library`}
+          variant="gradient"
+        >
+          Open filtered library
         </ModernButton>
       </div>
 
       <div class="tag-grid">
         {
-          posts.map(post => (
-            <a class="tag-card" href={withBasePath(`blog/${post.id}/`)}>
-              <p class="tag-card__date">
-                {post.data.pubDate.toLocaleDateString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                  year: 'numeric',
-                })}
-              </p>
-              <h2>{post.data.title}</h2>
-              <p>{post.data.description}</p>
-              <div class="tag-card__tags">
-                {post.data.tags.slice(0, 3).map(item => (
-                  <span>{item}</span>
-                ))}
-              </div>
+          tagRows.map(row => (
+            <a
+              class="tag-card tone-focus-accent"
+              href={withBasePath(`blog/${row.post.id}/`)}
+            >
+              <span
+                class="tag-card__status"
+                data-status={row.record.status}
+                aria-hidden="true"
+              />
+              <span class="tag-card__main">
+                <span class="tag-card__date">
+                  {row.record.lane} / {row.dateLabel} / {row.readingMinutes} min
+                </span>
+                <strong>{row.post.data.title}</strong>
+                <span>{row.record.buyerQuestion}</span>
+                <small>{row.record.nextAction}</small>
+              </span>
             </a>
           ))
         }
@@ -88,10 +137,14 @@ const { tag, posts } = Astro.props as { tag: string; posts: BlogPost[] };
     padding: clamp(6rem, 9vw, 8rem) 0 clamp(4rem, 8vw, 6rem);
   }
 
-  .tag-page__header {
+  .tag-page__header,
+  .tag-grid {
     display: grid;
     gap: 1rem;
-    max-width: 48rem;
+  }
+
+  .tag-page__header {
+    align-items: end;
   }
 
   .tag-eyebrow,
@@ -100,74 +153,184 @@ const { tag, posts } = Astro.props as { tag: string; posts: BlogPost[] };
     color: color-mix(in srgb, var(--color-text-muted) 90%, transparent);
     font-family: var(--font-mono);
     font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 0.2em;
+    font-weight: 760;
+    letter-spacing: 0.14em;
+    line-height: 1.35;
     text-transform: uppercase;
   }
 
-  .tag-page h1,
-  .tag-card h2 {
-    margin: 0;
+  .tag-page h1 {
+    margin: 0.4rem 0 0;
     color: var(--color-text-primary);
     font-family: var(--font-display);
-    font-size: clamp(1.45rem, 3.5vw, 3.6rem);
+    font-size: clamp(2.2rem, 5vw, 4.4rem);
     font-weight: 650;
-    line-height: 1.03;
+    line-height: 1;
     letter-spacing: 0;
     text-wrap: balance;
   }
 
   .tag-page__header p,
-  .tag-card p {
+  .tag-card__main > span:not(.tag-card__date),
+  .tag-receipt span {
     margin: 0;
     color: color-mix(in srgb, var(--color-text-secondary) 94%, transparent);
     font-size: 1rem;
     line-height: 1.7;
   }
 
-  .tag-grid {
+  .tag-page__header > div {
     display: grid;
-    gap: 1rem;
+    gap: 0.8rem;
+    max-width: 50rem;
+  }
+
+  .tag-receipt,
+  .tag-card {
+    border: 1px solid color-mix(in srgb, var(--color-border) 76%, transparent);
+    border-radius: 8px;
+  }
+
+  .tag-receipt {
+    display: grid;
+    gap: 0.6rem;
+    padding: 1rem;
+    background:
+      repeating-linear-gradient(
+        0deg,
+        transparent 0 3.05rem,
+        color-mix(in srgb, var(--color-ink) 8%, transparent) 3.05rem
+          calc(3.05rem + 1px)
+      ),
+      linear-gradient(
+        135deg,
+        color-mix(in srgb, white 70%, var(--color-paper) 30%),
+        var(--color-paper)
+      );
+    color: var(--color-ink);
+  }
+
+  .tag-receipt .tag-eyebrow,
+  .tag-receipt span {
+    color: color-mix(in srgb, var(--color-ink) 62%, transparent);
+  }
+
+  .tag-receipt strong {
+    color: var(--color-ink);
+    font-family: var(--font-display);
+    font-size: clamp(1.4rem, 3vw, 2.1rem);
+    line-height: 1;
+  }
+
+  .tag-page__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+
+  .tag-grid {
     margin-top: 2rem;
   }
 
   .tag-card {
     display: grid;
-    gap: 0.85rem;
-    padding: 1.25rem;
-    border: 1px solid color-mix(in srgb, var(--color-border) 74%, transparent);
-    border-radius: var(--radius-sm);
-    background: color-mix(in srgb, var(--color-surface) 84%, transparent);
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.9rem;
+    padding: 1rem;
+    background:
+      linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--color-primary) 5%, transparent),
+        transparent 32%
+      ),
+      color-mix(in srgb, var(--color-surface) 88%, transparent);
+    color: inherit;
+    text-decoration: none;
     transition:
-      border-color 0.2s ease,
-      transform 0.2s ease;
+      transform 0.2s ease,
+      border-color 0.2s ease;
   }
 
   .tag-card:hover {
-    transform: translateY(-3px);
-    border-color: color-mix(in srgb, var(--color-primary) 28%, transparent);
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--color-primary) 34%, transparent);
   }
 
-  .tag-card__tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.55rem;
+  .tag-card__status {
+    width: 0.9rem;
+    height: 0.9rem;
+    margin-top: 0.2rem;
+    border: 1px solid currentColor;
+    border-radius: 3px;
   }
 
-  .tag-card__tags span {
-    display: inline-flex;
-    min-height: 2rem;
-    align-items: center;
-    padding: 0 0.7rem;
-    border: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
-    border-radius: 999px;
-    color: color-mix(in srgb, var(--color-text-primary) 78%, transparent);
-    font-size: 0.78rem;
+  .tag-card__status[data-status='verified'] {
+    color: var(--color-status-verified);
+    background: color-mix(
+      in srgb,
+      var(--color-status-verified) 18%,
+      transparent
+    );
   }
 
-  @media (min-width: 860px) {
+  .tag-card__status[data-status='review'] {
+    color: var(--color-status-review);
+    background: color-mix(in srgb, var(--color-status-review) 16%, transparent);
+  }
+
+  .tag-card__status[data-status='planned'] {
+    color: var(--color-status-planned);
+    background: color-mix(
+      in srgb,
+      var(--color-status-planned) 14%,
+      transparent
+    );
+  }
+
+  .tag-card__main {
+    display: grid;
+    gap: 0.45rem;
+    min-width: 0;
+  }
+
+  .tag-card__main strong {
+    color: var(--color-text-primary);
+    font-family: var(--font-display);
+    font-size: clamp(1.12rem, 2vw, 1.45rem);
+    line-height: 1.1;
+    text-wrap: balance;
+  }
+
+  .tag-card__main small {
+    color: color-mix(in srgb, var(--color-primary) 82%, white 10%);
+    font-weight: 720;
+    line-height: 1.45;
+  }
+
+  @media (min-width: 840px) {
+    .tag-page__header {
+      grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.35fr);
+    }
+
     .tag-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 640px) {
+    .tag-page__actions :global(.modern-button) {
+      width: 100%;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tag-card {
+      transition: none;
+    }
+
+    .tag-card:hover {
+      transform: none;
     }
   }
 </style>

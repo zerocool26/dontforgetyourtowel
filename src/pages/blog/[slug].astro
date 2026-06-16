@@ -2,26 +2,93 @@
 import { getCollection, render } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 import MarketingLayout from '../../layouts/MarketingLayout.astro';
+import StructuredData from '../../components/StructuredData.astro';
 import ResourceDecisionTools from '../../components/business/ResourceDecisionTools.astro';
+import RouteProofStrip from '../../components/business/RouteProofStrip.astro';
 import ModernButton from '../../components/ui/ModernButton.astro';
+import { getResourceLibraryRecord } from '../../data/resource-library';
 import { withBasePath } from '../../utils/helpers';
 
 export const prerender = true;
 
 type BlogPost = CollectionEntry<'blog'>;
 
+const getReadingMinutes = (post: BlogPost) => {
+  const wordCount = (post.body ?? '').split(/\s+/).filter(Boolean).length;
+  return Math.max(2, Math.round(wordCount / 180));
+};
+
 export async function getStaticPaths() {
-  const posts = (await getCollection('blog')).filter(
-    entry => !entry.data.draft
-  );
-  return posts.map(post => ({
-    params: { slug: post.id },
-    props: { post },
-  }));
+  const posts = (await getCollection('blog'))
+    .filter(entry => !entry.data.draft)
+    .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+  return posts.map(post => {
+    const record = getResourceLibraryRecord(post.id);
+    const relatedPosts = posts
+      .filter(entry => entry.id !== post.id)
+      .map(entry => {
+        const entryRecord = getResourceLibraryRecord(entry.id);
+        const sharedTags = entry.data.tags.filter(tag =>
+          post.data.tags.includes(tag)
+        ).length;
+        const laneMatch = entryRecord.lane === record.lane ? 2 : 0;
+        return { entry, score: sharedTags + laneMatch };
+      })
+      .sort(
+        (a, b) =>
+          b.score - a.score ||
+          b.entry.data.pubDate.valueOf() - a.entry.data.pubDate.valueOf()
+      )
+      .slice(0, 2)
+      .map(item => item.entry);
+
+    return {
+      params: { slug: post.id },
+      props: { post, relatedPosts },
+    };
+  });
 }
 
-const { post } = Astro.props as { post: BlogPost };
-const { Content } = await render(post);
+const { post, relatedPosts } = Astro.props as {
+  post: BlogPost;
+  relatedPosts: BlogPost[];
+};
+const { Content, headings } = await render(post);
+const record = getResourceLibraryRecord(post.id);
+const articleHeadings = headings.filter(heading => heading.depth <= 3);
+const formattedDate = post.data.pubDate.toLocaleDateString('en-US', {
+  month: 'long',
+  day: 'numeric',
+  year: 'numeric',
+});
+const updatedDate = post.data.updatedDate?.toLocaleDateString('en-US', {
+  month: 'long',
+  day: 'numeric',
+  year: 'numeric',
+});
+const readingMinutes = getReadingMinutes(post);
+const articleProofItems = record.evidence.slice(0, 3).map((item, index) => ({
+  label: `0${index + 1} / Evidence`,
+  title: item,
+  copy:
+    index === 0
+      ? record.pressure
+      : index === 1
+        ? record.proofCue
+        : record.nextAction,
+  status:
+    index === 0
+      ? record.status
+      : index === 1
+        ? ('review' as const)
+        : ('planned' as const),
+}));
+const relatedResources = relatedPosts.map(entry => ({
+  post: entry,
+  record: getResourceLibraryRecord(entry.id),
+  readingMinutes: getReadingMinutes(entry),
+}));
 ---
 
 <MarketingLayout
@@ -34,31 +101,107 @@ const { Content } = await render(post);
   showLiveChat={false}
   showSavedRoutesDock={false}
 >
+  <StructuredData
+    type="article"
+    data={{
+      title: post.data.title,
+      headline: post.data.title,
+      description: post.data.description,
+      pubDate: post.data.pubDate.toISOString(),
+      datePublished: post.data.pubDate.toISOString(),
+      updatedDate: post.data.updatedDate?.toISOString(),
+      dateModified: (post.data.updatedDate ?? post.data.pubDate).toISOString(),
+      keywords: post.data.tags,
+    }}
+  />
+
   <article class="blog-post">
     <header class="blog-post-hero">
       <div class="premium-container">
-        <div class="blog-post-hero__copy">
-          <p class="blog-post-eyebrow">
-            {
-              post.data.pubDate.toLocaleDateString('en-US', {
-                month: 'long',
-                day: 'numeric',
-                year: 'numeric',
-              })
-            }
-          </p>
-          <h1>{post.data.title}</h1>
-          <p>{post.data.description}</p>
-          <div class="blog-post-tags">
-            {post.data.tags.map(tag => <span>{tag}</span>)}
+        <a
+          class="blog-post-back tone-focus-accent"
+          href={withBasePath('blog/')}
+        >
+          Back to resource library
+        </a>
+
+        <div class="blog-post-hero__grid">
+          <div class="blog-post-hero__copy">
+            <p class="blog-post-eyebrow">
+              {record.lane} / {formattedDate}
+            </p>
+            <h1>{post.data.title}</h1>
+            <p>{post.data.description}</p>
+            <div class="blog-post-tags">
+              {post.data.tags.map(tag => <span>{tag}</span>)}
+            </div>
+            <div class="blog-post-actions">
+              <ModernButton href="#article" variant="gradient">
+                Read article
+              </ModernButton>
+              <ModernButton
+                href={withBasePath(record.ctaHref)}
+                variant="outline"
+              >
+                {record.ctaLabel}
+              </ModernButton>
+            </div>
           </div>
+
+          <aside
+            class="blog-post-receipt"
+            aria-label="Article decision context"
+          >
+            <p class="blog-post-eyebrow">{record.stage}</p>
+            <h2>{record.buyerQuestion}</h2>
+            <p>{record.pressure}</p>
+            <div class="blog-post-receipt__meta">
+              <span>{readingMinutes} min read</span>
+              {updatedDate ? <span>Updated {updatedDate}</span> : null}
+              <span>{record.status}</span>
+            </div>
+          </aside>
         </div>
       </div>
     </header>
 
-    <div class="premium-container">
-      <div class="blog-post-body">
-        <Content />
+    <RouteProofStrip
+      label="Article decision receipt"
+      title="Evidence to gather next."
+      note={record.proofCue}
+      items={articleProofItems}
+      ctaHref={withBasePath(record.ctaHref)}
+      ctaLabel={record.ctaLabel}
+    />
+
+    <div class="premium-container" id="article">
+      <div class="blog-post-layout">
+        <aside class="blog-post-rail" aria-label="Article navigation">
+          {
+            articleHeadings.length ? (
+              <nav class="blog-post-rail__panel" aria-label="On this article">
+                <p class="blog-post-eyebrow">On this note</p>
+                <ol>
+                  {articleHeadings.map(heading => (
+                    <li data-depth={heading.depth}>
+                      <a href={`#${heading.slug}`}>{heading.text}</a>
+                    </li>
+                  ))}
+                </ol>
+              </nav>
+            ) : null
+          }
+
+          <div class="blog-post-rail__panel">
+            <p class="blog-post-eyebrow">Best next action</p>
+            <strong>{record.nextAction}</strong>
+            <p>{record.proofCue}</p>
+          </div>
+        </aside>
+
+        <div class="blog-post-body">
+          <Content />
+        </div>
       </div>
     </div>
 
@@ -70,10 +213,35 @@ const { Content } = await render(post);
       description="Use the worksheet preview to choose what proof, ownership, or scope context should be gathered before the next provider, recovery, Microsoft 365, security, or transition conversation."
     />
 
+    {
+      relatedResources.length ? (
+        <section class="blog-post-related" aria-labelledby="related-title">
+          <div class="premium-container">
+            <div class="blog-post-related__header">
+              <p class="blog-post-eyebrow">Read next</p>
+              <h2 id="related-title">Related resource paths</h2>
+            </div>
+            <div class="blog-post-related__grid">
+              {relatedResources.map(item => (
+                <a
+                  class="blog-post-related__card tone-focus-accent"
+                  href={withBasePath(`blog/${item.post.id}/`)}
+                >
+                  <span>{item.record.lane}</span>
+                  <strong>{item.post.data.title}</strong>
+                  <small>{item.readingMinutes} min read</small>
+                </a>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null
+    }
+
     <div class="premium-container">
       <div class="blog-post-next">
         <ModernButton href={withBasePath('blog/')} variant="outline">
-          Back to blog
+          Back to resources
         </ModernButton>
         <ModernButton href={withBasePath('contact-hq/')} variant="primary">
           Start a fit review
@@ -84,25 +252,62 @@ const { Content } = await render(post);
 </MarketingLayout>
 
 <style>
-  .blog-post-hero {
-    padding: clamp(6rem, 9vw, 8rem) 0 clamp(3rem, 6vw, 5rem);
+  .blog-post-hero,
+  .blog-post-related {
     border-bottom: 1px solid
       color-mix(in srgb, var(--color-border) 70%, transparent);
+  }
+
+  .blog-post-hero {
+    padding: clamp(6rem, 9vw, 8rem) 0 clamp(3.25rem, 6vw, 5rem);
+    background:
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--color-surface) 72%, transparent),
+        transparent 58%
+      ),
+      linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--color-primary) 7%, transparent),
+        transparent 42%
+      );
+  }
+
+  .blog-post-back {
+    display: inline-flex;
+    margin-bottom: 1.5rem;
+    color: color-mix(in srgb, var(--color-text-secondary) 92%, transparent);
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .blog-post-back:hover {
+    color: var(--color-text-primary);
+  }
+
+  .blog-post-hero__grid {
+    display: grid;
+    gap: clamp(1.2rem, 4vw, 2rem);
   }
 
   .blog-post-hero__copy {
     display: grid;
     gap: 1rem;
-    max-width: 48rem;
+    max-width: 55rem;
   }
 
-  .blog-post-eyebrow {
+  .blog-post-eyebrow,
+  .blog-post-receipt__meta,
+  .blog-post-related__card span,
+  .blog-post-related__card small {
     margin: 0;
     color: color-mix(in srgb, var(--color-text-muted) 90%, transparent);
     font-family: var(--font-mono);
     font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 0.2em;
+    font-weight: 760;
+    letter-spacing: 0.14em;
+    line-height: 1.35;
     text-transform: uppercase;
   }
 
@@ -110,23 +315,27 @@ const { Content } = await render(post);
     margin: 0;
     color: var(--color-text-primary);
     font-family: var(--font-display);
-    font-size: clamp(2.2rem, 5vw, 4.5rem);
+    font-size: clamp(2.2rem, 5vw, 4.65rem);
     font-weight: 650;
     line-height: 1;
     letter-spacing: 0;
     text-wrap: balance;
   }
 
-  .blog-post-hero p,
+  .blog-post-hero__copy > p:not(.blog-post-eyebrow),
+  .blog-post-receipt p,
   .blog-post-body :global(p),
-  .blog-post-body :global(li) {
+  .blog-post-body :global(li),
+  .blog-post-rail__panel p {
     color: color-mix(in srgb, var(--color-text-secondary) 94%, transparent);
     font-size: 1.02rem;
     line-height: 1.78;
   }
 
   .blog-post-tags,
-  .blog-post-next {
+  .blog-post-actions,
+  .blog-post-next,
+  .blog-post-receipt__meta {
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;
@@ -136,16 +345,117 @@ const { Content } = await render(post);
     display: inline-flex;
     min-height: 2rem;
     align-items: center;
-    padding: 0 0.7rem;
     border: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
     border-radius: 999px;
+    padding: 0 0.7rem;
     color: color-mix(in srgb, var(--color-text-primary) 78%, transparent);
     font-size: 0.78rem;
   }
 
-  .blog-post-body {
-    max-width: 48rem;
+  .blog-post-receipt,
+  .blog-post-rail__panel,
+  .blog-post-related__card {
+    border: 1px solid color-mix(in srgb, var(--color-border) 76%, transparent);
+    border-radius: 8px;
+  }
+
+  .blog-post-receipt {
+    display: grid;
+    gap: 0.85rem;
+    padding: clamp(1.05rem, 2.4vw, 1.35rem);
+    background:
+      repeating-linear-gradient(
+        0deg,
+        transparent 0 3.05rem,
+        color-mix(in srgb, var(--color-ink) 8%, transparent) 3.05rem
+          calc(3.05rem + 1px)
+      ),
+      linear-gradient(
+        135deg,
+        color-mix(in srgb, white 70%, var(--color-paper) 30%),
+        var(--color-paper)
+      );
+    color: var(--color-ink);
+    box-shadow: 0 28px 70px -52px rgba(0, 0, 0, 0.68);
+  }
+
+  .blog-post-receipt .blog-post-eyebrow,
+  .blog-post-receipt__meta {
+    color: color-mix(in srgb, var(--color-ink) 58%, transparent);
+  }
+
+  .blog-post-receipt h2 {
+    margin: 0;
+    color: var(--color-ink);
+    font-family: var(--font-display);
+    font-size: clamp(1.35rem, 2.8vw, 2.1rem);
+    font-weight: 720;
+    line-height: 1.05;
+    text-wrap: balance;
+  }
+
+  .blog-post-receipt p {
+    margin: 0;
+    color: color-mix(in srgb, var(--color-ink) 74%, transparent);
+  }
+
+  .blog-post-layout {
+    display: grid;
+    gap: clamp(1.5rem, 4vw, 3rem);
     padding: clamp(3rem, 6vw, 5rem) 0;
+  }
+
+  .blog-post-rail {
+    display: grid;
+    gap: 1rem;
+    align-self: start;
+  }
+
+  .blog-post-rail__panel {
+    display: grid;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: color-mix(in srgb, var(--color-surface) 88%, transparent);
+  }
+
+  .blog-post-rail__panel ol {
+    display: grid;
+    gap: 0.45rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .blog-post-rail__panel li[data-depth='3'] {
+    padding-left: 0.75rem;
+  }
+
+  .blog-post-rail__panel a {
+    color: color-mix(in srgb, var(--color-text-secondary) 92%, transparent);
+    font-size: 0.9rem;
+    line-height: 1.45;
+    text-decoration: none;
+  }
+
+  .blog-post-rail__panel a:hover {
+    color: var(--color-text-primary);
+  }
+
+  .blog-post-rail__panel strong {
+    color: var(--color-text-primary);
+    font-size: 1rem;
+    line-height: 1.35;
+  }
+
+  .blog-post-rail__panel p {
+    margin: 0;
+    font-size: 0.92rem;
+    line-height: 1.62;
+  }
+
+  .blog-post-body {
+    min-width: 0;
+    max-width: 48rem;
   }
 
   .blog-post-body :global(h2) {
@@ -156,14 +466,119 @@ const { Content } = await render(post);
     line-height: 1.1;
   }
 
+  .blog-post-body :global(h3) {
+    margin: 2rem 0 0.55rem;
+    color: var(--color-text-primary);
+    font-family: var(--font-display);
+    font-size: clamp(1.2rem, 2vw, 1.55rem);
+    line-height: 1.14;
+  }
+
+  .blog-post-body :global(p) {
+    margin: 0 0 1.15rem;
+  }
+
   .blog-post-body :global(ul),
   .blog-post-body :global(ol) {
     display: grid;
     gap: 0.7rem;
+    margin: 1rem 0 1.5rem;
     padding-left: 1.2rem;
+  }
+
+  .blog-post-body :global(a) {
+    color: color-mix(in srgb, var(--color-primary) 86%, white 10%);
+    text-decoration-thickness: 0.08em;
+    text-underline-offset: 0.18em;
+  }
+
+  .blog-post-related {
+    padding: clamp(3.25rem, 6vw, 5rem) 0;
+  }
+
+  .blog-post-related__header {
+    display: grid;
+    gap: 0.55rem;
+    max-width: 42rem;
+  }
+
+  .blog-post-related__header h2 {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-family: var(--font-display);
+    font-size: clamp(1.55rem, 3vw, 2.4rem);
+    line-height: 1.06;
+  }
+
+  .blog-post-related__grid {
+    display: grid;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .blog-post-related__card {
+    display: grid;
+    gap: 0.65rem;
+    padding: 1rem;
+    background: color-mix(in srgb, var(--color-surface) 88%, transparent);
+    color: inherit;
+    text-decoration: none;
+    transition:
+      transform 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .blog-post-related__card:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--color-primary) 34%, transparent);
+  }
+
+  .blog-post-related__card strong {
+    color: var(--color-text-primary);
+    font-family: var(--font-display);
+    font-size: 1.12rem;
+    line-height: 1.15;
   }
 
   .blog-post-next {
     padding: 0 0 clamp(3rem, 6vw, 5rem);
+  }
+
+  @media (min-width: 900px) {
+    .blog-post-hero__grid {
+      grid-template-columns: minmax(0, 1fr) minmax(20rem, 0.44fr);
+      align-items: end;
+    }
+
+    .blog-post-layout {
+      grid-template-columns: minmax(13rem, 0.28fr) minmax(0, 1fr);
+      align-items: start;
+    }
+
+    .blog-post-rail {
+      position: sticky;
+      top: 6rem;
+    }
+
+    .blog-post-related__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 640px) {
+    .blog-post-actions :global(.modern-button),
+    .blog-post-next :global(.modern-button) {
+      width: 100%;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .blog-post-related__card {
+      transition: none;
+    }
+
+    .blog-post-related__card:hover {
+      transform: none;
+    }
   }
 </style>
