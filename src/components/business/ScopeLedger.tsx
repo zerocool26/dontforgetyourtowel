@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'preact/hooks';
-import { Check, ClipboardList } from 'lucide-preact';
+import { useMemo, useRef, useState } from 'preact/hooks';
+import { Check, Copy, Send } from 'lucide-preact';
 import type { PricingTier, ScopeLedgerDriver } from '../../data/pricing';
 
 interface Props {
@@ -19,6 +19,10 @@ export default function ScopeLedger({ drivers, plans, ctaHref }: Props) {
     );
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(initialSelection);
+  const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>(
+    'idle'
+  );
+  const driverRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
   const selectedDrivers = useMemo(
     () => drivers.filter(driver => selectedIds.has(driver.id)),
@@ -56,6 +60,54 @@ export default function ScopeLedger({ drivers, plans, ctaHref }: Props) {
     new Set(selectedDrivers.flatMap(driver => driver.evidenceToBring))
   ).slice(0, 9);
 
+  const recurringSignals = selectedDrivers
+    .map(driver => `${driver.shortLabel}: ${driver.recurringImpact}`)
+    .slice(0, 4);
+  const projectSignals = selectedDrivers
+    .map(driver => `${driver.shortLabel}: ${driver.projectImpact}`)
+    .slice(0, 4);
+  const discoverySignals = selectedDrivers
+    .map(driver => `${driver.shortLabel}: ${driver.discoveryTrigger}`)
+    .slice(0, 4);
+
+  const activeBrief = useMemo(() => {
+    const driverList = selectedDrivers.length
+      ? selectedDrivers.map(driver => driver.label).join('; ')
+      : 'No drivers selected yet.';
+
+    return [
+      'Pricing scope brief',
+      `Likely plan fit: ${likelyPlan?.name ?? 'Discovery needed'}`,
+      `Budget shape: ${complexity} complexity with ${selectedDrivers.length} selected driver${selectedDrivers.length === 1 ? '' : 's'}.`,
+      `Selected drivers: ${driverList}`,
+      `Recurring signals: ${recurringSignals.length ? recurringSignals.join(' | ') : 'Confirm support baseline.'}`,
+      `Project signals: ${projectSignals.length ? projectSignals.join(' | ') : 'No project pressure selected yet.'}`,
+      `Discovery triggers: ${discoverySignals.length ? discoverySignals.join(' | ') : 'Confirm timing, owner, and current provider context.'}`,
+      `Evidence to bring: ${evidenceList.length ? evidenceList.join(', ') : 'Rough user count, current provider concern, known timing constraints.'}`,
+    ].join('\n');
+  }, [
+    complexity,
+    discoverySignals,
+    evidenceList,
+    likelyPlan,
+    projectSignals,
+    recurringSignals,
+    selectedDrivers,
+  ]);
+
+  const intakeHref = useMemo(() => {
+    if (typeof window === 'undefined') return ctaHref;
+
+    try {
+      const url = new URL(ctaHref, window.location.origin);
+      url.searchParams.set('service', 'pricing-scope');
+      url.searchParams.set('brief', activeBrief);
+      return `${url.pathname}${url.search}${url.hash}`;
+    } catch {
+      return ctaHref;
+    }
+  }, [activeBrief, ctaHref]);
+
   const toggleDriver = (id: string) => {
     setSelectedIds(prev => {
       const next = new Set(prev);
@@ -66,6 +118,25 @@ export default function ScopeLedger({ drivers, plans, ctaHref }: Props) {
       }
       return next;
     });
+    setCopyState('idle');
+  };
+
+  const copyBrief = async () => {
+    if (typeof navigator === 'undefined' || !navigator.clipboard) {
+      setCopyState('failed');
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(activeBrief);
+      setCopyState('copied');
+    } catch {
+      setCopyState('failed');
+    }
+  };
+
+  const focusDriver = (index: number) => {
+    driverRefs.current[index]?.focus();
   };
 
   return (
@@ -90,7 +161,8 @@ export default function ScopeLedger({ drivers, plans, ctaHref }: Props) {
         .scope-ledger__label,
         .scope-ledger__summary-label,
         .scope-ledger__tag,
-        .scope-ledger__driver-meta span {
+        .scope-ledger__driver-meta span,
+        .scope-ledger__brief-label {
           margin: 0;
           font-family: var(--font-mono);
           font-size: 0.64rem;
@@ -151,7 +223,7 @@ export default function ScopeLedger({ drivers, plans, ctaHref }: Props) {
 
         .scope-ledger__driver {
           display: grid;
-          grid-template-columns: auto minmax(0, 0.72fr) minmax(0, 1fr);
+          grid-template-columns: auto minmax(11rem, 0.52fr) minmax(0, 1fr);
           gap: 0.9rem;
           align-items: start;
           min-height: 5.6rem;
@@ -168,10 +240,6 @@ export default function ScopeLedger({ drivers, plans, ctaHref }: Props) {
           border-bottom: 0;
         }
 
-        .scope-ledger__driver:not(.is-selected) {
-          grid-template-columns: auto minmax(0, 1fr);
-        }
-
         .scope-ledger__driver:hover,
         .scope-ledger__driver.is-selected {
           background:
@@ -181,6 +249,14 @@ export default function ScopeLedger({ drivers, plans, ctaHref }: Props) {
               transparent 48%
             ),
             color-mix(in srgb, var(--color-surface) 94%, transparent);
+        }
+
+        .scope-ledger__driver:focus-visible,
+        .scope-ledger__cta:focus-visible,
+        .scope-ledger__copy:focus-visible,
+        .scope-ledger__brief:focus-visible {
+          outline: 2px solid color-mix(in srgb, var(--color-primary) 62%, white);
+          outline-offset: 3px;
         }
 
         .scope-ledger__check {
@@ -232,6 +308,10 @@ export default function ScopeLedger({ drivers, plans, ctaHref }: Props) {
           margin: 0;
         }
 
+        .scope-ledger__driver-detail strong {
+          color: var(--color-text-primary);
+        }
+
         .scope-ledger__driver-meta {
           display: flex;
           flex-wrap: wrap;
@@ -254,6 +334,32 @@ export default function ScopeLedger({ drivers, plans, ctaHref }: Props) {
           align-content: start;
           gap: 1rem;
           padding: clamp(1rem, 2vw, 1.25rem);
+        }
+
+        .scope-ledger__budget-grid {
+          display: grid;
+          gap: 0.6rem;
+        }
+
+        .scope-ledger__budget-grid div {
+          display: grid;
+          gap: 0.25rem;
+          border: 1px solid color-mix(in srgb, var(--color-border) 62%, transparent);
+          border-radius: 8px;
+          background: color-mix(in srgb, var(--color-background) 22%, transparent);
+          padding: 0.75rem;
+        }
+
+        .scope-ledger__budget-grid strong {
+          color: var(--color-text-primary);
+          font-size: 0.92rem;
+          line-height: 1.25;
+        }
+
+        .scope-ledger__budget-grid span {
+          color: color-mix(in srgb, var(--color-text-secondary) 88%, transparent);
+          font-size: 0.84rem;
+          line-height: 1.45;
         }
 
         .scope-ledger__summary-card {
@@ -297,6 +403,32 @@ export default function ScopeLedger({ drivers, plans, ctaHref }: Props) {
           list-style: none;
         }
 
+        .scope-ledger__brief {
+          max-height: 16rem;
+          margin: 0;
+          overflow: auto;
+          white-space: pre-wrap;
+          word-break: break-word;
+          border: 1px solid color-mix(in srgb, var(--color-ink) 14%, transparent);
+          border-radius: 8px;
+          background:
+            repeating-linear-gradient(
+              0deg,
+              transparent 0 2.75rem,
+              color-mix(in srgb, var(--color-ink) 6%, transparent) 2.75rem
+                calc(2.75rem + 1px)
+            ),
+            var(--color-paper);
+          color: var(--color-ink);
+          padding: 0.85rem;
+          font-size: 0.78rem;
+          line-height: 1.52;
+        }
+
+        .scope-ledger__brief-label {
+          color: color-mix(in srgb, var(--color-text-muted) 92%, transparent);
+        }
+
         .scope-ledger__summary li {
           display: flex;
           gap: 0.55rem;
@@ -328,6 +460,20 @@ export default function ScopeLedger({ drivers, plans, ctaHref }: Props) {
           );
           color: var(--color-text-inverse);
           font-weight: 760;
+          text-decoration: none;
+        }
+
+        .scope-ledger__copy {
+          display: inline-flex;
+          gap: 0.55rem;
+          min-height: 48px;
+          align-items: center;
+          justify-content: center;
+          border: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
+          border-radius: 8px;
+          background: color-mix(in srgb, white 5%, transparent);
+          color: var(--color-text-primary);
+          font-weight: 760;
         }
 
         @media (min-width: 980px) {
@@ -339,6 +485,12 @@ export default function ScopeLedger({ drivers, plans, ctaHref }: Props) {
           .scope-ledger__summary {
             position: sticky;
             top: 5rem;
+          }
+        }
+
+        @media (min-width: 1180px) {
+          .scope-ledger__driver-detail {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
           }
         }
 
@@ -366,15 +518,52 @@ export default function ScopeLedger({ drivers, plans, ctaHref }: Props) {
 
       <div className="scope-ledger__grid">
         <div className="scope-ledger__drivers" role="list">
-          {drivers.map(driver => {
+          {drivers.map((driver, index) => {
             const selected = selectedIds.has(driver.id);
 
             return (
               <button
                 key={driver.id}
+                ref={node => {
+                  driverRefs.current[index] = node;
+                }}
                 type="button"
                 className={`scope-ledger__driver ${selected ? 'is-selected' : ''}`}
                 onClick={() => toggleDriver(driver.id)}
+                onKeyDown={event => {
+                  if (
+                    ![
+                      'ArrowDown',
+                      'ArrowRight',
+                      'ArrowUp',
+                      'ArrowLeft',
+                      'Home',
+                      'End',
+                    ].includes(event.key)
+                  ) {
+                    return;
+                  }
+
+                  event.preventDefault();
+
+                  if (event.key === 'Home') {
+                    focusDriver(0);
+                    return;
+                  }
+
+                  if (event.key === 'End') {
+                    focusDriver(drivers.length - 1);
+                    return;
+                  }
+
+                  const direction =
+                    event.key === 'ArrowDown' || event.key === 'ArrowRight'
+                      ? 1
+                      : -1;
+                  const nextIndex =
+                    (index + direction + drivers.length) % drivers.length;
+                  focusDriver(nextIndex);
+                }}
                 aria-pressed={selected}
                 data-event="scope-driver-toggle"
                 data-driver-id={driver.id}
@@ -387,19 +576,17 @@ export default function ScopeLedger({ drivers, plans, ctaHref }: Props) {
                   <strong>{driver.label}</strong>
                   <small>{driver.whyItMovesCost}</small>
                 </span>
-                {selected ? (
-                  <span className="scope-ledger__driver-detail">
-                    <p>
-                      <strong>Recurring:</strong> {driver.recurringImpact}
-                    </p>
-                    <p>
-                      <strong>Project:</strong> {driver.projectImpact}
-                    </p>
-                    <span className="scope-ledger__driver-meta">
-                      <span>Discovery: {driver.discoveryTrigger}</span>
-                    </span>
+                <span className="scope-ledger__driver-detail">
+                  <p>
+                    <strong>Recurring:</strong> {driver.recurringImpact}
+                  </p>
+                  <p>
+                    <strong>Project:</strong> {driver.projectImpact}
+                  </p>
+                  <span className="scope-ledger__driver-meta">
+                    <span>Discovery: {driver.discoveryTrigger}</span>
                   </span>
-                ) : null}
+                </span>
               </button>
             );
           })}
@@ -428,6 +615,36 @@ export default function ScopeLedger({ drivers, plans, ctaHref }: Props) {
           </div>
 
           <div className="scope-ledger__summary-card">
+            <span className="scope-ledger__summary-label">Budget shape</span>
+            <div className="scope-ledger__budget-grid">
+              <div>
+                <strong>Recurring scope</strong>
+                <span>
+                  {selectedDrivers.length
+                    ? `${selectedDrivers.length} operating lane${selectedDrivers.length === 1 ? '' : 's'} to price monthly.`
+                    : 'Select drivers to see monthly ownership.'}
+                </span>
+              </div>
+              <div>
+                <strong>Project scope</strong>
+                <span>
+                  {projectSignals.length
+                    ? `${projectSignals.length} possible one-time workstream${projectSignals.length === 1 ? '' : 's'}.`
+                    : 'No project pressure selected yet.'}
+                </span>
+              </div>
+              <div>
+                <strong>Discovery needed</strong>
+                <span>
+                  {discoverySignals.length
+                    ? 'Confirm owners, timing, risk, and current-state evidence.'
+                    : 'Start with users, devices, provider context, and timing.'}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="scope-ledger__summary-card">
             <span className="scope-ledger__summary-label">Bring these notes</span>
             <ul>
               {(evidenceList.length ? evidenceList : ['Rough user count', 'Current provider concern', 'Known timing constraints']).map(
@@ -441,8 +658,26 @@ export default function ScopeLedger({ drivers, plans, ctaHref }: Props) {
             </ul>
           </div>
 
-          <a className="scope-ledger__cta" href={ctaHref}>
-            <ClipboardList aria-hidden="true" size={18} />
+          <div className="scope-ledger__summary-card">
+            <span className="scope-ledger__brief-label">Generated pricing brief</span>
+            <pre className="scope-ledger__brief" tabIndex={0}>
+              {activeBrief}
+            </pre>
+            <button type="button" className="scope-ledger__copy" onClick={copyBrief}>
+              <Copy aria-hidden="true" size={18} />
+              <span>{copyState === 'copied' ? 'Brief copied' : 'Copy brief'}</span>
+            </button>
+            <p aria-live="polite">
+              {copyState === 'failed'
+                ? 'Copy was not available. The brief is still visible.'
+                : copyState === 'copied'
+                  ? 'Scope brief copied for leadership or intake.'
+                  : 'Use this as the first note before an exact quote.'}
+            </p>
+          </div>
+
+          <a className="scope-ledger__cta" href={intakeHref}>
+            <Send aria-hidden="true" size={18} />
             <span>Send scope context</span>
           </a>
         </aside>

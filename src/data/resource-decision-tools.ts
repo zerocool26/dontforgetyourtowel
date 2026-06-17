@@ -7,6 +7,10 @@ export type ResourceDecisionTool = {
   useWhen: string;
   checks: string[];
   output: string;
+  owner: string;
+  artifact: string;
+  decision: string;
+  guardrail: string;
   ctaHref: string;
   ctaLabel: string;
 };
@@ -29,6 +33,14 @@ export const resourceDecisionTools: ResourceDecisionTool[] = [
     ],
     output:
       'Transition brief with owners, missing proof, and first cutover risk.',
+    owner:
+      'Operations lead, contract signer, and the person who controls admin access.',
+    artifact:
+      'Transition control sheet with access, vendor, backup, and contract ownership.',
+    decision:
+      'Decide whether this needs quiet documentation capture or an active cutover plan.',
+    guardrail:
+      'Do not start tool swaps until access, backup, vendor, and contract ownership are visible.',
     ctaHref: 'contact-hq/?service=provider-switch',
     ctaLabel: 'Start transition intake',
   },
@@ -47,6 +59,14 @@ export const resourceDecisionTools: ResourceDecisionTool[] = [
       'Recovery priority by business impact',
     ],
     output: 'Recovery receipt with scope, priority order, and proof gaps.',
+    owner:
+      'Operations or finance leader who can rank systems by business interruption.',
+    artifact:
+      'Recovery order with protected systems, retention assumptions, and restore proof.',
+    decision:
+      'Decide which systems deserve restore testing before any new backup spend.',
+    guardrail:
+      'Do not buy more backup software until protected systems and restore ownership are known.',
     ctaHref: 'contact-hq/?service=backup-recovery',
     ctaLabel: 'Review recovery proof',
   },
@@ -67,6 +87,14 @@ export const resourceDecisionTools: ResourceDecisionTool[] = [
     ],
     output:
       'Tenant cleanup score with owner rules and next governance decisions.',
+    owner:
+      'Microsoft 365 admin, operations lead, and department owner for shared workspaces.',
+    artifact:
+      'Tenant cleanup score covering guests, stale workspaces, owners, and license drift.',
+    decision:
+      'Decide whether the next move is cleanup, governance rules, or license rationalization.',
+    guardrail:
+      'Do not launch a tenant-wide cleanup until owners and sharing exceptions are known.',
     ctaHref: 'contact-hq/?service=microsoft-365',
     ctaLabel: 'Map Microsoft 365 cleanup',
   },
@@ -86,6 +114,14 @@ export const resourceDecisionTools: ResourceDecisionTool[] = [
     ],
     output:
       'Evidence pack outline with controls, gaps, owners, and next actions.',
+    owner:
+      'Security owner, renewal contact, and whoever can confirm exceptions without guessing.',
+    artifact:
+      'Evidence pack outline for MFA, endpoint, email, backup, response, and exceptions.',
+    decision:
+      'Decide which controls are provable now and which gaps need leadership acceptance.',
+    guardrail:
+      'Do not answer renewal forms from memory when proof and exceptions can be separated.',
     ctaHref: 'contact-hq/?service=security',
     ctaLabel: 'Start evidence review',
   },
@@ -105,6 +141,14 @@ export const resourceDecisionTools: ResourceDecisionTool[] = [
     ],
     output:
       'First-phase operating board with owners, risks, and next decisions.',
+    owner:
+      'Executive sponsor, daily support contact, and anyone accountable for vendor access.',
+    artifact:
+      'First-phase operating board for onboarding, stabilization, reporting, and roadmap risks.',
+    decision:
+      'Decide what must stabilize first and which improvements can wait for a later roadmap.',
+    guardrail:
+      'Do not frame onboarding as a tool rollout before ownership, reporting cadence, and unresolved risks are visible.',
     ctaHref: 'contact-hq/?service=managed-it',
     ctaLabel: 'Plan the first 30 days',
   },

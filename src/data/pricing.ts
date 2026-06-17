@@ -259,7 +259,7 @@ export const scopeLedgerDrivers: ScopeLedgerDriver[] = [
   },
   {
     id: 'security-depth',
-    label: 'Security depth and cyber-insurance pressure',
+    label: 'Security depth and control evidence',
     shortLabel: 'Security',
     whyItMovesCost:
       'Identity, endpoint, email, backup proof, awareness, and incident readiness add recurring review work.',
@@ -278,6 +278,26 @@ export const scopeLedgerDrivers: ScopeLedgerDriver[] = [
     ],
     likelyPlanIds: ['secure-operations', 'co-managed', 'custom'],
     defaultSelected: true,
+  },
+  {
+    id: 'compliance-insurance',
+    label: 'Compliance, audit, and cyber-insurance pressure',
+    shortLabel: 'Compliance',
+    whyItMovesCost:
+      'Audit support and insurance evidence add control mapping, exception notes, remediation sequencing, and leadership review.',
+    recurringImpact:
+      'Evidence cadence, exception tracking, security review notes, and control-owner follow-up.',
+    projectImpact:
+      'Questionnaire response, audit prep, policy cleanup, remediation sprints, and evidence-pack buildout.',
+    discoveryTrigger:
+      'Renewal, questionnaire, audit request, client requirement, or unclear control evidence.',
+    evidenceToBring: [
+      'Insurance questionnaire',
+      'Audit deadline',
+      'Current control notes',
+      'Known evidence gaps',
+    ],
+    likelyPlanIds: ['co-managed', 'custom'],
   },
   {
     id: 'm365-governance',
@@ -357,6 +377,46 @@ export const scopeLedgerDrivers: ScopeLedgerDriver[] = [
       'Admin access status',
       'Tool list',
       'Top reasons for switching',
+    ],
+    likelyPlanIds: ['secure-operations', 'co-managed', 'custom'],
+  },
+  {
+    id: 'co-managed-boundaries',
+    label: 'Co-managed boundaries and internal IT ownership',
+    shortLabel: 'Co-managed',
+    whyItMovesCost:
+      'Shared ownership needs clear lanes for escalations, admin rights, projects, reporting, and decision authority.',
+    recurringImpact:
+      'Escalation lane, shared ticket ownership, internal IT coordination, reporting, and standards review.',
+    projectImpact:
+      'Role mapping, permissions cleanup, operating model design, documentation rebuild, and kickoff alignment.',
+    discoveryTrigger:
+      'Internal IT exists, ownership is unclear, or multiple teams touch the same systems.',
+    evidenceToBring: [
+      'Internal IT roles',
+      'Escalation pain',
+      'Admin access boundaries',
+      'Reporting expectations',
+    ],
+    likelyPlanIds: ['co-managed', 'custom'],
+  },
+  {
+    id: 'vendor-ownership',
+    label: 'Vendor ownership and third-party escalation',
+    shortLabel: 'Vendors',
+    whyItMovesCost:
+      'Line-of-business, telecom, cloud, security, and hardware vendors add recurring coordination when issues cross boundaries.',
+    recurringImpact:
+      'Vendor contact upkeep, ticket escalation, renewal visibility, and ownership notes for recurring issues.',
+    projectImpact:
+      'Vendor map creation, access transfer, contract cleanup, and escalation process design.',
+    discoveryTrigger:
+      'Too many vendors, unclear contracts, recurring blame loops, or no owner for open cases.',
+    evidenceToBring: [
+      'Vendor list',
+      'Support contacts',
+      'Open vendor cases',
+      'Renewal dates',
     ],
     likelyPlanIds: ['secure-operations', 'co-managed', 'custom'],
   },
