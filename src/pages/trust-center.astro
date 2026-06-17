@@ -8,7 +8,6 @@ import ProviderSelectionStandard from '../components/business/ProviderSelectionS
 import RouteProofStrip from '../components/business/RouteProofStrip.astro';
 import TrustEvidenceVault from '../components/business/TrustEvidenceVault.astro';
 import FAQAccordion from '../components/ui/FAQAccordion.astro';
-import { trustCenterPractices } from '../data/authority-pages';
 import { buildContactHqHref } from '../utils/contact';
 import { withBasePath } from '../utils/helpers';
 
@@ -47,21 +46,21 @@ const trustRouteProof = [
     title: 'Recovery order discussed',
     copy: 'Protected systems, restore access, and business priority are part of the conversation.',
     status: 'verified' as const,
-    href: '#trust-selection-standard',
+    href: '#evidence-backup-recovery',
   },
   {
     label: 'Access',
     title: 'Admin risk visible',
     copy: 'Privileged access, MFA, guest access, and exceptions should not be vague.',
     status: 'review' as const,
-    href: '#trust-selection-standard',
+    href: '#evidence-identity-access',
   },
   {
     label: 'Incident',
     title: 'Roles before panic',
     copy: 'Escalation, communication, and vendor responsibilities get named before trouble.',
     status: 'planned' as const,
-    href: '#faq',
+    href: '#evidence-incident-coordination',
   },
 ];
 ---
@@ -176,42 +175,9 @@ const trustRouteProof = [
     ctaLabel="Start trust review"
   />
 
-  <section class="premium-page-section" data-page-section>
+  <section class="premium-page-section" data-page-section data-reveal>
     <div class="premium-container">
       <TrustEvidenceVault />
-    </div>
-  </section>
-
-  <section class="premium-page-section" data-page-section>
-    <div
-      class="premium-container grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]"
-    >
-      <div class="grid gap-4">
-        {
-          trustCenterPractices.map(practice => (
-            <ModernCard>
-              <h2 class="tone-title text-2xl">{practice.title}</h2>
-              <p class="tone-body mt-3">{practice.copy}</p>
-              <ul class="tone-body mt-4 grid gap-2 pl-5">
-                {practice.bullets.map(item => (
-                  <li>{item}</li>
-                ))}
-              </ul>
-            </ModernCard>
-          ))
-        }
-      </div>
-
-      <ModernCard className="h-fit">
-        <p class="tone-label">What companies can expect</p>
-        <h2 class="tone-title mt-3 text-2xl">Operating rhythm</h2>
-        <div class="tone-body mt-4 grid gap-3">
-          <p>1. Fit review and pressure-point framing.</p>
-          <p>2. Scope, owner, and risk priorities established.</p>
-          <p>3. Transition or remediation lane agreed before tool churn.</p>
-          <p>4. Monthly review rhythm with next actions and visible owners.</p>
-        </div>
-      </ModernCard>
     </div>
   </section>
 

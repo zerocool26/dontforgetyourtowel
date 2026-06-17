@@ -1,0 +1,225 @@
+---
+import type { TrustEvidenceVaultItem } from '../../data/authority-pages';
+
+interface Props {
+  item: TrustEvidenceVaultItem;
+  featured?: boolean;
+}
+
+const { item, featured = false } = Astro.props as Props;
+
+const statusLabel = {
+  'public-safe': 'Public-safe',
+  reviewed: 'Reviewed',
+  private: 'Private boundary',
+} satisfies Record<TrustEvidenceVaultItem['status'], string>;
+---
+
+<article
+  id={`evidence-${item.id}`}
+  class:list={['evidence-receipt', featured && 'evidence-receipt--featured']}
+  data-status={item.status}
+>
+  <div class="evidence-receipt__top">
+    <p>{item.category}</p>
+    <span>{statusLabel[item.status]}</span>
+  </div>
+
+  <div class="evidence-receipt__question">
+    <h3>{item.buyerQuestion}</h3>
+    <p>{item.publicSignal}</p>
+  </div>
+
+  <div class="evidence-receipt__body">
+    <div>
+      <p class="evidence-receipt__label">Discussed in review</p>
+      <ul>
+        {item.evidenceDiscussed.map(detail => <li>{detail}</li>)}
+      </ul>
+    </div>
+
+    <div class="evidence-receipt__facts">
+      <div>
+        <p class="evidence-receipt__label">Review rhythm</p>
+        <p>{item.reviewCadence}</p>
+      </div>
+      <div>
+        <p class="evidence-receipt__label">Related artifact</p>
+        <p>{item.relatedArtifact}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="evidence-receipt__review">
+    <p class="evidence-receipt__label">Scoped review</p>
+    <p>{item.scopedReview}</p>
+  </div>
+
+  <div class="evidence-receipt__private">
+    <p class="evidence-receipt__label">Not published publicly</p>
+    <p>{item.privateBoundary}</p>
+  </div>
+</article>
+
+<style>
+  .evidence-receipt {
+    --receipt-accent: var(--color-status-planned);
+    display: grid;
+    gap: 1rem;
+    scroll-margin-top: 6rem;
+    border: 1px solid color-mix(in srgb, var(--color-ink) 16%, transparent);
+    border-top: 4px solid var(--receipt-accent);
+    border-radius: 8px;
+    background:
+      repeating-linear-gradient(
+        0deg,
+        transparent 0 3.15rem,
+        color-mix(in srgb, var(--color-ink) 5%, transparent) 3.15rem
+          calc(3.15rem + 1px)
+      ),
+      linear-gradient(
+        135deg,
+        color-mix(in srgb, white 72%, var(--color-paper) 28%),
+        var(--color-paper)
+      );
+    color: var(--color-ink);
+    box-shadow:
+      0 26px 58px -46px rgba(0, 0, 0, 0.72),
+      inset 0 1px 0 rgba(255, 255, 255, 0.74);
+    padding: clamp(1rem, 2vw, 1.25rem);
+  }
+
+  .evidence-receipt--featured {
+    min-height: 100%;
+  }
+
+  .evidence-receipt[data-status='public-safe'] {
+    --receipt-accent: var(--color-status-verified);
+  }
+
+  .evidence-receipt[data-status='reviewed'] {
+    --receipt-accent: var(--color-status-review);
+  }
+
+  .evidence-receipt[data-status='private'] {
+    --receipt-accent: color-mix(
+      in srgb,
+      var(--color-text-muted) 72%,
+      var(--color-primary) 28%
+    );
+  }
+
+  .evidence-receipt__top,
+  .evidence-receipt__body {
+    display: grid;
+    gap: 0.9rem;
+  }
+
+  .evidence-receipt__top {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+  }
+
+  .evidence-receipt__top p,
+  .evidence-receipt__top span,
+  .evidence-receipt__label {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    font-weight: 820;
+    letter-spacing: 0.1em;
+    line-height: 1.35;
+    text-transform: uppercase;
+  }
+
+  .evidence-receipt__top p,
+  .evidence-receipt__label {
+    color: color-mix(in srgb, var(--color-ink) 58%, transparent);
+  }
+
+  .evidence-receipt__top span {
+    display: inline-flex;
+    min-height: 1.75rem;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid color-mix(in srgb, var(--receipt-accent) 42%, transparent);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--receipt-accent) 12%, transparent);
+    color: color-mix(in srgb, var(--color-ink) 82%, var(--receipt-accent) 18%);
+    padding: 0 0.6rem;
+    text-align: center;
+  }
+
+  .evidence-receipt__question {
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .evidence-receipt__question h3 {
+    margin: 0;
+    color: var(--color-ink);
+    font-size: clamp(1.18rem, 1.7vw, 1.55rem);
+    font-weight: 820;
+    line-height: 1.12;
+    text-wrap: balance;
+  }
+
+  .evidence-receipt__question p,
+  .evidence-receipt__facts p:not(.evidence-receipt__label),
+  .evidence-receipt__review p:not(.evidence-receipt__label),
+  .evidence-receipt__private p:not(.evidence-receipt__label),
+  .evidence-receipt li {
+    margin: 0;
+    color: color-mix(in srgb, var(--color-ink) 72%, transparent);
+    font-size: 0.9rem;
+    line-height: 1.55;
+  }
+
+  .evidence-receipt ul {
+    display: grid;
+    gap: 0.38rem;
+    margin: 0.6rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .evidence-receipt li {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.5rem;
+  }
+
+  .evidence-receipt li::before {
+    width: 0.45rem;
+    height: 0.45rem;
+    margin-top: 0.54rem;
+    border-radius: 999px;
+    background: var(--receipt-accent);
+    content: '';
+  }
+
+  .evidence-receipt__facts,
+  .evidence-receipt__review,
+  .evidence-receipt__private {
+    display: grid;
+    gap: 0.45rem;
+    border: 1px solid color-mix(in srgb, var(--color-ink) 12%, transparent);
+    border-radius: 8px;
+    background: color-mix(in srgb, white 34%, transparent);
+    padding: 0.8rem;
+  }
+
+  .evidence-receipt__facts {
+    gap: 0.85rem;
+  }
+
+  .evidence-receipt__private {
+    background: color-mix(in srgb, var(--receipt-accent) 9%, white 25%);
+  }
+
+  @media (min-width: 720px) {
+    .evidence-receipt__body {
+      grid-template-columns: minmax(0, 1fr) minmax(15rem, 0.82fr);
+    }
+  }
+</style>

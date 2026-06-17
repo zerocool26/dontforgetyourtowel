@@ -15,12 +15,15 @@ export type TrustEvidenceStatus = 'public-safe' | 'reviewed' | 'private';
 
 export type TrustEvidenceVaultItem = {
   id: string;
+  category: string;
   title: string;
   buyerQuestion: string;
   publicSignal: string;
-  evidenceDiscussed: string[];
+  evidenceDiscussed: readonly string[];
   privateBoundary: string;
   reviewCadence: string;
+  relatedArtifact: string;
+  scopedReview: string;
   status: TrustEvidenceStatus;
 };
 
@@ -78,6 +81,7 @@ export const trustCenterPractices = [
 export const trustEvidenceVault: TrustEvidenceVaultItem[] = [
   {
     id: 'backup-recovery',
+    category: 'Backup and recovery',
     title: 'Backup and recovery',
     buyerQuestion: 'If something fails tomorrow, what can be restored first?',
     publicSignal:
@@ -91,10 +95,14 @@ export const trustEvidenceVault: TrustEvidenceVaultItem[] = [
     privateBoundary:
       'Sensitive backup architecture, storage locations, credentials, and runbook details are not published publicly.',
     reviewCadence: 'Onboarding, then recurring account review',
+    relatedArtifact: 'Recovery confidence receipt',
+    scopedReview:
+      'Confirm protected systems, restore access, last test evidence, retention assumptions, and the first recovery order.',
     status: 'public-safe',
   },
   {
     id: 'identity-access',
+    category: 'Identity and access',
     title: 'Identity and access',
     buyerQuestion: 'Can leadership explain who has privileged access?',
     publicSignal:
@@ -108,10 +116,14 @@ export const trustEvidenceVault: TrustEvidenceVaultItem[] = [
     privateBoundary:
       'User lists, privileged accounts, conditional access rules, and sensitive exceptions stay private.',
     reviewCadence: 'Onboarding, access changes, and scheduled reviews',
+    relatedArtifact: 'Access review ledger',
+    scopedReview:
+      'Review privileged roles, MFA coverage, guest access, exceptions, and owner follow-up for risky accounts.',
     status: 'reviewed',
   },
   {
     id: 'endpoint-email',
+    category: 'Endpoint and email',
     title: 'Endpoint and email controls',
     buyerQuestion:
       'Are user devices and email risk being watched by someone accountable?',
@@ -126,10 +138,14 @@ export const trustEvidenceVault: TrustEvidenceVaultItem[] = [
     privateBoundary:
       'Tool configurations, alert logic, detection rules, and incident details are shared only in scoped review.',
     reviewCadence: 'Initial baseline, then monthly or quarterly review',
+    relatedArtifact: 'Endpoint and email baseline',
+    scopedReview:
+      'Map coverage, alert routing, risky forwarding, device gaps, and the owner for exceptions or response notes.',
     status: 'reviewed',
   },
   {
     id: 'incident-coordination',
+    category: 'Incident coordination',
     title: 'Incident coordination',
     buyerQuestion:
       'Who coordinates vendors, users, and leadership when pressure hits?',
@@ -144,10 +160,14 @@ export const trustEvidenceVault: TrustEvidenceVaultItem[] = [
     privateBoundary:
       'Incident playbooks, client-specific contacts, and response details are kept out of public pages.',
     reviewCadence: 'Onboarding and after meaningful environment changes',
+    relatedArtifact: 'Incident owner map',
+    scopedReview:
+      'Name first-hour contacts, escalation paths, communication expectations, vendor roles, and decision authority.',
     status: 'public-safe',
   },
   {
     id: 'vendor-coordination',
+    category: 'Vendor coordination',
     title: 'Vendor coordination',
     buyerQuestion:
       'Will the provider own the messy handoff with outside vendors?',
@@ -162,10 +182,14 @@ export const trustEvidenceVault: TrustEvidenceVaultItem[] = [
     privateBoundary:
       'Client vendor account numbers, contracts, support portals, and credentials remain private.',
     reviewCadence: 'Onboarding, vendor changes, and recurring service review',
+    relatedArtifact: 'Vendor ownership map',
+    scopedReview:
+      'Identify critical vendors, support contacts, escalation paths, open cases, renewal pressure, and access ownership.',
     status: 'reviewed',
   },
   {
     id: 'data-handling',
+    category: 'Data handling',
     title: 'Data handling',
     buyerQuestion:
       'How are sensitive details handled before support work starts?',
@@ -180,6 +204,100 @@ export const trustEvidenceVault: TrustEvidenceVaultItem[] = [
     privateBoundary:
       'Credentials, private documents, client data, and sensitive logs are never requested through public pages.',
     reviewCadence: 'Before onboarding and whenever workflow changes',
+    relatedArtifact: 'Data handling boundary note',
+    scopedReview:
+      'Confirm approved support systems, credential handling, data retention expectations, and where sensitive records should not go.',
+    status: 'private',
+  },
+  {
+    id: 'review-cadence',
+    category: 'Review cadence',
+    title: 'Review cadence',
+    buyerQuestion:
+      'Will risks, exceptions, and next actions stay visible after onboarding?',
+    publicSignal:
+      'Support trends, access exceptions, backup evidence, security notes, lifecycle items, and roadmap decisions belong in a recurring review rhythm.',
+    evidenceDiscussed: [
+      'Recurring ticket patterns',
+      'Open exceptions',
+      'Backup and access notes',
+      'Roadmap decisions',
+    ],
+    privateBoundary:
+      'Client-specific reporting, tickets, user names, and system details are shared only with the client.',
+    reviewCadence: 'Monthly, quarterly, or scoped to the engagement',
+    relatedArtifact: 'Operating review ledger',
+    scopedReview:
+      'Define the review audience, reporting cadence, recurring evidence, open risks, and decisions that need leadership attention.',
+    status: 'public-safe',
+  },
+  {
+    id: 'security-boundaries',
+    category: 'Security boundaries',
+    title: 'Security boundaries',
+    buyerQuestion:
+      'Where does the provider help, and where do formal auditors or legal owners take over?',
+    publicSignal:
+      'Security support is framed around implementation, evidence habits, response coordination, and practical readiness rather than exaggerated guarantees.',
+    evidenceDiscussed: [
+      'Provider responsibility',
+      'Client responsibility',
+      'Auditor boundary',
+      'Response authority',
+    ],
+    privateBoundary:
+      'Legal opinions, formal audit conclusions, privileged findings, and client-specific incident detail are not public claims.',
+    reviewCadence:
+      'Before regulated work, audits, insurance renewals, or response planning',
+    relatedArtifact: 'Security responsibility matrix',
+    scopedReview:
+      'Separate operational controls, advisory support, auditor-owned evidence, client approvals, and response escalation authority.',
+    status: 'private',
+  },
+  {
+    id: 'cyber-insurance',
+    category: 'Cyber-insurance evidence',
+    title: 'Cyber-insurance evidence',
+    buyerQuestion:
+      'Which insurance questions can be answered with evidence instead of guesses?',
+    publicSignal:
+      'Cyber-insurance conversations should connect MFA, endpoint protection, email controls, backup proof, response contacts, and evidence gaps.',
+    evidenceDiscussed: [
+      'MFA and admin controls',
+      'Endpoint and email coverage',
+      'Backup and restore notes',
+      'Response contacts',
+    ],
+    privateBoundary:
+      'Policy documents, carrier correspondence, private risk findings, and client-specific exceptions are handled in scoped review.',
+    reviewCadence:
+      'Before renewal, questionnaire submission, or material environment changes',
+    relatedArtifact: 'Insurance evidence pack',
+    scopedReview:
+      'Translate questionnaire pressure into control evidence, missing proof, owner follow-up, and next remediation priorities.',
+    status: 'reviewed',
+  },
+  {
+    id: 'proof-boundaries',
+    category: 'Public/private proof boundaries',
+    title: 'Public and private proof',
+    buyerQuestion:
+      'What should be visible publicly, and what should wait for a scoped review?',
+    publicSignal:
+      'A credible trust page labels what can be discussed in public and what is intentionally withheld to protect clients and systems.',
+    evidenceDiscussed: [
+      'Public-safe summaries',
+      'Withheld implementation detail',
+      'Scoped review path',
+      'Approval expectations',
+    ],
+    privateBoundary:
+      'Architecture, credentials, logs, client identities, security findings, and implementation details stay out of public marketing surfaces.',
+    reviewCadence:
+      'Every public trust update and before sharing client-specific proof',
+    relatedArtifact: 'Proof boundary receipt',
+    scopedReview:
+      'Decide which proof can be public, which evidence needs NDA or scoped review, and which details should remain internal.',
     status: 'private',
   },
 ];

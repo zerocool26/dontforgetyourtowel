@@ -1,225 +1,303 @@
 ---
+import EvidenceReceipt from './EvidenceReceipt.astro';
 import { trustEvidenceVault } from '../../data/authority-pages';
 
+const featuredEvidence = trustEvidenceVault[0];
+const receiptItems = trustEvidenceVault.slice(1);
+const publicSafeCount = trustEvidenceVault.filter(
+  item => item.status === 'public-safe'
+).length;
+const reviewedCount = trustEvidenceVault.filter(
+  item => item.status === 'reviewed'
+).length;
+const privateCount = trustEvidenceVault.filter(
+  item => item.status === 'private'
+).length;
+
 const statusLabel = {
-  'public-safe': 'Public-safe',
+  'public-safe': 'Public',
   reviewed: 'Reviewed',
-  private: 'Private boundary',
+  private: 'Withheld',
 };
 ---
 
-<section class="trust-vault" aria-labelledby="trust-vault-title">
+<section
+  class="trust-vault"
+  id="trust-evidence-vault"
+  data-testid="trust-evidence-vault"
+  aria-labelledby="trust-vault-title"
+>
   <div class="trust-vault__header">
-    <p class="trust-vault__eyebrow">Evidence vault</p>
-    <h2 id="trust-vault-title">What can be discussed before deeper review.</h2>
+    <div>
+      <p class="trust-vault__eyebrow">Evidence vault</p>
+      <h2 id="trust-vault-title">Public proof, private details.</h2>
+    </div>
     <p>
-      A public trust page should give companies useful reassurance without
-      exposing the internal details that should stay private.
+      The trust route shows what can be discussed safely, what stays private,
+      and which artifact should come out of a scoped review. It is designed to
+      reassure serious buyers without publishing sensitive implementation
+      detail.
     </p>
   </div>
 
-  <div class="trust-vault__grid">
-    {
-      trustEvidenceVault.map(item => (
-        <article class={`trust-vault__card is-${item.status}`}>
-          <div class="trust-vault__card-top">
-            <p>{item.title}</p>
-            <span>{statusLabel[item.status]}</span>
-          </div>
+  <div class="trust-vault__summary" aria-label="Vault summary">
+    <div>
+      <span>{publicSafeCount}</span>
+      <p>Public-safe summaries</p>
+    </div>
+    <div>
+      <span>{reviewedCount}</span>
+      <p>Reviewable evidence lanes</p>
+    </div>
+    <div>
+      <span>{privateCount}</span>
+      <p>Private boundaries</p>
+    </div>
+  </div>
 
-          <h3>{item.buyerQuestion}</h3>
-          <p class="trust-vault__signal">{item.publicSignal}</p>
+  <div class="trust-vault__layout">
+    <aside class="trust-vault__index" aria-label="Evidence vault index">
+      <div class="trust-vault__index-head">
+        <p>Vault index</p>
+        <span>{trustEvidenceVault.length} categories</span>
+      </div>
 
-          <div class="trust-vault__split">
-            <div>
-              <p class="trust-vault__label">Discussed in review</p>
-              <ul>
-                {item.evidenceDiscussed.map(detail => (
-                  <li>{detail}</li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <p class="trust-vault__label">Review cadence</p>
-              <p class="trust-vault__cadence">{item.reviewCadence}</p>
-            </div>
-          </div>
+      <div class="trust-vault__index-list">
+        {
+          trustEvidenceVault.map((item, index) => (
+            <a
+              class="trust-vault__index-item tone-focus-accent"
+              href={`#evidence-${item.id}`}
+              data-status={item.status}
+            >
+              <span>{String(index + 1).padStart(2, '0')}</span>
+              <strong>{item.category}</strong>
+              <small>{item.relatedArtifact}</small>
+              <em>{statusLabel[item.status]}</em>
+            </a>
+          ))
+        }
+      </div>
+    </aside>
 
-          <div class="trust-vault__private">
-            <p class="trust-vault__label">Not published publicly</p>
-            <p>{item.privateBoundary}</p>
-          </div>
-        </article>
-      ))
-    }
+    <div class="trust-vault__board">
+      {
+        featuredEvidence ? (
+          <EvidenceReceipt item={featuredEvidence} featured />
+        ) : null
+      }
+
+      <div class="trust-vault__receipt-grid">
+        {receiptItems.map(item => <EvidenceReceipt item={item} />)}
+      </div>
+    </div>
   </div>
 </section>
 
 <style>
   .trust-vault {
     display: grid;
-    gap: clamp(1.5rem, 3vw, 2rem);
+    gap: clamp(1.25rem, 3vw, 2rem);
   }
 
   .trust-vault__header {
     display: grid;
-    gap: 0.9rem;
-    max-width: 62rem;
+    gap: 1rem;
+    max-width: 72rem;
   }
 
   .trust-vault__eyebrow,
-  .trust-vault__card-top p,
-  .trust-vault__card-top span,
-  .trust-vault__label {
+  .trust-vault__summary p,
+  .trust-vault__index-head p,
+  .trust-vault__index-head span,
+  .trust-vault__index-item span,
+  .trust-vault__index-item em {
     margin: 0;
     font-family: var(--font-mono);
     font-size: 0.64rem;
-    font-weight: 800;
-    letter-spacing: 0.14em;
+    font-weight: 820;
+    letter-spacing: 0.13em;
     line-height: 1.35;
     text-transform: uppercase;
   }
 
   .trust-vault__eyebrow,
-  .trust-vault__label,
-  .trust-vault__card-top p {
-    color: color-mix(in srgb, var(--color-text-muted) 92%, transparent);
+  .trust-vault__summary p,
+  .trust-vault__index-head p,
+  .trust-vault__index-head span,
+  .trust-vault__index-item span,
+  .trust-vault__index-item em {
+    color: color-mix(in srgb, var(--color-text-muted) 90%, transparent);
   }
 
   .trust-vault__header h2 {
-    max-width: 15ch;
-    margin: 0;
+    max-width: 12ch;
+    margin: 0.35rem 0 0;
     color: var(--color-text-primary);
     font-family: var(--font-display);
-    font-size: clamp(2rem, 4vw, 4rem);
+    font-size: clamp(2.15rem, 4.8vw, 4.8rem);
     font-weight: 760;
     letter-spacing: 0;
-    line-height: 0.98;
+    line-height: 0.96;
     text-wrap: balance;
   }
 
-  .trust-vault__header > p:not(.trust-vault__eyebrow) {
-    max-width: 64ch;
+  .trust-vault__header > p {
+    max-width: 68ch;
     margin: 0;
     color: color-mix(in srgb, var(--color-text-secondary) 92%, transparent);
+    font-size: clamp(1rem, 1.35vw, 1.12rem);
     line-height: 1.68;
   }
 
-  .trust-vault__grid {
+  .trust-vault__summary {
     display: grid;
-    gap: 1rem;
+    gap: 0.75rem;
   }
 
-  .trust-vault__card {
+  .trust-vault__summary div {
     display: grid;
-    gap: 1rem;
-    min-height: 100%;
-    border: 1px solid color-mix(in srgb, var(--color-border) 76%, transparent);
-    border-left-width: 4px;
-    border-radius: 12px;
+    gap: 0.35rem;
+    border: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
+    border-radius: 8px;
     background:
       linear-gradient(
         180deg,
         color-mix(in srgb, white 3%, transparent),
-        transparent 34%
+        transparent 40%
       ),
-      color-mix(in srgb, var(--color-surface) 88%, transparent);
-    box-shadow: 0 24px 58px -48px rgba(0, 0, 0, 0.72);
-    padding: clamp(1rem, 2vw, 1.2rem);
+      color-mix(in srgb, var(--color-surface) 86%, transparent);
+    padding: 1rem;
   }
 
-  .trust-vault__card.is-public-safe {
-    border-left-color: color-mix(in srgb, var(--color-primary) 82%, white 8%);
-  }
-
-  .trust-vault__card.is-reviewed {
-    border-left-color: color-mix(
-      in srgb,
-      var(--color-primary-strong) 80%,
-      white 8%
-    );
-  }
-
-  .trust-vault__card.is-private {
-    border-left-color: #9eb7d8;
-  }
-
-  .trust-vault__card-top {
-    display: flex;
-    gap: 0.75rem;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .trust-vault__card-top span {
-    display: inline-flex;
-    min-height: 1.85rem;
-    align-items: center;
-    border: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
-    border-radius: 999px;
-    color: color-mix(in srgb, var(--color-text-secondary) 90%, transparent);
-    padding: 0 0.65rem;
-  }
-
-  .trust-vault__card h3 {
-    margin: 0;
+  .trust-vault__summary span {
     color: var(--color-text-primary);
-    font-size: clamp(1.15rem, 2vw, 1.45rem);
-    line-height: 1.14;
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 760;
+    line-height: 0.9;
   }
 
-  .trust-vault__signal,
-  .trust-vault__cadence,
-  .trust-vault__private p:not(.trust-vault__label),
-  .trust-vault__card li {
-    color: color-mix(in srgb, var(--color-text-secondary) 92%, transparent);
-    font-size: 0.92rem;
-    line-height: 1.58;
-  }
-
-  .trust-vault__signal,
-  .trust-vault__cadence,
-  .trust-vault__private p {
-    margin: 0;
-  }
-
-  .trust-vault__split {
+  .trust-vault__layout {
     display: grid;
     gap: 1rem;
-    border-top: 1px solid
-      color-mix(in srgb, var(--color-border) 62%, transparent);
-    padding-top: 1rem;
+    align-items: start;
   }
 
-  .trust-vault__card ul {
+  .trust-vault__index {
     display: grid;
-    gap: 0.45rem;
-    margin: 0.65rem 0 0;
-    padding-left: 1.1rem;
+    gap: 0.85rem;
+    border: 1px solid color-mix(in srgb, var(--color-border) 74%, transparent);
+    border-radius: 8px;
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-surface) 94%, transparent),
+      color-mix(in srgb, var(--color-surface) 78%, transparent)
+    );
+    box-shadow: 0 26px 60px -52px rgba(0, 0, 0, 0.72);
+    padding: clamp(0.85rem, 2vw, 1rem);
   }
 
-  .trust-vault__private {
+  .trust-vault__index-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    border-bottom: 1px solid
+      color-mix(in srgb, var(--color-border) 64%, transparent);
+    padding-bottom: 0.85rem;
+  }
+
+  .trust-vault__index-list,
+  .trust-vault__board,
+  .trust-vault__receipt-grid {
     display: grid;
-    gap: 0.45rem;
+    gap: 0.8rem;
+  }
+
+  .trust-vault__index-item {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 0.35rem 0.75rem;
+    min-height: 4.4rem;
+    align-items: start;
+    border: 1px solid color-mix(in srgb, var(--color-border) 66%, transparent);
+    border-radius: 8px;
+    background: color-mix(in srgb, white 3%, transparent);
+    color: inherit;
+    padding: 0.75rem;
+    text-decoration: none;
+    transition:
+      border-color 160ms ease,
+      background 160ms ease,
+      transform 160ms ease;
+  }
+
+  .trust-vault__index-item:hover {
+    border-color: color-mix(in srgb, var(--color-primary) 46%, transparent);
+    background: color-mix(in srgb, var(--color-primary) 9%, transparent);
+    transform: translateY(-1px);
+  }
+
+  .trust-vault__index-item strong {
+    min-width: 0;
+    color: var(--color-text-primary);
+    font-size: 0.92rem;
+    line-height: 1.22;
+  }
+
+  .trust-vault__index-item small {
+    grid-column: 2 / -1;
+    color: color-mix(in srgb, var(--color-text-secondary) 86%, transparent);
+    font-size: 0.8rem;
+    line-height: 1.45;
+  }
+
+  .trust-vault__index-item em {
+    justify-self: end;
     border: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
-    border-radius: 10px;
-    background: color-mix(in srgb, var(--color-background) 28%, transparent);
-    padding: 0.85rem;
+    border-radius: 999px;
+    padding: 0.2rem 0.45rem;
+    font-style: normal;
+    letter-spacing: 0.08em;
   }
 
-  @media (min-width: 760px) {
-    .trust-vault__grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+  .trust-vault__index-item[data-status='public-safe'] em {
+    color: var(--color-status-verified);
+  }
+
+  .trust-vault__index-item[data-status='reviewed'] em {
+    color: var(--color-status-review);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .trust-vault__index-item {
+      transition: none;
     }
 
-    .trust-vault__split {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 0.78fr);
+    .trust-vault__index-item:hover {
+      transform: none;
     }
   }
 
-  @media (min-width: 1160px) {
-    .trust-vault__grid {
+  @media (min-width: 720px) {
+    .trust-vault__summary {
       grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1060px) {
+    .trust-vault__layout {
+      grid-template-columns: minmax(17rem, 0.38fr) minmax(0, 1fr);
+    }
+
+    .trust-vault__index {
+      position: sticky;
+      top: 5.5rem;
+    }
+
+    .trust-vault__receipt-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 </style>

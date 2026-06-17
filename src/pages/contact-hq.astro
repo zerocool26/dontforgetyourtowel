@@ -6,7 +6,7 @@ import ModernCard from '../components/ui/ModernCard.astro';
 import ModernButton from '../components/ui/ModernButton.astro';
 import FAQAccordion from '../components/ui/FAQAccordion.astro';
 import ScopeReadinessPanel from '../components/business/ScopeReadinessPanel.astro';
-import OperationalIntelligenceWorkbench from '../components/business/OperationalIntelligenceWorkbench.tsx';
+import RoutingBriefBuilder from '../components/business/RoutingBriefBuilder.tsx';
 import DecisionHandoffPanel from '../components/business/DecisionHandoffPanel.astro';
 import ProofOperatingSystem from '../components/business/ProofOperatingSystem.astro';
 import ProviderSelectionStandard from '../components/business/ProviderSelectionStandard.astro';
@@ -18,7 +18,11 @@ import {
   CONTACT_EMAIL,
 } from '../consts';
 import { studioPresets } from '../data/build-studio';
-import { operatingIntelligenceItems } from '../data/operating-intelligence';
+import {
+  routingBriefCompanyShapes,
+  routingBriefPressures,
+  routingBriefTimelines,
+} from '../data/routing-brief';
 import { servicesExtended } from '../data/services-extended';
 import { tradeProfiles } from '../data/trades';
 import { buildContactHqHref } from '../utils/contact';
@@ -105,23 +109,12 @@ const hasIntakeContext = Boolean(
   workspaceRoutesIntent.length
 );
 
-const workbenchItems = operatingIntelligenceItems.map(item => ({
-  ...item,
-  ctaHref: withBasePath(item.path),
-}));
 const contactHeroMediaDesktop = withBasePath(
   'media/chicago-contact-intake.webp'
 );
 const contactHeroMediaMobile = withBasePath(
   'media/chicago-contact-intake-mobile.webp'
 );
-
-const defaultContactWorkbenchId =
-  serviceIntent.includes('backup') || serviceIntent.includes('recovery')
-    ? 'recovery-confidence'
-    : solutionIntentLabel
-      ? 'workflow-trust'
-      : 'support-ownership';
 
 const channels = [
   {
@@ -219,11 +212,22 @@ const engagementSteps = [
 ];
 
 const contactSections = [
+  { label: 'Brief', href: '#routing-brief' },
   { label: 'Fit', href: '#fit' },
   { label: 'Channels', href: '#channels' },
-  { label: 'Message checklist', href: '#intake' },
   { label: 'FAQ', href: '#faq' },
 ];
+
+const routingBriefIntent = {
+  service: serviceIntent,
+  serviceLabel: serviceIntentLabel,
+  solutionLabel: solutionIntentLabel,
+  tradeLabel: tradeIntentLabel,
+  tradePage: tradePageIntent,
+  brief: briefIntent,
+  workspaceTitle: workspaceTitleIntent,
+  workspaceSummary: workspaceSummaryIntent,
+};
 
 const contactRouteProof = [
   {
@@ -637,6 +641,23 @@ const faqSchema = {
 
   <section
     class="tone-section-divider border-b"
+    id="routing-brief"
+    data-reveal
+    data-page-section
+  >
+    <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
+      <RoutingBriefBuilder
+        client:only="preact"
+        pressures={routingBriefPressures}
+        companyShapes={routingBriefCompanyShapes}
+        timelines={routingBriefTimelines}
+        initialIntent={routingBriefIntent}
+      />
+    </div>
+  </section>
+
+  <section
+    class="tone-section-divider border-b"
     id="structured-intake"
     data-reveal
     data-page-section
@@ -979,25 +1000,6 @@ const faqSchema = {
         eyebrow="Intake handoff"
         title="Send the context that lets someone route the work responsibly."
         description="The first contact should make the next action obvious: support ownership, security baseline, budget and scope, or workflow cleanup."
-      />
-    </div>
-  </section>
-
-  <section
-    class="tone-section-divider border-b"
-    id="contact-workbench"
-    data-reveal
-    data-page-section
-  >
-    <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
-      <OperationalIntelligenceWorkbench
-        client:only="preact"
-        compact
-        items={workbenchItems}
-        defaultItemId={defaultContactWorkbenchId}
-        eyebrow="Intake router"
-        title="Shape the message before you send it."
-        description="Pick the closest issue, collect the records that matter, and generate a concise first note for email or a planning conversation."
       />
     </div>
   </section>
