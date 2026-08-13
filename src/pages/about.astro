@@ -1,211 +1,130 @@
 ---
+import CtaBand from '../components/CtaBand.astro';
+import PageHero from '../components/PageHero.astro';
+import { ownershipStandards, processSteps } from '../data/site';
 import MarketingLayout from '../layouts/MarketingLayout.astro';
-import StructuredData from '../components/StructuredData.astro';
-import ModernButton from '../components/ui/ModernButton.astro';
-import ModernCard from '../components/ui/ModernCard.astro';
-import ProofOperatingSystem from '../components/business/ProofOperatingSystem.astro';
-import RouteProofStrip from '../components/business/RouteProofStrip.astro';
-import { buildContactHqHref } from '../utils/contact';
 import { withBasePath } from '../utils/helpers';
-
-const aboutIntakeHref = buildContactHqHref({
-  brief:
-    'I want to understand whether this operating model is the right fit for our company.',
-});
-
-const operatingPrinciples = [
-  {
-    label: '01',
-    title: 'Own the messy middle',
-    copy: 'Tickets, vendors, access, backups, Microsoft 365, and budget questions should not scatter across five half-owners.',
-  },
-  {
-    label: '02',
-    title: 'Show the record early',
-    copy: 'The first review should leave leadership with a support owner map, recovery notes, access review, and 90-day plan.',
-  },
-  {
-    label: '03',
-    title: 'Keep the stack explainable',
-    copy: 'Tools matter, but buyers need to understand risk, ownership, response, and cost before they care about acronyms.',
-  },
-];
-
-const notForEveryone = [
-  'Teams that only want one-off break/fix without standards',
-  'Buyers who want the cheapest ticket queue regardless of risk',
-  'Projects with no owner, approval path, or operating outcome',
-];
-
-const aboutRouteProof = [
-  {
-    label: 'Own',
-    title: 'Messy middle named',
-    copy: 'Tickets, vendors, access, backups, Microsoft 365, and budget stay attached.',
-    status: 'verified' as const,
-  },
-  {
-    label: 'Prove',
-    title: 'Record shown early',
-    copy: 'The first review leaves owners, recovery notes, access gaps, and a plan.',
-    status: 'review' as const,
-  },
-  {
-    label: 'Decide',
-    title: 'Next action visible',
-    copy: 'The operating model keeps risk, scope, and approval paths clear.',
-    status: 'planned' as const,
-  },
-];
 ---
 
 <MarketingLayout
-  title="About | CHICAGOS #1 MSP"
-  description="About CHICAGOS #1 MSP: a Chicago-area managed IT, security, Microsoft 365, backup, and support partner for teams that need clearer ownership."
-  bodyClass="creative-page buyer-reframe about-reframe"
-  mainClass="relative isolate overflow-x-clip"
-  showFooter={true}
-  showStickyCTA={false}
-  showLiveChat={false}
-  showSavedRoutesDock={false}
+  title="About CHICAGOS #1 MSP | Chicago Technology Firm"
+  description="An integrated Chicago technology firm connecting advisory, software engineering, cloud, cybersecurity, and managed operations."
 >
-  <StructuredData
-    type="organization"
-    data={{
-      name: 'CHICAGOS #1 MSP',
-      description:
-        'Chicago-area managed IT, cybersecurity, Microsoft 365, backup, recovery, and support ownership partner.',
-    }}
+  <PageHero
+    title="We take the whole system personally."
+    copy="Advice should survive delivery. Software should survive launch. Security should survive contact with daily work. Operations should keep improving instead of accumulating excuses."
+    secondaryLabel="See the service model"
+    secondaryHref="services/"
+    asideTitle="Why the model is integrated"
+    asideCopy="The largest technology firms connect consulting, engineering, security, and operations. We apply that logic at a tighter Chicago scale with a clearer line of accountability."
   />
 
-  <section
-    class="tone-page-hero tone-section-divider border-b"
-    data-page-section
-    data-reveal
-  >
-    <div class="tone-page-hero__inner mx-auto max-w-[1240px] px-4 sm:px-6">
-      <div class="grid gap-10 lg:grid-cols-[1.08fr_0.92fr] lg:items-end">
-        <div class="space-y-6">
-          <div class="tone-page-header">
-            <p class="tone-page-eyebrow">About the operating model</p>
-            <h1 class="tone-page-title">
-              The best MSP is the one that makes ownership obvious.
-            </h1>
-            <p class="tone-page-copy">
-              This is a Chicago-area IT partner for businesses that are tired of
-              vague tickets, unclear vendors, backup doubt, Microsoft 365
-              sprawl, and security claims nobody can prove.
-            </p>
-          </div>
+  <section class="section story-section">
+    <div class="shell story-section__grid">
+      <div class="section-heading">
+        <h2>The handoff is where good work breaks.</h2>
+      </div>
+      <div class="story-section__copy">
+        <p>
+          A roadmap can be sound and still fail in delivery. A software team can
+          ship and still leave production unowned. A managed provider can keep
+          tickets moving while the systems underneath the business keep
+          drifting.
+        </p>
+        <p>
+          CHICAGOS #1 MSP is built around the missing connection: one operating
+          model that can carry a business decision into architecture, software,
+          cloud, security, launch, support, and the next improvement.
+        </p>
+      </div>
+    </div>
+  </section>
 
-          <div class="tone-page-actions">
-            <ModernButton
-              href={aboutIntakeHref}
-              variant="primary"
-              className="min-h-[52px]"
-            >
-              Start fit check
-            </ModernButton>
-            <ModernButton
-              href={withBasePath('trust-center/')}
-              variant="secondary"
-              className="min-h-[52px]"
-            >
-              Review proof
-            </ModernButton>
-          </div>
-        </div>
+  <section class="ownership-band">
+    <div class="shell">
+      <h2>The standard behind the name.</h2>
+      <ol>
+        {
+          ownershipStandards.map((item, index) => (
+            <li>
+              <span>{String(index + 1).padStart(2, '0')}</span>
+              <strong>{item}</strong>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
 
-        <ModernCard variant="glass" className="tone-metric-card p-6 sm:p-8">
-          <p class="tone-metric-card__label">Positioning</p>
-          <p class="tone-metric-card__value">Operations first</p>
-          <p class="tone-metric-card__detail">
-            Managed IT, security, Microsoft 365, backup, and workflow support
-            are treated as one accountability model, not disconnected service
-            menu items.
+  <section class="section principles-section">
+    <div class="shell split-section split-section--top">
+      <div class="section-heading">
+        <h2>How we make decisions.</h2>
+        <p>Four rules keep broad capability from becoming vague delivery.</p>
+      </div>
+      <div class="principle-list">
+        <article>
+          <span>01</span><h3>Name the outcome.</h3><p>
+            Every engagement starts with the business decision, workflow,
+            system, risk, or operating result it must change.
           </p>
-        </ModernCard>
-      </div>
-    </div>
-  </section>
-
-  <RouteProofStrip
-    label="Operating model"
-    title="IT that's owned, not outsourced."
-    note="This is the standard behind the service pages, not a decorative tagline."
-    items={aboutRouteProof}
-    ctaHref={aboutIntakeHref}
-    ctaLabel="Ask if we fit"
-  />
-
-  <ProofOperatingSystem
-    compact
-    eyebrow="Why the model is different"
-    title="The work should make the next owner and decision clear."
-    description="Support, security, backup, Microsoft 365, and vendor follow-up are managed around the same standard: name the owner, document the risk, and keep the next decision visible."
-    ctaHref={aboutIntakeHref}
-    ctaLabel="Ask if we fit"
-  />
-
-  <section class="tone-section-divider border-b" data-page-section data-reveal>
-    <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
-      <div class="grid gap-8 lg:grid-cols-[0.75fr_1.25fr] lg:items-start">
-        <div class="tone-section-heading">
-          <p class="tone-section-kicker">Operating principles</p>
-          <h2 class="tone-section-title">
-            Fewer claims. Better evidence. Cleaner ownership.
-          </h2>
-        </div>
-
-        <div class="grid gap-4 md:grid-cols-3">
-          {
-            operatingPrinciples.map(item => (
-              <ModernCard variant="glass" className="h-full p-5">
-                <p class="font-mono text-[0.68rem] font-bold uppercase tracking-[0.18em] text-white/45">
-                  {item.label}
-                </p>
-                <h3 class="mt-4 text-xl font-semibold leading-tight text-white">
-                  {item.title}
-                </h3>
-                <p class="mt-3 text-sm leading-6 text-slate-300">{item.copy}</p>
-              </ModernCard>
-            ))
-          }
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="tone-section-divider border-b" data-page-section data-reveal>
-    <div class="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
-      <div class="grid gap-8 lg:grid-cols-2 lg:items-start">
-        <ModernCard variant="glass" className="p-6 sm:p-8">
-          <p class="tone-section-kicker">Best fit</p>
-          <h2 class="mt-4 text-3xl font-semibold leading-tight text-white">
-            Owner-led teams that need calm, not theater.
-          </h2>
-          <p class="mt-4 text-base leading-7 text-slate-300">
-            The strongest fit is a 15-150 user Chicago-area business with real
-            operating pressure: recurring support pain, stale access, weak
-            recovery confidence, Microsoft 365 clutter, provider transition, or
-            a leadership team that wants proof instead of noise.
+        </article>
+        <article>
+          <span>02</span><h3>Write the assumptions.</h3><p>
+            We separate known facts, technical judgment, dependencies, and the
+            choices the client still needs to make.
           </p>
-        </ModernCard>
-
-        <ModernCard variant="default" className="p-6 sm:p-8">
-          <p class="tone-section-kicker">Not the right first move</p>
-          <ul class="mt-5 grid gap-3 text-sm leading-6 text-slate-300">
-            {
-              notForEveryone.map(item => (
-                <li class="flex gap-3">
-                  <span class="tone-accent-dot mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full" />
-                  <span>{item}</span>
-                </li>
-              ))
-            }
-          </ul>
-        </ModernCard>
+        </article>
+        <article>
+          <span>03</span><h3>Design for ownership.</h3><p>
+            Access, source, data, documentation, recovery, support, and the exit
+            path are parts of the system—not cleanup after the project.
+          </p>
+        </article>
+        <article>
+          <span>04</span><h3>Operate what we recommend.</h3><p>
+            Advice improves when the same operating model has to build, secure,
+            support, and explain the result in production.
+          </p>
+        </article>
       </div>
     </div>
   </section>
+
+  <section class="delivery-band">
+    <div class="shell">
+      <div class="delivery-band__heading">
+        <h2>Plan it. Build it. Secure it. Run it.</h2>
+        <p>Four stages, one accountable line of sight.</p>
+      </div>
+      <ol class="delivery-band__steps">
+        {
+          processSteps.map(step => (
+            <li>
+              <span>{step.number}</span>
+              <h3>{step.title}</h3>
+              <p>{step.detail}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section local-section">
+    <div class="shell local-section__inner">
+      <h2>Chicago is the operating context.</h2>
+      <p>
+        We are built for established organizations across Chicago and the
+        surrounding area that want senior access, practical on-site
+        coordination, and a technology partner able to own both the build and
+        the day-to-day reality around it.
+      </p>
+      <a class="text-link" href={withBasePath('chicago/')}>
+        Explore Chicago technology services <span aria-hidden="true">→</span>
+      </a>
+    </div>
+  </section>
+
+  <CtaBand />
 </MarketingLayout>

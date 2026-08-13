@@ -1,207 +1,48 @@
 ---
 import BaseHead from '../components/BaseHead.astro';
-import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import PWARegistration from '../components/PWARegistration.astro';
-import WebVitals from '../components/WebVitals.astro';
-import ErrorTracking from '../components/ErrorTracking.astro';
-import StructuredData from '../components/StructuredData.astro';
-import MobileNav from '../components/business/MobileNav.astro';
-import PageNavigator from '../components/business/PageNavigator.astro';
-import StickyCTA from '../components/business/StickyCTA.astro';
-import RouteAtmosphere from '../components/business/RouteAtmosphere.astro';
-import SavedRoutesDock from '../components/business/SavedRoutesDock.astro';
-import LiveChat from '../components/business/LiveChat';
-import PullToRefresh from '../components/ui/PullToRefresh.astro';
-import { BASE_PATH } from '../consts';
-import { getRouteContext } from '../utils/route-context';
+import Header from '../components/Header.astro';
 
 interface Props {
   title: string;
   description: string;
   noIndex?: boolean;
-  mainClass?: string;
-  bodyClass?: string;
-  showFooter?: boolean;
-  showStickyCTA?: boolean;
+  image?: string;
+  type?: 'website' | 'article';
   showHeader?: boolean;
-  showMobileNav?: boolean;
-  showLiveChat?: boolean;
-  showSavedRoutesDock?: boolean;
-  enableClientRouter?: boolean;
-  pageNavigator?: {
-    label: string;
-    items: { id: string; label: string; shortLabel?: string }[];
-    accent?: string;
-  };
+  showFooter?: boolean;
+  mainClass?: string;
 }
 
 const {
   title,
   description,
   noIndex = false,
-  mainClass = 'space-y-20 pb-24',
-  bodyClass = '',
-  showFooter = false,
-  showStickyCTA = true,
+  image,
+  type = 'website',
   showHeader = true,
-  showMobileNav = false,
-  showLiveChat = false,
-  showSavedRoutesDock = true,
-  enableClientRouter = true,
-  pageNavigator,
+  showFooter = true,
+  mainClass = '',
 } = Astro.props as Props;
-
-const routeContext = getRouteContext(Astro.url.pathname);
 ---
 
 <!doctype html>
-<html lang="en" data-base-path={BASE_PATH}>
+<html lang="en">
   <head>
     <BaseHead
       title={title}
       description={description}
       noIndex={noIndex}
-      enableClientRouter={enableClientRouter}
+      image={image}
+      type={type}
     />
-    <StructuredData type="website" />
-
-    <!--
-      Production guard: if the site is hosted under a subpath (GitHub Pages project)
-      but the HTML references root-relative /_astro assets, nothing will boot (incl. 3D).
-      This provides a visible, actionable error instead of a blank page.
-    -->
-    <script is:inline>
-      (() => {
-        try {
-          const expectedBase =
-            document.documentElement.getAttribute('data-base-path') || '/';
-          if (!expectedBase || expectedBase === '/') return;
-
-          const scripts = Array.from(
-            document.querySelectorAll('script[type="module"][src]')
-          );
-
-          const hasBadAssetPath = scripts.some(el => {
-            const src = el instanceof HTMLScriptElement ? el.src : '';
-            if (!src) return false;
-            const p = new URL(src, document.baseURI).pathname;
-            return p.startsWith('/_astro/');
-          });
-
-          if (!hasBadAssetPath) return;
-
-          const diagUrl = new URL('debug-webgl/', document.baseURI).toString();
-
-          const overlay = document.createElement('div');
-          overlay.style.cssText =
-            'position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(2,4,10,0.94);color:#e5e7eb;text-align:center;';
-
-          const card = document.createElement('div');
-          card.style.maxWidth = '720px';
-          card.style.textAlign = 'left';
-
-          const head = document.createElement('div');
-          head.style.cssText =
-            'font-weight:800;font-size:18px;margin-bottom:10px';
-          head.textContent = 'Deployment base-path mismatch';
-
-          const body = document.createElement('div');
-          body.style.cssText =
-            'opacity:0.9;font-size:14px;line-height:1.5;margin-bottom:14px';
-
-          const bBase = document.createElement('b');
-          bBase.textContent = expectedBase;
-          const bAstro = document.createElement('b');
-          bAstro.textContent = '/_astro/';
-
-          body.append(
-            'This page is hosted under ',
-            bBase,
-            ', but the HTML is referencing ',
-            bAstro,
-            ' assets. That causes the entire site (and all 3D) to fail to boot in production.'
-          );
-
-          const row = document.createElement('div');
-          row.style.cssText = 'display:flex;gap:10px;flex-wrap:wrap';
-
-          const diag = document.createElement('a');
-          diag.href = diagUrl;
-          diag.style.cssText =
-            'display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);color:#e5e7eb;padding:10px 14px;border-radius:10px;text-decoration:none';
-          diag.textContent = 'Open diagnostics';
-
-          const reload = document.createElement('button');
-          reload.type = 'button';
-          reload.style.cssText =
-            'cursor:pointer;border:1px solid rgba(255,255,255,0.18);background:rgba(255,255,255,0.06);color:#fff;padding:10px 14px;border-radius:10px';
-          reload.textContent = 'Reload';
-          reload.addEventListener('click', () => window.location.reload());
-
-          row.append(diag, reload);
-
-          const foot = document.createElement('div');
-          foot.style.cssText =
-            'margin-top:14px;opacity:0.85;font-size:12px;line-height:1.4';
-          foot.textContent =
-            'Fix: build with the correct base path for your host (GitHub Pages project sites need /REPO/).';
-
-          card.append(head, body, row, foot);
-          overlay.replaceChildren(card);
-          document.body.appendChild(overlay);
-        } catch {
-          // ignore
-        }
-      })();
-    </script>
   </head>
-  <body
-    class={`tone-app-shell antialiased ${bodyClass}`.trim()}
-    style={`--route-accent:${routeContext.accent};`}
-    data-route-category={routeContext.currentCategory}
-  >
-    <RouteAtmosphere />
-    <PullToRefresh />
-    <div class="tone-site-shell">
-      <div class="tone-site-shell__ambient" aria-hidden="true">
-        <div class="tone-site-shell__grid"></div>
-        <div class="tone-site-shell__grain"></div>
-      </div>
-      <div class="relative z-[1]">
-        <a
-          href="#main-content"
-          class="tone-focus-accent tone-skip-link sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-sm focus:px-4 focus:py-2"
-        >
-          Skip to main content
-        </a>
-        {showHeader ? <Header /> : null}
-        <main
-          id="main-content"
-          class={`tone-main-shell ${mainClass} ${showMobileNav ? 'pb-[calc(8.5rem+env(safe-area-inset-bottom))] md:pb-24' : ''}`.trim()}
-          tabindex="-1"
-        >
-          <slot />
-        </main>
-        {showFooter ? <Footer /> : null}
-
-        {
-          pageNavigator?.items?.length ? (
-            <PageNavigator {...pageNavigator} />
-          ) : null
-        }
-        {showSavedRoutesDock ? <SavedRoutesDock /> : null}
-        {showStickyCTA ? <StickyCTA /> : null}
-        {showMobileNav ? <MobileNav /> : null}
-        {showLiveChat ? <LiveChat client:only="preact" /> : null}
-      </div>
-    </div>
-
-    <PWARegistration />
-    <WebVitals />
-    <ErrorTracking />
-    <script>
-      import '../scripts/command-palette-loader';
-    </script>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    {showHeader && <Header />}
+    <main id="main-content" class={mainClass} tabindex="-1">
+      <slot />
+    </main>
+    {showFooter && <Footer />}
   </body>
 </html>

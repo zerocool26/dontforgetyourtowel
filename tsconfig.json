@@ -1,54 +1,30 @@
 {
   "extends": "astro/tsconfigs/strict",
-  "include": [".astro/types.d.ts", "**/*", "tailwind.config.ts"],
+  "include": [".astro/types.d.ts", "src/**/*", "astro.config.mjs"],
   "exclude": [
     "dist",
     "node_modules",
     "backups",
-    "Docs2",
     "coverage",
     "playwright-report",
     "test-results",
-    "src/**/*.test.ts",
-    "src/**/*.spec.ts",
-    "src/tests",
-    "src/components/solid",
-    "src/components/svelte",
-    "src/components/vue",
-    "src/scripts/error-dashboard.ts"
+    "src/**/*.test.ts"
   ],
   "compilerOptions": {
-    "strictNullChecks": true,
     "module": "ESNext",
     "target": "ESNext",
     "moduleResolution": "bundler",
     "noEmit": true,
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "lib": ["ESNext", "DOM", "DOM.Iterable", "WebWorker"],
-    "types": [
-      "node",
-      "vite/client",
-      "astro/client",
-      "three",
-      "@react-three/fiber"
-    ],
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "types": ["node", "vite/client", "astro/client"],
     "jsx": "react-jsx",
     "jsxImportSource": "preact",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@/components/*": ["./src/components/*"],
-      "@/layouts/*": ["./src/layouts/*"],
-      "@/pages/*": ["./src/pages/*"],
-      "@/utils/*": ["./src/utils/*"],
-      "@/styles/*": ["./src/styles/*"],
-      "@/types/*": ["./src/types/*"],
-      "@/assets/*": ["./src/assets/*"]
+      "@/*": ["./src/*"]
     }
   }
 }

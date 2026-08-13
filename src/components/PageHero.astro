@@ -1,0 +1,55 @@
+---
+import { withBasePath } from '../utils/helpers';
+
+interface Props {
+  title: string;
+  copy: string;
+  primaryLabel?: string;
+  primaryHref?: string;
+  secondaryLabel?: string;
+  secondaryHref?: string;
+  asideTitle?: string;
+  asideCopy?: string;
+}
+
+const {
+  title,
+  copy,
+  primaryLabel = 'Put us to work',
+  primaryHref = 'contact-hq/',
+  secondaryLabel,
+  secondaryHref = 'pricing/',
+  asideTitle,
+  asideCopy,
+} = Astro.props as Props;
+---
+
+<section class="page-hero">
+  <div class="shell page-hero__grid">
+    <div class="page-hero__main">
+      <h1>{title}</h1>
+      <p>{copy}</p>
+      <div class="button-row">
+        <a class="button" href={withBasePath(primaryHref)}>{primaryLabel}</a>
+        {
+          secondaryLabel && (
+            <a
+              class="button button--outline"
+              href={withBasePath(secondaryHref)}
+            >
+              {secondaryLabel}
+            </a>
+          )
+        }
+      </div>
+    </div>
+    {
+      asideTitle && asideCopy && (
+        <aside class="page-hero__aside">
+          <h2>{asideTitle}</h2>
+          <p>{asideCopy}</p>
+        </aside>
+      )
+    }
+  </div>
+</section>

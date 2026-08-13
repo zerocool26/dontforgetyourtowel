@@ -1,15 +1,14 @@
 ---
-description: "Use when editing public-facing Astro marketing routes such as home, services, pricing, company, contact, about, gallery, build-studio, and trades. Enforce mobile-first buyer intent, token reuse, progressive disclosure, and route-safe validation."
-applyTo: "src/pages/**/*.astro"
+description: 'Use when editing public Astro marketing routes. Enforce buyer intent, direct copy, token reuse, and base-path-safe routing.'
+applyTo: 'src/pages/**/*.astro'
 ---
 
 # Marketing route standards
 
-- Lead with customer problem, buyer fit, proof, and next step before capability detail.
-- Keep mobile hierarchy calm: one primary action, one secondary action, and minimal competing chrome above the fold.
-- Prefer data-driven content from `src/data/**` over hard-coded repeated messaging whenever the same idea appears in multiple routes.
-- Prefer shared primitives (`MarketingLayout`, `ModernButton`, `ModernCard`) and tone/token utilities (`tone-*`, `creative-*`) over one-off visual treatments.
-- Reuse project color tokens and global utility classes instead of introducing raw hex colors in route markup unless there is a route-specific art-direction reason.
-- Preserve existing `data-*` hooks, anchors, and headings that are covered by tests or route-to-route deep links.
-- Keep primary mobile tap targets at least 44px tall; 48px is preferred for major CTAs.
-- When changing route behavior or interactions, validate with `bun run lint`, `bun run typecheck`, `bun run build`, and the most relevant focused Playwright spec.
+- Lead with the buyer problem, practical fit, delivery or operating proof, and next action.
+- Keep one primary and one secondary action above the fold.
+- Use shared data from `src/data/site.ts` and shared page components before duplicating structure.
+- Keep internal links base-path safe with `withBasePath()`.
+- Do not add filler, AI/futurist positioning, fake metrics, invented proof, or vague superlatives.
+- Avoid nested cards, pills, decorative dashboards, and dense mobile hero content.
+- Preserve semantic headings, visible focus, reduced motion, and 44px minimum targets.

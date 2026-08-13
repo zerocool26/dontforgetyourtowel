@@ -1,0 +1,37 @@
+---
+import { withBasePath } from '../utils/helpers';
+
+interface Props {
+  title?: string;
+  copy?: string;
+  secondaryLabel?: string;
+  secondaryHref?: string;
+}
+
+const {
+  title = 'Put one team on the whole problem.',
+  copy = 'Bring us the decision, build, security issue, or operating gap. We will identify the right first move and the ownership it needs after that.',
+  secondaryLabel = 'See what we deliver',
+  secondaryHref = 'services/',
+} = Astro.props as Props;
+---
+
+<section class="cta-band">
+  <div class="shell cta-band__inner">
+    <div>
+      <h2>{title}</h2>
+      <p>{copy}</p>
+    </div>
+    <div class="button-row">
+      <a class="button button--light" href={withBasePath('contact-hq/')}>
+        Put us to work
+      </a>
+      <a
+        class="button button--outline-light"
+        href={withBasePath(secondaryHref)}
+      >
+        {secondaryLabel}
+      </a>
+    </div>
+  </div>
+</section>

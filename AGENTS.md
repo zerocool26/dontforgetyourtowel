@@ -1,6 +1,6 @@
 # Agent Guide
 
-This is an Astro 6 static marketing site for CHICAGOS #1 MSP, a Chicago-area managed IT, cybersecurity, Microsoft 365, cloud, backup, networking, and selective digital systems provider.
+This is an Astro 7 static marketing site for CHICAGOS #1 MSP, an integrated Chicago technology consulting, software engineering, cloud, cybersecurity, managed IT, data, and automation firm.
 
 ## First Moves
 
@@ -36,7 +36,7 @@ This is an Astro 6 static marketing site for CHICAGOS #1 MSP, a Chicago-area man
 
 ## Current Priorities
 
-- Keep the Chicago MSP positioning practical and credible.
+- Keep the integrated Chicago technology-firm positioning practical and credible.
 - Reduce false positives in local tooling so humans and agents trust the gates.
 - Improve first-run developer experience and AI handoff context.
 - Keep large 3D/debug surfaces lazy, route-contained, and out of the default homepage bundle.

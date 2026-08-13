@@ -1,67 +1,45 @@
-## CHICAGOS #1 MSP Website
+# CHICAGOS #1 MSP Website
 
-Astro static site for CHICAGOS #1 MSP with base-path-safe routing, managed IT
-service content, trust/proof routes, Chicago service pages, and Playwright/Vitest
-quality gates.
+Astro 7 static marketing site for an integrated Chicago technology consulting,
+custom software, cloud, cybersecurity, managed IT, data, and automation firm.
 
-### Environment
+## Product surface
 
-- Node `>=22`
-- Bun `1.3.8`
-- Astro 6 static output
-- Preact as the primary interactive UI layer for public-facing experiences
+- `/` — buyer-first overview
+- `/services/` — integrated advisory, engineering, security, and operations lanes
+- `/software/` — custom software and product engineering approach
+- `/pricing/` — engagement models, managed IT ranges, and scope drivers
+- `/trust-center/` — access, source, data, security, recovery, and accountability posture
+- `/about/` — operating principles and buyer fit
+- `/blog/` — practical resources
+- `/chicago/` — local consulting, software, cloud, security, and managed service pages
+- `/contact-hq/` — direct inquiry handoff
 
-### Development workflow
+Retired demos, dashboards, galleries, commerce prototypes, WebGL experiments,
+theme modes, and legacy redirects were intentionally removed during the 2026
+top-to-bottom redesign.
 
-- Install dependencies with `bun install`
-- Start local development with `bun run dev`
-- Use `bun run lint` and `bun run typecheck` for fast static validation
-- Use `bun run test` for unit coverage and `bun run test:e2e` for browser flows
-- Use `bun run verify:fast` before handing off route/component changes
-- Use `bun run verify:full` before layout, dependency, routing, or deployment changes
-- Use `bun run deploy-ready` before release-quality changes
+Market and positioning research for the integrated firm model lives in
+`docs/research/2026-technology-services-market/`.
 
-### Workspace instruction system
+## Development
 
-- Cross-agent project guidance lives in `AGENTS.md`
-- Base project guidance lives in `.github/copilot-instructions.md`
-- Route-specific guidance lives in `.github/instructions/marketing-pages.instructions.md`
-- Shared-component guidance lives in `.github/instructions/design-system.instructions.md`
-- AI continuation guidance lives in `docs/AI-DEVELOPMENT-GUIDE.md`
+Requires Node 22+ and Bun 1.3.8.
 
-These workspace instruction files are intended to reduce drift between human edits, Copilot-assisted edits, and future agent passes.
+```bash
+bun install
+bun run dev
+```
 
-### Key routes
+## Validation
 
-- `/` Home
-- `/services/` Service catalog and engagement flow
-- `/pricing/` Directional managed IT pricing and scope guidance
-- `/trust-center/` Customer excellence, security, backup, and operating proof
-- `/blog/` Practical managed IT, security, Microsoft 365, and recovery articles
-- `/news/` News and podcast style advisory route
-- `/photos/` Photo gallery route
-- `/contact-hq/` Contact intake and recommendation handoff
+```bash
+bun run verify:fast
+bun run verify:full
+bun run test:e2e
+bun run deploy-ready
+bun run deps:audit
+```
 
-RSS is active for current content. Legacy/development routes may still exist for
-compatibility or internal demos, but active public navigation should stay focused
-on the buyer routes above.
-
-### Cleanup and archive policy
-
-Dead code and stale docs are migrated to archive folders instead of being
-hard-deleted from git history.
-
-- Archive root: `backups/dead-code-archive-2026-03-01/`
-- Cleanup notes: `docs/CODEBASE-CLEANUP-2026-03-01.md`
-
-### Validation commands
-
-- `bun run lint`
-- `bun run typecheck`
-- `bun run test`
-- `bun run test:e2e`
-- `bun run build`
-- `bun run verify:fast`
-- `bun run verify:full`
-- `bun run deps:audit`
-- `bun run deploy-ready`
+Internal links must use `withBasePath()` from `src/utils/helpers.ts` so the site
+works at both root domains and GitHub Pages project paths.

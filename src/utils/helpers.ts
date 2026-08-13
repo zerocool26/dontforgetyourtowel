@@ -1,8 +1,15 @@
-/**
- * Backwards-compatible helpers
- *
- * Some parts of the codebase import from `../utils/helpers`.
- * The canonical implementation lives in `./url`.
- */
+import { BASE_PATH } from '../consts';
 
-export { withBasePath, resolveHref, buildUrl, parseQuery } from './url';
+const externalPattern = /^(?:[a-z][a-z\d+.-]*:|#)/i;
+
+export const withBasePath = (value = '/') => {
+  if (externalPattern.test(value)) return value;
+
+  const base =
+    BASE_PATH === '/' ? '/' : `/${BASE_PATH.replace(/^\/+|\/+$/g, '')}/`;
+  const path = value.replace(/^\/+/, '');
+
+  if (!path) return base;
+  if (path.startsWith(base.replace(/^\//, ''))) return `/${path}`;
+  return `${base}${path}`.replace(/\/{2,}/g, '/');
+};

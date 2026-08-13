@@ -1,200 +1,61 @@
 ---
-// Import the global.css file here so that it is included on
-// all pages through the use of the <BaseHead /> component.
-import '../styles/global.css';
-
-// Import fonts
 import '@fontsource/inter/400.css';
 import '@fontsource/inter/500.css';
 import '@fontsource/inter/600.css';
-import '@fontsource/inter/700.css';
-import '@fontsource/manrope/400.css';
 import '@fontsource/manrope/500.css';
 import '@fontsource/manrope/600.css';
 import '@fontsource/manrope/700.css';
-import '@fontsource/jetbrains-mono/400.css';
-import '@fontsource/jetbrains-mono/600.css';
+import '../styles/global.css';
 
-import type { ImageMetadata } from 'astro';
-import { FEATURES, SITE_CONFIG, SITE_TITLE, THEME_CONFIG } from '../consts';
+import { SITE_TITLE } from '../consts';
 import { withBasePath } from '../utils/helpers';
 
 interface Props {
   title: string;
   description: string;
-  image?: ImageMetadata | string;
+  image?: string;
   type?: 'website' | 'article';
-  author?: string;
-  publishDate?: Date;
-  keywords?: string[];
   noIndex?: boolean;
-  enableClientRouter?: boolean;
 }
-
-const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
 const {
   title,
   description,
-  image = withBasePath(SITE_CONFIG.seo.ogImage),
+  image = withBasePath('og-image.png'),
   type = 'website',
-  author,
-  publishDate,
-  keywords,
-  noIndex,
-  enableClientRouter = true,
-} = Astro.props;
+  noIndex = false,
+} = Astro.props as Props;
 
-import { generateMetaTags } from '../utils/seo';
-import { ClientRouter } from 'astro:transitions';
-
-const metaTags = generateMetaTags({
-  title,
-  description,
-  image:
-    typeof image === 'string'
-      ? new URL(image, Astro.site).toString()
-      : new URL(image.src, Astro.url).toString(),
-  url: canonicalURL,
-  type,
-  author,
-  publishDate,
-  keywords,
-  noIndex,
-  siteName: SITE_CONFIG.title,
-});
-
-const themeChrome = {
-  'ops-center': '#070809',
-  corporate: '#f8fafc',
-  terminal: '#041108',
-} as const;
-
-const defaultExperienceMode = 'editorial';
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const socialImage = new URL(image, Astro.site);
 ---
 
-<!-- Global Metadata -->
 <meta charset="utf-8" />
 <meta
   name="viewport"
-  content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content"
+  content="width=device-width, initial-scale=1, viewport-fit=cover"
 />
-<!-- Theme color for mobile browsers - adapts to color scheme -->
-<meta
-  name="theme-color"
-  content="#070809"
-  media="(prefers-color-scheme: dark)"
-  data-theme-color
-/>
-<meta
-  name="theme-color"
-  content="#ffffff"
-  media="(prefers-color-scheme: light)"
-  data-theme-color
-/>
-<meta name="theme-color" content="#030303" data-theme-color />
-{enableClientRouter ? <ClientRouter /> : null}
-<script>
-  import '../scripts/ux-bootstrap';
-  import '../scripts/navigation-progress';
-  import '../scripts/focus-management';
-</script>
-<!-- DNS Prefetch for external resources -->
-<link rel="dns-prefetch" href="https://fonts.gstatic.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-
+<meta name="theme-color" content="#f7f5f0" />
+<meta name="description" content={description} />
+{noIndex && <meta name="robots" content="noindex,nofollow" />}
+<link rel="canonical" href={canonical} />
+<link rel="icon" type="image/svg+xml" href={withBasePath('favicon.svg')} />
+<link rel="sitemap" href={withBasePath('sitemap-index.xml')} />
 <link
-  rel="icon"
-  type="image/svg+xml"
-  href={`${import.meta.env.BASE_URL}favicon.svg`}
+  rel="alternate"
+  type="application/rss+xml"
+  title={`${SITE_TITLE} resources`}
+  href={withBasePath('rss.xml')}
 />
-
-<!-- PWA Manifest -->
-<link rel="manifest" href={`${import.meta.env.BASE_URL}manifest.webmanifest`} />
-<meta name="mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta
-  name="apple-mobile-web-app-status-bar-style"
-  content="black-translucent"
-/>
-<meta name="apple-mobile-web-app-title" content={SITE_TITLE} />
-
-<link rel="sitemap" href={`${import.meta.env.BASE_URL}sitemap-index.xml`} />
-{
-  FEATURES.enableRSS && (
-    <link
-      rel="alternate"
-      type="application/rss+xml"
-      title={SITE_TITLE}
-      href={new URL('rss.xml', Astro.site)}
-    />
-  )
-}
-<meta name="generator" content={Astro.generator} />
-
-<!-- Theme Initialization Script (Prevents FOUC) -->
-<script
-  is:inline
-  define:vars={{
-    themeStorageKey: THEME_CONFIG.storageKey,
-    themeChrome,
-    defaultExperienceMode,
-  }}
->
-  (function () {
-    try {
-      const root = document.documentElement;
-      const savedTheme =
-        localStorage.getItem(themeStorageKey) || localStorage.getItem('theme');
-
-      // Default to 'ops-center' if no preference, or map legacy 'dark'/'light'
-      let theme = savedTheme;
-      if (!theme) {
-        theme = 'ops-center'; // Default
-      } else if (theme === 'dark') {
-        theme = 'ops-center';
-      } else if (theme === 'light') {
-        theme = 'corporate';
-      }
-
-      root.dataset.theme = theme;
-
-      const chromeColor = themeChrome[theme] || themeChrome['ops-center'];
-      document
-        .querySelectorAll('meta[name="theme-color"][data-theme-color]')
-        .forEach(meta => meta.setAttribute('content', chromeColor));
-
-      // Handle Tailwind dark mode class
-      if (theme === 'corporate') {
-        root.classList.remove('dark');
-      } else {
-        root.classList.add('dark');
-      }
-
-      window.__theme = theme;
-
-      const savedExperienceMode =
-        localStorage.getItem('chicagos-msp-experience-mode') ||
-        defaultExperienceMode;
-      root.dataset.experienceMode = savedExperienceMode;
-      window.__experienceMode = savedExperienceMode;
-    } catch (error) {
-      console.error('Theme initialization failed:', error);
-    }
-  })();
-</script>
-
-<!-- Canonical URL -->
-<link rel="canonical" href={canonicalURL} />
-
-<!-- Generated Meta Tags -->
 <title>{title}</title>
-{
-  metaTags.map(tag => {
-    if ('name' in tag) {
-      return <meta name={tag.name} content={tag.content} />;
-    } else {
-      return <meta property={tag.property} content={tag.content} />;
-    }
-  })
-}
+
+<meta property="og:site_name" content={SITE_TITLE} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:type" content={type} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={socialImage} />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={socialImage} />

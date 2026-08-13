@@ -1,127 +1,26 @@
-// Place any global data in this file.
-// You can import this data from anywhere in your site by using the `import` keyword.
-
 import { createDeploymentConfig } from '../config/deployment.js';
 
-/**
- * Site Configuration Constants
- * Central location for all site-wide configuration values
- */
-const DEPLOYMENT = createDeploymentConfig(
+const deployment = createDeploymentConfig(
   import.meta.env as unknown as Record<string, string>
 );
+
 const readPublicEnv = (...keys: string[]) => {
   for (const key of keys) {
-    const value =
-      typeof import.meta.env !== 'undefined'
-        ? import.meta.env[key as keyof ImportMetaEnv]
-        : process.env[key];
-
-    if (value !== undefined && value !== '') {
-      return value;
-    }
+    const value = import.meta.env[key as keyof ImportMetaEnv];
+    if (typeof value === 'string' && value.trim()) return value.trim();
   }
-
-  return undefined;
+  return '';
 };
 
-const analyticsFlag = readPublicEnv(
-  'PUBLIC_ENABLE_ANALYTICS',
-  'NEXT_PUBLIC_ENABLE_ANALYTICS'
-);
-const analyticsEnabled =
-  analyticsFlag === 'true' ||
-  analyticsFlag === '1' ||
-  analyticsFlag === true ||
-  analyticsFlag === 'yes' ||
-  analyticsFlag === 'on';
-
-// MSP/IT services branding (safe defaults; customise as needed)
 export const SITE_TITLE = 'CHICAGOS #1 MSP';
 export const SITE_DESCRIPTION =
-  'Chicago-area managed IT, cybersecurity, cloud, Microsoft 365, backup, networking, and workflow support for teams that need clearer ownership and calmer operations.';
-export const SITE_URL = DEPLOYMENT.siteUrl;
-export const BASE_PATH = import.meta.env.BASE_URL ?? DEPLOYMENT.basePath;
-export const DEPLOYMENT_CONFIG = DEPLOYMENT;
-
-// Static site contact: uses a mailto: link (configurable via env for later)
+  'Technology strategy, custom software, cloud, cybersecurity, and managed IT from one accountable Chicago team.';
+export const SITE_URL = deployment.siteUrl;
+export const BASE_PATH = import.meta.env.BASE_URL ?? deployment.basePath;
 export const CONTACT_EMAIL =
-  (readPublicEnv('PUBLIC_CONTACT_EMAIL', 'NEXT_PUBLIC_CONTACT_EMAIL') as
-    | string
-    | undefined) || 'hello@chicagos1msp.com';
-export const CONTACT_FORM_ENDPOINT =
-  (readPublicEnv(
-    'PUBLIC_CONTACT_FORM_ENDPOINT',
-    'NEXT_PUBLIC_CONTACT_FORM_ENDPOINT'
-  ) as string | undefined) || '';
-export const CONTACT_CALENDAR_URL =
-  (readPublicEnv(
-    'PUBLIC_CONTACT_CALENDAR_URL',
-    'NEXT_PUBLIC_CONTACT_CALENDAR_URL'
-  ) as string | undefined) || '';
-export const CONTACT_CRM_LABEL =
-  (readPublicEnv(
-    'PUBLIC_CONTACT_CRM_LABEL',
-    'NEXT_PUBLIC_CONTACT_CRM_LABEL'
-  ) as string | undefined) || 'CRM intake';
-
-export const SITE_CONFIG = {
-  title: SITE_TITLE,
-  description: SITE_DESCRIPTION,
-  author: 'CHICAGOS #1 MSP',
-  defaultLanguage: 'en-US',
-  // Social links
-  social: {
-    github: DEPLOYMENT.repoUrl || 'https://github.com',
-  },
-  // SEO
-  seo: {
-    ogImage: '/og-image.png',
-    twitterCard: 'summary_large_image' as const,
-  },
-  // Navigation
-  nav: {
-    maxMenuItems: 8,
-    showSearchInHeader: true,
-  },
-} as const;
-
-/**
- * Theme configuration
- */
-export const THEME_CONFIG = {
-  defaultTheme: 'ops-center' as const,
-  storageKey: 'chicagos-msp-theme-preference',
-  supportedThemes: ['ops-center', 'corporate', 'terminal'] as const,
-} as const;
-
-/**
- * API/Integration configuration
- */
-export const API_CONFIG = {
-  baseUrl:
-    (readPublicEnv('PUBLIC_API_URL', 'NEXT_PUBLIC_API_URL') as string) || '',
-  timeout: 10000,
-  retryAttempts: 3,
-} as const;
-
-/**
- * Performance budgets (in bytes)
- */
-export const PERFORMANCE_BUDGETS = {
-  maxBundleSize: 250_000, // 250KB
-  maxImageSize: 200_000, // 200KB
-  maxFontSize: 100_000, // 100KB
-} as const;
-
-/**
- * Feature flags
- */
-export const FEATURES = {
-  // Privacy-first default: analytics is disabled unless explicitly enabled.
-  enableAnalytics: analyticsEnabled,
-  enablePWA: true,
-  enableDarkMode: true,
-  enableSearch: true,
-  enableRSS: true,
-} as const;
+  readPublicEnv('PUBLIC_CONTACT_EMAIL', 'NEXT_PUBLIC_CONTACT_EMAIL') ||
+  'hello@chicagos1msp.com';
+export const CONTACT_CALENDAR_URL = readPublicEnv(
+  'PUBLIC_CONTACT_CALENDAR_URL',
+  'NEXT_PUBLIC_CONTACT_CALENDAR_URL'
+);

@@ -1,122 +1,121 @@
 ---
+import CtaBand from '../../components/CtaBand.astro';
+import { chicagoServices, processSteps, proofRows } from '../../data/site';
 import MarketingLayout from '../../layouts/MarketingLayout.astro';
-import StructuredData from '../../components/StructuredData.astro';
-import ModernButton from '../../components/ui/ModernButton.astro';
-import ModernCard from '../../components/ui/ModernCard.astro';
-import LocalReadinessMap from '../../components/business/LocalReadinessMap.astro';
-import ProofOperatingSystem from '../../components/business/ProofOperatingSystem.astro';
-import FAQAccordion from '../../components/ui/FAQAccordion.astro';
-import {
-  chicagoServicePages,
-  type LocalServicePage,
-} from '../../data/authority-pages';
-import { buildContactHqHref } from '../../utils/contact';
 import { withBasePath } from '../../utils/helpers';
 
 export function getStaticPaths() {
-  return chicagoServicePages.map(page => ({
-    params: { service: page.slug },
-    props: { page },
+  return chicagoServices.map(service => ({
+    params: { service: service.slug },
+    props: { service },
   }));
 }
 
-const { page } = Astro.props as { page: LocalServicePage };
+const { service } = Astro.props;
 ---
 
 <MarketingLayout
-  title={page.seoTitle}
-  description={page.description}
-  bodyClass="creative-page buyer-reframe chicago-service-reframe"
-  mainClass="relative isolate overflow-x-clip"
-  showFooter={true}
-  showStickyCTA={false}
-  showLiveChat={false}
-  showSavedRoutesDock={false}
+  title={`${service.title} in Chicago | CHICAGOS #1 MSP`}
+  description={`${service.summary} for established Chicago-area businesses.`}
 >
-  <StructuredData
-    type="service"
-    data={{
-      name: page.title,
-      description: page.description,
-      serviceType: page.title,
-      areaServed: 'Chicago metropolitan area',
-    }}
-  />
-
-  <section class="premium-page-section pt-10 sm:pt-14" data-page-section>
-    <div class="premium-container">
-      <div class="tone-page-header max-w-4xl">
-        <p class="tone-page-eyebrow">{page.eyebrow}</p>
-        <h1 class="tone-page-title">{page.title}</h1>
-        <p class="tone-page-copy">{page.intro}</p>
-        <div class="tone-page-actions">
-          <ModernButton
-            href={buildContactHqHref({
-              brief: `I want to discuss ${page.title.toLowerCase()}.`,
-            })}
-            variant="gradient"
-            className="min-h-[52px]"
+  <section class="local-detail-hero">
+    <div class="shell local-detail-hero__grid">
+      <div>
+        <a href={withBasePath('chicago/')}>Chicago services</a>
+        <h1>{service.title} for Chicago teams.</h1>
+        <p>{service.summary}</p>
+        <div class="button-row">
+          <a
+            class="button"
+            href={withBasePath(`contact-hq/?topic=${service.slug}`)}
           >
-            Start intake
-          </ModernButton>
-          <ModernButton
-            href={withBasePath('pricing/')}
-            variant="outline"
-            className="min-h-[52px]"
-          >
-            Review pricing logic
-          </ModernButton>
+            Discuss this work
+          </a>
+          <a class="button button--outline" href={withBasePath('services/')}>
+            See all services
+          </a>
         </div>
       </div>
+      <aside>
+        <h2>The local standard</h2>
+        <p>
+          Senior access, intentional on-site coordination, a named delivery
+          owner, and decisions written for the business.
+        </p>
+      </aside>
+    </div>
+  </section>
 
-      <div class="mt-8 grid gap-4 lg:grid-cols-3">
-        <ModernCard className="lg:col-span-1">
-          <p class="tone-label">Buyer fit</p>
-          <ul class="tone-body mt-4 grid gap-2 pl-5">
-            {page.buyerFit.map(item => <li>{item}</li>)}
-          </ul>
-        </ModernCard>
-
-        <ModernCard className="lg:col-span-1">
-          <p class="tone-label">Likely outcomes</p>
-          <ul class="tone-body mt-4 grid gap-2 pl-5">
-            {page.outcomes.map(item => <li>{item}</li>)}
-          </ul>
-        </ModernCard>
-
-        <ModernCard className="lg:col-span-1">
-          <p class="tone-label">Core deliverables</p>
-          <ul class="tone-body mt-4 grid gap-2 pl-5">
-            {page.deliverables.map(item => <li>{item}</li>)}
-          </ul>
-        </ModernCard>
+  <section class="section proof-section">
+    <div class="shell">
+      <div class="section-heading section-heading--wide">
+        <h2>What good ownership should make visible.</h2>
+      </div>
+      <div class="proof-ledger">
+        {
+          proofRows.map(row => (
+            <div class="proof-ledger__row">
+              <span class="index-number">{row.number}</span>
+              <h3>{row.title}</h3>
+              <p>{row.copy}</p>
+            </div>
+          ))
+        }
       </div>
     </div>
   </section>
 
-  <LocalReadinessMap
-    compact
-    eyebrow="Local service readiness"
-    title={`${page.title} starts with the local operating picture.`}
-    description="The first review should map coverage, access boundaries, recovery order, vendor handoffs, and review cadence so the service fits the real environment."
-    ctaHref={buildContactHqHref({
-      brief: `I want to map local readiness for ${page.title.toLowerCase()}.`,
-    })}
-    ctaLabel="Map service readiness"
-  />
-
-  <ProofOperatingSystem
-    compact
-    showComparison={false}
-    showFit={false}
-    eyebrow="Service proof"
-    title="The service has to make ownership visible."
-    description="A local service page should not just name the category. It should show the evidence a buyer will use to trust the engagement."
-  />
-
-  <section class="premium-page-section pb-16 sm:pb-20" data-page-section>
-    <div class="premium-container max-w-4xl">
-      <FAQAccordion items={page.faqs} />
+  <section class="process-band">
+    <div class="shell process-band__grid">
+      <h2>A practical<br />first phase.</h2>
+      <ol>
+        {
+          processSteps.map(step => (
+            <li>
+              <>
+                <span>{step.number}</span>
+                <strong>{step.title}</strong>
+              </>
+            </li>
+          ))
+        }
+      </ol>
     </div>
   </section>
+
+  <section class="section">
+    <div class="shell split-section split-section--top">
+      <div class="section-heading"><h2>Before scope is final.</h2></div>
+      <div class="boundary-list">
+        <div>
+          <span>01</span><p>
+            Confirm the outcome, users or customers, systems, data, workflow,
+            locations, and coverage expectations.
+          </p>
+        </div>
+        <div>
+          <span>02</span><p>
+            Review the current owner, provider, software, source, tools,
+            contracts, dependencies, and urgent issues.
+          </p>
+        </div>
+        <div>
+          <span>03</span><p>
+            Separate discovery and delivery from recurring operations,
+            onboarding, cleanup, and support.
+          </p>
+        </div>
+        <div>
+          <span>04</span><p>
+            Agree on the first priorities, decision-makers, and next review.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <CtaBand
+    title={`Talk through your ${service.title.toLowerCase()} needs.`}
+    copy="Bring the business outcome, rough environment, current ownership, and timing. We will identify the right first phase and what still needs discovery."
+  />
 </MarketingLayout>

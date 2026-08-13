@@ -1,0 +1,195 @@
+---
+import CtaBand from '../components/CtaBand.astro';
+import FaqList from '../components/FaqList.astro';
+import PageHero from '../components/PageHero.astro';
+import MarketingLayout from '../layouts/MarketingLayout.astro';
+
+const buildTypes = [
+  [
+    'Customer-facing products',
+    'Portals, service experiences, account tools, and digital products built around a real customer job.',
+  ],
+  [
+    'Internal business systems',
+    'Operational applications that replace fragile spreadsheets, inbox workflows, and disconnected tools.',
+  ],
+  [
+    'Modernization',
+    'Legacy application, architecture, interface, and delivery improvements without a blind rewrite.',
+  ],
+  [
+    'Integration & automation',
+    'APIs, data flows, and governed workflows that move information reliably between systems.',
+  ],
+];
+
+const deliveryPhases = [
+  {
+    number: '01',
+    title: 'Define the product',
+    copy: 'Clarify the user, operating problem, business rules, constraints, success conditions, and smallest useful release.',
+  },
+  {
+    number: '02',
+    title: 'Architect the system',
+    copy: 'Choose the platform, data model, integration boundaries, access model, delivery plan, and production environment.',
+  },
+  {
+    number: '03',
+    title: 'Build and validate',
+    copy: 'Deliver in reviewable increments with quality, security, usability, and acceptance criteria visible throughout.',
+  },
+  {
+    number: '04',
+    title: 'Launch and operate',
+    copy: 'Move to production with source, access, documentation, monitoring, support, recovery, and the next improvement queue defined.',
+  },
+];
+
+const faqs = [
+  {
+    question: 'Do you build websites?',
+    answer:
+      'We build customer and business systems, which can include a public web experience when it is part of the product. A basic brochure site is not the center of this offer; the stronger fit is software with workflows, data, integrations, accounts, or ongoing operational importance.',
+  },
+  {
+    question: 'Can you take over an existing application?',
+    answer:
+      'Yes, after a technical and operating review. We need to understand source access, deployment, dependencies, data, security, open defects, documentation, and the current support path before committing to a recovery or modernization plan.',
+  },
+  {
+    question: 'Who owns the source code and production accounts?',
+    answer:
+      'Ownership and access are defined in the engagement. Our default operating standard is that the client has an explicit path to its source, data, domains, cloud accounts, credentials, documentation, and production handoff.',
+  },
+  {
+    question: 'Do you support software after launch?',
+    answer:
+      'Yes, when ongoing application support, cloud operations, security maintenance, or an improvement cadence belongs in the scope. The build and run responsibilities remain separately visible so there is no ambiguous maintenance promise.',
+  },
+];
+---
+
+<MarketingLayout
+  title="Custom Software Development in Chicago | CHICAGOS #1 MSP"
+  description="Product strategy, UX, custom applications, portals, integrations, modernization, quality engineering, launch, and production support."
+>
+  <PageHero
+    title="Software that survives launch."
+    copy="We define, design, build, secure, and operate custom software for businesses that need more than a prototype and more accountability than a staffing vendor."
+    primaryLabel="Put a build in motion"
+    secondaryLabel="See all services"
+    secondaryHref="services/"
+    asideTitle="The standard"
+    asideCopy="A useful product, a maintainable system, clear client ownership, and an operating path for the morning after release."
+  />
+
+  <section class="route-index">
+    <div class="shell">
+      <h2>What we build.</h2>
+      <div class="route-index__rows">
+        {
+          buildTypes.map((item, index) => (
+            <div class="software-route-row">
+              <span class="index-number">
+                {String(index + 1).padStart(2, '0')}
+              </span>
+              <strong>{item[0]}</strong>
+              <p>{item[1]}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="ownership-band">
+    <div class="shell">
+      <h2>Production is part of the build.</h2>
+      <ol>
+        <li><span>01</span><strong>Security begins in architecture</strong></li>
+        <li><span>02</span><strong>Quality has acceptance criteria</strong></li>
+        <li><span>03</span><strong>Client ownership is explicit</strong></li>
+        <li><span>04</span><strong>Operations start before launch</strong></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section service-details">
+    <div class="shell">
+      <div class="section-heading section-heading--wide">
+        <h2>From operating problem to production system.</h2>
+        <p>
+          The delivery method stays readable to the business while the technical
+          work remains rigorous enough for the team that will own it.
+        </p>
+      </div>
+      <div class="software-phases">
+        {
+          deliveryPhases.map(phase => (
+            <article>
+              <span class="index-number">{phase.number}</span>
+              <h3>{phase.title}</h3>
+              <p>{phase.copy}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--soft">
+    <div class="shell split-section split-section--top">
+      <div class="section-heading">
+        <h2>Capabilities behind the build.</h2>
+        <p>
+          Use the capabilities the product needs, not a fashionable stack for
+          its own sake.
+        </p>
+      </div>
+      <div class="boundary-list">
+        <div>
+          <span>01</span><p>
+            Product discovery, user flows, interface design, technical
+            architecture, and delivery planning.
+          </p>
+        </div>
+        <div>
+          <span>02</span><p>
+            Frontend, backend, APIs, authentication, data models, integrations,
+            and cloud deployment.
+          </p>
+        </div>
+        <div>
+          <span>03</span><p>
+            Application security, automated delivery, test strategy, quality
+            engineering, observability, and recovery.
+          </p>
+        </div>
+        <div>
+          <span>04</span><p>
+            Modernization, technical debt reduction, documentation, support, and
+            a controlled improvement backlog.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="shell split-section split-section--top">
+      <div class="section-heading">
+        <h2>Software engagement questions.</h2>
+        <p>Clear ownership starts before the first line of code.</p>
+      </div>
+      <FaqList items={faqs} />
+    </div>
+  </section>
+
+  <CtaBand
+    title="Bring the workflow that should work better."
+    copy="Show us the customer problem, manual process, legacy system, or stalled build. We will identify what needs discovery before scope, architecture, and delivery can be trusted."
+    secondaryLabel="Review the full service model"
+    secondaryHref="services/"
+  />
+</MarketingLayout>

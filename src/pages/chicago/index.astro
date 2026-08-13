@@ -1,110 +1,98 @@
 ---
+import CtaBand from '../../components/CtaBand.astro';
+import PageHero from '../../components/PageHero.astro';
+import { chicagoServices } from '../../data/site';
 import MarketingLayout from '../../layouts/MarketingLayout.astro';
-import StructuredData from '../../components/StructuredData.astro';
-import ModernButton from '../../components/ui/ModernButton.astro';
-import ModernCard from '../../components/ui/ModernCard.astro';
-import LocalReadinessMap from '../../components/business/LocalReadinessMap.astro';
-import ProofOperatingSystem from '../../components/business/ProofOperatingSystem.astro';
-import { chicagoServicePages } from '../../data/authority-pages';
-import { buildContactHqHref } from '../../utils/contact';
 import { withBasePath } from '../../utils/helpers';
 ---
 
 <MarketingLayout
-  title="Chicago IT Service Areas | CHICAGOS #1 MSP"
-  description="Chicago service pages for managed IT, cybersecurity, Microsoft 365, backup and disaster recovery, and co-managed IT."
-  bodyClass="creative-page buyer-reframe chicago-reframe"
-  mainClass="relative isolate overflow-x-clip"
-  showFooter={true}
-  showStickyCTA={false}
-  showLiveChat={false}
-  showSavedRoutesDock={false}
+  title="Chicago Technology Consulting, Software & Managed IT | CHICAGOS #1 MSP"
+  description="Technology consulting, custom software, cloud modernization, cybersecurity, managed IT, data, integration, and recovery for Chicago businesses."
 >
-  <StructuredData
-    type="collection"
-    data={{
-      name: 'Chicago IT service areas',
-      description:
-        'Chicago-area managed IT, security, Microsoft 365, backup, and co-managed IT service coverage.',
-    }}
+  <PageHero
+    title="Chicago technology without the vendor maze."
+    copy="Senior advisory, custom software, cloud, cybersecurity, data, and managed operations through one accountable local delivery model."
+    secondaryLabel="Explore software engineering"
+    secondaryHref="software/"
+    asideTitle="Built for Chicago teams"
+    asideCopy="Established organizations across the city and surrounding area that need a decision made, a system built, or critical technology operated properly."
   />
 
-  <section class="premium-page-section pt-10 sm:pt-14" data-page-section>
-    <div class="premium-container">
-      <div class="tone-page-header max-w-4xl">
-        <p class="tone-page-eyebrow">Chicago IT service areas</p>
-        <h1 class="tone-page-title">
-          Local IT support for teams that need fewer loose ends.
-        </h1>
-        <p class="tone-page-copy">
-          Get managed IT, cybersecurity, Microsoft 365, backup, and co-managed
-          support shaped around the problems Chicago-area companies actually run
-          into: recurring tickets, vendor confusion, access risk, and recovery
-          doubt.
-        </p>
-        <div class="tone-page-actions">
-          <ModernButton
-            href={buildContactHqHref({
-              brief:
-                'I want to discuss a Chicago managed IT, security, Microsoft 365, backup, or co-managed need.',
-            })}
-            variant="gradient"
-            className="min-h-[52px]"
-          >
-            Start local intake
-          </ModernButton>
-          <ModernButton
-            href={withBasePath('services/')}
-            variant="outline"
-            className="min-h-[52px]"
-          >
-            Review all services
-          </ModernButton>
-        </div>
+  <section class="section local-service-list">
+    <div class="shell">
+      <div class="section-heading section-heading--wide">
+        <h2>Chicago service areas.</h2>
+        <p>Choose the lane closest to the outcome you need now.</p>
       </div>
-
-      <div class="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <div class="route-index__rows">
         {
-          chicagoServicePages.map(page => (
-            <ModernCard>
-              <p class="tone-label">{page.eyebrow}</p>
-              <h2 class="tone-title mt-3 text-2xl">{page.title}</h2>
-              <p class="tone-body mt-3">{page.description}</p>
-              <ul class="tone-body mt-4 grid gap-2 pl-5">
-                {page.outcomes.slice(0, 2).map(item => (
-                  <li>{item}</li>
-                ))}
-              </ul>
-              <div class="mt-5">
-                <ModernButton href={withBasePath(`chicago/${page.slug}/`)}>
-                  Open page
-                </ModernButton>
-              </div>
-            </ModernCard>
+          chicagoServices.map((service, index) => (
+            <a href={withBasePath(`chicago/${service.slug}/`)}>
+              <span class="index-number">
+                {String(index + 1).padStart(2, '0')}
+              </span>
+              <strong>{service.title}</strong>
+              <em>{service.summary}</em>
+              <span aria-hidden="true">→</span>
+            </a>
           ))
         }
       </div>
     </div>
   </section>
 
-  <LocalReadinessMap
-    compact
-    ctaHref={buildContactHqHref({
-      brief:
-        'I want to map local coverage, access, recovery, vendors, and review cadence for our Chicago-area team.',
-    })}
-    ctaLabel="Map local readiness"
-  />
+  <section class="ownership-band">
+    <div class="shell local-standard">
+      <h2>Local should mean accountable.</h2>
+      <ol>
+        <li>
+          <span>01</span><strong>Senior decisions stay accessible</strong>
+        </li>
+        <li>
+          <span>02</span><strong>Delivery has one accountable lead</strong>
+        </li>
+        <li><span>03</span><strong>On-site work has a clear reason</strong></li>
+        <li>
+          <span>04</span><strong>The operating path survives launch</strong>
+        </li>
+      </ol>
+    </div>
+  </section>
 
-  <ProofOperatingSystem
-    compact
-    eyebrow="Local proof standard"
-    title="Local coverage should be practical, not just a service-area claim."
-    description="A local provider should explain who owns support, how recovery is reviewed, how access risk is handled, and how pricing scope is shaped for your company."
-    ctaHref={buildContactHqHref({
-      brief:
-        'I want to discuss a Chicago managed IT, security, Microsoft 365, backup, or co-managed need.',
-    })}
-    ctaLabel="Start local intake"
-  />
+  <section class="section">
+    <div class="shell split-section split-section--top">
+      <div class="section-heading">
+        <h2>What we need to understand first.</h2>
+      </div>
+      <div class="boundary-list">
+        <div>
+          <span>01</span><p>
+            The business outcome, users or customers, systems, workflow, and
+            locations involved.
+          </p>
+        </div>
+        <div>
+          <span>02</span><p>
+            Current software, cloud, provider, internal technology ownership,
+            and the handoffs that are failing.
+          </p>
+        </div>
+        <div>
+          <span>03</span><p>
+            Data, integrations, source, Microsoft 365, network, backup,
+            security, and line-of-business dependencies.
+          </p>
+        </div>
+        <div>
+          <span>04</span><p>
+            Timing, launch windows, urgent risks, contract dates, and leadership
+            priorities.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <CtaBand />
 </MarketingLayout>

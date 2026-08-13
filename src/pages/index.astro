@@ -1,1283 +1,176 @@
 ---
+import { Image } from 'astro:assets';
+
+import CtaBand from '../components/CtaBand.astro';
 import MarketingLayout from '../layouts/MarketingLayout.astro';
-import BuyerSituationRouter from '../components/business/BuyerSituationRouter.tsx';
-import DecisionHandoffPanel from '../components/business/DecisionHandoffPanel.astro';
-import OperatingProofBoard from '../components/business/OperatingProofBoard.astro';
-import ProofOperatingSystem from '../components/business/ProofOperatingSystem.astro';
-import ProviderSelectionStandard from '../components/business/ProviderSelectionStandard.astro';
-import ModernButton from '../components/ui/ModernButton.astro';
-import { buyerSituations } from '../data/buyer-situations';
+import heroImage from '../assets/chicago-architecture.png';
+import { processSteps, proofRows, services } from '../data/site';
 import { withBasePath } from '../utils/helpers';
-
-const contactHref = withBasePath('contact-hq/');
-const pricingHref = withBasePath('pricing/');
-const servicesHref = withBasePath('services/');
-const trustHref = withBasePath('trust-center/');
-const heroMediaDesktop = withBasePath('media/chicago-ops-command.webp');
-const heroMediaMobile = withBasePath('media/chicago-ops-command-mobile.webp');
-
-const receiptTapeFields = [
-  {
-    label: 'Receipt',
-    value: 'Operating proof',
-  },
-  {
-    label: 'What you get',
-    value: 'Visible owners. Clear risk. Recovery plan. Evidence you can share.',
-  },
-  {
-    label: 'Delivered',
-    value: 'Service ledger and first-phase plan',
-  },
-  {
-    label: 'Next step',
-    value: 'Your main issue, routed to a clearer first move',
-  },
-];
-
-const operatingSignals = [
-  {
-    title: 'Response ownership',
-    copy: 'Named owners for every support lane, vendor handoff, device issue, and escalation path.',
-  },
-  {
-    title: 'Security baseline',
-    copy: 'MFA, endpoint, email, admin roles, guest access, and exceptions documented in business language.',
-  },
-  {
-    title: 'Recovery proof',
-    copy: 'Protected systems, restore access, recovery order, and vendor dependencies reviewed before pressure hits.',
-  },
-  {
-    title: 'Scope boundaries',
-    copy: 'Recurring support, security depth, onsite work, and projects separated before pricing gets fuzzy.',
-  },
-];
-
-const serviceLanes = [
-  {
-    label: 'Support',
-    title: 'Managed IT support',
-    copy: 'Help desk, onboarding, device standards, patching, and vendor follow-through.',
-    href: servicesHref,
-  },
-  {
-    label: 'Security',
-    title: 'Cybersecurity operations',
-    copy: 'MFA, endpoint protection, email defense, admin access, awareness, and response contacts.',
-    href: withBasePath('services/#technology-catalog'),
-  },
-  {
-    label: 'Microsoft 365',
-    title: 'Microsoft 365 operations',
-    copy: 'Exchange, Teams, SharePoint, OneDrive, licensing, access rules, cleanup, and governance.',
-    href: withBasePath('services/#technology-catalog'),
-  },
-  {
-    label: 'Continuity',
-    title: 'Backup, network, and recovery',
-    copy: 'Backup monitoring, restore checks, firewall, Wi-Fi, ISP coordination, and recovery order.',
-    href: withBasePath('services/#technology-catalog'),
-  },
-];
-
-const firstThirtyDays = [
-  'Document users, devices, Microsoft 365, backups, vendors, network gear, admin roles, and recurring issues.',
-  'Stabilize the support, access, email, and recovery gaps that create the most daily disruption.',
-  'Deliver a 30/60/90 plan with owners, budget notes, and the decisions leadership needs to make next.',
-];
-
-const firstPhaseOutputs = [
-  'Owners assigned',
-  'Service ledger',
-  'Risk and recovery summary',
-  '30/60/90 day plan',
-];
-
-const evidenceReceiptFields = [
-  { label: 'Account shape', value: '25-150 user teams' },
-  { label: 'Delivered', value: 'Operating proof board' },
-  { label: 'Review rhythm', value: 'onboarding, then cadence' },
-  { label: 'Pages', value: 'owners, risks, scope' },
-];
-
-const routeBoardSteps = [
-  'Main issue',
-  'First owner',
-  'Evidence needed',
-  'Next decision',
-];
 ---
 
 <MarketingLayout
-  title="CHICAGOS #1 MSP | Managed IT, Security, Microsoft 365, and Backup"
-  description="Chicago-area managed IT, cybersecurity, Microsoft 365, backup, networking, and support ownership for firms that need calmer operations."
-  mainClass="relative overflow-x-clip"
-  bodyClass="home-reboot"
-  showFooter={true}
-  showStickyCTA={false}
-  showLiveChat={false}
-  showSavedRoutesDock={false}
+  title="CHICAGOS #1 MSP | Technology Consulting & Software Engineering"
+  description="Technology strategy, custom software, cloud, cybersecurity, and managed IT from one accountable Chicago team."
 >
-  <section class="home-reboot-hero" id="landing-hero" data-page-section>
-    <picture class="home-reboot-hero__media">
-      <source media="(max-width: 767px)" srcset={heroMediaMobile} />
-      <img
-        src={heroMediaDesktop}
-        alt="Chicago skyline behind a managed IT operations desk at dusk"
-        loading="eager"
-        decoding="async"
-        fetchpriority="high"
-      />
-    </picture>
-    <div class="home-reboot-hero__shade" aria-hidden="true"></div>
-
-    <div class="home-reboot-shell home-reboot-hero__grid">
-      <div class="home-reboot-hero__content">
-        <h1 class="home-reboot-title">
-          When IT feels ownerless, the business slows down.
-        </h1>
-        <p class="home-reboot-copy home-reboot-copy--large">
-          Chicago-area support, cybersecurity, Microsoft 365, backup, network,
-          and vendor work organized around visible owners, evidence, and the
-          next decision.
+  <section class="home-hero">
+    <div class="shell home-hero__grid">
+      <div class="home-hero__copy">
+        <h1>Build faster.<br />Run stronger<span>.</span></h1>
+        <p>
+          Technology strategy, custom software, cloud, cybersecurity, and
+          managed IT—one accountable Chicago team from first decision through
+          daily operations.
         </p>
-
-        <div class="home-reboot-actions" aria-label="Primary actions">
-          <ModernButton
-            href={contactHref}
-            variant="gradient"
-            rounded="sm"
-            className="home-reboot-primary-action"
+        <div class="button-row">
+          <a class="button" href={withBasePath('contact-hq/')}>Put us to work</a
           >
-            Start fit check
-          </ModernButton>
-          <ModernButton
-            href={pricingHref}
-            variant="outline"
-            rounded="sm"
-            className="home-reboot-secondary-action"
-          >
-            See pricing logic
-          </ModernButton>
+          <a class="button button--outline" href="#what-we-deliver">
+            See what we deliver
+          </a>
         </div>
       </div>
-
-      <div class="home-reboot-hero__board">
-        <OperatingProofBoard />
+      <div class="home-hero__media">
+        <Image
+          src={heroImage}
+          alt="Chicago elevated steel structure with Marina City and the Willis Tower"
+          widths={[720, 960, 1280]}
+          sizes="(min-width: 900px) 50vw, 100vw"
+          format="webp"
+          quality={88}
+          loading="eager"
+          fetchpriority="high"
+        />
       </div>
     </div>
+  </section>
 
-    <div class="home-reboot-receipt-tape" aria-label="First review receipt">
-      <div class="home-reboot-shell home-reboot-receipt-tape__grid">
+  <section class="ownership-strip" aria-labelledby="ownership-heading">
+    <div class="shell">
+      <h2 id="ownership-heading">
+        One team from decision to daily operations.
+      </h2>
+      <div class="ownership-strip__items">
+        <span class="ownership-item">
+          <svg aria-hidden="true" viewBox="0 0 32 32">
+            <path d="M8 3h11l5 5v21H8z"></path>
+            <path d="M19 3v6h5M12 16h8M12 21h8"></path>
+          </svg>
+          <span>Plan</span>
+        </span>
+        <span class="ownership-item">
+          <svg aria-hidden="true" viewBox="0 0 32 32">
+            <path d="m11 8-7 8 7 8M21 8l7 8-7 8M18 5l-4 22"></path>
+          </svg>
+          <span>Build</span>
+        </span>
+        <span class="ownership-item">
+          <svg aria-hidden="true" viewBox="0 0 32 32">
+            <path d="M16 3 27 7v8c0 7-4 11-11 14C9 26 5 22 5 15V7z"></path>
+          </svg>
+          <span>Secure</span>
+        </span>
+        <span class="ownership-item">
+          <svg aria-hidden="true" viewBox="0 0 32 32">
+            <path d="M5 6h22v6H5zM5 14h22v6H5zM5 22h22v6H5z"></path>
+            <circle cx="9" cy="9" r="1"></circle>
+            <circle cx="9" cy="17" r="1"></circle>
+            <circle cx="9" cy="25" r="1"></circle>
+          </svg>
+          <span>Run</span>
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <section class="handoff-section" id="what-we-deliver">
+    <div class="shell handoff-section__grid">
+      <div class="handoff-section__content">
+        <div class="section-heading">
+          <h2>Stop managing the handoffs.</h2>
+          <p>
+            Consultants write the plan. Developers ship the build. IT inherits
+            the mess. We keep one accountable operating model across all three.
+          </p>
+        </div>
+        <div class="service-ledger">
+          {
+            services.map(service => (
+              <a href={withBasePath(`services/#${service.id}`)}>
+                <span class="index-number">{service.number}</span>
+                <strong>{service.title}</strong>
+                <p>{service.summary}</p>
+                <span aria-hidden="true">→</span>
+              </a>
+            ))
+          }
+        </div>
+      </div>
+      <div class="handoff-section__media" aria-hidden="true">
+        <Image
+          src={heroImage}
+          alt=""
+          widths={[720, 960]}
+          sizes="(min-width: 900px) 44vw, 100vw"
+          format="webp"
+          quality={84}
+          loading="lazy"
+        />
+      </div>
+    </div>
+  </section>
+
+  <section class="delivery-band" id="how-we-work">
+    <div class="shell">
+      <div class="delivery-band__heading">
+        <h2>Plan it. Build it. Secure it. Run it.</h2>
+        <p>
+          Start with the stage you need. Keep the operating responsibility
+          connected through what comes next.
+        </p>
+      </div>
+      <ol class="delivery-band__steps">
         {
-          receiptTapeFields.map(field => (
-            <div class="home-reboot-receipt-tape__field">
-              <span>{field.label}</span>
-              <strong>{field.value}</strong>
+          processSteps.map(step => (
+            <li>
+              <span>{step.number}</span>
+              <h3>{step.title}</h3>
+              <p>{step.detail}</p>
+            </li>
+          ))
+        }
+      </ol>
+      <a class="button button--light" href={withBasePath('contact-hq/')}>
+        Put us to work
+      </a>
+    </div>
+  </section>
+
+  <section class="section proof-section">
+    <div class="shell proof-section__inner">
+      <div class="section-heading section-heading--wide">
+        <h2>Prove the work in the operating record.</h2>
+        <p>
+          The name says #1. The standard has to earn it—through decisions,
+          delivery discipline, secure ownership, and a system that works after
+          launch.
+        </p>
+      </div>
+      <div class="proof-ledger">
+        {
+          proofRows.map(row => (
+            <div class="proof-ledger__row">
+              <span class="index-number">{row.number}</span>
+              <h3>{row.title}</h3>
+              <p>{row.copy}</p>
             </div>
           ))
         }
       </div>
+      <a class="text-link" href={withBasePath('trust-center/')}>
+        Review our operating standard <span aria-hidden="true">→</span>
+      </a>
     </div>
   </section>
 
-  <section
-    class="home-reboot-section home-reboot-section--model"
-    id="operating-proof-board"
-    data-page-section
-  >
-    <div class="home-reboot-shell home-reboot-model">
-      <div class="home-reboot-section-heading">
-        <h2 class="home-reboot-section-title">
-          Make the operating model easier to explain.
-        </h2>
-        <p class="home-reboot-copy">
-          A better first review turns messy support, access, recovery, and scope
-          questions into visible ownership. That is what leadership can inspect,
-          fund, and hold steady.
-        </p>
-      </div>
-
-      <div class="home-reboot-model__signals" aria-label="Operating signals">
-        {
-          operatingSignals.map((signal, index) => (
-            <article class="home-reboot-model-card">
-              <span>{String(index + 1).padStart(2, '0')}</span>
-              <h3>{signal.title}</h3>
-              <p>{signal.copy}</p>
-            </article>
-          ))
-        }
-      </div>
-    </div>
-  </section>
-
-  <section
-    class="home-reboot-section home-reboot-section--receipt"
-    data-page-section
-  >
-    <div class="home-reboot-shell home-reboot-receipt-section">
-      <div class="home-reboot-section-heading">
-        <h2 class="home-reboot-section-title">
-          The first review should leave a receipt.
-        </h2>
-        <p class="home-reboot-copy">
-          Response ownership, access risk, recovery confidence, Microsoft 365
-          cleanup, and scope boundaries should be visible early enough to shape
-          the first decision.
-        </p>
-      </div>
-
-      <aside
-        class="home-reboot-receipt tone-artifact-paper"
-        aria-label="Example evidence receipt"
-      >
-        <div class="home-reboot-receipt__stack" aria-hidden="true"></div>
-        <div class="home-reboot-receipt__header">
-          <p>Evidence receipt</p>
-          <span class="tone-proof-stamp">Review complete</span>
-        </div>
-        <dl>
-          {
-            evidenceReceiptFields.map(field => (
-              <div>
-                <dt>{field.label}</dt>
-                <dd>{field.value}</dd>
-              </div>
-            ))
-          }
-        </dl>
-      </aside>
-    </div>
-  </section>
-
-  <section
-    class="home-reboot-section home-reboot-section--router"
-    id="situation-router"
-    data-page-section
-  >
-    <div class="home-reboot-shell">
-      <BuyerSituationRouter
-        client:only="preact"
-        situations={buyerSituations}
-        contactHref={contactHref}
-        pricingHref={pricingHref}
-        trustHref={trustHref}
-        defaultSituationId="provider-stall"
-        eyebrow="Fit router"
-        title="Pick the pressure point. Get the right first move."
-        description="A serious MSP conversation should start with what is happening in the business, not a menu of tools. Choose the closest situation and send a cleaner first brief."
-      />
-    </div>
-  </section>
-
-  <section
-    class="home-reboot-section home-reboot-section--services"
-    id="services"
-    data-page-section
-  >
-    <div class="home-reboot-shell">
-      <div
-        class="home-reboot-section-heading home-reboot-section-heading--wide"
-      >
-        <p class="home-reboot-kicker">What we own</p>
-        <h2 class="home-reboot-section-title">
-          Four clear service lanes for the daily IT mess.
-        </h2>
-        <p class="home-reboot-copy">
-          Start with the problem in front of you, then route it to the right
-          support, security, Microsoft 365, or recovery owner.
-        </p>
-      </div>
-
-      <div class="home-reboot-lanes">
-        {
-          serviceLanes.map((lane, index) => (
-            <a class="home-homepage-lane home-reboot-lane" href={lane.href}>
-              <span class="home-reboot-lane__number">
-                {String(index + 1).padStart(2, '0')}
-              </span>
-              <span class="home-homepage-lane__label home-reboot-lane__label">
-                {lane.label}
-              </span>
-              <h3>{lane.title}</h3>
-              <p>{lane.copy}</p>
-              <strong>Open scope</strong>
-            </a>
-          ))
-        }
-      </div>
-    </div>
-  </section>
-
-  <section
-    class="home-reboot-section home-reboot-section--operating"
-    id="operating-standard"
-    data-page-section
-  >
-    <div class="home-reboot-shell home-reboot-operating">
-      <div class="home-reboot-section-heading">
-        <p class="home-reboot-kicker">First phase</p>
-        <h2 class="home-reboot-section-title">
-          The first phase should calm the noise.
-        </h2>
-        <p class="home-reboot-copy">
-          Before buying more tools, the environment needs a baseline, clear
-          owners, and a practical plan leadership can understand.
-        </p>
-      </div>
-
-      <div class="home-reboot-first-phase">
-        <div class="home-homepage-first30 home-reboot-first30">
-          <ol>
-            {firstThirtyDays.map(item => <li>{item}</li>)}
-          </ol>
-        </div>
-        <aside class="home-reboot-output-board" aria-label="First phase output">
-          <p>First-phase output</p>
-          <ul>
-            {firstPhaseOutputs.map(item => <li>{item}</li>)}
-          </ul>
-        </aside>
-      </div>
-    </div>
-  </section>
-
-  <ProofOperatingSystem
-    eyebrow="What leadership should see"
-    title="Support should leave a record, not another vague ticket thread."
-    description="The first review should make the basics visible: open issues, vendor ownership, backup confidence, access risk, Microsoft 365 cleanup, and the budget decisions ahead."
-    ctaHref={contactHref}
-    ctaLabel="Send the main issue"
-  />
-
-  <ProviderSelectionStandard
-    compact
-    eyebrow="Why this should feel different"
-    title="A good MSP makes the first questions easier to answer."
-    description="The advantage is not a longer service list. It is whether ownership, recovery, access, Microsoft 365, recurring issues, and scope boundaries become visible fast."
-    ctaHref={trustHref}
-    ctaLabel="Review proof"
-  />
-
-  <section
-    class="home-reboot-section home-reboot-section--handoff"
-    id="decision-handoff"
-    data-page-section
-  >
-    <div class="home-reboot-shell">
-      <DecisionHandoffPanel
-        activeId="support-ownership"
-        eyebrow="Decision handoff"
-        title="A useful first conversation should leave you with a next step."
-        description="Bring the rough counts, the current provider problem, and the urgent risk. The first reply should point to the right owner, missing details, and next action."
-      />
-    </div>
-  </section>
-
-  <section
-    class="home-reboot-section home-reboot-section--final"
-    data-page-section
-  >
-    <div class="home-reboot-shell home-reboot-final">
-      <div>
-        <p class="home-reboot-kicker">Ready when you are</p>
-        <h2 class="home-reboot-section-title">
-          Send the main issue. Get a clearer next step.
-        </h2>
-        <p class="home-reboot-copy">
-          The first message does not need to be perfect. It only needs enough
-          context to route the right owner, risk, and next decision.
-        </p>
-      </div>
-
-      <aside class="home-reboot-route-board" aria-label="Route board">
-        <p>Route board</p>
-        <ol>
-          {routeBoardSteps.map(step => <li>{step}</li>)}
-        </ol>
-      </aside>
-
-      <div class="home-reboot-actions home-reboot-actions--final">
-        <ModernButton href={contactHref} variant="gradient" rounded="sm">
-          Start fit check
-        </ModernButton>
-        <ModernButton href={servicesHref} variant="outline" rounded="sm">
-          What we own
-        </ModernButton>
-      </div>
-    </div>
-  </section>
-
-  <style>
-    :global(.home-reboot) {
-      --home-bg: #07100f;
-      --home-bg-2: #0b1715;
-      --home-bg-3: #101817;
-      --home-surface: rgba(9, 21, 20, 0.9);
-      --home-surface-strong: rgba(4, 13, 12, 0.94);
-      --home-line: rgba(213, 229, 215, 0.16);
-      --home-line-strong: rgba(146, 230, 217, 0.28);
-      --home-paper: #f2e8d4;
-      --home-paper-soft: #e4d6bc;
-      --home-ink: #101417;
-      --home-text: #f7f0e3;
-      --home-muted: rgba(232, 238, 229, 0.72);
-      --home-faint: rgba(232, 238, 229, 0.5);
-      --home-teal: #68d8cc;
-      --home-teal-strong: #00a5a8;
-      --home-amber: #e3b35c;
-      background: var(--home-bg);
-      color: var(--home-text);
-    }
-
-    :global(.home-reboot .tone-site-shell),
-    :global(.home-reboot .tone-main-shell) {
-      background: transparent;
-    }
-
-    .home-reboot-shell {
-      width: min(100% - 2rem, 1180px);
-      margin-inline: auto;
-    }
-
-    .home-reboot-hero {
-      position: relative;
-      min-height: max(42rem, calc(100svh - 4.5rem));
-      display: grid;
-      align-items: center;
-      overflow: hidden;
-      padding: clamp(4.5rem, 8vw, 7.5rem) 0 0;
-      background: #050807;
-      color: var(--home-text);
-      isolation: isolate;
-    }
-
-    .home-reboot-hero__media,
-    .home-reboot-hero__media img,
-    .home-reboot-hero__shade {
-      position: absolute;
-      inset: 0;
-    }
-
-    .home-reboot-hero__media {
-      z-index: -2;
-      overflow: hidden;
-      background: #050807;
-    }
-
-    .home-reboot-hero__media img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: 57% center;
-      filter: saturate(0.95) contrast(1.08);
-      transform: scale(1.012);
-    }
-
-    .home-reboot-hero__shade {
-      z-index: -1;
-      background:
-        linear-gradient(
-          90deg,
-          rgba(5, 8, 7, 0.92) 0%,
-          rgba(5, 8, 7, 0.74) 33%,
-          rgba(5, 8, 7, 0.24) 58%,
-          rgba(5, 8, 7, 0.72) 100%
-        ),
-        linear-gradient(
-          180deg,
-          rgba(5, 8, 7, 0.16) 0%,
-          rgba(5, 8, 7, 0.12) 46%,
-          rgba(5, 8, 7, 0.9) 100%
-        );
-      pointer-events: none;
-    }
-
-    .home-reboot-hero::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
-      background:
-        linear-gradient(rgba(247, 240, 227, 0.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(247, 240, 227, 0.03) 1px, transparent 1px);
-      background-size: 68px 68px;
-      mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.45), transparent 76%);
-    }
-
-    .home-reboot-hero__grid {
-      position: relative;
-      z-index: 1;
-      display: grid;
-      gap: clamp(2rem, 4vw, 3.75rem);
-      align-items: center;
-      padding-bottom: clamp(2.5rem, 6vw, 4.75rem);
-    }
-
-    .home-reboot-hero__content {
-      display: grid;
-      gap: 1.25rem;
-      max-width: 47rem;
-    }
-
-    .home-reboot-kicker {
-      margin: 0;
-      color: var(--home-faint);
-      font-family: var(--font-mono);
-      font-size: 0.68rem;
-      font-weight: 800;
-      letter-spacing: 0.14em;
-      line-height: 1.45;
-      text-transform: uppercase;
-    }
-
-    .home-reboot-title,
-    .home-reboot-section-title {
-      margin: 0;
-      color: inherit;
-      font-family: var(--font-display);
-      font-weight: 790;
-      letter-spacing: 0;
-      text-wrap: balance;
-    }
-
-    .home-reboot-title {
-      max-width: 14ch;
-      text-shadow: 0 3px 34px rgba(0, 0, 0, 0.68);
-      font-size: clamp(3.15rem, 5.2vw, 5.35rem);
-      line-height: 0.94;
-    }
-
-    .home-reboot-section-title {
-      font-size: clamp(2rem, 4vw, 4.35rem);
-      line-height: 0.98;
-    }
-
-    .home-reboot-copy {
-      max-width: 64ch;
-      margin: 0;
-      color: var(--home-muted);
-      font-size: 1rem;
-      line-height: 1.65;
-    }
-
-    .home-reboot-copy--large {
-      max-width: 44rem;
-      color: rgba(247, 240, 227, 0.8);
-      text-shadow: 0 2px 22px rgba(0, 0, 0, 0.6);
-      font-size: clamp(1.05rem, 1.45vw, 1.22rem);
-      line-height: 1.62;
-    }
-
-    .home-reboot-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.85rem;
-      align-items: center;
-      margin-top: 0.2rem;
-    }
-
-    .home-reboot-primary-action,
-    .home-reboot-secondary-action,
-    .home-reboot-actions :global(.modern-button) {
-      min-height: 52px;
-    }
-
-    .home-reboot-hero__board {
-      align-self: center;
-      min-width: 0;
-    }
-
-    .home-reboot-hero__board :global(.operating-proof-board) {
-      border-color: rgba(104, 216, 204, 0.28);
-      background:
-        linear-gradient(180deg, rgba(104, 216, 204, 0.07), transparent 38%),
-        repeating-linear-gradient(
-          0deg,
-          transparent 0 4.45rem,
-          rgba(213, 229, 215, 0.08) 4.45rem calc(4.45rem + 1px)
-        ),
-        rgba(2, 15, 14, 0.9);
-      box-shadow:
-        0 34px 90px -54px rgba(0, 0, 0, 0.95),
-        0 0 0 6px rgba(0, 0, 0, 0.18),
-        inset 0 1px 0 rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(12px);
-    }
-
-    .home-reboot-hero__board :global(.operating-proof-board__header h2) {
-      color: var(--home-teal);
-    }
-
-    .home-reboot-receipt-tape {
-      position: relative;
-      z-index: 2;
-      width: 100%;
-      border-block: 1px solid rgba(16, 20, 23, 0.22);
-      background:
-        linear-gradient(
-          90deg,
-          rgba(255, 255, 255, 0.5),
-          transparent 16% 84%,
-          rgba(255, 255, 255, 0.42)
-        ),
-        linear-gradient(
-          180deg,
-          rgba(255, 255, 255, 0.42),
-          rgba(228, 214, 188, 0.72)
-        ),
-        var(--home-paper);
-      color: var(--home-ink);
-      box-shadow: 0 -18px 48px rgba(0, 0, 0, 0.3);
-    }
-
-    .home-reboot-receipt-tape::before,
-    .home-reboot-receipt-tape::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      width: 0.5rem;
-      background: radial-gradient(circle, var(--home-bg) 0 35%, transparent 38%)
-        0 0 / 0.5rem 0.5rem;
-    }
-
-    .home-reboot-receipt-tape::before {
-      left: 0;
-    }
-
-    .home-reboot-receipt-tape::after {
-      right: 0;
-    }
-
-    .home-reboot-receipt-tape__grid {
-      display: grid;
-      gap: 0;
-      padding: 1.05rem 0;
-    }
-
-    .home-reboot-receipt-tape__field {
-      display: grid;
-      gap: 0.35rem;
-      min-height: 5rem;
-      align-content: center;
-      border-left: 1px solid rgba(16, 20, 23, 0.2);
-      padding: 0.35rem clamp(1rem, 2vw, 1.35rem);
-    }
-
-    .home-reboot-receipt-tape__field:first-child {
-      border-left: 0;
-      padding-left: 0;
-    }
-
-    .home-reboot-receipt-tape__field span,
-    .home-reboot-receipt-tape__field strong {
-      font-family: var(--font-mono);
-      line-height: 1.45;
-    }
-
-    .home-reboot-receipt-tape__field span {
-      color: rgba(16, 20, 23, 0.64);
-      font-size: 0.64rem;
-      font-weight: 800;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-    }
-
-    .home-reboot-receipt-tape__field strong {
-      color: rgba(16, 20, 23, 0.82);
-      font-size: clamp(0.78rem, 1vw, 0.9rem);
-      font-weight: 700;
-    }
-
-    .home-reboot-section {
-      position: relative;
-      overflow: clip;
-      padding: clamp(4rem, 7vw, 6.5rem) 0;
-      border-top: 1px solid rgba(247, 240, 227, 0.09);
-      background: var(--home-bg);
-      color: var(--home-text);
-    }
-
-    .home-reboot-section::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      background:
-        linear-gradient(rgba(247, 240, 227, 0.035) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(247, 240, 227, 0.026) 1px, transparent 1px);
-      background-size: 70px 70px;
-      mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.5), transparent 78%);
-      opacity: 0.52;
-    }
-
-    .home-reboot-section > * {
-      position: relative;
-      z-index: 1;
-    }
-
-    .home-reboot-section--model {
-      background:
-        linear-gradient(90deg, rgba(104, 216, 204, 0.11), transparent 36%),
-        var(--home-bg-2);
-    }
-
-    .home-reboot-section--router,
-    .home-reboot-section--handoff {
-      background: #08110f;
-    }
-
-    .home-reboot-section--services {
-      background:
-        linear-gradient(180deg, rgba(104, 216, 204, 0.04), transparent 28%),
-        #06100f;
-    }
-
-    .home-reboot-section-heading {
-      display: grid;
-      gap: 1rem;
-      max-width: 44rem;
-    }
-
-    .home-reboot-section-heading--wide {
-      max-width: 58rem;
-    }
-
-    .home-reboot-model,
-    .home-reboot-receipt-section,
-    .home-reboot-operating,
-    .home-reboot-final {
-      display: grid;
-      gap: clamp(1.5rem, 4vw, 3rem);
-    }
-
-    .home-reboot-model__signals {
-      display: grid;
-      gap: 0;
-      border-block: 1px solid var(--home-line);
-    }
-
-    .home-reboot-model-card {
-      display: grid;
-      gap: 0.65rem;
-      min-height: 13rem;
-      align-content: center;
-      border-bottom: 1px solid var(--home-line);
-      padding: clamp(1rem, 2vw, 1.35rem);
-    }
-
-    .home-reboot-model-card:last-child {
-      border-bottom: 0;
-    }
-
-    .home-reboot-model-card span,
-    .home-reboot-lane__number,
-    .home-reboot-lane__label,
-    .home-reboot-lane strong,
-    .home-reboot-output-board p,
-    .home-reboot-route-board p {
-      font-family: var(--font-mono);
-      font-size: 0.64rem;
-      font-weight: 800;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-    }
-
-    .home-reboot-model-card span,
-    .home-reboot-lane__number {
-      color: var(--home-amber);
-    }
-
-    .home-reboot-model-card h3 {
-      margin: 0;
-      color: var(--home-teal);
-      font-size: clamp(1.15rem, 1.8vw, 1.45rem);
-      line-height: 1.16;
-    }
-
-    .home-reboot-model-card p {
-      margin: 0;
-      color: var(--home-muted);
-      line-height: 1.58;
-    }
-
-    .home-reboot-section--receipt {
-      background:
-        linear-gradient(
-          105deg,
-          rgba(5, 7, 8, 0.05),
-          transparent 46%,
-          rgba(217, 173, 99, 0.1)
-        ),
-        var(--color-paper);
-      color: var(--color-ink);
-    }
-
-    .home-reboot-section--receipt::before {
-      background-image:
-        linear-gradient(rgba(16, 20, 23, 0.06) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(16, 20, 23, 0.045) 1px, transparent 1px);
-      background-size: 5rem 5rem;
-      mask-image: linear-gradient(90deg, transparent, black 58%, transparent);
-      opacity: 0.72;
-    }
-
-    .home-reboot-section--receipt .home-reboot-section-title {
-      color: var(--color-ink);
-    }
-
-    .home-reboot-section--receipt .home-reboot-copy {
-      color: rgba(16, 20, 23, 0.68);
-    }
-
-    .home-reboot-receipt {
-      position: relative;
-      display: grid;
-      gap: 1.15rem;
-      min-height: 20rem;
-      padding: clamp(1.15rem, 3vw, 2rem);
-    }
-
-    .home-reboot-receipt__stack {
-      position: absolute;
-      inset: -1.2rem 8% auto auto;
-      width: 76%;
-      height: 5rem;
-      border: 1px solid rgba(16, 20, 23, 0.12);
-      border-radius: 8px;
-      background: rgba(217, 173, 99, 0.2);
-      transform: rotate(-3deg);
-      z-index: -1;
-    }
-
-    .home-reboot-receipt__header {
-      display: flex;
-      gap: 1rem;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid rgba(16, 20, 23, 0.18);
-      padding-bottom: 1rem;
-    }
-
-    .home-reboot-receipt__header p,
-    .home-reboot-receipt dt {
-      margin: 0;
-      color: rgba(16, 20, 23, 0.62);
-      font-family: var(--font-mono);
-      font-size: 0.68rem;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-
-    .home-reboot-receipt__header p {
-      color: var(--color-ink);
-      font-size: clamp(1rem, 2vw, 1.35rem);
-    }
-
-    .home-reboot-receipt dl {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      margin: 0;
-      border: 1px solid rgba(16, 20, 23, 0.16);
-      border-width: 1px 0 0 1px;
-    }
-
-    .home-reboot-receipt dl > div {
-      display: grid;
-      gap: 0.5rem;
-      min-height: 6.2rem;
-      align-content: center;
-      border: 1px solid rgba(16, 20, 23, 0.16);
-      border-width: 0 1px 1px 0;
-      padding: 1rem;
-    }
-
-    .home-reboot-receipt dd {
-      margin: 0;
-      color: var(--color-ink);
-      font-size: clamp(1rem, 1.8vw, 1.22rem);
-      font-weight: 680;
-      line-height: 1.25;
-    }
-
-    .home-reboot-lanes {
-      display: grid;
-      gap: 0;
-      margin-top: 1.75rem;
-      border-block: 1px solid var(--home-line);
-    }
-
-    .home-reboot-lane {
-      display: grid;
-      grid-template-rows: auto auto auto minmax(5.2rem, 1fr) auto;
-      gap: 0.7rem;
-      min-height: 100%;
-      border-bottom: 1px solid var(--home-line);
-      color: inherit;
-      padding: clamp(1rem, 2vw, 1.35rem);
-      transition:
-        border-color 0.18s ease,
-        transform 0.18s ease,
-        background 0.18s ease;
-    }
-
-    .home-reboot-lane:last-child {
-      border-bottom: 0;
-    }
-
-    .home-reboot-lane:hover {
-      transform: translateY(-2px);
-      background:
-        linear-gradient(180deg, rgba(104, 216, 204, 0.09), transparent 58%),
-        rgba(247, 240, 227, 0.025);
-    }
-
-    .home-reboot-lane__label {
-      color: var(--home-teal);
-    }
-
-    .home-reboot-lane h3 {
-      margin: 0;
-      color: var(--home-text);
-      font-size: clamp(1.18rem, 1.8vw, 1.45rem);
-      line-height: 1.14;
-    }
-
-    .home-reboot-lane p {
-      margin: 0;
-      color: var(--home-muted);
-      font-size: 0.95rem;
-      line-height: 1.56;
-    }
-
-    .home-reboot-lane strong {
-      margin-top: auto;
-      color: rgba(247, 240, 227, 0.82);
-    }
-
-    .home-reboot-section--operating {
-      background:
-        linear-gradient(90deg, rgba(5, 8, 7, 0.92) 0 45%, transparent 45%),
-        var(--home-paper);
-      color: var(--color-ink);
-    }
-
-    .home-reboot-section--operating::before {
-      opacity: 0.32;
-    }
-
-    .home-reboot-section--operating .home-reboot-section-title {
-      color: var(--home-text);
-    }
-
-    .home-reboot-section--operating .home-reboot-kicker {
-      color: rgba(247, 240, 227, 0.54);
-    }
-
-    .home-reboot-section--operating .home-reboot-copy {
-      color: rgba(247, 240, 227, 0.72);
-    }
-
-    .home-reboot-first-phase {
-      display: grid;
-      gap: 1rem;
-    }
-
-    .home-reboot-first30 {
-      border: 1px solid rgba(247, 240, 227, 0.13);
-      border-radius: 8px;
-      background:
-        linear-gradient(180deg, rgba(247, 240, 227, 0.055), transparent 48%),
-        rgba(247, 240, 227, 0.03);
-      padding: clamp(1rem, 3vw, 1.4rem);
-    }
-
-    .home-reboot-first30 ol {
-      display: grid;
-      gap: 0.85rem;
-      margin: 0;
-      padding: 0;
-      counter-reset: first30;
-      list-style: none;
-    }
-
-    .home-reboot-first30 li {
-      position: relative;
-      min-height: 2.2rem;
-      padding-left: 3rem;
-      color: rgba(247, 240, 227, 0.78);
-      line-height: 1.58;
-      counter-increment: first30;
-    }
-
-    .home-reboot-first30 li::before {
-      content: counter(first30, decimal-leading-zero);
-      position: absolute;
-      left: 0;
-      top: 0.1rem;
-      display: inline-flex;
-      width: 2.15rem;
-      height: 2.15rem;
-      align-items: center;
-      justify-content: center;
-      border: 1px solid rgba(104, 216, 204, 0.3);
-      border-radius: 6px;
-      background: rgba(104, 216, 204, 0.11);
-      color: var(--home-teal);
-      font-family: var(--font-mono);
-      font-size: 0.64rem;
-      font-weight: 800;
-    }
-
-    .home-reboot-output-board,
-    .home-reboot-route-board {
-      border: 1px solid rgba(16, 20, 23, 0.2);
-      border-radius: 8px;
-      background:
-        linear-gradient(rgba(16, 20, 23, 0.08) 1px, transparent 1px),
-        var(--home-paper);
-      background-size: 100% 2.15rem;
-      color: var(--home-ink);
-      padding: clamp(1rem, 2.4vw, 1.35rem);
-    }
-
-    .home-reboot-output-board p,
-    .home-reboot-route-board p {
-      margin: 0 0 0.8rem;
-      color: var(--home-teal-strong);
-    }
-
-    .home-reboot-output-board ul,
-    .home-reboot-route-board ol {
-      display: grid;
-      gap: 0.7rem;
-      margin: 0;
-      padding: 0;
-      list-style: none;
-    }
-
-    .home-reboot-output-board li,
-    .home-reboot-route-board li {
-      border-top: 1px solid rgba(16, 20, 23, 0.2);
-      padding-top: 0.7rem;
-      color: rgba(16, 20, 23, 0.76);
-      font-family: var(--font-mono);
-      font-size: 0.82rem;
-      line-height: 1.45;
-    }
-
-    .home-reboot-section--final {
-      background:
-        linear-gradient(90deg, rgba(104, 216, 204, 0.17), transparent 46%),
-        #06100f;
-    }
-
-    .home-reboot-final {
-      align-items: center;
-    }
-
-    .home-reboot-final .home-reboot-copy {
-      margin-top: 0.9rem;
-    }
-
-    .home-reboot-route-board {
-      min-width: 0;
-      width: 100%;
-    }
-
-    .home-reboot-route-board ol {
-      counter-reset: routeStep;
-    }
-
-    .home-reboot-route-board li {
-      position: relative;
-      padding-left: 2.25rem;
-      counter-increment: routeStep;
-    }
-
-    .home-reboot-route-board li::before {
-      content: counter(routeStep, decimal-leading-zero);
-      position: absolute;
-      left: 0;
-      top: 0.65rem;
-      color: var(--home-teal-strong);
-      font-weight: 800;
-    }
-
-    .home-reboot-actions--final {
-      align-self: stretch;
-    }
-
-    @media (min-width: 720px) {
-      .home-reboot-receipt-tape__grid {
-        grid-template-columns: 0.75fr 1.55fr 1fr 1.18fr;
-      }
-
-      .home-reboot-lanes {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .home-reboot-lane:nth-child(odd) {
-        border-right: 1px solid var(--home-line);
-      }
-
-      .home-reboot-lane:nth-last-child(-n + 2) {
-        border-bottom: 0;
-      }
-    }
-
-    @media (min-width: 900px) {
-      .home-reboot-model__signals {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-      }
-
-      .home-reboot-model-card {
-        border-right: 1px solid var(--home-line);
-        border-bottom: 0;
-      }
-
-      .home-reboot-model-card:last-child {
-        border-right: 0;
-      }
-    }
-
-    @media (min-width: 980px) {
-      .home-reboot-hero__grid {
-        grid-template-columns: minmax(0, 0.82fr) minmax(32rem, 1fr);
-      }
-
-      .home-reboot-model,
-      .home-reboot-receipt-section,
-      .home-reboot-operating {
-        grid-template-columns: minmax(0, 0.78fr) minmax(0, 1fr);
-        align-items: start;
-      }
-
-      .home-reboot-lanes {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-      }
-
-      .home-reboot-lane,
-      .home-reboot-lane:nth-child(odd),
-      .home-reboot-lane:nth-last-child(-n + 2) {
-        border-right: 1px solid var(--home-line);
-        border-bottom: 0;
-      }
-
-      .home-reboot-lane:last-child {
-        border-right: 0;
-      }
-
-      .home-reboot-final {
-        grid-template-columns: minmax(0, 0.94fr) minmax(15rem, 0.38fr) auto;
-      }
-
-      .home-reboot-actions--final {
-        justify-content: end;
-      }
-    }
-
-    @media (max-width: 767px) {
-      .home-reboot-shell {
-        width: min(100% - 1.25rem, 1180px);
-      }
-
-      .home-reboot-hero {
-        min-height: auto;
-        align-items: start;
-        padding: 2.4rem 0 0;
-      }
-
-      .home-reboot-hero__media img {
-        object-position: 58% center;
-      }
-
-      .home-reboot-hero__shade {
-        background:
-          linear-gradient(
-            180deg,
-            rgba(5, 8, 7, 0.94) 0%,
-            rgba(5, 8, 7, 0.74) 42%,
-            rgba(5, 8, 7, 0.96) 100%
-          ),
-          linear-gradient(90deg, rgba(5, 8, 7, 0.88), rgba(5, 8, 7, 0.34));
-      }
-
-      .home-reboot-hero__grid {
-        padding-bottom: 1.4rem;
-      }
-
-      .home-reboot-title {
-        max-width: 100%;
-        font-size: clamp(2.55rem, 11vw, 3.4rem);
-        line-height: 0.98;
-      }
-
-      .home-reboot-copy--large {
-        font-size: 1rem;
-      }
-
-      .home-reboot-actions {
-        align-items: stretch;
-        flex-direction: column;
-      }
-
-      .home-reboot-hero__board {
-        margin-top: 0.4rem;
-      }
-
-      .home-reboot-receipt-tape__grid {
-        gap: 0.55rem;
-        padding: 0.85rem 0;
-      }
-
-      .home-reboot-receipt-tape__field,
-      .home-reboot-receipt-tape__field:first-child {
-        min-height: 0;
-        border-left: 0;
-        border-top: 1px solid rgba(16, 20, 23, 0.16);
-        padding: 0.65rem 0 0;
-      }
-
-      .home-reboot-receipt-tape__field:first-child {
-        border-top: 0;
-      }
-
-      .home-reboot-section {
-        padding: 3.5rem 0;
-      }
-
-      .home-reboot-section--operating {
-        background:
-          linear-gradient(
-            180deg,
-            rgba(5, 8, 7, 0.96) 0 62%,
-            var(--home-paper) 62%
-          ),
-          var(--home-paper);
-      }
-
-      .home-reboot-receipt dl {
-        grid-template-columns: 1fr;
-      }
-
-      .home-reboot-receipt__header {
-        align-items: start;
-        flex-direction: column;
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .home-reboot-lane,
-      .home-reboot-lane:hover {
-        transform: none;
-        transition: none;
-      }
-    }
-  </style>
+  <CtaBand />
 </MarketingLayout>

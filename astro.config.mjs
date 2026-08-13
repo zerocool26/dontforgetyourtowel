@@ -2,45 +2,22 @@
 import 'dotenv/config';
 
 import mdx from '@astrojs/mdx';
-import sitemap from '@astrojs/sitemap';
 import preact from '@astrojs/preact';
-import react from '@astrojs/react';
+import sitemap from '@astrojs/sitemap';
 import { defineConfig } from 'astro/config';
 
 import { createDeploymentConfig } from './config/deployment.js';
-import { isLegacyRoutePath } from './config/legacyRoutes.js';
-import { isHiddenPublicRoutePath } from './config/routeVisibility.js';
 
 const { basePath, siteUrl } = createDeploymentConfig();
 
 export default defineConfig({
-  // Base + site are now derived automatically from env/repo for GitHub Pages or any host
   base: basePath,
   site: siteUrl,
   output: 'static',
-  vite: {
-    optimizeDeps: {
-      include: ['three'],
-    },
-    build: {
-      chunkSizeWarningLimit: 800,
-    },
-  },
+  devToolbar: { enabled: false },
   integrations: [
     mdx(),
-    sitemap({
-      filter: page => {
-        return !isLegacyRoutePath(page) && !isHiddenPublicRoutePath(page);
-      },
-    }),
-    // Avoid ambiguous JSX renderer selection when multiple frameworks are enabled.
-    // We intentionally keep both integrations, but scope them to distinct directories.
-    preact({
-      include: ['src/components/**/*.jsx', 'src/components/**/*.tsx'],
-      exclude: ['src/components/react/**'],
-    }),
-    react({
-      include: ['src/components/react/**/*.jsx', 'src/components/react/**/*.tsx'],
-    }),
+    sitemap(),
+    preact({ include: ['src/components/**/*.tsx'] }),
   ],
 });

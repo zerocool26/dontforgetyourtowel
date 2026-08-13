@@ -1,158 +1,61 @@
 ---
-import MarketingLayout from '../layouts/MarketingLayout.astro';
-import ModernButton from '../components/ui/ModernButton.astro';
 import { CONTACT_EMAIL } from '../consts';
-import { withBasePath } from '../utils/helpers';
+import MarketingLayout from '../layouts/MarketingLayout.astro';
 ---
 
 <MarketingLayout
   title="Privacy Policy | CHICAGOS #1 MSP"
-  description="How CHICAGOS #1 MSP handles privacy for this static marketing site and project intake communications."
-  bodyClass="creative-page"
-  showStickyCTA={false}
-  showLiveChat={false}
-  mainClass="relative isolate overflow-x-clip"
-  showSavedRoutesDock={false}
+  description="How CHICAGOS #1 MSP handles information submitted through this website."
 >
-  <section
-    class="tone-page-hero border-b border-white/10"
-    data-reveal
-    id="privacy-hero"
-    data-page-section
-  >
-    <div
-      class="tone-page-hero__inner mx-auto max-w-[1240px] px-4 pb-14 pt-20 sm:px-6 sm:pb-20 sm:pt-28"
-    >
-      <div class="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-end">
-        <div class="space-y-5">
-          <div class="tone-page-header">
-            <p class="tone-page-eyebrow">Legal</p>
-            <h1 class="tone-page-title max-w-4xl">Privacy Policy</h1>
-            <p class="tone-page-copy max-w-3xl">
-              This site is primarily a static marketing and intake surface. In
-              plain terms, we do not run account-based product tracking here,
-              and most personal information only appears when you choose to
-              contact us.
-            </p>
-          </div>
-          <p class="text-sm text-white/55">Last updated: February 15, 2026</p>
-
-          <div class="tone-page-actions">
-            <ModernButton
-              href={withBasePath('contact-hq/')}
-              variant="primary"
-              className="min-h-[48px]"
-            >
-              Contact HQ
-            </ModernButton>
-            <ModernButton
-              href={`mailto:${CONTACT_EMAIL}`}
-              variant="secondary"
-              className="min-h-[48px]"
-            >
-              Email privacy questions
-            </ModernButton>
-          </div>
-        </div>
-
-        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-          <div class="tone-panel-soft rounded-2xl p-6">
-            <p
-              class="tone-muted font-mono text-[0.66rem] uppercase tracking-[0.22em]"
-            >
-              In short
-            </p>
-            <p class="tone-body mt-3 text-sm leading-7">
-              We only receive personal information when you send it to us, for
-              example by email or project intake communication.
-            </p>
-          </div>
-          <div class="tone-panel-soft rounded-2xl p-6">
-            <p
-              class="tone-muted font-mono text-[0.66rem] uppercase tracking-[0.22em]"
-            >
-              What to expect
-            </p>
-            <p class="tone-body mt-3 text-sm leading-7">
-              Hosting providers may still collect technical request logs for
-              reliability and security, even when the site itself is largely
-              static.
-            </p>
-          </div>
-        </div>
+  <article class="legal-page">
+    <header>
+      <div class="shell legal-page__header">
+        <h1>Privacy Policy</h1>
+        <p>Effective August 13, 2026</p>
       </div>
+    </header>
+    <div class="shell legal-page__body prose">
+      <h2>Information you choose to send</h2>
+      <p>
+        This is a static marketing website. We receive information when you
+        contact us by email or use a separately configured scheduling or intake
+        service. That information may include your name, company, contact
+        details, environment overview, and the business issue you want to
+        discuss.
+      </p>
+      <p>
+        Do not send passwords, private keys, recovery codes, regulated records,
+        or other sensitive client or system data through the first contact.
+      </p>
+
+      <h2>How information is used</h2>
+      <p>
+        We use the information you provide to respond, evaluate fit, prepare a
+        recommendation or scope, coordinate follow-up, and maintain reasonable
+        business records. We do not sell personal information.
+      </p>
+
+      <h2>Service providers and links</h2>
+      <p>
+        Email, scheduling, hosting, and other service providers may process
+        information according to their own terms and privacy practices. This
+        site may also link to third-party websites; their policies apply after
+        you leave this site.
+      </p>
+
+      <h2>Retention and security</h2>
+      <p>
+        Business communications are retained only as reasonably needed for the
+        conversation, a potential or active engagement, legal obligations, and
+        ordinary recordkeeping. No internet transmission or storage system can
+        be guaranteed completely secure.
+      </p>
+
+      <h2>Your questions</h2>
+      <p>
+        To ask about information you previously sent, email
+        <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+      </p>
     </div>
-  </section>
-
-  <section
-    class="py-16 sm:py-20"
-    data-reveal
-    id="privacy-details"
-    data-page-section
-  >
-    <div class="mx-auto max-w-[960px] px-4 sm:px-6">
-      <div class="grid gap-6">
-        <article class="tone-panel-soft rounded-2xl p-7">
-          <h2 class="text-2xl font-semibold text-white">
-            Information we collect
-          </h2>
-          <p>
-            This website is primarily static. We do not run a custom backend
-            that stores visitor profiles or account data. Information is only
-            shared when you intentionally contact us by email.
-          </p>
-        </article>
-
-        <article class="tone-panel-soft rounded-2xl p-7">
-          <h2 class="text-2xl font-semibold text-white">
-            Contact communications
-          </h2>
-          <p>
-            If you send us an email, your message and sender details are
-            processed by your email provider and ours so we can respond. We use
-            that information strictly for inquiry handling, project
-            conversations, and support communication.
-          </p>
-        </article>
-
-        <article class="tone-panel-soft rounded-2xl p-7">
-          <h2 class="text-2xl font-semibold text-white">Third-party hosting</h2>
-          <p>
-            This site is delivered via static hosting. Hosting providers may log
-            technical request data (for example IP address, timestamp, and
-            user-agent) for reliability and security operations.
-          </p>
-        </article>
-
-        <article class="tone-panel-soft rounded-2xl p-7">
-          <h2 class="text-2xl font-semibold text-white">
-            Cookies and local storage
-          </h2>
-          <p>
-            The site does not use tracking cookies by default. Theme preference
-            and similar UI settings may be stored locally in your browser to
-            preserve your experience.
-          </p>
-        </article>
-
-        <article class="tone-panel-soft rounded-2xl p-7">
-          <h2 class="text-2xl font-semibold text-white">Policy updates</h2>
-          <p>
-            We may revise this policy as the site evolves. Any updates appear on
-            this page with a revised date.
-          </p>
-        </article>
-
-        <article class="tone-panel-soft rounded-2xl p-7">
-          <h2 class="text-2xl font-semibold text-white">Contact</h2>
-          <p>
-            Questions about this privacy policy can be sent to
-            <a href={`mailto:${CONTACT_EMAIL}`} class="tone-accent-link">
-              {CONTACT_EMAIL}
-            </a>.
-          </p>
-        </article>
-      </div>
-    </div>
-  </section>
+  </article>
 </MarketingLayout>

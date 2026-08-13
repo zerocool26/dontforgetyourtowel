@@ -1,172 +1,65 @@
 ---
-import MarketingLayout from '../layouts/MarketingLayout.astro';
-import ModernButton from '../components/ui/ModernButton.astro';
 import { CONTACT_EMAIL } from '../consts';
-import { withBasePath } from '../utils/helpers';
+import MarketingLayout from '../layouts/MarketingLayout.astro';
 ---
 
 <MarketingLayout
-  title="Terms of Service | CHICAGOS #1 MSP"
-  description="Terms governing access to this website and engagement communications with CHICAGOS #1 MSP."
-  bodyClass="creative-page"
-  showStickyCTA={false}
-  showLiveChat={false}
-  mainClass="relative isolate overflow-x-clip"
-  showSavedRoutesDock={false}
+  title="Website Terms | CHICAGOS #1 MSP"
+  description="Terms for using the CHICAGOS #1 MSP website and its informational resources."
 >
-  <section
-    class="tone-page-hero border-b border-white/10"
-    data-reveal
-    id="terms-hero"
-    data-page-section
-  >
-    <div
-      class="tone-page-hero__inner mx-auto max-w-[1240px] px-4 pb-14 pt-20 sm:px-6 sm:pb-20 sm:pt-28"
-    >
-      <div class="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-end">
-        <div class="space-y-5">
-          <div class="tone-page-header">
-            <p class="tone-page-eyebrow">Legal</p>
-            <h1 class="tone-page-title max-w-4xl">Terms of Service</h1>
-            <p class="tone-page-copy max-w-3xl">
-              These terms explain how this website should be used and clarify
-              that service work only begins through a separate signed agreement.
-            </p>
-          </div>
-          <p class="text-sm text-white/55">Last updated: February 15, 2026</p>
-
-          <div class="tone-page-actions">
-            <ModernButton
-              href={withBasePath('contact-hq/')}
-              variant="primary"
-              className="min-h-[48px]"
-            >
-              Contact HQ
-            </ModernButton>
-            <ModernButton
-              href={`mailto:${CONTACT_EMAIL}`}
-              variant="secondary"
-              className="min-h-[48px]"
-            >
-              Email terms questions
-            </ModernButton>
-          </div>
-        </div>
-
-        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-          <div class="tone-panel-soft rounded-2xl p-6">
-            <p
-              class="tone-muted font-mono text-[0.66rem] uppercase tracking-[0.22em]"
-            >
-              In short
-            </p>
-            <p class="tone-body mt-3 text-sm leading-7">
-              The site is informational. It helps explain services and route new
-              conversations, but it does not create a contract by itself.
-            </p>
-          </div>
-          <div class="tone-panel-soft rounded-2xl p-6">
-            <p
-              class="tone-muted font-mono text-[0.66rem] uppercase tracking-[0.22em]"
-            >
-              Main boundary
-            </p>
-            <p class="tone-body mt-3 text-sm leading-7">
-              Scope, pricing, delivery obligations, and legal commitments are
-              only defined in formal signed agreements.
-            </p>
-          </div>
-        </div>
+  <article class="legal-page">
+    <header>
+      <div class="shell legal-page__header">
+        <h1>Website Terms</h1>
+        <p>Effective August 13, 2026</p>
       </div>
+    </header>
+    <div class="shell legal-page__body prose">
+      <h2>Informational use</h2>
+      <p>
+        This website provides general information about technology consulting,
+        software engineering, cloud, cybersecurity, managed IT, and related
+        services. It is not a substitute for an environment or code review, a
+        signed statement of work, advice tailored to your systems, or legal,
+        compliance, insurance, or financial advice.
+      </p>
+
+      <h2>No service relationship</h2>
+      <p>
+        Visiting the site or sending an inquiry does not create a client,
+        advisory, support, or emergency-response relationship. Services begin
+        only under an authorized written agreement.
+      </p>
+
+      <h2>Pricing and service descriptions</h2>
+      <p>
+        Website pricing is directional. Final fees, responsibilities, service
+        levels, exclusions, and assumptions are defined in the applicable
+        proposal and agreement. Website content may be revised as services and
+        operating practices change.
+      </p>
+
+      <h2>Acceptable use</h2>
+      <p>
+        You may use the site for lawful business evaluation and reference. Do
+        not attempt to disrupt the site, probe systems without authorization,
+        submit harmful content, impersonate another person, or misuse contact
+        channels.
+      </p>
+
+      <h2>Intellectual property</h2>
+      <p>
+        Site copy, design, and original materials are owned by or licensed to
+        CHICAGOS #1 MSP unless otherwise noted. Ordinary links and brief
+        quotations with attribution are permitted; broader reuse requires
+        permission.
+      </p>
+
+      <h2>Questions</h2>
+      <p>
+        Email <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> with questions
+        about these terms.
+      </p>
     </div>
-  </section>
-
-  <section
-    class="py-16 sm:py-20"
-    data-reveal
-    id="terms-details"
-    data-page-section
-  >
-    <div class="mx-auto max-w-[960px] px-4 sm:px-6">
-      <div class="grid gap-6">
-        <article class="tone-panel-soft rounded-2xl p-7">
-          <h2 class="text-2xl font-semibold text-white">1. Acceptance</h2>
-          <p>
-            By using this website, you agree to these terms. If you do not
-            agree, please discontinue use of the site.
-          </p>
-        </article>
-
-        <article class="tone-panel-soft rounded-2xl p-7">
-          <h2 class="text-2xl font-semibold text-white">
-            2. Informational use
-          </h2>
-          <p>
-            Site content is provided for general information about services,
-            capabilities, and project intake pathways. Content may be updated
-            without prior notice.
-          </p>
-        </article>
-
-        <article class="tone-panel-soft rounded-2xl p-7">
-          <h2 class="text-2xl font-semibold text-white">3. Engagement scope</h2>
-          <p>
-            Nothing on this site creates a service contract by itself. Formal
-            scope, pricing, and delivery terms are defined only in signed
-            agreements.
-          </p>
-        </article>
-
-        <article class="tone-panel-soft rounded-2xl p-7">
-          <h2 class="text-2xl font-semibold text-white">4. Acceptable use</h2>
-          <p>
-            You agree not to misuse, disrupt, probe, or attempt unauthorized
-            access to this site, related infrastructure, or connected services.
-          </p>
-        </article>
-
-        <article class="tone-panel-soft rounded-2xl p-7">
-          <h2 class="text-2xl font-semibold text-white">
-            5. Third-party services
-          </h2>
-          <p>
-            External links and third-party platforms are provided for
-            convenience. We are not responsible for their content, availability,
-            or policies.
-          </p>
-        </article>
-
-        <article class="tone-panel-soft rounded-2xl p-7">
-          <h2 class="text-2xl font-semibold text-white">
-            6. Warranty disclaimer
-          </h2>
-          <p>
-            This site is provided on an “as is” and “as available” basis,
-            without warranties of any kind, express or implied.
-          </p>
-        </article>
-
-        <article class="tone-panel-soft rounded-2xl p-7">
-          <h2 class="text-2xl font-semibold text-white">
-            7. Limitation of liability
-          </h2>
-          <p>
-            To the maximum extent permitted by law, CHICAGOS #1 MSP is not
-            liable for indirect, incidental, or consequential damages arising
-            from site use.
-          </p>
-        </article>
-
-        <article class="tone-panel-soft rounded-2xl p-7">
-          <h2 class="text-2xl font-semibold text-white">8. Contact</h2>
-          <p>
-            Questions regarding these terms can be sent to
-            <a href={`mailto:${CONTACT_EMAIL}`} class="tone-accent-link">
-              {CONTACT_EMAIL}
-            </a>.
-          </p>
-        </article>
-      </div>
-    </div>
-  </section>
+  </article>
 </MarketingLayout>

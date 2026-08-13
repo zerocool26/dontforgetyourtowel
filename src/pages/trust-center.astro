@@ -1,193 +1,143 @@
 ---
+import CtaBand from '../components/CtaBand.astro';
+import FaqList from '../components/FaqList.astro';
+import PageHero from '../components/PageHero.astro';
+import { proofRows, trustAreas } from '../data/site';
 import MarketingLayout from '../layouts/MarketingLayout.astro';
-import StructuredData from '../components/StructuredData.astro';
-import ModernButton from '../components/ui/ModernButton.astro';
-import ModernCard from '../components/ui/ModernCard.astro';
-import ProofOperatingSystem from '../components/business/ProofOperatingSystem.astro';
-import ProviderSelectionStandard from '../components/business/ProviderSelectionStandard.astro';
-import RouteProofStrip from '../components/business/RouteProofStrip.astro';
-import TrustEvidenceVault from '../components/business/TrustEvidenceVault.astro';
-import FAQAccordion from '../components/ui/FAQAccordion.astro';
-import { buildContactHqHref } from '../utils/contact';
-import { withBasePath } from '../utils/helpers';
 
-const trustHeroMediaDesktop = withBasePath('media/chicago-trust-evidence.webp');
-const trustHeroMediaMobile = withBasePath(
-  'media/chicago-trust-evidence-mobile.webp'
-);
-
-const trustFaqs = [
+const faqs = [
   {
-    title: 'Do you publish every internal control publicly?',
-    content:
-      'No. This page is meant to show posture, review rhythm, and accountability without oversharing internal implementation detail that would weaken security.',
+    question: 'Why is some security evidence not public?',
+    answer:
+      'Public pages should explain responsibilities and review habits without publishing sensitive configurations, client details, access paths, or incident procedures. Deeper evidence belongs in an appropriate review process.',
   },
   {
-    title: 'What should a company expect before onboarding?',
-    content:
-      'A fit conversation, scope framing, owner identification, and a clear picture of which operating risks need attention first.',
+    question: 'What should we ask before hiring a technology firm?',
+    answer:
+      'Ask who owns source, data, domains, cloud and production accounts; how privileged access is reviewed; how security and recovery are validated; what marks delivery complete; and who owns the system after launch.',
   },
   {
-    title: 'Can this page support security questionnaires or approvals?',
-    content:
-      'Yes. It gives leadership a public summary of backup, incident coordination, data handling, and review cadence before deeper conversations.',
-  },
-];
-
-const trustReviewHref = buildContactHqHref({
-  service: 'security',
-  brief:
-    'I want to review trust, backup, incident coordination, or security posture.',
-});
-
-const trustRouteProof = [
-  {
-    label: 'Backup',
-    title: 'Recovery order discussed',
-    copy: 'Protected systems, restore access, and business priority are part of the conversation.',
-    status: 'verified' as const,
-    href: '#evidence-backup-recovery',
-  },
-  {
-    label: 'Access',
-    title: 'Admin risk visible',
-    copy: 'Privileged access, MFA, guest access, and exceptions should not be vague.',
-    status: 'review' as const,
-    href: '#evidence-identity-access',
-  },
-  {
-    label: 'Incident',
-    title: 'Roles before panic',
-    copy: 'Escalation, communication, and vendor responsibilities get named before trouble.',
-    status: 'planned' as const,
-    href: '#evidence-incident-coordination',
+    question: 'Does a trust center replace due diligence?',
+    answer:
+      'No. It should make due diligence more focused. The actual review should match your risk, regulatory, insurance, and contractual requirements.',
   },
 ];
 ---
 
 <MarketingLayout
   title="Trust Center | CHICAGOS #1 MSP"
-  description="Public trust center covering backup posture, incident coordination, data handling, review cadence, and practical operating accountability."
-  bodyClass="creative-page buyer-reframe trust-reframe"
-  mainClass="relative isolate overflow-x-clip"
-  showFooter={true}
-  showStickyCTA={false}
-  showLiveChat={false}
-  showSavedRoutesDock={false}
+  description="How CHICAGOS #1 MSP approaches access, source and data ownership, application and cloud security, recovery, and delivery accountability."
 >
-  <StructuredData
-    type="service"
-    data={{
-      name: 'CHICAGOS #1 MSP Trust Center',
-      description:
-        'Public trust center with backup, incident response, data handling, and operating review posture for Chicago-area managed IT and security engagements.',
-      serviceType: 'Trust center',
-    }}
+  <PageHero
+    title="Trust the ownership, not the pitch."
+    copy="A practical view of access, source, data, application and cloud security, recovery, delivery acceptance, and the operating record you should expect from a technology partner."
+    primaryLabel="Ask a due-diligence question"
+    secondaryLabel="See services"
+    secondaryHref="services/"
+    asideTitle="Public by design"
+    asideCopy="This page explains operating posture without exposing client environments, security configurations, access paths, or incident details."
   />
 
-  <section
-    class="tone-page-hero tone-page-hero--media tone-section-divider border-b"
-    data-page-section
-    data-reveal
-    style="--hero-media-position: 62% center; --hero-media-mobile-position: center;"
-  >
-    <picture class="tone-page-hero__media">
-      <source media="(max-width: 767px)" srcset={trustHeroMediaMobile} />
-      <img
-        src={trustHeroMediaDesktop}
-        alt="Chicago cybersecurity trust review desk with backup device and security evidence"
-        loading="eager"
-        decoding="async"
-        fetchpriority="high"
-      />
-    </picture>
-    <div class="tone-page-hero__veil" aria-hidden="true"></div>
-
-    <div class="tone-page-hero__inner mx-auto max-w-[1240px] px-4 sm:px-6">
-      <div class="grid gap-10 lg:grid-cols-[1.08fr_0.92fr] lg:items-end">
-        <div class="space-y-6">
-          <div class="tone-page-header">
-            <p class="tone-page-eyebrow">Trust center</p>
-            <h1 class="tone-page-title">
-              Backup, access, and incident responsibilities should be clear.
-            </h1>
-            <p class="tone-page-copy">
-              Review how backup posture, incident coordination, data handling,
-              access discipline, and account reviews are handled before a deeper
-              security conversation.
-            </p>
-          </div>
-          <div class="tone-page-actions">
-            <ModernButton
-              href={trustReviewHref}
-              variant="primary"
-              className="min-h-[52px]"
-            >
-              Start trust review
-            </ModernButton>
-            <ModernButton
-              href={withBasePath('contact-hq/')}
-              variant="secondary"
-              className="min-h-[52px]"
-            >
-              Contact HQ
-            </ModernButton>
-          </div>
-        </div>
-
-        <ModernCard variant="glass" className="tone-metric-card p-6 sm:p-8">
-          <p class="tone-metric-card__label">Buyer reassurance</p>
-          <p class="tone-metric-card__value">Public-safe summary</p>
-          <p class="tone-metric-card__detail">
-            The goal is not to publish sensitive internals. It is to show the
-            review habits a serious provider uses before deeper review.
-          </p>
-        </ModernCard>
+  <section class="section trust-areas">
+    <div class="shell">
+      <div class="section-heading section-heading--wide">
+        <h2>Four areas that demand direct answers.</h2>
+        <p>
+          Trust should be reviewable in the way work is assigned, documented,
+          and carried forward.
+        </p>
+      </div>
+      <div class="trust-areas__list">
+        {
+          trustAreas.map((area, index) => (
+            <article>
+              <span class="index-number">
+                {String(index + 1).padStart(2, '0')}
+              </span>
+              <div>
+                <h3>{area.title}</h3>
+                <p>{area.copy}</p>
+              </div>
+              <aside>
+                <strong>Ask this</strong>
+                <p>{area.ask}</p>
+              </aside>
+            </article>
+          ))
+        }
       </div>
     </div>
   </section>
 
-  <RouteProofStrip
-    label="Public-safe proof"
-    title="Review posture without oversharing internals."
-    note="Trust should show responsibilities and habits before deeper security detail."
-    items={trustRouteProof}
-    ctaHref={trustReviewHref}
-    ctaLabel="Start trust review"
-  />
-
-  <ProofOperatingSystem
-    compact
-    showComparison={false}
-    showFit={false}
-    eyebrow="Public trust summary"
-    title="Badges matter less than clear responsibilities."
-    description="Backup scope, incident contacts, access reviews, and review cadence should be easy to discuss before anyone shares sensitive internal details."
-  />
-
-  <ProviderSelectionStandard
-    id="trust-selection-standard"
-    compact
-    eyebrow="Trust test"
-    title="A trust page should answer the questions buyers actually ask."
-    description="Real confidence comes from reviewable ownership: recovery order, privileged access, incident roles, Microsoft 365 governance, recurring risks, and scope boundaries."
-    ctaHref={trustReviewHref}
-    ctaLabel="Start trust review"
-  />
-
-  <section class="premium-page-section" data-page-section data-reveal>
-    <div class="premium-container">
-      <TrustEvidenceVault />
+  <section class="ownership-band">
+    <div class="shell">
+      <h2>What the engagement record should show.</h2>
+      <ol>
+        {
+          proofRows.map(row => (
+            <li>
+              <span>{row.number}</span>
+              <strong>{row.title}</strong>
+              <p>{row.copy}</p>
+            </li>
+          ))
+        }
+      </ol>
     </div>
   </section>
 
-  <section
-    class="premium-page-section pb-16 sm:pb-20"
-    id="faq"
-    data-page-section
-  >
-    <div class="premium-container max-w-4xl">
-      <FAQAccordion items={trustFaqs} />
+  <section class="section">
+    <div class="shell split-section split-section--top">
+      <div class="section-heading">
+        <h2>What we will not publish.</h2>
+        <p>
+          Credibility does not require oversharing information that could make
+          clients or systems easier to target.
+        </p>
+      </div>
+      <div class="boundary-list">
+        <div>
+          <span>01</span><p>
+            Client names, environments, incidents, or access details without
+            explicit authorization.
+          </p>
+        </div>
+        <div>
+          <span>02</span><p>
+            Detailed security configurations, administrative paths, or recovery
+            credentials, repository access, or production secrets.
+          </p>
+        </div>
+        <div>
+          <span>03</span><p>
+            Certifications, partnerships, coverage, or response commitments that
+            have not been formally established.
+          </p>
+        </div>
+        <div>
+          <span>04</span><p>
+            Vague claims of perfect security, flawless software, guaranteed
+            prevention, or risk-free operations.
+          </p>
+        </div>
+      </div>
     </div>
   </section>
+
+  <section class="section section--soft">
+    <div class="shell split-section split-section--top">
+      <div class="section-heading">
+        <h2>Due-diligence questions.</h2>
+        <p>Ask for enough evidence to make a decision, in the right setting.</p>
+      </div>
+      <FaqList items={faqs} />
+    </div>
+  </section>
+
+  <CtaBand
+    title="Bring the hard questions."
+    copy="Tell us what your insurer, auditor, leadership team, product owner, or internal technology lead needs to understand. We will answer directly and identify what requires a private review."
+    secondaryLabel="Review services"
+    secondaryHref="services/"
+  />
 </MarketingLayout>
