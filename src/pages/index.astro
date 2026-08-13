@@ -1,9 +1,9 @@
 ---
 import { Image } from 'astro:assets';
 
-import heroImage from '../assets/chicago-editorial-hero-v3.png';
-import motionImage from '../assets/chicago-editorial-motion-v3.png';
-import riverImage from '../assets/chicago-editorial-river-v3.png';
+import fogAerialImage from '../assets/chicago-fog-aerial-venti-views.jpg';
+import loopTrainImage from '../assets/chicago-loop-train-juan-pablo-valdivia.jpg';
+import riverwalkImage from '../assets/chicago-riverwalk-sunset-max-bender.jpg';
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 import { processSteps, proofRows, services } from '../data/site';
 import { withBasePath } from '../utils/helpers';
@@ -19,17 +19,20 @@ import { withBasePath } from '../utils/helpers';
     <div class="shell editorial-hero__inner">
       <div class="editorial-hero__copy">
         <h1>
-          <span>Build it</span>
-          <span>like you’ll</span>
-          <span>have to <em>run it.</em></span>
+          <span>Your</span>
+          <span>technology</span>
+          <span>should pull</span>
+          <span><em>its weight.</em></span>
         </h1>
         <p>
-          Strategy, software, cloud, security, and managed IT—designed by one
-          accountable Chicago team that stays with the consequences.
+          One Chicago team connects strategy, software, cloud, security, and
+          managed IT—so every decision has an owner and every investment keeps
+          paying off after launch.
         </p>
         <div class="button-row">
-          <a class="button" href={withBasePath('contact-hq/')}>Put us to work</a
-          >
+          <a class="button" href={withBasePath('contact-hq/')}>
+            Bring us the problem
+          </a>
           <a class="button button--outline" href="#what-we-deliver">
             See what we deliver
           </a>
@@ -37,9 +40,10 @@ import { withBasePath } from '../utils/helpers';
       </div>
       <figure class="editorial-hero__media">
         <Image
-          src={heroImage}
-          alt="Marina City and modern Chicago towers rising behind a steel bridge"
-          widths={[720, 960, 1280, 1536]}
+          src={riverwalkImage}
+          alt="Sunset cutting through downtown Chicago above the Riverwalk and Marina City"
+          widths={[720, 960, 1280, 1536, 1920]}
+          width={1920}
           sizes="(min-width: 900px) 62vw, 100vw"
           format="webp"
           quality={90}
@@ -83,9 +87,10 @@ import { withBasePath } from '../utils/helpers';
 
       <figure class="editorial-handoff__media">
         <Image
-          src={motionImage}
-          alt="Chicago roadway and river infrastructure moving toward downtown"
-          widths={[640, 800, 1024]}
+          src={loopTrainImage}
+          alt="A Chicago L train moving through the Loop between historic and modern buildings"
+          widths={[640, 800, 1024, 1280]}
+          width={1280}
           sizes="(min-width: 900px) 36vw, 100vw"
           format="webp"
           quality={88}
@@ -171,12 +176,13 @@ import { withBasePath } from '../utils/helpers';
     </div>
   </section>
 
-  <section class="editorial-cta">
+  <section class="editorial-cta" id="start-a-conversation">
     <div class="editorial-cta__media">
       <Image
-        src={riverImage}
-        alt="Chicago skyline reflected across the river under a bright sky"
-        widths={[720, 960, 1280]}
+        src={fogAerialImage}
+        alt="Downtown Chicago glowing through low fog above the river at night"
+        widths={[720, 960, 1280, 1600, 1920]}
+        width={1920}
         sizes="(min-width: 900px) 52vw, 100vw"
         format="webp"
         quality={88}

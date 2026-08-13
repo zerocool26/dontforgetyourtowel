@@ -35,13 +35,26 @@ test.describe('premium public site', () => {
     await page.goto('./');
     await expect(
       page.getByRole('heading', {
-        name: 'Build it like you’ll have to run it.',
+        name: 'Your technology should pull its weight.',
       })
     ).toBeVisible();
     await expect(
-      page.getByRole('link', { name: 'Put us to work' }).first()
+      page.getByRole('link', { name: 'Bring us the problem' }).first()
     ).toBeVisible();
     await expect(page.locator('.editorial-hero__media img')).toBeVisible();
+
+    const landingImages = page.locator(
+      '.editorial-hero__media img, .editorial-handoff__media img, .editorial-cta__media img'
+    );
+    await expect(landingImages).toHaveCount(3);
+    for (const image of await landingImages.all()) {
+      await image.evaluate(element =>
+        element.scrollIntoView({ block: 'center' })
+      );
+      await expect
+        .poll(() => image.evaluate(element => element.naturalWidth))
+        .toBeGreaterThan(0);
+    }
 
     const overflow = await page.evaluate(
       () =>

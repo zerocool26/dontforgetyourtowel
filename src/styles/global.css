@@ -3950,9 +3950,9 @@ body.editorial-site .mobile-menu nav > a:not(.button) {
 }
 
 .editorial-hero h1 {
-  max-width: 7ch;
+  max-width: 8.4ch;
   margin-bottom: 2rem;
-  font-size: clamp(5rem, 7.75vw, 8rem);
+  font-size: clamp(4.8rem, 7.1vw, 7.45rem);
   line-height: 0.86;
   text-wrap: balance;
 }
@@ -3991,7 +3991,7 @@ body.editorial-site .mobile-menu nav > a:not(.button) {
 
 .editorial-hero__media img {
   object-fit: cover;
-  object-position: 53% center;
+  object-position: 50% 52%;
   animation: editorial-drift 18s ease-in-out infinite alternate;
 }
 
@@ -4125,7 +4125,7 @@ body.editorial-site .mobile-menu nav > a:not(.button) {
 
 .editorial-handoff__media img {
   object-fit: cover;
-  object-position: 53% center;
+  object-position: 48% center;
   transition: transform 800ms cubic-bezier(0.2, 0.75, 0.25, 1);
 }
 
@@ -4364,7 +4364,7 @@ body.editorial-site .mobile-menu nav > a:not(.button) {
 
 .editorial-cta__media img {
   object-fit: cover;
-  object-position: 40% center;
+  object-position: 56% center;
 }
 
 .editorial-cta__inner {
@@ -4454,7 +4454,7 @@ body.editorial-site .site-footer__bottom {
   }
 
   .editorial-hero h1 {
-    font-size: clamp(4.7rem, 7.5vw, 6.8rem);
+    font-size: clamp(4.5rem, 6.9vw, 6.4rem);
   }
 
   .editorial-handoff__inner {
@@ -4547,9 +4547,9 @@ body.editorial-site .site-footer__bottom {
   }
 
   .editorial-hero h1 {
-    max-width: 7.4ch;
+    max-width: 8.4ch;
     margin-bottom: 1.5rem;
-    font-size: clamp(4rem, 18vw, 5.3rem);
+    font-size: clamp(3.7rem, 16vw, 4.8rem);
   }
 
   .editorial-hero__copy > p {
@@ -4574,7 +4574,7 @@ body.editorial-site .site-footer__bottom {
   }
 
   .editorial-hero__media img {
-    object-position: 57% center;
+    object-position: 51% 56%;
   }
 
   .editorial-thread {
@@ -4616,7 +4616,7 @@ body.editorial-site .site-footer__bottom {
   }
 
   .editorial-handoff__media img {
-    object-position: 50% center;
+    object-position: 47% center;
   }
 
   .editorial-services {
@@ -4718,7 +4718,7 @@ body.editorial-site .site-footer__bottom {
   }
 
   .editorial-cta__media img {
-    object-position: 34% center;
+    object-position: 58% center;
   }
 
   .editorial-cta__inner {
@@ -4737,7 +4737,7 @@ body.editorial-site .site-footer__bottom {
 
 @media (max-width: 430px) {
   .editorial-hero h1 {
-    font-size: clamp(3.6rem, 17vw, 4.45rem);
+    font-size: clamp(3.35rem, 15.5vw, 4.1rem);
   }
 
   .editorial-hero__media {
