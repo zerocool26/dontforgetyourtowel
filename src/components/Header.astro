@@ -19,7 +19,8 @@ const isActive = (href: string) => {
 <header class="site-header">
   <div class="site-header__inner shell">
     <a class="brand" href={withBasePath('/')} aria-label={`${SITE_TITLE} home`}>
-      {SITE_TITLE}
+      <span class="brand__mark" aria-hidden="true"></span>
+      <span>{SITE_TITLE}</span>
     </a>
 
     <nav class="desktop-nav" aria-label="Main navigation">

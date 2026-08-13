@@ -34,12 +34,14 @@ test.describe('premium public site', () => {
   test('homepage keeps the primary buyer path clear', async ({ page }) => {
     await page.goto('./');
     await expect(
-      page.getByRole('heading', { name: 'Build faster. Run stronger.' })
+      page.getByRole('heading', {
+        name: 'Build it like you’ll have to run it.',
+      })
     ).toBeVisible();
     await expect(
       page.getByRole('link', { name: 'Put us to work' }).first()
     ).toBeVisible();
-    await expect(page.locator('.home-hero__media img')).toBeVisible();
+    await expect(page.locator('.spatial-hero__visual img')).toBeVisible();
 
     const overflow = await page.evaluate(
       () =>

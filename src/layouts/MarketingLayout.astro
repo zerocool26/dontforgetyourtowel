@@ -12,6 +12,7 @@ interface Props {
   showHeader?: boolean;
   showFooter?: boolean;
   mainClass?: string;
+  bodyClass?: string;
 }
 
 const {
@@ -23,6 +24,7 @@ const {
   showHeader = true,
   showFooter = true,
   mainClass = '',
+  bodyClass = '',
 } = Astro.props as Props;
 ---
 
@@ -37,7 +39,7 @@ const {
       type={type}
     />
   </head>
-  <body>
+  <body class={bodyClass}>
     <a class="skip-link" href="#main-content">Skip to main content</a>
     {showHeader && <Header />}
     <main id="main-content" class={mainClass} tabindex="-1">
