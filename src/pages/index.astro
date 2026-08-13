@@ -1,9 +1,9 @@
 ---
 import { Image } from 'astro:assets';
 
-import systemsCutaway from '../assets/chicago-systems-cutaway-v2.png';
-import systemsSculpture from '../assets/chicago-systems-sculpture-v2.png';
-import CtaBand from '../components/CtaBand.astro';
+import heroImage from '../assets/chicago-editorial-hero-v3.png';
+import motionImage from '../assets/chicago-editorial-motion-v3.png';
+import riverImage from '../assets/chicago-editorial-river-v3.png';
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 import { processSteps, proofRows, services } from '../data/site';
 import { withBasePath } from '../utils/helpers';
@@ -12,32 +12,16 @@ import { withBasePath } from '../utils/helpers';
 <MarketingLayout
   title="CHICAGOS #1 MSP | Technology Consulting & Software Engineering"
   description="Technology strategy, custom software, cloud, cybersecurity, and managed IT from one accountable Chicago team."
-  bodyClass="spatial-site"
-  mainClass="spatial-home"
+  bodyClass="editorial-site"
+  mainClass="editorial-home"
 >
-  <section class="spatial-hero">
-    <div class="spatial-hero__visual" aria-hidden="true">
-      <Image
-        src={systemsSculpture}
-        alt=""
-        widths={[960, 1280, 1536]}
-        sizes="100vw"
-        format="webp"
-        quality={90}
-        loading="eager"
-        fetchpriority="high"
-      />
-    </div>
-    <div class="spatial-hero__wire spatial-hero__wire--one" aria-hidden="true">
-    </div>
-    <div class="spatial-hero__wire spatial-hero__wire--two" aria-hidden="true">
-    </div>
-    <div class="shell spatial-hero__inner">
-      <div class="spatial-hero__copy">
+  <section class="editorial-hero">
+    <div class="shell editorial-hero__inner">
+      <div class="editorial-hero__copy">
         <h1>
-          <span>Build it like</span>
-          <span>you’ll have to</span>
-          <span>run it<em>.</em></span>
+          <span>Build it</span>
+          <span>like you’ll</span>
+          <span>have to <em>run it.</em></span>
         </h1>
         <p>
           Strategy, software, cloud, security, and managed IT—designed by one
@@ -46,23 +30,40 @@ import { withBasePath } from '../utils/helpers';
         <div class="button-row">
           <a class="button" href={withBasePath('contact-hq/')}>Put us to work</a
           >
-          <a class="button button--outline-light" href="#what-we-deliver">
+          <a class="button button--outline" href="#what-we-deliver">
             See what we deliver
           </a>
         </div>
       </div>
+      <figure class="editorial-hero__media">
+        <Image
+          src={heroImage}
+          alt="Marina City and modern Chicago towers rising behind a steel bridge"
+          widths={[720, 960, 1280, 1536]}
+          sizes="(min-width: 900px) 62vw, 100vw"
+          format="webp"
+          quality={90}
+          loading="eager"
+          fetchpriority="high"
+        />
+      </figure>
+      <span class="editorial-thread" aria-hidden="true"></span>
     </div>
   </section>
 
-  <section class="operating-rail" aria-labelledby="ownership-heading">
-    <div class="shell operating-rail__inner">
-      <h2 id="ownership-heading">A plan is only as good as Monday morning.</h2>
-      <ol class="operating-rail__track">
+  <section class="editorial-principle" aria-labelledby="principle-heading">
+    <div class="shell editorial-principle__inner">
+      <h2 id="principle-heading">
+        <span>A plan is only</span>
+        <span>as good as</span>
+        <em>Monday morning.</em>
+      </h2>
+      <ol>
         {
           processSteps.map(step => (
             <li>
               <span>{step.number}</span>
-              <h3>{step.title}</h3>
+              <strong>{step.title}</strong>
             </li>
           ))
         }
@@ -70,10 +71,9 @@ import { withBasePath } from '../utils/helpers';
     </div>
   </section>
 
-  <section class="spatial-handoff" id="what-we-deliver">
-    <div class="shell spatial-handoff__inner">
-      <header class="spatial-handoff__heading">
-        <span class="spatial-index" aria-hidden="true">01—06</span>
+  <section class="editorial-handoff" id="what-we-deliver">
+    <div class="shell editorial-handoff__inner">
+      <header>
         <h2>The handoff is where ownership disappears.</h2>
         <p>
           Consultants write the plan. Developers ship the build. IT inherits the
@@ -81,27 +81,27 @@ import { withBasePath } from '../utils/helpers';
         </p>
       </header>
 
-      <figure class="spatial-handoff__cutaway">
+      <figure class="editorial-handoff__media">
         <Image
-          src={systemsCutaway}
-          alt="An exploded architectural cutaway of glass, steel, and copper infrastructure layers"
-          widths={[640, 960, 1120]}
-          sizes="(min-width: 960px) 42vw, 92vw"
+          src={motionImage}
+          alt="Chicago roadway and river infrastructure moving toward downtown"
+          widths={[640, 800, 1024]}
+          sizes="(min-width: 900px) 36vw, 100vw"
           format="webp"
           quality={88}
           loading="lazy"
         />
       </figure>
 
-      <div class="spatial-services">
+      <div class="editorial-services">
         {
           services.map(service => (
             <a href={withBasePath(`services/#${service.id}`)}>
-              <span class="index-number">{service.number}</span>
-              <span class="spatial-services__copy">
-                <strong>{service.title}</strong>
-                <small>{service.summary}</small>
-              </span>
+              <span>{service.number}</span>
+              <div>
+                <h3>{service.title}</h3>
+                <p>{service.summary}</p>
+              </div>
               <svg aria-hidden="true" viewBox="0 0 24 24">
                 <path d="M5 12h13M14 7l5 5-5 5" />
               </svg>
@@ -112,35 +112,25 @@ import { withBasePath } from '../utils/helpers';
     </div>
   </section>
 
-  <section class="spatial-stages" id="how-we-work">
-    <div class="shell spatial-stages__inner">
-      <header class="spatial-stages__heading">
+  <section class="editorial-process" id="how-we-work">
+    <div class="shell editorial-process__inner">
+      <header>
         <h2>
-          <span>Plan it.</span>
-          <span>Build it.</span>
-          <span>Secure it.</span>
-          <span>Run it.</span>
+          Plan it. Build it.<br />
+          <em>Secure it.</em> Run it.
         </h2>
-        <div>
-          <p>
-            Start with the stage you need. Keep the operating responsibility
-            connected through what comes next.
-          </p>
-          <a class="button button--light" href={withBasePath('contact-hq/')}>
-            Put us to work
-          </a>
-        </div>
+        <p>
+          Start with the stage you need. Keep the operating responsibility
+          connected through what comes next.
+        </p>
       </header>
-
-      <ol class="spatial-stages__stack">
+      <ol>
         {
           processSteps.map(step => (
             <li>
               <span>{step.number}</span>
-              <div>
-                <h3>{step.title}</h3>
-                <p>{step.detail}</p>
-              </div>
+              <h3>{step.title}</h3>
+              <p>{step.detail}</p>
             </li>
           ))
         }
@@ -148,38 +138,67 @@ import { withBasePath } from '../utils/helpers';
     </div>
   </section>
 
-  <section class="spatial-proof">
-    <div class="shell spatial-proof__desk">
-      <div class="spatial-proof__paper">
-        <header>
-          <h2>The operating record is the proof.</h2>
-          <p>
-            The name says #1. The standard has to earn it—through decisions,
-            delivery discipline, secure ownership, and a system that works after
-            launch.
-          </p>
-          <a class="text-link" href={withBasePath('trust-center/')}>
-            Review our operating standard
-            <svg aria-hidden="true" viewBox="0 0 24 24">
-              <path d="M5 12h13M14 7l5 5-5 5"></path>
-            </svg>
-          </a>
-        </header>
+  <section class="editorial-proof">
+    <div class="shell editorial-proof__inner">
+      <header>
+        <h2>
+          The operating<br />record is the <em>proof.</em>
+        </h2>
+        <p>
+          The name says #1. The standard has to earn it—through decisions,
+          delivery discipline, secure ownership, and a system that works after
+          launch.
+        </p>
+        <a class="editorial-link" href={withBasePath('trust-center/')}>
+          Review our operating standard
+          <svg aria-hidden="true" viewBox="0 0 24 24">
+            <path d="M5 12h13M14 7l5 5-5 5"></path>
+          </svg>
+        </a>
+      </header>
 
-        <div class="spatial-proof__ledger">
-          {
-            proofRows.map(row => (
-              <article>
-                <span class="index-number">{row.number}</span>
-                <h3>{row.title}</h3>
-                <p>{row.copy}</p>
-              </article>
-            ))
-          }
-        </div>
+      <div class="editorial-proof__rows">
+        {
+          proofRows.map(row => (
+            <article>
+              <span>{row.number}</span>
+              <h3>{row.title}</h3>
+              <p>{row.copy}</p>
+            </article>
+          ))
+        }
       </div>
     </div>
   </section>
 
-  <CtaBand />
+  <section class="editorial-cta">
+    <div class="editorial-cta__media">
+      <Image
+        src={riverImage}
+        alt="Chicago skyline reflected across the river under a bright sky"
+        widths={[720, 960, 1280]}
+        sizes="(min-width: 900px) 52vw, 100vw"
+        format="webp"
+        quality={88}
+        loading="lazy"
+      />
+    </div>
+    <div class="shell editorial-cta__inner">
+      <div class="editorial-cta__copy">
+        <h2>Put one team on the whole <em>problem.</em></h2>
+        <p>
+          Bring us the decision, build, security issue, or operating gap. We
+          will identify the right first move and the ownership it needs after
+          that.
+        </p>
+        <div class="button-row">
+          <a class="button" href={withBasePath('contact-hq/')}>Put us to work</a
+          >
+          <a class="button button--outline" href={withBasePath('services/')}>
+            See what we deliver
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
 </MarketingLayout>

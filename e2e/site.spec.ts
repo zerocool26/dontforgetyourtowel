@@ -41,7 +41,7 @@ test.describe('premium public site', () => {
     await expect(
       page.getByRole('link', { name: 'Put us to work' }).first()
     ).toBeVisible();
-    await expect(page.locator('.spatial-hero__visual img')).toBeVisible();
+    await expect(page.locator('.editorial-hero__media img')).toBeVisible();
 
     const overflow = await page.evaluate(
       () =>
