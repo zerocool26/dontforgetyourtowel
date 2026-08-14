@@ -1,6 +1,6 @@
 ---
+import PageHero from '../components/PageHero.astro';
 import MarketingLayout from '../layouts/MarketingLayout.astro';
-import { withBasePath } from '../utils/helpers';
 ---
 
 <MarketingLayout
@@ -8,20 +8,21 @@ import { withBasePath } from '../utils/helpers';
   description="The requested page could not be found."
   noIndex
 >
-  <section class="not-found">
-    <div class="shell not-found__inner">
-      <span>404</span>
-      <h1>This page is no longer here.</h1>
+  <PageHero
+    title="This page is"
+    accent="no longer here."
+    copy="The route may have been retired during the site rebuild. Start with the current services, resources, or contact page."
+    primaryLabel="Go home"
+    primaryHref="/"
+    secondaryLabel="See services"
+    secondaryHref="services/"
+  >
+    <div slot="aside">
+      <p class="eyebrow">Best next move</p>
+      <h2>Return to the current operating model.</h2>
       <p>
-        The route may have been retired during the site rebuild. Start with the
-        current services, resources, or contact page.
+        Every live service and decision path starts from the main navigation.
       </p>
-      <div class="button-row">
-        <a class="button" href={withBasePath('/')}>Go home</a>
-        <a class="button button--outline" href={withBasePath('services/')}
-          >See services</a
-        >
-      </div>
     </div>
-  </section>
+  </PageHero>
 </MarketingLayout>

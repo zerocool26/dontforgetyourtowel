@@ -1,5 +1,6 @@
 ---
 import CtaBand from '../../components/CtaBand.astro';
+import MediaInterlude from '../../components/MediaInterlude.astro';
 import PageHero from '../../components/PageHero.astro';
 import { chicagoServices } from '../../data/site';
 import MarketingLayout from '../../layouts/MarketingLayout.astro';
@@ -11,12 +12,14 @@ import { withBasePath } from '../../utils/helpers';
   description="Technology consulting, custom software, cloud modernization, cybersecurity, managed IT, data, integration, and recovery for Chicago businesses."
 >
   <PageHero
-    title="Chicago technology without the vendor maze."
+    title="Chicago technology without the"
+    accent="vendor maze."
     copy="Senior advisory, custom software, cloud, cybersecurity, data, and managed operations through one accountable local delivery model."
     secondaryLabel="Explore software engineering"
     secondaryHref="software/"
     asideTitle="Built for Chicago teams"
     asideCopy="Established organizations across the city and surrounding area that need a decision made, a system built, or critical technology operated properly."
+    mediaKey="riverwalk"
   />
 
   <section class="section local-service-list">
@@ -42,25 +45,20 @@ import { withBasePath } from '../../utils/helpers';
     </div>
   </section>
 
-  <section class="ownership-band">
-    <div class="shell local-standard">
-      <h2>Local should mean accountable.</h2>
-      <ol>
-        <li>
-          <span>01</span><strong>Senior decisions stay accessible</strong>
-        </li>
-        <li>
-          <span>02</span><strong>Delivery has one accountable lead</strong>
-        </li>
-        <li><span>03</span><strong>On-site work has a clear reason</strong></li>
-        <li>
-          <span>04</span><strong>The operating path survives launch</strong>
-        </li>
-      </ol>
-    </div>
-  </section>
+  <MediaInterlude
+    id="local-standard"
+    title="Local should mean"
+    accent="accountable."
+    items={[
+      { number: '01', title: 'Senior decisions stay accessible' },
+      { number: '02', title: 'Delivery has one accountable lead' },
+      { number: '03', title: 'On-site work has a clear reason' },
+      { number: '04', title: 'The operating path survives launch' },
+    ]}
+    mediaKey="loop"
+  />
 
-  <section class="section">
+  <section class="section section--ink">
     <div class="shell split-section split-section--top">
       <div class="section-heading">
         <h2>What we need to understand first.</h2>

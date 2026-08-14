@@ -1,6 +1,7 @@
 ---
 import CtaBand from '../components/CtaBand.astro';
 import FaqList from '../components/FaqList.astro';
+import MediaInterlude from '../components/MediaInterlude.astro';
 import PageHero from '../components/PageHero.astro';
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 
@@ -75,13 +76,15 @@ const faqs = [
   description="Product strategy, UX, custom applications, portals, integrations, modernization, quality engineering, launch, and production support."
 >
   <PageHero
-    title="Software that survives launch."
+    title="Software that"
+    accent="survives launch."
     copy="We define, design, build, secure, and operate custom software for businesses that need more than a prototype and more accountability than a staffing vendor."
     primaryLabel="Put a build in motion"
     secondaryLabel="See all services"
     secondaryHref="services/"
     asideTitle="The standard"
     asideCopy="A useful product, a maintainable system, clear client ownership, and an operating path for the morning after release."
+    mediaKey="loop"
   />
 
   <section class="route-index">
@@ -103,19 +106,20 @@ const faqs = [
     </div>
   </section>
 
-  <section class="ownership-band">
-    <div class="shell">
-      <h2>Production is part of the build.</h2>
-      <ol>
-        <li><span>01</span><strong>Security begins in architecture</strong></li>
-        <li><span>02</span><strong>Quality has acceptance criteria</strong></li>
-        <li><span>03</span><strong>Client ownership is explicit</strong></li>
-        <li><span>04</span><strong>Operations start before launch</strong></li>
-      </ol>
-    </div>
-  </section>
+  <MediaInterlude
+    id="production-standard"
+    title="Production is part of the"
+    accent="build."
+    items={[
+      { number: '01', title: 'Security begins in architecture' },
+      { number: '02', title: 'Quality has acceptance criteria' },
+      { number: '03', title: 'Client ownership is explicit' },
+      { number: '04', title: 'Operations start before launch' },
+    ]}
+    mediaKey="fog"
+  />
 
-  <section class="section service-details">
+  <section class="section section--ink service-details">
     <div class="shell">
       <div class="section-heading section-heading--wide">
         <h2>From operating problem to production system.</h2>
@@ -187,7 +191,8 @@ const faqs = [
   </section>
 
   <CtaBand
-    title="Bring the workflow that should work better."
+    title="Bring the workflow that should work"
+    accent="better."
     copy="Show us the customer problem, manual process, legacy system, or stalled build. We will identify what needs discovery before scope, architecture, and delivery can be trusted."
     secondaryLabel="Review the full service model"
     secondaryHref="services/"

@@ -21,6 +21,12 @@ test.describe('premium public site', () => {
       expect(response?.ok()).toBeTruthy();
       await expect(page.locator('h1')).toHaveCount(1);
       await expect(page.locator('body')).not.toContainText('Lorem ipsum');
+      await expect(page.locator('body')).toHaveClass(/editorial-site/);
+      await expect(page.locator('main')).toHaveClass(/editorial-page/);
+
+      if (route !== '/') {
+        await expect(page.locator('.page-hero')).toBeVisible();
+      }
 
       const overflow = await page.evaluate(
         () =>
@@ -62,6 +68,72 @@ test.describe('premium public site', () => {
         document.documentElement.clientWidth
     );
     expect(overflow).toBeLessThanOrEqual(1);
+  });
+
+  test('shared editorial components propagate without broken media', async ({
+    page,
+  }) => {
+    const representativeRoutes = [
+      '/services/',
+      '/software/',
+      '/trust-center/',
+      '/chicago/',
+    ];
+
+    for (const route of representativeRoutes) {
+      await page.goto(`.${route}`);
+      await expect(
+        page.locator('.editorial-band, .media-interlude').first()
+      ).toBeVisible();
+
+      const heroImage = page.locator('.page-hero__media img');
+      await expect(heroImage).toBeVisible();
+      await expect
+        .poll(() => heroImage.evaluate(element => element.naturalWidth))
+        .toBeGreaterThan(0);
+
+      const chapterImage = page.locator('.media-interlude__figure img');
+      if ((await chapterImage.count()) > 0) {
+        await chapterImage.evaluate(element =>
+          element.scrollIntoView({ block: 'center' })
+        );
+        await expect
+          .poll(() => chapterImage.evaluate(element => element.naturalWidth))
+          .toBeGreaterThan(0);
+      }
+
+      const ctaImage = page.locator('.cta-band__media img');
+      if ((await ctaImage.count()) > 0) {
+        await ctaImage.evaluate(element =>
+          element.scrollIntoView({ block: 'center' })
+        );
+        await expect
+          .poll(() => ctaImage.evaluate(element => element.naturalWidth))
+          .toBeGreaterThan(0);
+      }
+    }
+
+    await page.goto('./blog/software-production-handoff-checklist/');
+    const articleCover = page.locator('.article-cover img');
+    await expect(articleCover).toBeVisible();
+    await expect
+      .poll(() => articleCover.evaluate(element => element.naturalWidth))
+      .toBeGreaterThan(0);
+
+    const designTokens = await page.evaluate(() => {
+      const styles = getComputedStyle(document.body);
+      return {
+        accent: styles.getPropertyValue('--color-accent').trim(),
+        background: styles.getPropertyValue('--color-background').trim(),
+        ink: styles.getPropertyValue('--color-text').trim(),
+      };
+    });
+
+    expect(designTokens).toEqual({
+      accent: '#163bff',
+      background: '#ffffff',
+      ink: '#101114',
+    });
   });
 
   test('pricing estimator updates the planning range', async ({ page }) => {

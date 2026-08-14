@@ -22,6 +22,9 @@ top-to-bottom redesign.
 Market and positioning research for the integrated firm model lives in
 `docs/research/2026-technology-services-market/`.
 
+The shared visual language, semantic tokens, component contracts, and route
+migration rules live in `docs/design-system.md`.
+
 ## Development
 
 Requires Node 22+ and Bun 1.3.8.

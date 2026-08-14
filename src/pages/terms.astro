@@ -1,5 +1,6 @@
 ---
 import { CONTACT_EMAIL } from '../consts';
+import PageHero from '../components/PageHero.astro';
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 ---
 
@@ -8,12 +9,13 @@ import MarketingLayout from '../layouts/MarketingLayout.astro';
   description="Terms for using the CHICAGOS #1 MSP website and its informational resources."
 >
   <article class="legal-page">
-    <header>
-      <div class="shell legal-page__header">
-        <h1>Website Terms</h1>
-        <p>Effective August 13, 2026</p>
-      </div>
-    </header>
+    <PageHero
+      title="Website"
+      accent="Terms"
+      copy="Effective August 13, 2026"
+      primaryLabel={false}
+      compact
+    />
     <div class="shell legal-page__body prose">
       <h2>Informational use</h2>
       <p>

@@ -1,37 +1,59 @@
 ---
+import { Image } from 'astro:assets';
+
+import { editorialMedia, type EditorialMediaKey } from '../data/visuals';
 import { withBasePath } from '../utils/helpers';
 
 interface Props {
   title?: string;
+  accent?: string;
   copy?: string;
   secondaryLabel?: string;
   secondaryHref?: string;
+  mediaKey?: EditorialMediaKey;
 }
 
 const {
-  title = 'Put one team on the whole problem.',
+  title = 'Put one team on the whole',
+  accent = 'problem.',
   copy = 'Bring us the decision, build, security issue, or operating gap. We will identify the right first move and the ownership it needs after that.',
   secondaryLabel = 'See what we deliver',
   secondaryHref = 'services/',
+  mediaKey = 'fog',
 } = Astro.props as Props;
+
+const media = editorialMedia[mediaKey];
 ---
 
 <section class="cta-band">
+  <figure class="cta-band__media">
+    <Image
+      src={media.src}
+      alt={media.alt}
+      widths={[720, 960, 1280, 1600]}
+      width={1600}
+      sizes="(min-width: 900px) 52vw, 100vw"
+      format="webp"
+      quality={86}
+      loading="lazy"
+      style={`object-position: ${media.position}`}
+    />
+  </figure>
   <div class="shell cta-band__inner">
-    <div>
-      <h2>{title}</h2>
+    <div class="cta-band__copy">
+      <h2>
+        <span>{title}</span>
+        {accent && <em>{accent}</em>}
+      </h2>
       <p>{copy}</p>
-    </div>
-    <div class="button-row">
-      <a class="button button--light" href={withBasePath('contact-hq/')}>
-        Put us to work
-      </a>
-      <a
-        class="button button--outline-light"
-        href={withBasePath(secondaryHref)}
-      >
-        {secondaryLabel}
-      </a>
+      <div class="button-row">
+        <a class="button" href={withBasePath('contact-hq/')}>
+          Put us to work
+        </a>
+        <a class="button button--outline" href={withBasePath(secondaryHref)}>
+          {secondaryLabel}
+        </a>
+      </div>
     </div>
   </div>
 </section>

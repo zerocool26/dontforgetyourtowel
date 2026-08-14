@@ -1,5 +1,6 @@
 ---
 import { CONTACT_CALENDAR_URL, CONTACT_EMAIL } from '../consts';
+import PageHero from '../components/PageHero.astro';
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 import { withBasePath } from '../utils/helpers';
 
@@ -18,23 +19,21 @@ const emailHref = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)
   title="Contact CHICAGOS #1 MSP | Put Us to Work"
   description="Contact CHICAGOS #1 MSP about technology strategy, custom software, cloud, cybersecurity, managed IT, data, integration, or modernization."
 >
-  <section class="contact-hero">
-    <div class="shell contact-hero__grid">
-      <div>
-        <h1>Give us the hard problem.</h1>
-        <p>
-          Tell us what the business needs to decide, build, secure, modernize,
-          or operate. We will tell you whether we are the right fit and what
-          needs to happen before responsible scope.
-        </p>
-      </div>
-      <aside>
+  <PageHero
+    title="Give us the"
+    accent="hard problem."
+    copy="Tell us what the business needs to decide, build, secure, modernize, or operate. We will tell you whether we are the right fit and what needs to happen before responsible scope."
+    primaryLabel={false}
+    mediaKey="fog"
+  >
+    <Fragment slot="aside">
+      <div class="page-hero__contact">
         <span>Direct email</span>
         <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
         <p>Use email for the fastest, clearest first handoff.</p>
-      </aside>
-    </div>
-  </section>
+      </div>
+    </Fragment>
+  </PageHero>
 
   <section class="contact-action">
     <div class="shell contact-action__grid">

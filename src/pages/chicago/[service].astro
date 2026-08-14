@@ -1,8 +1,10 @@
 ---
 import CtaBand from '../../components/CtaBand.astro';
+import MediaInterlude from '../../components/MediaInterlude.astro';
+import PageHero from '../../components/PageHero.astro';
 import { chicagoServices, processSteps, proofRows } from '../../data/site';
+import { localServiceMedia } from '../../data/visuals';
 import MarketingLayout from '../../layouts/MarketingLayout.astro';
-import { withBasePath } from '../../utils/helpers';
 
 export function getStaticPaths() {
   return chicagoServices.map(service => ({
@@ -12,39 +14,31 @@ export function getStaticPaths() {
 }
 
 const { service } = Astro.props;
+const serviceIndex = chicagoServices.findIndex(
+  item => item.slug === service.slug
+);
+const heroMediaKey =
+  localServiceMedia[serviceIndex % localServiceMedia.length] ?? 'riverwalk';
+const chapterMediaKey =
+  localServiceMedia[(serviceIndex + 1) % localServiceMedia.length] ?? 'loop';
 ---
 
 <MarketingLayout
   title={`${service.title} in Chicago | CHICAGOS #1 MSP`}
   description={`${service.summary} for established Chicago-area businesses.`}
 >
-  <section class="local-detail-hero">
-    <div class="shell local-detail-hero__grid">
-      <div>
-        <a href={withBasePath('chicago/')}>Chicago services</a>
-        <h1>{service.title} for Chicago teams.</h1>
-        <p>{service.summary}</p>
-        <div class="button-row">
-          <a
-            class="button"
-            href={withBasePath(`contact-hq/?topic=${service.slug}`)}
-          >
-            Discuss this work
-          </a>
-          <a class="button button--outline" href={withBasePath('services/')}>
-            See all services
-          </a>
-        </div>
-      </div>
-      <aside>
-        <h2>The local standard</h2>
-        <p>
-          Senior access, intentional on-site coordination, a named delivery
-          owner, and decisions written for the business.
-        </p>
-      </aside>
-    </div>
-  </section>
+  <PageHero
+    title={`${service.title} for`}
+    accent="Chicago teams."
+    copy={service.summary}
+    primaryLabel="Discuss this work"
+    primaryHref={`contact-hq/?topic=${service.slug}`}
+    secondaryLabel="See all services"
+    secondaryHref="services/"
+    asideTitle="The local standard"
+    asideCopy="Senior access, intentional on-site coordination, a named delivery owner, and decisions written for the business."
+    mediaKey={heroMediaKey}
+  />
 
   <section class="section proof-section">
     <div class="shell">
@@ -65,25 +59,18 @@ const { service } = Astro.props;
     </div>
   </section>
 
-  <section class="process-band">
-    <div class="shell process-band__grid">
-      <h2>A practical<br />first phase.</h2>
-      <ol>
-        {
-          processSteps.map(step => (
-            <li>
-              <>
-                <span>{step.number}</span>
-                <strong>{step.title}</strong>
-              </>
-            </li>
-          ))
-        }
-      </ol>
-    </div>
-  </section>
+  <MediaInterlude
+    id="first-phase"
+    title="A practical"
+    accent="first phase."
+    items={processSteps.map(step => ({
+      number: step.number,
+      title: step.title,
+    }))}
+    mediaKey={chapterMediaKey}
+  />
 
-  <section class="section">
+  <section class="section section--ink">
     <div class="shell split-section split-section--top">
       <div class="section-heading"><h2>Before scope is final.</h2></div>
       <div class="boundary-list">
@@ -115,7 +102,8 @@ const { service } = Astro.props;
   </section>
 
   <CtaBand
-    title={`Talk through your ${service.title.toLowerCase()} needs.`}
+    title={`Talk through your ${service.title.toLowerCase()}`}
+    accent="needs."
     copy="Bring the business outcome, rough environment, current ownership, and timing. We will identify the right first phase and what still needs discovery."
   />
 </MarketingLayout>

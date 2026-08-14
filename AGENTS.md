@@ -15,8 +15,9 @@ This is an Astro 7 static marketing site for CHICAGOS #1 MSP, an integrated Chic
 - Preact is the primary interactive layer for public UI in `src/components/**/*.tsx`.
 - React-only components stay in `src/components/react/**`.
 - Solid-only components stay in `src/components/solid/**`.
-- Shared UI should prefer `src/components/ui/**`, `src/styles/global.css`, and existing tone utilities before new one-off CSS.
+- Shared UI should prefer `src/components/**`, `src/styles/global.css`, and the editorial primitives documented in `docs/design-system.md` before new one-off CSS.
 - Repeated marketing content belongs in `src/data/**` when it appears on more than one route.
+- Shared Chicago photography, alt text, captions, and crop positions belong in `src/data/visuals.ts`; routes select a `mediaKey` instead of importing those assets directly.
 
 ## UX Rules
 
@@ -25,6 +26,8 @@ This is an Astro 7 static marketing site for CHICAGOS #1 MSP, an integrated Chic
 - Tap targets should be at least 44px tall; use 48px for major actions.
 - Preserve keyboard access, visible focus states, reduced-motion behavior, and existing `data-*` test hooks.
 - Avoid generic AI or futurist positioning unless it is tied to governance, security, workflow, or measurable operating clarity.
+- Preserve the white, near-black, electric-blue editorial system: large Manrope headlines, restrained serif emphasis, fine rules, square actions, open ledgers, and real Chicago photography.
+- Use image-aware `PageHero` variants and at most one `MediaInterlude` to create depth on long buyer routes; keep legal and utility routes quieter.
 
 ## Validation Tiers
 

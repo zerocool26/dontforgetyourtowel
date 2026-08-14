@@ -1,5 +1,7 @@
 ---
 import CtaBand from '../components/CtaBand.astro';
+import EditorialBand from '../components/EditorialBand.astro';
+import MediaInterlude from '../components/MediaInterlude.astro';
 import PageHero from '../components/PageHero.astro';
 import { ownershipStandards, processSteps } from '../data/site';
 import MarketingLayout from '../layouts/MarketingLayout.astro';
@@ -11,12 +13,14 @@ import { withBasePath } from '../utils/helpers';
   description="An integrated Chicago technology firm connecting advisory, software engineering, cloud, cybersecurity, and managed operations."
 >
   <PageHero
-    title="We take the whole system personally."
+    title="We take the whole system"
+    accent="personally."
     copy="Advice should survive delivery. Software should survive launch. Security should survive contact with daily work. Operations should keep improving instead of accumulating excuses."
     secondaryLabel="See the service model"
     secondaryHref="services/"
     asideTitle="Why the model is integrated"
     asideCopy="The largest technology firms connect consulting, engineering, security, and operations. We apply that logic at a tighter Chicago scale with a clearer line of accountability."
+    mediaKey="riverwalk"
   />
 
   <section class="section story-section">
@@ -40,21 +44,14 @@ import { withBasePath } from '../utils/helpers';
     </div>
   </section>
 
-  <section class="ownership-band">
-    <div class="shell">
-      <h2>The standard behind the name.</h2>
-      <ol>
-        {
-          ownershipStandards.map((item, index) => (
-            <li>
-              <span>{String(index + 1).padStart(2, '0')}</span>
-              <strong>{item}</strong>
-            </li>
-          ))
-        }
-      </ol>
-    </div>
-  </section>
+  <EditorialBand
+    title="The standard behind the"
+    accent="name."
+    items={ownershipStandards.map((item, index) => ({
+      number: String(index + 1).padStart(2, '0'),
+      title: item,
+    }))}
+  />
 
   <section class="section principles-section">
     <div class="shell split-section split-section--top">
@@ -91,27 +88,19 @@ import { withBasePath } from '../utils/helpers';
     </div>
   </section>
 
-  <section class="delivery-band">
-    <div class="shell">
-      <div class="delivery-band__heading">
-        <h2>Plan it. Build it. Secure it. Run it.</h2>
-        <p>Four stages, one accountable line of sight.</p>
-      </div>
-      <ol class="delivery-band__steps">
-        {
-          processSteps.map(step => (
-            <li>
-              <span>{step.number}</span>
-              <h3>{step.title}</h3>
-              <p>{step.detail}</p>
-            </li>
-          ))
-        }
-      </ol>
-    </div>
-  </section>
+  <MediaInterlude
+    id="operating-line"
+    title="The work moves."
+    accent="Ownership stays visible."
+    copy="Four stages, one accountable line of sight."
+    items={processSteps.map(step => ({
+      number: step.number,
+      title: step.title,
+    }))}
+    mediaKey="loop"
+  />
 
-  <section class="section local-section">
+  <section class="section section--ink local-section">
     <div class="shell local-section__inner">
       <h2>Chicago is the operating context.</h2>
       <p>

@@ -1,0 +1,64 @@
+---
+import { Image } from 'astro:assets';
+
+import { editorialMedia, type EditorialMediaKey } from '../data/visuals';
+
+interface Item {
+  number: string;
+  title: string;
+}
+
+interface Props {
+  id?: string;
+  title: string;
+  accent?: string;
+  copy?: string;
+  items?: Item[];
+  mediaKey: EditorialMediaKey;
+  caption?: string;
+}
+
+const { id, title, accent, copy, items = [], mediaKey, caption } = Astro.props;
+const media = editorialMedia[mediaKey];
+---
+
+<section {id} class="media-interlude">
+  <div class="shell media-interlude__intro">
+    <header>
+      <span class="editorial-thread" aria-hidden="true"></span>
+      <h2>
+        <span>{title}</span>
+        {accent && <em>{accent}</em>}
+      </h2>
+    </header>
+    {copy && <p>{copy}</p>}
+  </div>
+  {
+    items.length > 0 && (
+      <ol class="shell media-interlude__steps">
+        {items.map(item => (
+          <li>
+            <span>{item.number}</span>
+            <strong>{item.title}</strong>
+          </li>
+        ))}
+      </ol>
+    )
+  }
+  <figure class="media-interlude__figure">
+    <Image
+      src={media.src}
+      alt={media.alt}
+      widths={[960, 1440, 1920, 2400]}
+      width={2400}
+      sizes="100vw"
+      format="webp"
+      quality={88}
+      loading="lazy"
+      style={`object-position: ${media.position}`}
+    />
+    <figcaption class="shell">
+      <span>{caption ?? media.caption}</span>
+    </figcaption>
+  </figure>
+</section>

@@ -10,7 +10,9 @@
 
 ## Design and content
 
-- Follow the editorial system in `src/styles/global.css`: warm paper, deep navy, copper, fine rules, open layouts, and modest radii.
+- Follow the editorial system in `src/styles/global.css`: white, near-black, electric blue, large Manrope headlines, restrained serif emphasis, fine rules, open layouts, and square actions.
+- Use `PageHero.astro`, `EditorialBand.astro`, `MediaInterlude.astro`, and `CtaBand.astro` for matching page patterns so system changes propagate across routes.
+- Select shared photography through `src/data/visuals.ts` rather than importing images or repeating crop and alt-text decisions in routes.
 - Prefer open sections, ledgers, and ruled lists over cards, pills, badges, dashboards, and decorative chrome.
 - Use direct buyer language about business outcomes, ownership, delivery, software, cloud, security, recovery, scope, and decisions.
 - Do not publish invented metrics, testimonials, certifications, awards, partner claims, or guarantees.

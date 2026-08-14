@@ -3,6 +3,7 @@ import type { GetStaticPaths, Page } from 'astro';
 import { getCollection, type CollectionEntry } from 'astro:content';
 
 import CtaBand from '../../components/CtaBand.astro';
+import PageHero from '../../components/PageHero.astro';
 import MarketingLayout from '../../layouts/MarketingLayout.astro';
 import { withBasePath } from '../../utils/helpers';
 
@@ -34,15 +35,13 @@ const formatDate = (date: Date) =>
   title="Technology Strategy, Software & Operations Resources | CHICAGOS #1 MSP"
   description="Practical guidance on technology decisions, software delivery, cloud, cybersecurity, managed IT, recovery, and operating ownership."
 >
-  <section class="resource-hero">
-    <div class="shell resource-hero__grid">
-      <h1>Useful answers before the sales call.</h1>
-      <p>
-        Practical notes for evaluating technology decisions, software delivery,
-        cloud, security, managed operations, recovery, and scope.
-      </p>
-    </div>
-  </section>
+  <PageHero
+    title="Useful answers before the"
+    accent="sales call."
+    copy="Practical notes for evaluating technology decisions, software delivery, cloud, security, managed operations, recovery, and scope."
+    primaryLabel={false}
+    mediaKey="loop"
+  />
 
   {
     featured && (
@@ -111,7 +110,8 @@ const formatDate = (date: Date) =>
   </section>
 
   <CtaBand
-    title="Need an answer tied to your environment?"
+    title="Need an answer tied to your"
+    accent="environment?"
     copy="Bring the actual outcome, rough environment, and timing. We will help identify the next useful review."
     secondaryLabel="Explore services"
     secondaryHref="services/"

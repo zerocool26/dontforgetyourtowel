@@ -26,6 +26,15 @@ const {
   mainClass = '',
   bodyClass = '',
 } = Astro.props as Props;
+
+const bodyClasses = ['editorial-site', bodyClass]
+  .filter(Boolean)
+  .filter((value, index, values) => values.indexOf(value) === index)
+  .join(' ');
+const mainClasses = ['editorial-page', mainClass]
+  .filter(Boolean)
+  .filter((value, index, values) => values.indexOf(value) === index)
+  .join(' ');
 ---
 
 <!doctype html>
@@ -39,10 +48,10 @@ const {
       type={type}
     />
   </head>
-  <body class={bodyClass}>
+  <body class={bodyClasses}>
     <a class="skip-link" href="#main-content">Skip to main content</a>
     {showHeader && <Header />}
-    <main id="main-content" class={mainClass} tabindex="-1">
+    <main id="main-content" class={mainClasses} tabindex="-1">
       <slot />
     </main>
     {showFooter && <Footer />}

@@ -1,7 +1,9 @@
 ---
+import { Image } from 'astro:assets';
 import { getCollection, render } from 'astro:content';
 
 import CtaBand from '../../components/CtaBand.astro';
+import { editorialMedia, localServiceMedia } from '../../data/visuals';
 import MarketingLayout from '../../layouts/MarketingLayout.astro';
 import { withBasePath } from '../../utils/helpers';
 
@@ -17,6 +19,9 @@ const formattedDate = new Intl.DateTimeFormat('en-US', {
   day: 'numeric',
   year: 'numeric',
 }).format(post.data.pubDate);
+const mediaKey =
+  localServiceMedia[post.id.length % localServiceMedia.length] ?? 'loop';
+const articleMedia = editorialMedia[mediaKey];
 ---
 
 <MarketingLayout
@@ -33,6 +38,21 @@ const formattedDate = new Intl.DateTimeFormat('en-US', {
         <time datetime={post.data.pubDate.toISOString()}>{formattedDate}</time>
       </div>
     </header>
+    <figure class="article-cover">
+      <Image
+        src={articleMedia.src}
+        alt={articleMedia.alt}
+        widths={[960, 1440, 1920, 2400]}
+        width={2400}
+        sizes="100vw"
+        format="webp"
+        quality={88}
+        loading="eager"
+        fetchpriority="high"
+        style={`object-position: ${articleMedia.position}`}
+      />
+      <figcaption class="shell">{articleMedia.caption}</figcaption>
+    </figure>
     <div class="shell article-layout">
       <aside>
         <p>Practical guidance from CHICAGOS #1 MSP.</p>
@@ -44,7 +64,8 @@ const formattedDate = new Intl.DateTimeFormat('en-US', {
     </div>
   </article>
   <CtaBand
-    title="Turn the checklist into a next step."
+    title="Turn the checklist into a"
+    accent="next step."
     copy="Tell us what you found, what remains unclear, and who needs the answer. We will help route the next review."
     secondaryLabel="Back to resources"
     secondaryHref="blog/"

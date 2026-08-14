@@ -1,6 +1,7 @@
 ---
 import CtaBand from '../components/CtaBand.astro';
 import FaqList from '../components/FaqList.astro';
+import MediaInterlude from '../components/MediaInterlude.astro';
 import PageHero from '../components/PageHero.astro';
 import { proofRows, trustAreas } from '../data/site';
 import MarketingLayout from '../layouts/MarketingLayout.astro';
@@ -29,13 +30,15 @@ const faqs = [
   description="How CHICAGOS #1 MSP approaches access, source and data ownership, application and cloud security, recovery, and delivery accountability."
 >
   <PageHero
-    title="Trust the ownership, not the pitch."
+    title="Trust the ownership,"
+    accent="not the pitch."
     copy="A practical view of access, source, data, application and cloud security, recovery, delivery acceptance, and the operating record you should expect from a technology partner."
     primaryLabel="Ask a due-diligence question"
     secondaryLabel="See services"
     secondaryHref="services/"
     asideTitle="Public by design"
     asideCopy="This page explains operating posture without exposing client environments, security configurations, access paths, or incident details."
+    mediaKey="fog"
   />
 
   <section class="section trust-areas">
@@ -69,24 +72,18 @@ const faqs = [
     </div>
   </section>
 
-  <section class="ownership-band">
-    <div class="shell">
-      <h2>What the engagement record should show.</h2>
-      <ol>
-        {
-          proofRows.map(row => (
-            <li>
-              <span>{row.number}</span>
-              <strong>{row.title}</strong>
-              <p>{row.copy}</p>
-            </li>
-          ))
-        }
-      </ol>
-    </div>
-  </section>
+  <MediaInterlude
+    id="engagement-record"
+    title="What the engagement record should"
+    accent="show."
+    items={proofRows.map(row => ({
+      number: row.number,
+      title: row.title,
+    }))}
+    mediaKey="loop"
+  />
 
-  <section class="section">
+  <section class="section section--ink">
     <div class="shell split-section split-section--top">
       <div class="section-heading">
         <h2>What we will not publish.</h2>
@@ -135,7 +132,8 @@ const faqs = [
   </section>
 
   <CtaBand
-    title="Bring the hard questions."
+    title="Bring the"
+    accent="hard questions."
     copy="Tell us what your insurer, auditor, leadership team, product owner, or internal technology lead needs to understand. We will answer directly and identify what requires a private review."
     secondaryLabel="Review services"
     secondaryHref="services/"

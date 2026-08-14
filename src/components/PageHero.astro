@@ -1,19 +1,26 @@
 ---
+import { Image } from 'astro:assets';
+
+import { editorialMedia, type EditorialMediaKey } from '../data/visuals';
 import { withBasePath } from '../utils/helpers';
 
 interface Props {
   title: string;
+  accent?: string;
   copy: string;
-  primaryLabel?: string;
+  primaryLabel?: string | false;
   primaryHref?: string;
   secondaryLabel?: string;
   secondaryHref?: string;
   asideTitle?: string;
   asideCopy?: string;
+  mediaKey?: EditorialMediaKey;
+  compact?: boolean;
 }
 
 const {
   title,
+  accent,
   copy,
   primaryLabel = 'Put us to work',
   primaryHref = 'contact-hq/',
@@ -21,33 +28,77 @@ const {
   secondaryHref = 'pricing/',
   asideTitle,
   asideCopy,
+  mediaKey,
+  compact = false,
 } = Astro.props as Props;
+
+const hasAside = Astro.slots.has('aside') || (asideTitle && asideCopy);
+const media = mediaKey ? editorialMedia[mediaKey] : undefined;
 ---
 
-<section class="page-hero">
+<section
+  class:list={[
+    'page-hero',
+    {
+      'page-hero--compact': compact,
+      'page-hero--media': media,
+      'page-hero--with-aside': hasAside,
+    },
+  ]}
+>
   <div class="shell page-hero__grid">
     <div class="page-hero__main">
-      <h1>{title}</h1>
+      <span class="editorial-thread" aria-hidden="true"></span>
+      <h1>
+        <span>{title}</span>
+        {accent && <em>{accent}</em>}
+      </h1>
       <p>{copy}</p>
-      <div class="button-row">
-        <a class="button" href={withBasePath(primaryHref)}>{primaryLabel}</a>
-        {
-          secondaryLabel && (
-            <a
-              class="button button--outline"
-              href={withBasePath(secondaryHref)}
-            >
-              {secondaryLabel}
-            </a>
-          )
-        }
-      </div>
+      {
+        (primaryLabel || secondaryLabel) && (
+          <div class="button-row">
+            {primaryLabel && (
+              <a class="button" href={withBasePath(primaryHref)}>
+                {primaryLabel}
+              </a>
+            )}
+            {secondaryLabel && (
+              <a
+                class="button button--outline"
+                href={withBasePath(secondaryHref)}
+              >
+                {secondaryLabel}
+              </a>
+            )}
+          </div>
+        )
+      }
     </div>
     {
-      asideTitle && asideCopy && (
+      media && (
+        <figure class="page-hero__media">
+          <Image
+            src={media.src}
+            alt={media.alt}
+            widths={[720, 960, 1280, 1600]}
+            width={1600}
+            sizes="(min-width: 901px) 55vw, 100vw"
+            format="webp"
+            quality={88}
+            loading="eager"
+            fetchpriority="high"
+            style={`object-position: ${media.position}`}
+          />
+        </figure>
+      )
+    }
+    {
+      hasAside && (
         <aside class="page-hero__aside">
-          <h2>{asideTitle}</h2>
-          <p>{asideCopy}</p>
+          <slot name="aside">
+            <h2>{asideTitle}</h2>
+            <p>{asideCopy}</p>
+          </slot>
         </aside>
       )
     }

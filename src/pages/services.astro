@@ -1,6 +1,8 @@
 ---
 import CtaBand from '../components/CtaBand.astro';
+import EditorialBand from '../components/EditorialBand.astro';
 import FaqList from '../components/FaqList.astro';
+import MediaInterlude from '../components/MediaInterlude.astro';
 import PageHero from '../components/PageHero.astro';
 import { ownershipStandards, processSteps, services } from '../data/site';
 import MarketingLayout from '../layouts/MarketingLayout.astro';
@@ -58,12 +60,14 @@ const faqs = [
   description="Technology advisory, custom software, cloud modernization, cybersecurity, managed IT, data, integration, and automation for Chicago businesses."
 >
   <PageHero
-    title="One firm. Full technology responsibility."
+    title="One firm. Full technology"
+    accent="responsibility."
     copy="Strategy, software, cloud, cybersecurity, data, and managed operations—connected through one delivery model instead of scattered across vendors."
     secondaryLabel="Explore software engineering"
     secondaryHref="software/"
     asideTitle="A practical fit"
     asideCopy="Established organizations with an important decision, a system to build, an environment to modernize, or technology operations that need a stronger owner."
+    mediaKey="riverwalk"
   />
 
   <section class="route-index">
@@ -86,21 +90,14 @@ const faqs = [
     </div>
   </section>
 
-  <section class="ownership-band">
-    <div class="shell">
-      <h2>What integrated ownership looks like.</h2>
-      <ol>
-        {
-          ownershipStandards.map((item, index) => (
-            <li>
-              <span>{String(index + 1).padStart(2, '0')}</span>
-              <strong>{item}</strong>
-            </li>
-          ))
-        }
-      </ol>
-    </div>
-  </section>
+  <EditorialBand
+    title="What integrated ownership"
+    accent="looks like."
+    items={ownershipStandards.map((item, index) => ({
+      number: String(index + 1).padStart(2, '0'),
+      title: item,
+    }))}
+  />
 
   <section class="section service-details">
     <div class="shell">
@@ -133,30 +130,19 @@ const faqs = [
     </div>
   </section>
 
-  <section class="delivery-band">
-    <div class="shell">
-      <div class="delivery-band__heading">
-        <h2>Plan it. Build it. Secure it. Run it.</h2>
-        <p>
-          The engagement can begin at any stage. Responsibility should not
-          disappear between them.
-        </p>
-      </div>
-      <ol class="delivery-band__steps">
-        {
-          processSteps.map(step => (
-            <li>
-              <span>{step.number}</span>
-              <h3>{step.title}</h3>
-              <p>{step.detail}</p>
-            </li>
-          ))
-        }
-      </ol>
-    </div>
-  </section>
+  <MediaInterlude
+    id="operating-model"
+    title="Work that stays connected."
+    accent="From decision to operation."
+    copy="The engagement can begin at any stage. Responsibility should not disappear between them."
+    items={processSteps.map(step => ({
+      number: step.number,
+      title: step.title,
+    }))}
+    mediaKey="loop"
+  />
 
-  <section class="section">
+  <section class="section section--ink">
     <div class="shell split-section split-section--top">
       <div class="section-heading">
         <h2>Questions before we start.</h2>
@@ -167,7 +153,8 @@ const faqs = [
   </section>
 
   <CtaBand
-    title="Put the whole problem on the table."
+    title="Put the whole problem on the"
+    accent="table."
     copy="Tell us what the business needs to decide, build, secure, or operate. We will separate the first engagement from the responsibilities that follow it."
     secondaryLabel="Review pricing models"
     secondaryHref="pricing/"
