@@ -25,11 +25,59 @@ slot only for real buyer context or contact information. Add `mediaKey` for
 major buyer routes; the component owns the responsive architectural crop,
 caption, loading priority, overlap, and mobile composition.
 
-### `EditorialBand.astro`
+### Structural primitives
 
-Use for repeated four-stage processes, ownership standards, operating records,
-and other numbered sequences. Supply structured `items` with `number`, `title`,
-and optional `copy`; do not duplicate the band markup in a route.
+An ordinal ledger is one reading shape, and a route built only from them reads
+as a single repeated section. These primitives exist so a page can change
+shape, not just change words. Their content lives in `src/data/model.ts`.
+
+Every public route must carry a **distinct combination** of them. This is
+enforced by the `every route carries a distinct section shape` end-to-end test,
+which fails if two routes assemble the same set. Before adding a primitive to a
+route, check what that route already uses.
+
+#### `SignalRail.astro`
+
+A horizontal data rail: oversized tabular numerals, a short label, and one line
+of context, divided by hairlines. Use it for a small set of facts that are
+genuinely numeric. It carries no ordinals, so it must not become a numbered
+list in disguise. `tone="ink"` puts it on the near-black surface.
+
+#### `HandoffDiagram.astro`
+
+An inline SVG of the firm's central argument: three separate engagements with
+unowned gaps, against one continuous lane. It replaces prose that described the
+same idea on several routes. Below 860px the SVG is hidden and a ruled text
+version carries the identical content — update both or neither. The SVG is
+labelled through `<title>`/`<desc>`; keep them accurate if the drawing changes.
+
+#### `ComparisonLedger.astro`
+
+A real `<table>` for positioning against other delivery models. The highlighted
+column is the last one by default. Below 900px the rows stack per question and
+each cell is labelled from its `data-model` attribute, so the final column is
+never pushed off-screen. Keep the comparison generalized: it describes models,
+not named competitors, and the `footnote` should say so.
+
+#### `EngagementArc.astro`
+
+A horizontal timeline with a ruled axis and a node per stage. Use it where the
+sequence is genuinely time-ordered and each stage produces something concrete;
+every stage needs an `output`. It reads along a different axis from a stacked
+ledger, which is the point.
+
+#### `SpecLedger.astro`
+
+A datasheet: two or three groups of definition pairs with mono group labels.
+Use it where the honest answer is a list of specifics rather than a narrative.
+It takes an optional `actionLabel`/`actionHref` so a route does not need a thin
+link-only section after it.
+
+#### `PullQuote.astro`
+
+One statement given a whole band, for rhythm. Use at most one per route and
+only where the line earns the space. On `tone="ink"` the accent switches to
+`--color-accent-on-ink`.
 
 ### `MediaInterlude.astro`
 
@@ -62,6 +110,13 @@ Use `.section-heading`, `.route-index__rows`, `.boundary-list`, `.faq-list`, and
 the service/trust ledgers for open, ruled content. Do not wrap them in cards or
 add decorative pills.
 
+## Colour on dark surfaces
+
+`--color-accent` is unreadable on `--color-ink-surface`. Any accent text on a
+near-black band must use `--color-accent-on-ink`. Note that
+`.editorial-page:not(.editorial-home) em` is a two-class selector, so a
+primitive's own accent rule needs at least that specificity to hold.
+
 ## Typography
 
 - Display and UI: Manrope.
@@ -86,9 +141,11 @@ add decorative pills.
 1. Start with `MarketingLayout`.
 2. Use `PageHero` unless the route is the homepage or a long-form article.
 3. Pull repeated content from `src/data/site.ts`.
-4. Use shared ledgers, `EditorialBand`, or one `MediaInterlude` before creating
-   route-specific CSS.
-5. Select photography through `src/data/visuals.ts`.
-6. End marketing routes with `CtaBand`.
-7. Run `bun run verify:fast` for route work and `bun run deploy-ready` before
+4. Use the shared ledgers, a structural primitive, or one `MediaInterlude`
+   before creating route-specific CSS.
+5. Give the route a section shape no other route already has, and pull the
+   content for any structural primitive from `src/data/model.ts`.
+6. Select photography through `src/data/visuals.ts`.
+7. End marketing routes with `CtaBand`.
+8. Run `bun run verify:fast` for route work and `bun run deploy-ready` before
    release.

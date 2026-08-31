@@ -1,0 +1,78 @@
+---
+import type { ComparisonRow } from '../data/model';
+
+interface Props {
+  title: string;
+  accent?: string;
+  copy?: string;
+  columns: readonly string[];
+  rows: ComparisonRow[];
+  highlight?: number;
+  footnote?: string;
+}
+
+const {
+  title,
+  accent,
+  copy,
+  columns,
+  rows,
+  highlight = columns.length - 1,
+  footnote,
+} = Astro.props as Props;
+---
+
+<section class="comparison">
+  <div class="shell">
+    <div class="section-heading section-heading--wide">
+      <h2>
+        <span>{title}</span>
+        {accent && <em>{accent}</em>}
+      </h2>
+      {copy && <p>{copy}</p>}
+    </div>
+
+    <div
+      class="comparison__scroll"
+      tabindex="0"
+      role="region"
+      aria-label="Delivery model comparison"
+    >
+      <table class="comparison__table">
+        <thead>
+          <tr>
+            <th scope="col"><span class="visually-hidden">Question</span></th>
+            {
+              columns.map((column, index) => (
+                <th
+                  scope="col"
+                  class:list={[{ 'is-highlight': index === highlight }]}
+                >
+                  {column}
+                </th>
+              ))
+            }
+          </tr>
+        </thead>
+        <tbody>
+          {
+            rows.map(row => (
+              <tr>
+                <th scope="row">{row.question}</th>
+                {row.answers.map((answer, index) => (
+                  <td
+                    data-model={columns[index]}
+                    class:list={[{ 'is-highlight': index === highlight }]}
+                  >
+                    {answer}
+                  </td>
+                ))}
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+    {footnote && <p class="comparison__footnote">{footnote}</p>}
+  </div>
+</section>

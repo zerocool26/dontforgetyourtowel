@@ -4,7 +4,11 @@ import { Image } from 'astro:assets';
 import fogAerialImage from '../assets/chicago-fog-aerial-venti-views.jpg';
 import loopTrainImage from '../assets/chicago-loop-train-juan-pablo-valdivia.jpg';
 import riverwalkImage from '../assets/chicago-riverwalk-sunset-max-bender.jpg';
+import HandoffDiagram from '../components/HandoffDiagram.astro';
+import PullQuote from '../components/PullQuote.astro';
+import SignalRail from '../components/SignalRail.astro';
 import MarketingLayout from '../layouts/MarketingLayout.astro';
+import { operatingSignals } from '../data/model';
 import { processSteps, proofRows, services } from '../data/site';
 import { withBasePath } from '../utils/helpers';
 ---
@@ -55,33 +59,22 @@ import { withBasePath } from '../utils/helpers';
     </div>
   </section>
 
-  <section class="editorial-principle" aria-labelledby="principle-heading">
-    <div class="shell editorial-principle__inner">
-      <h2 id="principle-heading">
-        <span>A plan is only</span>
-        <span>as good as</span>
-        <em>Monday morning.</em>
-      </h2>
-      <ol>
-        {
-          processSteps.map(step => (
-            <li>
-              <span>{step.number}</span>
-              <strong>{step.title}</strong>
-            </li>
-          ))
-        }
-      </ol>
-    </div>
-  </section>
+  <SignalRail
+    items={operatingSignals}
+    tone="ink"
+    caption="The operating model, in four numbers"
+  />
+
+  <HandoffDiagram id="handoff" />
 
   <section class="editorial-handoff" id="what-we-deliver">
     <div class="shell editorial-handoff__inner">
       <header>
-        <h2>The handoff is where ownership disappears.</h2>
+        <h2>One model. Six connected lanes.</h2>
         <p>
-          Consultants write the plan. Developers ship the build. IT inherits the
-          mess. We keep one accountable operating model across all three.
+          Start with the lane the business needs now. The responsibility stays
+          attached wherever a decision, build, control, or operating handoff
+          crosses into the next one.
         </p>
       </header>
 
@@ -142,6 +135,13 @@ import { withBasePath } from '../utils/helpers';
       </ol>
     </div>
   </section>
+
+  <PullQuote
+    quote="A plan is only as good as"
+    emphasis="Monday morning."
+    attribution="The test we hold our own work to"
+    tone="soft"
+  />
 
   <section class="editorial-proof">
     <div class="shell editorial-proof__inner">

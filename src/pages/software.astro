@@ -1,8 +1,12 @@
 ---
 import CtaBand from '../components/CtaBand.astro';
+import EngagementArc from '../components/EngagementArc.astro';
 import FaqList from '../components/FaqList.astro';
 import MediaInterlude from '../components/MediaInterlude.astro';
 import PageHero from '../components/PageHero.astro';
+import PullQuote from '../components/PullQuote.astro';
+import SpecLedger from '../components/SpecLedger.astro';
+import { buildCapabilitySpec } from '../data/model';
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 
 const buildTypes = [
@@ -26,24 +30,28 @@ const buildTypes = [
 
 const deliveryPhases = [
   {
-    number: '01',
+    marker: 'Phase one',
     title: 'Define the product',
     copy: 'Clarify the user, operating problem, business rules, constraints, success conditions, and smallest useful release.',
+    output: 'Scope and success criteria',
   },
   {
-    number: '02',
+    marker: 'Phase two',
     title: 'Architect the system',
     copy: 'Choose the platform, data model, integration boundaries, access model, delivery plan, and production environment.',
+    output: 'Architecture decisions',
   },
   {
-    number: '03',
+    marker: 'Phase three',
     title: 'Build and validate',
     copy: 'Deliver in reviewable increments with quality, security, usability, and acceptance criteria visible throughout.',
+    output: 'Working, reviewed software',
   },
   {
-    number: '04',
+    marker: 'Phase four',
     title: 'Launch and operate',
-    copy: 'Move to production with source, access, documentation, monitoring, support, recovery, and the next improvement queue defined.',
+    copy: 'Move to production with source, access, documentation, monitoring, support, recovery, and the improvement queue defined.',
+    output: 'A system you own',
   },
 ];
 
@@ -119,66 +127,29 @@ const faqs = [
     mediaKey="fog"
   />
 
-  <section class="section section--ink service-details">
-    <div class="shell">
-      <div class="section-heading section-heading--wide">
-        <h2>From operating problem to production system.</h2>
-        <p>
-          The delivery method stays readable to the business while the technical
-          work remains rigorous enough for the team that will own it.
-        </p>
-      </div>
-      <div class="software-phases">
-        {
-          deliveryPhases.map(phase => (
-            <article>
-              <span class="index-number">{phase.number}</span>
-              <h3>{phase.title}</h3>
-              <p>{phase.copy}</p>
-            </article>
-          ))
-        }
-      </div>
-    </div>
-  </section>
+  <EngagementArc
+    id="delivery-method"
+    title="From operating problem to production"
+    accent="system."
+    copy="The delivery method stays readable to the business while the technical work stays rigorous enough for the team that will own it. Each phase ends with something you can hold."
+    stages={deliveryPhases}
+    outputLabel="Phase output"
+  />
 
-  <section class="section section--soft">
-    <div class="shell split-section split-section--top">
-      <div class="section-heading">
-        <h2>Capabilities behind the build.</h2>
-        <p>
-          Use the capabilities the product needs, not a fashionable stack for
-          its own sake.
-        </p>
-      </div>
-      <div class="boundary-list">
-        <div>
-          <span>01</span><p>
-            Product discovery, user flows, interface design, technical
-            architecture, and delivery planning.
-          </p>
-        </div>
-        <div>
-          <span>02</span><p>
-            Frontend, backend, APIs, authentication, data models, integrations,
-            and cloud deployment.
-          </p>
-        </div>
-        <div>
-          <span>03</span><p>
-            Application security, automated delivery, test strategy, quality
-            engineering, observability, and recovery.
-          </p>
-        </div>
-        <div>
-          <span>04</span><p>
-            Modernization, technical debt reduction, documentation, support, and
-            a controlled improvement backlog.
-          </p>
-        </div>
-      </div>
-    </div>
-  </section>
+  <SpecLedger
+    title="Capabilities behind the"
+    accent="build."
+    copy="Use the capabilities the product needs, not a fashionable stack for its own sake."
+    groups={buildCapabilitySpec}
+    tone="soft"
+  />
+
+  <PullQuote
+    quote="Shipping is the midpoint."
+    emphasis="Not the finish line."
+    attribution="Why launch, support, and ownership are scoped before the first commit"
+    tone="ink"
+  />
 
   <section class="section">
     <div class="shell split-section split-section--top">

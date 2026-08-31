@@ -17,6 +17,7 @@ This is an Astro 7 static marketing site for CHICAGOS #1 MSP, an integrated Chic
 - Solid-only components stay in `src/components/solid/**`.
 - Shared UI should prefer `src/components/**`, `src/styles/global.css`, and the editorial primitives documented in `docs/design-system.md` before new one-off CSS.
 - Repeated marketing content belongs in `src/data/**` when it appears on more than one route.
+- Numbered ordinal ledgers are one reading shape, not the only one. Give each route a distinct combination of the structural primitives in `docs/design-system.md`; the `every route carries a distinct section shape` e2e test fails if two routes match. Their content lives in `src/data/model.ts`.
 - Shared Chicago photography, alt text, captions, and crop positions belong in `src/data/visuals.ts`; routes select a `mediaKey` instead of importing those assets directly.
 
 ## UX Rules

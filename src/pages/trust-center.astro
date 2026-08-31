@@ -3,6 +3,8 @@ import CtaBand from '../components/CtaBand.astro';
 import FaqList from '../components/FaqList.astro';
 import MediaInterlude from '../components/MediaInterlude.astro';
 import PageHero from '../components/PageHero.astro';
+import SpecLedger from '../components/SpecLedger.astro';
+import { ownershipSpec } from '../data/model';
 import { proofRows, trustAreas } from '../data/site';
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 
@@ -71,6 +73,14 @@ const faqs = [
       </div>
     </div>
   </section>
+
+  <SpecLedger
+    title="Who owns what, written"
+    accent="down."
+    copy="The single question that separates a partner from a dependency. Here is the default split before a word of scope is written."
+    groups={ownershipSpec}
+    tone="soft"
+  />
 
   <MediaInterlude
     id="engagement-record"

@@ -162,13 +162,6 @@ export const proofRows = [
   },
 ];
 
-export const ownershipStandards = [
-  'One accountable engagement lead',
-  'Decisions, assumptions, and risks in writing',
-  'Secure client ownership of access, source, and data',
-  'A production handoff with a real operating path',
-];
-
 export const pricingTiers = [
   {
     id: 'essential',

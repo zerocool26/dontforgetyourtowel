@@ -1,0 +1,50 @@
+---
+import type { ArcStage } from '../data/model';
+
+interface Props {
+  id?: string;
+  title: string;
+  accent?: string;
+  copy?: string;
+  stages: ArcStage[];
+  outputLabel?: string;
+}
+
+const {
+  id,
+  title,
+  accent,
+  copy,
+  stages,
+  outputLabel = 'You receive',
+} = Astro.props as Props;
+---
+
+<section {id} class="arc">
+  <div class="shell">
+    <div class="section-heading section-heading--wide">
+      <h2>
+        <span>{title}</span>
+        {accent && <em>{accent}</em>}
+      </h2>
+      {copy && <p>{copy}</p>}
+    </div>
+
+    <ol class="arc__track">
+      {
+        stages.map(stage => (
+          <li>
+            <span class="arc__marker">{stage.marker}</span>
+            <span class="arc__node" aria-hidden="true" />
+            <h3>{stage.title}</h3>
+            <p>{stage.copy}</p>
+            <p class="arc__output">
+              <span>{outputLabel}</span>
+              <strong>{stage.output}</strong>
+            </p>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>

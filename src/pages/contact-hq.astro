@@ -1,6 +1,8 @@
 ---
 import { CONTACT_CALENDAR_URL, CONTACT_EMAIL } from '../consts';
+import EngagementArc from '../components/EngagementArc.astro';
 import PageHero from '../components/PageHero.astro';
+import { contactArc } from '../data/model';
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 import { withBasePath } from '../utils/helpers';
 
@@ -94,33 +96,14 @@ const emailHref = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)
     </div>
   </section>
 
-  <section class="section section--soft">
-    <div class="shell next-step-grid">
-      <div class="section-heading">
-        <h2>What the first reply should do.</h2>
-        <p>A useful response moves the decision forward.</p>
-      </div>
-      <div>
-        <article>
-          <span>01</span><h3>Confirm the likely lane</h3><p>
-            Advisory, software, cloud, security, managed operations, or a
-            connected engagement across them.
-          </p>
-        </article>
-        <article>
-          <span>02</span><h3>Name the missing facts</h3><p>
-            What we need to understand before recommending scope or timing.
-          </p>
-        </article>
-        <article>
-          <span>03</span><h3>Set the next step</h3><p>
-            A call, evidence review, assessment, scoped estimate, or a direct
-            referral elsewhere.
-          </p>
-        </article>
-      </div>
-    </div>
-  </section>
+  <EngagementArc
+    id="what-happens-next"
+    title="What happens after you hit"
+    accent="send."
+    copy="No drip sequence, no discovery call before the discovery call. Four steps, and you can stop at any of them."
+    stages={contactArc}
+    outputLabel="You get"
+  />
 
   <section class="simple-band">
     <div class="shell simple-band__inner">

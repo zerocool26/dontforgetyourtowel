@@ -1,0 +1,31 @@
+---
+import type { Signal } from '../data/model';
+
+interface Props {
+  items: Signal[];
+  tone?: 'paper' | 'ink';
+  caption?: string;
+}
+
+const { items, tone = 'ink', caption } = Astro.props as Props;
+---
+
+<section class:list={['signal-rail', `signal-rail--${tone}`]}>
+  <div class="shell signal-rail__inner">
+    {caption && <p class="signal-rail__caption">{caption}</p>}
+    <dl class="signal-rail__items">
+      {
+        items.map(item => (
+          <div>
+            <dt>
+              <span class="signal-rail__value">{item.value}</span>
+              {item.unit && <span class="signal-rail__unit">{item.unit}</span>}
+              <span class="signal-rail__label">{item.label}</span>
+            </dt>
+            <dd>{item.note}</dd>
+          </div>
+        ))
+      }
+    </dl>
+  </div>
+</section>

@@ -1,10 +1,11 @@
 ---
+import ComparisonLedger from '../components/ComparisonLedger.astro';
 import CtaBand from '../components/CtaBand.astro';
-import EditorialBand from '../components/EditorialBand.astro';
 import FaqList from '../components/FaqList.astro';
 import MediaInterlude from '../components/MediaInterlude.astro';
 import PageHero from '../components/PageHero.astro';
-import { ownershipStandards, processSteps, services } from '../data/site';
+import { comparisonColumns, comparisonRows } from '../data/model';
+import { processSteps, services } from '../data/site';
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 
 const situations = [
@@ -90,13 +91,13 @@ const faqs = [
     </div>
   </section>
 
-  <EditorialBand
-    title="What integrated ownership"
-    accent="looks like."
-    items={ownershipStandards.map((item, index) => ({
-      number: String(index + 1).padStart(2, '0'),
-      title: item,
-    }))}
+  <ComparisonLedger
+    title="Where the work usually"
+    accent="breaks."
+    copy="Most technology problems are not capability problems. They are seam problems—the questions that fall between the firm that advised, the team that built, and the provider that supports."
+    columns={comparisonColumns}
+    rows={comparisonRows}
+    footnote="A generalized comparison of delivery models, not a claim about any specific firm."
   />
 
   <section class="section service-details">

@@ -1,9 +1,9 @@
 ---
 import CtaBand from '../components/CtaBand.astro';
-import EditorialBand from '../components/EditorialBand.astro';
 import MediaInterlude from '../components/MediaInterlude.astro';
 import PageHero from '../components/PageHero.astro';
-import { ownershipStandards, processSteps } from '../data/site';
+import PullQuote from '../components/PullQuote.astro';
+import { processSteps } from '../data/site';
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 import { withBasePath } from '../utils/helpers';
 ---
@@ -44,13 +44,10 @@ import { withBasePath } from '../utils/helpers';
     </div>
   </section>
 
-  <EditorialBand
-    title="The standard behind the"
-    accent="name."
-    items={ownershipStandards.map((item, index) => ({
-      number: String(index + 1).padStart(2, '0'),
-      title: item,
-    }))}
+  <PullQuote
+    quote="Advice that never has to run in production"
+    emphasis="is just an opinion."
+    attribution="Why we operate what we recommend"
   />
 
   <section class="section principles-section">

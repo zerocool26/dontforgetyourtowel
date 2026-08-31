@@ -1,0 +1,65 @@
+---
+import type { SpecGroup } from '../data/model';
+import { withBasePath } from '../utils/helpers';
+
+interface Props {
+  title: string;
+  accent?: string;
+  copy?: string;
+  groups: SpecGroup[];
+  tone?: 'paper' | 'soft' | 'ink';
+  actionLabel?: string;
+  actionHref?: string;
+}
+
+const {
+  title,
+  accent,
+  copy,
+  groups,
+  tone = 'paper',
+  actionLabel,
+  actionHref,
+} = Astro.props as Props;
+---
+
+<section class:list={['spec-ledger', `spec-ledger--${tone}`]}>
+  <div class="shell">
+    <div class="section-heading section-heading--wide">
+      <h2>
+        <span>{title}</span>
+        {accent && <em>{accent}</em>}
+      </h2>
+      {copy && <p>{copy}</p>}
+    </div>
+
+    <div class="spec-ledger__groups">
+      {
+        groups.map(group => (
+          <div class="spec-ledger__group">
+            <h3>{group.label}</h3>
+            <dl>
+              {group.entries.map(entry => (
+                <div>
+                  <dt>{entry.term}</dt>
+                  <dd>{entry.copy}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        ))
+      }
+    </div>
+
+    {
+      actionLabel && actionHref && (
+        <a
+          class="text-link spec-ledger__action"
+          href={withBasePath(actionHref)}
+        >
+          {actionLabel} <span aria-hidden="true">&#8594;</span>
+        </a>
+      )
+    }
+  </div>
+</section>

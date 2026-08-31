@@ -1,0 +1,20 @@
+---
+interface Props {
+  quote: string;
+  emphasis?: string;
+  attribution?: string;
+  tone?: 'paper' | 'soft' | 'ink';
+}
+
+const { quote, emphasis, attribution, tone = 'soft' } = Astro.props as Props;
+---
+
+<aside class:list={['pull-quote', `pull-quote--${tone}`]}>
+  <div class="shell pull-quote__inner">
+    <p>
+      <span>{quote}</span>
+      {emphasis && <em>{emphasis}</em>}
+    </p>
+    {attribution && <p class="pull-quote__attribution">{attribution}</p>}
+  </div>
+</aside>

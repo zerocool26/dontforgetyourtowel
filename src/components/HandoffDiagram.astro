@@ -1,0 +1,134 @@
+---
+interface Props {
+  id?: string;
+  title?: string;
+  accent?: string;
+  copy?: string;
+  tone?: 'paper' | 'ink';
+}
+
+const {
+  id,
+  title = 'Three vendors, two gaps, no',
+  accent = 'owner.',
+  copy = 'The plan ends at the deck. The build ends at the repository. Support starts with whatever arrives. Nobody is responsible for the seams—which is exactly where the cost lands.',
+  tone = 'paper',
+} = Astro.props as Props;
+
+const fragmented = [
+  { label: 'Consultant', span: 'Strategy', note: 'Ends at the recommendation' },
+  { label: 'Developer', span: 'Build', note: 'Ends at the last merge' },
+  { label: 'IT provider', span: 'Support', note: 'Starts with what arrives' },
+];
+
+const continuous = ['Plan', 'Build', 'Secure', 'Run'];
+---
+
+<section {id} class:list={['handoff-diagram', `handoff-diagram--${tone}`]}>
+  <div class="shell handoff-diagram__inner">
+    <header class="handoff-diagram__head">
+      <span class="editorial-thread" aria-hidden="true"></span>
+      <h2>
+        <span>{title}</span>
+        {accent && <em>{accent}</em>}
+      </h2>
+      <p>{copy}</p>
+    </header>
+
+    <svg
+      class="handoff-diagram__svg"
+      viewBox="0 0 1200 430"
+      role="img"
+      aria-labelledby={`${id ?? 'handoff'}-diagram-title ${id ?? 'handoff'}-diagram-desc`}
+      preserveAspectRatio="xMidYMid meet"
+    >
+      <title id={`${id ?? 'handoff'}-diagram-title`}>
+        Fragmented delivery compared with one continuous operating model
+      </title>
+      <desc id={`${id ?? 'handoff'}-diagram-desc`}>
+        The typical arrangement runs three separate engagements—consultant,
+        developer, and IT provider—with unowned gaps between strategy and build,
+        and between build and support. The integrated model runs one unbroken
+        lane through plan, build, secure, and run.
+      </desc>
+
+      <g class="hd-axis">
+        <text x="0" y="40">The usual arrangement</text>
+        <text x="0" y="300">One operating model</text>
+      </g>
+
+      <g class="hd-broken">
+        <rect x="0" y="70" width="330" height="76"></rect>
+        <rect x="420" y="70" width="330" height="76"></rect>
+        <rect x="840" y="70" width="360" height="76"></rect>
+        {
+          fragmented.map((item, index) => {
+            const x = [0, 420, 840][index] + 24;
+            return (
+              <>
+                <text class="hd-label" x={x} y={104}>
+                  {item.label}
+                </text>
+                <text class="hd-note" x={x} y={130}>
+                  {item.note}
+                </text>
+              </>
+            );
+          })
+        }
+      </g>
+
+      <g class="hd-gap">
+        <path d="M330 108 H420"></path>
+        <path d="M750 108 H840"></path>
+        <text x="375" y="176">gap</text>
+        <text x="795" y="176">gap</text>
+        <path d="M362 96 l26 24 M388 96 l-26 24"></path>
+        <path d="M782 96 l26 24 M808 96 l-26 24"></path>
+      </g>
+
+      <g class="hd-drop">
+        <path d="M375 190 V228"></path>
+        <path d="M795 190 V228"></path>
+        <text x="375" y="252">ownership drops here</text>
+        <text x="795" y="252">and here</text>
+      </g>
+
+      <g class="hd-whole">
+        <rect x="0" y="326" width="1200" height="80"></rect>
+        {
+          continuous.map((label, index) => {
+            const width = 1200 / continuous.length;
+            const x = index * width;
+            return (
+              <>
+                {index > 0 && <path class="hd-divide" d={`M${x} 326 V406`} />}
+                <text class="hd-stage" x={x + 24} y={374}>
+                  {label}
+                </text>
+              </>
+            );
+          })
+        }
+        <path class="hd-thread" d="M0 406 H1200"></path>
+      </g>
+    </svg>
+
+    <ol class="handoff-diagram__compact">
+      {
+        fragmented.map(item => (
+          <li class="handoff-diagram__compact-broken">
+            <strong>{item.label}</strong>
+            <span>{item.span}</span>
+            <p>{item.note}</p>
+          </li>
+        ))
+      }
+      <li class="handoff-diagram__compact-whole">
+        <strong>One operating model</strong>
+        <span>{continuous.join(' · ')}</span>
+        <p>No gap between the stages, because no stage changes hands.</p>
+      </li>
+    </ol>
+  </div>
+</section>

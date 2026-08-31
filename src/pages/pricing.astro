@@ -2,10 +2,12 @@
 import CtaBand from '../components/CtaBand.astro';
 import FaqList from '../components/FaqList.astro';
 import PageHero from '../components/PageHero.astro';
+import PullQuote from '../components/PullQuote.astro';
+import SpecLedger from '../components/SpecLedger.astro';
 import PricingEstimator from '../components/business/PricingEstimator';
+import { proposalSpec } from '../data/model';
 import { pricingDrivers, pricingTiers } from '../data/site';
 import MarketingLayout from '../layouts/MarketingLayout.astro';
-import { withBasePath } from '../utils/helpers';
 
 const faqs = [
   {
@@ -157,35 +159,22 @@ const faqs = [
     </div>
   </section>
 
-  <section class="section section--soft">
-    <div class="shell quote-standard">
-      <div class="section-heading">
-        <h2>A proposal should make three things obvious.</h2>
-      </div>
-      <ol>
-        <li>
-          <span>01</span><strong>What is recurring</strong><p>
-            Deliverables, milestones, managed service, support, security,
-            recovery, and review cadence.
-          </p>
-        </li>
-        <li>
-          <span>02</span><strong>What is one-time</strong><p>
-            Discovery, onboarding, remediation, migrations, hardware, and
-            project or software delivery.
-          </p>
-        </li>
-        <li>
-          <span>03</span><strong>What is still unknown</strong><p>
-            Assumptions that need access, evidence, or a technical decision.
-          </p>
-        </li>
-      </ol>
-      <a class="text-link" href={withBasePath('contact-hq/?topic=pricing')}>
-        Request a scoped range <span aria-hidden="true">→</span>
-      </a>
-    </div>
-  </section>
+  <SpecLedger
+    title="What a proposal has to make"
+    accent="obvious."
+    copy="Three columns, separated on purpose. A quote that blends them is hiding something—usually the transition work."
+    groups={proposalSpec}
+    tone="soft"
+    actionLabel="Request a scoped range"
+    actionHref="contact-hq/?topic=pricing"
+  />
+
+  <PullQuote
+    quote="The number follows the outcome,"
+    emphasis="not the headcount."
+    attribution="How every engagement here is priced"
+    tone="ink"
+  />
 
   <section class="section">
     <div class="shell split-section split-section--top">

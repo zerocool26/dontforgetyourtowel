@@ -175,6 +175,83 @@ test.describe('premium public site', () => {
     ).toBeVisible();
   });
 
+  test('every route carries a distinct section shape', async ({ page }) => {
+    const signatures = new Map<string, string>();
+    const routes = [
+      '/',
+      '/services/',
+      '/software/',
+      '/pricing/',
+      '/trust-center/',
+      '/about/',
+      '/contact-hq/',
+    ];
+
+    for (const route of routes) {
+      await page.goto(`.${route}`);
+      const shape = await page.evaluate(() =>
+        [
+          '.signal-rail',
+          '.handoff-diagram',
+          '.comparison',
+          '.arc',
+          '.spec-ledger',
+          '.pull-quote',
+          '.media-interlude',
+        ]
+          .filter(selector => document.querySelector(selector))
+          .join('+')
+      );
+      const clash = [...signatures].find(([, value]) => value === shape);
+      expect(clash, `${route} repeats the shape of ${clash?.[0]}`).toBe(
+        undefined
+      );
+      signatures.set(route, shape);
+    }
+  });
+
+  test('the handoff diagram is legible at both sizes', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('./');
+    const diagram = page.locator('.handoff-diagram');
+    await expect(diagram).toBeVisible();
+    await expect(diagram.locator('.handoff-diagram__svg')).toBeVisible();
+    await expect(diagram.locator('.handoff-diagram__compact')).toBeHidden();
+    await expect(diagram.locator('svg[role="img"]')).toHaveAccessibleName(
+      /fragmented delivery/i
+    );
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    await expect(diagram.locator('.handoff-diagram__svg')).toBeHidden();
+    await expect(diagram.locator('.handoff-diagram__compact')).toBeVisible();
+  });
+
+  test('the comparison keeps its final column visible on mobile', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('./services/');
+    const winning = page.locator('.comparison__table td.is-highlight').first();
+    await winning.scrollIntoViewIfNeeded();
+    await expect(winning).toBeInViewport();
+
+    const box = await winning.boundingBox();
+    const width = page.viewportSize()?.width ?? 0;
+    expect(box).not.toBeNull();
+    expect(box!.x + box!.width).toBeLessThanOrEqual(width + 1);
+
+    await expect(winning).toHaveText('One lead, through production');
+  });
+
+  test('accent text stays readable on the near-black bands', async ({
+    page,
+  }) => {
+    await page.goto('./software/');
+    const emphasis = page.locator('.pull-quote--ink p em');
+    await emphasis.scrollIntoViewIfNeeded();
+    await expect(emphasis).toHaveCSS('color', 'rgb(143, 166, 255)');
+  });
+
   test('retired demo routes are gone', async ({ page }) => {
     const response = await page.goto('./demo/');
     expect(response?.status()).toBe(404);
